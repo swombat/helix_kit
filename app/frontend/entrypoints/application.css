@@ -10,6 +10,7 @@
 
 @plugin "@tailwindcss/typography";
 @plugin "@tailwindcss/forms";
+@plugin "daisyui";
 
 :root {
   --radius: 0.625rem;
@@ -122,6 +123,7 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }

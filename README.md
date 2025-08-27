@@ -14,11 +14,11 @@ This is a start app kit template analogous to Jumpstart Pro or BulletTrain, but 
 - **Rails Authentication** - Built-in authentication using the default Rails 8 authentication system.
 - **[Vite](https://vitejs.dev/)** - A fast and modern frontend bundler.
 - **[PostgreSQL](https://www.postgresql.org/)** - A powerful, open-source relational database system.
+- **[DaisyUI](https://daisyui.com/)** - A plugin for Tailwind CSS that provides a set of pre-designed components, for rapid prototyping of components not covered by ShadcnUI.
 
 ## Target features (TODO)
 
 - **[SolidQueue/Cable/Cache](https://medium.com/@reinteractivehq/rails-8-solid-trifecta-comparison-44a76cb92ac3)** - Set up in development environment, for background jobs, real-time features, and caching.
-- **[DaisyUI](https://daisyui.com/)** - A plugin for Tailwind CSS that provides a set of pre-designed components, for rapid prototyping of components not covered by ShadcnUI.
 - **[Obfuscated IDs](https://github.com/bullet-train-co/bullet_train-core)** - For better security and aesthetics in URLs. Copy implementation from BulletTrain.
 - **[Full-featured user system](https://jumpstartrails.com/docs/accounts)** - Necessary for most commercial applications, but not included in the default user setup.
     - Site Admin

@@ -4,6 +4,7 @@
   "devDependencies": {
     "bits-ui": "^2.8.10",
     "clsx": "^2.1.1",
+    "daisyui": "^5.0.51",
     "phosphor-svelte": "^3.0.1",
     "svelte-sonner": "^1.0.5",
     "tailwind-merge": "^3.3.1",
