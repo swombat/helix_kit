@@ -1,10 +1,6 @@
-# Svelte Starter Template for Ruby on Rails
+# Svelte App Kit for Ruby on Rails
 
-This is a starter template for Rails developers who want to integrate Svelte into their applications without setting everything up from scratch. It provides a structured foundation with essential tools and libraries for building modern, reactive UIs within a Rails ecosystem.
-
-![localhost_3100_login (1)](https://github.com/user-attachments/assets/e3d98e5c-6e4b-4d64-a5d3-e31209459f07)
-
-
+This is a start app kit template analogous to Jumpstart Pro or BulletTrain, but using Svelte and Inertia.js for the frontend, with Ruby on Rails as the backend, and including a number of other useful libraries and tools.
 
 ## Features
 
@@ -18,13 +14,47 @@ This is a starter template for Rails developers who want to integrate Svelte int
 - **Rails Authentication** - Built-in authentication using the default Rails 8 authentication system.
 - **[Vite](https://vitejs.dev/)** - A fast and modern frontend bundler.
 
+## Target features (TODO)
+
+- **[PostgreSQL](https://www.postgresql.org/)** - A powerful, open-source relational database system.
+- **[SolidQueue/Cable/Cache](https://medium.com/@reinteractivehq/rails-8-solid-trifecta-comparison-44a76cb92ac3)** - Set up in development environment, for background jobs, real-time features, and caching.
+- **[DaisyUI](https://daisyui.com/)** - A plugin for Tailwind CSS that provides a set of pre-designed components, for rapid prototyping of components not covered by ShadcnUI.
+- **[Obfuscated IDs](https://github.com/bullet-train-co/bullet_train-core)** - For better security and aesthetics in URLs. Copy implementation from BulletTrain.
+- **[Full-featured user system](https://jumpstartrails.com/docs/accounts)** - Necessary for most commercial applications, but not included in the default user setup.
+    - Site Admin
+    - User Profiles
+    - Personal/Organization Accounts
+    - Invitations
+    - Roles
+- **Svelte Object Synchronization** - Using ActionCable and Inertia's partial reload and a custom Regitry to keep Svelte $props up to date in real-time.
+- Audit Logging with audit log viewer (required in many business applications).
+- MultiAttachment system supporting:
+    - Direct uploads to S3
+    - PDF/Document parsing
+    - URL fetch
+    - Free text
+- AI Integration features:
+    - OpenRouter integration
+    - Prompt system
+    - Basic Conversation System
+    - Agentic Conversation System
+- Organisation account settings:
+    - Logo
+    - Company Name
+- All account settings:
+    - Billing
+
+## Explicitly out of scope
+
+- Internationalization (i18n)
+
 ## Installation
 
-1. Use this repository as a template.
+1. Click "Use this template" to create a new repository from this template.
 2. Clone your new repository:
    ```sh
-   git clone git@github.com:georgekettle/rails_svelte.git <your-repo-name>
-   cd <your-repo-name>
+   git clone https://github.com/<youruser>/<your_repo>
+   cd <your-repo>
    ```
 3. Install dependencies:
    ```sh
