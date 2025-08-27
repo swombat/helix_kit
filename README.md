@@ -13,10 +13,10 @@ This is a start app kit template analogous to Jumpstart Pro or BulletTrain, but 
 - **[JS Routes](https://github.com/railsware/js-routes)** - A library for generating JavaScript routes in Rails applications.
 - **Rails Authentication** - Built-in authentication using the default Rails 8 authentication system.
 - **[Vite](https://vitejs.dev/)** - A fast and modern frontend bundler.
+- **[PostgreSQL](https://www.postgresql.org/)** - A powerful, open-source relational database system.
 
 ## Target features (TODO)
 
-- **[PostgreSQL](https://www.postgresql.org/)** - A powerful, open-source relational database system.
 - **[SolidQueue/Cable/Cache](https://medium.com/@reinteractivehq/rails-8-solid-trifecta-comparison-44a76cb92ac3)** - Set up in development environment, for background jobs, real-time features, and caching.
 - **[DaisyUI](https://daisyui.com/)** - A plugin for Tailwind CSS that provides a set of pre-designed components, for rapid prototyping of components not covered by ShadcnUI.
 - **[Obfuscated IDs](https://github.com/bullet-train-co/bullet_train-core)** - For better security and aesthetics in URLs. Copy implementation from BulletTrain.
@@ -63,7 +63,7 @@ This is a start app kit template analogous to Jumpstart Pro or BulletTrain, but 
    ```
 4. Setup the database:
    ```sh
-   rails db:setup
+   rails db:setup db:prepare
    ```
 5. Start the development server:
    ```sh
