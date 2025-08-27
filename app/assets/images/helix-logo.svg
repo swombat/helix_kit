@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="t d">
+  <title id="t">Helix icon</title>
+  <desc id="d">Hexagon with proper rounded double helix inside</desc>
+  <style>
+    :root { --gt-blue: #122B45; }
+    svg { color: var(--gt-blue); }
+  </style>
+
+  <!-- Hexagon -->
+  <polygon fill="none" stroke="currentColor" stroke-width="16" stroke-linejoin="round"
+           points="128,18 220,74 220,182 128,238 36,182 36,74"/>
+
+  <!-- Helix strands -->
+  <path d="M96,40 
+           C64,96 192,160 160,216" 
+        fill="none" stroke="currentColor" stroke-width="14" stroke-linecap="round"/>
+  <path d="M160,40 
+           C192,96 64,160 96,216" 
+        fill="none" stroke="currentColor" stroke-width="14" stroke-linecap="round"/>
+
+  <!-- Rungs -->
+  <line x1="100" y1="56" x2="156" y2="56" stroke="currentColor" stroke-width="8" />
+  <line x1="112" y1="92" x2="144" y2="92" stroke="currentColor" stroke-width="8" />
+  <line x1="112" y1="168" x2="144" y2="168" stroke="currentColor" stroke-width="8" />
+  <line x1="100" y1="200" x2="156" y2="200" stroke="currentColor" stroke-width="8" />
+</svg>
