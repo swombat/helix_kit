@@ -4,7 +4,7 @@ This is a start app kit template analogous to Jumpstart Pro or BulletTrain, but 
 
 ## Features
 
-- **[Svelte](https://svelte.dev/)** - A modern JavaScript framework for building user interfaces.
+- **[Svelte 5](https://svelte.dev/)** - A modern JavaScript framework for building user interfaces.
 - **[Ruby on Rails](https://rubyonrails.org/)** - A powerful web application framework for building server-side applications.
 - **[Inertia.js](https://inertiajs.com/)** - Enables single-page applications using classic Rails routing and controllers.
 - **[ShadcnUI](https://ui.shadcn.com/)** - A collection of UI components for Svelte.
