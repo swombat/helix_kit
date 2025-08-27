@@ -1,9 +1,16 @@
 {
- "compilerOptions": {
-  // ... other options
-  "paths": {
-   "$lib": ["./app/frontend/lib"],
-   "$lib/*": ["./app/frontend/lib/*"]
-  }
- }
+  "compilerOptions": {
+    // ... other options
+    "paths": {
+      "$lib": [
+        "./app/frontend/lib"
+      ],
+      "$lib/*": [
+        "./app/frontend/lib/*"
+      ]
+    }
+  },
+  "include": [
+    "app/frontend/**/*"
+  ]
 }

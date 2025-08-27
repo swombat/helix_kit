@@ -10,6 +10,7 @@ export default defineConfig({
     tailwindcss(),
     RubyPlugin(),
   ],
+  assetsInclude: ['**/*.svg'],
   resolve: {
     alias: {
       $lib: path.resolve("./app/frontend/lib"),
