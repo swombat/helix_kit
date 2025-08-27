@@ -19,6 +19,7 @@ This is a start app kit template analogous to Jumpstart Pro or BulletTrain, but 
 ## Target features (TODO)
 
 - **[SolidQueue/Cable/Cache](https://medium.com/@reinteractivehq/rails-8-solid-trifecta-comparison-44a76cb92ac3)** - Set up in development environment, for background jobs, real-time features, and caching.
+- **Testing** - Full test suite setup with Playwright Component Testing for page testing, Vitest for Svelte component unit testing, Minitest for Rails model and controller testing.
 - **[Obfuscated IDs](https://github.com/bullet-train-co/bullet_train-core)** - For better security and aesthetics in URLs. Copy implementation from BulletTrain.
 - **[Full-featured user system](https://jumpstartrails.com/docs/accounts)** - Necessary for most commercial applications, but not included in the default user setup.
     - Site Admin
