@@ -1,7 +1,7 @@
 # Svelte App Kit for Ruby on Rails
 
 <div align="center">
-  <img src="app/assets/images/helix-logo.svg" alt="Helix Logo" width="100" height="100">
+  <img src="app/assets/images/helix-kit-logo.svg" alt="Helix Kit Logo" width="100" height="100">
 </div>
 
 This is a start app kit template analogous to Jumpstart Pro or BulletTrain, but using Svelte and Inertia.js for the frontend, with Ruby on Rails as the backend, and including a number of other useful libraries and tools.
