@@ -10,6 +10,14 @@ The testing strategy for Helix Kit follows a multi-layered approach to ensure re
 
 The application uses Rails' default Minitest framework for backend testing.
 
+When doing Ruby tests, NEVER use mocks or stubs.
+
+If an external API is being tested, use VCR to record the responses and use them in the tests.
+
+NEVER use mocks and stubs in Ruby tests!
+
+NEVER skip tests or delete tests without the user's explicit approval.
+
 **Run all tests:**
 ```bash
 rails test
@@ -50,7 +58,7 @@ test/
 
 ### 1. Unit Tests (Models)
 
-Test business logic, validations, and model methods in isolation.
+Only test model logic if it's requested by the user (e.g. for very complex models or services/utilities). Otherwise, let the controller tests cover it.
 
 ```ruby
 # test/models/user_test.rb
@@ -71,7 +79,7 @@ end
 
 ### 2. Controller Tests
 
-Test request/response cycle, authentication, and authorization.
+Test request/response cycle, authentication, and authorization. DO NOT USE MOCKS OR STUBS.
 
 ```ruby
 # test/controllers/sessions_controller_test.rb
@@ -85,24 +93,6 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     user = users(:one)
     post login_path, params: { email: user.email, password: "password" }
     assert_redirected_to root_path
-  end
-end
-```
-
-### 3. System Tests (Browser Tests)
-
-Test full user workflows with JavaScript enabled using Selenium.
-
-```ruby
-# test/system/authentication_test.rb
-class AuthenticationTest < ApplicationSystemTestCase
-  test "user can sign up and log in" do
-    visit signup_path
-    fill_in "Email", with: "newuser@example.com"
-    fill_in "Password", with: "password123"
-    click_button "Sign Up"
-    
-    assert_text "Welcome"
   end
 end
 ```
@@ -152,32 +142,18 @@ test('complete user registration flow', async ({ page }) => {
 ## Testing Best Practices
 
 ### 1. Test Pyramid
-- Many unit tests (fast, isolated)
-- Some integration tests (component interactions)
+- Many integration tests (component interactions)
 - Few system/E2E tests (full workflows)
 
 ### 2. Test Data Management
 - Use fixtures for consistent test data
-- Use factories for dynamic test data generation
+- Do not use Factories. Use fixtures instead.
 - Clean database between tests
 
 ### 3. Test Coverage Goals
-- Models: 100% coverage for business logic
 - Controllers: Cover all actions and edge cases
 - System: Cover critical user paths
 - Frontend: Test component behavior and interactions
-
-### 4. Continuous Integration
-Tests should run on every:
-- Pull request
-- Push to main branch
-- Before deployment
-
-### 5. Performance Testing
-Consider adding:
-- Load testing for API endpoints
-- Frontend performance metrics
-- Database query optimization tests
 
 ## Writing Effective Tests
 
@@ -187,6 +163,8 @@ Consider adding:
 3. **Fast** - Quick feedback loop
 4. **Clear** - Easy to understand what failed and why
 5. **Complete** - Cover happy paths and edge cases
+
+NEVER use mocks and stubs in Ruby tests!
 
 ### Test Naming Conventions
 ```ruby
@@ -202,28 +180,6 @@ describe('Component', () => {
   });
 });
 ```
-
-### Common Test Scenarios to Cover
-
-#### Authentication
-- User registration with valid/invalid data
-- Login with correct/incorrect credentials
-- Password reset flow
-- Session expiration
-- Authorization for protected routes
-
-#### Data Validation
-- Required fields
-- Format validations (email, URL, etc.)
-- Uniqueness constraints
-- Business rule validations
-
-#### UI Interactions
-- Form submissions
-- Navigation flows
-- Error message display
-- Loading states
-- Responsive behavior
 
 ## Running Tests in Different Environments
 
@@ -295,21 +251,3 @@ two:
   email: user2@example.com
   password_digest: <%= BCrypt::Password.create("password") %>
 ```
-
-## Monitoring and Metrics
-
-### Coverage Reports
-- Aim for >80% overall coverage
-- 100% coverage for critical paths
-- Use SimpleCov for Rails coverage reports
-- Use c8/nyc for JavaScript coverage
-
-### Test Performance
-- Monitor test suite execution time
-- Parallelize tests when possible
-- Use test profiling to identify slow tests
-
-### Failure Tracking
-- Document flaky tests
-- Track failure patterns
-- Implement retry logic for network-dependent tests
