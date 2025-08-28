@@ -21,8 +21,9 @@ default: &default
 
 
 development:
-  <<: *default
-  database: helix_kit_development
+  primary:
+    <<: *default
+    database: helix_kit_development
   cache:
     <<: *default
     database: helix_kit_development_cache

@@ -76,8 +76,12 @@ This is a start app kit template analogous to Jumpstart Pro or BulletTrain, but 
    ```
 4. Setup the database:
    ```sh
+   rails db:create:all
    rails db:setup db:prepare
+   rails db:migrate:cache db:migrate:queue db:migrate:cable
+   rails db:schema:dump:cable db:schema:dump:cache db:schema:dump:queue
    ```
+   Check that the solid* databases have been created by checking `db/cable_schema.rb`, `db/cache_schema.rb`, and `db/queue_schema.rb` and seeing that they contain a comment at the top about auto-generation.
 5. Start the development server:
    ```sh
    bin/dev
