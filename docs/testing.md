@@ -1,0 +1,315 @@
+# Testing Strategy
+
+## Overview
+
+The testing strategy for Helix Kit follows a multi-layered approach to ensure reliability across the full stack. Currently, Rails Minitest is configured for backend testing, with frontend testing frameworks to be implemented.
+
+## Current Testing Setup
+
+### Rails Testing (Minitest)
+
+The application uses Rails' default Minitest framework for backend testing.
+
+**Run all tests:**
+```bash
+rails test
+```
+
+**Run specific test files:**
+```bash
+rails test test/models/user_test.rb
+rails test test/controllers/sessions_controller_test.rb
+```
+
+**Run specific test methods:**
+```bash
+rails test test/models/user_test.rb:15  # Run test at line 15
+```
+
+**Reset database and run tests:**
+```bash
+rails test:db
+```
+
+### Test Organization
+
+```
+test/
+├── application_system_test_case.rb  # Base class for system tests
+├── test_helper.rb                   # Test configuration
+├── controllers/                     # Controller tests
+├── models/                          # Model tests  
+├── mailers/                         # Mailer tests
+├── integration/                     # Integration tests
+├── system/                          # System/browser tests
+├── fixtures/                        # Test data
+└── helpers/                         # Helper tests
+```
+
+## Testing Layers
+
+### 1. Unit Tests (Models)
+
+Test business logic, validations, and model methods in isolation.
+
+```ruby
+# test/models/user_test.rb
+class UserTest < ActiveSupport::TestCase
+  test "should not save user without email" do
+    user = User.new
+    assert_not user.save
+  end
+  
+  test "should hash password on save" do
+    user = User.new(email: "test@example.com", password: "password")
+    user.save
+    assert user.password_digest.present?
+    assert_not_equal "password", user.password_digest
+  end
+end
+```
+
+### 2. Controller Tests
+
+Test request/response cycle, authentication, and authorization.
+
+```ruby
+# test/controllers/sessions_controller_test.rb
+class SessionsControllerTest < ActionDispatch::IntegrationTest
+  test "should get login page" do
+    get login_path
+    assert_response :success
+  end
+  
+  test "should redirect after successful login" do
+    user = users(:one)
+    post login_path, params: { email: user.email, password: "password" }
+    assert_redirected_to root_path
+  end
+end
+```
+
+### 3. System Tests (Browser Tests)
+
+Test full user workflows with JavaScript enabled using Selenium.
+
+```ruby
+# test/system/authentication_test.rb
+class AuthenticationTest < ApplicationSystemTestCase
+  test "user can sign up and log in" do
+    visit signup_path
+    fill_in "Email", with: "newuser@example.com"
+    fill_in "Password", with: "password123"
+    click_button "Sign Up"
+    
+    assert_text "Welcome"
+  end
+end
+```
+
+## Planned Testing Additions
+
+### Frontend Testing Stack (TO BE IMPLEMENTED)
+
+#### 1. Vitest for Unit Testing
+For testing Svelte components and JavaScript utilities in isolation.
+
+```javascript
+// test/frontend/components/Button.test.js
+import { render, fireEvent } from '@testing-library/svelte';
+import Button from '@/lib/components/Button.svelte';
+
+test('button click triggers event', async () => {
+  const { getByText, component } = render(Button, { 
+    props: { label: 'Click me' } 
+  });
+  
+  const button = getByText('Click me');
+  await fireEvent.click(button);
+  
+  expect(component.$on).toHaveBeenCalled();
+});
+```
+
+#### 2. Playwright for E2E Testing
+For testing complete user journeys across the full stack.
+
+```javascript
+// test/e2e/user-flow.spec.js
+import { test, expect } from '@playwright/test';
+
+test('complete user registration flow', async ({ page }) => {
+  await page.goto('/signup');
+  await page.fill('[name="email"]', 'test@example.com');
+  await page.fill('[name="password"]', 'password123');
+  await page.click('button[type="submit"]');
+  
+  await expect(page).toHaveURL('/dashboard');
+  await expect(page.locator('.welcome-message')).toBeVisible();
+});
+```
+
+## Testing Best Practices
+
+### 1. Test Pyramid
+- Many unit tests (fast, isolated)
+- Some integration tests (component interactions)
+- Few system/E2E tests (full workflows)
+
+### 2. Test Data Management
+- Use fixtures for consistent test data
+- Use factories for dynamic test data generation
+- Clean database between tests
+
+### 3. Test Coverage Goals
+- Models: 100% coverage for business logic
+- Controllers: Cover all actions and edge cases
+- System: Cover critical user paths
+- Frontend: Test component behavior and interactions
+
+### 4. Continuous Integration
+Tests should run on every:
+- Pull request
+- Push to main branch
+- Before deployment
+
+### 5. Performance Testing
+Consider adding:
+- Load testing for API endpoints
+- Frontend performance metrics
+- Database query optimization tests
+
+## Writing Effective Tests
+
+### Good Test Principles
+1. **Isolated** - Tests should not depend on each other
+2. **Repeatable** - Same result every time
+3. **Fast** - Quick feedback loop
+4. **Clear** - Easy to understand what failed and why
+5. **Complete** - Cover happy paths and edge cases
+
+### Test Naming Conventions
+```ruby
+# Rails/Minitest
+test "should [expected behavior] when [condition]" do
+  # test implementation
+end
+
+# JavaScript/Vitest
+describe('Component', () => {
+  it('should [expected behavior] when [condition]', () => {
+    // test implementation
+  });
+});
+```
+
+### Common Test Scenarios to Cover
+
+#### Authentication
+- User registration with valid/invalid data
+- Login with correct/incorrect credentials
+- Password reset flow
+- Session expiration
+- Authorization for protected routes
+
+#### Data Validation
+- Required fields
+- Format validations (email, URL, etc.)
+- Uniqueness constraints
+- Business rule validations
+
+#### UI Interactions
+- Form submissions
+- Navigation flows
+- Error message display
+- Loading states
+- Responsive behavior
+
+## Running Tests in Different Environments
+
+### Development
+```bash
+# Run all tests
+rails test
+
+# Run with verbose output
+rails test -v
+
+# Run specific test suite
+rails test:models
+rails test:controllers
+```
+
+### CI/CD Pipeline
+```bash
+# Setup test database
+RAILS_ENV=test rails db:setup
+
+# Run tests with coverage
+COVERAGE=true rails test
+
+# Run system tests headlessly
+HEADLESS=true rails test:system
+```
+
+### Debugging Tests
+
+#### Rails Tests
+```ruby
+# Add byebug for debugging
+require 'byebug'
+
+test "debugging example" do
+  user = User.create(email: "test@example.com")
+  byebug  # Execution stops here
+  assert user.valid?
+end
+```
+
+#### Frontend Tests (Future)
+```javascript
+// Add debug statements
+test('component state', () => {
+  const component = render(MyComponent);
+  console.log(component.debug());  // Print component tree
+});
+```
+
+## Test Database Management
+
+### Database Cleaner Strategy
+- Transactions for unit tests (automatic rollback)
+- Truncation for system tests (clean slate)
+- Seeds for consistent test data
+
+### Fixtures
+Located in `test/fixtures/`, provide static test data:
+
+```yaml
+# test/fixtures/users.yml
+one:
+  email: user1@example.com
+  password_digest: <%= BCrypt::Password.create("password") %>
+
+two:
+  email: user2@example.com
+  password_digest: <%= BCrypt::Password.create("password") %>
+```
+
+## Monitoring and Metrics
+
+### Coverage Reports
+- Aim for >80% overall coverage
+- 100% coverage for critical paths
+- Use SimpleCov for Rails coverage reports
+- Use c8/nyc for JavaScript coverage
+
+### Test Performance
+- Monitor test suite execution time
+- Parallelize tests when possible
+- Use test profiling to identify slow tests
+
+### Failure Tracking
+- Document flaky tests
+- Track failure patterns
+- Implement retry logic for network-dependent tests
