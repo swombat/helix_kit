@@ -12,7 +12,8 @@ This directory contains detailed documentation for the Helix Kit Rails applicati
 
 ### Core Documentation
 
-- **[Architecture](./architecture.md)** - Detailed application architecture, technology stack, and design patterns
+- **[Architecture](./architecture.md)** - Application architecture, technology stack, and design patterns
+- **[File System Structure](./file_system_structure.md)** - Complete directory structure and file organization for Rails and Svelte
 - **[Testing](./testing.md)** - Testing strategy, frameworks, and best practices
 - **[Commands](./commands.md)** - Complete list of development, testing, and deployment commands
 
@@ -40,11 +41,7 @@ Helix Kit is a Rails 8 starter template that combines:
 
 ## Key Directories
 
-- `/app/frontend/` - All Svelte components and frontend code
-- `/app/controllers/` - Rails controllers with Inertia integration
-- `/app/models/` - ActiveRecord models
-- `/config/` - Rails configuration files
-- `/docs/` - This documentation
+See **[File System Structure](./file_system_structure.md)** for complete directory layout and organization.
 
 ## Getting Help
 

@@ -29,32 +29,7 @@
 
 ### Directory Structure
 
-```
-helix_kit/
-├── app/
-│   ├── frontend/           # All frontend code
-│   │   ├── entrypoints/   # Vite entry points
-│   │   │   ├── application.js    # Main JS entry
-│   │   │   ├── inertia.js        # Inertia setup
-│   │   │   └── application.css   # Tailwind CSS
-│   │   ├── pages/         # Page components (mapped to routes)
-│   │   ├── layouts/       # Layout components
-│   │   ├── lib/          
-│   │   │   ├── components/       # Reusable UI components
-│   │   │   │   └── ui/          # ShadcnUI components
-│   │   │   ├── stores/          # Svelte stores
-│   │   │   └── utils.js        # Utility functions
-│   │   └── routes/        # JS Routes integration
-│   ├── controllers/       # Rails controllers
-│   │   └── concerns/      # Controller mixins
-│   ├── models/           # ActiveRecord models
-│   ├── mailers/          # Email functionality
-│   └── views/            # Minimal ERB views (mostly for emails)
-├── config/               # Rails configuration
-├── db/                   # Database migrations and schema
-├── public/               # Static files
-└── test/                 # Test files
-```
+See **[File System Structure documentation](./file_system_structure.md)** for complete directory layout, file organization, and naming conventions.
 
 ## Key Design Patterns
 
