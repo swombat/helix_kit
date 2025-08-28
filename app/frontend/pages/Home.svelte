@@ -2,7 +2,6 @@
   import Layout from "../layouts/layout.svelte";
   import { buttonVariants } from "$lib/components/ui/button/button.svelte";
   import { GithubLogo, ArrowUpRight } from "phosphor-svelte";
-  import { Link } from "@inertiajs/svelte";
   import * as Card from "$lib/components/ui/card/index.js";
 
   const githubUrl = "https://github.com/swombat/helix_kit";
@@ -134,6 +133,11 @@
       description:
         "Billing integration for all account types.",
     },
+    {
+      title: "API capability",
+      description:
+        "API key management, usage tracking, rate limiting, billing, audit logging, and API documentation.",
+    },
   ];
 </script>
 
@@ -156,10 +160,10 @@
         with Ruby on Rails as the backend, and including a number of other useful libraries and tools.
       </p>
       <div class="mt-8">
-        <Link href={githubUrl} class={buttonVariants({ variant: "default" })}>
+        <a href={githubUrl} class={buttonVariants({ variant: "default" })} target="_blank" rel="noopener noreferrer">
           <GithubLogo weight="fill" />
           <span>Github repo</span>
-        </Link>
+        </a>
       </div>
     </div>
   </div>
@@ -180,13 +184,15 @@
                 </Card.Header>
                 {#if feature.link}
                   <Card.Content class="flex justify-end">
-                    <Link
+                    <a
                       href={feature.link}
                       class={buttonVariants({ variant: "ghost" })}
+                      target="_blank"
+                      rel="noopener noreferrer"
                     >
                       <span>See more </span>
                       <ArrowUpRight weight="bold" />
-                    </Link>
+                    </a>
                   </Card.Content>
                 {/if}
               </Card.Root>
@@ -205,13 +211,15 @@
                 </Card.Header>
                 <Card.Content class="flex justify-end">
                   {#if feature.link}
-                    <Link
+                    <a
                       href={feature.link}
                       class={buttonVariants({ variant: "ghost" })}
+                      target="_blank"
+                      rel="noopener noreferrer"
                     >
                       <span>See more </span>
                       <ArrowUpRight weight="bold" />
-                    </Link>
+                    </a>
                   {:else}
                     <div class="h-10"></div>
                   {/if}
