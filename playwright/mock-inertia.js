@@ -79,10 +79,9 @@ export const useForm = (initialData = {}) => {
       store.update(f => ({ ...f, processing: true, errors: {} }));
 
       try {
-        // Make the actual HTTP request to the Rails backend
-        // Use localhost:3200 which is where our test Rails server runs
-        const fullUrl = url.startsWith('http') ? url : `http://localhost:3200${url}`;
-        const response = await fetch(fullUrl, {
+        // Make the actual HTTP request
+        // When testing with real backend, the Playwright dev server should proxy to Rails
+        const response = await fetch(url, {
           method: method,
           headers: {
             'Content-Type': 'application/json',

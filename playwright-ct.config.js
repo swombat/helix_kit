@@ -1,4 +1,8 @@
 import { defineConfig, devices } from '@playwright/experimental-ct-svelte';
+import { resolve } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
 export default defineConfig({
   testDir: './playwright/tests',
@@ -23,12 +27,22 @@ export default defineConfig({
     ctViteConfig: {
       resolve: {
         alias: {
-          '$lib': 'app/frontend/lib',
-          '@': 'app/frontend',
-          '@/routes': 'playwright/mock-routes.js',
-          '@inertiajs/svelte': 'playwright/mock-inertia.js',
+          '$lib': resolve(__dirname, 'app/frontend/lib'),
+          '@': resolve(__dirname, 'app/frontend'),
+          '@/routes': resolve(__dirname, 'playwright/mock-routes.js'),
+          '@inertiajs/svelte': resolve(__dirname, 'playwright/mock-inertia.js'),
         },
       },
+      server: {
+        proxy: {
+          '/login': 'http://localhost:3200',
+          '/signup': 'http://localhost:3200', 
+          '/logout': 'http://localhost:3200',
+          '/passwords': 'http://localhost:3200',
+          '/password': 'http://localhost:3200',
+          '/session': 'http://localhost:3200',
+        }
+      }
     },
   },
 

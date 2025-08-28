@@ -77,6 +77,7 @@ npx playwright test -c playwright-ct.config.js playwright/tests/pages/login-real
 - Handles API requests from components
 - Uses test database with seeded data
 
+
 ### CORS Configuration
 - Configured in `config/initializers/cors.rb`
 - Allows requests from Playwright CT server (port 3101)

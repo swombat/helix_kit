@@ -1,142 +1,125 @@
 <script>
-  import Layout from "../layouts/layout.svelte";
-  import { buttonVariants } from "$lib/components/ui/button/button.svelte";
-  import { GithubLogo, ArrowUpRight } from "phosphor-svelte";
-  import * as Card from "$lib/components/ui/card/index.js";
+  import Layout from '../layouts/layout.svelte';
+  import { buttonVariants } from '$lib/components/ui/button/button.svelte';
+  import { GithubLogo, ArrowUpRight } from 'phosphor-svelte';
+  import * as Card from '$lib/components/ui/card/index.js';
 
-  const githubUrl = "https://github.com/swombat/helix_kit";
+  const githubUrl = 'https://github.com/swombat/helix_kit';
 
   const completedFeatures = [
     {
-      title: "Svelte 5",
+      title: 'Svelte 5',
+      description: 'A modern JavaScript framework for building user interfaces.',
+      link: 'https://svelte.dev/',
+    },
+    {
+      title: 'Ruby on Rails',
+      description: 'A powerful web application framework for building server-side applications.',
+      link: 'https://rubyonrails.org/',
+    },
+    {
+      title: 'Inertia.js',
+      description: 'Enables single-page applications using classic Rails routing and controllers.',
+      link: 'https://inertiajs.com/',
+    },
+    {
+      title: 'ShadcnUI',
+      description: 'A collection of UI components for Svelte.',
+      link: 'https://ui.shadcn.com/',
+    },
+    {
+      title: 'Tailwind CSS',
+      description: 'A utility-first CSS framework for building custom designs.',
+      link: 'https://tailwindcss.com/',
+    },
+    {
+      title: 'Phosphor Icons',
+      description: 'A versatile icon library for user interfaces.',
+      link: 'https://phosphoricons.com/',
+    },
+    {
+      title: 'JS Routes',
+      description: 'A library for generating JavaScript routes in Rails applications.',
+      link: 'https://github.com/railsware/js-routes',
+    },
+    {
+      title: 'Rails Authentication',
+      description: 'Built-in authentication using the default Rails 8 authentication system.',
+      link: 'https://www.bigbinary.com/blog/rails-8-introduces-a-basic-authentication-generator',
+    },
+    {
+      title: 'Vite',
+      description: 'A fast and modern frontend bundler.',
+      link: 'https://vitejs.dev/',
+    },
+    {
+      title: 'PostgreSQL',
+      description: 'A powerful, open-source relational database system.',
+      link: 'https://www.postgresql.org/',
+    },
+    {
+      title: 'DaisyUI',
       description:
-        "A modern JavaScript framework for building user interfaces.",
-      link: "https://svelte.dev/",
+        'A plugin for Tailwind CSS that provides a set of pre-designed components, for rapid prototyping of components not covered by ShadcnUI.',
+      link: 'https://daisyui.com/',
     },
     {
-      title: "Ruby on Rails",
-      description:
-        "A powerful web application framework for building server-side applications.",
-      link: "https://rubyonrails.org/",
+      title: 'Claude Code Ready',
+      description: 'Clear documentation in /docs/ to enable Claude Code to perform at its best.',
+      link: 'https://www.anthropic.com/news/claude-code',
     },
     {
-      title: "Inertia.js",
-      description:
-        "Enables single-page applications using classic Rails routing and controllers.",
-      link: "https://inertiajs.com/",
+      title: 'SolidQueue/Cable/Cache',
+      description: 'Set up in development environment, for background jobs, real-time features, and caching.',
+      link: 'https://medium.com/@reinteractivehq/rails-8-solid-trifecta-comparison-44a76cb92ac3',
     },
     {
-      title: "ShadcnUI",
-      description:
-        "A collection of UI components for Svelte.",
-      link: "https://ui.shadcn.com/",
-    },
-    {
-      title: "Tailwind CSS",
-      description: "A utility-first CSS framework for building custom designs.",
-      link: "https://tailwindcss.com/",
-    },
-    {
-      title: "Phosphor Icons",
-      description: "A versatile icon library for user interfaces.",
-      link: "https://phosphoricons.com/",
-    },
-    {
-      title: "JS Routes",
-      description:
-        "A library for generating JavaScript routes in Rails applications.",
-      link: "https://github.com/railsware/js-routes",
-    },
-    {
-      title: "Rails Authentication",
-      description:
-        "Built-in authentication using the default Rails 8 authentication system.",
-      link: "https://www.bigbinary.com/blog/rails-8-introduces-a-basic-authentication-generator",
-    },
-    {
-      title: "Vite",
-      description:
-        "A fast and modern frontend bundler.",
-      link: "https://vitejs.dev/",
-    },
-    {
-      title: "PostgreSQL",
-      description:
-        "A powerful, open-source relational database system.",
-      link: "https://www.postgresql.org/",
-    },
-    {
-      title: "DaisyUI",
-      description:
-        "A plugin for Tailwind CSS that provides a set of pre-designed components, for rapid prototyping of components not covered by ShadcnUI.",
-      link: "https://daisyui.com/",
-    },
-    {
-      title: "Claude Code Ready",
-      description:
-        "Clear documentation in /docs/ to enable Claude Code to perform at its best.",
-      link: "https://www.anthropic.com/news/claude-code",
-    },
-    {
-      title: "SolidQueue/Cable/Cache",
-      description:
-        "Set up in development environment, for background jobs, real-time features, and caching.",
-      link: "https://medium.com/@reinteractivehq/rails-8-solid-trifecta-comparison-44a76cb92ac3",
+      title: 'Obfuscated IDs',
+      description: 'For better security and aesthetics in URLs. Copy implementation from BulletTrain.',
+      link: 'https://github.com/bullet-train-co/bullet_train-core/blob/3c12343eba5745dbe0f02db4cb8fb588e4a091e7/bullet_train-obfuscates_id/app/models/concerns/obfuscates_id.rb',
     },
   ];
 
   const todoFeatures = [
     {
-      title: "Testing",
+      title: 'Testing',
       description:
-        "Full test suite setup with Playwright Component Testing for page testing, Vitest for Svelte component unit testing, Minitest for Rails model and controller testing.",
+        'Full test suite setup with Playwright Component Testing for page testing, Vitest for Svelte component unit testing, Minitest for Rails model and controller testing.',
     },
     {
-      title: "Obfuscated IDs",
+      title: 'Full-featured user system',
       description:
-        "For better security and aesthetics in URLs. Copy implementation from BulletTrain.",
-      link: "https://github.com/bullet-train-co/bullet_train-core",
+        'Necessary for most commercial applications: Site Admin, User Profiles, Personal/Organization Accounts, Invitations, Roles.',
+      link: 'https://jumpstartrails.com/docs/accounts',
     },
     {
-      title: "Full-featured user system",
-      description:
-        "Necessary for most commercial applications: Site Admin, User Profiles, Personal/Organization Accounts, Invitations, Roles.",
-      link: "https://jumpstartrails.com/docs/accounts",
-    },
-    {
-      title: "Svelte Object Synchronization",
+      title: 'Svelte Object Synchronization',
       description:
         "Using ActionCable and Inertia's partial reload and a custom Registry to keep Svelte $props up to date in real-time.",
     },
     {
-      title: "Audit Logging",
-      description:
-        "Audit logging with audit log viewer (required in many business applications).",
+      title: 'Audit Logging',
+      description: 'Audit logging with audit log viewer (required in many business applications).',
     },
     {
-      title: "MultiAttachment System",
-      description:
-        "Supporting direct uploads to S3, PDF/Document parsing, URL fetch, and free text.",
+      title: 'MultiAttachment System',
+      description: 'Supporting direct uploads to S3, PDF/Document parsing, URL fetch, and free text.',
     },
     {
-      title: "AI Integration",
-      description:
-        "OpenRouter integration, Prompt system, Basic Conversation System, Agentic Conversation System.",
+      title: 'AI Integration',
+      description: 'OpenRouter integration, Prompt system, Basic Conversation System, Agentic Conversation System.',
     },
     {
-      title: "Organisation Account Settings",
-      description:
-        "Logo and Company Name settings for organisation accounts.",
+      title: 'Organisation Account Settings',
+      description: 'Logo and Company Name settings for organisation accounts.',
     },
     {
-      title: "Billing",
-      description:
-        "Billing integration for all account types.",
+      title: 'Billing',
+      description: 'Billing integration for all account types.',
     },
     {
-      title: "API capability",
-      description:
-        "API key management, usage tracking, rate limiting, billing, audit logging, and API documentation.",
+      title: 'API capability',
+      description: 'API key management, usage tracking, rate limiting, billing, audit logging, and API documentation.',
     },
   ];
 </script>
@@ -147,20 +130,16 @@
 
 <Layout>
   <div class="bg-muted border-b">
-    <div
-      class="mx-auto max-w-2xl px-6 lg:max-w-7xl lg:px-8 border-l border-r border-dashed pt-40 pb-50"
-    >
-      <h1
-        class="text-4xl tracking-tighter text-balance max-lg:font-medium max-sm:px-4 sm:text-5xl lg:text-6xl"
-      >
+    <div class="mx-auto max-w-2xl px-6 lg:max-w-7xl lg:px-8 border-l border-r border-dashed pt-40 pb-50">
+      <h1 class="text-4xl tracking-tighter text-balance max-lg:font-medium max-sm:px-4 sm:text-5xl lg:text-6xl">
         HelixKit: Svelte App Kit for Ruby on Rails
       </h1>
       <p class="opacity-80 mt-4">
-        A start app kit template analogous to Jumpstart Pro or BulletTrain, but using Svelte and Inertia.js for the frontend,
-        with Ruby on Rails as the backend, and including a number of other useful libraries and tools.
+        A start app kit template analogous to Jumpstart Pro or BulletTrain, but using Svelte and Inertia.js for the
+        frontend, with Ruby on Rails as the backend, and including a number of other useful libraries and tools.
       </p>
       <div class="mt-8">
-        <a href={githubUrl} class={buttonVariants({ variant: "default" })} target="_blank" rel="noopener noreferrer">
+        <a href={githubUrl} class={buttonVariants({ variant: 'default' })} target="_blank" rel="noopener noreferrer">
           <GithubLogo weight="fill" />
           <span>Github repo</span>
         </a>
@@ -169,9 +148,7 @@
   </div>
 
   <div class="-mt-15">
-    <div
-      class="mx-auto max-w-2xl px-6 lg:max-w-7xl lg:px-8 pb-24 border-l border-r border-dashed"
-    >
+    <div class="mx-auto max-w-2xl px-6 lg:max-w-7xl lg:px-8 pb-24 border-l border-r border-dashed">
       <div class="space-y-8">
         <div>
           <h2 class="text-2xl font-semibold mb-4">Features (Done)</h2>
@@ -186,10 +163,9 @@
                   <Card.Content class="flex justify-end">
                     <a
                       href={feature.link}
-                      class={buttonVariants({ variant: "ghost" })}
+                      class={buttonVariants({ variant: 'ghost' })}
                       target="_blank"
-                      rel="noopener noreferrer"
-                    >
+                      rel="noopener noreferrer">
                       <span>See more </span>
                       <ArrowUpRight weight="bold" />
                     </a>
@@ -213,10 +189,9 @@
                   {#if feature.link}
                     <a
                       href={feature.link}
-                      class={buttonVariants({ variant: "ghost" })}
+                      class={buttonVariants({ variant: 'ghost' })}
                       target="_blank"
-                      rel="noopener noreferrer"
-                    >
+                      rel="noopener noreferrer">
                       <span>See more </span>
                       <ArrowUpRight weight="bold" />
                     </a>

@@ -28,8 +28,11 @@ npm test
 # Run Vitest with UI
 npm run test:ui
 
-# Run all Playwright component tests
+# Run all Playwright component tests (mock backend)
 npm run test:ct
+
+# Run Playwright component tests with REAL Rails backend
+npm run test:integrated  # Automatically starts Rails, runs tests, and cleans up
 
 # Run Playwright with UI for debugging
 npm run test:ct-ui

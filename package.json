@@ -3,9 +3,17 @@
   "type": "module",
   "scripts": {
     "format": "prettier --write \"app/frontend/**/*.{js,svelte,css}\"",
-    "format:check": "prettier --check \"app/frontend/**/*.{js,svelte,css}\""
+    "format:check": "prettier --check \"app/frontend/**/*.{js,svelte,css}\"",
+    "test:ct": "playwright test -c playwright-ct.config.js",
+    "test:backend-setup": "./playwright/setup-test-server.sh",
+    "test:ct-real": "playwright test -c playwright-ct.config.js playwright/tests/pages/*real-backend*",
+    "test:ct-real-ui": "playwright test -c playwright-ct.config.js playwright/tests/pages/*real-backend* --ui",
+    "test:integrated": "./playwright/run-tests-with-backend.sh",
+    "test:integrated-ui": "./playwright/run-tests-with-backend.sh --ui"
   },
   "devDependencies": {
+    "@playwright/experimental-ct-svelte": "^1.55.0",
+    "@playwright/test": "^1.55.0",
     "bits-ui": "^2.8.10",
     "clsx": "^2.1.1",
     "daisyui": "^5.0.51",

@@ -44,3 +44,8 @@ node_modules
 # Ignore automatically generated js-routes files.
 /app/javascript/routes.js
 /app/javascript/routes.d.ts
+
+# Ignore Playwright testing stuff
+/playwright/.cache
+/test-results/*
+/playwright-report/*
