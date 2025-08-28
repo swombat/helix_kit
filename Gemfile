@@ -41,6 +41,12 @@ group :development, :test do
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
+
+  # For testing email sending
+  gem "letter_opener"
+
+  # For testing external API calls
+  gem "vcr"
 end
 
 group :development do
