@@ -14,4 +14,22 @@ class User < ApplicationRecord
     message: "must be between 6 and 72 characters"
   }
 
+  generates_token_for :password_reset, expires_in: 2.hours do
+    password_salt&.last(10)
+  end
+
+  def self.find_by_password_reset_token!(token)
+    user = find_by_token_for(:password_reset, token)
+    raise(ActiveSupport::MessageVerifier::InvalidSignature) unless user
+    user
+  end
+
+  def password_reset_token
+    generate_token_for(:password_reset)
+  end
+
+  def generate_password_reset_token
+    generate_token_for(:password_reset)
+  end
+
 end

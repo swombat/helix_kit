@@ -15,3 +15,31 @@ module ActiveSupport
 
   end
 end
+
+module InertiaTestHelpers
+  def inertia_props
+    return @inertia_props if @inertia_props
+    
+    if @response.media_type == "application/json"
+      # JSON response (when X-Inertia header is present)
+      @inertia_props = JSON.parse(@response.body)
+    else
+      # HTML response - extract from data-page attribute
+      doc = Nokogiri::HTML(@response.body)
+      data_page = doc.at_css('#app')&.attr('data-page')
+      @inertia_props = data_page ? JSON.parse(data_page) : {}
+    end
+  end
+
+  def inertia_component
+    inertia_props["component"]
+  end
+
+  def inertia_shared_props
+    inertia_props["props"] || {}
+  end
+end
+
+class ActionDispatch::IntegrationTest
+  include InertiaTestHelpers
+end

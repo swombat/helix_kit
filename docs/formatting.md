@@ -1,10 +1,41 @@
-# Code Formatting with Prettier
+# Code Formatting with Prettier and Rubocop
 
-This project uses Prettier with the Svelte plugin to automatically format Svelte, JavaScript, and CSS files.
+This project uses:
+- **Prettier** with the Svelte plugin for JavaScript, Svelte, and CSS files
+- **Rubocop** for Ruby files
 
-## Configuration
+## Ruby Formatting with Rubocop
 
-The formatting rules are defined in `.prettierrc`:
+Run Rubocop after creating or editing any Ruby file to ensure consistent code style.
+
+### Configuration
+
+Ruby formatting rules are defined in `.rubocop.yml`. 
+
+### Usage
+
+```bash
+# Format and auto-fix Ruby files
+bin/rubocop -A
+
+# Check formatting without changes
+bin/rubocop
+
+# Format specific file
+bin/rubocop -A path/to/file.rb
+```
+
+### When to Run
+
+- After creating a new Ruby file
+- After editing existing Ruby files
+- Before committing changes
+
+## JavaScript/Svelte Formatting with Prettier
+
+### Configuration
+
+The formatting rules for JavaScript and Svelte are defined in `.prettierrc`:
 
 ```json
 {
@@ -58,14 +89,6 @@ With the new configuration, it will now format them like this:
 ```svelte
 <Sun class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 !transition-all dark:-rotate-90 dark:scale-0" />
 ```
-
-## Auto-formatting in Cursor
-
-The Svelte extension in Cursor will now use these Prettier rules when auto-formatting your Svelte files. You can:
-
-1. **Format on Save**: Enable this in Cursor settings
-2. **Format on Paste**: This should also respect the new rules
-3. **Manual Formatting**: Use `Cmd+Shift+P` → "Format Document"
 
 ## Files Ignored
 
