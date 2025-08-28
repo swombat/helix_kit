@@ -7,7 +7,7 @@
   </style>
 
   <!-- Hexagon -->
-  <polygon fill="none" stroke="currentColor" stroke-width="16" stroke-linejoin="round"
+  <polygon fill="white" stroke="currentColor" stroke-width="16" stroke-linejoin="round"
            points="128,18 220,74 220,182 128,238 36,182 36,74"/>
 
   <!-- Helix strands -->
