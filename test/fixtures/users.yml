@@ -1,0 +1,14 @@
+
+user_1:
+  id: 1
+  email_address: daniel@granttree.co.uk
+  password_digest: "$2a$12$MKvq4v3OyraLsPvEk1i61.amcX2IADCbSw794sW6/BSzpWPV.wZHS"
+  created_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: 2025-08-28 08:50:40.227874000 Z
+    zone: &1 !ruby/object:ActiveSupport::TimeZone
+      name: Etc/UTC
+    time: 2025-08-28 08:50:40.227874000 Z
+  updated_at: !ruby/object:ActiveSupport::TimeWithZone
+    utc: 2025-08-28 08:50:40.227874000 Z
+    zone: *1
+    time: 2025-08-28 08:50:40.227874000 Z
