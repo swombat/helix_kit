@@ -3,6 +3,7 @@
   import { Toaster } from "$lib/components/ui/sonner/index.js";
   import { toast } from "svelte-sonner";
   import Navbar from "$lib/components/navbar.svelte"; // Adjust the path as necessary
+  import { ModeWatcher } from 'mode-watcher';
 
   let { children } = $props();
 
@@ -14,6 +15,7 @@
   })
 </script>
 
+<ModeWatcher />
 <div class="bg-bg">
   <Navbar />
   <main>{@render children()}</main>
