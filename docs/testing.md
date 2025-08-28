@@ -1,8 +1,22 @@
 # Testing Strategy
 
+## ⚠️ CRITICAL: Pre-Commit Testing Requirements
+
+**Before ANY change can be considered complete, you MUST run:**
+
+```bash
+# 1. Run Rails backend tests
+rails test
+
+# 2. Run Playwright component tests (REAL backend - NO mocking!)
+npm test
+
+# Both test suites MUST pass before committing changes!
+```
+
 ## Overview
 
-The testing strategy for Helix Kit follows a multi-layered approach to ensure reliability across the full stack. Currently, Rails Minitest is configured for backend testing, with frontend testing frameworks to be implemented.
+The testing strategy for Helix Kit follows a multi-layered approach to ensure reliability across the full stack. Rails uses Minitest for backend testing, and Playwright Component Testing for frontend testing.
 
 ## Current Testing Setup
 
@@ -97,11 +111,24 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
 end
 ```
 
-## Planned Testing Additions
+## Frontend Testing
 
-### Frontend Testing Stack (TO BE IMPLEMENTED)
+### Playwright Component Testing (IMPLEMENTED)
 
-#### 1. Vitest for Unit Testing
+We use Playwright Component Testing to test Svelte components in real browsers. **ALL tests MUST run against the real Rails backend. Backend mocking is FORBIDDEN.**
+
+```bash
+# Run all component tests (REAL backend required)
+npm test  # Automatically starts Rails, runs tests, cleans up
+
+# Debug tests with UI
+npm run test:ui
+```
+
+Test files are located in `playwright/tests/pages/`:
+- `*.pw.js` - ALL tests hit the real Rails API (no mocking allowed!)
+
+### Vitest for Unit Testing (TO BE IMPLEMENTED)
 For testing Svelte components and JavaScript utilities in isolation.
 
 ```javascript

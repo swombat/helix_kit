@@ -1,4 +1,5 @@
-// Mock routes for component testing
+// Route helpers for component testing
+// These return the actual Rails route paths
 export const rootPath = () => '/';
 export const loginPath = () => '/login';
 export const signupPath = () => '/signup';

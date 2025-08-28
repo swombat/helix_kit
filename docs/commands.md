@@ -30,8 +30,16 @@ rails db:schema:dump    # Export current schema
 ```
 
 ### Testing Commands
+
+#### ⚠️ REQUIRED Before Committing Changes:
 ```bash
-# Run tests
+# These MUST both pass before any commit:
+rails test  # Run Rails backend tests
+npm test    # Run Playwright tests (REAL backend - NO mocking!)
+```
+
+#### Rails Tests
+```bash
 rails test              # Run all tests except system tests
 rails test:all          # Run all tests including system tests
 rails test:db           # Reset DB and run tests
@@ -42,6 +50,14 @@ rails test test/models/user_test.rb:15  # Run test at line 15
 # System tests
 rails test:system       # Run system tests with browser
 HEADLESS=true rails test:system  # Run headlessly
+```
+
+#### Playwright Component Tests
+```bash
+npm test        # Run all tests with REAL Rails backend (auto setup)
+npm run test:ui # Open Playwright UI for debugging
+
+# NEVER create mocked backend tests - the user will be VERY UNHAPPY!
 ```
 
 ### Code Quality

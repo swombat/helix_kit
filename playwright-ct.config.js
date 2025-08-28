@@ -29,8 +29,8 @@ export default defineConfig({
         alias: {
           '$lib': resolve(__dirname, 'app/frontend/lib'),
           '@': resolve(__dirname, 'app/frontend'),
-          '@/routes': resolve(__dirname, 'playwright/mock-routes.js'),
-          '@inertiajs/svelte': resolve(__dirname, 'playwright/mock-inertia.js'),
+          '@/routes': resolve(__dirname, 'playwright/test-routes.js'),
+          '@inertiajs/svelte': resolve(__dirname, 'playwright/test-inertia-adapter.js'),
         },
       },
       server: {

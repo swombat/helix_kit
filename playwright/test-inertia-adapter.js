@@ -1,10 +1,12 @@
 import { writable } from 'svelte/store';
 import Link from './MockLink.svelte';
 
-// Export the mock Link component
+// Export the Link component for tests
 export { Link };
 
-// Mock useForm hook that actually makes HTTP requests
+// IMPORTANT: This is NOT a mock! This adapter makes REAL HTTP requests to the Rails backend.
+// NEVER mock the backend in tests - all tests must hit the real Rails API.
+// Run tests with: npm run test:integrated (which starts Rails automatically)
 export const useForm = (initialData = {}) => {
   // Create the reactive store with form data
   const store = writable({

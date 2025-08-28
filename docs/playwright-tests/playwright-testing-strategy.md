@@ -1,23 +1,28 @@
 # Playwright Component Testing Strategy
 
+## ⚠️ CRITICAL: NO BACKEND MOCKING ALLOWED
+
+**NEVER mock the Rails backend in tests. ALL tests MUST hit the real Rails API.**
+**The user will be VERY UNHAPPY if you create mocked backend tests.**
+
 ## Overview
 
-This document outlines our testing strategy for Playwright Component Testing in this Rails + Svelte + Inertia.js application. We use Playwright Component Testing to test page-level components (like login and signup forms) in real browsers while mocking the backend interactions.
+This document outlines our testing strategy for Playwright Component Testing in this Rails + Svelte + Inertia.js application. We use Playwright Component Testing to test page-level components (like login and signup forms) in real browsers against the REAL Rails backend.
 
 ## Directory Structure
 
 ```
 playwright/
 ├── tests/
-│   └── pages/              # Page-level component tests
-│       ├── login.pw.js
-│       ├── login-simple.pw.js
-│       └── signup.pw.js
-├── mocks/
-│   ├── mock-inertia.js    # Mock Inertia.js functionality
-│   └── mock-routes.js      # Mock route helpers
-├── MockLink.svelte         # Mock Link component
-└── index.js                # Test setup
+│   └── pages/                      # Page-level component tests
+│       ├── login.pw.js             # Login tests (REAL backend required)
+│       └── signup.pw.js            # Signup tests (REAL backend required)
+├── test-inertia-adapter.js         # Inertia.js adapter that makes REAL HTTP requests
+├── test-routes.js                  # Route helpers
+├── MockLink.svelte                 # Mock Link component
+├── index.js                        # Test setup
+├── run-tests-with-backend.sh       # Script to run tests with Rails backend
+└── setup-test-server.sh            # Script to start Rails test server
 ```
 
 ## What We Test vs What We Don't
@@ -44,19 +49,11 @@ playwright/
    - Fields can be cleared/reset
    - UI responds to user input
 
-### ❌ What Playwright Component Tests ARE NOT Good For:
-
-1. **Backend Integration**
-   - Actual API calls and responses
-   - Authentication flow with real backend
-   - Database state changes
-
-2. **Full Inertia.js Lifecycle**
-   - Page transitions
+5. **Backend Integration** (ALL tests)
+   - Actual API calls to Rails backend
+   - Real authentication flow
+   - Database state validation
    - Server-side validation responses
-   - Session management
-
-For these, use **E2E tests** with Playwright against a running Rails server.
 
 ## Testing Pattern for New Forms
 
@@ -104,51 +101,48 @@ test.describe('Your Form Tests', () => {
 });
 ```
 
-### 2. Mock Backend Interactions (Optional)
+### 2. Form Submission Testing
 
-If you want to test form submission behavior, add route mocking in `beforeEach`:
+**NEVER mock backend responses!** Form submissions should hit the real Rails API:
 
 ```javascript
-test.beforeEach(async ({ page }) => {
-  // Mock API endpoint
-  await page.route('**/your-endpoint', async (route) => {
-    const request = route.request();
-    const postData = request.postDataJSON();
-    
-    // Return mock response based on input
-    if (postData?.email === 'test@example.com') {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          success: true
-        })
-      });
-    }
-  });
+test('should submit form to real backend', async ({ mount, page }) => {
+  const component = await mount(YourForm);
+  
+  // Fill form fields
+  await component.locator('input[type="email"]').fill('test@example.com');
+  
+  // Submit and wait for real response
+  const responsePromise = page.waitForResponse('**/your-endpoint');
+  await component.locator('button[type="submit"]').click();
+  const response = await responsePromise;
+  
+  // Check actual response from Rails
+  expect(response.status()).toBe(302); // or whatever Rails returns
 });
 ```
 
-## Mocking Strategy
+## Test Adapters (NOT Mocks!)
 
-### Inertia.js Forms
+### Inertia.js Adapter
 
-Our mock (`playwright/mock-inertia.js`) provides a simplified version of Inertia's `useForm` that:
+The test adapter (`playwright/test-inertia-adapter.js`) provides a REAL `useForm` implementation that:
 - Acts as a Svelte store (subscribable)
 - Maintains form state (data, errors, processing)
-- Can make HTTP requests (though they won't integrate with the component without additional wiring)
+- **Makes REAL HTTP requests to the Rails backend**
+- **NEVER mocks responses - all data comes from Rails**
 
 ### Routes
 
-The mock routes (`playwright/mock-routes.js`) provide simple functions that return URL strings:
+The route helpers (`playwright/test-routes.js`) provide functions that return actual Rails route paths:
 ```javascript
-export const loginPath = () => '/login';
-export const signupPath = () => '/signup';
+export const loginPath = () => '/login';  // Real Rails route
+export const signupPath = () => '/signup';  // Real Rails route
 ```
 
 ### Link Component
 
-The mock Link component (`playwright/MockLink.svelte`) renders as a simple anchor tag:
+The test Link component (`playwright/MockLink.svelte`) renders as a simple anchor tag:
 ```svelte
 <a {href} class={className} data-method={method} on:click>
   <slot />
@@ -158,8 +152,11 @@ The mock Link component (`playwright/MockLink.svelte`) renders as a simple ancho
 ## Running Tests
 
 ```bash
-# Run all Playwright component tests
-npm run test:ct
+# Run all Playwright component tests (REAL backend required)
+npm test  # Automatically starts Rails, runs tests, stops Rails
+
+# Run with UI for debugging
+npm run test:ui
 
 # Run with UI mode for debugging
 npm run test:ct-ui
@@ -171,6 +168,20 @@ npx playwright test -c playwright-ct.config.js playwright/tests/pages/login-simp
 npx playwright test -c playwright-ct.config.js --project chromium
 ```
 
+### Important: Before Committing Changes
+
+**ALWAYS run both test suites before considering any change complete:**
+
+```bash
+# 1. Run Rails tests
+rails test
+
+# 2. Run all Playwright component tests (real backend)
+npm test
+
+# Both must pass before committing!
+```
+
 ## Best Practices
 
 1. **Keep Tests Simple**: Focus on UI behavior, not backend logic
@@ -179,19 +190,20 @@ npx playwright test -c playwright-ct.config.js --project chromium
 4. **Avoid Testing Implementation**: Don't test internal component state or methods
 5. **Separate Concerns**: Use simple tests for UI, E2E tests for full flows
 
-## Limitations and Workarounds
+## Testing Requirements
 
-### Current Limitations:
+### ALL Tests Require Real Backend
+- **NO MOCKED TESTS ALLOWED**
+- Run against actual Rails server on port 3200
+- Test real authentication, database operations, and validation
+- Rails server automatically started by `npm test`
+- Use seeded test data from `db/seeds/test.rb`
 
-1. **Form Submission**: The mocked `useForm` doesn't fully integrate with components, so tests waiting for actual HTTP responses will timeout
-2. **Inertia Navigation**: Page transitions don't work since we're testing in isolation
-3. **Server-Side Validation**: Can't test real validation messages from Rails
-
-### Workarounds:
-
-1. **For Form Testing**: Test that fields accept input and have correct validation attributes, but don't test the full submission flow
-2. **For Navigation**: Test that links have correct href attributes, not actual navigation
-3. **For Validation**: Test HTML5 validation attributes, not server responses
+### Why No Mocking?
+1. **Maintenance burden**: Mocks drift from real API behavior
+2. **False confidence**: Tests pass with mocks but fail in production
+3. **Limited value**: Can't test real validation, auth, or database state
+4. **Speed is not an issue**: Real backend tests take only ~5-6 seconds
 
 ## When to Use What
 

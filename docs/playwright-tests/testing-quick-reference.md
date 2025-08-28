@@ -1,5 +1,21 @@
 # Testing Quick Reference
 
+## ⚠️ IMPORTANT: Pre-Commit Testing Requirements
+
+**Before considering ANY change complete, you MUST run:**
+
+```bash
+# 1. Run Rails backend tests
+rails test
+
+# 2. Run Playwright component tests (REAL backend only, NO mocking!)
+npm test
+
+# Both test suites MUST pass before committing changes!
+```
+
+**NEVER mock the backend in tests. The user will be VERY UNHAPPY if you create mocked tests.**
+
 ## Test Types and Commands
 
 ### Unit Tests (Vitest)
@@ -10,9 +26,10 @@
 
 ### Component Tests (Playwright CT)
 - **Location**: `playwright/tests/pages/*.pw.js`
-- **Run**: `npm run test:ct`
-- **What**: Page components in real browsers, UI interactions
-- **Environment**: Real browsers (Chrome, Firefox, Safari)
+- **Run**: `npm test` - Automatically starts Rails backend, runs tests, cleans up
+- **Run with UI**: `npm run test:ui` - Debug with Playwright UI
+- **What**: Page components in real browsers, UI interactions, form submissions against REAL backend
+- **Environment**: Real browsers with REAL Rails API (NO mocking allowed!)
 
 ### Rails Tests
 - **Location**: `test/controllers/`, `test/models/`
@@ -28,14 +45,11 @@ npm test
 # Run Vitest with UI
 npm run test:ui
 
-# Run all Playwright component tests (mock backend)
-npm run test:ct
-
-# Run Playwright component tests with REAL Rails backend
-npm run test:integrated  # Automatically starts Rails, runs tests, and cleans up
+# Run all Playwright component tests (REAL backend required)
+npm test  # Automatically starts Rails, runs tests, and cleans up
 
 # Run Playwright with UI for debugging
-npm run test:ct-ui
+npm run test:ui
 
 # Run specific Playwright test
 npx playwright test -c playwright-ct.config.js playwright/tests/pages/login-simple.pw.js
@@ -54,8 +68,8 @@ rails test
 ### For a new page component (Playwright):
 1. Create `playwright/tests/pages/my-page.pw.js`
 2. Import component from `app/frontend/lib/components/`
-3. Test UI rendering and interactions
-4. See `login-simple.pw.js` for patterns
+3. Test against REAL Rails backend (NO mocking!)
+4. See `login.pw.js` for patterns
 
 ### For a new Rails controller:
 1. Create `test/controllers/my_controller_test.rb`
@@ -65,7 +79,7 @@ rails test
 ## Test File Naming
 
 - **Unit tests**: `component-name.test.js`
-- **Playwright tests**: `page-name.pw.js`
+- **Playwright tests**: `page-name.pw.js` (ALL require real backend)
 - **Rails tests**: `controller_name_test.rb`
 
 ## Coverage Goals

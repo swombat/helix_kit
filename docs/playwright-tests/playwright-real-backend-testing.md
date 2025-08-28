@@ -1,10 +1,15 @@
-# Playwright Component Testing with Real Rails Backend
+# Playwright Component Testing with Rails Backend
 
-This document describes how to run Playwright Component Tests against a real Rails backend instead of mocking API responses.
+## ⚠️ IMPORTANT: This is the ONLY way to test
+
+**NEVER create mocked backend tests. ALL Playwright tests MUST use the real Rails backend.**
+**Backend mocking is FORBIDDEN and will make the user VERY UNHAPPY.**
+
+This document describes how Playwright Component Tests work with the Rails backend.
 
 ## Overview
 
-Instead of mocking HTTP responses, we can run Playwright Component Tests against an actual Rails test server. This provides true integration testing while still testing components in isolation.
+Playwright Component Tests run against an actual Rails test server. This is the ONLY approved testing approach - no mocking allowed.
 
 ### Benefits
 
@@ -22,10 +27,10 @@ Run everything with one command that handles the entire flow:
 
 ```bash
 # Run tests with automatic backend setup and cleanup
-npm run test:integrated
+npm test
 
 # Or with UI for debugging
-npm run test:integrated-ui
+npm run test:ui
 ```
 
 This integrated script automatically:
@@ -55,14 +60,14 @@ This keeps the Rails server running until you stop it.
 In a separate terminal:
 
 ```bash
-# Run all real backend tests
-npm run test:ct-real
+# Run all tests
+npx playwright test -c playwright-ct.config.js
 
 # Run with UI for debugging
-npm run test:ct-real-ui
+npx playwright test -c playwright-ct.config.js --ui
 
 # Run specific test
-npx playwright test -c playwright-ct.config.js playwright/tests/pages/login-real-backend.pw.js
+npx playwright test -c playwright-ct.config.js playwright/tests/pages/login.pw.js
 ```
 
 ## Architecture
@@ -78,25 +83,28 @@ npx playwright test -c playwright-ct.config.js playwright/tests/pages/login-real
 - Uses test database with seeded data
 
 
-### CORS Configuration
-- Configured in `config/initializers/cors.rb`
-- Allows requests from Playwright CT server (port 3101)
-- Enabled only in test and development environments
+### Request Proxying
+- The Playwright component testing server (port 3101) proxies requests to Rails (port 3200)
+- Configured in `playwright-ct.config.js` via Vite's server.proxy
+- Allows components to make requests to `/login`, `/signup` etc. which get forwarded to Rails
 
-### Mock Inertia Adapter
-- Located in `playwright/mock-inertia.js`
-- Makes real HTTP requests to `http://localhost:3200`
+### Inertia Adapter for Tests
+- Located in `playwright/test-inertia-adapter.js`
+- Provides a `useForm` hook that makes REAL HTTP requests
+- Requests go through the Vite proxy to reach the Rails backend
+- **NOT A MOCK** - makes actual API calls
 - Handles form submissions and responses
 - Maintains reactive form state
 
 ## Test Data
 
-The test database is seeded with predictable data (see `db/seeds.rb`):
+The test database is seeded with predictable data from `db/seeds/test.rb`:
 
-- `existing@example.com` - For testing duplicate email scenarios
-- `test@example.com` - For testing successful login
+- **test@example.com** / password: `password123` - For successful login tests
+- **existing@example.com** / password: `password123` - For duplicate email tests
 
-New signups use timestamp-based emails to avoid conflicts between test runs.
+These accounts are automatically created when running `npm test`.
+New signups in tests should use timestamp-based emails to avoid conflicts between test runs.
 
 ## Writing Tests
 
@@ -125,21 +133,24 @@ test.describe('Login Form Component Tests (Real Backend)', () => {
 });
 ```
 
-### Key Differences from Mocked Tests
+### Key Testing Principles
 
-1. **No route mocking**: Tests make real HTTP requests
-2. **Real response codes**: Rails returns 302 for redirects (not 303)
-3. **Actual validation**: Backend performs real validation
-4. **Session state**: Real cookies and session management
-5. **Database state**: Tests interact with real (test) database
+1. **NEVER mock backend responses**: All tests make real HTTP requests
+2. **Real response codes**: Rails returns actual status codes (302 for redirects)
+3. **Real validation**: Backend performs actual validation
+4. **Real session state**: Actual cookies and session management
+5. **Real database**: Tests interact with real test database
 
 ## Best Practices
 
 1. **Unique test data**: Use timestamps for unique emails in signup tests
-2. **Database cleanup**: The setup script recreates the database each run
-3. **Predictable seeds**: Use consistent seed data for reliable tests
-4. **Response expectations**: Expect Rails standard responses (302 for redirects)
-5. **Parallel execution**: Tests can run in parallel against the same server
+2. **Run all tests before committing**: Always run both `rails test` and `npm test`
+3. **Test both success and failure paths**: Verify both valid and invalid inputs
+4. **Clean test environment**: The integrated script handles DB setup/teardown automatically
+5. **Database cleanup**: The setup script recreates the database each run
+6. **Predictable seeds**: Use consistent seed data for reliable tests
+7. **Response expectations**: Expect Rails standard responses (302 for redirects)
+8. **Parallel execution**: Tests can run in parallel against the same server
 
 ## Troubleshooting
 
