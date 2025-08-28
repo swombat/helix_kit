@@ -8,6 +8,7 @@ Bundler.require(*Rails.groups)
 
 module InertiaRailsSvelteShadcnTemplate
   class Application < Rails::Application
+
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 8.0
 
@@ -35,5 +36,6 @@ module InertiaRailsSvelteShadcnTemplate
       g.fixture_replacement nil    # No fixtures
       g.template_engine nil        # No views/templates
     end
+
   end
 end

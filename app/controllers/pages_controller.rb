@@ -1,4 +1,5 @@
 class PagesController < ApplicationController
+
   allow_unauthenticated_access
 
   def home
@@ -11,4 +12,5 @@ class PagesController < ApplicationController
     flash[:error] = "This is an error"
     redirect_to root_path
   end
+
 end

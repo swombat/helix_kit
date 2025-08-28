@@ -1,4 +1,5 @@
 class ApplicationController < ActionController::Base
+
   include Authentication
   # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
   allow_browser versions: :modern
@@ -11,4 +12,5 @@ class ApplicationController < ActionController::Base
   end
 
   wrap_parameters false # Disable default wrapping of parameters in JSON requests (Helpful with Inertia js)
+
 end

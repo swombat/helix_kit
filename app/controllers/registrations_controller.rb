@@ -1,4 +1,5 @@
 class RegistrationsController < ApplicationController
+
   allow_unauthenticated_access only: %i[ new create ]
 
   def new
@@ -31,4 +32,5 @@ class RegistrationsController < ApplicationController
       :password_confirmation
     )
   end
+
 end

@@ -1,4 +1,5 @@
 class User < ApplicationRecord
+
   has_secure_password
   has_many :sessions, dependent: :destroy
 
@@ -12,4 +13,5 @@ class User < ApplicationRecord
     maximum: 72,
     message: "must be between 6 and 72 characters"
   }
+
 end

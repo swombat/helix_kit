@@ -1,10 +1,10 @@
 Rails.application.routes.draw do
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
-  
+
   # Favicon routes
-  get "favicon.:format", to: "favicon#show", as: :favicon, defaults: { format: 'ico' }
-  get "favicon", to: "favicon#show", defaults: { format: 'ico' }
-  
+  get "favicon.:format", to: "favicon#show", as: :favicon, defaults: { format: "ico" }
+  get "favicon", to: "favicon#show", defaults: { format: "ico" }
+
   get "login" => "sessions#new", as: :login
   post "login" => "sessions#create"
   delete "logout" => "sessions#destroy", as: :logout
