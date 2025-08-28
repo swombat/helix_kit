@@ -19,6 +19,7 @@ This is a start app kit template analogous to Jumpstart Pro or BulletTrain, but 
 - **[Vite](https://vitejs.dev/)** - A fast and modern frontend bundler.
 - **[PostgreSQL](https://www.postgresql.org/)** - A powerful, open-source relational database system.
 - **[DaisyUI](https://daisyui.com/)** - A plugin for Tailwind CSS that provides a set of pre-designed components, for rapid prototyping of components not covered by ShadcnUI.
+- **[Claude Code Ready](https://www.anthropic.com/news/claude-code)** - Clear documentation in `/docs/` to enable Claude Code to perform at its best.
 
 ## Target features (TODO)
 
@@ -48,6 +49,13 @@ This is a start app kit template analogous to Jumpstart Pro or BulletTrain, but 
     - Company Name
 - All account settings:
     - Billing
+- API capability:
+    - API key management
+    - API key usage tracking
+    - API key rate limiting
+    - API key billing
+    - API key audit logging
+    - API documentation
 
 ## Explicitly out of scope
 
