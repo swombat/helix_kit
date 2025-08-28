@@ -77,15 +77,15 @@
         "Clear documentation in /docs/ to enable Claude Code to perform at its best.",
       link: "https://www.anthropic.com/news/claude-code",
     },
-  ];
-
-  const todoFeatures = [
     {
       title: "SolidQueue/Cable/Cache",
       description:
         "Set up in development environment, for background jobs, real-time features, and caching.",
       link: "https://medium.com/@reinteractivehq/rails-8-solid-trifecta-comparison-44a76cb92ac3",
     },
+  ];
+
+  const todoFeatures = [
     {
       title: "Testing",
       description:

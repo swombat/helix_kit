@@ -20,10 +20,10 @@ This is a start app kit template analogous to Jumpstart Pro or BulletTrain, but 
 - **[PostgreSQL](https://www.postgresql.org/)** - A powerful, open-source relational database system.
 - **[DaisyUI](https://daisyui.com/)** - A plugin for Tailwind CSS that provides a set of pre-designed components, for rapid prototyping of components not covered by ShadcnUI.
 - **[Claude Code Ready](https://www.anthropic.com/news/claude-code)** - Clear documentation in `/docs/` to enable Claude Code to perform at its best.
+- **[SolidQueue/Cable/Cache](https://medium.com/@reinteractivehq/rails-8-solid-trifecta-comparison-44a76cb92ac3)** - Set up in development environment, for background jobs, real-time features, and caching.
 
 ## Target features (TODO)
 
-- **[SolidQueue/Cable/Cache](https://medium.com/@reinteractivehq/rails-8-solid-trifecta-comparison-44a76cb92ac3)** - Set up in development environment, for background jobs, real-time features, and caching.
 - **Testing** - Full test suite setup with Playwright Component Testing for page testing, Vitest for Svelte component unit testing, Minitest for Rails model and controller testing.
 - **[Obfuscated IDs](https://github.com/bullet-train-co/bullet_train-core)** - For better security and aesthetics in URLs. Copy implementation from BulletTrain.
 - **[Full-featured user system](https://jumpstartrails.com/docs/accounts)** - Necessary for most commercial applications, but not included in the default user setup.
