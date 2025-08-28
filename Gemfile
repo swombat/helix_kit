@@ -67,3 +67,5 @@ gem "vite_rails", "~> 3.0"
 gem "bcrypt", "~> 3.1"
 
 gem "js-routes", "~> 2.3"
+
+gem "hashids"
