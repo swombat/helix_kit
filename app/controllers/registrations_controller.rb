@@ -16,7 +16,6 @@ class RegistrationsController < ApplicationController
       start_new_session_for user
       redirect_to after_authentication_url, flash: { notice: "Successfully signed up!" }
     else
-      p user.errors.to_hash(true)
       redirect_to signup_path, inertia: {
         errors: user.errors.to_hash(true) # Convert ActiveModel::Errors to a hash for Inertia
       }
