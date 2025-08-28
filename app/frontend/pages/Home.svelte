@@ -5,12 +5,11 @@
   import { Link } from "@inertiajs/svelte";
   import * as Card from "$lib/components/ui/card/index.js";
 
-  const githubUrl =
-    "https://github.com/georgekettle/inertia_rails_svelte_shadcn_template";
+  const githubUrl = "https://github.com/swombat/helix_kit";
 
-  const features = [
+  const completedFeatures = [
     {
-      title: "Svelte",
+      title: "Svelte 5",
       description:
         "A modern JavaScript framework for building user interfaces.",
       link: "https://svelte.dev/",
@@ -18,20 +17,20 @@
     {
       title: "Ruby on Rails",
       description:
-        "A web application framework for building server-side applications.",
+        "A powerful web application framework for building server-side applications.",
       link: "https://rubyonrails.org/",
     },
     {
       title: "Inertia.js",
       description:
-        "A framework for building single-page applications using classic server-side routing and controllers.",
+        "Enables single-page applications using classic Rails routing and controllers.",
       link: "https://inertiajs.com/",
     },
     {
       title: "ShadcnUI",
       description:
-        "A collection of components for building user interfaces with Svelte.",
-      link: "https://shadcn.dev/",
+        "A collection of UI components for Svelte.",
+      link: "https://ui.shadcn.com/",
     },
     {
       title: "Tailwind CSS",
@@ -40,20 +39,100 @@
     },
     {
       title: "Phosphor Icons",
-      description: "A collection of icons for building user interfaces.",
+      description: "A versatile icon library for user interfaces.",
       link: "https://phosphoricons.com/",
     },
     {
       title: "JS Routes",
       description:
-        "A library for generating JavaScript routes for Rails applications.",
+        "A library for generating JavaScript routes in Rails applications.",
       link: "https://github.com/railsware/js-routes",
     },
     {
       title: "Rails Authentication",
       description:
-        "Authentication setup using the default Rails 8 authentication system.",
+        "Built-in authentication using the default Rails 8 authentication system.",
       link: "https://www.bigbinary.com/blog/rails-8-introduces-a-basic-authentication-generator",
+    },
+    {
+      title: "Vite",
+      description:
+        "A fast and modern frontend bundler.",
+      link: "https://vitejs.dev/",
+    },
+    {
+      title: "PostgreSQL",
+      description:
+        "A powerful, open-source relational database system.",
+      link: "https://www.postgresql.org/",
+    },
+    {
+      title: "DaisyUI",
+      description:
+        "A plugin for Tailwind CSS that provides a set of pre-designed components, for rapid prototyping of components not covered by ShadcnUI.",
+      link: "https://daisyui.com/",
+    },
+    {
+      title: "Claude Code Ready",
+      description:
+        "Clear documentation in /docs/ to enable Claude Code to perform at its best.",
+      link: "https://www.anthropic.com/news/claude-code",
+    },
+  ];
+
+  const todoFeatures = [
+    {
+      title: "SolidQueue/Cable/Cache",
+      description:
+        "Set up in development environment, for background jobs, real-time features, and caching.",
+      link: "https://medium.com/@reinteractivehq/rails-8-solid-trifecta-comparison-44a76cb92ac3",
+    },
+    {
+      title: "Testing",
+      description:
+        "Full test suite setup with Playwright Component Testing for page testing, Vitest for Svelte component unit testing, Minitest for Rails model and controller testing.",
+    },
+    {
+      title: "Obfuscated IDs",
+      description:
+        "For better security and aesthetics in URLs. Copy implementation from BulletTrain.",
+      link: "https://github.com/bullet-train-co/bullet_train-core",
+    },
+    {
+      title: "Full-featured user system",
+      description:
+        "Necessary for most commercial applications: Site Admin, User Profiles, Personal/Organization Accounts, Invitations, Roles.",
+      link: "https://jumpstartrails.com/docs/accounts",
+    },
+    {
+      title: "Svelte Object Synchronization",
+      description:
+        "Using ActionCable and Inertia's partial reload and a custom Registry to keep Svelte $props up to date in real-time.",
+    },
+    {
+      title: "Audit Logging",
+      description:
+        "Audit logging with audit log viewer (required in many business applications).",
+    },
+    {
+      title: "MultiAttachment System",
+      description:
+        "Supporting direct uploads to S3, PDF/Document parsing, URL fetch, and free text.",
+    },
+    {
+      title: "AI Integration",
+      description:
+        "OpenRouter integration, Prompt system, Basic Conversation System, Agentic Conversation System.",
+    },
+    {
+      title: "Organisation Account Settings",
+      description:
+        "Logo and Company Name settings for organisation accounts.",
+    },
+    {
+      title: "Billing",
+      description:
+        "Billing integration for all account types.",
     },
   ];
 </script>
@@ -70,11 +149,11 @@
       <h1
         class="text-4xl tracking-tighter text-balance max-lg:font-medium max-sm:px-4 sm:text-5xl lg:text-6xl"
       >
-        The Svelte Starter Template for Ruby on Rails
+        HelixKit: Svelte App Kit for Ruby on Rails
       </h1>
       <p class="opacity-80 mt-4">
-        This is a starter template for Rails devs wanting to get started with
-        Svelte without building everything from scratch.
+        A start app kit template analogous to Jumpstart Pro or BulletTrain, but using Svelte and Inertia.js for the frontend,
+        with Ruby on Rails as the backend, and including a number of other useful libraries and tools.
       </p>
       <div class="mt-8">
         <Link href={githubUrl} class={buttonVariants({ variant: "default" })}>
@@ -89,24 +168,58 @@
     <div
       class="mx-auto max-w-2xl px-6 lg:max-w-7xl lg:px-8 pb-24 border-l border-r border-dashed"
     >
-      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3 lg:grid-rows-2">
-        {#each features as feature}
-          <Card.Root class="flex flex-col justify-between">
-            <Card.Header>
-              <Card.Title>{feature.title}</Card.Title>
-              <Card.Description>{feature.description}</Card.Description>
-            </Card.Header>
-            <Card.Content class="flex justify-end">
-              <Link
-                href={feature.link}
-                class={buttonVariants({ variant: "ghost" })}
-              >
-                <span>See more </span>
-                <ArrowUpRight weight="bold" />
-              </Link>
-            </Card.Content>
-          </Card.Root>
-        {/each}
+      <div class="space-y-8">
+        <div>
+          <h2 class="text-2xl font-semibold mb-4">Features (Done)</h2>
+          <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {#each completedFeatures as feature}
+              <Card.Root class="flex flex-col justify-between">
+                <Card.Header>
+                  <Card.Title>{feature.title}</Card.Title>
+                  <Card.Description>{feature.description}</Card.Description>
+                </Card.Header>
+                {#if feature.link}
+                  <Card.Content class="flex justify-end">
+                    <Link
+                      href={feature.link}
+                      class={buttonVariants({ variant: "ghost" })}
+                    >
+                      <span>See more </span>
+                      <ArrowUpRight weight="bold" />
+                    </Link>
+                  </Card.Content>
+                {/if}
+              </Card.Root>
+            {/each}
+          </div>
+        </div>
+
+        <div>
+          <h2 class="text-2xl font-semibold mb-4">Target Features (Todo)</h2>
+          <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {#each todoFeatures as feature}
+              <Card.Root class="flex flex-col justify-between opacity-75 h-full">
+                <Card.Header class="flex-1">
+                  <Card.Title>{feature.title}</Card.Title>
+                  <Card.Description>{feature.description}</Card.Description>
+                </Card.Header>
+                <Card.Content class="flex justify-end">
+                  {#if feature.link}
+                    <Link
+                      href={feature.link}
+                      class={buttonVariants({ variant: "ghost" })}
+                    >
+                      <span>See more </span>
+                      <ArrowUpRight weight="bold" />
+                    </Link>
+                  {:else}
+                    <div class="h-10"></div>
+                  {/if}
+                </Card.Content>
+              </Card.Root>
+            {/each}
+          </div>
+        </div>
       </div>
     </div>
   </div>
