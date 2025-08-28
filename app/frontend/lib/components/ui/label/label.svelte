@@ -13,5 +13,5 @@
 	)}
 	{...restProps}
 >
-	{@render children()}
+	{@render children?.()}
 </LabelPrimitive.Root>

@@ -18,6 +18,6 @@
 <ModeWatcher />
 <div class="bg-bg">
   <Navbar />
-  <main>{@render children()}</main>
+  <main>{@render children?.()}</main>
   <Toaster />
 </div>

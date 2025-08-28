@@ -2,6 +2,7 @@
   import Layout from '../layouts/layout.svelte';
   import { buttonVariants } from '$lib/components/ui/button/button.svelte';
   import { GithubLogo, ArrowUpRight } from 'phosphor-svelte';
+  import { Github } from 'lucide-svelte';
   import * as Card from '$lib/components/ui/card/index.js';
 
   const githubUrl = 'https://github.com/swombat/helix_kit';
@@ -139,8 +140,8 @@
         frontend, with Ruby on Rails as the backend, and including a number of other useful libraries and tools.
       </p>
       <div class="mt-8">
+        <Github class="bg-white text-red-500 dark:text-black m-4" />
         <a href={githubUrl} class={buttonVariants({ variant: 'default' })} target="_blank" rel="noopener noreferrer">
-          <GithubLogo weight="fill" />
           <span>Github repo</span>
         </a>
       </div>
