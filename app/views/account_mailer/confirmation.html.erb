@@ -1,0 +1,20 @@
+<h2>Welcome!</h2>
+
+<p>Hi <%= @user.email_address %>,</p>
+
+<p>Please confirm your email address to complete your account setup.</p>
+
+<p>
+  <%= link_to "Confirm My Email", @confirmation_url, 
+      style: "display: inline-block; padding: 12px 24px; background-color: #10b981; color: white; text-decoration: none; border-radius: 6px; font-weight: bold;" %>
+</p>
+
+<p>Or copy and paste this link into your browser:</p>
+<p><%= @confirmation_url %></p>
+
+<p>If you didn't create an account, please ignore this email.</p>
+
+<p>
+  Best regards,<br>
+  The Team
+</p>

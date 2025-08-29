@@ -19,6 +19,7 @@
   const links = [{ href: '#', label: 'About' }];
 
   const currentUser = $derived($page.props?.user);
+  const currentAccount = $derived($page.props?.account);
 </script>
 
 <nav>
@@ -58,9 +59,16 @@
         <DropdownMenu.Content class="w-56" align="end">
           <DropdownMenu.Group>
             <DropdownMenu.GroupHeading>
+              <div class="text-xs font-normal text-muted-foreground">Account</div>
+              <div class="text-sm font-semibold truncate">
+                {currentAccount?.name || 'Personal'}
+              </div>
+            </DropdownMenu.GroupHeading>
+            <DropdownMenu.Separator />
+            <DropdownMenu.GroupHeading>
               <div class="text-xs font-normal text-muted-foreground">Logged in as</div>
-              <div class="text-sm font-semibold">
-                {$page.props.user.email_address}
+              <div class="text-sm font-semibold truncate">
+                {currentUser.email_address}
               </div>
             </DropdownMenu.GroupHeading>
             <DropdownMenu.Separator />

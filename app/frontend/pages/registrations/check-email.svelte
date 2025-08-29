@@ -1,11 +1,14 @@
 <script>
-  import { Link } from "@inertiajs/svelte";
-  import * as Card from "$lib/components/ui/card/index.js";
-  import Logo from "$lib/components/logo.svelte";
-  import AuthLayout from "../../layouts/auth-layout.svelte";
-  import { Button } from "$lib/components/ui/button/index.js";
-  import { signupPath } from "@/routes";
-  import { EnvelopeSimple } from "phosphor-svelte";
+  import { Link } from '@inertiajs/svelte';
+  import * as Card from '$lib/components/ui/card/index.js';
+  import Logo from '$lib/components/logo.svelte';
+  import AuthLayout from '../../layouts/auth-layout.svelte';
+  import { Button } from '$lib/components/ui/button/index.js';
+  import { signupPath } from '@/routes';
+  import { EnvelopeSimple } from 'phosphor-svelte';
+  import ResendConfirmation from '$lib/components/resend-confirmation.svelte';
+
+  let { email } = $props();
 </script>
 
 <AuthLayout>
@@ -13,7 +16,7 @@
     <Link href="/" class="mb-8">
       <Logo class="h-8 w-48" />
     </Link>
-    
+
     <Card.Root class="mx-auto max-w-sm w-full">
       <Card.Header class="text-center">
         <div class="flex justify-center mb-4">
@@ -23,7 +26,8 @@
         </div>
         <Card.Title class="text-2xl">Check Your Email</Card.Title>
         <Card.Description class="mt-2">
-          We've sent you a confirmation email. Please click the link in the email to confirm your account.
+          We've sent you a confirmation email{#if email}
+            to <strong>{email}</strong>{/if}. Please click the link in the email to confirm your account.
         </Card.Description>
       </Card.Header>
       <Card.Content>
@@ -38,13 +42,17 @@
               <li>• Wait a few minutes and check again</li>
             </ul>
           </div>
-          
-          <div class="text-center">
-            <Link href={signupPath()}>
-              <Button variant="outline" class="w-full">
-                Try signing up again
-              </Button>
-            </Link>
+
+          <div class="space-y-2">
+            {#if email}
+              <ResendConfirmation {email} />
+            {/if}
+
+            <div class="text-center">
+              <Link href={signupPath()}>
+                <Button variant="outline" class="w-full">Try with a different email</Button>
+              </Link>
+            </div>
           </div>
         </div>
       </Card.Content>

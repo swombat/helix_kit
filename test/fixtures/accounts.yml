@@ -1,0 +1,31 @@
+personal_account:
+  id: 1
+  name: "Daniel's Personal Account"
+  account_type: 0
+  slug: daniels-personal-account
+  created_at: <%= 1.day.ago %>
+  updated_at: <%= 1.day.ago %>
+
+team_account:
+  id: 2
+  name: "Test Team Account"
+  account_type: 1
+  slug: test-team-account
+  created_at: <%= 1.day.ago %>
+  updated_at: <%= 1.day.ago %>
+
+another_team:
+  id: 3
+  name: "Another Team"
+  account_type: 1
+  slug: another-team
+  created_at: <%= 2.days.ago %>
+  updated_at: <%= 2.days.ago %>
+
+orphan_account:
+  id: 4
+  name: "Orphan Account"
+  account_type: 0
+  slug: orphan-account
+  created_at: <%= 3.days.ago %>
+  updated_at: <%= 3.days.ago %>

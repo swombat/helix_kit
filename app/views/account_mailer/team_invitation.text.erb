@@ -1,0 +1,13 @@
+You've been invited to join <%= @account.name %>
+
+Hi <%= @user.email_address %>,
+
+<%= @inviter.email_address %> has invited you to join <%= @account.name %> as a <%= @account_user.role %>.
+
+Accept this invitation by visiting:
+<%= @confirmation_url %>
+
+If you don't want to accept this invitation, you can ignore this email.
+
+Best regards,
+The Team

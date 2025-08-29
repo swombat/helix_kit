@@ -2,17 +2,38 @@
 user_1:
   id: 1
   email_address: daniel@granttree.co.uk
-  password_digest: "$2a$12$MKvq4v3OyraLsPvEk1i61.amcX2IADCbSw794sW6/BSzpWPV.wZHS"
-  confirmed_at: !ruby/object:ActiveSupport::TimeWithZone
-    utc: 2025-08-28 08:50:40.227874000 Z
-    zone: &1 !ruby/object:ActiveSupport::TimeZone
-      name: Etc/UTC
-    time: 2025-08-28 08:50:40.227874000 Z
-  created_at: !ruby/object:ActiveSupport::TimeWithZone
-    utc: 2025-08-28 08:50:40.227874000 Z
-    zone: *1
-    time: 2025-08-28 08:50:40.227874000 Z
-  updated_at: !ruby/object:ActiveSupport::TimeWithZone
-    utc: 2025-08-28 08:50:40.227874000 Z
-    zone: *1
-    time: 2025-08-28 08:50:40.227874000 Z
+  password_digest: <%= BCrypt::Password.create("password") %>
+  confirmed_at: <%= 1.day.ago %>
+  default_account_id: 1
+  created_at: <%= 1.day.ago %>
+  updated_at: <%= 1.day.ago %>
+
+unconfirmed_user:
+  id: 2
+  email_address: unconfirmed@example.com
+  password_digest: <%= BCrypt::Password.create("password") %>
+  confirmation_token: <%= SecureRandom.hex(32) %>
+  confirmation_sent_at: <%= 1.hour.ago %>
+  created_at: <%= 1.hour.ago %>
+  updated_at: <%= 1.hour.ago %>
+
+confirmed_user:
+  id: 3
+  email_address: confirmed@example.com
+  password_digest: <%= BCrypt::Password.create("password") %>
+  confirmed_at: <%= 2.days.ago %>
+  created_at: <%= 2.days.ago %>
+  updated_at: <%= 2.days.ago %>
+
+pending_user:
+  id: 4
+  email_address: pending@example.com
+  created_at: <%= 1.hour.ago %>
+  updated_at: <%= 1.hour.ago %>
+
+no_password_user:
+  id: 5
+  email_address: nopassword@example.com
+  confirmed_at: <%= 1.day.ago %>
+  created_at: <%= 1.day.ago %>
+  updated_at: <%= 1.day.ago %>

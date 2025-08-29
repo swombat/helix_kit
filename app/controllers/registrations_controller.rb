@@ -9,24 +9,24 @@ class RegistrationsController < ApplicationController
   end
 
   def create
-    user = User.find_or_initialize_by(email_address: normalized_email)
+    user = User.register!(normalized_email)
+    account_user = user.account_users.last
 
-    return redirect_with_error("This email is already registered. Please log in.") if user.confirmed?
-
-    notice = if user.persisted?
-      user.resend_confirmation_email
-      "Confirmation email resent. Please check your inbox."
+    if account_user.confirmed?
+      redirect_to signup_path, inertia: {
+        errors: { email_address: [ "This email is already registered. Please log in." ] }
+      }
     else
-      # Validate email format before saving
-      user.valid?
-      return redirect_to(signup_path, inertia: { errors: user.errors.to_hash(true) }) if user.errors[:email_address].any?
+      # Check if this is a resend (user already existed)
+      is_resend = !user.was_new_record?
 
-      user.save(validate: false) # Skip password validation
-      user.send_confirmation_email
-      "Please check your email to confirm your account."
+      notice = is_resend ?
+        "Confirmation email resent. Please check your inbox." :
+        "Please check your email to confirm your account."
+      redirect_to check_email_path, notice: notice
     end
-
-    redirect_to check_email_path, notice: notice
+  rescue ActiveRecord::RecordInvalid => e
+    redirect_to signup_path, inertia: { errors: e.record.errors.to_hash(true) }
   end
 
   def check_email
@@ -34,15 +34,37 @@ class RegistrationsController < ApplicationController
   end
 
   def confirm_email
-    user = User.find_by_confirmation_token!(params[:token])
+    account_user = nil
+    user = nil
 
-    return redirect_to login_path, notice: "Email already confirmed. Please log in." if user.confirmed?
+    # Try AccountUser token first (new system)
+    begin
+      debug "1 - #{params.inspect}"
+      account_user = AccountUser.confirm_by_token!(params[:token])
+      debug "2 - #{account_user.inspect}"
+      user = account_user.user
+      debug "3 - #{user.inspect}"
+      user.confirm!
+      debug "4 - #{user.inspect}"
+    rescue ActiveRecord::RecordNotFound, ActiveSupport::MessageVerifier::InvalidSignature
+      # Fall back to old User token system for backward compatibility
+      begin
+        user = User.find_by_confirmation_token!(params[:token])
+        user.confirm! # This will confirm the associated AccountUser
+        account_user = user.account_users.first
+      rescue ActiveRecord::RecordNotFound, ActiveSupport::MessageVerifier::InvalidSignature
+        redirect_to signup_path, alert: "Invalid or expired confirmation link. Please sign up again."
+        return
+      end
+    end
 
-    user.confirm!
-    session[:pending_password_user_id] = user.id
-    redirect_to set_password_path, notice: "Email confirmed! Please set your password."
-  rescue ActiveSupport::MessageVerifier::InvalidSignature
-    redirect_to signup_path, alert: "Invalid or expired confirmation link. Please sign up again."
+    puts "Confirmed user #{user.id} with account #{account_user.account.name}"
+    if user.password_digest?
+      redirect_to login_path, notice: "Email confirmed! Please log in."
+    else
+      session[:pending_password_user_id] = user.id
+      redirect_to set_password_path, notice: "Email confirmed! Please set your password."
+    end
   end
 
   def set_password
@@ -65,12 +87,6 @@ class RegistrationsController < ApplicationController
 
   def normalized_email
     params[:email_address]&.strip&.downcase
-  end
-
-  def redirect_with_error(message)
-    redirect_to signup_path, inertia: {
-      errors: { email_address: [ message ] }
-    }
   end
 
   def redirect_if_authenticated

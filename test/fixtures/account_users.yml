@@ -1,0 +1,46 @@
+daniel_personal:
+  id: 1
+  account_id: 1
+  user_id: 1
+  role: owner
+  confirmed_at: <%= 1.day.ago %>
+  created_at: <%= 1.day.ago %>
+  updated_at: <%= 1.day.ago %>
+
+team_owner:
+  id: 2
+  account_id: 2
+  user_id: 1
+  role: owner
+  confirmed_at: <%= 1.day.ago %>
+  created_at: <%= 1.day.ago %>
+  updated_at: <%= 1.day.ago %>
+
+team_admin:
+  id: 3
+  account_id: 2
+  user_id: 2
+  role: admin
+  confirmed_at: <%= 1.day.ago %>
+  created_at: <%= 1.day.ago %>
+  updated_at: <%= 1.day.ago %>
+
+pending_invitation:
+  id: 4
+  account_id: 2
+  user_id: 4
+  role: member
+  confirmation_token: <%= SecureRandom.hex(32) %>
+  confirmation_sent_at: <%= 1.hour.ago %>
+  invited_by_id: 1
+  created_at: <%= 1.hour.ago %>
+  updated_at: <%= 1.hour.ago %>
+
+another_team_member:
+  id: 5
+  account_id: 3
+  user_id: 3
+  role: member
+  confirmed_at: <%= 2.days.ago %>
+  created_at: <%= 2.days.ago %>
+  updated_at: <%= 2.days.ago %>

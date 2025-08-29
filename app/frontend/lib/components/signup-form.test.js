@@ -10,23 +10,25 @@ describe('SignupForm Component', () => {
 
   it('renders signup form with email field only', () => {
     render(SignupForm);
-    
+
     expect(screen.getByRole('heading', { name: 'Sign up' })).toBeInTheDocument();
-    expect(screen.getByText("Enter your email to create an account. We'll send you a confirmation link.")).toBeInTheDocument();
+    expect(
+      screen.getByText("Enter your email to create an account. We'll send you a confirmation link.")
+    ).toBeInTheDocument();
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Send Confirmation Email' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Create Account' })).toBeInTheDocument();
   });
 
   it('does not render password fields in initial signup', () => {
     render(SignupForm);
-    
+
     expect(screen.queryByLabelText('Password')).not.toBeInTheDocument();
     expect(screen.queryByLabelText('Password Confirmation')).not.toBeInTheDocument();
   });
 
   it('renders login link', () => {
     render(SignupForm);
-    
+
     // Should have a login link for existing users
     const loginLink = screen.getByRole('link', { name: /log in/i });
     expect(loginLink).toBeInTheDocument();
@@ -35,7 +37,7 @@ describe('SignupForm Component', () => {
 
   it('has correct email input attributes', () => {
     render(SignupForm);
-    
+
     const emailInput = screen.getByLabelText(/email/i);
     expect(emailInput).toHaveAttribute('type', 'email');
     expect(emailInput).toHaveAttribute('placeholder', 'm@example.com');
@@ -44,32 +46,32 @@ describe('SignupForm Component', () => {
 
   it('updates email value on input', async () => {
     render(SignupForm);
-    
+
     const emailInput = screen.getByLabelText(/email/i);
-    
+
     await fireEvent.input(emailInput, { target: { value: 'test@example.com' } });
-    
+
     expect(emailInput).toHaveValue('test@example.com');
   });
 
   it('handles form submission', async () => {
     render(SignupForm);
-    
+
     const emailInput = screen.getByLabelText(/email/i);
-    
+
     await fireEvent.input(emailInput, { target: { value: 'test@example.com' } });
-    
-    const form = screen.getByRole('button', { name: 'Send Confirmation Email' }).closest('form');
+
+    const form = screen.getByRole('button', { name: 'Create Account' }).closest('form');
     await fireEvent.submit(form);
-    
+
     // Form submission is handled by mocked useForm
     expect(emailInput).toHaveValue('test@example.com');
   });
 
   it('shows loading state when processing', async () => {
     render(SignupForm);
-    
-    // The button should show 'Sending...' when processing
+
+    // The button should show 'Creating account...' when processing
     // This would need proper mocking of the form processing state
   });
 
@@ -77,18 +79,18 @@ describe('SignupForm Component', () => {
     // Mock the form with errors
     const mockForm = useForm();
     mockForm.errors = {
-      email_address: ['Email is already taken']
+      email_address: ['Email is already taken'],
     };
-    
+
     render(SignupForm);
-    
+
     // InputError components should show these errors
     // Note: Actual error display depends on InputError component implementation
   });
 
   it('has correct form structure for accessibility', () => {
     render(SignupForm);
-    
+
     const emailInput = screen.getByLabelText(/email/i);
     expect(emailInput).toHaveAttribute('id', 'email_address');
   });
