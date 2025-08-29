@@ -1,6 +1,8 @@
 {
   "plugins": [
-    "prettier-plugin-svelte"
+    "prettier-plugin-svelte",
+    "@4az/prettier-plugin-html-erb",
+    "@prettier/plugin-ruby"
   ],
   "bracketSameLine": true,
   "printWidth": 120,
