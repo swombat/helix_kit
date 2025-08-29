@@ -33,6 +33,106 @@ See **[File System Structure documentation](./file_system_structure.md)** for co
 
 ## Key Design Patterns
 
+### The Rails Way Philosophy
+
+This application follows Rails conventions and DHH's philosophy:
+
+1. **Fat models, skinny controllers** - Business logic belongs in models
+2. **Convention over configuration** - Follow Rails patterns, don't fight them
+3. **Concerns for shared behavior** - Extract truly shared patterns
+4. **No unnecessary abstractions** - Avoid service objects and premature optimization
+
+### Authorization Patterns
+
+#### Association-Based Authorization (The Rails Way)
+Authorization is handled through Rails associations, not database row-level security:
+
+```ruby
+# GOOD - Rails associations naturally scope access
+@project = current_user.accounts.find(params[:account_id]).projects.find(params[:id])
+# This will raise RecordNotFound if user doesn't have access - perfect!
+
+# BAD - Manual permission checking with service objects
+@project = Project.find(params[:id])
+authorize! @project  # Don't do this - adds unnecessary abstraction
+```
+
+#### Key Principles:
+- **Use associations for scoping**: `current_user.accounts` automatically limits to accessible accounts
+- **Let Rails handle authorization**: RecordNotFound exceptions are your authorization
+- **No row-level database security**: Authorization happens in Rails, not the database
+- **Simple and clear**: Any Rails developer can understand the authorization logic
+
+### Validation Philosophy
+
+#### Rails Validations Only
+All validation logic lives in Rails models, never in the database:
+
+```ruby
+# GOOD - Rails model validation
+class Account < ApplicationRecord
+  validates :name, presence: true
+  validate :enforce_personal_account_limit
+  
+  private
+  
+  def enforce_personal_account_limit
+    if personal? && users.count > 1
+      errors.add(:base, "Personal accounts can only have one user")
+    end
+  end
+end
+
+# BAD - SQL constraints (never do this)
+# execute <<-SQL
+#   ALTER TABLE accounts ADD CONSTRAINT check_personal_single_user ...
+# SQL
+```
+
+#### Why Rails Validations:
+- **Better error messages**: Rails provides clear, user-friendly error messages
+- **Database agnostic**: No vendor lock-in to PostgreSQL-specific features
+- **Easier testing**: Test validations in Ruby, not complex SQL
+- **Single source of truth**: All business logic in one place (the model)
+- **More flexible**: Can easily add conditional validations and complex logic
+
+### Business Logic Placement
+
+#### Models Contain Business Logic
+Following Rails conventions, business logic belongs in models:
+
+```ruby
+# GOOD - Business logic in model
+class User < ApplicationRecord
+  def self.register!(email)
+    transaction do
+      user = find_or_initialize_by(email_address: email)
+      # ... registration logic here
+    end
+  end
+end
+
+# BAD - Service object (avoid these)
+class RegistrationService
+  def execute
+    # This hides code smells and creates unnecessary abstraction
+  end
+end
+```
+
+#### Controllers Stay Thin
+Controllers should only orchestrate, not implement logic:
+
+```ruby
+# GOOD - Thin controller
+def create
+  user = User.register!(params[:email])
+  redirect_to check_email_path
+rescue ActiveRecord::RecordInvalid => e
+  redirect_to signup_path, inertia: { errors: e.record.errors }
+end
+```
+
 ### Inertia.js Integration
 
 Controllers use Inertia to render Svelte components:
