@@ -18,19 +18,23 @@ class SignupConfirmationTest < ActionDispatch::IntegrationTest
     assert_equal "test@example.com", user.email_address
     assert_nil user.password_digest
     assert_not user.confirmed?
-    assert_not_nil user.confirmation_token
-    assert_not_nil user.confirmation_sent_at
+
+    # Confirmation token is now on AccountUser
+    account_user = user.personal_account_user
+    assert_not_nil account_user.confirmation_token
+    assert_not_nil account_user.confirmation_sent_at
 
     # Visit confirmation link
-    get email_confirmation_path(token: user.confirmation_token)
+    get email_confirmation_path(token: account_user.confirmation_token)
     assert_redirected_to set_password_path
     follow_redirect!
     assert_response :success
 
     # User should be confirmed
     user.reload
+    account_user.reload
     assert user.confirmed?
-    assert_nil user.confirmation_token
+    assert_nil account_user.confirmation_token
 
     # Set password
     patch set_password_path, params: {
@@ -56,14 +60,15 @@ class SignupConfirmationTest < ActionDispatch::IntegrationTest
   test "cannot login without confirmation" do
     # Create unconfirmed user
     user = User.create!(
-      email_address: "unconfirmed@example.com",
-      password: "password123",
-      confirmed_at: nil
+      email_address: "unconfirmed-login-test@example.com",
+      password: "password123"
     )
+    # Ensure the user is unconfirmed
+    user.account_users.update_all(confirmed_at: nil)
 
     # Try to login
     post login_path, params: {
-      email_address: "unconfirmed@example.com",
+      email_address: "unconfirmed-login-test@example.com",
       password: "password123"
     }
     assert_redirected_to signup_path
@@ -73,10 +78,10 @@ class SignupConfirmationTest < ActionDispatch::IntegrationTest
   test "resends confirmation email for existing unconfirmed user" do
     # Create unconfirmed user
     user = User.create!(
-      email_address: "existing@example.com",
-      confirmed_at: nil
+      email_address: "existing@example.com"
     )
-    old_token = user.confirmation_token
+    account_user = user.personal_account_user
+    old_token = account_user.confirmation_token
 
     # Try to signup again with same email
     assert_no_difference "User.count" do
@@ -85,21 +90,22 @@ class SignupConfirmationTest < ActionDispatch::IntegrationTest
     assert_redirected_to check_email_path
 
     # Token should be updated
-    user.reload
-    assert_not_equal old_token, user.confirmation_token
+    account_user.reload
+    assert_not_equal old_token, account_user.confirmation_token
   end
 
   test "prevents signup with confirmed email" do
     # Create confirmed user
     user = User.create!(
-      email_address: "confirmed@example.com",
-      password: "password123",
-      confirmed_at: Time.current
+      email_address: "confirmed-signup-test@example.com",
+      password: "password123"
     )
+    # Confirm the user's account
+    user.personal_account_user.update!(confirmed_at: Time.current)
 
     # Try to signup with same email
     assert_no_difference "User.count" do
-      post signup_path, params: { email_address: "confirmed@example.com" }
+      post signup_path, params: { email_address: "confirmed-signup-test@example.com" }
     end
     assert_redirected_to signup_path
   end

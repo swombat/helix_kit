@@ -7,6 +7,34 @@ daniel_personal:
   created_at: <%= 1.day.ago %>
   updated_at: <%= 1.day.ago %>
 
+unconfirmed_user_account:
+  id: 6
+  account_id: 4
+  user_id: 2
+  role: owner
+  confirmation_token: <%= SecureRandom.hex(32) %>
+  confirmation_sent_at: <%= 1.hour.ago %>
+  created_at: <%= 1.hour.ago %>
+  updated_at: <%= 1.hour.ago %>
+
+confirmed_user_account:
+  id: 7
+  account_id: 5
+  user_id: 3
+  role: owner
+  confirmed_at: <%= 2.days.ago %>
+  created_at: <%= 2.days.ago %>
+  updated_at: <%= 2.days.ago %>
+
+no_password_user_account:
+  id: 8
+  account_id: 6
+  user_id: 5
+  role: owner
+  confirmed_at: <%= 1.day.ago %>
+  created_at: <%= 1.day.ago %>
+  updated_at: <%= 1.day.ago %>
+
 team_owner:
   id: 2
   account_id: 2

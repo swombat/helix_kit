@@ -49,7 +49,7 @@ class AccountUserTest < ActiveSupport::TestCase
   test "set_user_default_account does not override existing default_account_id" do
     user = users(:user_1)
     original_default_id = user.default_account_id
-    different_account = accounts(:team_account)
+    different_account = accounts(:another_team)
 
     AccountUser.create!(
       user: user,
@@ -142,7 +142,7 @@ class AccountUserTest < ActiveSupport::TestCase
   end
 
   test "allows same user across different accounts" do
-    user = users(:confirmed_user)
+    user = User.create!(email_address: "multi-account@example.com")
     account1 = accounts(:team_account)
     account2 = accounts(:another_team)
 
@@ -151,7 +151,7 @@ class AccountUserTest < ActiveSupport::TestCase
       AccountUser.create!(account: account2, user: user, role: "member", skip_confirmation: true)
     end
 
-    assert user.account_users.count >= 2
+    assert_equal 3, user.account_users.count # personal account + 2 team accounts
   end
 
   # === Role Helper Methods Tests ===
@@ -191,8 +191,8 @@ class AccountUserTest < ActiveSupport::TestCase
 
   test "confirmation scopes work correctly" do
     account = accounts(:team_account)
-    user1 = User.create!(email_address: "confirmed@example.com")
-    user2 = User.create!(email_address: "unconfirmed@example.com")
+    user1 = User.create!(email_address: "scope_test_confirmed@example.com")
+    user2 = User.create!(email_address: "scope_test_unconfirmed@example.com")
 
     # Confirmed user
     confirmed = AccountUser.create!(
@@ -203,14 +203,14 @@ class AccountUserTest < ActiveSupport::TestCase
       skip_confirmation: true
     )
 
-    # Unconfirmed user
-    unconfirmed = AccountUser.create!(
+    # Unconfirmed user - don't skip confirmation to keep it unconfirmed
+    unconfirmed = AccountUser.new(
       account: account,
       user: user2,
-      role: "member",
-      confirmed_at: nil,
-      skip_confirmation: true
+      role: "member"
     )
+    unconfirmed.save!(validate: false) # Save without triggering confirmation email
+    unconfirmed.update_column(:confirmed_at, nil) # Ensure it's unconfirmed
 
     assert_includes AccountUser.confirmed, confirmed
     assert_not_includes AccountUser.confirmed, unconfirmed

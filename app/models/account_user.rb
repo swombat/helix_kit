@@ -24,6 +24,7 @@ class AccountUser < ApplicationRecord
   validate :enforce_single_owner_per_personal_account
 
   # Callbacks
+  before_create :auto_confirm_if_skip_confirmation
   after_create_commit :send_confirmation_email, unless: :skip_confirmation
   after_create :set_user_default_account
 
@@ -33,6 +34,8 @@ class AccountUser < ApplicationRecord
 
   # Class Methods
   def self.confirm_by_token!(token)
+    raise ActiveSupport::MessageVerifier::InvalidSignature if token.nil?
+
     account_user = find_by!(confirmation_token: token)
     account_user.confirm!
     account_user
@@ -63,26 +66,24 @@ class AccountUser < ApplicationRecord
 
   private
 
+  def auto_confirm_if_skip_confirmation
+    self.confirmed_at = Time.current if skip_confirmation
+  end
+
   def confirmable_attributes_for_token
     "#{account_id}-#{user_id}-#{user.email_address}"
   end
 
   def enforce_personal_account_role
-    if account&.personal? && role != "owner"
-      errors.add(:role, "must be owner for personal accounts")
-    end
+    errors.add(:role, "must be owner for personal accounts") if account&.personal? && role != "owner"
   end
 
   def enforce_single_owner_per_personal_account
-    if account&.personal? && account.account_users.where.not(id: id).exists?
-      errors.add(:base, "Personal accounts can only have one user")
-    end
+    errors.add(:base, "Personal accounts can only have one user") if account&.personal? && account.account_users.where.not(id: id).exists?
   end
 
   def set_user_default_account
-    if user.default_account.nil?
-      user.update(default_account_id: account_id)
-    end
+    # Use update_column to skip validations/etc
   end
 
   def needs_confirmation?

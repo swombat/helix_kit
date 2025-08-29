@@ -34,37 +34,18 @@ class RegistrationsController < ApplicationController
   end
 
   def confirm_email
-    account_user = nil
-    user = nil
+    # Only use AccountUser confirmation - no fallback to User tokens
+    account_user = AccountUser.confirm_by_token!(params[:token])
+    user = account_user.user
 
-    # Try AccountUser token first (new system)
-    begin
-      debug "1 - #{params.inspect}"
-      account_user = AccountUser.confirm_by_token!(params[:token])
-      debug "2 - #{account_user.inspect}"
-      user = account_user.user
-      debug "3 - #{user.inspect}"
-      user.confirm!
-      debug "4 - #{user.inspect}"
-    rescue ActiveRecord::RecordNotFound, ActiveSupport::MessageVerifier::InvalidSignature
-      # Fall back to old User token system for backward compatibility
-      begin
-        user = User.find_by_confirmation_token!(params[:token])
-        user.confirm! # This will confirm the associated AccountUser
-        account_user = user.account_users.first
-      rescue ActiveRecord::RecordNotFound, ActiveSupport::MessageVerifier::InvalidSignature
-        redirect_to signup_path, alert: "Invalid or expired confirmation link. Please sign up again."
-        return
-      end
-    end
-
-    puts "Confirmed user #{user.id} with account #{account_user.account.name}"
     if user.password_digest?
       redirect_to login_path, notice: "Email confirmed! Please log in."
     else
       session[:pending_password_user_id] = user.id
       redirect_to set_password_path, notice: "Email confirmed! Please set your password."
     end
+  rescue ActiveRecord::RecordNotFound, ActiveSupport::MessageVerifier::InvalidSignature
+    redirect_to signup_path, alert: "Invalid or expired confirmation link. Please sign up again."
   end
 
   def set_password

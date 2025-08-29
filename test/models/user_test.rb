@@ -18,8 +18,7 @@ class UserTest < ActiveSupport::TestCase
   test "register! handles existing unconfirmed user" do
     # Create an unconfirmed user directly
     existing = User.create!(
-      email_address: "existing@example.com",
-      confirmed_at: nil
+      email_address: "existing@example.com"
     )
     existing_id = existing.id
 
@@ -129,24 +128,22 @@ class UserTest < ActiveSupport::TestCase
 
   # === confirmed? and confirm! Methods ===
 
-  test "confirmed? returns true when user has confirmed_at" do
+  test "confirmed? returns true when user has confirmed account membership" do
     user = users(:user_1)
     assert user.confirmed?
   end
 
   test "confirmed? returns true when any account membership is confirmed" do
     user = User.create!(email_address: "account-confirmed@example.com")
-    # Clear user-level confirmation but keep AccountUser confirmation
-    user.update_column(:confirmed_at, nil)
+    # AccountUser is created automatically and needs confirmation
     user.account_users.first.update!(confirmed_at: Time.current)
 
     assert user.confirmed?
   end
 
-  test "confirmed? returns false when neither user nor memberships are confirmed" do
+  test "confirmed? returns false when no memberships are confirmed" do
     user = User.create!(
-      email_address: "unconfirmed-test@example.com",
-      confirmed_at: nil
+      email_address: "unconfirmed-test@example.com"
     )
     # Ensure no confirmations exist
     user.account_users.update_all(confirmed_at: nil)
@@ -154,20 +151,6 @@ class UserTest < ActiveSupport::TestCase
     assert_not user.confirmed?
   end
 
-  test "confirm! clears confirmation_token using update_column" do
-    user = User.create!(
-      email_address: "to-confirm@example.com",
-      confirmed_at: nil
-    )
-    original_token = user.confirmation_token
-
-    user.confirm!
-    user.reload
-
-    # Should clear token first via update_column
-    assert_nil user.confirmation_token
-    assert_not_equal original_token, user.confirmation_token
-  end
 
   # === Authorization Helper Tests ===
 
@@ -327,27 +310,6 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
-  # === Legacy Compatibility Tests ===
-
-  test "backward compatibility with legacy confirm!" do
-    # Create user with old system (direct creation)
-    user = User.create!(
-      email_address: "legacy@example.com",
-      confirmed_at: nil
-    )
-
-    # User should have AccountUser from after_create callback
-    assert user.account_users.exists?
-    assert_not user.confirmed?
-
-    # Confirm using legacy method
-    user.confirm!
-    user.reload
-
-    # Should be confirmed and token cleared
-    assert user.confirmed?
-    assert_nil user.confirmation_token
-  end
 
   test "sets default account when AccountUser is created" do
     user = User.create!(email_address: "default-account-test@example.com")

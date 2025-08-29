@@ -1,7 +1,5 @@
 class User < ApplicationRecord
 
-  include Confirmable
-
   has_secure_password validations: false
   has_many :sessions, dependent: :destroy
 
@@ -25,15 +23,10 @@ class User < ApplicationRecord
 
   validates :password, presence: true, on: :update, if: :confirmed?
 
-  before_create :generate_confirmation_token
   after_create :ensure_account_user_exists
 
   generates_token_for :password_reset, expires_in: 2.hours do
     password_salt&.last(10)
-  end
-
-  generates_token_for :email_confirmation, expires_in: 24.hours do
-    email_address
   end
 
   def self.find_by_password_reset_token!(token)
@@ -42,19 +35,14 @@ class User < ApplicationRecord
     user
   end
 
-  def self.find_by_confirmation_token!(token)
-    find_by!(confirmation_token: token)
-  rescue ActiveRecord::RecordNotFound
-    raise ActiveSupport::MessageVerifier::InvalidSignature
-  end
-
   def password_reset_token
     generate_token_for(:password_reset)
   end
 
-  def send_confirmation_email
-    mail = UserMailer.confirmation(self)
-    Rails.env.development? ? mail.deliver_now : mail.deliver_later
+  # Confirmation is now handled entirely by AccountUser
+  def confirmed?
+    # A user is confirmed if they have at least one confirmed account membership
+    account_users.confirmed.any?
   end
 
   # Business Logic Methods (not in a service!)
@@ -65,43 +53,21 @@ class User < ApplicationRecord
 
       if user.persisted?
         # Existing user - find or create their membership
-        user.find_or_create_membership!
+        account_user = user.find_or_create_membership!
 
-        # If the user is not confirmed, regenerate confirmation token for resend
+        # If the user is not confirmed, resend confirmation
         if !user.confirmed?
-          user.generate_confirmation_token
-          user.save!(validate: false)
-
-          # Also update the AccountUser token if it exists
-          account_user = user.account_users.first
-          if account_user && !account_user.confirmed?
-            account_user.update!(
-              confirmation_token: user.confirmation_token,
-              confirmation_sent_at: user.confirmation_sent_at
-            )
-          end
+          account_user.resend_confirmation!
         end
       else
-        # New user - validate email first, then create with account
-        # Only validate email_address, skip password validation
+        # New user - validate email first, then create
         user.valid?
         if user.errors[:email_address].any?
           raise ActiveRecord::RecordInvalid.new(user)
         end
 
-        user.save!(validate: false) # Skip all other validations
-        # The after_create callback will have created an AccountUser
-        # Just ensure the confirmation token is transferred
-        account_user = user.account_users.first
-        if account_user && account_user.confirmation_token != user.confirmation_token
-          account_user.update!(
-            confirmation_token: user.confirmation_token,
-            confirmation_sent_at: user.confirmation_sent_at,
-            confirmed_at: user.confirmed_at
-          )
-          # Clear User's confirmation token since it's now on AccountUser
-          user.update(confirmation_token: nil)
-        end
+        user.save!(validate: false) # Skip password validation
+        # The after_create callback will have created an AccountUser with confirmation
       end
 
       # Add a method to track if this was a new user
@@ -120,14 +86,10 @@ class User < ApplicationRecord
       account_type: :personal
     )
 
-    # If the user is already confirmed, create confirmed AccountUser
-    # If not, create unconfirmed AccountUser
+    # Create unconfirmed AccountUser
     account_users.create!(
       account: account,
-      role: "owner",
-      confirmed_at: confirmed_at, # Use existing confirmation timestamp
-      confirmation_token: confirmed_at? ? nil : confirmation_token,
-      confirmation_sent_at: confirmed_at? ? nil : confirmation_sent_at
+      role: "owner"
     )
   end
 
@@ -151,22 +113,18 @@ class User < ApplicationRecord
   private
 
   def ensure_account_user_exists
-    # For backward compatibility - ensure any User created gets an AccountUser
+    # Ensure any User created gets an AccountUser
     return if account_users.exists?
 
     account = Account.create!(
-      name: "My Account",
+      name: "#{email_address}'s Account",
       account_type: :personal
     )
 
-    # Create AccountUser with same confirmation data as User
+    # Create unconfirmed AccountUser (will send confirmation email)
     account_users.create!(
       account: account,
-      role: "owner",
-      confirmation_token: confirmation_token,
-      confirmation_sent_at: confirmation_sent_at,
-      confirmed_at: confirmed_at,
-      skip_confirmation: confirmed_at.present?  # Only skip email if already confirmed
+      role: "owner"
     )
 
     # Set as default account
