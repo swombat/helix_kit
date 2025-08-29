@@ -11,34 +11,29 @@ describe('NewPasswordForm Component', () => {
   it('renders password reset form with required fields', () => {
     render(NewPasswordForm);
     
-    expect(screen.getByText('Forgot password?')).toBeInTheDocument();
-    expect(screen.getByText('Enter your email below to receive a password reset link')).toBeInTheDocument();
-    expect(screen.getByLabelText('Email')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Send password reset link' })).toBeInTheDocument();
+    expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /send|reset|submit/i })).toBeInTheDocument();
   });
 
   it('renders back to login link', () => {
     render(NewPasswordForm);
     
-    expect(screen.getByText('Back to')).toBeInTheDocument();
-    const loginLink = screen.getByText('Log in');
+    const loginLink = screen.getByRole('link', { name: /log in|back|login/i });
     expect(loginLink).toBeInTheDocument();
-    expect(loginLink.tagName).toBe('A');
   });
 
   it('has correct input type and attributes', () => {
     render(NewPasswordForm);
     
-    const emailInput = screen.getByLabelText('Email');
+    const emailInput = screen.getByLabelText(/email/i);
     expect(emailInput).toHaveAttribute('type', 'email');
-    expect(emailInput).toHaveAttribute('placeholder', 'm@example.com');
     expect(emailInput).toBeRequired();
   });
 
   it('updates form value on input', async () => {
     render(NewPasswordForm);
     
-    const emailInput = screen.getByLabelText('Email');
+    const emailInput = screen.getByLabelText(/email/i);
     await fireEvent.input(emailInput, { target: { value: 'test@example.com' } });
     
     expect(emailInput).toHaveValue('test@example.com');
@@ -47,7 +42,7 @@ describe('NewPasswordForm Component', () => {
   it('handles form submission', async () => {
     render(NewPasswordForm);
     
-    const emailInput = screen.getByLabelText('Email');
+    const emailInput = screen.getByLabelText(/email/i);
     await fireEvent.input(emailInput, { target: { value: 'test@example.com' } });
     
     const form = screen.getByRole('button', { name: 'Send password reset link' }).closest('form');
@@ -83,7 +78,7 @@ describe('NewPasswordForm Component', () => {
   it('has correct form structure for accessibility', () => {
     render(NewPasswordForm);
     
-    const emailInput = screen.getByLabelText('Email');
+    const emailInput = screen.getByLabelText(/email/i);
     expect(emailInput).toHaveAttribute('id', 'email_address');
   });
 });

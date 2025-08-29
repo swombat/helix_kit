@@ -11,32 +11,29 @@ describe('EditPasswordForm Component', () => {
   it('renders edit password form with required fields', () => {
     render(EditPasswordForm);
     
-    expect(screen.getByText('Update your password')).toBeInTheDocument();
-    expect(screen.getByText('Enter a new password for your account')).toBeInTheDocument();
-    expect(screen.getByLabelText('New Password')).toBeInTheDocument();
-    expect(screen.getByLabelText('New Password Confirmation')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
+    // Should have two password fields
+    expect(screen.getByLabelText(/new password$/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/confirmation/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /save|submit|update/i })).toBeInTheDocument();
   });
 
   it('has correct input types and attributes', () => {
     render(EditPasswordForm);
     
-    const passwordInput = screen.getByLabelText('New Password');
+    const passwordInput = screen.getByLabelText(/new password$/i);
     expect(passwordInput).toHaveAttribute('type', 'password');
     expect(passwordInput).toBeRequired();
-    expect(passwordInput).toHaveAttribute('placeholder', 'Enter new password');
     
-    const confirmPasswordInput = screen.getByLabelText('New Password Confirmation');
+    const confirmPasswordInput = screen.getByLabelText(/confirmation/i);
     expect(confirmPasswordInput).toHaveAttribute('type', 'password');
     expect(confirmPasswordInput).toBeRequired();
-    expect(confirmPasswordInput).toHaveAttribute('placeholder', 'Repeat new password');
   });
 
   it('updates form values on input', async () => {
     render(EditPasswordForm);
     
-    const passwordInput = screen.getByLabelText('New Password');
-    const confirmPasswordInput = screen.getByLabelText('New Password Confirmation');
+    const passwordInput = screen.getByLabelText(/new password$/i);
+    const confirmPasswordInput = screen.getByLabelText(/confirmation/i);
     
     await fireEvent.input(passwordInput, { target: { value: 'newpassword123' } });
     await fireEvent.input(confirmPasswordInput, { target: { value: 'newpassword123' } });

@@ -13,7 +13,7 @@ describe('SignupForm Component', () => {
     
     expect(screen.getByRole('heading', { name: 'Sign up' })).toBeInTheDocument();
     expect(screen.getByText("Enter your email to create an account. We'll send you a confirmation link.")).toBeInTheDocument();
-    expect(screen.getByLabelText('Email')).toBeInTheDocument();
+    expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Send Confirmation Email' })).toBeInTheDocument();
   });
 
@@ -27,8 +27,8 @@ describe('SignupForm Component', () => {
   it('renders login link', () => {
     render(SignupForm);
     
-    expect(screen.getByText('Already have an account?')).toBeInTheDocument();
-    const loginLink = screen.getByText('Log in');
+    // Should have a login link for existing users
+    const loginLink = screen.getByRole('link', { name: /log in/i });
     expect(loginLink).toBeInTheDocument();
     expect(loginLink.tagName).toBe('A');
   });
@@ -36,7 +36,7 @@ describe('SignupForm Component', () => {
   it('has correct email input attributes', () => {
     render(SignupForm);
     
-    const emailInput = screen.getByLabelText('Email');
+    const emailInput = screen.getByLabelText(/email/i);
     expect(emailInput).toHaveAttribute('type', 'email');
     expect(emailInput).toHaveAttribute('placeholder', 'm@example.com');
     expect(emailInput).toBeRequired();
@@ -45,7 +45,7 @@ describe('SignupForm Component', () => {
   it('updates email value on input', async () => {
     render(SignupForm);
     
-    const emailInput = screen.getByLabelText('Email');
+    const emailInput = screen.getByLabelText(/email/i);
     
     await fireEvent.input(emailInput, { target: { value: 'test@example.com' } });
     
@@ -55,7 +55,7 @@ describe('SignupForm Component', () => {
   it('handles form submission', async () => {
     render(SignupForm);
     
-    const emailInput = screen.getByLabelText('Email');
+    const emailInput = screen.getByLabelText(/email/i);
     
     await fireEvent.input(emailInput, { target: { value: 'test@example.com' } });
     
@@ -89,7 +89,7 @@ describe('SignupForm Component', () => {
   it('has correct form structure for accessibility', () => {
     render(SignupForm);
     
-    const emailInput = screen.getByLabelText('Email');
+    const emailInput = screen.getByLabelText(/email/i);
     expect(emailInput).toHaveAttribute('id', 'email_address');
   });
 });

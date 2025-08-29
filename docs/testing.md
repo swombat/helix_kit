@@ -149,6 +149,50 @@ For testing application-specific Svelte components and JavaScript utilities in i
   - If customization is needed: create a new component that wraps or extends the shadcn component, then test the wrapper
   - Example: Instead of modifying `/ui/button/button.svelte`, create `/lib/components/CustomButton.svelte` and test that
 
+#### Testing Philosophy: Functionality Over Text
+
+**We test FUNCTIONALITY, not CONTENT**
+
+❌ **DON'T test for specific text:**
+```javascript
+// BAD - Tests break when copy changes
+expect(screen.getByText('Enter your email below to create your account')).toBeInTheDocument();
+expect(screen.getByText('Update your password')).toBeInTheDocument();
+```
+
+✅ **DO test for functional elements and behavior:**
+```javascript
+// GOOD - Tests functionality regardless of text changes
+// Test that form has required fields
+expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
+expect(screen.getByRole('button', { name: /submit|sign up|continue/i })).toBeInTheDocument();
+
+// Test that form validates
+await fireEvent.input(emailField, { target: { value: 'invalid-email' } });
+await fireEvent.submit(form);
+expect(emailField).toHaveAttribute('aria-invalid', 'true');
+
+// Test that form submits successfully
+await fireEvent.input(emailField, { target: { value: 'valid@email.com' } });
+await fireEvent.submit(form);
+expect(mockSubmit).toHaveBeenCalledWith({ email: 'valid@email.com' });
+```
+
+**What to test in components:**
+- Presence of required form fields (by role/label, not exact text)
+- Form validation behavior
+- Button functionality (submission, cancellation)
+- Error state handling
+- Success state handling
+- User interactions produce expected outcomes
+- Data flows correctly through the component
+
+**What NOT to test:**
+- Exact wording of labels, descriptions, or error messages
+- Specific placeholder text
+- Marketing copy or instructional text
+- CSS classes or styling (unless functionally important)
+
 **Run tests:**
 ```bash
 npm run test:unit     # Run unit tests
