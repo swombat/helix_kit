@@ -11,7 +11,10 @@ rails test
 # 2. Run Playwright component tests (REAL backend - NO mocking!)
 npm test
 
-# Both test suites MUST pass before committing changes!
+# 3. Run Vitest unit tests
+npm run test:unit
+
+# All three test suites MUST pass before committing changes!
 ```
 
 ## Overview
@@ -130,7 +133,21 @@ Test files are located in `playwright/tests/pages/`:
 
 ### Vitest Unit Testing
 
-For testing Svelte components and JavaScript utilities in isolation.
+For testing application-specific Svelte components and JavaScript utilities in isolation.
+
+**IMPORTANT: Testing Strategy for UI Components**
+
+#### What We Test
+- **Application components** (in `/app/frontend/pages/`, `/app/frontend/lib/components/`)
+- **Custom utilities and helpers**
+- **Application-specific business logic**
+
+#### What We DON'T Test
+- **Shadcn-svelte components** (in `/app/frontend/lib/components/ui/`)
+  - These are third-party components that we assume work correctly
+  - We do NOT edit these components directly
+  - If customization is needed: create a new component that wraps or extends the shadcn component, then test the wrapper
+  - Example: Instead of modifying `/ui/button/button.svelte`, create `/lib/components/CustomButton.svelte` and test that
 
 **Run tests:**
 ```bash
@@ -139,19 +156,21 @@ npm run test:unit:ui  # Open Vitest UI for debugging
 ```
 
 ```javascript
-// test/frontend/components/Button.test.js
+// Example: Testing an application component (NOT a shadcn component)
+// app/frontend/lib/components/signup-form.test.js
 import { render, fireEvent } from '@testing-library/svelte';
-import Button from '@/lib/components/Button.svelte';
+import SignupForm from './signup-form.svelte';
 
-test('button click triggers event', async () => {
-  const { getByText, component } = render(Button, { 
-    props: { label: 'Click me' } 
-  });
+test('signup form submits with email', async () => {
+  const { getByLabelText, getByRole } = render(SignupForm);
   
-  const button = getByText('Click me');
-  await fireEvent.click(button);
+  const emailInput = getByLabelText('Email');
+  await fireEvent.input(emailInput, { target: { value: 'test@example.com' } });
   
-  expect(component.$on).toHaveBeenCalled();
+  const submitButton = getByRole('button', { name: 'Sign up' });
+  await fireEvent.click(submitButton);
+  
+  // Assert expected behavior
 });
 ```
 

@@ -4,6 +4,6 @@
 	let { ref = $bindable(null), class: className, children, ...restProps } = $props();
 </script>
 
-<div bind:this={ref} class={cn("p-6", className)} {...restProps}>
+<div bind:this={ref} class={cn("p-6 pt-0", className)} {...restProps}>
 	{@render children?.()}
 </div>

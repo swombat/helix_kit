@@ -11,7 +11,7 @@
   }
 </script>
 
-{#if errors.length > 0}
+{#if errors && errors.length > 0}
   <div class="gap-2 -mt-1">
     {#each errors as error}
       <div

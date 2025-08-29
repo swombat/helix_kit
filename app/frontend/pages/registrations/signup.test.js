@@ -13,11 +13,9 @@ describe('Signup Page Component', () => {
   it('includes signup form component', () => {
     render(Signup);
     
-    // Check for form elements
+    // Check for form elements - new flow only asks for email
     expect(screen.getByLabelText('Email')).toBeInTheDocument();
-    expect(screen.getByLabelText('Password')).toBeInTheDocument();
-    expect(screen.getByLabelText('Password Confirmation')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Sign up' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Send Confirmation Email' })).toBeInTheDocument();
   });
 
   it('has login link for existing users', () => {
@@ -31,7 +29,7 @@ describe('Signup Page Component', () => {
   it('displays signup description', () => {
     render(Signup);
     
-    expect(screen.getByText('Enter your email to create an account')).toBeInTheDocument();
+    expect(screen.getByText("Enter your email to create an account. We'll send you a confirmation link.")).toBeInTheDocument();
   });
 
   it('uses auth layout structure', () => {

@@ -4,7 +4,7 @@
 	let {
 		ref = $bindable(null),
 		value = $bindable(),
-		type,
+		type = "text",
 		files = $bindable(),
 		class: className,
 		...restProps
