@@ -61,7 +61,7 @@ npx shadcn-svelte@latest add progress
 <script>
   import { Progress } from "$lib/components/ui/progress";
   import { Button } from "$lib/components/ui/button";
-  import { Upload } from "lucide-svelte";
+  import { Upload } from "phosphor-svelte";
   
   let progress = 0;
   let isUploading = false;

@@ -5,25 +5,30 @@ class SessionsController < ApplicationController
 
   def new
     if authenticated?
-      redirect_to root_path, flash: { notice: "You are already signed in." }
+      redirect_to root_path, notice: "You are already signed in."
     else
       render inertia: "sessions/login"
     end
   end
 
   def create
-    if user = User.authenticate_by(session_params)
+    user = User.find_by(email_address: session_params[:email_address]&.strip&.downcase)
+
+    if user && !user.can_login?
+      alert = user.confirmed? ? "Please complete your account setup first." : "Please confirm your email address first."
+      redirect_to signup_path, alert: alert
+    elsif user = User.authenticate_by(session_params)
       start_new_session_for user
-      redirect_to after_authentication_url, flash: { notice: "You have been signed in." }
+      redirect_to after_authentication_url, notice: "You have been signed in."
     else
-      flash[:alert] = "Invalid email or password."
-      redirect_to login_path, inertia: { errors: { email_address: [ "Invalid email or password." ] } }
+      redirect_to login_path, alert: "Invalid email or password.",
+        inertia: { errors: { email_address: [ "Invalid email or password." ] } }
     end
   end
 
   def destroy
     terminate_session
-    redirect_to root_path, flash: { notice: "You have been signed out." }
+    redirect_to root_path, notice: "You have been signed out."
   end
 
   private

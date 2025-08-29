@@ -93,11 +93,11 @@ npx shadcn-svelte@latest add slider
 ### Volume Control
 ```svelte
 <script>
-  import { Volume, Volume2, VolumeX } from "lucide-svelte";
+  import { SpeakerLow, SpeakerHigh, SpeakerX } from "phosphor-svelte";
   let volume = [75];
   
-  $: volumeIcon = volume[0] === 0 ? VolumeX : 
-                  volume[0] < 50 ? Volume : Volume2;
+  $: volumeIcon = volume[0] === 0 ? SpeakerX : 
+                  volume[0] < 50 ? SpeakerLow : SpeakerHigh;
 </script>
 
 <div class="flex items-center space-x-2">

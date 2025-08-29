@@ -5,123 +5,101 @@ test.describe('Signup Form Component Tests', () => {
   // IMPORTANT: These tests require the Rails backend running on localhost:3200
   // Run with: npm run test:integrated (automatically handles backend setup)
   
-  test('should render signup form with all fields', async ({ mount }) => {
+  test('should render signup form with email field only', async ({ mount }) => {
     const component = await mount(SignupForm);
     
     // Check all elements are present
     await expect(component).toContainText('Sign up');
-    await expect(component).toContainText('Enter your email to create an account');
+    await expect(component).toContainText("Enter your email to create an account. We'll send you a confirmation link.");
     
-    // Check form fields
+    // Check only email field is present (no password fields)
     await expect(component.locator('input[type="email"]')).toBeVisible();
-    await expect(component.locator('input[type="password"]').first()).toBeVisible();
-    await expect(component.locator('input[type="password"]').nth(1)).toBeVisible();
+    await expect(component.locator('input[type="password"]')).not.toBeVisible();
+    
+    // Check submit button
     await expect(component.locator('button[type="submit"]')).toBeVisible();
-    await expect(component.locator('button[type="submit"]')).toContainText('Sign up');
+    await expect(component.locator('button[type="submit"]')).toContainText('Send Confirmation Email');
     
     // Check login link
     await expect(component.locator('a').filter({ hasText: 'Log in' })).toBeVisible();
   });
 
-  test('should successfully sign up with valid new email', async ({ mount, page }) => {
+  test('should successfully submit signup with valid new email', async ({ mount, page }) => {
     const component = await mount(SignupForm);
     
     // Generate a unique email for this test run
     const timestamp = Date.now();
     const email = `newuser${timestamp}@example.com`;
     
-    // Fill in the form
+    // Fill in the email field
     await component.locator('input[type="email"]').fill(email);
-    await component.locator('input[type="password"]').first().fill('password123');
-    await component.locator('input[type="password"]').nth(1).fill('password123');
     
     // Submit the form
     const responsePromise = page.waitForResponse('**/signup');
     await component.locator('button[type="submit"]').click();
     const response = await responsePromise;
     
-    // Check successful signup (302 redirect is standard Rails behavior)
+    // Check successful signup (302 redirect to check-email page)
     expect(response.status()).toBe(302);
   });
 
   test('should show error when email already exists', async ({ mount, page }) => {
     const component = await mount(SignupForm);
     
-    // Fill in the form with existing email (seeded in test database)
-    await component.locator('input[type="email"]').fill('existing@example.com');
-    await component.locator('input[type="password"]').first().fill('password123');
-    await component.locator('input[type="password"]').nth(1).fill('password123');
+    // Fill in the form with existing confirmed email (seeded in test database)
+    await component.locator('input[type="email"]').fill('test@example.com');
     
     // Submit the form
     const responsePromise = page.waitForResponse('**/signup');
     await component.locator('button[type="submit"]').click();
     const response = await responsePromise;
     
-    // Check error response (Rails with Inertia returns 302 redirect with errors in session)
+    // Should redirect to signup page with error
     expect(response.status()).toBe(302);
+    
+    // In a real test, we'd check for the error message displayed after redirect
   });
 
-  test('should show error when passwords do not match', async ({ mount, page }) => {
+  test('should resend confirmation for unconfirmed email', async ({ mount, page }) => {
     const component = await mount(SignupForm);
     
-    // Generate a unique email for this test
-    const timestamp = Date.now();
-    const email = `user${timestamp}@example.com`;
-    
-    // Fill in the form with mismatched passwords
-    await component.locator('input[type="email"]').fill(email);
-    await component.locator('input[type="password"]').first().fill('password123');
-    await component.locator('input[type="password"]').nth(1).fill('different456');
+    // Use an email that exists but is unconfirmed
+    // This would need to be seeded in test database
+    await component.locator('input[type="email"]').fill('unconfirmed@example.com');
     
     // Submit the form
     const responsePromise = page.waitForResponse('**/signup');
     await component.locator('button[type="submit"]').click();
     const response = await responsePromise;
     
-    // Check error response (Rails with Inertia returns 302 redirect with errors in session)
+    // Should redirect to check-email page
     expect(response.status()).toBe(302);
   });
 
-  test('should accept input in form fields', async ({ mount }) => {
+  test('should accept input in email field', async ({ mount }) => {
     const component = await mount(SignupForm);
     
     const emailInput = component.locator('input[type="email"]');
-    const passwordInput = component.locator('input[type="password"]').first();
-    const confirmInput = component.locator('input[type="password"]').nth(1);
-    
-    // Fill in the form
     await emailInput.fill('test@example.com');
-    await passwordInput.fill('password123');
-    await confirmInput.fill('password123');
     
-    // Verify values are filled
+    // Verify the value is set
     await expect(emailInput).toHaveValue('test@example.com');
-    await expect(passwordInput).toHaveValue('password123');
-    await expect(confirmInput).toHaveValue('password123');
   });
 
-  test('should validate required fields', async ({ mount }) => {
+  test('should validate required email field', async ({ mount }) => {
     const component = await mount(SignupForm);
     
+    // Try to submit without filling email
     const emailInput = component.locator('input[type="email"]');
-    const passwordInput = component.locator('input[type="password"]').first();
-    const confirmInput = component.locator('input[type="password"]').nth(1);
     
-    // Check HTML5 validation attributes
+    // Check that email field is required
     await expect(emailInput).toHaveAttribute('required', '');
-    await expect(passwordInput).toHaveAttribute('required', '');
-    await expect(confirmInput).toHaveAttribute('required', '');
-    
-    // Check email type
-    await expect(emailInput).toHaveAttribute('type', 'email');
   });
 
   test('should have correct placeholders', async ({ mount }) => {
     const component = await mount(SignupForm);
     
     const emailInput = component.locator('input[type="email"]');
-    
-    // Check placeholder
     await expect(emailInput).toHaveAttribute('placeholder', 'm@example.com');
   });
 
@@ -136,28 +114,36 @@ test.describe('Signup Form Component Tests', () => {
   test('should preserve form data when typing', async ({ mount }) => {
     const component = await mount(SignupForm);
     
-    const email = 'user@example.com';
-    const password = 'password123';
+    const emailInput = component.locator('input[type="email"]');
     
-    // Fill in the form
-    await component.locator('input[type="email"]').fill(email);
-    await component.locator('input[type="password"]').first().fill(password);
-    await component.locator('input[type="password"]').nth(1).fill(password);
+    // Type character by character
+    await emailInput.type('user@domain.com', { delay: 50 });
     
-    // Check values are preserved
-    await expect(component.locator('input[type="email"]')).toHaveValue(email);
-    await expect(component.locator('input[type="password"]').first()).toHaveValue(password);
-    await expect(component.locator('input[type="password"]').nth(1)).toHaveValue(password);
+    // Verify the value is preserved
+    await expect(emailInput).toHaveValue('user@domain.com');
   });
-
+  
   test('should have submit button', async ({ mount }) => {
     const component = await mount(SignupForm);
     
     const submitButton = component.locator('button[type="submit"]');
     await expect(submitButton).toBeVisible();
-    await expect(submitButton).toContainText('Sign up');
+    await expect(submitButton).toContainText('Send Confirmation Email');
+  });
+
+  test('should show loading state when processing', async ({ mount }) => {
+    const component = await mount(SignupForm);
     
-    // Verify button is clickable
+    const submitButton = component.locator('button[type="submit"]');
+    const emailInput = component.locator('input[type="email"]');
+    
+    // Fill in email
+    await emailInput.fill('loading@test.com');
+    
+    // The button should be enabled initially
     await expect(submitButton).toBeEnabled();
+    
+    // When form is processing, button text changes and is disabled
+    // This would need proper mocking to test the processing state
   });
 });

@@ -12,7 +12,7 @@ npx shadcn-svelte@latest add collapsible
 <script>
   import * as Collapsible from "$lib/components/ui/collapsible";
   import { Button } from "$lib/components/ui/button";
-  import { ChevronDown } from "lucide-svelte";
+  import { CaretDown } from "phosphor-svelte";
   
   let isOpen = false;
 </script>
@@ -24,7 +24,7 @@ npx shadcn-svelte@latest add collapsible
     </h4>
     <Collapsible.Trigger asChild let:builder>
       <Button builders={[builder]} variant="ghost" size="sm" class="w-9 p-0">
-        <ChevronDown class="h-4 w-4" />
+        <CaretDown class="h-4 w-4" />
         <span class="sr-only">Toggle</span>
       </Button>
     </Collapsible.Trigger>

@@ -28,7 +28,7 @@ class PasswordsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should get password reset edit page with valid token" do
-    token = @user.generate_password_reset_token
+    token = @user.password_reset_token
     get edit_password_path(token)
     assert_response :success
     assert_equal "passwords/edit", inertia_component
@@ -42,7 +42,7 @@ class PasswordsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should update password with valid token and matching passwords" do
-    token = @user.generate_password_reset_token
+    token = @user.password_reset_token
 
     patch password_path(token), params: {
       password: "newpassword123",
@@ -61,7 +61,7 @@ class PasswordsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should not update password with mismatched confirmation" do
-    token = @user.generate_password_reset_token
+    token = @user.password_reset_token
 
     patch password_path(token), params: {
       password: "newpassword123",
@@ -92,7 +92,7 @@ class PasswordsControllerTest < ActionDispatch::IntegrationTest
     post passwords_path, params: { email_address: @user.email_address }
     assert_redirected_to login_path
 
-    token = @user.generate_password_reset_token
+    token = @user.password_reset_token
     get edit_password_path(token)
     assert_response :success
   end

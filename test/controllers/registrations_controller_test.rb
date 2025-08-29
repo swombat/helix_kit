@@ -17,29 +17,42 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "You are already signed in.", flash[:alert]
   end
 
-  test "should create new user with valid params" do
+  test "should create new user with valid email" do
     assert_difference("User.count", 1) do
       post signup_path, params: {
-        email_address: "newuser@example.com",
-        password: "password123",
-        password_confirmation: "password123"
+        email_address: "newuser@example.com"
       }
     end
 
-    assert_redirected_to root_path
-    assert_equal "Successfully signed up!", flash[:notice]
-
-    # Verify the user is logged in
-    get root_path
-    assert_response :success
+    assert_redirected_to check_email_path
+    assert_equal "Please check your email to confirm your account.", flash[:notice]
+    
+    # Verify the user was created without password
+    user = User.last
+    assert_equal "newuser@example.com", user.email_address
+    assert_nil user.password_digest
+    assert_not user.confirmed?
   end
 
   test "should not create user with invalid email" do
     assert_no_difference("User.count") do
       post signup_path, params: {
-        email_address: "invalid-email",
-        password: "password123",
-        password_confirmation: "password123"
+        email_address: "invalid-email"
+      }
+    end
+
+    assert_redirected_to signup_path
+    follow_redirect!
+    errors = inertia_shared_props["errors"]
+    assert errors.present?
+    assert errors["email_address"].present?
+    assert errors["email_address"].any? { |e| e.match?(/invalid/i) }
+  end
+
+  test "should not create user with blank email" do
+    assert_no_difference("User.count") do
+      post signup_path, params: {
+        email_address: ""
       }
     end
 
@@ -50,30 +63,29 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
     assert errors["email_address"].present?
   end
 
-  test "should not create user with mismatched passwords" do
+  test "should resend confirmation for existing unconfirmed user" do
+    # Create an unconfirmed user
+    user = User.create!(
+      email_address: "existing@example.com", 
+      confirmed_at: nil
+    )
+    
     assert_no_difference("User.count") do
       post signup_path, params: {
-        email_address: "newuser@example.com",
-        password: "password123",
-        password_confirmation: "different-password"
+        email_address: "existing@example.com"
       }
     end
 
-    assert_redirected_to signup_path
-    follow_redirect!
-    errors = inertia_shared_props["errors"]
-    assert errors.present?
-    assert errors["password_confirmation"].present?
+    assert_redirected_to check_email_path
+    assert_equal "Confirmation email resent. Please check your inbox.", flash[:notice]
   end
 
-  test "should not create user with duplicate email" do
-    existing_user = users(:user_1)
-
+  test "should not allow signup with already confirmed email" do
+    user = users(:user_1)
+    
     assert_no_difference("User.count") do
       post signup_path, params: {
-        email_address: existing_user.email_address,
-        password: "password123",
-        password_confirmation: "password123"
+        email_address: user.email_address
       }
     end
 
@@ -82,58 +94,73 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
     errors = inertia_shared_props["errors"]
     assert errors.present?
     assert errors["email_address"].present?
-  end
-
-  test "should not create user with blank password" do
-    assert_no_difference("User.count") do
-      post signup_path, params: {
-        email_address: "newuser@example.com",
-        password: "",
-        password_confirmation: ""
-      }
-    end
-
-    assert_redirected_to signup_path
-    follow_redirect!
-    errors = inertia_shared_props["errors"]
-    assert errors.present?
-    assert errors["password"].present?
-  end
-
-  test "should log in user after successful registration" do
-    post signup_path, params: {
-      email_address: "newuser@example.com",
-      password: "password123",
-      password_confirmation: "password123"
-    }
-
-    assert_redirected_to root_path
-
-    # Logout to test if the account was created properly
-    delete logout_path
-
-    # Try logging in with the new credentials
-    post login_path, params: {
-      email_address: "newuser@example.com",
-      password: "password123"
-    }
-    assert_redirected_to root_path
-    assert_equal "You have been signed in.", flash[:notice]
+    assert errors["email_address"].any? { |e| e.match?(/already registered/i) }
   end
 
   test "registration returns proper inertia errors structure" do
     post signup_path, params: {
-      email_address: "invalid",
-      password: "short",
-      password_confirmation: "different"
+      email_address: "invalid"
     }
 
     assert_redirected_to signup_path
     follow_redirect!
-
-    assert inertia_props.key?("props")
-    assert inertia_shared_props.key?("errors")
-    assert inertia_shared_props["errors"].is_a?(Hash)
+    errors = inertia_shared_props["errors"]
+    assert_kind_of Hash, errors
+    assert_kind_of Array, errors["email_address"]
+  end
+  
+  test "should get check email page" do
+    get check_email_path
+    assert_response :success
+    assert_equal "registrations/check-email", inertia_component
+  end
+  
+  test "should confirm email with valid token" do
+    user = User.create!(
+      email_address: "toconfirm@example.com",
+      confirmed_at: nil
+    )
+    
+    get email_confirmation_path(token: user.confirmation_token)
+    assert_redirected_to set_password_path
+    assert_equal "Email confirmed! Please set your password.", flash[:notice]
+    
+    user.reload
+    assert user.confirmed?
+  end
+  
+  test "should handle invalid confirmation token" do
+    get email_confirmation_path(token: "invalid_token")
+    assert_redirected_to signup_path
+    assert_equal "Invalid or expired confirmation link. Please sign up again.", flash[:alert]
+  end
+  
+  test "should set password after confirmation" do
+    # Create unconfirmed user
+    user = User.create!(
+      email_address: "newpass@example.com",
+      confirmed_at: nil
+    )
+    
+    # Simulate email confirmation click
+    get email_confirmation_path(token: user.confirmation_token)
+    assert_redirected_to set_password_path
+    follow_redirect!
+    
+    assert_response :success
+    assert_equal "registrations/set-password", inertia_component
+    
+    # Set the password
+    patch set_password_path, params: {
+      password: "newpassword123",
+      password_confirmation: "newpassword123"
+    }
+    
+    assert_redirected_to root_path
+    assert_equal "Account setup complete! Welcome!", flash[:notice]
+    
+    user.reload
+    assert user.authenticate("newpassword123")
   end
 
 end

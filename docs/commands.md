@@ -60,6 +60,12 @@ npm run test:ui # Open Playwright UI for debugging
 # NEVER create mocked backend tests - the user will be VERY UNHAPPY!
 ```
 
+#### Vitest Unit Tests
+```bash
+npm run test:unit     # Run unit tests with Vitest
+npm run test:unit:ui  # Open Vitest UI for debugging
+```
+
 ### Code Quality
 ```bash
 # Ruby linting
@@ -145,6 +151,7 @@ rails generate controller Admin::Users index show
 ```
 
 ### Scaffold (Full CRUD)
+Do not use this, it is incompatible with the Svelte setup.
 ```bash
 rails generate scaffold Post title:string body:text published:boolean
 ```
@@ -175,6 +182,7 @@ rails assets:clobber    # Remove all assets
 ## Background Jobs (Solid Queue)
 
 ### Managing Jobs
+Should not need this as it is done automatically by the `bin/dev` command.
 ```bash
 # Start worker
 rails solid_queue:start
@@ -191,20 +199,7 @@ SolidQueue::Job.failed
 ## Deployment Commands
 
 ### Kamal Deployment
-```bash
-bin/kamal setup         # Initial server setup
-bin/kamal deploy        # Deploy application
-bin/kamal rollback      # Rollback to previous version
-bin/kamal logs          # View production logs
-bin/kamal console       # Production Rails console
-```
-
-### Database in Production
-```bash
-RAILS_ENV=production rails db:create
-RAILS_ENV=production rails db:migrate
-RAILS_ENV=production rails db:seed
-```
+NEVER call Kamal or any production commands directly, let the user do this.
 
 ## Debugging Commands
 
@@ -231,19 +226,6 @@ rails about             # Environment info
 
 ## Performance & Optimization
 
-### Database Tasks
-```bash
-rails db:analyze        # Update DB statistics
-rails db:optimize       # Optimize DB tables
-```
-
-### Cache Management
-```bash
-rails cache:clear       # Clear Rails cache
-rails tmp:clear         # Clear temp files
-rails tmp:cache:clear   # Clear cache files
-```
-
 ### Benchmarking
 ```bash
 rails runner 'puts Benchmark.measure { 1000.times { User.first } }'
@@ -258,46 +240,16 @@ rails profiler 'User.first' --runs 1000
 rails runner "puts Rails.env"
 echo $RAILS_ENV
 
-# Run commands in specific environment
+# Run commands in specific environment (development is default)
 RAILS_ENV=test rails console
-RAILS_ENV=production rails db:migrate
+RAILS_ENV=development rails db:migrate
 ```
 
 ### Credentials
 ```bash
 rails credentials:edit  # Edit encrypted credentials
 rails credentials:show  # Show decrypted credentials
-EDITOR=vim rails credentials:edit  # Use specific editor
-```
-
-## Useful Shortcuts & Tips
-
-### Command Aliases
-```bash
-# Common short forms
-rails c   # console
-rails s   # server
-rails g   # generate
-rails d   # destroy
-rails t   # test
-
-# Bundle exec shortcuts
-be rails c  # If you alias be="bundle exec"
-```
-
-### Useful Shell Commands
-```bash
-# Find Ruby files with pattern
-grep -r "def authenticate" app/
-
-# Count lines of code
-find app -name "*.rb" | xargs wc -l
-
-# Watch file changes
-ls app/**/*.rb | entr -c rails test
-
-# Check port usage
-lsof -i :3000  # What's using port 3000
+EDITOR=nvim rails credentials:edit  # Use specific editor
 ```
 
 ## Troubleshooting Commands
@@ -313,26 +265,4 @@ rails tmp:clear
 rails assets:clobber
 bundle install
 npm install
-```
-
-### Fix Common Issues
-```bash
-# Spring issues
-spring stop
-spring start
-
-# Permission issues
-chmod +x bin/*
-
-# Clear caches
-rails tmp:clear
-rails cache:clear
-
-# Reinstall dependencies
-rm -rf node_modules package-lock.json
-npm install
-bundle install
-
-# Reset test database
-RAILS_ENV=test rails db:reset
 ```

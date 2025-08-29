@@ -119,7 +119,7 @@ npx shadcn-svelte@latest add scroll-area
 ### File Explorer
 ```svelte
 <script>
-  import { Folder, File } from "lucide-svelte";
+  import { Folder, File } from "phosphor-svelte";
 </script>
 
 <ScrollArea class="h-[400px] w-[250px] rounded-md border">

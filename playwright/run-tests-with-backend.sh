@@ -30,7 +30,13 @@ cleanup() {
     # Also kill any orphaned Rails servers on port 3200
     lsof -ti:3200 | xargs kill -9 2>/dev/null || true
     
-    echo -e "${GREEN}✅ Cleanup complete${NC}"
+    # Clean up test database after tests
+    echo "🗑️  Cleaning up test database..."
+    rails db:drop RAILS_ENV=test 2>/dev/null || true
+    rails db:create RAILS_ENV=test
+    rails db:migrate RAILS_ENV=test
+    
+    echo -e "${GREEN}✅ Cleanup complete - test database reset${NC}"
 }
 
 # Set trap to cleanup on exit (including Ctrl+C)

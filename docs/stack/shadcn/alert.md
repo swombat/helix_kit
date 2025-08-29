@@ -11,7 +11,7 @@ npx shadcn-svelte@latest add alert
 ```svelte
 <script>
   import { Alert, AlertDescription, AlertTitle } from "$lib/components/ui/alert";
-  import { Terminal } from "lucide-svelte";
+  import { Terminal } from "phosphor-svelte";
 </script>
 
 <Alert>

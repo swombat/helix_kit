@@ -12,7 +12,7 @@ npx shadcn-svelte@latest add data-table
 <script>
   import { DataTable } from "$lib/components/ui/data-table";
   import { Button } from "$lib/components/ui/button";
-  import { ArrowUpDown } from "lucide-svelte";
+  import { ArrowsDownUp } from "phosphor-svelte";
   
   const data = [
     { id: "m5gr84i9", amount: 316, status: "success", email: "ken99@yahoo.com" },
@@ -33,7 +33,7 @@ npx shadcn-svelte@latest add data-table
           onclick: () => column.toggleSorting(column.getIsSorted() === "asc"),
           children: [
             "Email",
-            ArrowUpDown({ class: "ml-2 h-4 w-4" })
+            ArrowsDownUp({ class: "ml-2 h-4 w-4" })
           ]
         });
       },

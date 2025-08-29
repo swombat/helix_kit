@@ -11,20 +11,20 @@ npx shadcn-svelte@latest add toggle-group
 ```svelte
 <script>
   import * as ToggleGroup from "$lib/components/ui/toggle-group";
-  import { Bold, Italic, Underline } from "lucide-svelte";
+  import { TextB, TextItalic, TextUnderline } from "phosphor-svelte";
   
   let value = ["bold"];
 </script>
 
 <ToggleGroup.Root type="multiple" bind:value>
   <ToggleGroup.Item value="bold" aria-label="Bold">
-    <Bold class="h-4 w-4" />
+    <TextB class="h-4 w-4" />
   </ToggleGroup.Item>
   <ToggleGroup.Item value="italic" aria-label="Italic">
-    <Italic class="h-4 w-4" />
+    <TextItalic class="h-4 w-4" />
   </ToggleGroup.Item>
   <ToggleGroup.Item value="underline" aria-label="Underline">
-    <Underline class="h-4 w-4" />
+    <TextUnderline class="h-4 w-4" />
   </ToggleGroup.Item>
 </ToggleGroup.Root>
 ```
@@ -34,23 +34,23 @@ npx shadcn-svelte@latest add toggle-group
 ```svelte
 <script>
   import * as ToggleGroup from "$lib/components/ui/toggle-group";
-  import { AlignLeft, AlignCenter, AlignRight, AlignJustify } from "lucide-svelte";
+  import { TextAlignLeft, TextAlignCenter, TextAlignRight, TextAlignJustify } from "phosphor-svelte";
   
   let value = "left";
 </script>
 
 <ToggleGroup.Root type="single" bind:value>
   <ToggleGroup.Item value="left" aria-label="Align left">
-    <AlignLeft class="h-4 w-4" />
+    <TextAlignLeft class="h-4 w-4" />
   </ToggleGroup.Item>
   <ToggleGroup.Item value="center" aria-label="Align center">
-    <AlignCenter class="h-4 w-4" />
+    <TextAlignCenter class="h-4 w-4" />
   </ToggleGroup.Item>
   <ToggleGroup.Item value="right" aria-label="Align right">
-    <AlignRight class="h-4 w-4" />
+    <TextAlignRight class="h-4 w-4" />
   </ToggleGroup.Item>
   <ToggleGroup.Item value="justify" aria-label="Align justify">
-    <AlignJustify class="h-4 w-4" />
+    <TextAlignJustify class="h-4 w-4" />
   </ToggleGroup.Item>
 </ToggleGroup.Root>
 ```
@@ -76,7 +76,7 @@ npx shadcn-svelte@latest add toggle-group
 ```svelte
 <script>
   import * as ToggleGroup from "$lib/components/ui/toggle-group";
-  import { Bold, Italic, Underline } from "lucide-svelte";
+  import { TextB, TextItalic, TextUnderline } from "phosphor-svelte";
   
   let value1 = [];
   let value2 = [];
@@ -85,23 +85,23 @@ npx shadcn-svelte@latest add toggle-group
 
 <!-- Default variant -->
 <ToggleGroup.Root type="multiple" variant="default" bind:value={value1}>
-  <ToggleGroup.Item value="bold"><Bold class="h-4 w-4" /></ToggleGroup.Item>
-  <ToggleGroup.Item value="italic"><Italic class="h-4 w-4" /></ToggleGroup.Item>
-  <ToggleGroup.Item value="underline"><Underline class="h-4 w-4" /></ToggleGroup.Item>
+  <ToggleGroup.Item value="bold"><TextB class="h-4 w-4" /></ToggleGroup.Item>
+  <ToggleGroup.Item value="italic"><TextItalic class="h-4 w-4" /></ToggleGroup.Item>
+  <ToggleGroup.Item value="underline"><TextUnderline class="h-4 w-4" /></ToggleGroup.Item>
 </ToggleGroup.Root>
 
 <!-- Outline variant -->
 <ToggleGroup.Root type="multiple" variant="outline" bind:value={value2}>
-  <ToggleGroup.Item value="bold"><Bold class="h-4 w-4" /></ToggleGroup.Item>
-  <ToggleGroup.Item value="italic"><Italic class="h-4 w-4" /></ToggleGroup.Item>
-  <ToggleGroup.Item value="underline"><Underline class="h-4 w-4" /></ToggleGroup.Item>
+  <ToggleGroup.Item value="bold"><TextB class="h-4 w-4" /></ToggleGroup.Item>
+  <ToggleGroup.Item value="italic"><TextItalic class="h-4 w-4" /></ToggleGroup.Item>
+  <ToggleGroup.Item value="underline"><TextUnderline class="h-4 w-4" /></ToggleGroup.Item>
 </ToggleGroup.Root>
 
 <!-- Subtle variant -->
 <ToggleGroup.Root type="multiple" variant="subtle" bind:value={value3}>
-  <ToggleGroup.Item value="bold"><Bold class="h-4 w-4" /></ToggleGroup.Item>
-  <ToggleGroup.Item value="italic"><Italic class="h-4 w-4" /></ToggleGroup.Item>
-  <ToggleGroup.Item value="underline"><Underline class="h-4 w-4" /></ToggleGroup.Item>
+  <ToggleGroup.Item value="bold"><TextB class="h-4 w-4" /></ToggleGroup.Item>
+  <ToggleGroup.Item value="italic"><TextItalic class="h-4 w-4" /></ToggleGroup.Item>
+  <ToggleGroup.Item value="underline"><TextUnderline class="h-4 w-4" /></ToggleGroup.Item>
 </ToggleGroup.Root>
 ```
 
@@ -110,25 +110,25 @@ npx shadcn-svelte@latest add toggle-group
 ```svelte
 <script>
   import * as ToggleGroup from "$lib/components/ui/toggle-group";
-  import { Bold, Italic, Underline } from "lucide-svelte";
+  import { TextB, TextItalic, TextUnderline } from "phosphor-svelte";
 </script>
 
 <!-- Small size -->
 <ToggleGroup.Root type="multiple" size="sm">
-  <ToggleGroup.Item value="bold"><Bold class="h-3 w-3" /></ToggleGroup.Item>
-  <ToggleGroup.Item value="italic"><Italic class="h-3 w-3" /></ToggleGroup.Item>
+  <ToggleGroup.Item value="bold"><TextB class="h-3 w-3" /></ToggleGroup.Item>
+  <ToggleGroup.Item value="italic"><TextItalic class="h-3 w-3" /></ToggleGroup.Item>
 </ToggleGroup.Root>
 
 <!-- Default size -->
 <ToggleGroup.Root type="multiple" size="default">
-  <ToggleGroup.Item value="bold"><Bold class="h-4 w-4" /></ToggleGroup.Item>
-  <ToggleGroup.Item value="italic"><Italic class="h-4 w-4" /></ToggleGroup.Item>
+  <ToggleGroup.Item value="bold"><TextB class="h-4 w-4" /></ToggleGroup.Item>
+  <ToggleGroup.Item value="italic"><TextItalic class="h-4 w-4" /></ToggleGroup.Item>
 </ToggleGroup.Root>
 
 <!-- Large size -->
 <ToggleGroup.Root type="multiple" size="lg">
-  <ToggleGroup.Item value="bold"><Bold class="h-5 w-5" /></ToggleGroup.Item>
-  <ToggleGroup.Item value="italic"><Italic class="h-5 w-5" /></ToggleGroup.Item>
+  <ToggleGroup.Item value="bold"><TextB class="h-5 w-5" /></ToggleGroup.Item>
+  <ToggleGroup.Item value="italic"><TextItalic class="h-5 w-5" /></ToggleGroup.Item>
 </ToggleGroup.Root>
 ```
 
@@ -137,20 +137,20 @@ npx shadcn-svelte@latest add toggle-group
 ```svelte
 <script>
   import * as ToggleGroup from "$lib/components/ui/toggle-group";
-  import { Bold, Italic, Underline } from "lucide-svelte";
+  import { TextB, TextItalic, TextUnderline } from "phosphor-svelte";
   
   let value = [];
 </script>
 
 <ToggleGroup.Root type="multiple" bind:value>
   <ToggleGroup.Item value="bold">
-    <Bold class="h-4 w-4" />
+    <TextB class="h-4 w-4" />
   </ToggleGroup.Item>
   <ToggleGroup.Item value="italic" disabled>
-    <Italic class="h-4 w-4" />
+    <TextItalic class="h-4 w-4" />
   </ToggleGroup.Item>
   <ToggleGroup.Item value="underline">
-    <Underline class="h-4 w-4" />
+    <TextUnderline class="h-4 w-4" />
   </ToggleGroup.Item>
 </ToggleGroup.Root>
 ```
@@ -162,10 +162,10 @@ npx shadcn-svelte@latest add toggle-group
   import * as ToggleGroup from "$lib/components/ui/toggle-group";
   import { Separator } from "$lib/components/ui/separator";
   import { 
-    Bold, Italic, Underline, Strikethrough,
-    AlignLeft, AlignCenter, AlignRight, AlignJustify,
-    List, ListOrdered
-  } from "lucide-svelte";
+    TextB, TextItalic, TextUnderline, TextStrikethrough,
+    TextAlignLeft, TextAlignCenter, TextAlignRight, TextAlignJustify,
+    ListBullets, ListNumbers
+  } from "phosphor-svelte";
   
   let formatting = [];
   let alignment = "left";
@@ -176,16 +176,16 @@ npx shadcn-svelte@latest add toggle-group
   <!-- Text formatting -->
   <ToggleGroup.Root type="multiple" bind:value={formatting}>
     <ToggleGroup.Item value="bold" aria-label="Bold">
-      <Bold class="h-4 w-4" />
+      <TextB class="h-4 w-4" />
     </ToggleGroup.Item>
     <ToggleGroup.Item value="italic" aria-label="Italic">
-      <Italic class="h-4 w-4" />
+      <TextItalic class="h-4 w-4" />
     </ToggleGroup.Item>
     <ToggleGroup.Item value="underline" aria-label="Underline">
-      <Underline class="h-4 w-4" />
+      <TextUnderline class="h-4 w-4" />
     </ToggleGroup.Item>
     <ToggleGroup.Item value="strikethrough" aria-label="Strikethrough">
-      <Strikethrough class="h-4 w-4" />
+      <TextStrikethrough class="h-4 w-4" />
     </ToggleGroup.Item>
   </ToggleGroup.Root>
   
@@ -194,16 +194,16 @@ npx shadcn-svelte@latest add toggle-group
   <!-- Text alignment -->
   <ToggleGroup.Root type="single" bind:value={alignment}>
     <ToggleGroup.Item value="left" aria-label="Align left">
-      <AlignLeft class="h-4 w-4" />
+      <TextAlignLeft class="h-4 w-4" />
     </ToggleGroup.Item>
     <ToggleGroup.Item value="center" aria-label="Align center">
-      <AlignCenter class="h-4 w-4" />
+      <TextAlignCenter class="h-4 w-4" />
     </ToggleGroup.Item>
     <ToggleGroup.Item value="right" aria-label="Align right">
-      <AlignRight class="h-4 w-4" />
+      <TextAlignRight class="h-4 w-4" />
     </ToggleGroup.Item>
     <ToggleGroup.Item value="justify" aria-label="Align justify">
-      <AlignJustify class="h-4 w-4" />
+      <TextAlignJustify class="h-4 w-4" />
     </ToggleGroup.Item>
   </ToggleGroup.Root>
   
@@ -212,10 +212,10 @@ npx shadcn-svelte@latest add toggle-group
   <!-- Lists -->
   <ToggleGroup.Root type="single" bind:value={listType}>
     <ToggleGroup.Item value="unordered" aria-label="Bullet list">
-      <List class="h-4 w-4" />
+      <ListBullets class="h-4 w-4" />
     </ToggleGroup.Item>
     <ToggleGroup.Item value="ordered" aria-label="Numbered list">
-      <ListOrdered class="h-4 w-4" />
+      <ListNumbers class="h-4 w-4" />
     </ToggleGroup.Item>
   </ToggleGroup.Root>
 </div>
@@ -242,7 +242,7 @@ npx shadcn-svelte@latest add toggle-group
 ```svelte
 <script>
   import * as ToggleGroup from "$lib/components/ui/toggle-group";
-  import { Grid, List, Calendar } from "lucide-svelte";
+  import { GridFour, ListBullets, Calendar } from "phosphor-svelte";
   
   let viewMode = "grid";
 </script>
@@ -250,11 +250,11 @@ npx shadcn-svelte@latest add toggle-group
 <div class="space-y-4">
   <ToggleGroup.Root type="single" bind:value={viewMode}>
     <ToggleGroup.Item value="grid" aria-label="Grid view">
-      <Grid class="h-4 w-4" />
+      <GridFour class="h-4 w-4" />
       <span class="ml-2">Grid</span>
     </ToggleGroup.Item>
     <ToggleGroup.Item value="list" aria-label="List view">
-      <List class="h-4 w-4" />
+      <ListBullets class="h-4 w-4" />
       <span class="ml-2">List</span>
     </ToggleGroup.Item>
     <ToggleGroup.Item value="calendar" aria-label="Calendar view">

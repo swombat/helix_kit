@@ -2,7 +2,6 @@
   import Layout from '../layouts/layout.svelte';
   import { buttonVariants } from '$lib/components/ui/button/button.svelte';
   import { GithubLogo, ArrowUpRight } from 'phosphor-svelte';
-  import { Github } from 'lucide-svelte';
   import * as Card from '$lib/components/ui/card/index.js';
 
   const githubUrl = 'https://github.com/swombat/helix_kit';
@@ -79,14 +78,14 @@
       description: 'For better security and aesthetics in URLs. Copy implementation from BulletTrain.',
       link: 'https://github.com/bullet-train-co/bullet_train-core/blob/3c12343eba5745dbe0f02db4cb8fb588e4a091e7/bullet_train-obfuscates_id/app/models/concerns/obfuscates_id.rb',
     },
-  ];
-
-  const todoFeatures = [
     {
       title: 'Testing',
       description:
         'Full test suite setup with Playwright Component Testing for page testing, Vitest for Svelte component unit testing, Minitest for Rails model and controller testing.',
     },
+  ];
+
+  const todoFeatures = [
     {
       title: 'Full-featured user system',
       description:
@@ -140,8 +139,8 @@
         frontend, with Ruby on Rails as the backend, and including a number of other useful libraries and tools.
       </p>
       <div class="mt-8">
-        <Github class="bg-white text-red-500 dark:text-black m-4" />
         <a href={githubUrl} class={buttonVariants({ variant: 'default' })} target="_blank" rel="noopener noreferrer">
+          <GithubLogo class="text-white dark:text-black" />
           <span>Github repo</span>
         </a>
       </div>

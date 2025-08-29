@@ -128,8 +128,15 @@ npm run test:ui
 Test files are located in `playwright/tests/pages/`:
 - `*.pw.js` - ALL tests hit the real Rails API (no mocking allowed!)
 
-### Vitest for Unit Testing (TO BE IMPLEMENTED)
+### Vitest Unit Testing
+
 For testing Svelte components and JavaScript utilities in isolation.
+
+**Run tests:**
+```bash
+npm run test:unit     # Run unit tests
+npm run test:unit:ui  # Open Vitest UI for debugging
+```
 
 ```javascript
 // test/frontend/components/Button.test.js

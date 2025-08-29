@@ -93,7 +93,7 @@ npx shadcn-svelte@latest add table
 <script>
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu";
   import { Button } from "$lib/components/ui/button";
-  import { MoreHorizontal, Pencil, Trash2, Eye } from "lucide-svelte";
+  import { DotsThree, Pencil, Trash, Eye } from "phosphor-svelte";
   
   function viewInvoice(id) {
     console.log("View invoice:", id);
@@ -131,7 +131,7 @@ npx shadcn-svelte@latest add table
               <DropdownMenu.Trigger asChild>
                 <Button variant="ghost" class="h-8 w-8 p-0">
                   <span class="sr-only">Open menu</span>
-                  <MoreHorizontal class="h-4 w-4" />
+                  <DotsThree class="h-4 w-4" />
                 </Button>
               </DropdownMenu.Trigger>
               <DropdownMenu.Content align="end">
@@ -148,7 +148,7 @@ npx shadcn-svelte@latest add table
                   class="text-red-600" 
                   on:click={() => deleteInvoice(invoice.id)}
                 >
-                  <Trash2 class="mr-2 h-4 w-4" />
+                  <Trash class="mr-2 h-4 w-4" />
                   Delete
                 </DropdownMenu.Item>
               </DropdownMenu.Content>

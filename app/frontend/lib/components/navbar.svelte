@@ -9,7 +9,7 @@
   import { rootPath, loginPath, signupPath, logoutPath } from '@/routes';
   import { toggleMode, setMode, resetMode } from 'mode-watcher';
   import { ModeWatcher } from 'mode-watcher';
-  import { Moon, Sun } from 'lucide-svelte';
+  import { Moon, Sun } from 'phosphor-svelte';
 
   function handleLogout(event) {
     event.preventDefault();

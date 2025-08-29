@@ -11,7 +11,7 @@ npx shadcn-svelte@latest add toggle
 ```svelte
 <script>
   import { Toggle } from "$lib/components/ui/toggle";
-  import { Bold } from "lucide-svelte";
+  import { TextB } from "phosphor-svelte";
   
   let pressed = false;
 </script>
@@ -26,13 +26,13 @@ npx shadcn-svelte@latest add toggle
 ```svelte
 <script>
   import { Toggle } from "$lib/components/ui/toggle";
-  import { Italic } from "lucide-svelte";
+  import { TextItalic } from "phosphor-svelte";
   
   let pressed = false;
 </script>
 
 <Toggle bind:pressed>
-  <Italic class="mr-2 h-4 w-4" />
+  <TextItalic class="mr-2 h-4 w-4" />
   Italic
 </Toggle>
 ```
@@ -42,7 +42,7 @@ npx shadcn-svelte@latest add toggle
 ```svelte
 <script>
   import { Toggle } from "$lib/components/ui/toggle";
-  import { Bold } from "lucide-svelte";
+  import { TextB } from "phosphor-svelte";
   
   let pressed1 = false;
   let pressed2 = false;
@@ -69,7 +69,7 @@ npx shadcn-svelte@latest add toggle
 ```svelte
 <script>
   import { Toggle } from "$lib/components/ui/toggle";
-  import { Bold } from "lucide-svelte";
+  import { TextB } from "phosphor-svelte";
   
   let pressed1 = false;
   let pressed2 = false;
@@ -78,7 +78,7 @@ npx shadcn-svelte@latest add toggle
 
 <div class="flex items-center space-x-2">
   <Toggle size="sm" bind:pressed={pressed1}>
-    <Bold class="h-3 w-3" />
+    <TextB class="h-3 w-3" />
   </Toggle>
   
   <Toggle size="default" bind:pressed={pressed2}>
@@ -86,7 +86,7 @@ npx shadcn-svelte@latest add toggle
   </Toggle>
   
   <Toggle size="lg" bind:pressed={pressed3}>
-    <Bold class="h-5 w-5" />
+    <TextB class="h-5 w-5" />
   </Toggle>
 </div>
 ```
@@ -96,11 +96,11 @@ npx shadcn-svelte@latest add toggle
 ```svelte
 <script>
   import { Toggle } from "$lib/components/ui/toggle";
-  import { Underline } from "lucide-svelte";
+  import { TextUnderline } from "phosphor-svelte";
 </script>
 
 <Toggle disabled>
-  <Underline class="h-4 w-4" />
+  <TextUnderline class="h-4 w-4" />
 </Toggle>
 ```
 
@@ -109,7 +109,7 @@ npx shadcn-svelte@latest add toggle
 ```svelte
 <script>
   import { Toggle } from "$lib/components/ui/toggle";
-  import { Bold, Italic, Underline, Strikethrough } from "lucide-svelte";
+  import { TextB, TextItalic, TextUnderline, TextStrikethrough } from "phosphor-svelte";
   
   let bold = false;
   let italic = false;
@@ -119,19 +119,19 @@ npx shadcn-svelte@latest add toggle
 
 <div class="flex items-center space-x-1 border rounded-lg p-1">
   <Toggle bind:pressed={bold} aria-label="Toggle bold">
-    <Bold class="h-4 w-4" />
+    <TextB class="h-4 w-4" />
   </Toggle>
   
   <Toggle bind:pressed={italic} aria-label="Toggle italic">
-    <Italic class="h-4 w-4" />
+    <TextItalic class="h-4 w-4" />
   </Toggle>
   
   <Toggle bind:pressed={underline} aria-label="Toggle underline">
-    <Underline class="h-4 w-4" />
+    <TextUnderline class="h-4 w-4" />
   </Toggle>
   
   <Toggle bind:pressed={strikethrough} aria-label="Toggle strikethrough">
-    <Strikethrough class="h-4 w-4" />
+    <TextStrikethrough class="h-4 w-4" />
   </Toggle>
 </div>
 
@@ -153,7 +153,7 @@ npx shadcn-svelte@latest add toggle
 ```svelte
 <script>
   import { Toggle } from "$lib/components/ui/toggle";
-  import { Grid, List } from "lucide-svelte";
+  import { GridFour, ListBullets } from "phosphor-svelte";
   
   let gridView = true;
 </script>
@@ -164,7 +164,7 @@ npx shadcn-svelte@latest add toggle
     on:click={() => gridView = true}
     aria-label="Grid view"
   >
-    <Grid class="h-4 w-4" />
+    <GridFour class="h-4 w-4" />
   </Toggle>
   
   <Toggle 
@@ -172,7 +172,7 @@ npx shadcn-svelte@latest add toggle
     on:click={() => gridView = false}
     aria-label="List view"
   >
-    <List class="h-4 w-4" />
+    <ListBullets class="h-4 w-4" />
   </Toggle>
 </div>
 
@@ -200,7 +200,7 @@ npx shadcn-svelte@latest add toggle
 <script>
   import { Toggle } from "$lib/components/ui/toggle";
   import { Button } from "$lib/components/ui/button";
-  import { Heart } from "lucide-svelte";
+  import { Heart } from "phosphor-svelte";
   
   let liked = false;
   

@@ -1,0 +1,19 @@
+<h1>Welcome to Helix Kit!</h1>
+
+<p>Hi <%= @user.email_address %>,</p>
+
+<p>You've successfully signed up! Please confirm your email address by clicking the link below:</p>
+
+<p>
+  <%= link_to "Confirm My Email", @confirmation_url, style: "display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;" %>
+</p>
+
+<p>Or copy and paste this link into your browser:</p>
+<p><%= @confirmation_url %></p>
+
+<p>This link will expire in 24 hours.</p>
+
+<p>If you didn't create an account, you can safely ignore this email.</p>
+
+<p>Best regards,<br>
+The Helix Kit Team</p>

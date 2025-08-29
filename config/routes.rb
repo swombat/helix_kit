@@ -11,6 +11,10 @@ Rails.application.routes.draw do
 
   get "signup" => "registrations#new", as: :signup
   post "signup" => "registrations#create"
+  get "check-email" => "registrations#check_email", as: :check_email
+  get "email-confirmation" => "registrations#confirm_email", as: :email_confirmation
+  get "set-password" => "registrations#set_password", as: :set_password
+  patch "set-password" => "registrations#update_password"
 
   resources :passwords, param: :token, only: %i[new create edit update]
 

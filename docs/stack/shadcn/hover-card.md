@@ -13,7 +13,7 @@ npx shadcn-svelte@latest add hover-card
   import * as HoverCard from "$lib/components/ui/hover-card";
   import { Button } from "$lib/components/ui/button";
   import { Avatar, AvatarFallback, AvatarImage } from "$lib/components/ui/avatar";
-  import { CalendarDays } from "lucide-svelte";
+  import { Calendar } from "phosphor-svelte";
 </script>
 
 <HoverCard.Root>
@@ -32,7 +32,7 @@ npx shadcn-svelte@latest add hover-card
           The React Framework – created and maintained by @vercel.
         </p>
         <div class="flex items-center pt-2">
-          <CalendarDays class="mr-2 h-4 w-4 opacity-70" />
+          <Calendar class="mr-2 h-4 w-4 opacity-70" />
           <span class="text-xs text-muted-foreground">
             Joined December 2021
           </span>
@@ -69,7 +69,7 @@ npx shadcn-svelte@latest add hover-card
   import { Button } from "$lib/components/ui/button";
   import { Avatar, AvatarFallback, AvatarImage } from "$lib/components/ui/avatar";
   import { Badge } from "$lib/components/ui/badge";
-  import { MapPin, Link as LinkIcon, Calendar } from "lucide-svelte";
+  import { MapPin, Link as LinkIcon, Calendar } from "phosphor-svelte";
   
   const user = {
     name: "Jane Doe",
