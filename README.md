@@ -27,11 +27,12 @@ This is a start app kit template analogous to Jumpstart Pro or BulletTrain, but 
 ## Target features (TODO)
 
 - **[Full-featured user system](https://jumpstartrails.com/docs/accounts)** - Necessary for most commercial applications, but not included in the default user setup.
-    - Site Admin
-    - User Profiles
-    - Personal/Organization Accounts
-    - Invitations
-    - Roles
+    - [x] User signup and confirmation
+    - [ ] Personal/Organization Accounts
+    - [ ] Site Admin
+    - [ ] User Profiles
+    - [ ] Invitations
+    - [ ] Roles
 - **Svelte Object Synchronization** - Using ActionCable and Inertia's partial reload and a custom Regitry to keep Svelte $props up to date in real-time.
 - Audit Logging with audit log viewer (required in many business applications).
 - MultiAttachment system supporting:
