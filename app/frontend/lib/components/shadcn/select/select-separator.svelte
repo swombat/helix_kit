@@ -1,5 +1,5 @@
 <script>
-	import { Separator } from "$lib/components/ui/separator/index.js";
+	import { Separator } from "$lib/components/shadcn/separator/index.js";
 	import { cn } from "$lib/utils.js";
 
 	let {

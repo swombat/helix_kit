@@ -1,5 +1,5 @@
 <script>
-  import helixLogoSrc from '../../../assets/images/helix-kit-logo.svg?raw';
+  import helixLogoSrc from '../../../../assets/images/helix-kit-logo.svg?raw';
   let props = $props();
 
   // Extract props for the SVG element

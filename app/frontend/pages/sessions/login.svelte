@@ -1,7 +1,7 @@
 <script>
   import { Link } from "@inertiajs/svelte";
-	import LoginForm from "$lib/components/login-form.svelte";
-  import Logo from "$lib/components/logo.svelte";
+	import LoginForm from "$lib/components/forms/login-form.svelte";
+  import Logo from "$lib/components/misc/logo.svelte";
   import AuthLayout from "../../layouts/auth-layout.svelte";
 </script>
 

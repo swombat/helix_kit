@@ -1,6 +1,6 @@
 <script>
   // shadcn components
-  import * as Alert from '$lib/components/ui/alert/index.js';
+  import * as Alert from '$lib/components/shadcn/alert/index.js';
   import { CheckCircle, Warning, WarningOctagon, ArrowCircleRight } from 'phosphor-svelte';
 
   let { type = $bindable(), title = $bindable(), description = $bindable() } = $props();

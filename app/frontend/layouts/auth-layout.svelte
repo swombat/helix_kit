@@ -1,8 +1,8 @@
 <script>
   import { page } from '@inertiajs/svelte'
-  import { Toaster } from "$lib/components/ui/sonner/index.js";
+  import { Toaster } from "$lib/components/shadcn/sonner/index.js";
   import { toast } from "svelte-sonner";
-  import Navbar from "$lib/components/navbar.svelte"; // Adjust the path as necessary
+  import Navbar from "$lib/components/navigation/navbar.svelte"; // Adjust the path as necessary
 
   let { children } = $props();
 

@@ -1,5 +1,5 @@
 <script>
-  import { Button } from '$lib/components/ui/button/index.js';
+  import { Button } from '$lib/components/shadcn/button/index.js';
   import { useForm } from '@inertiajs/svelte';
   import { signupPath } from '@/routes'; // Using signup path for resending since there's no specific resend route yet
   import { ArrowClockwise } from 'phosphor-svelte';

@@ -1,12 +1,12 @@
 <script>
   import { Link } from '@inertiajs/svelte';
-  import * as Card from '$lib/components/ui/card/index.js';
-  import Logo from '$lib/components/logo.svelte';
+  import * as Card from '$lib/components/shadcn/card/index.js';
+  import Logo from '$lib/components/misc/logo.svelte';
   import AuthLayout from '../../layouts/auth-layout.svelte';
-  import { Button } from '$lib/components/ui/button/index.js';
+  import { Button } from '$lib/components/shadcn/button/index.js';
   import { signupPath } from '@/routes';
   import { EnvelopeSimple } from 'phosphor-svelte';
-  import ResendConfirmation from '$lib/components/resend-confirmation.svelte';
+  import ResendConfirmation from '$lib/components/forms/resend-confirmation.svelte';
 
   let { email } = $props();
 </script>

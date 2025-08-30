@@ -1,7 +1,7 @@
 <script>
-  import { buttonVariants } from '$lib/components/ui/button/button.svelte';
+  import { buttonVariants } from '$lib/components/shadcn/button/button.svelte';
   import { GithubLogo, ArrowUpRight } from 'phosphor-svelte';
-  import * as Card from '$lib/components/ui/card/index.js';
+  import * as Card from '$lib/components/shadcn/card/index.js';
 
   const githubUrl = 'https://github.com/swombat/helix_kit';
 

@@ -1,10 +1,10 @@
 <script>
   // grab page props from inertia
   import { page, Link, router } from '@inertiajs/svelte';
-  import Logo from '$lib/components/logo.svelte';
+  import Logo from '$lib/components/misc/logo.svelte';
   import { UserCircle, List, SignOut } from 'phosphor-svelte';
-  import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
-  import { Button, buttonVariants } from '$lib/components/ui/button/index.js';
+  import * as DropdownMenu from '$lib/components/shadcn/dropdown-menu/index.js';
+  import { Button, buttonVariants } from '$lib/components/shadcn/button/index.js';
   import { cn } from '$lib/utils.js';
   import { rootPath, loginPath, signupPath, logoutPath, editUserPath } from '@/routes';
   import { toggleMode, setMode, resetMode } from 'mode-watcher';
@@ -26,7 +26,7 @@
   <div class="flex items-center justify-between p-4 px-10 border-b">
     <div class="flex items-center gap-8">
       <Link href="/" class="flex items-center gap-2">
-        <Logo class="h-10 w-10 text-primary" />
+        <Logo class="h-10 w-10" />
         HelixKit
       </Link>
       <div class="hidden md:flex items-center">

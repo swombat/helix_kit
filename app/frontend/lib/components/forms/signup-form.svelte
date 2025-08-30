@@ -1,9 +1,9 @@
 <script>
-  import { Button } from '$lib/components/ui/button/index.js';
-  import * as Card from '$lib/components/ui/card/index.js';
-  import { Input } from '$lib/components/ui/input/index.js';
-  import { InputError } from '$lib/components/ui/input-error/index.js';
-  import { Label } from '$lib/components/ui/label/index.js';
+  import { Button } from '$lib/components/shadcn/button/index.js';
+  import * as Card from '$lib/components/shadcn/card/index.js';
+  import { Input } from '$lib/components/shadcn/input/index.js';
+  import { InputError } from '$lib/components/shadcn/input-error/index.js';
+  import { Label } from '$lib/components/shadcn/label/index.js';
   import { Link, useForm } from '@inertiajs/svelte';
   import { signupPath, loginPath } from '@/routes';
   import { Info } from 'phosphor-svelte';

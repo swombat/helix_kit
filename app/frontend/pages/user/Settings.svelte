@@ -3,15 +3,15 @@
   import { userPath } from '@/routes';
 
   // shadcn components
-  import Button from '$lib/components/ui/button/button.svelte';
-  import Card from '$lib/components/ui/card/card.svelte';
-  import CardContent from '$lib/components/ui/card/card-content.svelte';
-  import CardDescription from '$lib/components/ui/card/card-description.svelte';
-  import CardHeader from '$lib/components/ui/card/card-header.svelte';
-  import CardTitle from '$lib/components/ui/card/card-title.svelte';
-  import Input from '$lib/components/ui/input/input.svelte';
-  import Label from '$lib/components/ui/label/label.svelte';
-  import * as Select from '$lib/components/ui/select/index.js';
+  import Button from '$lib/components/shadcn/button/button.svelte';
+  import Card from '$lib/components/shadcn/card/card.svelte';
+  import CardContent from '$lib/components/shadcn/card/card-content.svelte';
+  import CardDescription from '$lib/components/shadcn/card/card-description.svelte';
+  import CardHeader from '$lib/components/shadcn/card/card-header.svelte';
+  import CardTitle from '$lib/components/shadcn/card/card-title.svelte';
+  import Input from '$lib/components/shadcn/input/input.svelte';
+  import Label from '$lib/components/shadcn/label/label.svelte';
+  import * as Select from '$lib/components/shadcn/select/index.js';
   import Alert from '$lib/components/alert.svelte';
 
   let { user = $bindable(), timezones } = $props();
