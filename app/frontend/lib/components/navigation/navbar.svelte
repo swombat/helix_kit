@@ -2,14 +2,13 @@
   // grab page props from inertia
   import { page, Link, router } from '@inertiajs/svelte';
   import Logo from '$lib/components/misc/HelixKitLogo.svelte';
-  import { UserCircle, List, SignOut } from 'phosphor-svelte';
+  import { UserCircle, List, SignOut, Password, Moon, Sun } from 'phosphor-svelte';
   import * as DropdownMenu from '$lib/components/shadcn/dropdown-menu/index.js';
   import { Button, buttonVariants } from '$lib/components/shadcn/button/index.js';
   import { cn } from '$lib/utils.js';
-  import { rootPath, loginPath, signupPath, logoutPath, editUserPath } from '@/routes';
+  import { rootPath, loginPath, signupPath, logoutPath, editUserPath, editPasswordPath } from '@/routes';
   import { toggleMode, setMode, resetMode } from 'mode-watcher';
   import { ModeWatcher } from 'mode-watcher';
-  import { Moon, Sun } from 'phosphor-svelte';
 
   function handleLogout(event) {
     event.preventDefault();
@@ -54,9 +53,9 @@
       <DropdownMenu.Root>
         <DropdownMenu.Trigger class={cn(buttonVariants({ variant: 'outline' }), 'rounded-full px-2.5 gap-1')}>
           <UserCircle />
-          {#if currentAccount?.name}
+          {#if currentUser?.full_name}
             <span class="text-xs font-normal text-muted-foreground">
-              {currentAccount?.name}
+              {currentUser?.full_name}
             </span>
           {:else}
             <span class="text-xs font-normal text-muted-foreground"> Account </span>
@@ -81,6 +80,10 @@
             <DropdownMenu.Item onclick={() => router.visit(editUserPath())}>
               <UserCircle class="mr-2 size-4" />
               <span>Settings</span>
+            </DropdownMenu.Item>
+            <DropdownMenu.Item onclick={() => router.visit(editPasswordPath())}>
+              <Password class="mr-2 size-4" />
+              <span>Change Password</span>
             </DropdownMenu.Item>
             <DropdownMenu.Separator />
             <DropdownMenu.Item onclick={handleLogout}>

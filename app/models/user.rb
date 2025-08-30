@@ -27,7 +27,7 @@ class User < ApplicationRecord
   validates :timezone, inclusion: { in: ActiveSupport::TimeZone.all.map(&:name) },
     allow_blank: true
 
-  validates_presence_of :first_name, :last_name, on: :update, if: -> { confirmed? && password_digest_changed? }
+  validates_presence_of :first_name, :last_name, on: :update, if: -> { confirmed? }
 
   after_create :ensure_account_user_exists
 
@@ -118,6 +118,14 @@ class User < ApplicationRecord
 
   def default_account
     account_users.confirmed.first&.account || account_users.first&.account
+  end
+
+  def full_name
+    "#{first_name} #{last_name}"
+  end
+
+  def as_json(options = {})
+    super(options.merge(methods: :full_name))
   end
 
   private

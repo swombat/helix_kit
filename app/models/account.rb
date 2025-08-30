@@ -1,4 +1,3 @@
-# app/models/account.rb
 class Account < ApplicationRecord
 
   # Enums
@@ -41,6 +40,14 @@ class Account < ApplicationRecord
 
   def personal_account_for?(user)
     personal? && owner == user
+  end
+
+  def name
+    if personal?
+      "#{owner.full_name}'s Account"
+    else
+      name
+    end
   end
 
   private
