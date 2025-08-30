@@ -5,7 +5,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
   test "should get home page without authentication" do
     get root_path
     assert_response :success
-    assert_equal "Home", inertia_component
+    assert_equal "home", inertia_component
   end
 
   test "should get home page with authentication" do
@@ -14,7 +14,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
     get root_path
     assert_response :success
-    assert_equal "Home", inertia_component
+    assert_equal "home", inertia_component
   end
 
   test "home page returns proper inertia response structure" do

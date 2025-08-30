@@ -5,7 +5,7 @@ class RegistrationsController < ApplicationController
   before_action :load_pending_user, only: [ :set_password, :update_password ]
 
   def new
-    render inertia: "registrations/signup"
+    render inertia: "registrations/new"
   end
 
   def create
@@ -30,7 +30,7 @@ class RegistrationsController < ApplicationController
   end
 
   def check_email
-    render inertia: "registrations/check-email"
+    render inertia: "registrations/check_email"
   end
 
   def confirm_email
@@ -51,7 +51,7 @@ class RegistrationsController < ApplicationController
   def set_password
     return redirect_to login_path, alert: "Invalid request. Please log in." if @user&.password_digest?
 
-    render inertia: "registrations/set-password", props: { email: @user.email_address, user: @user.as_json }
+    render inertia: "registrations/set_password", props: { email: @user.email_address, user: @user.as_json }
   end
 
   def update_password

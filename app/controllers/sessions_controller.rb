@@ -7,7 +7,7 @@ class SessionsController < ApplicationController
     if authenticated?
       redirect_to root_path, notice: "You are already signed in."
     else
-      render inertia: "sessions/login"
+      render inertia: "sessions/new"
     end
   end
 

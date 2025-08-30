@@ -9,7 +9,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
   test "should get login page when not authenticated" do
     get login_path
     assert_response :success
-    assert_equal "sessions/login", inertia_component
+    assert_equal "sessions/new", inertia_component
   end
 
   test "should redirect to root when accessing login while authenticated" do
@@ -111,7 +111,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert inertia_props.key?("props")
     assert inertia_props.key?("url")
     assert inertia_props.key?("version")
-    assert_equal "sessions/login", inertia_component
+    assert_equal "sessions/new", inertia_component
   end
 
   test "successful login creates a session" do

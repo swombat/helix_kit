@@ -1,7 +1,7 @@
 class UsersController < ApplicationController
 
   def edit
-    render inertia: "user/Settings", props: {
+    render inertia: "user/edit", props: {
       timezones: ActiveSupport::TimeZone.all.map { |tz| { value: tz.name, label: tz.to_s } }
     }
   end

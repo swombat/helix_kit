@@ -241,10 +241,19 @@ helix_kit/
 
 ### Svelte Conventions
 
-- **Components**: PascalCase with `.svelte` extension (e.g., `Button.svelte`)
-- **Pages**: PascalCase, match controller action names (e.g., `Home.svelte`)
+- **Components**: PascalCase with `.svelte` extension (e.g., `Button.svelte`, `LoginForm.svelte`)
+  - This includes all components in `/lib/components/` and its subdirectories
+  - Layouts also use PascalCase (e.g., `Layout.svelte`, `AuthLayout.svelte`)
+- **Pages**: snake_case matching Rails controller action names (e.g., `home.svelte`, `new.svelte`, `edit.svelte`)
+  - Pages must match the exact controller action name for proper Inertia.js routing
+  - Example: `RegistrationsController#check_email` → `registrations/check_email.svelte`
+- **Test Files**: Match the component/page name with `.test.js` extension
+  - Component tests: PascalCase (e.g., `LoginForm.test.js`)
+  - Page tests: snake_case (e.g., `home.test.js`, `new.test.js`)
 - **Stores**: camelCase with `.js` extension (e.g., `theme.js`)
 - **Utilities**: camelCase for functions, UPPER_CASE for constants
+
+**Note**: ShadcnUI components maintain their own naming convention (kebab-case) as per the library standards.
 
 ## Special Directories
 

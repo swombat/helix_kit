@@ -5,7 +5,7 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
   test "should get signup page when not authenticated" do
     get signup_path
     assert_response :success
-    assert_equal "registrations/signup", inertia_component
+    assert_equal "registrations/new", inertia_component
   end
 
   test "should redirect to root when accessing signup while authenticated" do
@@ -111,7 +111,7 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
   test "should get check email page" do
     get check_email_path
     assert_response :success
-    assert_equal "registrations/check-email", inertia_component
+    assert_equal "registrations/check_email", inertia_component
   end
 
   test "should confirm email with valid token" do
@@ -147,7 +147,7 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
     follow_redirect!
 
     assert_response :success
-    assert_equal "registrations/set-password", inertia_component
+    assert_equal "registrations/set_password", inertia_component
 
     # Set the password
     patch set_password_path, params: {

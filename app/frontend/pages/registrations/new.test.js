@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/svelte';
 import { describe, it, expect } from 'vitest';
-import Signup from './signup.svelte';
+import Signup from './new.svelte';
 
 describe('Signup Page Component', () => {
   it('renders signup page with heading', () => {
