@@ -21,6 +21,7 @@
   description="Update your account password"
   submitLabel="Update Password"
   submitLabelProcessing="Updating..."
+  narrow
   {onCancel}
   {onSuccess}>
   <div>
