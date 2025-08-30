@@ -12,6 +12,8 @@ class User < ApplicationRecord
   has_one :personal_account, through: :personal_account_user, source: :account
 
   normalizes :email_address, with: ->(e) { e.strip.downcase }
+  normalizes :first_name, with: ->(name) { name&.strip }
+  normalizes :last_name, with: ->(name) { name&.strip }
 
   validates :email_address, presence: true,
     uniqueness: { case_sensitive: false },
@@ -21,7 +23,12 @@ class User < ApplicationRecord
     length: { in: 6..72 },
     if: :password_digest_changed?
 
-  validates :password, presence: true, on: :update, if: :confirmed?
+  validates :password, presence: true, on: :update, if: -> { confirmed? && password_digest_changed? }
+
+  validates :timezone, inclusion: { in: ActiveSupport::TimeZone.all.map(&:name) },
+    allow_blank: true
+
+  validates_presence_of :first_name, :last_name, on: :update, if: -> { confirmed? && password_digest_changed? }
 
   after_create :ensure_account_user_exists
 

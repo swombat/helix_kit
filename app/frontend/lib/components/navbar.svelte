@@ -6,7 +6,7 @@
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
   import { Button, buttonVariants } from '$lib/components/ui/button/index.js';
   import { cn } from '$lib/utils.js';
-  import { rootPath, loginPath, signupPath, logoutPath } from '@/routes';
+  import { rootPath, loginPath, signupPath, logoutPath, editUserPath } from '@/routes';
   import { toggleMode, setMode, resetMode } from 'mode-watcher';
   import { ModeWatcher } from 'mode-watcher';
   import { Moon, Sun } from 'phosphor-svelte';
@@ -53,8 +53,14 @@
     {#if currentUser}
       <DropdownMenu.Root>
         <DropdownMenu.Trigger class={cn(buttonVariants({ variant: 'outline' }), 'rounded-full px-2.5 gap-1')}>
-          <List />
           <UserCircle />
+          {#if currentAccount?.name}
+            <span class="text-xs font-normal text-muted-foreground">
+              {currentAccount?.name}
+            </span>
+          {:else}
+            <span class="text-xs font-normal text-muted-foreground"> Account </span>
+          {/if}
         </DropdownMenu.Trigger>
         <DropdownMenu.Content class="w-56" align="end">
           <DropdownMenu.Group>
@@ -72,6 +78,11 @@
               </div>
             </DropdownMenu.GroupHeading>
             <DropdownMenu.Separator />
+            <DropdownMenu.Item onclick={() => router.visit(editUserPath())}>
+              <UserCircle class="mr-2 size-4" />
+              <span>Settings</span>
+            </DropdownMenu.Item>
+            <DropdownMenu.Separator />
             <DropdownMenu.Item onclick={handleLogout}>
               <SignOut class="mr-2 size-4" />
               <span>Log out</span>
@@ -83,8 +94,8 @@
       <!-- Mobile -->
       <DropdownMenu.Root>
         <DropdownMenu.Trigger class={cn(buttonVariants({ variant: 'outline' }), 'rounded-full px-2.5 gap-1')}>
-          <List />
           <UserCircle />
+          <span class="text-xs font-normal text-muted-foreground"> Not Logged In </span>
         </DropdownMenu.Trigger>
         <DropdownMenu.Content class="w-56" align="end">
           <DropdownMenu.Group>

@@ -12,6 +12,8 @@
   },
   "devDependencies": {
     "@4az/prettier-plugin-html-erb": "^0.0.7",
+    "@internationalized/date": "^3.9.0",
+    "@lucide/svelte": "^0.515.0",
     "@playwright/experimental-ct-svelte": "^1.55.0",
     "@playwright/test": "^1.55.0",
     "@prettier/plugin-ruby": "^4.0.4",

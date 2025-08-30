@@ -30,7 +30,7 @@ This is a start app kit template analogous to Jumpstart Pro or BulletTrain, but 
     - [x] User signup and confirmation
     - [ ] Personal/Organization Accounts
     - [ ] Site Admin
-    - [ ] User Profiles
+    - [x] User Profiles
     - [ ] Invitations
     - [ ] Roles
 - **Svelte Object Synchronization** - Using ActionCable and Inertia's partial reload and a custom Regitry to keep Svelte $props up to date in real-time.
@@ -88,6 +88,15 @@ This is a start app kit template analogous to Jumpstart Pro or BulletTrain, but 
    bin/dev
    ```
 6. Open in browser at localhost:3100
+
+### Optional: Claude setup
+
+Necessary for Claude Code to be full featured.
+
+```sh
+claude mcp add --scope=local playwright npx @executeautomation/playwright-mcp-server
+claude mcp add --scope=local snap-happy npx @mariozechner/snap-happy
+```
 
 ## Usage
 

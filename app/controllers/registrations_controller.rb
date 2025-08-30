@@ -51,7 +51,7 @@ class RegistrationsController < ApplicationController
   def set_password
     return redirect_to login_path, alert: "Invalid request. Please log in." if @user&.password_digest?
 
-    render inertia: "registrations/set-password", props: { email: @user.email_address }
+    render inertia: "registrations/set-password", props: { email: @user.email_address, user: @user.as_json }
   end
 
   def update_password
@@ -60,7 +60,9 @@ class RegistrationsController < ApplicationController
       start_new_session_for @user
       redirect_to after_authentication_url, notice: "Account setup complete! Welcome!"
     else
-      redirect_to set_password_path, inertia: { errors: @user.errors.to_hash(true) }
+      flash[:errors] = @user.errors.full_messages
+      debug "Errors: #{flash[:errors].inspect}"
+      redirect_to set_password_path
     end
   end
 
@@ -80,7 +82,7 @@ class RegistrationsController < ApplicationController
   end
 
   def password_params
-    params.permit(:password, :password_confirmation)
+    params.permit(:password, :password_confirmation, :first_name, :last_name)
   end
 
 end

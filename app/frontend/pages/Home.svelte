@@ -1,5 +1,4 @@
 <script>
-  import Layout from '../layouts/layout.svelte';
   import { buttonVariants } from '$lib/components/ui/button/button.svelte';
   import { GithubLogo, ArrowUpRight } from 'phosphor-svelte';
   import * as Card from '$lib/components/ui/card/index.js';
@@ -128,82 +127,80 @@
   <title>Home</title>
 </svelte:head>
 
-<Layout>
-  <div class="bg-muted border-b">
-    <div class="mx-auto max-w-2xl px-6 lg:max-w-7xl lg:px-8 border-l border-r border-dashed pt-40 pb-50">
-      <h1 class="text-4xl tracking-tighter text-balance max-lg:font-medium max-sm:px-4 sm:text-5xl lg:text-6xl">
-        HelixKit: Svelte App Kit for Ruby on Rails
-      </h1>
-      <p class="opacity-80 mt-4">
-        A start app kit template analogous to Jumpstart Pro or BulletTrain, but using Svelte and Inertia.js for the
-        frontend, with Ruby on Rails as the backend, and including a number of other useful libraries and tools.
-      </p>
-      <div class="mt-8">
-        <a href={githubUrl} class={buttonVariants({ variant: 'default' })} target="_blank" rel="noopener noreferrer">
-          <GithubLogo class="text-white dark:text-black" />
-          <span>Github repo</span>
-        </a>
-      </div>
+<div class="bg-muted border-b">
+  <div class="mx-auto max-w-2xl px-6 lg:max-w-7xl lg:px-8 border-l border-r border-dashed pt-40 pb-50">
+    <h1 class="text-4xl tracking-tighter text-balance max-lg:font-medium max-sm:px-4 sm:text-5xl lg:text-6xl">
+      HelixKit: Svelte App Kit for Ruby on Rails
+    </h1>
+    <p class="opacity-80 mt-4">
+      A start app kit template analogous to Jumpstart Pro or BulletTrain, but using Svelte and Inertia.js for the
+      frontend, with Ruby on Rails as the backend, and including a number of other useful libraries and tools.
+    </p>
+    <div class="mt-8">
+      <a href={githubUrl} class={buttonVariants({ variant: 'default' })} target="_blank" rel="noopener noreferrer">
+        <GithubLogo class="text-white dark:text-black" />
+        <span>Github repo</span>
+      </a>
     </div>
   </div>
+</div>
 
-  <div class="-mt-15">
-    <div class="mx-auto max-w-2xl px-6 lg:max-w-7xl lg:px-8 pb-24 border-l border-r border-dashed">
-      <div class="space-y-8">
-        <div>
-          <h2 class="text-2xl font-semibold mb-4">Features (Done)</h2>
-          <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {#each completedFeatures as feature}
-              <Card.Root class="flex flex-col justify-between">
-                <Card.Header>
-                  <Card.Title>{feature.title}</Card.Title>
-                  <Card.Description>{feature.description}</Card.Description>
-                </Card.Header>
-                {#if feature.link}
-                  <Card.Content class="flex justify-end">
-                    <a
-                      href={feature.link}
-                      class={buttonVariants({ variant: 'ghost' })}
-                      target="_blank"
-                      rel="noopener noreferrer">
-                      <span>See more </span>
-                      <ArrowUpRight weight="bold" />
-                    </a>
-                  </Card.Content>
-                {/if}
-              </Card.Root>
-            {/each}
-          </div>
-        </div>
-
-        <div>
-          <h2 class="text-2xl font-semibold mb-4">Target Features (Todo)</h2>
-          <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {#each todoFeatures as feature}
-              <Card.Root class="flex flex-col justify-between opacity-75 h-full">
-                <Card.Header class="flex-1">
-                  <Card.Title>{feature.title}</Card.Title>
-                  <Card.Description>{feature.description}</Card.Description>
-                </Card.Header>
+<div class="-mt-15">
+  <div class="mx-auto max-w-2xl px-6 lg:max-w-7xl lg:px-8 pb-24 border-l border-r border-dashed">
+    <div class="space-y-8">
+      <div>
+        <h2 class="text-2xl font-semibold mb-4">Features (Done)</h2>
+        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {#each completedFeatures as feature}
+            <Card.Root class="flex flex-col justify-between">
+              <Card.Header>
+                <Card.Title>{feature.title}</Card.Title>
+                <Card.Description>{feature.description}</Card.Description>
+              </Card.Header>
+              {#if feature.link}
                 <Card.Content class="flex justify-end">
-                  {#if feature.link}
-                    <a
-                      href={feature.link}
-                      class={buttonVariants({ variant: 'ghost' })}
-                      target="_blank"
-                      rel="noopener noreferrer">
-                      <span>See more </span>
-                      <ArrowUpRight weight="bold" />
-                    </a>
-                  {:else}
-                    <div class="h-10"></div>
-                  {/if}
+                  <a
+                    href={feature.link}
+                    class={buttonVariants({ variant: 'ghost' })}
+                    target="_blank"
+                    rel="noopener noreferrer">
+                    <span>See more </span>
+                    <ArrowUpRight weight="bold" />
+                  </a>
                 </Card.Content>
-              </Card.Root>
-            {/each}
-          </div>
+              {/if}
+            </Card.Root>
+          {/each}
+        </div>
+      </div>
+
+      <div>
+        <h2 class="text-2xl font-semibold mb-4">Target Features (Todo)</h2>
+        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {#each todoFeatures as feature}
+            <Card.Root class="flex flex-col justify-between opacity-75 h-full">
+              <Card.Header class="flex-1">
+                <Card.Title>{feature.title}</Card.Title>
+                <Card.Description>{feature.description}</Card.Description>
+              </Card.Header>
+              <Card.Content class="flex justify-end">
+                {#if feature.link}
+                  <a
+                    href={feature.link}
+                    class={buttonVariants({ variant: 'ghost' })}
+                    target="_blank"
+                    rel="noopener noreferrer">
+                    <span>See more </span>
+                    <ArrowUpRight weight="bold" />
+                  </a>
+                {:else}
+                  <div class="h-10"></div>
+                {/if}
+              </Card.Content>
+            </Card.Root>
+          {/each}
         </div>
       </div>
     </div>
   </div>
-</Layout>
+</div>

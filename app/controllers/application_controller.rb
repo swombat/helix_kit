@@ -8,8 +8,8 @@ class ApplicationController < ActionController::Base
   inertia_share do
     if authenticated?
       {
-        user: Current.user.slice(:id, :email_address),
-        account: current_account&.slice(:id, :name, :account_type)
+        user: Current.user.as_json,
+        account: current_account&.as_json
       }
     end
   end
