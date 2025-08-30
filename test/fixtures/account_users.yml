@@ -1,4 +1,4 @@
-daniel_personal:
+test_user_account_user:
   id: 1
   account_id: 1
   user_id: 1
@@ -17,7 +17,7 @@ unconfirmed_user_account:
   created_at: <%= 1.hour.ago %>
   updated_at: <%= 1.hour.ago %>
 
-confirmed_user_account:
+existing_user_account_user:
   id: 7
   account_id: 5
   user_id: 3
@@ -26,9 +26,18 @@ confirmed_user_account:
   created_at: <%= 2.days.ago %>
   updated_at: <%= 2.days.ago %>
 
-no_password_user_account:
+needsreset_user_account_user:
   id: 8
   account_id: 6
+  user_id: 4
+  role: owner
+  confirmed_at: <%= 1.day.ago %>
+  created_at: <%= 1.day.ago %>
+  updated_at: <%= 1.day.ago %>
+
+no_password_user_account_user:
+  id: 9
+  account_id: 7
   user_id: 5
   role: owner
   confirmed_at: <%= 1.day.ago %>
@@ -44,25 +53,15 @@ team_owner:
   created_at: <%= 1.day.ago %>
   updated_at: <%= 1.day.ago %>
 
-team_admin:
+team_member:
   id: 3
   account_id: 2
-  user_id: 2
-  role: admin
+  user_id: 3
+  role: member
   confirmed_at: <%= 1.day.ago %>
   created_at: <%= 1.day.ago %>
   updated_at: <%= 1.day.ago %>
 
-pending_invitation:
-  id: 4
-  account_id: 2
-  user_id: 4
-  role: member
-  confirmation_token: <%= SecureRandom.hex(32) %>
-  confirmation_sent_at: <%= 1.hour.ago %>
-  invited_by_id: 1
-  created_at: <%= 1.hour.ago %>
-  updated_at: <%= 1.hour.ago %>
 
 another_team_member:
   id: 5

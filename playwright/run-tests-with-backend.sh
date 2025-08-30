@@ -49,8 +49,8 @@ rails db:drop RAILS_ENV=test 2>/dev/null || true
 rails db:create RAILS_ENV=test
 rails db:migrate RAILS_ENV=test
 
-echo "🌱 Seeding test database..."
-rails db:seed RAILS_ENV=test
+echo "🌱 Loading test fixtures..."
+rails db:fixtures:load RAILS_ENV=test
 
 echo "🚀 Starting Rails server on port 3200..."
 

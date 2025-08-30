@@ -1,36 +1,46 @@
-user_1:
+# Main test user for login tests
+test_user:
   id: 1
-  email_address: daniel@granttree.co.uk
-  password_digest: <%= BCrypt::Password.create("password") %>
-  first_name: Daniel
-  last_name: Tenner
+  email_address: test@example.com
+  password_digest: <%= BCrypt::Password.create("password123") %>
+  first_name: Test
+  last_name: User
   created_at: <%= 1.day.ago %>
   updated_at: <%= 1.day.ago %>
 
+# Unconfirmed user (signed up but not confirmed)
 unconfirmed_user:
   id: 2
   email_address: unconfirmed@example.com
-  password_digest: <%= BCrypt::Password.create("password") %>
+  # No password set yet for unconfirmed users
   created_at: <%= 1.hour.ago %>
   updated_at: <%= 1.hour.ago %>
 
-confirmed_user:
+# Another confirmed user for duplicate email testing
+existing_user:
   id: 3
-  email_address: confirmed@example.com
-  password_digest: <%= BCrypt::Password.create("password") %>
-  first_name: Confirmed
+  email_address: existing@example.com
+  password_digest: <%= BCrypt::Password.create("password123") %>
+  first_name: Existing
   last_name: User
   created_at: <%= 2.days.ago %>
   updated_at: <%= 2.days.ago %>
 
-pending_user:
+# User who needs password reset
+needsreset_user:
   id: 4
-  email_address: pending@example.com
-  created_at: <%= 1.hour.ago %>
-  updated_at: <%= 1.hour.ago %>
+  email_address: needsreset@example.com
+  password_digest: <%= BCrypt::Password.create("oldpassword123") %>
+  first_name: Needs
+  last_name: Reset
+  created_at: <%= 1.day.ago %>
+  updated_at: <%= 1.day.ago %>
 
+# User with no password set (OAuth-like)
 no_password_user:
   id: 5
   email_address: nopassword@example.com
+  first_name: No
+  last_name: Password
   created_at: <%= 1.day.ago %>
   updated_at: <%= 1.day.ago %>
