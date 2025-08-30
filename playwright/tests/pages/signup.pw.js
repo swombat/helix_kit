@@ -1,32 +1,35 @@
 import { test, expect } from '@playwright/experimental-ct-svelte';
-import SignupForm from '../../../app/frontend/lib/components/signup-form.svelte';
+import SignupPage from '../../../app/frontend/pages/registrations/new.svelte';
 
-test.describe('Signup Form Component Tests', () => {
+test.describe('Signup Page Tests', () => {
   // IMPORTANT: These tests require the Rails backend running on localhost:3200
   // Run with: npm run test:integrated (automatically handles backend setup)
 
-  test('should render signup form with email field only', async ({ mount }) => {
-    const component = await mount(SignupForm);
+  test('should render signup page with all elements', async ({ mount }) => {
+    const page = await mount(SignupPage);
+
+    // Check logo is present (looking for the main logo)
+    await expect(page.locator('svg').first()).toBeVisible();
 
     // Check all elements are present
-    await expect(component).toContainText('Sign up');
-    await expect(component).toContainText("Enter your email to create an account. We'll send you a confirmation link.");
-    await expect(component).toContainText("We'll create a personal workspace for you to get started.");
+    await expect(page).toContainText('Sign up');
+    await expect(page).toContainText("Enter your email to create an account. We'll send you a confirmation link.");
+    await expect(page).toContainText("We'll create a personal workspace for you to get started.");
 
     // Check only email field is present (no password fields)
-    await expect(component.locator('input[type="email"]')).toBeVisible();
-    await expect(component.locator('input[type="password"]')).not.toBeVisible();
+    await expect(page.locator('input[type="email"]')).toBeVisible();
+    await expect(page.locator('input[type="password"]')).not.toBeVisible();
 
     // Check submit button
-    await expect(component.locator('button[type="submit"]')).toBeVisible();
-    await expect(component.locator('button[type="submit"]')).toContainText('Create Account');
+    await expect(page.locator('button[type="submit"]')).toBeVisible();
+    await expect(page.locator('button[type="submit"]')).toContainText('Create Account');
 
     // Check login link
-    await expect(component.locator('a').filter({ hasText: 'Log in' })).toBeVisible();
+    await expect(page.locator('a').filter({ hasText: 'Log in' })).toBeVisible();
   });
 
   test('should successfully submit signup with valid new email', async ({ mount, page }) => {
-    const component = await mount(SignupForm);
+    const component = await mount(SignupPage);
 
     // Generate a unique email for this test run
     const timestamp = Date.now();
@@ -45,7 +48,7 @@ test.describe('Signup Form Component Tests', () => {
   });
 
   test('should show error when email already exists', async ({ mount, page }) => {
-    const component = await mount(SignupForm);
+    const component = await mount(SignupPage);
 
     // Fill in the form with existing confirmed email (seeded in test database)
     await component.locator('input[type="email"]').fill('test@example.com');
@@ -62,7 +65,7 @@ test.describe('Signup Form Component Tests', () => {
   });
 
   test('should resend confirmation for unconfirmed email', async ({ mount, page }) => {
-    const component = await mount(SignupForm);
+    const component = await mount(SignupPage);
 
     // Use an email that exists but is unconfirmed
     // This would need to be seeded in test database
@@ -78,7 +81,7 @@ test.describe('Signup Form Component Tests', () => {
   });
 
   test('should accept input in email field', async ({ mount }) => {
-    const component = await mount(SignupForm);
+    const component = await mount(SignupPage);
 
     const emailInput = component.locator('input[type="email"]');
     await emailInput.fill('test@example.com');
@@ -88,7 +91,7 @@ test.describe('Signup Form Component Tests', () => {
   });
 
   test('should validate required email field', async ({ mount }) => {
-    const component = await mount(SignupForm);
+    const component = await mount(SignupPage);
 
     // Try to submit without filling email
     const emailInput = component.locator('input[type="email"]');
@@ -98,14 +101,14 @@ test.describe('Signup Form Component Tests', () => {
   });
 
   test('should have correct placeholders', async ({ mount }) => {
-    const component = await mount(SignupForm);
+    const component = await mount(SignupPage);
 
     const emailInput = component.locator('input[type="email"]');
     await expect(emailInput).toHaveAttribute('placeholder', 'm@example.com');
   });
 
   test('should navigate to login page', async ({ mount }) => {
-    const component = await mount(SignupForm);
+    const component = await mount(SignupPage);
 
     const loginLink = component.locator('a').filter({ hasText: 'Log in' });
     await expect(loginLink).toBeVisible();
@@ -113,7 +116,7 @@ test.describe('Signup Form Component Tests', () => {
   });
 
   test('should preserve form data when typing', async ({ mount }) => {
-    const component = await mount(SignupForm);
+    const component = await mount(SignupPage);
 
     const emailInput = component.locator('input[type="email"]');
 
@@ -125,7 +128,7 @@ test.describe('Signup Form Component Tests', () => {
   });
 
   test('should have submit button', async ({ mount }) => {
-    const component = await mount(SignupForm);
+    const component = await mount(SignupPage);
 
     const submitButton = component.locator('button[type="submit"]');
     await expect(submitButton).toBeVisible();
@@ -133,7 +136,7 @@ test.describe('Signup Form Component Tests', () => {
   });
 
   test('should show loading state when processing', async ({ mount }) => {
-    const component = await mount(SignupForm);
+    const component = await mount(SignupPage);
 
     const submitButton = component.locator('button[type="submit"]');
     const emailInput = component.locator('input[type="email"]');
