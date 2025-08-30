@@ -1,6 +1,6 @@
 import { createInertiaApp } from '@inertiajs/svelte';
 import { mount } from 'svelte';
-import Layout from '../layouts/layout.svelte';
+import Layout from '../layouts/Layout.svelte';
 
 createInertiaApp({
   // Set default page title

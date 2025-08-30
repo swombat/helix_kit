@@ -1,6 +1,6 @@
 import { render, fireEvent, screen } from '@testing-library/svelte';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import Navbar from './navbar.svelte';
+import Navbar from './Navbar.svelte';
 import { page, router } from '@inertiajs/svelte';
 
 describe('Navbar Component', () => {

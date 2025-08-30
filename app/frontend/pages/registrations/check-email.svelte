@@ -1,12 +1,12 @@
 <script>
   import { Link } from '@inertiajs/svelte';
   import * as Card from '$lib/components/shadcn/card/index.js';
-  import Logo from '$lib/components/misc/helix-kit-logo.svelte';
-  import AuthLayout from '../../layouts/auth-layout.svelte';
+  import Logo from '$lib/components/misc/HelixKitLogo.svelte';
+  import AuthLayout from '../../layouts/AuthLayout.svelte';
   import { Button } from '$lib/components/shadcn/button/index.js';
   import { signupPath } from '@/routes';
   import { EnvelopeSimple } from 'phosphor-svelte';
-  import ResendConfirmation from '$lib/components/forms/resend-confirmation.svelte';
+  import ResendConfirmation from '$lib/components/forms/ResendConfirmation.svelte';
 
   let { email } = $props();
 </script>

@@ -1,6 +1,6 @@
 import { render, fireEvent, screen } from '@testing-library/svelte';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import EditPasswordForm from './edit-password-form.svelte';
+import EditPasswordForm from './EditPasswordForm.svelte';
 import { useForm, page } from '@inertiajs/svelte';
 
 describe('EditPasswordForm Component', () => {

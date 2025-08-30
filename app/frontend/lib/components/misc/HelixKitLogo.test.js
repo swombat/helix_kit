@@ -1,6 +1,6 @@
 import { render } from '@testing-library/svelte';
 import { describe, it, expect, vi } from 'vitest';
-import Logo from './helix-kit-logo.svelte';
+import Logo from './HelixKitLogo.svelte';
 
 // Mock the SVG import
 vi.mock('../../../../assets/images/helix-kit-logo.svg?raw', () => ({

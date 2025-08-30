@@ -7,8 +7,8 @@
   import CardDescription from '$lib/components/shadcn/card/card-description.svelte';
   import CardHeader from '$lib/components/shadcn/card/card-header.svelte';
   import CardTitle from '$lib/components/shadcn/card/card-title.svelte';
-  import Alert from '$lib/components/alert.svelte';
-  import UserSettingsForm from '$lib/components/forms/user-settings-form.svelte';
+  import Alert from '$lib/components/Alert.svelte';
+  import UserSettingsForm from '$lib/components/forms/UserSettingsForm.svelte';
 
   let { user = $bindable(), timezones } = $props();
 

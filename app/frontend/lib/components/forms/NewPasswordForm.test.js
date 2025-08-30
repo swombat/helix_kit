@@ -1,6 +1,6 @@
 import { render, fireEvent, screen } from '@testing-library/svelte';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import NewPasswordForm from './new-password-form.svelte';
+import NewPasswordForm from './NewPasswordForm.svelte';
 import { useForm } from '@inertiajs/svelte';
 
 describe('NewPasswordForm Component', () => {

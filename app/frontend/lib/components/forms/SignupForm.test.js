@@ -1,6 +1,6 @@
 import { render, fireEvent, screen } from '@testing-library/svelte';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import SignupForm from './signup-form.svelte';
+import SignupForm from './SignupForm.svelte';
 import { useForm } from '@inertiajs/svelte';
 
 describe('SignupForm Component', () => {

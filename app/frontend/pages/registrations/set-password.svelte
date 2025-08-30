@@ -2,13 +2,13 @@
   import { page } from '@inertiajs/svelte';
   import { Link } from '@inertiajs/svelte';
 
-  import AuthLayout from '../../layouts/auth-layout.svelte';
+  import AuthLayout from '../../layouts/AuthLayout.svelte';
 
-  import Logo from '$lib/components/misc/helix-kit-logo.svelte';
+  import Logo from '$lib/components/misc/HelixKitLogo.svelte';
 
   import * as Card from '$lib/components/shadcn/card/index.js';
-  import Alert from '$lib/components/alert.svelte';
-  import SetPasswordForm from '$lib/components/forms/set-password-form.svelte';
+  import Alert from '$lib/components/Alert.svelte';
+  import SetPasswordForm from '$lib/components/forms/SetPasswordForm.svelte';
 
   import { CheckCircle } from 'phosphor-svelte';
 
