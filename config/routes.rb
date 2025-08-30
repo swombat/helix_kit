@@ -18,7 +18,12 @@ Rails.application.routes.draw do
 
   resources :passwords, param: :token, only: %i[new create edit update]
 
-  resource :user, only: %i[edit update]
+  resource :user, only: %i[edit update] do
+    member do
+      get "edit_password"
+      patch "update_password"
+    end
+  end
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.

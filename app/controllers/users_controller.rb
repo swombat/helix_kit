@@ -17,6 +17,25 @@ class UsersController < ApplicationController
     redirect_to edit_user_path
   end
 
+  def edit_password
+    render inertia: "user/edit_password"
+  end
+
+  def update_password
+    if Current.user.authenticate(params[:current_password])
+      if Current.user.update(password: params[:password], password_confirmation: params[:password_confirmation])
+        flash[:success] = "Password updated successfully"
+        redirect_to edit_user_path
+      else
+        flash[:errors] = Current.user.errors.full_messages
+        redirect_to edit_password_user_path
+      end
+    else
+      flash[:errors] = [ "Current password is incorrect" ]
+      redirect_to edit_password_user_path
+    end
+  end
+
   private
 
   def user_params

@@ -6,7 +6,7 @@
   import * as DropdownMenu from '$lib/components/shadcn/dropdown-menu/index.js';
   import { Button, buttonVariants } from '$lib/components/shadcn/button/index.js';
   import { cn } from '$lib/utils.js';
-  import { rootPath, loginPath, signupPath, logoutPath, editUserPath, editPasswordPath } from '@/routes';
+  import { rootPath, loginPath, signupPath, logoutPath, editUserPath, editPasswordUserPath } from '@/routes';
   import { toggleMode, setMode, resetMode } from 'mode-watcher';
   import { ModeWatcher } from 'mode-watcher';
 
@@ -66,7 +66,7 @@
             <DropdownMenu.GroupHeading>
               <div class="text-xs font-normal text-muted-foreground">Account</div>
               <div class="text-sm font-semibold truncate">
-                {currentAccount?.name || 'Personal'}
+                {currentAccount?.personal ? 'Personal' : currentAccount?.name}
               </div>
             </DropdownMenu.GroupHeading>
             <DropdownMenu.Separator />
@@ -81,7 +81,7 @@
               <UserCircle class="mr-2 size-4" />
               <span>Settings</span>
             </DropdownMenu.Item>
-            <DropdownMenu.Item onclick={() => router.visit(editPasswordPath())}>
+            <DropdownMenu.Item onclick={() => router.visit(editPasswordUserPath())}>
               <Password class="mr-2 size-4" />
               <span>Change Password</span>
             </DropdownMenu.Item>

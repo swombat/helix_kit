@@ -50,6 +50,14 @@ class Account < ApplicationRecord
     end
   end
 
+  def as_json(options = {})
+    hash = super(options.merge(methods: [ :name ]))
+    # Explicitly assign boolean values to ensure they are included
+    hash["personal"] = !!personal?
+    hash["team"] = !!team?
+    hash
+  end
+
   private
 
   def enforce_personal_account_limit
