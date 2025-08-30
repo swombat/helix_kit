@@ -1,5 +1,5 @@
-# Test user's personal account
-test_user_account:
+# Test user's personal account (with both names for compatibility)
+personal_account:
   id: 1
   name: "Test User's Account"
   account_type: 0

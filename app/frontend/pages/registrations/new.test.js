@@ -38,7 +38,8 @@ describe('Signup Page Component', () => {
     const { container } = render(Signup);
 
     // Should have centered layout typical of auth pages
-    const authWrapper = container.querySelector('.max-w-sm');
+    // Form framework now handles layout with container
+    const authWrapper = container.querySelector('.container');
     expect(authWrapper).toBeInTheDocument();
   });
 });

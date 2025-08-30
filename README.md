@@ -29,7 +29,7 @@ This is a start app kit template analogous to Jumpstart Pro or BulletTrain, but 
 - **[Full-featured user system](https://jumpstartrails.com/docs/accounts)** - Necessary for most commercial applications, but not included in the default user setup.
     - [x] User signup and confirmation
     - [ ] Personal/Organization Accounts
-    - [ ] Site Admin
+    - [x] Site Admin
     - [x] User Profiles
     - [ ] Invitations
     - [ ] Roles

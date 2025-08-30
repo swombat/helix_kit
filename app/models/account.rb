@@ -55,6 +55,7 @@ class Account < ApplicationRecord
     # Explicitly assign boolean values to ensure they are included
     hash["personal"] = !!personal?
     hash["team"] = !!team?
+    hash["is_site_admin"] = !!is_site_admin
     hash
   end
 

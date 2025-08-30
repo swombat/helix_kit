@@ -1,44 +1,42 @@
 <script>
-	import { Button } from "$lib/components/shadcn/button/index.js";
-	import * as Card from "$lib/components/shadcn/card/index.js";
-	import { Input } from "$lib/components/shadcn/input/index.js";
-	import { InputError } from "$lib/components/shadcn/input-error/index.js";
-	import { Label } from "$lib/components/shadcn/label/index.js";
-	import { Link, useForm, page } from "@inertiajs/svelte";
-	import { passwordPath } from "@/routes"
+  import Form from './Form.svelte';
+  import Input from '$lib/components/shadcn/input/input.svelte';
+  import Label from '$lib/components/shadcn/label/label.svelte';
+  import { page } from '@inertiajs/svelte';
+  import { passwordPath } from '@/routes';
 
-  const form = useForm({
-    password: null,
-    password_confirmation: null,
-  })
+  let { onCancel, onSuccess } = $props();
 
-  function submit(e) {
-    e.preventDefault()
-    // $form.put(`/passwords/${$page.props.token}`)
-		$form.put(passwordPath($page.props.token))
-  }
+  let passwordData = $state({
+    password: '',
+    password_confirmation: '',
+  });
 </script>
 
-<Card.Root class="mx-auto max-w-sm w-full">
-	<Card.Header>
-		<Card.Title class="text-2xl">Update your password</Card.Title>
-		<Card.Description>Enter a new password for your account</Card.Description>
-	</Card.Header>
-	<Card.Content>
-		<form onsubmit={submit}>
-			<div class="grid gap-4">
-				<div class="grid gap-2">
-					<Label for="password">New Password</Label>
-					<Input id="password" type="password" placeholder="Enter new password" required bind:value={$form.password}/>
-					<InputError errors={$form.errors.password} />
-				</div>
-        <div class="grid gap-2">
-					<Label for="password_confirmation">New Password Confirmation</Label>
-					<Input id="password_confirmation" type="password" placeholder="Repeat new password" required bind:value={$form.password_confirmation}/>
-					<InputError errors={$form.errors.password_confirmation} />
-				</div>
-				<Button type="submit" class="w-full">Save</Button>
-			</div>
-		</form>
-	</Card.Content>
-</Card.Root>
+<Form
+  action={passwordPath($page.props.token)}
+  method="put"
+  data={() => passwordData}
+  title="Update your password"
+  description="Enter a new password for your account"
+  submitLabel="Save"
+  submitLabelProcessing="Saving..."
+  showCancel={false}
+  narrow
+  {onCancel}
+  {onSuccess}>
+  <div>
+    <Label for="password">New Password</Label>
+    <Input id="password" type="password" placeholder="Enter new password" required bind:value={passwordData.password} />
+  </div>
+
+  <div>
+    <Label for="password_confirmation">New Password Confirmation</Label>
+    <Input
+      id="password_confirmation"
+      type="password"
+      placeholder="Repeat new password"
+      required
+      bind:value={passwordData.password_confirmation} />
+  </div>
+</Form>

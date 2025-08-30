@@ -124,8 +124,14 @@ class User < ApplicationRecord
     "#{first_name} #{last_name}"
   end
 
+  def site_admin
+    return true if is_site_admin
+
+    accounts.where(is_site_admin: true).exists?
+  end
+
   def as_json(options = {})
-    super(options.merge(methods: :full_name))
+    super(options.merge(methods: [ :full_name, :site_admin ]))
   end
 
   private

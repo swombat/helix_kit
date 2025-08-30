@@ -304,4 +304,67 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
+  # === site_admin Tests ===
+
+  test "site_admin returns true when user has is_site_admin set" do
+    user = users(:user_1)
+    user.update_column(:is_site_admin, true)
+
+    assert user.site_admin
+  end
+
+  test "site_admin returns false when user does not have is_site_admin set" do
+    user = users(:user_1)
+    user.update_column(:is_site_admin, false)
+
+    assert_not user.site_admin
+  end
+
+  test "site_admin returns true when user belongs to account with is_site_admin" do
+    user = users(:user_1)
+    user.update_column(:is_site_admin, false)
+
+    # Set the account as site admin
+    account = user.personal_account
+    account.update_column(:is_site_admin, true)
+
+    assert user.site_admin
+  end
+
+  test "site_admin returns true when user belongs to site admin account" do
+    user = User.create!(email_address: "member-admin@example.com")
+    user.update_column(:is_site_admin, false)
+
+    # Create an account with site admin privileges
+    admin_account = Account.create!(name: "Admin Account", account_type: :team, is_site_admin: true)
+
+    # Add user as member
+    admin_account.add_user!(user, role: "member", skip_confirmation: true)
+
+    assert user.site_admin
+  end
+
+  test "site_admin returns false when user only belongs to non-admin accounts" do
+    user = User.create!(email_address: "regular-user@example.com")
+    user.update_column(:is_site_admin, false)
+
+    # User's personal account should not be site admin
+    user.personal_account.update_column(:is_site_admin, false)
+
+    # Add to a regular team account
+    regular_account = Account.create!(name: "Regular Account", account_type: :team, is_site_admin: false)
+    regular_account.add_user!(user, role: "member", skip_confirmation: true)
+
+    assert_not user.site_admin
+  end
+
+  test "as_json includes site_admin field" do
+    user = users(:user_1)
+    user.update_column(:is_site_admin, true)
+
+    json = user.as_json
+    assert json.key?("site_admin")
+    assert_equal true, json["site_admin"]
+  end
+
 end

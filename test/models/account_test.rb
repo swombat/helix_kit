@@ -235,4 +235,24 @@ class AccountTest < ActiveSupport::TestCase
     assert_equal true, account.settings["notifications"]
   end
 
+  # === is_site_admin Tests ===
+
+  test "as_json includes is_site_admin field" do
+    account = accounts(:personal_account)
+    account.update_column(:is_site_admin, true)
+
+    json = account.as_json
+    assert json.key?("is_site_admin")
+    assert_equal true, json["is_site_admin"]
+  end
+
+  test "as_json includes is_site_admin as false when not set" do
+    account = accounts(:personal_account)
+    account.update_column(:is_site_admin, false)
+
+    json = account.as_json
+    assert json.key?("is_site_admin")
+    assert_equal false, json["is_site_admin"]
+  end
+
 end

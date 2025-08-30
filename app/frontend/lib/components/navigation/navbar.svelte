@@ -2,7 +2,7 @@
   // grab page props from inertia
   import { page, Link, router } from '@inertiajs/svelte';
   import Logo from '$lib/components/misc/HelixKitLogo.svelte';
-  import { UserCircle, List, SignOut, Password, Moon, Sun } from 'phosphor-svelte';
+  import { UserCircle, List, SignOut, Password, Moon, Sun, ShieldWarning } from 'phosphor-svelte';
   import * as DropdownMenu from '$lib/components/shadcn/dropdown-menu/index.js';
   import { Button, buttonVariants } from '$lib/components/shadcn/button/index.js';
   import { cn } from '$lib/utils.js';
@@ -22,7 +22,7 @@
 </script>
 
 <nav>
-  <div class="flex items-center justify-between p-4 px-10 border-b">
+  <div class="flex items-center justify-between p-4 px-10 border-b gap-4">
     <div class="flex items-center gap-8">
       <Link href="/" class="flex items-center gap-2">
         <Logo class="h-10 w-10" />
@@ -35,6 +35,9 @@
         {/each}
       </div>
     </div>
+
+    <div class="flex-grow"></div>
+
     <DropdownMenu.Root>
       <DropdownMenu.Trigger class={buttonVariants({ variant: 'outline', size: 'icon' })}>
         <Sun class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 !transition-all dark:-rotate-90 dark:scale-0" />
@@ -50,9 +53,17 @@
     </DropdownMenu.Root>
 
     {#if currentUser}
+      {#if currentUser?.site_admin}
+        <DropdownMenu.Root>
+          <DropdownMenu.Trigger class={cn(buttonVariants({ variant: 'outline' }), 'rounded-full px-2.5 gap-1')}>
+            <ShieldWarning class="text-red-500" />
+            <span class="text-xs font-normal text-muted-foreground text-red-500"> Site Admin </span>
+          </DropdownMenu.Trigger>
+        </DropdownMenu.Root>
+      {/if}
       <DropdownMenu.Root>
         <DropdownMenu.Trigger class={cn(buttonVariants({ variant: 'outline' }), 'rounded-full px-2.5 gap-1')}>
-          <UserCircle />
+          <UserCircle class={currentUser?.site_admin ? 'text-red-500' : ''} />
           {#if currentUser?.full_name}
             <span class="text-xs font-normal text-muted-foreground">
               {currentUser?.full_name}
@@ -74,6 +85,9 @@
               <div class="text-xs font-normal text-muted-foreground">Logged in as</div>
               <div class="text-sm font-semibold truncate">
                 {currentUser.email_address}
+              </div>
+              <div class="text-sm font-semibold truncate text-red-500">
+                {currentUser?.site_admin ? '(Site Admin)' : ''}
               </div>
             </DropdownMenu.GroupHeading>
             <DropdownMenu.Separator />

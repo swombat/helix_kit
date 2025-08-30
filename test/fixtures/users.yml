@@ -1,5 +1,5 @@
 # Main test user for login tests
-test_user:
+user_1:
   id: 1
   email_address: test@example.com
   password_digest: <%= BCrypt::Password.create("password123") %>
