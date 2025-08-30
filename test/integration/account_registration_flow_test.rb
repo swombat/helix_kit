@@ -21,7 +21,6 @@ class AccountRegistrationFlowTest < ActionDispatch::IntegrationTest
 
     assert_equal email, user.email_address
     assert_nil user.password_digest
-    assert_equal account.id, user.default_account_id
 
     assert_equal "#{email}'s Account", account.name
     assert account.personal?
@@ -54,7 +53,7 @@ class AccountRegistrationFlowTest < ActionDispatch::IntegrationTest
     assert_nil account_user.confirmation_token
 
     # Step 3: Set password
-    patch set_password_path, params: { password: "securePassword123", password_confirmation: "securePassword123" }
+    patch set_password_path, params: { password: "securePassword123", password_confirmation: "securePassword123", first_name: "Password", last_name: "Set" }
     assert_redirected_to root_path
 
     user.reload
@@ -99,7 +98,6 @@ class AccountRegistrationFlowTest < ActionDispatch::IntegrationTest
     # Verify same entities preserved
     assert_equal original_user_id, user.id
     assert_equal original_account_id, account.id
-    assert_equal original_account_id, user.default_account_id
 
     # Token should be regenerated
     assert_not_equal original_token, account_user.confirmation_token
@@ -114,8 +112,7 @@ class AccountRegistrationFlowTest < ActionDispatch::IntegrationTest
     account_user = AccountUser.last
     get email_confirmation_path(token: account_user.confirmation_token)
 
-    user = User.last
-    patch set_password_path, params: { password: "password123", password_confirmation: "password123" }
+    patch set_password_path, params: { password: "password123", password_confirmation: "password123", first_name: "Confirmed", last_name: "User" }
 
     # Logout first
     delete logout_path
@@ -212,7 +209,6 @@ class AccountRegistrationFlowTest < ActionDispatch::IntegrationTest
     account = Account.last
     account_user = AccountUser.last
 
-    assert_equal account.id, user.default_account_id
     assert_equal user.id, account_user.user_id
     assert_equal account.id, account_user.account_id
     assert_equal 1, user.accounts.count
@@ -227,14 +223,12 @@ class AccountRegistrationFlowTest < ActionDispatch::IntegrationTest
 
     assert account_user.confirmed?
     assert user.confirmed?
-    assert_equal account.id, user.default_account_id
 
     # After password set
-    patch set_password_path, params: { password: "password123", password_confirmation: "password123" }
+    patch set_password_path, params: { password: "password123", password_confirmation: "password123", first_name: "Database", last_name: "Consistency" }
 
     user.reload
     assert user.password_digest?
-    assert_equal account.id, user.default_account_id
     assert user.can_login?
   end
 
@@ -275,38 +269,13 @@ class AccountRegistrationFlowTest < ActionDispatch::IntegrationTest
     assert_nil cookies[:session_id]
 
     # Authenticated after setting password
-    patch set_password_path, params: { password: "password123", password_confirmation: "password123" }
+    patch set_password_path, params: { password: "password123", password_confirmation: "password123", first_name: "Auth", last_name: "Flow" }
     assert cookies[:session_id].present?
     # Verify the session belongs to the correct user
     user = User.last
     user_session = Session.find_by(user: user)
     assert user_session.present?
     assert_equal user.id, user_session.user_id
-  end
-
-  test "user default account id is properly maintained throughout flow" do
-    email = "default_account@example.com"
-
-    # Create user
-    post signup_path, params: { email_address: email }
-
-    user = User.last
-    account = Account.last
-
-    assert_equal account.id, user.default_account_id
-
-    # Confirm email
-    account_user = AccountUser.last
-    get email_confirmation_path(token: account_user.confirmation_token)
-
-    user.reload
-    assert_equal account.id, user.default_account_id
-
-    # Set password
-    patch set_password_path, params: { password: "password123", password_confirmation: "password123" }
-
-    user.reload
-    assert_equal account.id, user.default_account_id
   end
 
   test "confirmation token management between user and account user" do
@@ -341,7 +310,6 @@ class AccountRegistrationFlowTest < ActionDispatch::IntegrationTest
     user = User.last
     account_user = AccountUser.last
     original_account_user_token = account_user.confirmation_token
-    original_account_id = user.default_account_id
 
     # Wait a moment to ensure timestamps will be different
     sleep 0.01
@@ -360,9 +328,6 @@ class AccountRegistrationFlowTest < ActionDispatch::IntegrationTest
 
     # Tokens should be regenerated
     assert_not_equal original_account_user_token, account_user.confirmation_token
-
-    # Account relationships should be preserved
-    assert_equal original_account_id, user.default_account_id
 
     # Timestamps should be updated
     assert account_user.confirmation_sent_at > 1.second.ago
@@ -383,14 +348,7 @@ class AccountRegistrationFlowTest < ActionDispatch::IntegrationTest
     account = Account.last
     account_user = AccountUser.last
 
-    # Test update operations work correctly
-    assert_nothing_raised do
-      # set_user_default_account uses update
-      account_user.send(:set_user_default_account)
-    end
-
     user.reload
-    assert_equal account.id, user.default_account_id
 
     # Confirm email
     get email_confirmation_path(token: account_user.confirmation_token)

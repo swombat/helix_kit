@@ -27,60 +27,6 @@ class AccountUserTest < ActiveSupport::TestCase
     end
   end
 
-  # === Core set_user_default_account Callback Tests ===
-
-  test "set_user_default_account sets default_account_id when user has no default" do
-    user = User.create!(email_address: "nodefault@example.com")
-    # Remove default set by User callback
-    user.update_column(:default_account_id, nil)
-    account = accounts(:team_account)
-
-    account_user = AccountUser.create!(
-      user: user,
-      account: account,
-      role: "member",
-      skip_confirmation: true
-    )
-
-    user.reload
-    assert_equal account.id, user.default_account_id
-  end
-
-  test "set_user_default_account does not override existing default_account_id" do
-    user = users(:user_1)
-    original_default_id = user.default_account_id
-    different_account = accounts(:another_team)
-
-    AccountUser.create!(
-      user: user,
-      account: different_account,
-      role: "member",
-      skip_confirmation: true
-    )
-
-    user.reload
-    assert_equal original_default_id, user.default_account_id
-  end
-
-  test "set_user_default_account uses update_column correctly" do
-    user = User.create!(email_address: "updatecolumn@example.com")
-    user.update_column(:default_account_id, nil)
-    account = accounts(:team_account)
-    original_updated_at = user.updated_at
-
-    AccountUser.create!(
-      user: user,
-      account: account,
-      role: "member",
-      skip_confirmation: true
-    )
-
-    user.reload
-    assert_equal account.id, user.default_account_id
-    # update_column should not change updated_at
-    assert_equal original_updated_at.to_i, user.updated_at.to_i
-  end
-
   # === Role Validation Tests ===
 
   test "validates role inclusion" do

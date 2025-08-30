@@ -39,7 +39,9 @@ class SignupConfirmationTest < ActionDispatch::IntegrationTest
     # Set password
     patch set_password_path, params: {
       password: "password123",
-      password_confirmation: "password123"
+      password_confirmation: "password123",
+      first_name: "Signup",
+      last_name: "Confirmation"
     }
     assert_redirected_to root_path
 
@@ -61,7 +63,9 @@ class SignupConfirmationTest < ActionDispatch::IntegrationTest
     # Create unconfirmed user
     user = User.create!(
       email_address: "unconfirmed-login-test@example.com",
-      password: "password123"
+      password: "password123",
+      first_name: "Unconfirmed",
+      last_name: "Login"
     )
     # Ensure the user is unconfirmed
     user.account_users.update_all(confirmed_at: nil)

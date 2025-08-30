@@ -152,7 +152,9 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
     # Set the password
     patch set_password_path, params: {
       password: "newpassword123",
-      password_confirmation: "newpassword123"
+      password_confirmation: "newpassword123",
+      first_name: "New",
+      last_name: "User"
     }
 
     assert_redirected_to root_path

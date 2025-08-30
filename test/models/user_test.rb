@@ -108,14 +108,6 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
-  test "ensure_account_user_exists sets default_account_id correctly using update_column" do
-    user = User.create!(email_address: "default-test@example.com")
-    user.reload
-
-    assert user.default_account_id.present?
-    assert_equal user.personal_account.id, user.default_account_id
-  end
-
   test "ensure_account_user_exists skips if account_users already exist" do
     user = User.create!(email_address: "existing@example.com")
     initial_count = user.account_users.count
@@ -196,7 +188,9 @@ class UserTest < ActiveSupport::TestCase
       user.update!(
         email_address: "updated-via-update@example.com",
         password: "newpassword",
-        password_confirmation: "newpassword"
+        password_confirmation: "newpassword",
+        first_name: "Updated",
+        last_name: "User"
       )
     end
     assert_equal "updated-via-update@example.com", user.reload.email_address
@@ -308,16 +302,6 @@ class UserTest < ActiveSupport::TestCase
     assert_raises(ActiveSupport::MessageVerifier::InvalidSignature) do
       User.find_by_password_reset_token!("invalid-token")
     end
-  end
-
-
-  test "sets default account when AccountUser is created" do
-    user = User.create!(email_address: "default-account-test@example.com")
-
-    # Should have default account set from after_create callback
-    user.reload
-    assert user.default_account.present?
-    assert_equal user.personal_account, user.default_account
   end
 
 end

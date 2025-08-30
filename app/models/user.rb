@@ -6,7 +6,6 @@ class User < ApplicationRecord
   # Account associations
   has_many :account_users, dependent: :destroy
   has_many :accounts, through: :account_users
-  belongs_to :default_account, class_name: "Account", optional: true
   has_one :personal_account_user, -> { joins(:account).where(accounts: { account_type: 0 }) },
           class_name: "AccountUser"
   has_one :personal_account, through: :personal_account_user, source: :account
@@ -117,6 +116,10 @@ class User < ApplicationRecord
     account_users.confirmed.owners.where(account: account).exists?
   end
 
+  def default_account
+    account_users.confirmed.first&.account || account_users.first&.account
+  end
+
   private
 
   def ensure_account_user_exists
@@ -133,9 +136,6 @@ class User < ApplicationRecord
       account: account,
       role: "owner"
     )
-
-    # Set as default account
-    update(default_account_id: account.id)
   end
 
 end

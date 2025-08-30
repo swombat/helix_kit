@@ -26,7 +26,6 @@ class AccountUser < ApplicationRecord
   # Callbacks
   before_create :auto_confirm_if_skip_confirmation
   after_create_commit :send_confirmation_email, unless: :skip_confirmation
-  after_create :set_user_default_account
 
   # Scopes
   scope :owners, -> { where(role: "owner") }
@@ -80,10 +79,6 @@ class AccountUser < ApplicationRecord
 
   def enforce_single_owner_per_personal_account
     errors.add(:base, "Personal accounts can only have one user") if account&.personal? && account.account_users.where.not(id: id).exists?
-  end
-
-  def set_user_default_account
-    # Use update_column to skip validations/etc
   end
 
   def needs_confirmation?

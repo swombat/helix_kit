@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_30_044833) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_30_091050) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -58,12 +58,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_30_044833) do
     t.string "password_digest"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "default_account_id"
     t.boolean "migrated_to_accounts", default: false
     t.string "first_name"
     t.string "last_name"
     t.string "timezone"
-    t.index ["default_account_id"], name: "index_users_on_default_account_id"
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
   end
 
@@ -71,5 +69,4 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_30_044833) do
   add_foreign_key "account_users", "users"
   add_foreign_key "account_users", "users", column: "invited_by_id"
   add_foreign_key "sessions", "users"
-  add_foreign_key "users", "accounts", column: "default_account_id"
 end
