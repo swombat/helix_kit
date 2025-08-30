@@ -1,7 +1,7 @@
 <script>
   // grab page props from inertia
   import { page, Link, router } from '@inertiajs/svelte';
-  import Logo from '$lib/components/misc/logo.svelte';
+  import Logo from '$lib/components/misc/helix-kit-logo.svelte';
   import { UserCircle, List, SignOut } from 'phosphor-svelte';
   import * as DropdownMenu from '$lib/components/shadcn/dropdown-menu/index.js';
   import { Button, buttonVariants } from '$lib/components/shadcn/button/index.js';

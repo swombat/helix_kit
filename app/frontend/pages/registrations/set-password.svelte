@@ -5,7 +5,7 @@
 
   import AuthLayout from '../../layouts/auth-layout.svelte';
 
-  import Logo from '$lib/components/misc/logo.svelte';
+  import Logo from '$lib/components/misc/helix-kit-logo.svelte';
 
   import { Button } from '$lib/components/shadcn/button/index.js';
   import * as Card from '$lib/components/shadcn/card/index.js';

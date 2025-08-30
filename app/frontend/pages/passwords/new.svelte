@@ -1,8 +1,8 @@
 <script>
-  import { Link } from "@inertiajs/svelte";
-	import NewPasswordForm from "$lib/components/forms/new-password-form.svelte";
-  import Logo from "$lib/components/misc/logo.svelte";
-  import AuthLayout from "../../layouts/auth-layout.svelte";
+  import { Link } from '@inertiajs/svelte';
+  import NewPasswordForm from '$lib/components/forms/new-password-form.svelte';
+  import Logo from '$lib/components/misc/helix-kit-logo.svelte';
+  import AuthLayout from '../../layouts/auth-layout.svelte';
 </script>
 
 <AuthLayout>

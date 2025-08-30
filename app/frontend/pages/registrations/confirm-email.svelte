@@ -1,7 +1,7 @@
 <script>
   import { page, Link } from '@inertiajs/svelte';
   import * as Card from '$lib/components/shadcn/card/index.js';
-  import Logo from '$lib/components/misc/logo.svelte';
+  import Logo from '$lib/components/misc/helix-kit-logo.svelte';
   import AuthLayout from '../../layouts/auth-layout.svelte';
   import { Spinner, CheckCircle, XCircle } from 'phosphor-svelte';
   import { onMount } from 'svelte';
