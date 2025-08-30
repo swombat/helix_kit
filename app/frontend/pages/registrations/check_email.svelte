@@ -27,7 +27,7 @@
         <Card.Title class="text-2xl">Check Your Email</Card.Title>
         <Card.Description class="mt-2">
           We've sent you a confirmation email{#if email}
-            to <strong>{email}</strong>{/if}. Please click the link in the email to confirm your account.
+            {' '}to <strong>{email}</strong>{/if}. Please click the link in the email to confirm your account.
         </Card.Description>
       </Card.Header>
       <Card.Content>
