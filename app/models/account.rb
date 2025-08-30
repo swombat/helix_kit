@@ -43,10 +43,10 @@ class Account < ApplicationRecord
   end
 
   def name
-    if personal?
+    if personal? && owner&.full_name.present?
       "#{owner.full_name}'s Account"
     else
-      name
+      super()
     end
   end
 
