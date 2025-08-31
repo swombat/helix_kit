@@ -53,6 +53,6 @@ All icons accept the following props:
 
 ## Complete Icon List
 
-The icons are listed in alphabetical order with their kebab-case name, PascalCase import name, and searchable descriptions including alternative names.
+The icons are listed in alphabetical order with their kebab-case name in `icons-all.md`, PascalCase import name, and searchable descriptions including alternative names.
 
 ---

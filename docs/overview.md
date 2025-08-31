@@ -22,6 +22,7 @@ This directory contains detailed documentation for the Helix Kit Rails applicati
 - **[Authentication](./authentication.md)** - User authentication system details
 - **[Frontend](./frontend.md)** - Svelte, Inertia.js, and component organization
 - **[Database](./database.md)** - PostgreSQL setup and Solid adapters configuration
+- **[Icons](./icons.md)** - Comprehensive Phosphor Icons reference with 1500+ searchable icons
 
 ### Tech Stack Documentation
 

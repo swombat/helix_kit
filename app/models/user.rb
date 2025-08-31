@@ -22,7 +22,7 @@ class User < ApplicationRecord
     format: { with: URI::MailTo::EMAIL_REGEXP }
 
   # Conditional validations - The right way!
-  validates :password, presence: true, length: { minimum: 8 }, unless: :invited?
+  validates :password, presence: true, length: { minimum: 8 }, if: -> { new_record? || password.present? }, unless: :invited?
   validates :password, confirmation: true, length: { in: 6..72 }, if: :password_digest_changed?
 
   validates :timezone, inclusion: { in: ActiveSupport::TimeZone.all.map(&:name) },

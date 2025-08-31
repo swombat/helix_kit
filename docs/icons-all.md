@@ -1,0 +1,6052 @@
+# Phosphor Icons - Batch 01 Documentation
+
+### acorn
+**Import:** `import { Acorn } from 'phosphor-svelte';`
+**Description:** Acorn icon representing finances, savings, nature, and food. Perfect for financial planning apps, investment services, savings accounts, budget tracking, nature-themed content, organic food stores, grocery apps, market platforms, vegetarian/vegan content, healthy eating, sustainable living, agriculture, farming, harvest, autumn themes, squirrel content, woodland imagery, nuts, seeds, tree products, natural resources, environmental conservation, growth potential, small beginnings, long-term investment, retirement planning, and nest egg concepts.
+
+### address-book
+**Import:** `import { AddressBook } from 'phosphor-svelte';`
+**Description:** Address book icon for communications and contact management. Ideal for contact lists, phone books, directory services, customer databases, CRM systems, networking apps, professional contacts, business cards, employee directories, client management, contact forms, address lists, phonebook applications, communication platforms, relationship management, contact organization, people management, social networks, team collaboration, user profiles, member directories, and rolodex systems.
+
+### address-book-tabs
+**Import:** `import { AddressBookTabs } from 'phosphor-svelte';`
+**Description:** Tabbed address book icon for organized contact management and communications. Perfect for advanced contact applications, categorized directories, organized phonebooks, sectioned contact lists, alphabetical indexes, grouped contacts, professional directories, business networking, client categorization, team organization, departmental contacts, contact segmentation, filtered directories, organized CRM interfaces, tabbed contact views, structured address books, indexed contact systems, and compartmentalized communication platforms.
+
+### air-traffic-control
+**Import:** `import { AirTrafficControl } from 'phosphor-svelte';`
+**Description:** Air traffic control tower icon for aviation, travel, and transportation. Perfect for airports, flight tracking, aviation services, travel booking, transportation apps, flight management, airline websites, pilot training, aviation safety, airport directories, flight schedules, travel planning, aviation weather, air traffic monitoring, flight paths, runway management, aviation communications, pilot resources, aircraft coordination, flight operations, airport facilities, aviation technology, and travel infrastructure.
+
+### airplane
+**Import:** `import { Airplane } from 'phosphor-svelte';`
+**Description:** Airplane icon representing air travel, flights, and transportation. Ideal for airline websites, travel booking, flight search, vacation planning, business travel, airport services, transportation apps, travel agencies, flight tracking, aviation industry, pilot training, aircraft rental, cargo shipping, international travel, domestic flights, travel insurance, flight deals, airline miles, frequent flyer programs, airport transfers, travel itineraries, flight schedules, aviation news, and travel-related services.
+
+### airplane-in-flight
+**Import:** `import { AirplaneInFlight } from 'phosphor-svelte';`
+**Description:** In-flight airplane icon showing active travel and arrival status. Perfect for flight tracking apps, real-time flight status, live flight monitoring, travel progress, flight updates, arrival notifications, flight radar, aviation tracking, in-transit status, flight following, air traffic monitoring, travel dashboards, flight information displays, airport arrival boards, travel progress indicators, flight path visualization, aviation logistics, cargo tracking, passenger updates, and flight operations management.
+
+### airplane-landing
+**Import:** `import { AirplaneLanding } from 'phosphor-svelte';`
+**Description:** Landing airplane icon for arrivals and flight completion. Ideal for arrival terminals, flight arrival status, landing procedures, airport arrival areas, baggage claim sections, passenger pickup zones, arrival notifications, flight completion indicators, immigration areas, customs sections, arrival gates, ground transportation, hotel shuttles, car rentals, arrival services, welcome areas, destination reached indicators, flight conclusion, passenger disembarkation, and arrival logistics.
+
+### airplane-takeoff
+**Import:** `import { AirplaneTakeoff } from 'phosphor-svelte';`
+**Description:** Takeoff airplane icon for departures and flight initiation. Perfect for departure terminals, flight departure status, takeoff procedures, airport departure areas, check-in counters, security checkpoints, departure gates, boarding areas, departure notifications, flight beginning indicators, outbound travel, journey start, departure lounges, gate assignments, boarding passes, departure services, farewell areas, journey initiation, passenger boarding, departure logistics, and travel commencement.
+
+### airplane-taxiing
+**Import:** `import { AirplaneTaxiing } from 'phosphor-svelte';`
+**Description:** Taxiing airplane icon for ground operations and airport movement. Suitable for airport ground operations, aircraft movement, runway operations, ground crew coordination, airport logistics, pre-flight procedures, post-flight operations, aircraft positioning, ground traffic control, airport surface movement, aircraft maneuvering, gate operations, pushback procedures, aircraft towing, ground support equipment, airport safety, aircraft servicing, maintenance operations, ground handling, and airport efficiency systems.
+
+### airplane-tilt
+**Import:** `import { AirplaneTilt } from 'phosphor-svelte';`
+**Description:** Tilted airplane icon suggesting departure, dynamic movement, and aviation action. Perfect for travel booking confirmations, flight booking success, travel deals, airline promotions, aviation marketing, travel advertisements, flight offers, vacation packages, travel excitement indicators, dynamic travel content, adventure travel, flight booking CTAs, travel inspiration, wanderlust themes, aviation enthusiasm, pilot training, aerobatics, flight maneuvers, and aviation sports.
+
+### airplay
+**Import:** `import { Airplay } from 'phosphor-svelte';`
+**Description:** AirPlay icon for Apple's wireless streaming technology and media sharing. Ideal for Apple ecosystem apps, wireless streaming, screen mirroring, media casting, Apple TV integration, iOS/macOS apps, wireless display, content sharing, multi-device connectivity, home entertainment systems, presentation tools, media players, smart TV apps, wireless audio streaming, screen sharing, device connectivity, Apple device synchronization, home automation, smart home controls, and wireless media distribution.
+
+### alarm
+**Import:** `import { Alarm } from 'phosphor-svelte';`
+**Description:** Alarm clock icon for time management, scheduling, and reminders. Perfect for alarm clock apps, wake-up alarms, timer applications, schedule reminders, appointment notifications, calendar events, time tracking, productivity apps, morning routines, sleep schedules, workout timers, cooking timers, study timers, break reminders, meeting alerts, deadline notifications, time management tools, daily planners, habit tracking, routine building, time-sensitive tasks, and scheduling systems.
+
+### alien
+**Import:** `import { Alien } from 'phosphor-svelte';`
+**Description:** Alien icon for gaming, science fiction, and extraterrestrial themes. Ideal for sci-fi games, space exploration games, UFO content, alien encounter themes, extraterrestrial life, science fiction movies, space adventure games, alien invasion scenarios, interstellar communication, SETI projects, astronomy apps, space research, cosmic exploration, science fiction literature, alien technology, space colonization, futuristic content, otherworldly experiences, alien civilizations, space mysteries, and paranormal investigations.
+
+### align-bottom
+**Import:** `import { AlignBottom } from 'phosphor-svelte';`
+**Description:** Bottom alignment icon for design and layout tools. Perfect for graphic design software, layout editors, text editors, presentation tools, web design apps, desktop publishing, document formatting, image editing, vector graphics, alignment controls, design systems, UI/UX tools, page layout, content positioning, element arrangement, design alignment, visual hierarchy, formatting controls, layout management, and design precision tools.
+
+### align-bottom-simple
+**Import:** `import { AlignBottomSimple } from 'phosphor-svelte';`
+**Description:** Simplified bottom alignment icon for clean design interfaces and layout controls. Ideal for minimalist design tools, simple layout editors, basic formatting options, streamlined UI controls, clean design interfaces, simplified alignment tools, basic design software, layout adjustment controls, element positioning, content alignment, design precision, formatting simplicity, visual arrangement tools, and user-friendly design interfaces with reduced visual complexity.
+
+### align-center-horizontal
+**Import:** `import { AlignCenterHorizontal } from 'phosphor-svelte';`
+**Description:** Horizontal center alignment icon for design and layout centering. Perfect for design software, layout tools, text centering, element positioning, horizontal alignment controls, center positioning, balanced layouts, symmetric design, centered content, middle alignment, design balance, layout centering, content positioning, visual centering, element arrangement, design precision, formatting controls, layout management, centered composition, and balanced visual hierarchy.
+
+### align-center-horizontal-simple
+**Import:** `import { AlignCenterHorizontalSimple } from 'phosphor-svelte';`
+**Description:** Simplified horizontal center alignment icon for clean design interfaces. Suitable for minimalist alignment tools, basic centering controls, simple layout options, clean formatting interfaces, streamlined design tools, basic positioning controls, simplified element arrangement, user-friendly alignment options, reduced complexity design tools, and essential layout controls with clean visual presentation.
+
+### align-center-vertical
+**Import:** `import { AlignCenterVertical } from 'phosphor-svelte';`
+**Description:** Vertical center alignment icon for design and layout vertical centering. Ideal for design applications, vertical alignment tools, middle positioning, vertical centering controls, balanced vertical layouts, element positioning, vertical design balance, content centering, vertical symmetry, middle alignment controls, design precision tools, vertical arrangement, layout balancing, centered vertical composition, and vertical visual hierarchy management.
+
+### align-center-vertical-simple
+**Import:** `import { AlignCenterVerticalSimple } from 'phosphor-svelte';`
+**Description:** Simplified vertical center alignment icon for streamlined design interfaces. Perfect for basic vertical alignment, simple centering tools, minimal design controls, clean vertical positioning, streamlined layout options, simplified vertical arrangement, user-friendly centering controls, basic design interfaces, reduced complexity alignment tools, and essential vertical positioning with clean visual design.
+
+### align-left
+**Import:** `import { AlignLeft } from 'phosphor-svelte';`
+**Description:** Left alignment icon for text and layout positioning. Perfect for text editors, word processors, document formatting, left-aligned text, text justification, paragraph alignment, reading layouts, content alignment, left-flush formatting, text positioning, document layout, content organization, editorial tools, writing software, publishing tools, manuscript formatting, article layout, blog formatting, and content management systems.
+
+### align-left-simple
+**Import:** `import { AlignLeftSimple } from 'phosphor-svelte';`
+**Description:** Simplified left alignment icon for clean text formatting interfaces. Ideal for minimalist text editors, basic formatting tools, simple alignment controls, clean text interfaces, streamlined formatting options, basic text alignment, user-friendly text tools, simplified document formatting, essential alignment controls, and clean text positioning with reduced visual complexity.
+
+### align-right
+**Import:** `import { AlignRight } from 'phosphor-svelte';`
+**Description:** Right alignment icon for text and layout right positioning. Perfect for text editors, right-aligned content, document formatting, text justification, paragraph alignment, right-flush formatting, invoice formatting, financial documents, formal letter formatting, signature alignment, contact information positioning, address formatting, date alignment, header/footer positioning, and professional document layout.
+
+### align-right-simple
+**Import:** `import { AlignRightSimple } from 'phosphor-svelte';`
+**Description:** Simplified right alignment icon for clean formatting interfaces. Suitable for basic text alignment, minimal formatting tools, simple right positioning, clean text controls, streamlined alignment options, user-friendly formatting, essential text alignment, simplified document tools, and basic right-alignment controls with clean visual presentation.
+
+### align-top
+**Import:** `import { AlignTop } from 'phosphor-svelte';`
+**Description:** Top alignment icon for design and layout top positioning. Ideal for design software, layout tools, element positioning, top alignment controls, vertical arrangement, content positioning, design precision, layout management, element arrangement, visual hierarchy, formatting tools, design balance, positioning controls, layout alignment, and top-flush arrangement for design and publishing applications.
+
+### align-top-simple
+**Import:** `import { AlignTopSimple } from 'phosphor-svelte';`
+**Description:** Simplified top alignment icon for clean design interfaces and basic positioning. Perfect for minimal design tools, basic alignment controls, simple top positioning, clean formatting interfaces, streamlined layout options, user-friendly alignment tools, essential positioning controls, simplified element arrangement, and basic design interfaces with reduced visual complexity.
+
+### amazon-logo
+**Import:** `import { AmazonLogo } from 'phosphor-svelte';`
+**Description:** Amazon logo icon for e-commerce, shopping, and online retail. Perfect for e-commerce platforms, online shopping apps, retail websites, marketplace integrations, shopping cart systems, product catalogs, online stores, digital commerce, retail analytics, shopping comparisons, price tracking, product reviews, marketplace sellers, fulfillment services, cloud services (AWS), delivery tracking, online payments, retail technology, and commercial applications.
+
+### ambulance
+**Import:** `import { Ambulance } from 'phosphor-svelte';`
+**Description:** Ambulance icon for medical emergencies, healthcare, and emergency services. Ideal for emergency services, medical apps, healthcare platforms, hospital systems, first aid applications, emergency contacts, medical assistance, health insurance, emergency response, medical transport, paramedic services, EMT applications, health emergency planning, medical safety, injury reporting, emergency preparedness, healthcare directories, medical emergency guides, crisis management, and emergency medical services.
+
+### anchor
+**Import:** `import { Anchor } from 'phosphor-svelte';`
+**Description:** Anchor icon representing stability, hope, nautical themes, and security. Perfect for maritime applications, nautical websites, boat rental services, harbor management, marina directories, sailing apps, marine weather, boating safety, navigation tools, maritime insurance, ocean activities, cruise services, yacht clubs, port authorities, shipping companies, naval applications, coastal services, maritime logistics, harbor operations, and stability/security concepts in various contexts.
+
+### anchor-simple
+**Import:** `import { AnchorSimple } from 'phosphor-svelte';`
+**Description:** Simplified anchor icon for clean nautical themes and stability concepts. Suitable for minimalist maritime designs, basic nautical applications, simple stability indicators, clean marine interfaces, streamlined boating apps, essential nautical tools, basic harbor management, simplified maritime services, and clean nautical branding with reduced visual complexity while maintaining nautical symbolism.
+
+### android-logo
+**Import:** `import { AndroidLogo } from 'phosphor-svelte';`
+**Description:** Android logo icon for Android platform, mobile development, and Google services. Perfect for Android apps, mobile development tools, Google Play Store, mobile app stores, Android development documentation, mobile operating systems, smartphone applications, tablet apps, mobile device management, Android compatibility, mobile platform indicators, app development tools, mobile testing, Android SDK resources, mobile frameworks, cross-platform development, mobile deployment, and Android ecosystem services.
+
+### angle
+**Import:** `import { Angle } from 'phosphor-svelte';`
+**Description:** Angle measurement icon for geometry, mathematics, and measurement tools. Ideal for geometry applications, mathematical software, engineering tools, CAD applications, protractor functions, angle measurement, trigonometry apps, educational math tools, geometric calculations, architectural software, surveying tools, construction apps, design measurement, angular calculations, compass applications, navigation tools, engineering drawing, technical documentation, mathematical modeling, and precision measurement applications.
+
+### angular-logo
+**Import:** `import { AngularLogo } from 'phosphor-svelte';`
+**Description:** Angular framework logo icon for web development and JavaScript frameworks. Perfect for Angular applications, web development tools, JavaScript frameworks, frontend development, TypeScript projects, web application documentation, developer portfolios, coding tutorials, web development courses, framework comparisons, modern web development, single-page applications (SPAs), component-based architecture, Google's Angular platform, web development resources, and enterprise web applications.
+
+### aperture
+**Import:** `import { Aperture } from 'phosphor-svelte';`
+**Description:** Camera aperture icon for photography, image editing, and camera controls. Ideal for photography apps, camera applications, photo editing software, professional photography tools, camera settings, lens controls, exposure settings, photography tutorials, camera equipment, photographer portfolios, photo galleries, image processing, camera gear reviews, photography courses, studio lighting, macro photography, portrait photography, landscape photography, and visual media creation tools.
+
+### app-store-logo
+**Import:** `import { AppStoreLogo } from 'phosphor-svelte';`
+**Description:** Apple App Store logo icon for iOS apps, Apple ecosystem, and mobile app distribution. Perfect for iOS applications, Apple device apps, iPhone/iPad apps, macOS applications, App Store optimization, mobile app marketing, Apple developer resources, iOS app development, Apple ecosystem integration, mobile app distribution, app monetization, Apple device compatibility, iOS app reviews, Apple platform development, and mobile app store presence.
+
+### app-window
+**Import:** `import { AppWindow } from 'phosphor-svelte';`
+**Description:** Application window icon for software, desktop applications, and system interfaces. Ideal for desktop software, application launchers, window management, system utilities, software directories, program installers, application menus, desktop environments, window controls, software catalogs, system preferences, application settings, program management, software documentation, desktop applications, system administration, and computer interface elements.
+
+### apple-logo
+**Import:** `import { AppleLogo } from 'phosphor-svelte';`
+**Description:** Apple company logo icon for Apple products, macOS, iOS, and Apple ecosystem. Perfect for Apple device applications, macOS software, iOS apps, iPad applications, Apple Watch apps, Apple TV apps, macOS system utilities, Apple ecosystem integration, Apple device compatibility, Apple platform development, Mac desktop applications, iOS mobile apps, Apple services, Apple hardware support, and Apple-specific software development.
+
+### apple-podcasts-logo
+**Import:** `import { ApplePodcastsLogo } from 'phosphor-svelte';`
+**Description:** Apple Podcasts logo icon for podcast applications, audio content, and Apple media services. Ideal for podcast players, audio streaming, podcast directories, media consumption apps, audio content creation, podcast hosting, audio broadcasting, media libraries, entertainment applications, audio content discovery, podcast subscriptions, audio storytelling, media streaming platforms, audio content management, and Apple media ecosystem integration.
+
+### approximate-equals
+**Import:** `import { ApproximateEquals } from 'phosphor-svelte';`
+**Description:** Approximate equals symbol (≈) for mathematical calculations, comparisons, and financial applications. Perfect for calculator apps, mathematical software, financial calculations, statistical analysis, scientific computing, data analysis, approximation tools, mathematical modeling, engineering calculations, financial modeling, accounting software, budget calculations, comparison tools, mathematical education, scientific applications, data visualization, measurement tools, and any application requiring approximate equality or similarity comparisons.
+
+### archive
+**Import:** `import { Archive } from 'phosphor-svelte';`
+**Description:** Archive icon for file storage, data archiving, and backup systems. Ideal for backup applications, file archiving systems, data storage, document management, file compression, backup services, data preservation, historical records, document archives, file organization, data backup, storage solutions, archive management, digital preservation, file retention, data archiving, document storage, backup verification, archive retrieval, and long-term data storage systems.
+
+### armchair
+**Import:** `import { Armchair } from 'phosphor-svelte';`
+**Description:** Armchair icon for furniture, seating, comfort, and home furnishing. Perfect for furniture stores, interior design apps, home decoration, furniture catalogs, e-commerce furniture, living room furniture, comfort seating, home furnishing, furniture shopping, interior design services, furniture rental, home staging, furniture reviews, comfort furniture, relaxation areas, home office furniture, furniture arrangement, seating solutions, and furniture retail applications.
+
+### arrow-arc-left
+**Import:** `import { ArrowArcLeft } from 'phosphor-svelte';`
+**Description:** Curved left arrow icon for navigation, direction, and curved movement. Ideal for navigation controls, directional indicators, curved paths, arc movements, rotational controls, turning indicators, curved navigation, path visualization, directional flow, movement patterns, curved transitions, rotational interfaces, spiral movements, curved directions, arc-based controls, circular navigation, curved pointers, and dynamic directional elements with curved aesthetics.
+
+### arrow-arc-right
+**Import:** `import { ArrowArcRight } from 'phosphor-svelte';`
+**Description:** Curved right arrow icon for navigation, direction, and curved movement. Perfect for directional controls, curved navigation paths, arc-based movements, rotational indicators, curved transitions, circular navigation, spiral controls, curved directional flow, arc movements, rotational interfaces, curved path visualization, dynamic navigation, curved pointers, directional arcs, circular controls, and curved directional elements for intuitive interface navigation.
+
+### arrow-bend-double-up-left
+**Import:** `import { ArrowBendDoubleUpLeft } from 'phosphor-svelte';`
+**Description:** Double curved arrow bending up-left for reply-all, multiple responses, and complex navigation. Ideal for email reply-all functions, multiple response indicators, batch reply systems, group communication, multi-level navigation, complex directional controls, reply-all email features, group messaging, bulk response tools, multi-directional navigation, complex flow indicators, multiple action triggers, and advanced navigation patterns requiring double-path representation.
+
+### arrow-bend-double-up-right
+**Import:** `import { ArrowBendDoubleUpRight } from 'phosphor-svelte';`
+**Description:** Double curved arrow bending up-right for complex navigation and multiple directional indicators. Perfect for advanced navigation controls, multiple path indicators, complex directional flow, multi-level navigation systems, branching paths, complex routing, advanced directional controls, multi-step processes, complex workflow indicators, branching navigation, and sophisticated directional elements requiring double-path visualization.
+
+### arrow-bend-down-left
+**Import:** `import { ArrowBendDownLeft } from 'phosphor-svelte';`
+**Description:** Curved arrow bending down-left for directional navigation and curved paths. Suitable for curved navigation, diagonal movement indicators, bent path visualization, curved directional flow, diagonal navigation controls, curved routing, bent arrow navigation, curved path indicators, diagonal directional elements, and curved movement patterns for intuitive directional guidance.
+
+### arrow-bend-down-right
+**Import:** `import { ArrowBendDownRight } from 'phosphor-svelte';`
+**Description:** Curved arrow bending down-right for navigation and directional flow. Ideal for curved directional controls, diagonal navigation, bent path indicators, curved movement visualization, diagonal directional flow, curved routing systems, bent navigation paths, curved directional elements, diagonal movement controls, and curved directional guidance for enhanced user navigation experience.
+
+### arrow-bend-left-down
+**Import:** `import { ArrowBendLeftDown } from 'phosphor-svelte';`
+**Description:** Curved arrow bending left-down for directional navigation and curved movement. Perfect for curved navigation controls, bent directional indicators, curved path visualization, diagonal movement patterns, curved directional flow, bent arrow navigation, curved routing indicators, diagonal directional controls, curved movement guidance, and bent path navigation for intuitive directional interfaces.
+
+### arrow-bend-left-up
+**Import:** `import { ArrowBendLeftUp } from 'phosphor-svelte';`
+**Description:** Curved arrow bending left-up for navigation and directional control. Suitable for curved directional navigation, bent path indicators, curved movement controls, diagonal directional flow, curved routing systems, bent navigation elements, curved directional guidance, diagonal movement visualization, curved path controls, and bent directional indicators for enhanced navigation interfaces.
+
+### arrow-bend-right-down
+**Import:** `import { ArrowBendRightDown } from 'phosphor-svelte';`
+**Description:** Curved arrow bending right-down for directional navigation and curved paths. Ideal for curved navigation systems, bent directional controls, curved path visualization, diagonal movement indicators, curved directional flow, bent routing systems, curved navigation paths, diagonal directional elements, curved movement guidance, and bent directional navigation for intuitive user interface controls.
+
+### arrow-bend-right-up
+**Import:** `import { ArrowBendRightUp } from 'phosphor-svelte';`
+**Description:** Curved arrow bending right-up for navigation and directional flow control. Perfect for curved directional navigation, bent path indicators, curved movement visualization, diagonal directional controls, curved routing elements, bent navigation systems, curved directional guidance, diagonal movement patterns, curved path navigation, and bent directional flow for sophisticated navigation interfaces.# Phosphor Icons - Batch 02 Documentation
+
+This documentation provides comprehensive descriptions for 50 arrow icons from the Phosphor icon library, including import statements and detailed use cases.
+
+## Icons
+
+### arrow-bend-up-left
+**Import:** `import { ArrowBendUpLeft } from 'phosphor-svelte';`
+**Description:** A curved arrow that bends upward and then turns left, resembling a reply or return gesture. This directional pointer is ideal for indicating reply actions, return navigation, back buttons, reverse flow, undo operations, response indicators, conversation threading, email reply, message responses, backward navigation, curve navigation, turn signals, route changes, flow redirection, and process reversal. Alternative names include reply arrow, return arrow, back arrow, curve left, bend arrow, response pointer, thread indicator, and navigation curve.
+
+### arrow-bend-up-right
+**Import:** `import { ArrowBendUpRight } from 'phosphor-svelte';`
+**Description:** A curved arrow that bends upward and then turns right, suggesting forward movement with elevation. This directional pointer works well for forward actions, next steps, progress indicators, advancement buttons, forwarding messages, sharing content, promoting items, elevation changes, upward progress, forward navigation, curve navigation, turn signals, route advancement, flow progression, and process continuation. Alternative names include forward arrow, advance arrow, progress arrow, curve right, bend forward, share arrow, promotion pointer, elevation indicator, and navigation advance.
+
+### arrow-circle-down
+**Import:** `import { ArrowCircleDown } from 'phosphor-svelte';`
+**Description:** A downward-pointing arrow enclosed within a circle, providing a contained directional indicator. Perfect for download buttons, scroll down actions, collapse panels, dropdown menus, decrease values, move down operations, sort descending, minimize windows, lower priority items, descending navigation, downward movement, content expansion, accordion controls, page scrolling, and vertical navigation. Alternative names include download icon, scroll down, dropdown arrow, decrease button, collapse arrow, descending sort, minimize button, down navigation, and circular down.
+
+### arrow-circle-down-left
+**Import:** `import { ArrowCircleDownLeft } from 'phosphor-svelte';`
+**Description:** A diagonal arrow pointing down and left, enclosed in a circle for emphasis and containment. Ideal for diagonal navigation, corner movements, position adjustments, directional flows, multi-axis controls, diagonal scrolling, corner positioning, angled navigation, southwest direction, diagonal movement, corner transitions, positioned elements, directional controls, and spatial navigation. Alternative names include diagonal arrow, corner arrow, southwest arrow, angled pointer, diagonal navigation, corner movement, and positioned indicator.
+
+### arrow-circle-down-right
+**Import:** `import { ArrowCircleDownRight } from 'phosphor-svelte';`
+**Description:** A diagonal arrow pointing down and right, contained within a circle for visual clarity. Excellent for diagonal movements, corner navigation, southeast direction, angled controls, diagonal scrolling, corner positioning, directional flows, multi-axis movement, position adjustments, spatial controls, corner transitions, angled navigation, and diagonal indicators. Alternative names include southeast arrow, corner pointer, diagonal control, angled arrow, corner navigation, diagonal direction, and spatial pointer.
+
+### arrow-circle-left
+**Import:** `import { ArrowCircleLeft } from 'phosphor-svelte';`
+**Description:** A leftward-pointing arrow within a circular boundary, providing clear directional guidance. Perfect for back buttons, previous navigation, left scrolling, decrease actions, backward movement, history navigation, undo operations, reverse actions, left alignment, westward direction, retreat indicators, and regression controls. Alternative names include back arrow, previous button, left navigation, backward arrow, retreat button, reverse pointer, west arrow, left scroll, and circular left.
+
+### arrow-circle-right
+**Import:** `import { ArrowCircleRight } from 'phosphor-svelte';`
+**Description:** A rightward-pointing arrow enclosed in a circle, indicating forward or next actions. Ideal for next buttons, forward navigation, right scrolling, increase actions, progression indicators, advance controls, continuation buttons, eastward direction, forward movement, progress steps, and advancement operations. Alternative names include next arrow, forward button, right navigation, advance arrow, progress button, continue pointer, east arrow, right scroll, and circular right.
+
+### arrow-circle-up
+**Import:** `import { ArrowCircleUp } from 'phosphor-svelte';`
+**Description:** An upward-pointing arrow contained within a circle, suggesting elevation or increase. Perfect for upload buttons, scroll up actions, expand panels, increase values, move up operations, sort ascending, maximize windows, higher priority items, ascending navigation, upward movement, elevation controls, and vertical navigation. Alternative names include upload icon, scroll up, expand arrow, increase button, maximize button, ascending sort, up navigation, elevation arrow, and circular up.
+
+### arrow-circle-up-left
+**Import:** `import { ArrowCircleUpLeft } from 'phosphor-svelte';`
+**Description:** A diagonal arrow pointing up and left, surrounded by a circular container. Excellent for northwest direction, diagonal navigation, corner movements, angled controls, diagonal scrolling, upper-left positioning, corner transitions, spatial navigation, multi-axis movement, and directional flows. Alternative names include northwest arrow, corner arrow, diagonal pointer, angled navigation, upper-left arrow, corner movement, and spatial indicator.
+
+### arrow-circle-up-right
+**Import:** `import { ArrowCircleUpRight } from 'phosphor-svelte';`
+**Description:** A diagonal arrow pointing up and right, enclosed in a circle for visual emphasis. Perfect for northeast direction, diagonal movement, corner navigation, angled controls, upper-right positioning, diagonal scrolling, corner transitions, spatial controls, multi-axis navigation, and directional indicators. Alternative names include northeast arrow, corner pointer, diagonal control, upper-right arrow, angled arrow, corner navigation, and spatial pointer.
+
+### arrow-clockwise
+**Import:** `import { ArrowClockwise } from 'phosphor-svelte';`
+**Description:** A circular arrow moving in clockwise direction, indicating rotation, refresh, or redo operations. Essential for refresh buttons, redo actions, reload pages, rotate elements, spin controls, update content, sync operations, restart processes, clockwise rotation, circular movement, refresh indicators, reload buttons, rotation controls, and repetitive actions. Alternative names include refresh icon, reload arrow, redo button, rotate right, spin clockwise, update arrow, sync icon, restart button, rotation indicator, and circular refresh.
+
+### arrow-counter-clockwise
+**Import:** `import { ArrowCounterClockwise } from 'phosphor-svelte';`
+**Description:** A circular arrow moving counter-clockwise, representing undo, reverse rotation, or backward cycling. Perfect for undo buttons, reverse actions, rotate left, counter-rotation, backward cycling, revert operations, anti-clockwise movement, reverse refresh, undo controls, rollback actions, counter-spin, reverse sync, and backward rotation. Alternative names include undo arrow, rotate left, reverse arrow, counter-rotate, anti-clockwise, undo button, revert icon, rollback arrow, reverse rotation, and backward cycle.
+
+### arrow-down
+**Import:** `import { ArrowDown } from 'phosphor-svelte';`
+**Description:** A simple downward-pointing arrow, the quintessential symbol for downward movement and decrease. Essential for dropdown menus, collapse actions, scroll down, download indicators, decrease buttons, sort descending, move down, lower values, downward navigation, minimize actions, descending order, bottom alignment, and vertical decrease. Alternative names include dropdown arrow, collapse icon, scroll down, download arrow, decrease pointer, descending arrow, down pointer, minimize arrow, lower indicator, and vertical down.
+
+### arrow-down-left
+**Import:** `import { ArrowDownLeft } from 'phosphor-svelte';`
+**Description:** A diagonal arrow pointing toward the bottom-left, indicating southwest movement or corner navigation. Ideal for diagonal controls, corner positioning, southwest direction, angled movement, diagonal navigation, corner transitions, multi-directional controls, spatial positioning, and diagonal flow indicators. Alternative names include southwest arrow, diagonal down, corner arrow, angled left, diagonal pointer, corner movement, southwest pointer, and diagonal navigation.
+
+### arrow-down-right
+**Import:** `import { ArrowDownRight } from 'phosphor-svelte';`
+**Description:** A diagonal arrow pointing toward the bottom-right, representing southeast movement or corner direction. Perfect for diagonal navigation, southeast direction, corner movements, angled controls, diagonal positioning, corner transitions, spatial navigation, multi-axis movement, and directional flows. Alternative names include southeast arrow, diagonal down, corner pointer, angled right, diagonal arrow, corner navigation, southeast pointer, and diagonal control.
+
+### arrow-elbow-down-left
+**Import:** `import { ArrowElbowDownLeft } from 'phosphor-svelte';`
+**Description:** An L-shaped arrow that travels down then turns left, resembling an elbow joint. Excellent for corner navigation, turn indicators, path changes, route directions, flow redirection, corner turns, angled paths, directional changes, navigation flows, path routing, corner movements, and multi-step directions. Alternative names include L-arrow, corner turn, elbow pointer, path arrow, route indicator, turn arrow, angled path, corner direction, and navigation turn.
+
+### arrow-elbow-down-right
+**Import:** `import { ArrowElbowDownRight } from 'phosphor-svelte';`
+**Description:** An L-shaped arrow that moves down then turns right, creating an elbow-like path. Perfect for corner navigation, directional changes, path routing, turn signals, flow redirection, corner turns, route indicators, angled navigation, multi-step paths, and directional flows. Alternative names include L-arrow, corner turn, elbow pointer, path direction, route arrow, turn signal, angled path, corner navigation, and directional turn.
+
+### arrow-elbow-left
+**Import:** `import { ArrowElbowLeft } from 'phosphor-svelte';`
+**Description:** An L-shaped arrow pointing left with an elbow bend, indicating a change of direction. Ideal for directional changes, path alterations, corner navigation, route changes, flow redirection, turn indicators, angled navigation, corner turns, path routing, and multi-directional movement. Alternative names include L-arrow left, corner arrow, elbow turn, path change, direction shift, turn left, angled left, corner direction, and navigation bend.
+
+### arrow-elbow-left-down
+**Import:** `import { ArrowElbowLeftDown } from 'phosphor-svelte';`
+**Description:** An L-shaped arrow that moves left then turns downward, creating a corner path. Perfect for corner navigation, directional flows, path routing, turn sequences, multi-step directions, corner movements, angled paths, directional changes, navigation turns, and flow redirection. Alternative names include L-arrow, corner turn, elbow path, directional turn, corner arrow, path bend, route change, angled navigation, and turn sequence.
+
+### arrow-elbow-left-up
+**Import:** `import { ArrowElbowLeftUp } from 'phosphor-svelte';`
+**Description:** An L-shaped arrow that travels left then turns upward, forming an elbow pattern. Excellent for upward navigation with direction change, corner routing, path alterations, directional flows, multi-step navigation, corner turns, angled paths, route changes, and navigation sequences. Alternative names include L-arrow up, corner turn, elbow navigation, path change, directional bend, turn up, angled path, corner arrow, and navigation turn.
+
+### arrow-elbow-right
+**Import:** `import { ArrowElbowRight } from 'phosphor-svelte';`
+**Description:** An L-shaped arrow pointing right with an elbow bend, suggesting directional change. Perfect for corner navigation, path changes, directional flows, route alterations, turn indicators, corner turns, angled navigation, path routing, and multi-directional movement. Alternative names include L-arrow right, corner arrow, elbow turn, direction change, path shift, turn right, angled right, corner navigation, and directional bend.
+
+### arrow-elbow-right-down
+**Import:** `import { ArrowElbowRightDown } from 'phosphor-svelte';`
+**Description:** An L-shaped arrow that moves right then turns downward, creating a corner trajectory. Ideal for corner navigation, directional changes, path routing, turn sequences, multi-step paths, corner movements, angled navigation, directional flows, and route changes. Alternative names include L-arrow, corner turn, elbow path, directional bend, corner arrow, path change, route turn, angled path, and navigation sequence.
+
+### arrow-elbow-right-up
+**Import:** `import { ArrowElbowRightUp } from 'phosphor-svelte';`
+**Description:** An L-shaped arrow that travels right then turns upward, forming an upward elbow. Excellent for upward direction changes, corner navigation, path alterations, route changes, directional flows, multi-step navigation, corner turns, angled paths, and navigation sequences. Alternative names include L-arrow up, corner turn, elbow navigation, directional change, path bend, turn up, angled navigation, corner arrow, and upward turn.
+
+### arrow-elbow-up-left
+**Import:** `import { ArrowElbowUpLeft } from 'phosphor-svelte';`
+**Description:** An L-shaped arrow that moves up then turns left, creating an upward elbow pattern. Perfect for upward navigation with left turn, corner routing, directional changes, path alterations, multi-step navigation, corner turns, angled paths, route changes, and navigation flows. Alternative names include L-arrow, upward turn, elbow navigation, corner arrow, directional bend, path change, turn left, angled path, and navigation turn.
+
+### arrow-elbow-up-right
+**Import:** `import { ArrowElbowUpRight } from 'phosphor-svelte';`
+**Description:** An L-shaped arrow that travels up then turns right, forming an upward-right elbow. Ideal for upward navigation with direction change, corner routing, path alterations, directional flows, multi-step paths, corner movements, angled navigation, route changes, and navigation sequences. Alternative names include L-arrow, upward turn, elbow path, corner arrow, directional change, path bend, turn right, angled navigation, and upward corner.
+
+### arrow-fat-down
+**Import:** `import { ArrowFatDown } from 'phosphor-svelte';`
+**Description:** A thick, bold downward-pointing arrow with increased visual weight and presence. Perfect for prominent download buttons, important scroll actions, emphasized decrease operations, bold dropdown indicators, strong downward navigation, heavy decrease actions, prominent collapse controls, emphasized vertical movement, and high-visibility downward directions. Alternative names include thick down arrow, bold download, heavy dropdown, emphasized down, strong decrease, thick vertical, bold collapse, prominent down, and heavy downward.
+
+### arrow-fat-left
+**Import:** `import { ArrowFatLeft } from 'phosphor-svelte';`
+**Description:** A thick, substantial leftward-pointing arrow providing strong visual emphasis. Excellent for prominent back buttons, emphasized previous navigation, strong backward movement, bold left scrolling, heavy retreat actions, thick reverse controls, emphasized westward direction, and high-visibility left navigation. Alternative names include thick left arrow, bold back, heavy previous, emphasized left, strong backward, thick horizontal, bold retreat, prominent left, and heavy leftward.
+
+### arrow-fat-line-down
+**Import:** `import { ArrowFatLineDown } from 'phosphor-svelte';`
+**Description:** A thick downward arrow combined with a line element, providing enhanced visual structure. Perfect for emphasized downloads with boundaries, structured vertical navigation, bordered decrease actions, outlined dropdown controls, framed downward movement, and enhanced collapse indicators with visual separation. Alternative names include outlined down arrow, bordered download, framed dropdown, structured down, lined decrease, bordered vertical, outlined collapse, and enhanced downward.
+
+### arrow-fat-line-left
+**Import:** `import { ArrowFatLineLeft } from 'phosphor-svelte';`
+**Description:** A thick leftward arrow enhanced with a line element for added structure and emphasis. Ideal for bordered back buttons, outlined previous navigation, framed backward movement, structured left scrolling, enhanced retreat actions, lined reverse controls, and emphasized horizontal navigation with boundaries. Alternative names include outlined left arrow, bordered back, framed previous, structured left, lined backward, bordered horizontal, outlined retreat, and enhanced leftward.
+
+### arrow-fat-line-right
+**Import:** `import { ArrowFatLineRight } from 'phosphor-svelte';`
+**Description:** A thick rightward arrow combined with a line element, creating structured forward navigation. Perfect for bordered next buttons, outlined forward navigation, framed advancement, structured right scrolling, enhanced progress actions, lined continuation controls, and emphasized horizontal movement with boundaries. Alternative names include outlined right arrow, bordered next, framed forward, structured right, lined advance, bordered horizontal, outlined continue, and enhanced rightward.
+
+### arrow-fat-line-up
+**Import:** `import { ArrowFatLineUp } from 'phosphor-svelte';`
+**Description:** A thick upward arrow enhanced with a line element, often representing caps lock or emphasized upward movement. Excellent for caps lock indicators, emphasized upload buttons, structured vertical navigation, bordered increase actions, outlined upward controls, framed elevation movement, and enhanced ascending navigation with visual boundaries. Alternative names include caps lock arrow, outlined up arrow, bordered upload, framed increase, structured up, lined upward, bordered vertical, outlined ascend, and enhanced elevation.
+
+### arrow-fat-lines-down
+**Import:** `import { ArrowFatLinesDown } from 'phosphor-svelte';`
+**Description:** A thick downward arrow with multiple line elements, providing maximum visual emphasis and structure. Perfect for heavily emphasized downloads, multi-level dropdown controls, complex vertical navigation, structured decrease operations, enhanced collapse actions, bordered downward movement, and high-impact vertical controls with multiple boundaries. Alternative names include multi-lined down arrow, complex dropdown, structured download, bordered vertical, enhanced downward, multi-level collapse, and emphasized decrease.
+
+### arrow-fat-lines-left
+**Import:** `import { ArrowFatLinesLeft } from 'phosphor-svelte';`
+**Description:** A thick leftward arrow enhanced with multiple line elements for maximum structure and emphasis. Ideal for complex back navigation, multi-level previous controls, structured backward movement, enhanced left scrolling, bordered retreat actions, multi-lined reverse controls, and emphasized horizontal navigation with multiple boundaries. Alternative names include multi-lined left arrow, complex back, structured previous, bordered horizontal, enhanced leftward, multi-level retreat, and emphasized backward.
+
+### arrow-fat-lines-right
+**Import:** `import { ArrowFatLinesRight } from 'phosphor-svelte';`
+**Description:** A thick rightward arrow combined with multiple line elements, creating complex forward navigation structure. Perfect for multi-level next buttons, complex forward navigation, structured advancement, enhanced right scrolling, bordered progress actions, multi-lined continuation controls, and emphasized horizontal movement with multiple boundaries. Alternative names include multi-lined right arrow, complex next, structured forward, bordered horizontal, enhanced rightward, multi-level advance, and emphasized continuation.
+
+### arrow-fat-lines-up
+**Import:** `import { ArrowFatLinesUp } from 'phosphor-svelte';`
+**Description:** A thick upward arrow enhanced with multiple line elements, providing maximum vertical emphasis. Excellent for complex upload interfaces, multi-level increase controls, structured vertical navigation, enhanced ascending actions, bordered upward movement, multi-lined elevation controls, and emphasized vertical navigation with multiple boundaries. Alternative names include multi-lined up arrow, complex upload, structured increase, bordered vertical, enhanced upward, multi-level ascend, and emphasized elevation.
+
+### arrow-fat-right
+**Import:** `import { ArrowFatRight } from 'phosphor-svelte';`
+**Description:** A thick, bold rightward-pointing arrow with strong visual presence and emphasis. Perfect for prominent next buttons, emphasized forward navigation, strong rightward movement, bold right scrolling, heavy advance actions, thick progression controls, emphasized eastward direction, and high-visibility right navigation. Alternative names include thick right arrow, bold next, heavy forward, emphasized right, strong advance, thick horizontal, bold progress, prominent right, and heavy rightward.
+
+### arrow-fat-up
+**Import:** `import { ArrowFatUp } from 'phosphor-svelte';`
+**Description:** A thick, substantial upward-pointing arrow, often associated with shift key or emphasized elevation. Excellent for shift key indicators, prominent upload buttons, emphasized upward navigation, strong increase actions, bold vertical movement, heavy ascending controls, thick elevation actions, and high-visibility upward directions. Alternative names include shift arrow, thick up arrow, bold upload, heavy increase, emphasized up, strong upward, thick vertical, bold ascend, prominent up, and heavy elevation.
+
+### arrow-left
+**Import:** `import { ArrowLeft } from 'phosphor-svelte';`
+**Description:** A classic, simple leftward-pointing arrow, the fundamental symbol for backward movement and left direction. Essential for back buttons, previous navigation, left scrolling, backward movement, retreat actions, reverse controls, westward direction, left alignment, backward flow, and regression indicators. Alternative names include back arrow, previous button, left pointer, backward arrow, retreat indicator, reverse arrow, west arrow, left navigation, backward pointer, and left direction.
+
+### arrow-line-down
+**Import:** `import { ArrowLineDown } from 'phosphor-svelte';`
+**Description:** A downward arrow combined with a line element, indicating movement to the bottom or base level. Perfect for move to bottom actions, baseline positioning, foundation controls, ground level navigation, bottom alignment, base level indicators, footer navigation, bottom boundary markers, and foundational movement controls. Alternative names include bottom arrow, baseline indicator, foundation arrow, ground level, bottom line, base pointer, footer arrow, bottom boundary, and foundational down.
+
+### arrow-line-down-left
+**Import:** `import { ArrowLineDownLeft } from 'phosphor-svelte';`
+**Description:** A diagonal arrow pointing down and left, enhanced with a line element for structure. Ideal for diagonal navigation with boundaries, corner positioning with structure, southwest movement with lines, angled controls with frames, diagonal positioning with borders, and structured corner navigation. Alternative names include lined diagonal arrow, bordered corner, structured southwest, framed diagonal, lined corner, and bordered angle.
+
+### arrow-line-down-right
+**Import:** `import { ArrowLineDownRight } from 'phosphor-svelte';`
+**Description:** A diagonal arrow pointing down and right, combined with a line element for enhanced structure. Perfect for southeast navigation with boundaries, diagonal movement with structure, corner positioning with lines, angled controls with frames, and structured diagonal navigation. Alternative names include lined diagonal arrow, bordered corner, structured southeast, framed diagonal, lined corner, and bordered angle.
+
+### arrow-line-left
+**Import:** `import { ArrowLineLeft } from 'phosphor-svelte';`
+**Description:** A leftward arrow enhanced with a line element, providing structured backward navigation. Excellent for bordered back buttons, lined previous navigation, structured backward movement, framed left scrolling, enhanced retreat actions, and bounded horizontal navigation. Alternative names include lined left arrow, bordered back, structured previous, framed left, lined backward, and bounded horizontal.
+
+### arrow-line-right
+**Import:** `import { ArrowLineRight } from 'phosphor-svelte';`
+**Description:** A rightward arrow combined with a line element, creating structured forward movement indication. Perfect for bordered next buttons, lined forward navigation, structured advancement, framed right scrolling, enhanced progress actions, and bounded horizontal navigation. Alternative names include lined right arrow, bordered next, structured forward, framed right, lined advance, and bounded horizontal.
+
+### arrow-line-up
+**Import:** `import { ArrowLineUp } from 'phosphor-svelte';`
+**Description:** An upward arrow enhanced with a line element, indicating movement to the top or peak level. Excellent for move to top actions, peak positioning, summit controls, top level navigation, header movement, top alignment, ceiling indicators, upper boundary markers, and elevated positioning controls. Alternative names include top arrow, summit indicator, peak arrow, ceiling pointer, top line, header arrow, upper boundary, summit navigation, and elevated up.
+
+### arrow-line-up-left
+**Import:** `import { ArrowLineUpLeft } from 'phosphor-svelte';`
+**Description:** A diagonal arrow pointing up and left, combined with a line element for enhanced structure. Perfect for northwest navigation with boundaries, diagonal upward movement with structure, corner positioning with lines, angled elevation with frames, and structured diagonal navigation. Alternative names include lined diagonal arrow, bordered corner, structured northwest, framed diagonal, lined corner, and bordered angle.
+
+### arrow-line-up-right
+**Import:** `import { ArrowLineUpRight } from 'phosphor-svelte';`
+**Description:** A diagonal arrow pointing up and right, enhanced with a line element for structural clarity. Ideal for northeast navigation with boundaries, diagonal elevation with structure, corner positioning with lines, angled upward movement with frames, and structured diagonal navigation. Alternative names include lined diagonal arrow, bordered corner, structured northeast, framed diagonal, lined corner, and bordered angle.
+
+### arrow-right
+**Import:** `import { ArrowRight } from 'phosphor-svelte';`
+**Description:** A classic, simple rightward-pointing arrow, the fundamental symbol for forward movement and right direction. Essential for next buttons, forward navigation, right scrolling, advancement, progress indicators, continue actions, eastward direction, right alignment, forward flow, and progression controls. Alternative names include next arrow, forward button, right pointer, advance arrow, progress indicator, continue pointer, east arrow, right navigation, forward pointer, and right direction.
+
+### arrow-square-down
+**Import:** `import { ArrowSquareDown } from 'phosphor-svelte';`
+**Description:** A downward-pointing arrow enclosed within a square boundary, providing structured downward navigation. Perfect for contained download buttons, boxed dropdown controls, framed decrease actions, squared vertical navigation, bordered downward movement, structured collapse controls, and geometric downward indicators. Alternative names include boxed down arrow, squared download, framed dropdown, contained down, bordered decrease, geometric arrow, structured downward, and angular navigation.
+
+### arrow-square-down-left
+**Import:** `import { ArrowSquareDownLeft } from 'phosphor-svelte';`
+**Description:** A diagonal arrow pointing down and left, contained within a square boundary for geometric clarity. Excellent for boxed diagonal navigation, squared corner movement, geometric southwest direction, angular positioning controls, framed diagonal movement, structured corner navigation, and contained angular indicators. Alternative names include boxed diagonal arrow, squared corner, geometric southwest, angular diagonal, contained corner, structured angle, and framed diagonal.
+
+### arrow-square-down-right
+**Import:** `import { ArrowSquareDownRight } from 'phosphor-svelte';`
+**Description:** A diagonal arrow pointing down and right, enclosed in a square boundary for geometric structure. Perfect for boxed southeast navigation, squared diagonal movement, geometric corner positioning, angular directional controls, framed diagonal navigation, structured corner movement, and contained angular indicators. Alternative names include boxed diagonal arrow, squared corner, geometric southeast, angular diagonal, contained corner, structured angle, and framed diagonal.# Phosphor Icons - Batch 03 Documentation
+
+### arrow-square-in
+**Import:** `import { ArrowSquareIn } from 'phosphor-svelte';`
+**Description:** An inward-pointing arrow contained within a square boundary, representing import functionality, data input, incoming content, file imports, data ingestion, content insertion, downloading, receiving, moving inward, bringing in, adding content, loading data, accepting input, taking in information, inbound direction, entry point, intake, absorption, incorporation, inclusion, pulling in, drawing in, acquiring data, receiving files, importing assets, data entry, content input, upload to system, receiving transfers, accepting uploads, bringing content in, moving data inward, pulling content, drawing information, getting data, accepting information, taking content, importing files, loading assets, bringing resources, collecting data, gathering content, acquiring files, accepting resources, receiving assets, importing media, downloading content, pulling files, bringing data, drawing resources, taking assets, accepting media, receiving content, importing information, loading files.
+
+### arrow-square-left
+**Import:** `import { ArrowSquareLeft } from 'phosphor-svelte';`
+**Description:** A leftward-pointing arrow within a square frame, used for directional navigation, moving left, going back, previous actions, westward direction, backward movement, reverse navigation, left alignment, moving backwards, returning, going to previous page, stepping back, retreating, undoing direction, left turn, leftward motion, westward travel, backward step, previous item, prior element, back button, left navigation, return path, reverse direction, going backwards, moving left, stepping left, turning left, heading west, backward arrow, left-pointing direction, previous direction, back navigation, left movement, leftward direction, reverse motion, backward travel, left arrow, going left, moving backwards, stepping backwards, turning around, left side, left direction, leftward path, backward route, reverse path, left turn, leftward movement, westward direction, backward direction, left navigation, return direction.
+
+### arrow-square-out
+**Import:** `import { ArrowSquareOut } from 'phosphor-svelte';`
+**Description:** An outward-pointing arrow within a square container, symbolizing export functionality, external links, data output, content export, file exports, sharing content, sending out, opening externally, launching external applications, external navigation, leaving current context, redirecting externally, opening new windows, external references, outbound links, sharing data, sending information, outputting content, exporting files, external destinations, opening links, launching externally, going outside, moving outward, external direction, outbound movement, export action, share function, send out, open external, launch outside, redirect away, move out, go external, send external, export data, share files, output information, external link, outbound navigation, outside direction, outward movement, external action, sharing functionality, export feature, send function, external redirect, outbound link, external destination, outside link, external reference, outbound direction, export tool, share tool, send tool, external tool.
+
+### arrow-square-right
+**Import:** `import { ArrowSquareRight } from 'phosphor-svelte';`
+**Description:** A rightward-pointing arrow enclosed in a square, indicating forward movement, next actions, eastward direction, moving right, proceeding forward, advancing, continue navigation, next page, forward button, right alignment, progression, moving ahead, going forward, next item, following element, proceed button, right navigation, forward path, advance direction, continuing on, moving right, stepping right, turning right, heading east, forward arrow, right-pointing direction, next direction, continue navigation, right movement, rightward direction, forward motion, ahead travel, right arrow, going right, moving forward, stepping forward, advancing ahead, right side, right direction, rightward path, forward route, advance path, right turn, rightward movement, eastward direction, forward direction, right navigation, continue direction, next step, forward step, proceed direction, advance movement, right-pointing arrow, forward-pointing direction.
+
+### arrow-square-up
+**Import:** `import { ArrowSquareUp } from 'phosphor-svelte';`
+**Description:** An upward-pointing arrow within a square boundary, representing upward movement, scrolling up, moving to top, ascending direction, northward travel, going up, rising motion, upward navigation, scroll to top, move up, lift up, elevate, climb, ascend, upper direction, top navigation, upward direction, vertical up, moving upward, going higher, rising up, climbing up, ascending up, upward motion, northward direction, up arrow, going up, moving up, stepping up, heading north, upward arrow, up-pointing direction, ascending direction, upward navigation, up movement, upward path, ascending motion, higher travel, up direction, going upward, moving higher, stepping higher, rising higher, upward side, up direction, upward path, ascending route, higher path, up turn, upward movement, northward direction, ascending direction, up navigation, rising direction, upward step, ascending step, climb direction, upward movement, up-pointing arrow, ascending-pointing direction.
+
+### arrow-square-up-left
+**Import:** `import { ArrowSquareUpLeft } from 'phosphor-svelte';`
+**Description:** A diagonal arrow pointing toward the upper-left within a square, used for diagonal navigation, northwest direction, moving diagonally up and left, corner navigation, diagonal movement, upper-left direction, northwest travel, diagonal up-left, corner pointing, diagonal navigation, upper-left corner, northwest corner, diagonal direction, corner movement, upper-left movement, northwest movement, diagonal up-left direction, corner up-left, upper-left navigation, northwest navigation, diagonal left-up, corner left-up, upper-left path, northwest path, diagonal up-left path, corner up-left path, diagonal movement, corner travel, upper-left travel, northwest travel, diagonal direction, corner direction, upper-left arrow, northwest arrow, diagonal up-left arrow, corner up-left arrow, diagonal pointing, corner pointing, upper-left pointing, northwest pointing, diagonal navigation, corner navigation, upper-left navigation, northwest navigation, diagonal movement, corner movement, upper-left movement, northwest movement.
+
+### arrow-square-up-right
+**Import:** `import { ArrowSquareUpRight } from 'phosphor-svelte';`
+**Description:** A diagonal arrow pointing toward the upper-right within a square frame, representing northeast direction, diagonal upward-right movement, corner navigation, upper-right direction, northeast travel, diagonal up-right, corner pointing, diagonal navigation, upper-right corner, northeast corner, diagonal direction, corner movement, upper-right movement, northeast movement, diagonal up-right direction, corner up-right, upper-right navigation, northeast navigation, diagonal right-up, corner right-up, upper-right path, northeast path, diagonal up-right path, corner up-right path, diagonal movement, corner travel, upper-right travel, northeast travel, diagonal direction, corner direction, upper-right arrow, northeast arrow, diagonal up-right arrow, corner up-right arrow, diagonal pointing, corner pointing, upper-right pointing, northeast pointing, diagonal navigation, corner navigation, upper-right navigation, northeast navigation, diagonal movement, corner movement, upper-right movement, northeast movement, expand up-right, grow northeast, diagonal expansion, corner expansion.
+
+### arrow-u-down-left
+**Import:** `import { ArrowUDownLeft } from 'phosphor-svelte';`
+**Description:** A U-shaped arrow curving downward and leftward, symbolizing undo operations, returning to previous state, undoing actions, reversing changes, going back, u-turn left, curved return, undo function, revert operation, rollback action, cancel changes, restore previous, return path, curved back, loop back, turn around, reverse direction, backward curve, left u-turn, downward curve, curved left, undo arrow, revert arrow, return arrow, rollback arrow, cancel arrow, restore arrow, undo movement, revert movement, return movement, rollback movement, cancel movement, restore movement, undo direction, revert direction, return direction, rollback direction, cancel direction, restore direction, undo path, revert path, return path, rollback path, cancel path, restore path, curved undo, looped return, u-shaped back, curved reverse, looped reverse, u-turn back, curved undo, looped undo.
+
+### arrow-u-down-right
+**Import:** `import { ArrowUDownRight } from 'phosphor-svelte';`
+**Description:** A U-shaped arrow curving downward and rightward, indicating redo operations, restoring undone actions, reapplying changes, moving forward again, u-turn right, curved advance, redo function, reapply operation, forward again, restore action, curved forward, right u-turn, downward curve right, curved right, redo arrow, reapply arrow, forward arrow, restore arrow, advance arrow, redo movement, reapply movement, forward movement, restore movement, advance movement, redo direction, reapply direction, forward direction, restore direction, advance direction, redo path, reapply path, forward path, restore path, advance path, curved redo, looped forward, u-shaped ahead, curved advance, looped advance, u-turn forward, curved redo, looped redo, repeat action, do again, reperform, execute again, carry out again, implement again, perform again, run again, repeat operation, duplicate action, reiterate function.
+
+### arrow-u-left-down
+**Import:** `import { ArrowULeftDown } from 'phosphor-svelte';`
+**Description:** A U-shaped arrow curving leftward and downward, representing undo functionality, reversing actions, going back, returning to previous state, undoing changes, left u-turn down, curved return, undo operation, revert function, rollback action, cancel changes, restore previous, return movement, curved back, loop back, turn around, reverse path, backward curve, left curve down, downward left curve, curved left down, undo arrow, revert arrow, return arrow, rollback arrow, cancel arrow, restore arrow, undo movement, revert movement, return movement, rollback movement, cancel movement, restore movement, undo direction, revert direction, return direction, rollback direction, cancel direction, restore direction, undo path, revert path, return path, rollback path, cancel path, restore path, curved undo, looped return, u-shaped back, curved reverse, looped reverse, u-turn back, curved undo, looped undo, reverse operation, back function, return action.
+
+### arrow-u-left-up
+**Import:** `import { ArrowULeftUp } from 'phosphor-svelte';`
+**Description:** A U-shaped arrow curving leftward and upward, symbolizing redo operations, reapplying actions, moving forward again, restoring undone changes, left u-turn up, curved advance, redo function, reapply operation, forward again, restore action, curved forward, left curve up, upward left curve, curved left up, redo arrow, reapply arrow, forward arrow, restore arrow, advance arrow, redo movement, reapply movement, forward movement, restore movement, advance movement, redo direction, reapply direction, forward direction, restore direction, advance direction, redo path, reapply path, forward path, restore path, advance path, curved redo, looped forward, u-shaped ahead, curved advance, looped advance, u-turn forward, curved redo, looped redo, repeat action, do again, reperform, execute again, carry out again, implement again, perform again, run again, repeat operation, duplicate action, reiterate function, restore function, bring back, return to, go back to, revert to.
+
+### arrow-u-right-down
+**Import:** `import { ArrowURightDown } from 'phosphor-svelte';`
+**Description:** A U-shaped arrow curving rightward and downward, indicating undo operations, reversing actions, going back, returning to previous state, undoing changes, right u-turn down, curved return, undo function, revert operation, rollback action, cancel changes, restore previous, return path, curved back, loop back, turn around, reverse direction, backward curve, right curve down, downward right curve, curved right down, undo arrow, revert arrow, return arrow, rollback arrow, cancel arrow, restore arrow, undo movement, revert movement, return movement, rollback movement, cancel movement, restore movement, undo direction, revert direction, return direction, rollback direction, cancel direction, restore direction, undo path, revert path, return path, rollback path, cancel path, restore path, curved undo, looped return, u-shaped back, curved reverse, looped reverse, u-turn back, curved undo, looped undo, reverse operation, back function, return action, cancel operation, restore function.
+
+### arrow-u-right-up
+**Import:** `import { ArrowURightUp } from 'phosphor-svelte';`
+**Description:** A U-shaped arrow curving rightward and upward, representing redo operations, reapplying actions, moving forward again, restoring undone changes, right u-turn up, curved advance, redo function, reapply operation, forward again, restore action, curved forward, right curve up, upward right curve, curved right up, redo arrow, reapply arrow, forward arrow, restore arrow, advance arrow, redo movement, reapply movement, forward movement, restore movement, advance movement, redo direction, reapply direction, forward direction, restore direction, advance direction, redo path, reapply path, forward path, restore path, advance path, curved redo, looped forward, u-shaped ahead, curved advance, looped advance, u-turn forward, curved redo, looped redo, repeat action, do again, reperform, execute again, carry out again, implement again, perform again, run again, repeat operation, duplicate action, reiterate function, restore function, bring back, return to, go back to, revert to, reestablish, reinstate.
+
+### arrow-u-up-left
+**Import:** `import { ArrowUUpLeft } from 'phosphor-svelte';`
+**Description:** A U-shaped arrow curving upward and leftward, symbolizing undo operations, reversing actions, going back, returning to previous state, undoing changes, up left u-turn, curved return, undo function, revert operation, rollback action, cancel changes, restore previous, return movement, curved back, loop back, turn around, reverse path, backward curve, up curve left, leftward up curve, curved up left, undo arrow, revert arrow, return arrow, rollback arrow, cancel arrow, restore arrow, undo movement, revert movement, return movement, rollback movement, cancel movement, restore movement, undo direction, revert direction, return direction, rollback direction, cancel direction, restore direction, undo path, revert path, return path, rollback path, cancel path, restore path, curved undo, looped return, u-shaped back, curved reverse, looped reverse, u-turn back, curved undo, looped undo, reverse operation, back function, return action, cancel operation, restore function, revert function.
+
+### arrow-u-up-right
+**Import:** `import { ArrowUUpRight } from 'phosphor-svelte';`
+**Description:** A U-shaped arrow curving upward and rightward, indicating redo operations, reapplying actions, moving forward again, restoring undone changes, up right u-turn, curved advance, redo function, reapply operation, forward again, restore action, curved forward, up curve right, rightward up curve, curved up right, redo arrow, reapply arrow, forward arrow, restore arrow, advance arrow, redo movement, reapply movement, forward movement, restore movement, advance movement, redo direction, reapply direction, forward direction, restore direction, advance direction, redo path, reapply path, forward path, restore path, advance path, curved redo, looped forward, u-shaped ahead, curved advance, looped advance, u-turn forward, curved redo, looped redo, repeat action, do again, reperform, execute again, carry out again, implement again, perform again, run again, repeat operation, duplicate action, reiterate function, restore function, bring back, return to, go back to, revert to, reestablish, reinstate, reactivate.
+
+### arrow-up
+**Import:** `import { ArrowUp } from 'phosphor-svelte';`
+**Description:** A simple upward-pointing arrow, representing upward direction, ascending movement, going up, moving higher, scrolling up, top direction, northward travel, rise, climb, ascend, elevate, lift, increase, growth, up navigation, vertical up, moving upward, going higher, rising motion, climbing motion, ascending motion, upward motion, northward direction, up arrow, going up, moving up, stepping up, heading north, upward direction, up movement, upward path, ascending travel, higher direction, up navigation, rising direction, upward step, ascending step, climb direction, upward movement, vertical movement, north direction, upward travel, ascending travel, higher travel, up direction, upward arrow, ascending arrow, rising arrow, climbing arrow, elevating arrow, lifting arrow, increasing arrow, growing arrow, top arrow, north arrow, vertical arrow, upward pointer, ascending pointer, rising pointer.
+
+### arrow-up-left
+**Import:** `import { ArrowUpLeft } from 'phosphor-svelte';`
+**Description:** A diagonal arrow pointing toward the upper-left, used for northwest direction, diagonal upward-left movement, corner navigation, upper-left movement, northwest travel, diagonal up-left, corner pointing, diagonal navigation, upper-left corner, northwest corner, diagonal direction, corner movement, upper-left direction, northwest direction, diagonal up-left direction, corner up-left, upper-left navigation, northwest navigation, diagonal left-up, corner left-up, upper-left path, northwest path, diagonal up-left path, corner up-left path, diagonal movement, corner travel, upper-left travel, northwest travel, diagonal direction, corner direction, upper-left arrow, northwest arrow, diagonal up-left arrow, corner up-left arrow, diagonal pointing, corner pointing, upper-left pointing, northwest pointing, diagonal navigation, corner navigation, upper-left navigation, northwest navigation, diagonal movement, corner movement, upper-left movement, northwest movement, diagonal travel, corner travel, upper-left travel, northwest travel.
+
+### arrow-up-right
+**Import:** `import { ArrowUpRight } from 'phosphor-svelte';`
+**Description:** A diagonal arrow pointing toward the upper-right, indicating northeast direction, diagonal upward-right movement, corner navigation, upper-right movement, northeast travel, diagonal up-right, corner pointing, diagonal navigation, upper-right corner, northeast corner, diagonal direction, corner movement, upper-right direction, northeast direction, diagonal up-right direction, corner up-right, upper-right navigation, northeast navigation, diagonal right-up, corner right-up, upper-right path, northeast path, diagonal up-right path, corner up-right path, diagonal movement, corner travel, upper-right travel, northeast travel, diagonal direction, corner direction, upper-right arrow, northeast arrow, diagonal up-right arrow, corner up-right arrow, diagonal pointing, corner pointing, upper-right pointing, northeast pointing, diagonal navigation, corner navigation, upper-right navigation, northeast navigation, diagonal movement, corner movement, upper-right movement, northeast movement, expand direction, growth direction, increase direction, ascending direction.
+
+### arrows-clockwise
+**Import:** `import { ArrowsClockwise } from 'phosphor-svelte';`
+**Description:** Circular arrows rotating in clockwise direction, symbolizing refresh functionality, reload operations, sync processes, rotation, spinning motion, circular movement, refreshing content, reloading data, synchronization, updating information, rotating elements, clockwise rotation, circular refresh, reload button, refresh button, sync button, update button, rotate right, spin clockwise, circular motion, rotational movement, refresh action, reload action, sync action, update action, rotate action, spin action, circular action, rotational action, refreshing, reloading, syncing, updating, rotating, spinning, circular, rotational, refresh tool, reload tool, sync tool, update tool, rotate tool, spin tool, circular tool, rotational tool, refresh operation, reload operation, sync operation, update operation, rotate operation, spin operation, circular operation, rotational operation, clockwise movement, clockwise direction, clockwise rotation, clockwise spin, clockwise motion.
+
+### arrows-counter-clockwise
+**Import:** `import { ArrowsCounterClockwise } from 'phosphor-svelte';`
+**Description:** Circular arrows rotating in counter-clockwise direction, representing undo operations, reverse rotation, anti-clockwise movement, undoing changes, reversing actions, counter-rotation, backward rotation, reverse spinning, undoing processes, rolling back, counter-clockwise rotation, anti-clockwise spin, reverse motion, backward motion, undo function, revert function, rollback function, cancel function, reverse function, backward function, undo action, revert action, rollback action, cancel action, reverse action, backward action, undo operation, revert operation, rollback operation, cancel operation, reverse operation, backward operation, counter-clockwise movement, counter-clockwise direction, anti-clockwise direction, reverse direction, backward direction, undo direction, revert direction, rollback direction, cancel direction, counter-rotation direction, anti-rotation direction, reverse rotation direction, backward rotation direction, undo rotation, revert rotation, rollback rotation, cancel rotation, reverse rotation, backward rotation.
+
+### arrows-down-up
+**Import:** `import { ArrowsDownUp } from 'phosphor-svelte';`
+**Description:** Bidirectional arrows pointing both downward and upward, indicating vertical movement in both directions, up-down navigation, vertical scrolling, bidirectional vertical movement, vertical resizing, height adjustment, vertical expansion and contraction, dual vertical direction, two-way vertical, vertical bidirectional, up and down movement, vertical dual direction, bidirectional vertical, vertical two-way, up-down arrows, vertical arrows, bidirectional arrows, dual arrows, two-way arrows, vertical navigation arrows, up-down navigation, vertical scroll, bidirectional scroll, dual scroll, two-way scroll, vertical resize, bidirectional resize, dual resize, two-way resize, vertical adjustment, bidirectional adjustment, dual adjustment, two-way adjustment, vertical expansion, bidirectional expansion, dual expansion, two-way expansion, vertical contraction, bidirectional contraction, dual contraction, two-way contraction, vertical movement, bidirectional movement, dual movement, two-way movement, sort arrows, sorting direction, order arrows, arrange arrows.
+
+### arrows-horizontal
+**Import:** `import { ArrowsHorizontal } from 'phosphor-svelte';`
+**Description:** Bidirectional arrows pointing left and right horizontally, used for horizontal resizing, width adjustment, horizontal movement, left-right navigation, horizontal expansion and contraction, bidirectional horizontal movement, dual horizontal direction, two-way horizontal, horizontal bidirectional, left and right movement, horizontal dual direction, bidirectional horizontal, horizontal two-way, left-right arrows, horizontal arrows, bidirectional arrows, dual arrows, two-way arrows, horizontal navigation arrows, left-right navigation, horizontal scroll, bidirectional scroll, dual scroll, two-way scroll, horizontal resize, bidirectional resize, dual resize, two-way resize, horizontal adjustment, bidirectional adjustment, dual adjustment, two-way adjustment, horizontal expansion, bidirectional expansion, dual expansion, two-way expansion, horizontal contraction, bidirectional contraction, dual contraction, two-way contraction, horizontal movement, bidirectional movement, dual movement, two-way movement, width control, horizontal control, resize cursor, expand cursor, width adjustment, horizontal stretching, horizontal shrinking.
+
+### arrows-in
+**Import:** `import { ArrowsIn } from 'phosphor-svelte';`
+**Description:** Multiple arrows pointing inward toward center, symbolizing collapse functionality, minimize operations, shrinking content, reducing size, contracting elements, closing expanded items, making smaller, pulling inward, drawing in, converging movement, inward direction, center-pointing, minimize button, collapse button, shrink button, reduce button, contract button, close button, minimize action, collapse action, shrink action, reduce action, contract action, close action, minimize operation, collapse operation, shrink operation, reduce operation, contract operation, close operation, inward movement, inward direction, inward motion, center movement, center direction, center motion, converge movement, converge direction, converge motion, collapse movement, collapse direction, collapse motion, minimize movement, minimize direction, minimize motion, shrink movement, shrink direction, shrink motion, reduce movement, reduce direction, reduce motion, contract movement, contract direction, contract motion.
+
+### arrows-in-cardinal
+**Import:** `import { ArrowsInCardinal } from 'phosphor-svelte';`
+**Description:** Four cardinal arrows (north, south, east, west) pointing inward toward center, representing collapse from all directions, minimize from cardinal points, shrinking from four directions, reducing size from all sides, contracting from cardinal directions, closing from all directions, making smaller from four sides, pulling inward from cardinal points, drawing in from all directions, converging from four sides, inward from all directions, center-pointing from cardinal directions, minimize from all sides, collapse from four directions, shrink from all directions, reduce from all directions, contract from all directions, close from all directions, cardinal collapse, four-direction collapse, all-direction minimize, omni-directional shrink, universal reduce, total contract, complete close, full minimize, entire collapse, whole shrink, comprehensive reduce, absolute contract, complete close, total minimize, entire collapse, whole shrink, comprehensive reduce, absolute contract, universal minimize, omni-directional collapse, all-direction shrink, four-way minimize, cardinal shrink, directional collapse.
+
+### arrows-in-line-horizontal
+**Import:** `import { ArrowsInLineHorizontal } from 'phosphor-svelte';`
+**Description:** Horizontal arrows pointing inward toward a central line, used for horizontal alignment, centering content horizontally, bringing elements together horizontally, horizontal convergence, center alignment, middle alignment, horizontal center, align center, center horizontally, horizontal centering, left-right centering, horizontal middle, center position, middle position, horizontal positioning, center align, middle align, horizontal align, align horizontally, center content, middle content, horizontal content, align elements, center elements, middle elements, horizontal elements, design alignment, layout alignment, content alignment, element alignment, horizontal layout, center layout, middle layout, alignment tool, centering tool, positioning tool, layout tool, design tool, alignment control, centering control, positioning control, layout control, design control, horizontal control, center control, middle control, alignment function, centering function, positioning function, layout function, design function.
+
+### arrows-in-line-vertical
+**Import:** `import { ArrowsInLineVertical } from 'phosphor-svelte';`
+**Description:** Vertical arrows pointing inward toward a central line, representing vertical alignment, centering content vertically, bringing elements together vertically, vertical convergence, center alignment, middle alignment, vertical center, align center, center vertically, vertical centering, up-down centering, vertical middle, center position, middle position, vertical positioning, center align, middle align, vertical align, align vertically, center content, middle content, vertical content, align elements, center elements, middle elements, vertical elements, design alignment, layout alignment, content alignment, element alignment, vertical layout, center layout, middle layout, alignment tool, centering tool, positioning tool, layout tool, design tool, alignment control, centering control, positioning control, layout control, design control, vertical control, center control, middle control, alignment function, centering function, positioning function, layout function, design function, vertical arrangement, center arrangement, middle arrangement.
+
+### arrows-in-simple
+**Import:** `import { ArrowsInSimple } from 'phosphor-svelte';`
+**Description:** Simple arrows pointing inward, indicating basic collapse functionality, simple minimize operations, basic shrinking, simple reduction, basic contraction, simple closing, basic minimizing, simple collapsing, basic shrinking, simple reducing, basic contracting, simple closing, inward pointing, center pointing, minimize symbol, collapse symbol, shrink symbol, reduce symbol, contract symbol, close symbol, minimize icon, collapse icon, shrink icon, reduce icon, contract icon, close icon, simple minimize, simple collapse, simple shrink, simple reduce, simple contract, simple close, basic minimize, basic collapse, basic shrink, basic reduce, basic contract, basic close, inward arrows, center arrows, pointing inward, pointing center, converging arrows, converging direction, converging movement, inward movement, inward direction, inward motion, center movement, center direction, center motion, simple inward, basic inward, simple center, basic center.
+
+### arrows-left-right
+**Import:** `import { ArrowsLeftRight } from 'phosphor-svelte';`
+**Description:** Bidirectional arrows pointing left and right, used for horizontal navigation, left-right movement, horizontal scrolling, bidirectional horizontal navigation, dual horizontal direction, two-way horizontal movement, horizontal bidirectional arrows, left and right navigation, horizontal dual navigation, bidirectional horizontal, horizontal two-way, left-right arrows, horizontal arrows, bidirectional arrows, dual arrows, two-way arrows, horizontal navigation arrows, left-right navigation, horizontal movement, bidirectional movement, dual movement, two-way movement, horizontal direction, bidirectional direction, dual direction, two-way direction, horizontal travel, bidirectional travel, dual travel, two-way travel, horizontal path, bidirectional path, dual path, two-way path, horizontal route, bidirectional route, dual route, two-way route, horizontal way, bidirectional way, dual way, two-way way, horizontal motion, bidirectional motion, dual motion, two-way motion, horizontal flow, bidirectional flow, dual flow, two-way flow, horizontal stream, bidirectional stream, dual stream, two-way stream.
+
+### arrows-merge
+**Import:** `import { ArrowsMerge } from 'phosphor-svelte';`
+**Description:** Multiple arrows converging into one, symbolizing merge operations, combining elements, joining content, unifying data, merging files, consolidating information, bringing together, convergence, combination, unification, integration, fusion, amalgamation, joining, merging, combining, uniting, consolidating, integrating, fusing, amalgamating, merge function, combine function, join function, unite function, consolidate function, integrate function, fuse function, amalgamate function, merge operation, combine operation, join operation, unite operation, consolidate operation, integrate operation, fuse operation, amalgamate operation, merge action, combine action, join action, unite action, consolidate action, integrate action, fuse action, amalgamate action, merge tool, combine tool, join tool, unite tool, consolidate tool, integrate tool, fuse tool, amalgamate tool, convergence point, meeting point, junction point, union point, merge point, combine point, join point, unite point.
+
+### arrows-out
+**Import:** `import { ArrowsOut } from 'phosphor-svelte';`
+**Description:** Multiple arrows pointing outward from center, representing expand functionality, maximize operations, enlarging content, increasing size, growing elements, opening collapsed items, making bigger, pushing outward, extending out, diverging movement, outward direction, expand button, maximize button, enlarge button, increase button, grow button, open button, expand action, maximize action, enlarge action, increase action, grow action, open action, expand operation, maximize operation, enlarge operation, increase operation, grow operation, open operation, outward movement, outward direction, outward motion, expand movement, expand direction, expand motion, maximize movement, maximize direction, maximize motion, enlarge movement, enlarge direction, enlarge motion, increase movement, increase direction, increase motion, grow movement, grow direction, grow motion, open movement, open direction, open motion, fullscreen, full screen, screen expand, window expand, zoom out, scale up, resize larger, make bigger, stretch out, spread out.
+
+### arrows-out-cardinal
+**Import:** `import { ArrowsOutCardinal } from 'phosphor-svelte';`
+**Description:** Four cardinal arrows (north, south, east, west) pointing outward from center, symbolizing expansion in all cardinal directions, maximize from center, enlarging in four directions, growing in all directions, expanding from cardinal points, opening in all directions, making bigger in four directions, pushing outward in cardinal directions, extending in all directions, diverging in four directions, outward in all directions, expand from center, maximize from center, enlarge from center, increase from center, grow from center, open from center, cardinal expansion, four-direction expansion, all-direction maximize, omni-directional enlarge, universal increase, total grow, complete open, full maximize, entire expansion, whole enlarge, comprehensive increase, absolute grow, complete open, total maximize, entire expansion, whole enlarge, comprehensive increase, absolute grow, universal maximize, omni-directional expansion, all-direction enlarge, four-way maximize, cardinal enlarge, directional expansion, pan tool, move tool, drag tool, positioning tool, navigation tool.
+
+### arrows-out-line-horizontal
+**Import:** `import { ArrowsOutLineHorizontal } from 'phosphor-svelte';`
+**Description:** Horizontal arrows pointing outward from a central line, used for horizontal separation, spreading content horizontally, pushing elements apart horizontally, horizontal divergence, horizontal spacing, horizontal distribution, spread apart, separate horizontally, horizontal separation, left-right separation, horizontal spread, horizontal distribution, spread elements, separate elements, distribute elements, horizontal layout, spread layout, separate layout, distribute layout, spacing tool, distribution tool, separation tool, layout tool, design tool, spacing control, distribution control, separation control, layout control, design control, horizontal control, spread control, separate control, distribute control, spacing function, distribution function, separation function, layout function, design function, horizontal spacing, horizontal distribution, horizontal separation, horizontal spread, horizontal arrangement, spread arrangement, separate arrangement, distribute arrangement, spacing arrangement, distribution arrangement, separation arrangement, layout arrangement, design arrangement.
+
+### arrows-out-line-vertical
+**Import:** `import { ArrowsOutLineVertical } from 'phosphor-svelte';`
+**Description:** Vertical arrows pointing outward from a central line, representing vertical separation, spreading content vertically, pushing elements apart vertically, vertical divergence, vertical spacing, vertical distribution, spread apart, separate vertically, vertical separation, up-down separation, vertical spread, vertical distribution, spread elements, separate elements, distribute elements, vertical layout, spread layout, separate layout, distribute layout, spacing tool, distribution tool, separation tool, layout tool, design tool, spacing control, distribution control, separation control, layout control, design control, vertical control, spread control, separate control, distribute control, spacing function, distribution function, separation function, layout function, design function, vertical spacing, vertical distribution, vertical separation, vertical spread, vertical arrangement, spread arrangement, separate arrangement, distribute arrangement, spacing arrangement, distribution arrangement, separation arrangement, layout arrangement, design arrangement, vertical design.
+
+### arrows-out-simple
+**Import:** `import { ArrowsOutSimple } from 'phosphor-svelte';`
+**Description:** Simple arrows pointing outward, indicating basic expand functionality, simple maximize operations, basic enlarging, simple increasing, basic growing, simple opening, basic expanding, simple maximizing, basic enlarging, simple increasing, basic growing, simple opening, outward pointing, expand symbol, maximize symbol, enlarge symbol, increase symbol, grow symbol, open symbol, expand icon, maximize icon, enlarge icon, increase icon, grow icon, open icon, simple expand, simple maximize, simple enlarge, simple increase, simple grow, simple open, basic expand, basic maximize, basic enlarge, basic increase, basic grow, basic open, outward arrows, expand arrows, pointing outward, pointing expand, diverging arrows, diverging direction, diverging movement, outward movement, outward direction, outward motion, expand movement, expand direction, expand motion, simple outward, basic outward, simple expand, basic expand, fullscreen simple, zoom simple, resize simple.
+
+### arrows-split
+**Import:** `import { ArrowsSplit } from 'phosphor-svelte';`
+**Description:** Arrows diverging or splitting apart, symbolizing split operations, dividing content, separating elements, forking processes, branching paths, splitting data, dividing information, separating items, forking direction, branching direction, split function, divide function, separate function, fork function, branch function, split operation, divide operation, separate operation, fork operation, branch operation, split action, divide action, separate action, fork action, branch action, split tool, divide tool, separate tool, fork tool, branch tool, divergence point, separation point, split point, divide point, fork point, branch point, splitting process, dividing process, separating process, forking process, branching process, split path, divide path, separate path, fork path, branch path, split route, divide route, separate route, fork route, branch route, split direction, divide direction, separate direction, fork direction, branch direction, diverge, separate, divide, fork, branch, split apart.
+
+### arrows-vertical
+**Import:** `import { ArrowsVertical } from 'phosphor-svelte';`
+**Description:** Bidirectional arrows pointing up and down vertically, used for vertical resizing, height adjustment, vertical movement, up-down navigation, vertical expansion and contraction, bidirectional vertical movement, dual vertical direction, two-way vertical, vertical bidirectional, up and down movement, vertical dual direction, bidirectional vertical, vertical two-way, up-down arrows, vertical arrows, bidirectional arrows, dual arrows, two-way arrows, vertical navigation arrows, up-down navigation, vertical scroll, bidirectional scroll, dual scroll, two-way scroll, vertical resize, bidirectional resize, dual resize, two-way resize, vertical adjustment, bidirectional adjustment, dual adjustment, two-way adjustment, vertical expansion, bidirectional expansion, dual expansion, two-way expansion, vertical contraction, bidirectional contraction, dual contraction, two-way contraction, vertical movement, bidirectional movement, dual movement, two-way movement, height control, vertical control, resize cursor, expand cursor, height adjustment, vertical stretching, vertical shrinking, sort vertical, order vertical.
+
+### article
+**Import:** `import { Article } from 'phosphor-svelte';`
+**Description:** A document or article icon representing written content, articles, blog posts, news articles, written material, reading content, text documents, editorial content, publications, journalism, writing, literature, manuscripts, papers, essays, reports, stories, content, documentation, text files, written works, periodicals, magazines, newspapers, journals, publications, reading material, written information, textual content, editorial material, journalistic content, literary works, written documents, text-based content, article writing, content writing, editorial writing, journalistic writing, literary writing, document writing, text writing, content creation, article creation, editorial creation, journalistic creation, literary creation, document creation, text creation, reading, writing, publishing, editing, content management, article management, editorial management, journalistic management, literary management, document management, text management, blog, blogging, news, reporting, storytelling, content publishing.
+
+### article-medium
+**Import:** `import { ArticleMedium } from 'phosphor-svelte';`
+**Description:** A Medium-style article layout icon, representing Medium articles, blog platform content, online publishing, digital articles, web-based writing, online journalism, digital publications, web articles, internet publishing, online content, digital writing, web publishing, online editorial, digital journalism, internet articles, web-based content, online writing platform, digital publishing platform, web publishing platform, internet publishing platform, online article platform, digital article platform, web article platform, internet article platform, Medium platform, Medium publishing, Medium writing, Medium articles, Medium content, Medium blog, Medium posts, online blog, web blog, internet blog, digital blog, blog platform, blogging platform, writing platform, publishing platform, content platform, article platform, editorial platform, journalistic platform, literary platform, document platform, text platform, online reading, web reading, internet reading, digital reading, Medium reading, platform reading.
+
+### article-ny-times
+**Import:** `import { ArticleNyTimes } from 'phosphor-svelte';`
+**Description:** A New York Times-style article layout icon, representing NYT articles, newspaper content, news publishing, journalism, newspaper layout, news articles, press content, media articles, news media, newspaper design, journalistic content, news writing, press writing, media writing, newspaper writing, news publishing, press publishing, media publishing, newspaper publishing, news journalism, press journalism, media journalism, newspaper journalism, New York Times, NYT, NY Times, Times, newspaper, news, journalism, press, media, news organization, press organization, media organization, newspaper organization, news publication, press publication, media publication, newspaper publication, news content, press content, media content, newspaper content, news article, press article, media article, newspaper article, news story, press story, media story, newspaper story, news report, press report, media report, newspaper report, breaking news, current events, news updates, press updates, media updates.
+
+### asclepius
+**Import:** `import { Asclepius } from 'phosphor-svelte';`
+**Description:** The Rod of Asclepius medical symbol featuring a snake wrapped around a staff, representing medicine, healthcare, medical profession, doctors, physicians, medical practice, healthcare services, medical care, healing, medical symbol, healthcare symbol, doctor symbol, physician symbol, medical staff, healthcare staff, medical profession, healthcare profession, medical field, healthcare field, medical industry, healthcare industry, medical services, healthcare services, medical treatment, healthcare treatment, medical therapy, healthcare therapy, medical healing, healthcare healing, pharmacy, pharmacology, pharmaceuticals, medical drugs, prescription medicine, medical prescriptions, hospital, clinic, medical facility, healthcare facility, medical center, healthcare center, medical practice, healthcare practice, medical office, healthcare office, caduceus alternative, medical emblem, healthcare emblem, doctor emblem, physician emblem, medical badge, healthcare badge, doctor badge, physician badge, medical icon, healthcare icon, doctor icon, physician icon, snake medicine, staff medicine, rod medicine, serpent medicine, mythology medicine, Greek medicine, ancient medicine.
+
+### asterisk
+**Import:** `import { Asterisk } from 'phosphor-svelte';`
+**Description:** A six-pointed star symbol used for marking required fields, footnotes, multiplication, wildcard searches, special notation, mandatory fields, important notes, emphasis, annotation, reference marks, obligatory indicators, essential markers, critical notation, significant symbols, vital marks, key indicators, important markers, special characters, reference symbols, notation marks, emphasis symbols, highlight indicators, attention markers, focus symbols, priority marks, significance indicators, importance symbols, critical markers, essential symbols, vital indicators, key symbols, special marks, reference indicators, annotation symbols, footnote markers, endnote symbols, citation marks, bibliography indicators, source symbols, credit marks, attribution symbols, acknowledgment indicators, disclaimer symbols, warning marks, caution indicators, alert symbols, notice marks, attention symbols, highlight marks, emphasis indicators, stress symbols, focus markers, priority indicators, importance marks, significance symbols, critical indicators, essential marks, vital symbols, key markers, special indicators.
+
+### asterisk-simple
+**Import:** `import { AsteriskSimple } from 'phosphor-svelte';`
+**Description:** A simplified five-pointed asterisk symbol, used for basic marking, simple notation, minimalist design, clean emphasis, subtle marking, basic annotation, simple reference, minimal notation, clean marking, streamlined symbol, basic emphasis, simple highlight, minimal indicator, clean marker, streamlined notation, basic symbol, simple mark, minimal mark, clean symbol, basic indicator, simple indicator, minimal symbol, clean indicator, basic marker, simple marker, minimal marker, clean marker, basic notation, simple notation, minimal notation, clean notation, basic reference, simple reference, minimal reference, clean reference, basic annotation, simple annotation, minimal annotation, clean annotation, basic emphasis, simple emphasis, minimal emphasis, clean emphasis, basic highlight, simple highlight, minimal highlight, clean highlight, basic attention, simple attention, minimal attention, clean attention, basic focus, simple focus, minimal focus, clean focus, basic priority, simple priority, minimal priority, clean priority, basic importance, simple importance, minimal importance, clean importance.
+
+### at
+**Import:** `import { At } from 'phosphor-svelte';`
+**Description:** The at symbol (@) used in email addresses, social media handles, mentions, user references, email communication, electronic mail, internet addresses, online identity, digital communication, web addresses, social networking, user identification, account references, profile mentions, contact information, communication symbols, internet symbols, email symbols, social symbols, digital symbols, web symbols, online symbols, networking symbols, communication markers, contact markers, address markers, identity markers, reference markers, mention markers, profile markers, account markers, user markers, social markers, digital markers, web markers, online markers, internet markers, email markers, communication indicators, contact indicators, address indicators, identity indicators, reference indicators, mention indicators, profile indicators, account indicators, user indicators, social indicators, digital indicators, web indicators, online indicators, internet indicators, email indicators, arobase, at sign, commercial at, email at, address at, social at, mention at, reference at, profile at, account at, user at.
+
+### atom
+**Import:** `import { Atom } from 'phosphor-svelte';`
+**Description:** An atomic structure symbol with nucleus and orbiting electrons, representing science, physics, chemistry, atomic structure, nuclear science, molecular science, scientific research, laboratory work, scientific study, atomic physics, nuclear physics, molecular physics, quantum physics, particle physics, scientific symbols, chemistry symbols, physics symbols, atomic symbols, nuclear symbols, molecular symbols, scientific icons, chemistry icons, physics icons, atomic icons, nuclear icons, molecular icons, scientific elements, chemistry elements, physics elements, atomic elements, nuclear elements, molecular elements, scientific concepts, chemistry concepts, physics concepts, atomic concepts, nuclear concepts, molecular concepts, scientific principles, chemistry principles, physics principles, atomic principles, nuclear principles, molecular principles, React framework, atomic design, component structure, element structure, building blocks, fundamental units, basic components, core elements, essential units, primary components, base elements, foundational units, structural components, atomic components, molecular components, compound components, complex components, composite components, integrated components, unified components, combined components, merged components, joined components.
+
+### avocado
+**Import:** `import { Avocado } from 'phosphor-svelte';`
+**Description:** An avocado fruit icon representing healthy food, fresh produce, groceries, organic food, nutritious eating, healthy lifestyle, fresh fruits, natural food, wholesome eating, dietary choices, food shopping, grocery shopping, produce shopping, market shopping, healthy shopping, organic shopping, natural shopping, fresh shopping, food items, grocery items, produce items, fruit items, healthy items, organic items, natural items, fresh items, food products, grocery products, produce products, fruit products, healthy products, organic products, natural products, fresh products, food ingredients, cooking ingredients, recipe ingredients, healthy ingredients, organic ingredients, natural ingredients, fresh ingredients, superfood, health food, wellness food, nutrition food, dietary food, lifestyle food, trendy food, popular food, modern food, contemporary food, current food, fashionable food, stylish food, chic food, hip food, cool food, fresh food, new food, innovative food, creative food, unique food, special food, premium food, quality food, excellent food, superior food, outstanding food.
+
+### axe
+**Import:** `import { Axe } from 'phosphor-svelte';`
+**Description:** A woodcutting axe tool icon, representing tools, construction, carpentry, woodworking, forestry, lumberjack work, tree cutting, wood chopping, building tools, construction tools, carpentry tools, woodworking tools, forestry tools, cutting tools, chopping tools, splitting tools, hand tools, power tools, work tools, trade tools, craft tools, professional tools, industrial tools, manual tools, traditional tools, classic tools, essential tools, basic tools, fundamental tools, primary tools, core tools, main tools, key tools, important tools, necessary tools, required tools, needed tools, useful tools, practical tools, functional tools, working tools, operational tools, active tools, effective tools, efficient tools, productive tools, capable tools, competent tools, skilled tools, expert tools, professional tools, quality tools, durable tools, reliable tools, dependable tools, trustworthy tools, sturdy tools, strong tools, robust tools, solid tools, heavy-duty tools, commercial tools, workshop tools, garage tools, shed tools, basement tools, outdoor tools, camping tools, survival tools, emergency tools.
+
+### baby
+**Import:** `import { Baby } from 'phosphor-svelte';`
+**Description:** A baby or infant icon representing children, childcare, parenting, family, pediatrics, early childhood, infant care, child development, parenting services, family services, childcare services, pediatric services, baby products, infant products, child products, family products, parenting products, baby care, infant care, child care, family care, parenting care, baby health, infant health, child health, family health, parenting health, baby wellness, infant wellness, child wellness, family wellness, parenting wellness, baby safety, infant safety, child safety, family safety, parenting safety, baby needs, infant needs, child needs, family needs, parenting needs, baby support, infant support, child support, family support, parenting support, baby resources, infant resources, child resources, family resources, parenting resources, nursery, daycare, preschool, kindergarten, childcare center, family center, parenting center, baby center, infant center, child center, maternity, paternity, parenthood, motherhood, fatherhood, childhood, infancy, toddler, newborn, young child, small child, little child, tiny child.
+
+### baby-carriage
+**Import:** `import { BabyCarriage } from 'phosphor-svelte';`
+**Description:** A baby stroller or pram icon, representing baby transportation, infant mobility, childcare equipment, baby gear, parenting tools, stroller, pushchair, pram, buggy, baby transport, infant transport, child transport, baby mobility, infant mobility, child mobility, baby equipment, infant equipment, child equipment, baby gear, infant gear, child gear, baby accessories, infant accessories, child accessories, baby products, infant products, child products, baby items, infant items, child items, parenting equipment, parenting gear, parenting accessories, parenting products, parenting items, family equipment, family gear, family accessories, family products, family items, childcare equipment, childcare gear, childcare accessories, childcare products, childcare items, baby carriage, infant carriage, child carriage, baby buggy, infant buggy, child buggy, baby pushchair, infant pushchair, child pushchair, baby stroller, infant stroller, child stroller, baby pram, infant pram, child pram, walking with baby, baby outing, infant outing, child outing, baby walk, infant walk, child walk, baby exercise, infant exercise, child exercise.
+
+### backpack
+**Import:** `import { Backpack } from 'phosphor-svelte';`
+**Description:** A backpack or rucksack icon, representing school supplies, travel gear, outdoor equipment, hiking gear, camping equipment, student accessories, educational tools, travel accessories, adventure gear, outdoor activities, school bag, book bag, school pack, student bag, travel bag, hiking bag, camping bag, outdoor bag, adventure bag, sports bag, gym bag, day bag, weekend bag, overnight bag, trip bag, journey bag, excursion bag, expedition bag, exploration bag, discovery bag, venture bag, quest bag, mission bag, task bag, assignment bag, project bag, work bag, job bag, career bag, profession bag, occupation bag, trade bag, craft bag, skill bag, talent bag, ability bag, capacity bag, capability bag, competence bag, expertise bag, knowledge bag, wisdom bag, intelligence bag, understanding bag, comprehension bag, awareness bag, consciousness bag, mindfulness bag, attention bag, focus bag, concentration bag, dedication bag, commitment bag, devotion bag, loyalty bag, faithfulness bag, reliability bag, dependability bag, trustworthiness bag, responsibility bag.
+
+### backspace
+**Import:** `import { Backspace } from 'phosphor-svelte';`
+**Description:** A backspace key symbol for deleting characters, removing text, erasing content, undoing typing, clearing input, text deletion, character removal, content erasure, input clearing, typing correction, text correction, character correction, content correction, input correction, text editing, character editing, content editing, input editing, text modification, character modification, content modification, input modification, text revision, character revision, content revision, input revision, keyboard function, typing function, input function, editing function, correction function, deletion function, removal function, erasure function, clearing function, backspace key, delete key, remove key, erase key, clear key, correction key, editing key, modification key, revision key, keyboard key, typing key, input key, text key, character key, content key, backspace button, delete button, remove button, erase button, clear button, correction button, editing button, modification button, revision button, keyboard button, typing button, input button, text button, character button, content button, backspace tool, delete tool, remove tool, erase tool, clear tool, correction tool, editing tool, modification tool, revision tool.# Phosphor Icons Documentation - Batch 04
+
+### bag
+**Import:** `import { Bag } from 'phosphor-svelte';`
+**Description:** Represents a general-purpose bag, suitcase, or carrying container. Used for commerce applications, travel booking systems, luggage tracking, portfolio management, briefcase, handbag, shopping bag, tote bag, backpack, messenger bag, laptop bag, document folder, file organizer, baggage claim, carry-on luggage, checked baggage, travel accessories, business case, work bag, school bag, gym bag, duffel bag, overnight bag, weekend bag, valise, attaché case, and general storage containers.
+
+### bag-simple
+**Import:** `import { BagSimple } from 'phosphor-svelte';`
+**Description:** A simplified version of the bag icon, perfect for minimalist designs. Represents basic bags, simple luggage, basic suitcase, travel bag, carry bag, shopping bag, tote, handbag, purse, briefcase, portfolio case, document bag, folder bag, simple storage container, basic carrying case, travel accessory, luggage item, baggage, valise, overnight case, weekend bag, gym bag, work bag, school bag, business bag, and general carrying containers in clean, simplified interface designs.
+
+### balloon
+**Import:** `import { Balloon } from 'phosphor-svelte';`
+**Description:** Represents party balloons, celebration decorations, and festive elements. Used for birthday applications, party planning, event management, celebration reminders, helium balloons, party supplies, decorations, festivities, special occasions, anniversaries, graduations, baby showers, weddings, children's parties, carnival themes, circus elements, fun activities, entertainment events, holiday celebrations, joy indicators, happiness symbols, surprise elements, gift accompaniments, and festive atmosphere creation.
+
+### bandaids
+**Import:** `import { Bandaids } from 'phosphor-svelte';`
+**Description:** Medical bandages for first aid and healthcare applications. Used in health and wellness systems, medical apps, first aid interfaces, injury tracking, healthcare management, medical supplies, wound care, emergency kits, safety equipment, medical treatment, healing process, recovery tracking, health monitoring, medical assistance, emergency response, healthcare services, medical supplies inventory, pharmacy applications, hospital management, clinic systems, medical records, patient care, treatment history, and general healthcare indicators.
+
+### bank
+**Import:** `import { Bank } from 'phosphor-svelte';`
+**Description:** Financial institution building representing banking services and locations. Used for financial applications, banking systems, location services, money management, financial institutions, credit unions, savings accounts, checking accounts, loans, mortgages, investments, financial services, ATM locations, branch finder, banking apps, financial planning, money transfer, deposits, withdrawals, financial transactions, economic services, monetary systems, finance management, wealth management, and financial service locators.
+
+### barbell
+**Import:** `import { Barbell } from 'phosphor-svelte';`
+**Description:** Weight training equipment for fitness and exercise applications. Used in health and wellness systems, gym management, workout tracking, fitness apps, exercise programs, strength training, weight lifting, bodybuilding, powerlifting, fitness equipment, gym accessories, workout routines, training schedules, muscle building, physical fitness, exercise tracking, sports activities, health monitoring, fitness goals, workout plans, training sessions, athletic performance, and general fitness indicators.
+
+### barcode
+**Import:** `import { Barcode } from 'phosphor-svelte';`
+**Description:** Product identification system for commerce and inventory management. Used in e-commerce applications, inventory systems, product scanning, retail management, shopping apps, product identification, UPC codes, QR codes, scanner applications, product tracking, warehouse management, supply chain systems, point of sale, checkout systems, product databases, inventory control, stock management, retail analytics, product lookup, price checking, and commerce automation systems.
+
+### barn
+**Import:** `import { Barn } from 'phosphor-svelte';`
+**Description:** Agricultural building for farming and rural applications. Used for agricultural systems, farm management, rural location services, livestock tracking, farming applications, agricultural buildings, farm structures, rural properties, countryside locations, agricultural tourism, farm-to-table systems, rural businesses, agricultural equipment, farming operations, livestock management, crop storage, rural real estate, agricultural maps, farming communities, and rural commerce applications.
+
+### barricade
+**Import:** `import { Barricade } from 'phosphor-svelte';`
+**Description:** Safety barrier for construction and road management systems. Used in traffic applications, construction management, safety systems, road closures, work zones, traffic control, construction sites, safety barriers, road blocks, traffic cones, warning systems, hazard indicators, construction alerts, safety measures, traffic management, road maintenance, construction notifications, safety protocols, work zone indicators, and transportation safety systems.
+
+### baseball
+**Import:** `import { Baseball } from 'phosphor-svelte';`
+**Description:** Baseball sport equipment for sports and games applications. Used in sports management systems, game tracking, athletic applications, baseball leagues, MLB content, sports statistics, game schedules, team management, player tracking, sports analytics, athletic performance, sports betting, fantasy sports, sports news, recreational activities, sports equipment, athletic gear, team sports, competitive sports, and sports entertainment systems.
+
+### baseball-cap
+**Import:** `import { BaseballCap } from 'phosphor-svelte';`
+**Description:** Casual headwear for clothing and fashion applications. Used in e-commerce systems, clothing stores, fashion apps, apparel management, hat collections, sports merchandise, casual wear, clothing accessories, fashion items, headwear, caps, sports apparel, team merchandise, fashion retail, clothing catalogs, wardrobe management, style applications, fashion commerce, apparel shopping, and clothing inventory systems.
+
+### baseball-helmet
+**Import:** `import { BaseballHelmet } from 'phosphor-svelte';`
+**Description:** Protective sports equipment for baseball safety and athletics. Used in sports safety systems, athletic equipment management, sports gear tracking, safety equipment, protective gear, baseball equipment, sports safety protocols, athletic protection, sports medicine, injury prevention, safety compliance, sports equipment inventory, athletic safety standards, protective equipment management, and sports safety applications.
+
+### basket
+**Import:** `import { Basket } from 'phosphor-svelte';`
+**Description:** Shopping container for e-commerce and retail applications. Used in online shopping systems, e-commerce platforms, shopping carts, retail applications, grocery shopping, market systems, checkout processes, shopping baskets, product collection, item storage, purchase tracking, shopping lists, retail management, marketplace applications, buying processes, shopping experiences, retail commerce, product containers, and consumer shopping interfaces.
+
+### basketball
+**Import:** `import { Basketball } from 'phosphor-svelte';`
+**Description:** Basketball sport equipment for athletic and entertainment applications. Used in sports management systems, basketball leagues, NBA content, sports tracking, athletic applications, game statistics, sports analytics, team management, player performance, sports betting, fantasy basketball, sports entertainment, recreational activities, sports equipment, athletic gear, competitive sports, basketball tournaments, and sports gaming applications.
+
+### bathtub
+**Import:** `import { Bathtub } from 'phosphor-svelte';`
+**Description:** Bathroom fixture for home and hospitality applications. Used in real estate systems, hotel management, home improvement apps, bathroom design, property listings, accommodation services, home features, bathroom amenities, plumbing systems, home renovation, interior design, property management, hospitality services, home maintenance, bathroom accessories, bathing facilities, home comfort features, and residential property applications.
+
+### battery-charging
+**Import:** `import { BatteryCharging } from 'phosphor-svelte';`
+**Description:** Device power indicator showing active charging status. Used in system interfaces, mobile applications, device management, power monitoring, charging status, energy management, battery health, power systems, device status indicators, charging progress, power consumption, energy tracking, device diagnostics, system monitoring, power optimization, charging notifications, battery management, and power status displays.
+
+### battery-charging-vertical
+**Import:** `import { BatteryChargingVertical } from 'phosphor-svelte';`
+**Description:** Vertical orientation battery charging indicator for system interfaces. Used in mobile applications, system status bars, device management, power monitoring, vertical UI layouts, charging status displays, battery health indicators, power system interfaces, energy management systems, device status monitoring, charging progress tracking, power consumption displays, battery diagnostics, and vertical-oriented charging status indicators.
+
+### battery-empty
+**Import:** `import { BatteryEmpty } from 'phosphor-svelte';`
+**Description:** Critical battery status indicator showing depleted power. Used in system alerts, low power warnings, battery management, critical status indicators, power emergency alerts, device status warnings, battery depletion notifications, power conservation modes, energy saving alerts, system warnings, device management, power status displays, battery health monitoring, critical power levels, emergency power indicators, and low battery notifications.
+
+### battery-full
+**Import:** `import { BatteryFull } from 'phosphor-svelte';`
+**Description:** Maximum battery capacity indicator showing complete charge. Used in system interfaces, power status displays, battery management, full charge notifications, power optimization, energy management, device status indicators, charging completion alerts, battery health monitoring, power system interfaces, energy tracking, device diagnostics, system monitoring, power consumption displays, and fully charged status indicators.
+
+### battery-high
+**Import:** `import { BatteryHigh } from 'phosphor-svelte';`
+**Description:** High battery level indicator for power management systems. Used in system interfaces, power monitoring, battery status displays, device management, energy tracking, power optimization, battery health indicators, system status bars, power consumption monitoring, energy management systems, device diagnostics, power level displays, charging status tracking, and high power level indicators.
+
+### battery-low
+**Import:** `import { BatteryLow } from 'phosphor-svelte';`
+**Description:** Low battery warning indicator for power conservation alerts. Used in system warnings, power saving modes, battery alerts, low power notifications, energy conservation systems, power management interfaces, battery health monitoring, device status warnings, power optimization alerts, energy saving reminders, system notifications, power level warnings, battery conservation modes, and low power status indicators.
+
+### battery-medium
+**Import:** `import { BatteryMedium } from 'phosphor-svelte';`
+**Description:** Medium battery level indicator for power status monitoring. Used in system interfaces, power management, battery status displays, device monitoring, energy tracking, power optimization, battery health indicators, system status bars, power consumption displays, energy management systems, device diagnostics, power level monitoring, charging status tracking, and moderate power level indicators.
+
+### battery-plus
+**Import:** `import { BatteryPlus } from 'phosphor-svelte';`
+**Description:** Battery addition or enhancement indicator for power systems. Used in power management interfaces, battery optimization systems, power enhancement features, energy boosting applications, battery upgrade indicators, power addition systems, energy enhancement tools, battery management utilities, power optimization features, energy improvement systems, battery enhancement applications, and power augmentation interfaces.
+
+### battery-plus-vertical
+**Import:** `import { BatteryPlusVertical } from 'phosphor-svelte';`
+**Description:** Vertical battery enhancement indicator for power management. Used in vertical UI layouts, mobile interfaces, power optimization systems, battery enhancement features, energy management applications, power addition tools, battery upgrade systems, energy boosting interfaces, power improvement features, battery optimization utilities, and vertical-oriented power enhancement displays.
+
+### battery-vertical-empty
+**Import:** `import { BatteryVerticalEmpty } from 'phosphor-svelte';`
+**Description:** Vertical empty battery indicator for mobile and system interfaces. Used in mobile applications, system status displays, vertical UI layouts, critical battery warnings, power depletion alerts, battery emergency indicators, low power notifications, energy conservation alerts, power management systems, device status warnings, battery health monitoring, and vertical-oriented empty battery displays.
+
+### battery-vertical-full
+**Import:** `import { BatteryVerticalFull } from 'phosphor-svelte';`
+**Description:** Vertical full battery indicator for mobile system interfaces. Used in mobile applications, system status bars, vertical UI layouts, full charge indicators, power status displays, battery management systems, energy tracking interfaces, device status monitoring, charging completion notifications, power optimization displays, battery health indicators, and vertical-oriented full battery status.
+
+### battery-vertical-high
+**Import:** `import { BatteryVerticalHigh } from 'phosphor-svelte';`
+**Description:** Vertical high battery level indicator for mobile interfaces. Used in mobile applications, system status displays, vertical UI layouts, power monitoring systems, battery status indicators, energy management interfaces, device status bars, power level displays, battery health monitoring, charging status tracking, power optimization interfaces, and vertical-oriented high battery levels.
+
+### battery-vertical-low
+**Import:** `import { BatteryVerticalLow } from 'phosphor-svelte';`
+**Description:** Vertical low battery warning for mobile system interfaces. Used in mobile applications, power conservation alerts, vertical UI layouts, battery warning systems, low power notifications, energy saving modes, power management interfaces, battery health monitoring, device status warnings, power optimization alerts, system notifications, and vertical-oriented low battery indicators.
+
+### battery-vertical-medium
+**Import:** `import { BatteryVerticalMedium } from 'phosphor-svelte';`
+**Description:** Vertical medium battery level for mobile power monitoring. Used in mobile applications, system status displays, vertical UI layouts, power management systems, battery status tracking, energy monitoring interfaces, device status indicators, power level displays, battery health monitoring, charging progress tracking, and vertical-oriented medium battery status.
+
+### battery-warning
+**Import:** `import { BatteryWarning } from 'phosphor-svelte';`
+**Description:** Critical battery warning indicator for emergency power alerts. Used in system warnings, critical power alerts, battery emergency notifications, power conservation modes, energy crisis indicators, device warning systems, power management alerts, battery health warnings, critical status displays, emergency power notifications, system alerts, power level warnings, battery crisis indicators, and critical power status alerts.
+
+### battery-warning-vertical
+**Import:** `import { BatteryWarningVertical } from 'phosphor-svelte';`
+**Description:** Vertical critical battery warning for mobile emergency alerts. Used in mobile applications, critical power warnings, vertical UI layouts, emergency battery alerts, power crisis notifications, battery warning systems, critical status indicators, energy emergency alerts, device warning displays, power management warnings, system alerts, and vertical-oriented critical battery warnings.
+
+### beach-ball
+**Import:** `import { BeachBall } from 'phosphor-svelte';`
+**Description:** Colorful inflatable ball for recreational and party applications. Used in entertainment systems, party planning, beach activities, recreational apps, summer events, outdoor activities, children's entertainment, sports recreation, beach games, pool activities, vacation planning, leisure applications, fun activities, party supplies, recreational equipment, beach accessories, summer fun, outdoor entertainment, and recreational gaming applications.
+
+### beanie
+**Import:** `import { Beanie } from 'phosphor-svelte';`
+**Description:** Winter headwear for clothing and fashion applications. Used in e-commerce systems, clothing stores, winter apparel, fashion apps, cold weather gear, seasonal clothing, hat collections, winter accessories, clothing accessories, fashion items, headwear, winter fashion, seasonal merchandise, clothing catalogs, wardrobe management, style applications, fashion commerce, apparel shopping, winter clothing inventory, and cold weather fashion systems.
+
+### bed
+**Import:** `import { Bed } from 'phosphor-svelte';`
+**Description:** Sleeping furniture for hospitality and accommodation systems. Used in hotel booking systems, accommodation services, travel applications, lodging platforms, hospitality management, hotel amenities, bedroom furniture, sleep tracking, rest applications, accommodation features, lodging services, travel booking, hotel facilities, guest services, accommodation listings, hospitality features, sleeping arrangements, and travel accommodation systems.
+
+### beer-bottle
+**Import:** `import { BeerBottle } from 'phosphor-svelte';`
+**Description:** Alcoholic beverage container for dining and entertainment applications. Used in restaurant systems, bar management, beverage menus, dining applications, alcohol service, drink ordering, bar inventory, beverage tracking, restaurant management, hospitality services, food and beverage systems, dining experiences, bar operations, drink catalogs, beverage commerce, and restaurant point-of-sale systems.
+
+### beer-stein
+**Import:** `import { BeerStein } from 'phosphor-svelte';`
+**Description:** Traditional beer mug for dining and cultural applications. Used in restaurant systems, bar management, beverage services, cultural events, dining applications, traditional drinks, beer service, bar operations, hospitality management, food and beverage systems, cultural dining, traditional beverages, bar inventory, drink menus, beverage tracking, and cultural restaurant applications.
+
+### behance-logo
+**Import:** `import { BehanceLogo } from 'phosphor-svelte';`
+**Description:** Adobe Behance platform brand identifier for creative portfolios. Used in portfolio systems, creative platforms, design applications, social media integrations, creative networking, portfolio sharing, design showcases, creative professional platforms, artistic portfolios, design community systems, creative social networks, professional showcases, artistic platforms, design collaboration, and creative portfolio management systems.
+
+### bell
+**Import:** `import { Bell } from 'phosphor-svelte';`
+**Description:** Notification and alert system indicator for user interface elements. Used in notification systems, alert mechanisms, reminder applications, messaging platforms, system notifications, communication alerts, event reminders, notification centers, alert systems, messaging notifications, system alerts, user notifications, communication systems, notification management, alert indicators, reminder systems, messaging alerts, notification displays, and communication interfaces.
+
+### bell-ringing
+**Import:** `import { BellRinging } from 'phosphor-svelte';`
+**Description:** Active notification indicator showing ongoing alerts or calls. Used in active notification systems, incoming call indicators, urgent alert systems, ringing notifications, active alarm systems, emergency alerts, priority notifications, urgent messaging, active communication alerts, emergency notification systems, critical alerts, priority messaging, urgent notification displays, active reminder systems, and immediate attention indicators.
+
+### bell-simple
+**Import:** `import { BellSimple } from 'phosphor-svelte';`
+**Description:** Minimalist notification icon for clean interface designs. Used in simplified notification systems, clean UI designs, minimal alert interfaces, simple notification displays, basic reminder systems, streamlined alert mechanisms, minimal messaging interfaces, clean notification centers, simple alert systems, basic communication notifications, minimal reminder applications, and simplified notification management systems.
+
+### bell-simple-ringing
+**Import:** `import { BellSimpleRinging } from 'phosphor-svelte';`
+**Description:** Simplified active notification indicator for minimal interfaces. Used in clean notification systems, minimal alert displays, simple active notifications, streamlined urgent alerts, basic ringing indicators, minimal emergency notifications, clean active alert systems, simple priority notifications, basic urgent messaging, minimal critical alerts, and simplified active notification interfaces.
+
+### bell-simple-slash
+**Import:** `import { BellSimpleSlash } from 'phosphor-svelte';`
+**Description:** Disabled notifications indicator for silent mode interfaces. Used in notification management, silent mode indicators, disabled alert systems, muted notifications, quiet mode settings, notification controls, alert management, silence indicators, muted messaging, disabled reminder systems, quiet notification modes, notification preferences, alert toggles, and notification disable controls.
+
+### bell-simple-z
+**Import:** `import { BellSimpleZ } from 'phosphor-svelte';`
+**Description:** Snooze notification indicator for delayed alert systems. Used in snooze functionality, delayed notifications, postponed alerts, reminder snoozing, notification delay systems, alert postponement, snooze controls, delayed messaging, notification scheduling, alert timing controls, reminder delay options, notification timing management, and snooze notification interfaces.
+
+### bell-slash
+**Import:** `import { BellSlash } from 'phosphor-svelte';`
+**Description:** Silenced notification indicator for muted alert systems. Used in notification management, silent mode controls, muted alerts, disabled notifications, quiet mode settings, notification preferences, alert management, silence controls, muted messaging, disabled communication alerts, quiet notification systems, notification toggles, alert controls, and notification disable options.
+
+### bell-z
+**Import:** `import { BellZ } from 'phosphor-svelte';`
+**Description:** Snoozed notification indicator for delayed alert management. Used in snooze functionality, delayed notification systems, postponed alerts, notification scheduling, reminder snoozing, alert delay controls, snooze management, delayed messaging systems, notification timing, alert postponement, reminder delay options, notification scheduling interfaces, and snooze notification controls.
+
+### belt
+**Import:** `import { Belt } from 'phosphor-svelte';`
+**Description:** Clothing accessory for fashion and apparel applications. Used in e-commerce systems, clothing stores, fashion apps, apparel management, clothing accessories, fashion items, wardrobe management, style applications, fashion commerce, apparel shopping, clothing inventory, fashion retail, clothing catalogs, accessory management, fashion accessories, clothing collections, and apparel accessory systems.
+
+### bezier-curve
+**Import:** `import { BezierCurve } from 'phosphor-svelte';`
+**Description:** Vector drawing tool for design and graphics applications. Used in design software, graphics applications, vector drawing tools, path creation, curve editing, design interfaces, illustration software, graphics editors, drawing applications, vector graphics, design tools, creative software, graphics manipulation, path tools, curve tools, vector editing, and graphic design systems.
+
+### bicycle
+**Import:** `import { Bicycle } from 'phosphor-svelte';`
+**Description:** Two-wheeled vehicle for transportation and fitness applications. Used in transportation systems, fitness tracking, cycling apps, bike sharing, transportation modes, exercise tracking, fitness applications, cycling routes, bike rental systems, transportation planning, urban mobility, eco-friendly transport, cycling communities, bike navigation, fitness activities, and sustainable transportation systems.
+
+### binary
+**Import:** `import { Binary } from 'phosphor-svelte';`
+**Description:** Computer code representation for programming and development applications. Used in programming interfaces, development tools, coding applications, software development, binary data representation, programming concepts, code visualization, development systems, technical documentation, programming education, software engineering, code analysis, development environments, and technical computing applications.
+
+### binoculars
+**Import:** `import { Binoculars } from 'phosphor-svelte';`
+**Description:** Optical viewing device for search and exploration applications. Used in search functionality, exploration applications, discovery systems, observation tools, nature applications, wildlife tracking, search interfaces, exploration platforms, investigation tools, research applications, surveillance systems, monitoring interfaces, scouting applications, observation systems, and detailed viewing interfaces.# Phosphor Icons Documentation - Batch 05
+
+### biohazard
+**Import:** `import { Biohazard } from 'phosphor-svelte';`
+**Description:** A biohazard warning symbol used to indicate hazardous biological materials, contamination, quarantine areas, toxic substances, poison, dangerous materials, caution signs, safety warnings, medical waste, infectious materials, laboratory hazards, chemical danger, radioactive materials, warning labels, emergency alerts, health risks, contaminated areas, isolation protocols, safety equipment, protective gear indicators, hazmat situations, and environmental dangers.
+
+### bird
+**Import:** `import { Bird } from 'phosphor-svelte';`
+**Description:** A bird icon representing wildlife, animals, pets, nature, flying creatures, ornithology, birdwatching, avian species, feathered friends, songbirds, raptors, waterfowl, migration, flight, freedom, ecosystem, biodiversity, conservation, pet care, animal welfare, veterinary services, zoo animals, and outdoor activities.
+
+### blueprint
+**Import:** `import { Blueprint } from 'phosphor-svelte';`
+**Description:** An architectural blueprint icon representing construction plans, building designs, floor plans, technical drawings, architectural layouts, engineering schematics, construction documents, project planning, structural designs, home plans, office layouts, building construction, real estate development, property design, interior design, space planning, renovation projects, contractor work, drafting, and professional architecture services.
+
+### bluetooth
+**Import:** `import { Bluetooth } from 'phosphor-svelte';`
+**Description:** A Bluetooth connectivity icon representing wireless connections, device pairing, short-range communication, wireless technology, mobile connectivity, audio streaming, file transfer, peripheral devices, wireless headphones, speakers, keyboards, mice, IoT devices, smart devices, network connectivity, wireless protocols, device discovery, and modern communication technology.
+
+### bluetooth-connected
+**Import:** `import { BluetoothConnected } from 'phosphor-svelte';`
+**Description:** A connected Bluetooth icon indicating active wireless connection, paired devices, established communication, successful pairing, connected peripherals, active wireless link, synchronized devices, streaming audio, data transfer in progress, connected accessories, linked devices, wireless network status, and functional connectivity between devices.
+
+### bluetooth-slash
+**Import:** `import { BluetoothSlash } from 'phosphor-svelte';`
+**Description:** A disabled Bluetooth icon representing disconnected wireless connection, Bluetooth turned off, disabled connectivity, unavailable wireless, connection failure, disconnected devices, wireless issues, connectivity problems, offline mode, disabled peripherals, network disconnection, and deactivated Bluetooth functionality.
+
+### bluetooth-x
+**Import:** `import { BluetoothX } from 'phosphor-svelte';`
+**Description:** A Bluetooth error icon indicating connection errors, pairing failures, wireless connection problems, device compatibility issues, connection timeout, failed synchronization, broken wireless link, connectivity errors, device not found, pairing rejection, authentication failure, and troubleshooting wireless connections.
+
+### boat
+**Import:** `import { Boat } from 'phosphor-svelte';`
+**Description:** A boat icon representing water transportation, maritime travel, sailing, cruises, ferries, ships, vessels, nautical activities, water sports, boating, marine transportation, harbor services, dock facilities, yacht clubs, fishing boats, passenger ferries, cargo ships, naval vessels, recreational boating, water taxis, maritime commerce, and coastal transportation.
+
+### bomb
+**Import:** `import { Bomb } from 'phosphor-svelte';`
+**Description:** A bomb icon used in gaming contexts, representing explosive devices, grenades, dynamite, demolition, warfare, weapons, military equipment, combat games, action games, destruction, blast effects, timed explosives, fuses, dangerous materials, and gaming elements requiring caution or explosive mechanics.
+
+### bone
+**Import:** `import { Bone } from 'phosphor-svelte';`
+**Description:** A bone icon representing skeletal system, anatomy, medical imagery, veterinary care, pet treats, dog bones, animal health, orthopedics, fractures, calcium, skeletal structure, medical diagnosis, X-rays, bone density, pet supplies, dog toys, animal nutrition, and health-related applications.
+
+### book
+**Import:** `import { Book } from 'phosphor-svelte';`
+**Description:** A book icon representing reading, literature, education, libraries, novels, textbooks, reference materials, study guides, academic resources, publications, manuscripts, journals, documentation, learning materials, bookstores, literacy, knowledge, wisdom, storytelling, authors, publishers, educational content, and reading applications.
+
+### book-bookmark
+**Import:** `import { BookBookmark } from 'phosphor-svelte';`
+**Description:** A book with bookmark icon representing saved reading progress, bookmarked pages, favorite books, reading lists, marked content, saved literature, reading preferences, favorite passages, study materials, reference points, saved articles, reading history, library favorites, bookmarks, placeholders, and personalized reading experiences.
+
+### book-open
+**Import:** `import { BookOpen } from 'phosphor-svelte';`
+**Description:** An open book icon representing active reading, current literature, opened textbooks, study sessions, educational materials, learning in progress, accessible knowledge, reading activities, open publications, available content, active learning, educational resources, study guides, reference materials, and engaged reading experiences.
+
+### book-open-text
+**Import:** `import { BookOpenText } from 'phosphor-svelte';`
+**Description:** An open book with text icon representing readable content, textbooks, educational materials, study resources, written literature, accessible text, reading materials, informational content, documentation, manuals, guides, instructional materials, reference books, academic texts, and detailed written information.
+
+### book-open-user
+**Import:** `import { BookOpenUser } from 'phosphor-svelte';`
+**Description:** An open book with user icon representing personalized reading, user guides, instruction manuals, personal libraries, customized content, reader profiles, accessible reading materials, easy-to-read formats, user-friendly documentation, personalized learning, individual study materials, and reader-centric educational resources.
+
+### bookmark
+**Import:** `import { Bookmark } from 'phosphor-svelte';`
+**Description:** A bookmark icon representing saved items, favorites, bookmarked content, saved pages, reading placeholders, favorite articles, saved resources, marked content, personal collections, reading lists, saved links, favorite websites, marked references, preserved content, and user preferences for quick access.
+
+### bookmark-simple
+**Import:** `import { BookmarkSimple } from 'phosphor-svelte';`
+**Description:** A simple bookmark icon representing basic favorites, simple saved items, minimal bookmarks, clean saved content, straightforward favorites, basic placeholders, simple saved references, minimal favorite markers, clean bookmark design, and simplified content saving functionality.
+
+### bookmarks
+**Import:** `import { Bookmarks } from 'phosphor-svelte';`
+**Description:** Multiple bookmarks icon representing collections of favorites, saved items list, bookmark collections, favorite content groups, multiple saved pages, bookmark folders, organized favorites, saved content library, reading collections, and comprehensive bookmark management systems.
+
+### bookmarks-simple
+**Import:** `import { BookmarksSimple } from 'phosphor-svelte';`
+**Description:** Simple multiple bookmarks icon representing basic favorite collections, minimal saved items, clean bookmark lists, simple favorite groups, straightforward saved content, basic bookmark organization, and simplified favorite content management.
+
+### books
+**Import:** `import { Books } from 'phosphor-svelte';`
+**Description:** Multiple books icon representing libraries, book collections, educational resources, literature collections, bookstores, reading materials, academic resources, reference materials, study collections, literary works, educational institutions, knowledge repositories, learning resources, and comprehensive reading collections.
+
+### boot
+**Import:** `import { Boot } from 'phosphor-svelte';`
+**Description:** A boot icon representing footwear, hiking boots, work boots, outdoor gear, hiking equipment, sports footwear, protective footwear, safety boots, outdoor activities, adventure gear, rugged footwear, athletic shoes, exercise equipment, outdoor sports, winter gear, and durable footwear for various activities.
+
+### boules
+**Import:** `import { Boules } from 'phosphor-svelte';`
+**Description:** Boules balls icon representing pétanque, bocce ball, lawn bowls, boule lyonnaise, raffa, recreational sports, outdoor games, precision sports, traditional games, competitive sports, leisure activities, park games, social sports, tournament games, skilled sports, and Mediterranean recreational activities.
+
+### bounding-box
+**Import:** `import { BoundingBox } from 'phosphor-svelte';`
+**Description:** A bounding box icon representing design elements, geometric shapes, selection tools, drawing boundaries, design frames, layout guides, object boundaries, graphic design tools, shape outlines, rectangular frames, design constraints, layout elements, selection areas, and graphical interface elements.
+
+### bowl-food
+**Import:** `import { BowlFood } from 'phosphor-svelte';`
+**Description:** A food bowl icon representing meals, dining, restaurants, food service, ramen, soup, cooking, culinary arts, food delivery, meal planning, nutrition, eating, restaurant locations, dining experiences, food preparation, meal services, and gastronomic offerings.
+
+### bowl-steam
+**Import:** `import { BowlSteam } from 'phosphor-svelte';`
+**Description:** A steaming bowl icon representing hot food, fresh meals, warm dishes, cooking, hot soup, steaming food, restaurant service, hot meals, food temperature, freshly prepared dishes, culinary heat, dining warmth, meal preparation, and hot food service.
+
+### bowling-ball
+**Import:** `import { BowlingBall } from 'phosphor-svelte';`
+**Description:** A bowling ball icon representing bowling sports, recreational activities, bowling alleys, sports entertainment, leisure activities, competitive bowling, recreational sports, family entertainment, sports equipment, bowling leagues, recreational venues, and social sporting activities.
+
+### box-arrow-down
+**Import:** `import { BoxArrowDown } from 'phosphor-svelte';`
+**Description:** A box with down arrow icon representing downloads, file downloads, saving content, archiving data, storing files, download actions, content retrieval, data export, file storage, backup operations, saving documents, archived content, downloaded materials, and file management operations.
+
+### box-arrow-up
+**Import:** `import { BoxArrowUp } from 'phosphor-svelte';`
+**Description:** A box with up arrow icon representing uploads, file uploads, content upload, data export, unarchiving, file sharing, cloud uploads, content publishing, data transfer, file extraction, upload actions, content distribution, and file management operations.
+
+### boxing-glove
+**Import:** `import { BoxingGlove } from 'phosphor-svelte';`
+**Description:** A boxing glove icon representing boxing sports, combat sports, martial arts, fighting, gym equipment, fitness training, sports equipment, competitive fighting, athletic training, physical fitness, combat training, sports competition, exercise equipment, and athletic activities.
+
+### brackets-angle
+**Import:** `import { BracketsAngle } from 'phosphor-svelte';`
+**Description:** Angle brackets icon representing code syntax, programming symbols, HTML tags, markup languages, coding elements, development tools, syntax highlighting, code editors, programming languages, web development, XML tags, template syntax, and code formatting elements.
+
+### brackets-curly
+**Import:** `import { BracketsCurly } from 'phosphor-svelte';`
+**Description:** Curly brackets icon representing code blocks, programming syntax, JavaScript objects, JSON data, code structure, function blocks, object notation, programming languages, code organization, syntax elements, data structures, and development environments.
+
+### brackets-round
+**Import:** `import { BracketsRound } from 'phosphor-svelte';`
+**Description:** Round brackets (parentheses) icon representing function parameters, mathematical expressions, code syntax, programming elements, grouping symbols, function calls, mathematical operations, expression grouping, and coding syntax elements.
+
+### brackets-square
+**Import:** `import { BracketsSquare } from 'phosphor-svelte';`
+**Description:** Square brackets icon representing array syntax, list elements, programming arrays, data structures, indexing, array notation, coding elements, list data, collection syntax, programming languages, data organization, and array operations.
+
+### brain
+**Import:** `import { Brain } from 'phosphor-svelte';`
+**Description:** A brain icon representing intelligence, thinking, mental health, cognition, psychology, neurology, learning, memory, consciousness, mental processes, artificial intelligence, decision making, problem solving, creativity, knowledge, wisdom, mental wellness, neurological health, and cognitive functions.
+
+### brandy
+**Import:** `import { Brandy } from 'phosphor-svelte';`
+**Description:** A brandy glass icon representing alcoholic beverages, spirits, cocktails, bars, restaurants, dining, liquor, whiskey, cognac, fine spirits, beverage service, drinking establishments, hospitality, adult beverages, luxury drinks, and social drinking contexts.
+
+### bread
+**Import:** `import { Bread } from 'phosphor-svelte';`
+**Description:** A bread icon representing baked goods, bakery items, food staples, meal ingredients, sandwiches, toast, loaves, sliced bread, gluten products, carbohydrates, food service, bakery products, meal preparation, nutrition, and basic food items.
+
+### bridge
+**Import:** `import { Bridge } from 'phosphor-svelte';`
+**Description:** A bridge icon representing transportation infrastructure, travel routes, crossing points, architectural structures, connectivity, transportation networks, civil engineering, road infrastructure, travel connections, structural engineering, and transportation pathways.
+
+### briefcase
+**Import:** `import { Briefcase } from 'phosphor-svelte';`
+**Description:** A briefcase icon representing business, professional work, office equipment, business travel, corporate life, work accessories, professional gear, business documents, office supplies, work portfolios, business meetings, corporate travel, and professional environments.
+
+### briefcase-metal
+**Import:** `import { BriefcaseMetal } from 'phosphor-svelte';`
+**Description:** A metal briefcase icon representing secure document storage, professional security, important documents, business security, protective storage, valuable items, secure transport, professional protection, business valuables, and secure business equipment.
+
+### broadcast
+**Import:** `import { Broadcast } from 'phosphor-svelte';`
+**Description:** A broadcast icon representing radio transmission, wireless signals, broadcasting, communication networks, radio waves, signal transmission, wireless connectivity, hotspot signals, WiFi broadcasting, network signals, transmission towers, and wireless communication systems.
+
+### broom
+**Import:** `import { Broom } from 'phosphor-svelte';`
+**Description:** A broom icon representing cleaning, housekeeping, janitorial services, maintenance, cleanliness, home cleaning, commercial cleaning, cleaning supplies, custodial work, hygiene, sanitation, cleaning equipment, and household maintenance activities.
+
+### browser
+**Import:** `import { Browser } from 'phosphor-svelte';`
+**Description:** A web browser icon representing internet browsing, web applications, websites, online content, internet access, web interfaces, browser windows, web navigation, online services, internet tools, web development, and digital web experiences.
+
+### browsers
+**Import:** `import { Browsers } from 'phosphor-svelte';`
+**Description:** Multiple browsers icon representing multiple web windows, browser tabs, web multitasking, concurrent browsing, multiple websites, browser management, web interface organization, and comprehensive web browsing experiences.
+
+### bug
+**Import:** `import { Bug } from 'phosphor-svelte';`
+**Description:** A bug icon representing software debugging, code errors, programming issues, software testing, quality assurance, error reporting, troubleshooting, code problems, software bugs, development issues, testing processes, error handling, and software quality control.
+
+### bug-beetle
+**Import:** `import { BugBeetle } from 'phosphor-svelte';`
+**Description:** A beetle bug icon representing software debugging, code errors, programming bugs, development issues, error tracking, software testing, quality assurance, troubleshooting, code problems, debugging processes, and software development challenges.
+
+### bug-droid
+**Import:** `import { BugDroid } from 'phosphor-svelte';`
+**Description:** An Android-style bug icon representing mobile app debugging, Android development issues, mobile software bugs, app testing, mobile development, Android programming errors, mobile app quality assurance, and Android-specific development problems.
+
+### building
+**Import:** `import { Building } from 'phosphor-svelte';`
+**Description:** A building icon representing corporate structures, office buildings, commercial properties, business locations, architectural structures, real estate, commercial real estate, office spaces, business premises, corporate facilities, and commercial buildings.
+
+### building-apartment
+**Import:** `import { BuildingApartment } from 'phosphor-svelte';`
+**Description:** An apartment building icon representing residential properties, housing, apartment complexes, residential real estate, living spaces, rental properties, housing developments, residential buildings, multi-family housing, and residential accommodations.
+
+### building-office
+**Import:** `import { BuildingOffice } from 'phosphor-svelte';`
+**Description:** An office building icon representing corporate headquarters, business centers, commercial office space, professional buildings, corporate facilities, business districts, office complexes, commercial real estate, and professional work environments.
+
+### buildings
+**Import:** `import { Buildings } from 'phosphor-svelte';`
+**Description:** Multiple buildings icon representing urban landscapes, city skylines, commercial districts, business centers, urban development, metropolitan areas, commercial zones, corporate districts, real estate developments, and urban commercial areas.### bulldozer
+**Import:** `import { Bulldozer } from 'phosphor-svelte';`
+**Description:** Heavy construction vehicle icon representing bulldozers, earth movers, excavators, and construction equipment. Perfect for construction industry applications, heavy machinery catalogs, infrastructure projects, demolition services, and earthmoving operations. Categorized under: commerce, objects. Related terms: vehicles, construction, earth mover, dig, digger.
+
+### bus
+**Import:** `import { Bus } from 'phosphor-svelte';`
+**Description:** Public transportation vehicle icon representing buses, coaches, transit systems, and mass transportation. Ideal for travel applications, public transit maps, transportation services, commuter apps, city planning, and mobility solutions. Categorized under: maps & travel, objects. Related terms: vehicles, automobile, public transit, transportation, commuter, traveling, places, locations.
+
+### butterfly
+**Import:** `import { Butterfly } from 'phosphor-svelte';`
+**Description:** Delicate winged insect icon representing butterflies, moths, metamorphosis, and nature. Perfect for nature applications, garden centers, environmental projects, spring themes, transformation concepts, and wildlife education. Categorized under: nature. Related terms: animals, insects, moth.
+
+### cable-car
+**Import:** `import { CableCar } from 'phosphor-svelte';`
+**Description:** Mountain transportation icon representing cable cars, gondolas, ski lifts, and aerial transit systems. Ideal for ski resorts, mountain tourism, winter sports applications, transportation systems, and recreational travel. Categorized under: maps & travel, objects. Related terms: vehicles, gondola, skiing, mountains, public transit, transportation, commuter, traveling, places, locations.
+
+### cactus
+**Import:** `import { Cactus } from 'phosphor-svelte';`
+**Description:** Desert plant icon representing cacti, succulents, arid environments, and southwestern themes. Perfect for gardening applications, desert landscaping, plant care guides, western themes, and botanical references. Categorized under: nature. Related terms: plants, cacti, desert, western.
+
+### cake
+**Import:** `import { Cake } from 'phosphor-svelte';`
+**Description:** Celebration dessert icon representing birthday cakes, wedding cakes, pastries, and festive treats. Ideal for bakery applications, party planning, celebration events, catering services, and food-related interfaces. Categorized under: objects. Related terms: dessert, birthday, celebration, event.
+
+### calculator
+**Import:** `import { Calculator } from 'phosphor-svelte';`
+**Description:** Mathematical computation device icon representing calculators, arithmetic operations, financial calculations, and mathematical tools. Perfect for accounting software, educational applications, finance apps, mathematical interfaces, and computational tools. Categorized under: technology & development, finances, office, objects. Related terms: addition, sum, subtraction, difference, multiply, multiplication, product, divide, division, divisor.
+
+### calendar
+**Import:** `import { Calendar } from 'phosphor-svelte';`
+**Description:** Calendar icon representing dates, schedules, appointments, events, and time management. Perfect for scheduling applications, appointment systems, date pickers, event planning, and productivity tools. Categorized under: office, system. Related terms: dates, times, events, schedule, 12.
+
+### calendar-blank
+**Import:** `import { CalendarBlank } from 'phosphor-svelte';`
+**Description:** Empty calendar icon representing blank schedules, new planning periods, unscheduled time, and fresh starts. Ideal for scheduling applications, appointment systems, and planning interfaces. Categorized under: office, system. Related terms: dates, times, events, schedule, none.
+
+### calendar-check
+**Import:** `import { CalendarCheck } from 'phosphor-svelte';`
+**Description:** Task calendar icon representing completed events, scheduled tasks, appointment confirmations, and milestone tracking. Perfect for task management, appointment systems, and productivity applications. Categorized under: office, system. Related terms: dates, times, events, schedule, todo, checklist.
+
+### calendar-dot
+**Import:** `import { CalendarDot } from 'phosphor-svelte';`
+**Description:** Calendar with single event marker representing today's date, current events, highlighted dates, and active schedules. Ideal for current date indicators and active schedule displays. Categorized under: office, system. Related terms: dates, times, events, schedule, today.
+
+### calendar-dots
+**Import:** `import { CalendarDots } from 'phosphor-svelte';`
+**Description:** Calendar with multiple event markers representing busy schedules, multiple events, recurring appointments, and active planning periods. Perfect for schedule management and event tracking. Categorized under: office, system. Related terms: dates, times, events, schedule.
+
+### calendar-heart
+**Import:** `import { CalendarHeart } from 'phosphor-svelte';`
+**Description:** Favorite calendar icon representing important dates, loved events, special occasions, and memorable appointments. Ideal for personal planning and special event management. Categorized under: office, system. Related terms: dates, times, events, schedule, favorite, star.
+
+### calendar-minus
+**Import:** `import { CalendarMinus } from 'phosphor-svelte';`
+**Description:** Calendar removal icon representing event deletion, schedule cancellation, appointment removal, and calendar cleanup. Perfect for schedule management and event editing. Categorized under: office, system. Related terms: dates, times, events, schedule, remove, delete.
+
+### calendar-plus
+**Import:** `import { CalendarPlus } from 'phosphor-svelte';`
+**Description:** Calendar addition icon representing new events, appointment scheduling, event creation, and schedule expansion. Ideal for adding new appointments and event planning. Categorized under: office, system. Related terms: dates, times, events, schedule, add.
+
+### calendar-slash
+**Import:** `import { CalendarSlash } from 'phosphor-svelte';`
+**Description:** Disabled calendar icon representing unavailable dates, cancelled schedules, blocked time periods, and suspended planning. Perfect for unavailable time slots and cancelled events. Categorized under: office, system. Related terms: dates, times, events, schedule, remove, delete, cancel. unavailable.
+
+### calendar-star
+**Import:** `import { CalendarStar } from 'phosphor-svelte';`
+**Description:** Starred calendar icon representing important events, priority appointments, featured dates, and highlighted schedules. Ideal for priority event management and important date marking. Categorized under: office, system. Related terms: dates, times, events, schedule, favorite, star.
+
+### calendar-x
+**Import:** `import { CalendarX } from 'phosphor-svelte';`
+**Description:** Cancelled calendar icon representing closed schedules, cancelled events, unavailable periods, and blocked appointments. Perfect for cancelled appointments and closed scheduling. Categorized under: office, system. Related terms: dates, times, events, schedule, closed, cancelled.
+
+### call-bell
+**Import:** `import { CallBell } from 'phosphor-svelte';`
+**Description:** Service bell icon representing customer service, hotel reception, concierge assistance, and attendant calls. Perfect for hospitality applications, service industries, customer support, and assistance request systems. Categorized under: maps & travel, objects. Related terms: service bell, reception, attendant, concierge bell.
+
+### camera
+**Import:** `import { Camera } from 'phosphor-svelte';`
+**Description:** Photography device icon representing cameras, image capture, photo taking, and visual media. Perfect for photography applications, media capture interfaces, image galleries, and camera controls. Categorized under: media, system, objects. Related terms: photography, pictures, lens.
+
+### camera-plus
+**Import:** `import { CameraPlus } from 'phosphor-svelte';`
+**Description:** Add photo icon representing photo addition, new image capture, album expansion, and media upload. Perfect for photo galleries, media management, and image upload interfaces. Categorized under: media, system. Related terms: photography, pictures, album, add.
+
+### camera-rotate
+**Import:** `import { CameraRotate } from 'phosphor-svelte';`
+**Description:** Camera rotation icon representing selfie mode, front/back camera switch, image orientation, and camera flip functionality. Ideal for camera applications and photo editing tools. Categorized under: media, system. Related terms: photography, pictures, orientation, portrait, landscape, selfie, flip.
+
+### camera-slash
+**Import:** `import { CameraSlash } from 'phosphor-svelte';`
+**Description:** Disabled camera icon representing photography restrictions, camera off mode, privacy protection, and media blocking. Perfect for privacy settings and restricted photography areas. Categorized under: media, system. Related terms: photography, pictures, lens, disabled.
+
+### campfire
+**Import:** `import { Campfire } from 'phosphor-svelte';`
+**Description:** Outdoor fire icon representing campfires, bonfire gatherings, outdoor cooking, and wilderness activities. Ideal for camping applications, outdoor recreation, nature activities, and adventure planning. Categorized under: nature. Related terms: camping, flame, bonfire, outdoors.
+
+### car
+**Import:** `import { Car } from 'phosphor-svelte';`
+**Description:** Automobile icon representing cars, vehicles, personal transportation, and automotive travel. Perfect for transportation applications, ride-sharing services, automotive industries, and travel planning. Categorized under: maps & travel, objects. Related terms: cars, vehicles, automobile, transit, transportation, traveling.
+
+### car-battery
+**Import:** `import { CarBattery } from 'phosphor-svelte';`
+**Description:** Automotive battery icon representing car batteries, electrical power, vehicle charging, and automotive maintenance. Perfect for automotive services, electric vehicle applications, and car maintenance tools. Categorized under: commerce, objects. Related terms: charged, charger, charging, power, voltage, electricity.
+
+### car-profile
+**Import:** `import { CarProfile } from 'phosphor-svelte';`
+**Description:** Side view car icon representing vehicle profiles, automotive design, car specifications, and vehicle identification. Ideal for automotive catalogs, car comparison tools, and vehicle documentation. Categorized under: maps & travel, objects. Related terms: cars, vehicles, automobile, transit, transportation, traveling.
+
+### car-simple
+**Import:** `import { CarSimple } from 'phosphor-svelte';`
+**Description:** Simplified car icon representing basic vehicles, transportation options, automotive symbols, and minimal car graphics. Perfect for simple transportation interfaces and clean automotive designs. Categorized under: maps & travel, objects. Related terms: cars, vehicles, automobile, transit, transportation, traveling.
+
+### cardholder
+**Import:** `import { Cardholder } from 'phosphor-svelte';`
+**Description:** Wallet accessory icon representing card holders, payment organization, credit card storage, and financial accessories. Ideal for payment applications, wallet organization, and financial management tools. Categorized under: commerce, finances, objects. Related terms: wallet, money, payment, paying, purchase.
+
+### cards
+**Import:** `import { Cards } from 'phosphor-svelte';`
+**Description:** Card layout icon representing content cards, interface cards, layout systems, and organized content. Perfect for card-based designs, content management, and interface layouts. Categorized under: design, system. Related terms: card, slides, slideshow, windows, website, webpage, layers.
+
+### cards-three
+**Import:** `import { CardsThree } from 'phosphor-svelte';`
+**Description:** Layered cards icon representing stacked content, multiple cards, layered interfaces, and content organization. Perfect for card-based layouts, content stacking, and multi-layer designs. Categorized under: design, system. Related terms: card, slides, slideshow, windows, website, webpage, layers, stack.
+
+### caret-circle-double-down
+**Import:** `import { CaretCircleDoubleDown } from 'phosphor-svelte';`
+**Description:** Circular double caret icon representing downward navigation with emphasis, rapid movement controls, skip functions, and accelerated directional actions. Perfect for media players, pagination controls, and quick navigation interfaces. Categorized under: arrows. Related terms: chevron, directional, pointer, pointing, arrowhead, triangle.
+
+### caret-circle-double-left
+**Import:** `import { CaretCircleDoubleLeft } from 'phosphor-svelte';`
+**Description:** Circular double caret icon representing leftward navigation with emphasis, rapid movement controls, skip functions, and accelerated directional actions. Perfect for media players, pagination controls, and quick navigation interfaces. Categorized under: arrows. Related terms: chevron, directional, pointer, pointing, arrowhead, triangle.
+
+### caret-circle-double-right
+**Import:** `import { CaretCircleDoubleRight } from 'phosphor-svelte';`
+**Description:** Circular double caret icon representing rightward navigation with emphasis, rapid movement controls, skip functions, and accelerated directional actions. Perfect for media players, pagination controls, and quick navigation interfaces. Categorized under: arrows. Related terms: chevron, directional, pointer, pointing, arrowhead, triangle.
+
+### caret-circle-double-up
+**Import:** `import { CaretCircleDoubleUp } from 'phosphor-svelte';`
+**Description:** Circular double caret icon representing upward navigation with emphasis, rapid movement controls, skip functions, and accelerated directional actions. Perfect for media players, pagination controls, and quick navigation interfaces. Categorized under: arrows. Related terms: chevron, directional, pointer, pointing, arrowhead, triangle.
+
+### caret-circle-down
+**Import:** `import { CaretCircleDown } from 'phosphor-svelte';`
+**Description:** Circular caret icon representing downward navigation, directional buttons, menu controls, and enclosed directional indicators. Perfect for navigation menus, dropdown controls, and directional interfaces. Categorized under: arrows. Related terms: chevron, directional, pointer, pointing, arrowhead, triangle.
+
+### caret-circle-left
+**Import:** `import { CaretCircleLeft } from 'phosphor-svelte';`
+**Description:** Circular caret icon representing leftward navigation, directional buttons, menu controls, and enclosed directional indicators. Perfect for navigation menus, dropdown controls, and directional interfaces. Categorized under: arrows. Related terms: chevron, directional, pointer, pointing, arrowhead, triangle.
+
+### caret-circle-right
+**Import:** `import { CaretCircleRight } from 'phosphor-svelte';`
+**Description:** Circular caret icon representing rightward navigation, directional buttons, menu controls, and enclosed directional indicators. Perfect for navigation menus, dropdown controls, and directional interfaces. Categorized under: arrows. Related terms: chevron, directional, pointer, pointing, arrowhead, triangle.
+
+### caret-circle-up
+**Import:** `import { CaretCircleUp } from 'phosphor-svelte';`
+**Description:** Circular caret icon representing upward navigation, directional buttons, menu controls, and enclosed directional indicators. Perfect for navigation menus, dropdown controls, and directional interfaces. Categorized under: arrows. Related terms: chevron, directional, pointer, pointing, arrowhead, triangle.
+
+### caret-circle-up-down
+**Import:** `import { CaretCircleUpDown } from 'phosphor-svelte';`
+**Description:** Bidirectional circular caret icon representing vertical movement, sorting controls, reordering functions, and two-way navigation. Ideal for list management, content sorting, and bidirectional controls. Categorized under: arrows. Related terms: chevron, directional, pointer, pointing, arrowhead, triangle.
+
+### caret-double-down
+**Import:** `import { CaretDoubleDown } from 'phosphor-svelte';`
+**Description:** Double caret icon representing fast downward movement, skip functions, rapid navigation, and accelerated controls. Ideal for media players, pagination systems, and quick navigation tools. Categorized under: arrows. Related terms: chevron, directional, pointer, pointing, arrowhead, triangle.
+
+### caret-double-left
+**Import:** `import { CaretDoubleLeft } from 'phosphor-svelte';`
+**Description:** Double caret icon representing fast leftward movement, skip functions, rapid navigation, and accelerated controls. Ideal for media players, pagination systems, and quick navigation tools. Categorized under: arrows. Related terms: chevron, directional, pointer, pointing, arrowhead, triangle.
+
+### caret-double-right
+**Import:** `import { CaretDoubleRight } from 'phosphor-svelte';`
+**Description:** Double caret icon representing fast rightward movement, skip functions, rapid navigation, and accelerated controls. Ideal for media players, pagination systems, and quick navigation tools. Categorized under: arrows. Related terms: chevron, directional, pointer, pointing, arrowhead, triangle.
+
+### caret-double-up
+**Import:** `import { CaretDoubleUp } from 'phosphor-svelte';`
+**Description:** Double caret icon representing fast upward movement, skip functions, rapid navigation, and accelerated controls. Ideal for media players, pagination systems, and quick navigation tools. Categorized under: arrows. Related terms: chevron, directional, pointer, pointing, arrowhead, triangle.
+
+### caret-down
+**Import:** `import { CaretDown } from 'phosphor-svelte';`
+**Description:** Caret icon representing downward navigation, dropdown indicators, menu expansion, and directional controls. Perfect for navigation interfaces, dropdown menus, and directional user controls. Categorized under: arrows. Related terms: chevron, directional, pointer, pointing, arrowhead, triangle.
+
+### caret-left
+**Import:** `import { CaretLeft } from 'phosphor-svelte';`
+**Description:** Caret icon representing leftward navigation, dropdown indicators, menu expansion, and directional controls. Perfect for navigation interfaces, dropdown menus, and directional user controls. Categorized under: arrows. Related terms: chevron, directional, pointer, pointing, arrowhead, triangle.
+
+### caret-line-down
+**Import:** `import { CaretLineDown } from 'phosphor-svelte';`
+**Description:** Line caret icon representing downward movement with boundary, bordered navigation, constrained direction, and linear controls. Perfect for bounded navigation systems and constrained directional interfaces. Categorized under: arrows. Related terms: chevron, directional, pointer, pointing, arrowhead, triangle.
+
+### caret-line-left
+**Import:** `import { CaretLineLeft } from 'phosphor-svelte';`
+**Description:** Line caret icon representing leftward movement with boundary, bordered navigation, constrained direction, and linear controls. Perfect for bounded navigation systems and constrained directional interfaces. Categorized under: arrows. Related terms: chevron, directional, pointer, pointing, arrowhead, triangle.
+
+### caret-line-right
+**Import:** `import { CaretLineRight } from 'phosphor-svelte';`
+**Description:** Line caret icon representing rightward movement with boundary, bordered navigation, constrained direction, and linear controls. Perfect for bounded navigation systems and constrained directional interfaces. Categorized under: arrows. Related terms: chevron, directional, pointer, pointing, arrowhead, triangle.
+
+### caret-line-up
+**Import:** `import { CaretLineUp } from 'phosphor-svelte';`
+**Description:** Line caret icon representing upward movement with boundary, bordered navigation, constrained direction, and linear controls. Perfect for bounded navigation systems and constrained directional interfaces. Categorized under: arrows. Related terms: chevron, directional, pointer, pointing, arrowhead, triangle.
+# Phosphor Icons - Batch 07 Documentation
+
+### caret-right
+**Import:** `import { CaretRight } from 'phosphor-svelte';`
+**Description:** A right-pointing caret icon, commonly used for navigation, dropdown menus, expanding content, and indicating forward movement. Perfect for accordion interfaces, menu navigation, next buttons, pagination controls, tree view expansions, carousel navigation, and breadcrumb separators. Also suitable for indicating direction in forms, showing the next step in wizards, or representing "more" or "expand" actions. Alternative terms include right arrow, chevron right, forward arrow, next indicator, directional pointer, triangle pointer, and expansion arrow.
+
+### caret-up
+**Import:** `import { CaretUp } from 'phosphor-svelte';`
+**Description:** An upward-pointing caret icon used for collapsing content, scrolling up, or indicating ascending order. Ideal for accordion headers when content is expanded, "back to top" buttons, sort indicators for ascending data, dropdown menu triggers, tooltip positioning, and upward navigation controls. Commonly used in tables for column sorting, expandable sections, vertical navigation menus, and scroll-to-top functionality. Alternative names include up arrow, chevron up, upward triangle, collapse indicator, ascending arrow, and vertical navigation pointer.
+
+### caret-up-down
+**Import:** `import { CaretUpDown } from 'phosphor-svelte';`
+**Description:** A bidirectional caret icon showing both up and down arrows, perfect for sortable columns, resizable elements, and drag-and-drop interfaces. Essential for table headers indicating sortable columns, vertical resize handles, reorderable list items, and adjustable panel dividers. Used in data tables for column sorting controls, draggable elements, accordion sections that can expand/collapse, and adjustable UI components. Also suitable for indicating bidirectional movement, vertical adjustment controls, and sortable data visualization. Alternative terms include sort arrows, bidirectional arrows, vertical arrows, resize indicator, and reorder handle.
+
+### carrot
+**Import:** `import { Carrot } from 'phosphor-svelte';`
+**Description:** A carrot vegetable icon representing healthy food, nutrition, and organic produce. Perfect for grocery apps, recipe websites, nutrition trackers, health and wellness applications, and restaurant menus featuring vegetarian options. Ideal for food delivery services, farmers market apps, diet tracking applications, cooking websites, and agricultural platforms. Also suitable for vitamin A content indicators, healthy eating campaigns, vegetable identification guides, and garden planning tools. Use in food categorization, dietary preference filters, nutrition education, and sustainable living applications. Alternative terms include orange vegetable, root vegetable, healthy food, organic produce, garden vegetable, and nutritious food.
+
+### cash-register
+**Import:** `import { CashRegister } from 'phosphor-svelte';`
+**Description:** A cash register icon representing retail transactions, point-of-sale systems, and commercial sales operations. Essential for e-commerce platforms, retail management systems, payment processing interfaces, and store management applications. Perfect for indicating checkout processes, sales transactions, retail analytics, inventory management, and customer service points. Use in restaurant POS systems, retail store apps, accounting software, sales reporting dashboards, and business management tools. Also suitable for indicating payment methods, transaction history, sales performance, and commercial operations. Alternative names include POS system, till, checkout counter, sales terminal, transaction machine, and retail register.
+
+### cassette-tape
+**Import:** `import { CassetteTape } from 'phosphor-svelte';`
+**Description:** A cassette tape icon representing vintage audio recording, music nostalgia, and analog media. Perfect for music streaming apps with retro themes, audio recording software, music production tools, and vintage-themed interfaces. Ideal for podcast applications, audio editing software, music collection organizers, and nostalgic media players. Use in music history applications, vintage audio equipment stores, sound recording studios, and retro gaming interfaces. Also suitable for representing mixtapes, audio archives, old-school music sharing, and analog audio technology. Alternative terms include audio cassette, magnetic tape, mixtape, analog recording, vintage audio, music tape, and retro media.
+
+### castle-turret
+**Import:** `import { CastleTurret } from 'phosphor-svelte';`
+**Description:** A castle turret icon representing medieval architecture, chess pieces (rook), fortifications, and strategic games. Perfect for chess applications, strategy games, historical sites, travel guides featuring castles, and medieval-themed content. Ideal for tower defense games, architectural references, historical education apps, and fantasy role-playing games. Use in travel apps highlighting castles and fortresses, chess tutorials, strategic planning tools, and gaming interfaces. Also suitable for representing security, defense, historical landmarks, and architectural heritage. Updated design makes it perfect for modern gaming interfaces and educational applications. Alternative names include rook, fortress tower, medieval tower, chess piece, defensive structure, and historical monument.
+
+### cat
+**Import:** `import { Cat } from 'phosphor-svelte';`
+**Description:** A cat icon representing feline pets, domestic animals, and pet care services. Perfect for pet adoption platforms, veterinary applications, pet care services, and animal welfare websites. Ideal for pet social media apps, cat breed identification tools, pet health trackers, and animal-themed games. Use in pet insurance applications, grooming service apps, pet supply stores, and animal shelter management systems. Also suitable for representing companionship, domestic pets, animal care, and pet-friendly establishments. Alternative terms include feline, kitten, kitty, domestic cat, pet cat, house cat, and furry companion.
+
+### cell-signal-full
+**Import:** `import { CellSignalFull } from 'phosphor-svelte';`
+**Description:** A full cellular signal strength indicator showing maximum mobile network connectivity. Essential for mobile applications, system status displays, network monitoring tools, and telecommunications interfaces. Perfect for indicating excellent reception, strong network connection, optimal call quality, and reliable data transmission. Use in mobile device dashboards, network diagnostic tools, carrier service apps, and connectivity status indicators. Also suitable for representing 5G/4G/LTE connectivity, mobile network strength, wireless communication quality, and optimal signal conditions. Alternative names include full bars, maximum signal, excellent reception, strong network, optimal connectivity, and peak signal strength.
+
+### cell-signal-high
+**Import:** `import { CellSignalHigh } from 'phosphor-svelte';`
+**Description:** A high cellular signal strength indicator showing strong mobile network connectivity with minor limitations. Perfect for mobile applications showing good but not maximum signal strength, network monitoring dashboards, and telecommunications status displays. Ideal for indicating reliable connection with occasional fluctuations, good call quality, and stable data transmission. Use in mobile device interfaces, carrier apps, network diagnostic tools, and connectivity monitoring systems. Also suitable for representing above-average signal strength, reliable wireless communication, and satisfactory network performance. Alternative terms include strong signal, good reception, reliable connectivity, high bars, and stable network connection.
+
+### cell-signal-low
+**Import:** `import { CellSignalLow } from 'phosphor-svelte';`
+**Description:** A low cellular signal strength indicator showing weak mobile network connectivity requiring attention. Essential for mobile applications warning of poor reception, network troubleshooting interfaces, and connectivity status displays. Perfect for indicating potential call quality issues, slow data transmission, and unreliable network connections. Use in mobile diagnostics, carrier service apps, network monitoring tools, and connection quality indicators. Also suitable for representing areas with limited coverage, network congestion warnings, and connectivity improvement suggestions. Alternative names include weak signal, poor reception, limited connectivity, low bars, unstable network, and marginal connection.
+
+### cell-signal-medium
+**Import:** `import { CellSignalMedium } from 'phosphor-svelte';`
+**Description:** A medium cellular signal strength indicator showing moderate mobile network connectivity with adequate performance. Perfect for mobile applications displaying average signal strength, network status dashboards, and telecommunications monitoring systems. Ideal for indicating acceptable call quality, moderate data speeds, and generally reliable connections with occasional limitations. Use in mobile device interfaces, carrier management apps, network diagnostic tools, and connectivity assessment displays. Also suitable for representing typical network performance, average signal coverage, and standard wireless communication quality. Alternative terms include moderate signal, average reception, adequate connectivity, medium bars, standard network strength, and typical signal quality.
+
+### cell-signal-none
+**Import:** `import { CellSignalNone } from 'phosphor-svelte';`
+**Description:** A no cellular signal indicator showing complete absence of mobile network connectivity. Critical for mobile applications displaying network outages, emergency communication interfaces, and connectivity troubleshooting tools. Perfect for indicating no service areas, complete signal loss, offline modes, and emergency situations. Use in mobile diagnostics, carrier service apps, network monitoring systems, and emergency preparedness applications. Also suitable for representing dead zones, network failures, airplane mode indicators, and areas requiring alternative communication methods. Alternative names include no signal, no service, zero bars, complete disconnection, network outage, and no coverage.
+
+### cell-signal-slash
+**Import:** `import { CellSignalSlash } from 'phosphor-svelte';`
+**Description:** A crossed-out cellular signal indicator representing disabled mobile connectivity or blocked network access. Essential for airplane mode indicators, parental control applications, network blocking tools, and security-focused interfaces. Perfect for showing intentionally disabled connections, network restrictions, blocked cellular access, and controlled connectivity states. Use in device management apps, security software, parental control systems, and network administration tools. Also suitable for representing disabled radios, blocked communications, restricted network access, and intentional disconnection modes. Alternative names include blocked signal, disabled cellular, network blocked, airplane mode, restricted connection, and communications disabled.
+
+### cell-signal-x
+**Import:** `import { CellSignalX } from 'phosphor-svelte';`
+**Description:** A cellular signal indicator with an X mark representing network errors, connection failures, and problematic mobile connectivity. Perfect for error states in mobile applications, network troubleshooting interfaces, and connectivity diagnostic tools. Ideal for indicating failed connections, network authentication errors, SIM card issues, and service interruptions. Use in mobile diagnostics, carrier support apps, network monitoring systems, and error reporting interfaces. Also suitable for representing network conflicts, configuration errors, service disruptions, and connectivity problems requiring technical attention. Alternative terms include signal error, connection failed, network problem, cellular failure, service error, and connectivity issue.
+
+### cell-tower
+**Import:** `import { CellTower } from 'phosphor-svelte';`
+**Description:** A cellular tower icon representing mobile network infrastructure, telecommunications equipment, and wireless broadcasting facilities. Perfect for carrier coverage maps, network infrastructure applications, telecommunications management systems, and signal source indicators. Ideal for representing 5G/4G/LTE transmission points, network planning tools, coverage area visualization, and telecommunications industry applications. Use in network monitoring dashboards, carrier service apps, infrastructure management tools, and coverage optimization systems. Also suitable for representing broadcast towers, wireless transmission, network nodes, and telecommunications infrastructure. Alternative names include cell tower, broadcast antenna, mobile transmitter, network infrastructure, wireless tower, and telecommunications mast.
+
+### certificate
+**Import:** `import { Certificate } from 'phosphor-svelte';`
+**Description:** A certificate icon representing official documentation, academic achievements, professional certifications, and formal recognition. Perfect for educational platforms, professional development apps, certification tracking systems, and achievement displays. Ideal for representing diplomas, course completions, skill certifications, awards, and professional qualifications. Use in learning management systems, HR applications, portfolio websites, and credential verification tools. Also suitable for representing compliance certificates, quality assurance documentation, official credentials, and formal achievements. Updated design enhances visibility in modern interfaces. Alternative names include diploma, certification, degree, credential, award, achievement, and official document.
+
+### chair
+**Import:** `import { Chair } from 'phosphor-svelte';`
+**Description:** A chair icon representing furniture, seating, office equipment, and interior design elements. Perfect for furniture e-commerce platforms, office management systems, interior design applications, and space planning tools. Ideal for representing office furniture, dining room sets, workspace design, and seating arrangements. Use in furniture catalogs, office supply stores, interior design software, and facility management applications. Also suitable for representing meeting rooms, desk setups, ergonomic furniture, and workplace equipment. Alternative terms include seat, office chair, furniture piece, seating solution, desk chair, and office furniture.
+
+### chalkboard
+**Import:** `import { Chalkboard } from 'phosphor-svelte';`
+**Description:** A chalkboard icon with detailed frame representing education, teaching, classroom environments, and instructional tools. Perfect for educational applications, learning management systems, teaching platforms, and academic interfaces. Ideal for representing classrooms, educational institutions, lesson planning, and instructional design. Use in school management systems, e-learning platforms, teacher resources, and educational content creation tools. Also suitable for representing training programs, workshops, presentations, and knowledge sharing environments. Alternative names include blackboard, whiteboard, classroom board, teaching board, educational display, and instructional surface.
+
+### chalkboard-simple
+**Import:** `import { ChalkboardSimple } from 'phosphor-svelte';`
+**Description:** A simplified chalkboard icon representing education, teaching, and learning in a clean, minimal design. Perfect for educational applications requiring subtle iconography, minimalist teaching platforms, and modern learning interfaces. Ideal for representing online classrooms, digital learning environments, educational content, and instructional materials. Use in e-learning applications, educational websites, teaching tools, and academic platforms where space is limited. Updated design provides better scalability and clarity in various interface contexts. Alternative names include simple blackboard, minimal whiteboard, education icon, teaching symbol, and learning indicator.
+
+### chalkboard-teacher
+**Import:** `import { ChalkboardTeacher } from 'phosphor-svelte';`
+**Description:** A chalkboard with teacher figure icon representing education professionals, classroom instruction, and teaching activities. Perfect for teacher management systems, educational staff directories, instructor profiles, and teaching platform interfaces. Ideal for representing educators, classroom management, instructional staff, and academic personnel. Use in school administration systems, teacher recruitment platforms, educational workforce management, and instructor-focused applications. Also suitable for representing teaching roles, classroom leadership, educational mentorship, and academic instruction. Alternative terms include instructor, educator, classroom teacher, academic staff, teaching professional, and educational leader.
+
+### champagne
+**Import:** `import { Champagne } from 'phosphor-svelte';`
+**Description:** A champagne glass icon representing celebrations, luxury beverages, fine dining, and special occasions. Perfect for restaurant applications, event planning platforms, celebration websites, and hospitality services. Ideal for representing alcoholic beverages, luxury dining, wedding planning, party organization, and premium experiences. Use in bar and restaurant apps, event management systems, celebration planning tools, and hospitality booking platforms. Also suitable for representing anniversaries, achievements, toasts, and milestone celebrations. Alternative names include sparkling wine, celebration drink, luxury beverage, party glass, festive drink, and celebratory alcohol.
+
+### charging-station
+**Import:** `import { ChargingStation } from 'phosphor-svelte';`
+**Description:** An electric vehicle charging station icon representing sustainable transportation, EV infrastructure, and clean energy solutions. Perfect for electric vehicle applications, charging network maps, sustainable transportation platforms, and green energy interfaces. Ideal for representing EV charging points, electric car services, sustainable mobility, and clean transportation infrastructure. Use in EV charging apps, electric vehicle management systems, sustainable transport platforms, and green technology applications. Also suitable for representing renewable energy, electric mobility, environmental consciousness, and future transportation. Alternative terms include EV charger, electric fuel station, charging point, power station, electric pump, and sustainable energy.
+
+### chart-bar
+**Import:** `import { ChartBar } from 'phosphor-svelte';`
+**Description:** A vertical bar chart icon representing data visualization, statistical analysis, and business analytics. Perfect for dashboard applications, business intelligence tools, data analysis platforms, and reporting systems. Ideal for representing performance metrics, comparative data, statistical information, and quantitative analysis. Use in analytics dashboards, business reporting tools, financial applications, and data visualization software. Also suitable for representing KPIs, metrics tracking, performance monitoring, and statistical reporting. Alternative names include bar graph, column chart, histogram, data visualization, statistics chart, and analytics graph.
+
+### chart-bar-horizontal
+**Import:** `import { ChartBarHorizontal } from 'phosphor-svelte';`
+**Description:** A horizontal bar chart icon representing alternative data visualization, comparative analysis, and statistical presentation. Perfect for dashboard interfaces where horizontal layout is preferred, ranking displays, and progress tracking applications. Ideal for representing survey results, comparison data, performance rankings, and progress indicators. Use in analytics platforms, reporting dashboards, survey tools, and comparative analysis software. Also suitable for representing benchmarking data, ranking systems, horizontal progress bars, and side-by-side comparisons. Alternative terms include horizontal graph, sideways chart, ranking chart, comparison bars, and lateral visualization.
+
+### chart-donut
+**Import:** `import { ChartDonut } from 'phosphor-svelte';`
+**Description:** A donut chart icon representing proportional data visualization, circular statistics, and part-to-whole relationships with a hollow center. Perfect for dashboard applications showing percentage breakdowns, financial allocation displays, and portfolio compositions. Ideal for representing budget distributions, time allocation, resource utilization, and proportional analysis. Use in financial dashboards, analytics platforms, performance monitoring tools, and statistical reporting systems. Also suitable for representing completion rates, progress indicators, circular progress bars, and proportional comparisons. Alternative names include ring chart, circular graph, percentage wheel, proportion indicator, and hollow pie chart.
+
+### chart-line
+**Import:** `import { ChartLine } from 'phosphor-svelte';`
+**Description:** A line chart icon representing trend analysis, time-series data, and continuous data visualization. Perfect for financial applications, stock market platforms, trend analysis tools, and performance monitoring dashboards. Ideal for representing growth patterns, market trends, performance over time, and continuous data streams. Use in trading platforms, analytics dashboards, financial reporting tools, and business intelligence applications. Also suitable for representing progress tracking, historical data, predictive analytics, and trend forecasting. Alternative names include trend line, time series, growth chart, performance graph, and continuous data visualization.
+
+### chart-line-down
+**Import:** `import { ChartLineDown } from 'phosphor-svelte';`
+**Description:** A downward trending line chart icon representing declining performance, negative trends, and decreasing metrics. Perfect for financial applications showing market declines, performance dashboards indicating downward trends, and alert systems for declining KPIs. Ideal for representing losses, decreasing sales, falling stock prices, and negative performance indicators. Use in financial monitoring tools, business analytics platforms, alert systems, and performance tracking applications. Updated design provides clearer indication of negative trends. Alternative names include declining chart, downward trend, negative growth, falling metrics, decreasing performance, and downward trajectory.
+
+### chart-line-up
+**Import:** `import { ChartLineUp } from 'phosphor-svelte';`
+**Description:** An upward trending line chart icon representing positive growth, increasing performance, and favorable trends. Perfect for financial applications showing market gains, success dashboards indicating positive trends, and achievement tracking systems. Ideal for representing profits, increasing sales, rising stock prices, and positive performance indicators. Use in financial monitoring tools, business success platforms, growth tracking applications, and performance celebration interfaces. Updated design provides clearer indication of positive trends. Alternative names include growth chart, upward trend, positive growth, rising metrics, increasing performance, and upward trajectory.
+
+### chart-pie
+**Import:** `import { ChartPie } from 'phosphor-svelte';`
+**Description:** A pie chart icon representing proportional data, percentage distributions, and part-to-whole relationships in a complete circle. Perfect for dashboard applications showing data breakdowns, market share displays, and budget allocation interfaces. Ideal for representing survey results, demographic data, resource distribution, and categorical analysis. Use in business intelligence tools, analytics platforms, reporting dashboards, and statistical visualization software. Also suitable for representing completion percentages, allocation displays, proportional analysis, and circular data visualization. Alternative names include circular chart, percentage wheel, proportion graph, pie graph, and circular statistics.
+
+### chart-pie-slice
+**Import:** `import { ChartPieSlice } from 'phosphor-svelte';`
+**Description:** A pie chart slice icon representing a portion of data, individual segments, and specific categories within larger datasets. Perfect for highlighting specific data points, representing individual segments, and showing focused portions of larger charts. Ideal for representing market segments, individual categories, specific allocations, and highlighted portions of data. Use in detailed analytics, segment-focused dashboards, category-specific reporting, and data drill-down interfaces. Updated design provides better visual clarity for individual data segments. Alternative names include chart segment, data slice, category portion, pie segment, and data wedge.
+
+### chart-polar
+**Import:** `import { ChartPolar } from 'phosphor-svelte';`
+**Description:** A polar chart icon representing circular data visualization, radar charts, and multi-dimensional data analysis. Perfect for skill assessment applications, performance evaluation tools, multi-criteria analysis platforms, and comparative rating systems. Ideal for representing competency matrices, product comparisons, performance profiles, and multi-variable analysis. Use in HR evaluation systems, product comparison tools, skill assessment platforms, and analytical dashboards requiring circular visualization. Also suitable for representing radar plots, spider diagrams, competency wheels, and multi-axis analysis. Alternative names include radar chart, spider chart, web chart, circular analysis, and multi-axis visualization.
+
+### chart-scatter
+**Import:** `import { ChartScatter } from 'phosphor-svelte';`
+**Description:** A scatter plot icon representing correlation analysis, data distribution, and relationship visualization between variables. Perfect for scientific applications, statistical analysis tools, research platforms, and data exploration interfaces. Ideal for representing data relationships, correlation studies, pattern recognition, and statistical distribution. Use in research software, data science platforms, statistical analysis tools, and academic applications. Also suitable for representing data points, variable relationships, pattern analysis, and experimental data visualization. Alternative names include scatter plot, correlation chart, data points, distribution graph, and relationship visualization.
+
+### chat
+**Import:** `import { Chat } from 'phosphor-svelte';`
+**Description:** A square chat bubble icon representing messaging, communication, and conversation interfaces. Perfect for messaging applications, customer support systems, social media platforms, and communication tools. Ideal for representing text messages, comments, discussions, and interactive communication. Use in chat applications, social networks, customer service interfaces, and communication platforms. Also suitable for representing feedback systems, comment sections, conversation threads, and interactive discussions. Alternative names include message bubble, text message, conversation, comment, messaging, and communication bubble.
+
+### chat-centered
+**Import:** `import { ChatCentered } from 'phosphor-svelte';`
+**Description:** A centered chat bubble icon representing balanced communication, neutral messaging, and centralized conversation interfaces. Perfect for moderated discussions, balanced communication platforms, neutral customer service systems, and centered messaging layouts. Ideal for representing diplomatic communication, balanced discussions, mediated conversations, and neutral messaging environments. Use in moderation tools, customer service platforms, balanced communication interfaces, and centered design layouts. Also suitable for representing neutral feedback, balanced conversations, and centralized messaging systems. Alternative terms include balanced chat, neutral message, centered communication, and diplomatic messaging.
+
+### chat-centered-dots
+**Import:** `import { ChatCenteredDots } from 'phosphor-svelte';`
+**Description:** A centered chat bubble with dots icon representing typing indicators, pending messages, and active conversation states. Perfect for real-time messaging applications, live chat systems, and dynamic communication interfaces showing ongoing conversations. Ideal for representing typing notifications, pending responses, active discussions, and real-time communication status. Use in instant messaging apps, live customer support, real-time communication platforms, and interactive chat systems. Also suitable for representing loading states, pending messages, active conversations, and communication in progress. Alternative names include typing indicator, pending message, active chat, conversation in progress, and real-time messaging.
+
+### chat-centered-slash
+**Import:** `import { ChatCenteredSlash } from 'phosphor-svelte';`
+**Description:** A crossed-out centered chat bubble icon representing disabled messaging, blocked communication, and restricted conversation access. Perfect for parental control applications, communication blocking tools, moderation systems, and restricted messaging environments. Ideal for representing muted conversations, blocked users, disabled chat features, and communication restrictions. Use in content moderation platforms, parental control systems, user management tools, and communication restriction interfaces. Also suitable for representing silenced discussions, blocked messaging, communication bans, and restricted interaction modes. Alternative names include blocked chat, disabled messaging, muted conversation, restricted communication, and silenced discussion.
+
+### chat-centered-text
+**Import:** `import { ChatCenteredText } from 'phosphor-svelte';`
+**Description:** A centered chat bubble with text lines icon representing text-based communication, written messages, and document-style conversations. Perfect for text-heavy messaging applications, document collaboration tools, written communication platforms, and text-focused chat interfaces. Ideal for representing detailed messages, text documents, written communication, and content-rich conversations. Use in document collaboration systems, text-based messaging apps, written communication tools, and content management platforms. Also suitable for representing message composition, text editing, written feedback, and document-based communication. Alternative names include text message, written communication, document chat, content message, and text-based conversation.
+
+### chat-circle
+**Import:** `import { ChatCircle } from 'phosphor-svelte';`
+**Description:** A circular chat bubble icon representing rounded communication, friendly messaging, and approachable conversation interfaces. Perfect for casual messaging applications, friendly customer service systems, social media platforms, and approachable communication tools. Ideal for representing informal conversations, friendly discussions, casual messaging, and approachable communication styles. Use in social networking apps, casual messaging platforms, friendly customer service interfaces, and approachable communication systems. Also suitable for representing personal messaging, friendly feedback, social conversations, and informal discussions. Alternative names include round chat, friendly message, circular conversation, social bubble, and approachable messaging.
+
+### chat-circle-dots
+**Import:** `import { ChatCircleDots } from 'phosphor-svelte';`
+**Description:** A circular chat bubble with dots icon representing friendly typing indicators, casual conversation states, and approachable real-time messaging. Perfect for casual messaging applications with typing notifications, friendly live chat systems, and social communication platforms showing active conversations. Ideal for representing friendly typing notifications, casual real-time discussions, approachable active conversations, and social messaging status. Use in social messaging apps, friendly customer support, casual communication platforms, and approachable real-time chat systems. Also suitable for representing social typing indicators, friendly conversation activity, and casual message composition. Alternative names include friendly typing, social indicator, casual messaging, approachable chat status, and round conversation activity.
+
+### chat-circle-slash
+**Import:** `import { ChatCircleSlash } from 'phosphor-svelte';`
+**Description:** A crossed-out circular chat bubble icon representing blocked social messaging, disabled friendly communication, and restricted casual conversation access. Perfect for social media blocking tools, friendly communication restrictions, casual messaging controls, and approachable moderation systems. Ideal for representing blocked social contacts, disabled friendly features, restricted casual messaging, and social communication bans. Use in social media moderation, friendly communication controls, casual messaging restrictions, and approachable blocking interfaces. Also suitable for representing social media blocks, friendly communication restrictions, and casual conversation limitations. Alternative names include blocked social chat, disabled friendly messaging, restricted social communication, and blocked casual conversation.
+
+### chat-circle-text
+**Import:** `import { ChatCircleText } from 'phosphor-svelte';`
+**Description:** A circular chat bubble with text lines icon representing friendly written communication, casual text messaging, and approachable content-rich conversations. Perfect for social text messaging, friendly written communication platforms, casual content sharing, and approachable text-based interactions. Ideal for representing social written messages, friendly text content, casual document sharing, and approachable written discussions. Use in social messaging platforms, friendly text communication tools, casual content sharing systems, and approachable written interaction interfaces. Also suitable for representing social content messages, friendly written feedback, and casual text-based communication. Alternative names include friendly text message, social written communication, casual text content, and approachable text conversation.
+
+### chat-dots
+**Import:** `import { ChatDots } from 'phosphor-svelte';`
+**Description:** A square chat bubble with dots icon representing typing indicators, message composition, and active conversation states in formal messaging contexts. Perfect for business messaging applications, professional communication platforms, formal customer service systems, and corporate chat interfaces showing typing status. Ideal for representing professional typing notifications, business message composition, formal conversation activity, and corporate communication status. Use in business messaging apps, professional customer support, corporate communication platforms, and formal chat systems. Also suitable for representing business typing indicators, professional conversation activity, and formal message preparation. Alternative names include business typing indicator, professional message status, formal conversation activity, and corporate chat indicator.
+
+### chat-slash
+**Import:** `import { ChatSlash } from 'phosphor-svelte';`
+**Description:** A crossed-out square chat bubble icon representing disabled messaging, blocked communication, and restricted conversation access in formal contexts. Perfect for business communication restrictions, professional messaging controls, corporate chat blocking tools, and formal moderation systems. Ideal for representing disabled business messaging, blocked professional communication, restricted corporate conversations, and formal communication bans. Use in business communication controls, professional messaging restrictions, corporate moderation systems, and formal chat management interfaces. Also suitable for representing business communication blocks, professional messaging restrictions, and corporate conversation limitations. Alternative names include blocked business chat, disabled professional messaging, restricted corporate communication, and blocked formal conversation.
+
+### chat-teardrop
+**Import:** `import { ChatTeardrop } from 'phosphor-svelte';`
+**Description:** A teardrop-shaped chat bubble icon representing modern messaging, contemporary communication, and sleek conversation interfaces. Perfect for modern messaging applications, contemporary chat systems, sleek communication platforms, and stylish conversation tools. Ideal for representing modern conversations, contemporary messaging styles, sleek communication design, and stylish chat interfaces. Use in modern messaging apps, contemporary communication platforms, sleek chat systems, and stylish conversation interfaces. Also suitable for representing modern message design, contemporary communication aesthetics, and sleek conversation bubbles. Alternative names include modern chat bubble, contemporary message, sleek conversation, stylish communication, and teardrop message.
+
+### chat-teardrop-dots
+**Import:** `import { ChatTeardropDots } from 'phosphor-svelte';`
+**Description:** A teardrop chat bubble with dots icon representing modern typing indicators, contemporary conversation states, and stylish real-time messaging. Perfect for modern messaging applications with typing notifications, contemporary live chat systems, and sleek communication platforms showing active conversations. Ideal for representing modern typing status, contemporary real-time discussions, stylish active conversations, and sleek messaging activity. Use in modern messaging apps, contemporary customer support, sleek communication platforms, and stylish real-time chat systems. Also suitable for representing modern conversation activity, contemporary typing indicators, and stylish message composition status. Alternative names include modern typing indicator, contemporary chat status, sleek conversation activity, and stylish messaging indicator.
+
+### chat-teardrop-slash
+**Import:** `import { ChatTeardropSlash } from 'phosphor-svelte';`
+**Description:** A crossed-out teardrop chat bubble icon representing blocked modern messaging, disabled contemporary communication, and restricted stylish conversation access. Perfect for modern communication blocking tools, contemporary messaging restrictions, sleek moderation systems, and stylish chat controls. Ideal for representing blocked modern conversations, disabled contemporary messaging, restricted sleek communication, and stylish chat limitations. Use in modern communication controls, contemporary messaging restrictions, sleek moderation interfaces, and stylish chat management systems. Also suitable for representing modern communication blocks, contemporary messaging limitations, and sleek conversation restrictions. Alternative names include blocked modern chat, disabled contemporary messaging, restricted sleek communication, and blocked stylish conversation.
+
+### chat-teardrop-text
+**Import:** `import { ChatTeardropText } from 'phosphor-svelte';`
+**Description:** A teardrop chat bubble with text lines icon representing modern written communication, contemporary text messaging, and stylish content-rich conversations. Perfect for modern text messaging platforms, contemporary written communication tools, sleek content sharing systems, and stylish text-based interactions. Ideal for representing modern written messages, contemporary text content, stylish document sharing, and sleek written discussions. Use in modern messaging platforms, contemporary text communication tools, sleek content sharing systems, and stylish written interaction interfaces. Also suitable for representing modern content messages, contemporary written feedback, and sleek text-based communication. Alternative names include modern text message, contemporary written communication, stylish text content, and sleek text conversation.
+
+### chat-text
+**Import:** `import { ChatText } from 'phosphor-svelte';`
+**Description:** A square chat bubble with text lines icon representing structured text communication, formal written messaging, and content-rich conversations. Perfect for business messaging applications, professional text communication platforms, formal document sharing systems, and structured conversation interfaces. Ideal for representing business written messages, professional text content, formal document communication, and structured written discussions. Use in business messaging platforms, professional text communication tools, formal content sharing systems, and structured written interaction interfaces. Also suitable for representing business content messages, professional written feedback, and formal text-based communication. Alternative names include business text message, professional written communication, formal text content, and structured text conversation.
+
+### chats
+**Import:** `import { Chats } from 'phosphor-svelte';`
+**Description:** Multiple chat bubbles icon representing group conversations, multiple messaging threads, and communication hub interfaces. Perfect for messaging applications with multiple conversations, group chat systems, communication management platforms, and multi-conversation interfaces. Ideal for representing conversation lists, multiple discussions, group messaging, and communication overview screens. Use in messaging apps with multiple threads, group communication platforms, conversation management systems, and multi-chat interfaces. Also suitable for representing communication hubs, conversation collections, messaging organization, and multi-threaded discussions. Alternative names include multiple chats, conversation list, group messaging, chat collection, and multi-conversation interface.# Phosphor Icons - Batch 08 Documentation
+
+### chats-circle
+**Import:** `import { ChatsCircle } from 'phosphor-svelte';`
+**Description:** Multiple circular chat bubbles or conversation threads icon. Perfect for messaging applications, multi-person conversations, group chats, discussion forums, comment sections, customer support chat systems, and communication platforms. Use when representing SMS conversations, text messaging, instant messaging, chat rooms, social media conversations, messaging apps, communication tools, bubble notifications, conversation threads, dialog boxes, speech bubbles, or any multi-participant communication interface.
+
+### chats-teardrop
+**Import:** `import { ChatsTeardrop } from 'phosphor-svelte';`
+**Description:** Multiple teardrop-shaped chat bubbles or conversation threads icon. Ideal for messaging interfaces, communication platforms, text conversations, SMS applications, instant messaging, chat applications, comment systems, discussion threads, social media messaging, customer service chat, live chat support, and communication tools. Use when representing speech bubbles, dialog balloons, conversation flows, messaging notifications, chat threads, text messaging interfaces, or communication streams.
+
+### check
+**Import:** `import { Check } from 'phosphor-svelte';`
+**Description:** Simple checkmark or tick icon indicating completion, approval, or success. Essential for form validation, task completion, todo lists, checkbox inputs, confirmation dialogs, success states, approval workflows, completion indicators, verification processes, and quality assurance. Use when representing done tasks, completed items, validated forms, approved requests, successful operations, confirmed actions, finished processes, accepted terms, verified information, or positive acknowledgment.
+
+### check-circle
+**Import:** `import { CheckCircle } from 'phosphor-svelte';`
+**Description:** Checkmark enclosed in a circular border, indicating successful completion or validation. Perfect for success messages, completed tasks, approved items, validated forms, successful operations, confirmation states, achievement badges, completion indicators, quality marks, and positive feedback. Use when representing successful submissions, approved requests, completed processes, validated inputs, achieved goals, passed tests, successful transactions, confirmed actions, or positive status indicators.
+
+### check-fat
+**Import:** `import { CheckFat } from 'phosphor-svelte';`
+**Description:** Bold, thick checkmark icon for enhanced visibility and emphasis. Ideal for important confirmations, primary action buttons, success indicators, completion markers, approval stamps, validation icons, achievement symbols, and prominent status displays. Use when representing major completions, important approvals, significant achievements, primary confirmations, emphasized success states, bold validation marks, or when you need a more visually prominent checkmark.
+
+### check-square
+**Import:** `import { CheckSquare } from 'phosphor-svelte';`
+**Description:** Checkmark within a square border, representing a completed checkbox or selected item. Perfect for form checkboxes, task lists, todo applications, selection interfaces, multi-select components, option lists, agreement confirmations, feature toggles, and preference settings. Use when representing checked boxes, selected options, completed tasks, enabled features, chosen items, marked selections, activated settings, or confirmed choices in square-style interfaces.
+
+### check-square-offset
+**Import:** `import { CheckSquareOffset } from 'phosphor-svelte';`
+**Description:** Checkmark in a square with offset or shadow effect, indicating a completed or selected item with visual depth. Useful for enhanced checkbox designs, layered interface elements, completed task indicators, selected options with visual emphasis, form validation states, and modern UI components. Use when representing checked items with dimensional styling, selected options with visual depth, completed tasks in elevated interfaces, or when you need a checkbox with shadow or offset effects.
+
+### checkerboard
+**Import:** `import { Checkerboard } from 'phosphor-svelte';`
+**Description:** Alternating pattern of squares resembling a checkerboard or chess board. Perfect for games interfaces, pattern design tools, transparency backgrounds, chess applications, checkers games, crossword puzzles, grid patterns, design elements, and visual pattern indicators. Use when representing chess boards, checker games, alternating patterns, transparency indicators, grid layouts, pattern swatches, game boards, or visual design elements with alternating squares.
+
+### checks
+**Import:** `import { Checks } from 'phosphor-svelte';`
+**Description:** Multiple checkmarks indicating completion of several items or bulk validation. Ideal for bulk operations, multiple completions, batch processing, multi-select confirmations, group approvals, completed lists, validation of multiple items, and progress indicators showing multiple achievements. Use when representing multiple completed tasks, batch operations, several approved items, group validations, completed checklists, multiple confirmations, or when showing that several items have been processed successfully.
+
+### cheers
+**Import:** `import { Cheers } from 'phosphor-svelte';`
+**Description:** Clinking glasses or toast gesture icon representing celebration and beverages. Perfect for restaurant applications, bar menus, celebration events, drink ordering systems, social gatherings, party planning, beverage sections, dining interfaces, cocktail menus, wine lists, and hospitality services. Use when representing toasts, celebrations, alcoholic beverages, champagne, drinks menu, bar locations, dining experiences, party events, social drinking, restaurant reservations, or festive occasions.
+
+### cheese
+**Import:** `import { Cheese } from 'phosphor-svelte';`
+**Description:** Wedge of cheese representing dairy products and food items. Ideal for grocery applications, food delivery services, restaurant menus, recipe platforms, dietary tracking, nutrition apps, shopping lists, food categories, and culinary interfaces. Use when representing dairy products, cheese varieties, food ingredients, grocery items, cooking ingredients, nutritional categories, meal planning, recipe components, food shopping, dietary preferences, or culinary applications involving cheese products.
+
+### chef-hat
+**Import:** `import { ChefHat } from 'phosphor-svelte';`
+**Description:** Traditional chef's toque or cooking hat representing culinary professions and cooking. Perfect for restaurant applications, cooking platforms, recipe websites, food delivery services, culinary schools, kitchen management, chef profiles, cooking tutorials, and food preparation interfaces. Use when representing professional cooking, culinary expertise, kitchen staff, food preparation, cooking services, restaurant chefs, culinary education, cooking classes, kitchen management, food service industries, or professional food preparation.
+
+### cherries
+**Import:** `import { Cherries } from 'phosphor-svelte';`
+**Description:** Pair of cherries representing fresh fruit and natural foods. Ideal for grocery applications, fruit markets, health and nutrition apps, recipe platforms, food delivery services, organic food stores, and wellness applications. Use when representing fresh fruits, healthy eating, natural foods, organic produce, farmers markets, fruit categories, nutritional content, healthy recipes, food shopping, dietary choices, natural ingredients, or fresh produce sections in food-related applications.
+
+### church
+**Import:** `import { Church } from 'phosphor-svelte';`
+**Description:** Church building with steeple representing religious institutions and places of worship. Perfect for maps and location services, travel applications, religious community apps, event planning, wedding services, and local directory applications. Use when representing places of worship, religious locations, Christian churches, cathedrals, spiritual centers, wedding venues, religious events, community centers, historical buildings, architecture, faith-based services, or religious institution directories.
+
+### cigarette
+**Import:** `import { Cigarette } from 'phosphor-svelte';`
+**Description:** Cigarette icon representing tobacco products and smoking. Suitable for age-restricted commerce, health awareness applications, smoking cessation programs, and tobacco-related content. Use when representing tobacco products, smoking areas, age verification, health warnings, addiction resources, smoking habits tracking, or in contexts requiring smoking-related iconography with appropriate content warnings and age restrictions.
+
+### cigarette-slash
+**Import:** `import { CigaretteSlash } from 'phosphor-svelte';`
+**Description:** Crossed-out cigarette icon indicating no smoking or smoking prohibition. Perfect for health applications, smoking cessation programs, non-smoking area indicators, public health campaigns, and venue policies. Use when representing no-smoking zones, smoking bans, health initiatives, smoke-free environments, tobacco cessation, smoking restrictions, health awareness, anti-smoking campaigns, or areas where smoking is prohibited.
+
+### circle
+**Import:** `import { Circle } from 'phosphor-svelte';`
+**Description:** Basic circle shape for design elements and geometric representations. Essential for design tools, shape libraries, drawing applications, UI elements, loading indicators, bullet points, and geometric interfaces. Use when representing round shapes, circular elements, geometric forms, design components, shape tools, circular buttons, round indicators, geometric patterns, basic shapes, or as a foundation element in design and drawing applications.
+
+### circle-dashed
+**Import:** `import { CircleDashed } from 'phosphor-svelte';`
+**Description:** Circle with dashed outline indicating incomplete, placeholder, or optional elements. Useful for placeholder states, optional selections, incomplete processes, draft elements, and temporary indicators. Use when representing incomplete circles, placeholder elements, optional items, missing components, draft states, temporary placeholders, incomplete selections, pending elements, or areas awaiting content or completion.
+
+### circle-half
+**Import:** `import { CircleHalf } from 'phosphor-svelte';`
+**Description:** Half-filled circle representing contrast, balance, or partial completion. Perfect for theme toggles, brightness controls, contrast adjustments, progress indicators, and visual balance elements. Use when representing light/dark mode toggles, contrast settings, brightness controls, partial progress, balance indicators, split states, dual-tone elements, contrast ratios, visual accessibility controls, or yin-yang concepts in interface design.
+
+### circle-half-tilt
+**Import:** `import { CircleHalfTilt } from 'phosphor-svelte';`
+**Description:** Diagonally split circle showing tilted half-and-half division. Ideal for advanced theme controls, design tools, contrast adjustments, and creative balance indicators. Use when representing diagonal splits, tilted contrast, advanced theme options, creative balance elements, design tools with angular divisions, artistic contrast controls, or sophisticated visual balance interfaces requiring diagonal or angled representations.
+
+### circle-notch
+**Import:** `import { CircleNotch } from 'phosphor-svelte';`
+**Description:** Circle with a gap or notch, commonly used as a loading spinner or progress indicator. Essential for loading states, progress indication, waiting interfaces, asynchronous operations, and system activity indicators. Use when representing loading processes, spinning progress indicators, system activity, waiting states, background operations, data fetching, processing states, refresh actions, or any interface requiring visual indication of ongoing activity or progress.
+
+### circles-four
+**Import:** `import { CirclesFour } from 'phosphor-svelte';`
+**Description:** Four circles arranged in a square pattern representing multiple elements or quad layouts. Perfect for grid layouts, multiple selection indicators, group elements, quad views, dashboard widgets, and multi-panel interfaces. Use when representing four-panel layouts, quad grids, multiple circular elements, group indicators, dashboard sections, multi-view displays, or interfaces requiring representation of four related circular components or sections.
+
+### circles-three
+**Import:** `import { CirclesThree } from 'phosphor-svelte';`
+**Description:** Three circles arranged in a triangular pattern, often associated with brand logos or triple elements. Suitable for menu options, group indicators, triple selection, brand elements, and geometric patterns. Use when representing three-option menus, triangle formations, triple elements, group selections, brand logos (like Asana), three-panel layouts, or interfaces requiring representation of three related circular components arranged in triangular formation.
+
+### circles-three-plus
+**Import:** `import { CirclesThreePlus } from 'phosphor-svelte';`
+**Description:** Three circles with a plus symbol indicating the ability to add more elements to a group. Perfect for adding team members, expanding groups, creating additional elements, and growth indicators. Use when representing expandable groups, add member buttons, create additional items, expand collections, add more options, grow team size, extend circles, or any interface allowing users to add more elements to an existing set of three items.
+
+### circuitry
+**Import:** `import { Circuitry } from 'phosphor-svelte';`
+**Description:** Electronic circuit board pattern representing technology, computing, and electronics. Ideal for technology applications, development tools, electronics stores, computer hardware, tech support, and engineering platforms. Use when representing computer hardware, electronic components, motherboards, processors, microchips, circuit design, electronics engineering, technology development, computer systems, hardware diagnostics, tech support, or any technology-related interface dealing with electronic circuits and components.
+
+### city
+**Import:** `import { City } from 'phosphor-svelte';`
+**Description:** Urban skyline with multiple buildings representing metropolitan areas and urban locations. Perfect for maps and location services, travel applications, real estate platforms, urban planning tools, and city guides. Use when representing urban areas, metropolitan locations, city centers, skyscrapers, downtown areas, business districts, urban destinations, city selection, location services, real estate in urban areas, or travel guides focusing on city destinations and urban experiences.
+
+### clipboard
+**Import:** `import { Clipboard } from 'phosphor-svelte';`
+**Description:** Basic clipboard icon representing copying, task lists, and document management. Essential for copy operations, task management, checklists, document editing, and office applications. Use when representing copy to clipboard functionality, task lists, to-do items, document copying, text copying, checklist management, office tasks, note-taking, clipboard operations, document handling, or any interface requiring clipboard-related functionality or task management features.
+
+### clipboard-text
+**Import:** `import { ClipboardText } from 'phosphor-svelte';`
+**Description:** Clipboard with text lines indicating document copying or text-based checklists. Perfect for text copying operations, document management, content copying, and text-based task lists. Use when representing text clipboard operations, document text copying, content duplication, text-based checklists, document editing, text management, copy text functionality, text snippets, document excerpts, or interfaces specifically dealing with text-based clipboard operations and text document management.
+
+### clock
+**Import:** `import { Clock } from 'phosphor-svelte';`
+**Description:** Standard analog clock face representing time, scheduling, and temporal concepts. Essential for time displays, scheduling applications, calendar interfaces, timer functions, and time management tools. Use when representing current time, scheduled events, appointments, time tracking, deadlines, watch functionality, timing elements, temporal interfaces, schedule management, time-based operations, or any interface requiring time representation or temporal context.
+
+### clock-afternoon
+**Import:** `import { ClockAfternoon } from 'phosphor-svelte';`
+**Description:** Clock showing afternoon time, typically indicating mid-day or afternoon hours. Perfect for time-specific scheduling, afternoon appointments, time-of-day indicators, and temporal context interfaces. Use when representing afternoon hours, mid-day scheduling, afternoon appointments, PM time indicators, afternoon activities, lunch time, afternoon meetings, time-of-day selection, or scheduling interfaces requiring specific afternoon time context and temporal precision.
+
+### clock-clockwise
+**Import:** `import { ClockClockwise } from 'phosphor-svelte';`
+**Description:** Clock with clockwise rotation indicator representing forward time movement or refresh actions. Ideal for refresh operations, forward time navigation, update processes, restore functions, and time advancement controls. Use when representing refresh actions, update operations, forward time movement, clockwise rotation, system updates, data refresh, restore operations, time advancement, fast-forward controls, or interfaces requiring forward temporal movement and refresh functionality.
+
+### clock-countdown
+**Import:** `import { ClockCountdown } from 'phosphor-svelte';`
+**Description:** Clock with countdown indicator representing time counting down or timer functionality. Perfect for countdown timers, deadlines, time limits, expiration warnings, and timed events. Use when representing countdown timers, deadline alerts, time remaining, expiration notices, timed sessions, countdown displays, temporal limits, time-sensitive operations, deadline tracking, or interfaces requiring countdown functionality and time-limited contexts.
+
+### clock-counter-clockwise
+**Import:** `import { ClockCounterClockwise } from 'phosphor-svelte';`
+**Description:** Clock with counter-clockwise rotation indicating backward time movement or history navigation. Suitable for undo operations, history navigation, time reversal, backup processes, and rewind functionality. Use when representing undo actions, history browsing, backward time movement, rewind controls, previous states, backup operations, time reversal, historical data access, or interfaces requiring backward temporal navigation and history-related functionality.
+
+### clock-user
+**Import:** `import { ClockUser } from 'phosphor-svelte';`
+**Description:** Clock combined with user icon representing user-specific time, work shifts, or personal scheduling. Perfect for employee scheduling, shift management, personal time tracking, user-specific appointments, and individual time management. Use when representing work shifts, employee schedules, personal time tracking, user-specific appointments, individual calendars, shift assignments, personal scheduling, time tracking per user, or workforce management interfaces requiring user-associated temporal elements.
+
+### closed-captioning
+**Import:** `import { ClosedCaptioning } from 'phosphor-svelte';`
+**Description:** Closed captioning symbol representing subtitles and accessibility features for media content. Essential for media players, accessibility controls, video platforms, and inclusive design interfaces. Use when representing subtitles, closed captions, video accessibility, audio transcription, hearing assistance, media accessibility features, inclusive media controls, video text overlays, accessibility compliance, or interfaces supporting users with hearing impairments through text-based audio content.
+
+### cloud
+**Import:** `import { Cloud } from 'phosphor-svelte';`
+**Description:** Basic cloud shape representing cloud computing, storage, weather, and online services. Versatile for cloud storage, weather applications, online backup, serverless computing, and remote services. Use when representing cloud storage, online backup, serverless functions, remote computing, weather conditions, overcast skies, cloud services, online storage, data synchronization, remote access, web services, or meteorological interfaces showing cloudy weather conditions.
+
+### cloud-arrow-down
+**Import:** `import { CloudArrowDown } from 'phosphor-svelte';`
+**Description:** Cloud with downward arrow indicating download from cloud storage or data retrieval. Perfect for cloud downloads, file retrieval, data synchronization, backup restoration, and cloud-to-device transfers. Use when representing download from cloud, file retrieval, cloud sync download, backup restoration, data download, cloud file access, remote file download, cloud storage retrieval, or interfaces facilitating download operations from cloud-based storage systems.
+
+### cloud-arrow-up
+**Import:** `import { CloudArrowUp } from 'phosphor-svelte';`
+**Description:** Cloud with upward arrow indicating upload to cloud storage or data backup. Ideal for cloud uploads, file backup, data synchronization, remote storage, and device-to-cloud transfers. Use when representing upload to cloud, file backup, cloud sync upload, data backup operations, remote file storage, cloud file upload, backup creation, cloud storage deposit, or interfaces facilitating upload operations to cloud-based storage and backup systems.
+
+### cloud-check
+**Import:** `import { CloudCheck } from 'phosphor-svelte';`
+**Description:** Cloud with checkmark indicating successful cloud operations or synchronized data. Perfect for sync confirmation, successful backups, cloud operation completion, and synchronized status indicators. Use when representing successful cloud sync, completed backups, synchronized data, successful cloud operations, cloud service confirmation, backup completion, data sync success, cloud storage validation, or status indicators showing successful cloud-based operations and data synchronization.
+
+### cloud-fog
+**Import:** `import { CloudFog } from 'phosphor-svelte';`
+**Description:** Cloud with fog or mist effects representing foggy weather conditions and reduced visibility. Ideal for weather applications, atmospheric conditions, visibility warnings, and meteorological interfaces. Use when representing foggy weather, misty conditions, low visibility, atmospheric haze, weather warnings, fog alerts, reduced visibility conditions, meteorological data, weather forecasting, or interfaces providing information about fog, mist, and atmospheric visibility conditions.
+
+### cloud-lightning
+**Import:** `import { CloudLightning } from 'phosphor-svelte';`
+**Description:** Cloud with lightning bolt indicating thunderstorms and severe weather conditions. Perfect for weather alerts, storm warnings, severe weather notifications, and meteorological emergencies. Use when representing thunderstorms, lightning, severe weather, storm alerts, weather warnings, electrical storms, dangerous weather conditions, meteorological alerts, storm tracking, or interfaces providing severe weather information and storm-related safety notifications.
+
+### cloud-moon
+**Import:** `import { CloudMoon } from 'phosphor-svelte';`
+**Description:** Cloud partially covering moon indicating partly cloudy nighttime weather conditions. Suitable for nighttime weather, evening forecasts, partially cloudy nights, and nocturnal atmospheric conditions. Use when representing partly cloudy nights, evening weather, nighttime atmospheric conditions, nocturnal weather forecasts, cloudy evenings, nighttime visibility, evening sky conditions, or weather applications showing nighttime meteorological data and partly cloudy nocturnal conditions.
+
+### cloud-rain
+**Import:** `import { CloudRain } from 'phosphor-svelte';`
+**Description:** Cloud with rain drops indicating rainy weather conditions and precipitation. Essential for weather forecasts, rain alerts, precipitation tracking, and meteorological interfaces. Use when representing rainy weather, precipitation, rain forecasts, wet conditions, rainfall data, weather warnings, rain alerts, storm conditions, meteorological precipitation, or interfaces providing rain-related weather information and precipitation forecasting for planning outdoor activities.
+
+### cloud-slash
+**Import:** `import { CloudSlash } from 'phosphor-svelte';`
+**Description:** Cloud with diagonal slash indicating disabled cloud services or disconnected cloud storage. Perfect for offline states, cloud service interruptions, sync failures, and connectivity issues. Use when representing disabled cloud services, offline mode, cloud connectivity issues, sync failures, cloud service interruption, network disconnection, cloud access denied, service unavailability, or status indicators showing cloud-based services that are currently disabled or inaccessible.
+
+### cloud-snow
+**Import:** `import { CloudSnow } from 'phosphor-svelte';`
+**Description:** Cloud with snowflakes indicating snowy weather conditions and winter precipitation. Ideal for winter weather forecasts, snow alerts, cold weather conditions, and seasonal meteorological data. Use when representing snowy weather, winter precipitation, snow forecasts, cold conditions, winter storms, snowfall data, seasonal weather, winter weather alerts, snow accumulation, or meteorological interfaces providing snow-related weather information and winter weather planning.
+
+### cloud-sun
+**Import:** `import { CloudSun } from 'phosphor-svelte';`
+**Description:** Cloud partially covering sun indicating partly cloudy or partly sunny weather conditions. Perfect for mixed weather conditions, partly cloudy forecasts, and variable weather states. Use when representing partly cloudy weather, partly sunny conditions, mixed sky conditions, variable weather, changing weather patterns, partial cloud cover, sunny intervals, scattered clouds, or weather interfaces showing partially cloudy conditions with sun visibility and mixed meteorological states.
+
+### cloud-warning
+**Import:** `import { CloudWarning } from 'phosphor-svelte';`
+**Description:** Cloud with warning symbol indicating cloud service issues or weather warnings. Suitable for service alerts, cloud errors, weather warnings, and system status notifications. Use when representing cloud service warnings, storage issues, sync errors, cloud service alerts, weather warnings, service disruptions, cloud system errors, backup failures, or status indicators showing problems with cloud-based services requiring user attention or action.
+
+### cloud-x
+**Import:** `import { CloudX } from 'phosphor-svelte';`
+**Description:** Cloud with X mark indicating cloud service errors, failed operations, or canceled cloud processes. Perfect for error states, failed syncs, cloud service failures, and operation cancellations. Use when representing cloud service errors, failed uploads, sync failures, cloud operation errors, canceled cloud processes, cloud service unavailable, failed backups, cloud connectivity errors, or error states in cloud-based applications requiring user awareness of failed operations.
+
+### clover
+**Import:** `import { Clover } from 'phosphor-svelte';`
+**Description:** Four-leaf clover representing luck, fortune, Irish culture, and natural elements. Perfect for luck-themed applications, Irish cultural content, nature applications, and fortune-related interfaces. Use when representing good luck, fortune, Irish themes, St. Patrick's Day, lucky symbols, nature elements, plants, Irish culture, fortunate outcomes, luck-based gaming, or applications incorporating themes of luck, fortune, and Irish cultural elements.
+
+### club
+**Import:** `import { Club } from 'phosphor-svelte';`
+**Description:** Club suit symbol from playing cards representing card games and gambling. Essential for card games, casino applications, gaming platforms, and gambling interfaces. Use when representing card games, poker, casino games, gambling, playing card suits, card-based gaming, casino interfaces, gaming applications, deck of cards, card game rules, or any gaming platform featuring card-based games and gambling activities with club suit representation.# Phosphor Icons - Batch 09
+
+### coat-hanger
+**Import:** `import { CoatHanger } from 'phosphor-svelte';`
+**Description:** A coat hanger icon representing clothing storage, wardrobe management, and closet organization. Perfect for e-commerce platforms, fashion websites, dry cleaning services, clothing stores, wardrobe apps, closet organizers, laundry services, retail applications, and fashion-related interfaces. Alternative terms: clothes hanger, wardrobe, closet, clothing rack, garment hanger, apparel storage, dressing room, fashion organizer, retail display, clothing management.
+
+### coda-logo
+**Import:** `import { CodaLogo } from 'phosphor-svelte';`
+**Description:** Official logo for Coda, the all-in-one collaborative workspace platform that combines documents, spreadsheets, and databases. Used in productivity applications, project management tools, documentation systems, collaborative platforms, wiki interfaces, team workspace applications, and business productivity suites. Alternative terms: Coda brand, project management, team collaboration, documentation platform, productivity tool, workspace solution, business application, collaborative documents, team productivity, work organization.
+
+### code
+**Import:** `import { Code } from 'phosphor-svelte';`
+**Description:** Programming code representation with angle brackets, symbolizing software development, coding, and technical implementation. Essential for developer tools, IDEs, code editors, programming tutorials, tech websites, software documentation, developer portfolios, coding bootcamps, and technical applications. Alternative terms: programming, development, coding, scripting, markup, HTML tags, angle brackets, software engineering, web development, technical documentation, source code, snippets.
+
+### code-block
+**Import:** `import { CodeBlock } from 'phosphor-svelte';`
+**Description:** A structured code block icon representing organized code segments, code snippets, and formatted programming content. Ideal for documentation platforms, coding tutorials, technical blogs, developer tools, code sharing platforms, educational programming content, syntax highlighting interfaces, and code review systems. Alternative terms: code segment, programming block, code snippet, formatted code, code structure, code organization, syntax block, code formatting, development blocks, programming segments.
+
+### code-simple
+**Import:** `import { CodeSimple } from 'phosphor-svelte';`
+**Description:** A simplified version of the code icon with clean angle brackets, representing basic coding concepts and minimalist developer interfaces. Perfect for simple developer tools, clean coding applications, minimal IDEs, basic programming tutorials, streamlined tech interfaces, and modern development platforms. Alternative terms: simple coding, basic programming, minimal code, clean development, streamlined coding, simple markup, basic scripting, minimal programming interface, clean code representation.
+
+### codepen-logo
+**Import:** `import { CodepenLogo } from 'phosphor-svelte';`
+**Description:** Official logo for CodePen, the popular online code editor and social development environment for front-end developers. Used in web development tools, coding platforms, developer portfolios, front-end development applications, web design tools, and online IDE interfaces. Alternative terms: CodePen brand, online IDE, web development platform, front-end development, code playground, web coding tool, developer community, online code editor, web development environment.
+
+### codesandbox-logo
+**Import:** `import { CodesandboxLogo } from 'phosphor-svelte';`
+**Description:** Official logo for CodeSandbox, the online development environment for rapid web development and prototyping. Essential for web development platforms, coding environments, developer tools, prototype applications, collaborative coding platforms, and online development interfaces. Alternative terms: CodeSandbox brand, online development, web prototyping, collaborative coding, development sandbox, web development platform, coding environment, developer workspace, online IDE, development playground.
+
+### coffee
+**Import:** `import { Coffee } from 'phosphor-svelte';`
+**Description:** Coffee cup icon representing hot beverages, cafes, restaurants, and food service establishments. Perfect for restaurant apps, cafe locators, beverage ordering systems, food delivery platforms, dining applications, hospitality services, coffee shop interfaces, and location-based services for food establishments. Alternative terms: hot beverage, cafe, coffee shop, espresso, cappuccino, latte, tea, mug, cup, dining, restaurants, food service, beverage service, coffee break, cafe culture, barista, coffee house.
+
+### coffee-bean
+**Import:** `import { CoffeeBean } from 'phosphor-svelte';`
+**Description:** Coffee bean icon representing coffee origins, specialty coffee, organic products, and premium coffee experiences. Ideal for specialty coffee shops, organic food stores, coffee roasters, premium beverage brands, coffee trading platforms, agricultural applications, and artisanal coffee services. Alternative terms: coffee origin, specialty coffee, organic coffee, coffee roasting, premium coffee, artisanal coffee, coffee agriculture, coffee farming, coffee quality, coffee beans, roasted coffee, coffee sourcing, fair trade coffee.
+
+### coin
+**Import:** `import { Coin } from 'phosphor-svelte';`
+**Description:** Single coin icon representing money, currency, payments, and financial transactions. Essential for payment systems, e-commerce platforms, financial applications, banking interfaces, cryptocurrency exchanges, reward systems, loyalty programs, and monetary transaction interfaces. Alternative terms: money, currency, payment, cash, change, cents, financial transaction, monetary value, coin currency, physical money, small change, pocket change, coins, financial payment.
+
+### coin-vertical
+**Import:** `import { CoinVertical } from 'phosphor-svelte';`
+**Description:** Vertically oriented coin icon showing currency in profile, representing financial transactions, payment processing, and monetary exchanges. Perfect for payment gateways, financial dashboards, transaction histories, banking applications, currency converters, and financial management tools. Alternative terms: currency profile, payment transaction, financial exchange, money transfer, coin flip, currency conversion, payment processing, monetary transaction, financial payment, cash transaction.
+
+### coins
+**Import:** `import { Coins } from 'phosphor-svelte';`
+**Description:** Multiple coins icon representing accumulated wealth, savings, financial collection, and monetary abundance. Ideal for savings applications, investment platforms, financial planning tools, wealth management systems, banking interfaces, reward accumulation, loyalty points, and financial goal tracking. Alternative terms: multiple coins, money stack, savings, wealth accumulation, financial collection, coin stack, monetary pile, cash collection, money savings, financial assets, accumulated currency, money management.
+
+### columns
+**Import:** `import { Columns } from 'phosphor-svelte';`
+**Description:** Two-column layout icon representing content organization, grid systems, and structured layouts. Essential for content management systems, layout design tools, dashboard interfaces, data presentation, table structures, grid layouts, responsive design systems, and content organization platforms. Alternative terms: two columns, layout structure, grid system, content columns, table layout, data columns, layout design, content organization, grid structure, column layout, structured content, layout framework.
+
+### columns-plus-left
+**Import:** `import { ColumnsPlusLeft } from 'phosphor-svelte';`
+**Description:** Column layout with add functionality on the left side, representing content insertion, layout modification, and dynamic content management. Perfect for content editors, layout builders, table management systems, dynamic grid systems, content management platforms, and interactive layout tools. Alternative terms: add left column, insert column left, prepend column, layout addition, dynamic columns, column insertion, content addition, layout modification, grid expansion, table modification, column management.
+
+### columns-plus-right
+**Import:** `import { ColumnsPlusRight } from 'phosphor-svelte';`
+**Description:** Column layout with add functionality on the right side, representing content appending, layout expansion, and dynamic content extension. Ideal for content builders, table editors, layout management systems, dynamic grid interfaces, content organization tools, and expandable layout systems. Alternative terms: add right column, append column, insert column right, layout extension, dynamic layout, column addition, content expansion, layout growth, grid extension, table expansion, column management.
+
+### command
+**Import:** `import { Command } from 'phosphor-svelte';`
+**Description:** Command key symbol (⌘) representing keyboard shortcuts, Mac-specific commands, and system controls. Essential for Mac applications, keyboard shortcut interfaces, system preference panels, tutorial applications, help systems, and Mac-native software interfaces. Alternative terms: Mac command key, keyboard shortcut, Apple command, system modifier, Mac shortcut, keyboard modifier, Apple key, Mac control, system command, keyboard control, Mac interface, Apple modifier key.
+
+### compass
+**Import:** `import { Compass } from 'phosphor-svelte';`
+**Description:** Navigation compass icon representing direction finding, location services, and geographical navigation. Perfect for mapping applications, GPS systems, travel apps, navigation interfaces, outdoor activity apps, location-based services, and directional guidance systems. Alternative terms: navigation, direction, GPS, location finder, geographical navigation, directional compass, orientation tool, navigation aid, location services, mapping tool, directional guidance, travel navigation.
+
+### compass-rose
+**Import:** `import { CompassRose } from 'phosphor-svelte';`
+**Description:** Traditional compass rose showing cardinal directions, representing precise navigation, cartography, and detailed directional guidance. Ideal for maritime applications, detailed mapping systems, cartographic interfaces, professional navigation tools, outdoor adventure apps, and precision location services. Alternative terms: cardinal directions, navigation rose, directional rose, cartographic compass, maritime navigation, precise directions, navigational aid, cartography tool, directional indicator, navigation symbol, geographical orientation.
+
+### compass-tool
+**Import:** `import { CompassTool } from 'phosphor-svelte';`
+**Description:** Drawing compass tool for creating circles and arcs, representing geometric design, technical drawing, and precision measurement. Perfect for design applications, CAD software, geometry tools, educational math apps, architectural software, engineering applications, and technical drawing interfaces. Alternative terms: drawing compass, geometric tool, circle drawer, arc tool, technical drawing, geometric compass, design tool, measurement tool, drafting compass, precision drawing, geometry instrument, architectural tool.
+
+### computer-tower
+**Import:** `import { ComputerTower } from 'phosphor-svelte';`
+**Description:** Desktop computer tower representing desktop computing, PC systems, and workstation setups. Essential for computer hardware stores, IT services, system monitoring applications, desktop computing interfaces, hardware configuration tools, and computer management systems. Alternative terms: desktop computer, PC tower, computer case, desktop PC, workstation, computer hardware, desktop system, computer tower, PC case, desktop machine, computer setup, workstation computer.
+
+### confetti
+**Import:** `import { Confetti } from 'phosphor-svelte';`
+**Description:** Celebration confetti representing achievements, success, party celebrations, and joyful moments. Perfect for achievement notifications, success messages, celebration interfaces, party planning apps, milestone tracking, reward systems, congratulatory messages, and festive applications. Alternative terms: celebration, party, achievement, success, festive, congratulations, milestone, reward, accomplishment, victory, festive celebration, party decoration, celebration emoji, success indicator, achievement badge.
+
+### contactless-payment
+**Import:** `import { ContactlessPayment } from 'phosphor-svelte';`
+**Description:** Contactless payment symbol representing NFC payments, tap-to-pay, and modern payment methods. Essential for payment processing applications, point-of-sale systems, mobile payment apps, contactless transaction interfaces, modern payment solutions, and digital wallet applications. Alternative terms: NFC payment, tap to pay, contactless transaction, wireless payment, mobile payment, digital payment, modern payment, contactless card, payment technology, electronic payment, wireless transaction, digital wallet.
+
+### control
+**Import:** `import { Control } from 'phosphor-svelte';`
+**Description:** Control key symbol representing keyboard shortcuts, system controls, and command modifiers. Perfect for keyboard shortcut interfaces, system control panels, application tutorials, help documentation, shortcut guides, and system management applications. Alternative terms: Ctrl key, keyboard control, control modifier, system control, keyboard shortcut, command key, modifier key, system modifier, keyboard command, control command, shortcut key, system key.
+
+### cookie
+**Import:** `import { Cookie } from 'phosphor-svelte';`
+**Description:** Cookie icon with dual meaning: web cookies for privacy/tracking and food cookies for culinary contexts. Perfect for privacy policy interfaces, cookie consent banners, food applications, dessert menus, restaurant systems, privacy settings, web tracking notifications, and culinary platforms. Alternative terms: web cookie, browser cookie, tracking cookie, privacy cookie, dessert, sweet treat, baked good, food cookie, privacy policy, data tracking, web privacy, cookie consent, digital privacy.
+
+### cooking-pot
+**Import:** `import { CookingPot } from 'phosphor-svelte';`
+**Description:** Cooking pot with steam representing food preparation, cooking, and kitchen activities. Ideal for recipe applications, cooking tutorials, restaurant systems, kitchen management apps, food preparation guides, culinary platforms, cooking timers, and food service applications. Alternative terms: cooking, kitchen, food preparation, stew pot, cooking vessel, kitchen pot, food cooking, culinary tool, cooking utensil, kitchen equipment, meal preparation, food service, restaurant cooking.
+
+### copy
+**Import:** `import { Copy } from 'phosphor-svelte';`
+**Description:** Copy icon with document stack representing content duplication, clipboard operations, and data copying functions. Essential for text editors, file managers, clipboard utilities, document management systems, content creation tools, and data manipulation interfaces. Alternative terms: duplicate, clipboard, copy content, document copy, text copy, file duplication, content duplication, clipboard operation, copy function, duplicate content, copy to clipboard, content copying.
+
+### copy-simple
+**Import:** `import { CopySimple } from 'phosphor-svelte';`
+**Description:** Simplified copy icon representing basic clipboard operations and content duplication in a clean, minimal design. Perfect for modern interfaces, minimal design systems, clean copy functions, simplified clipboard operations, and streamlined user interfaces. Alternative terms: simple copy, basic copy, minimal copy, clean copy, simple duplicate, basic clipboard, minimal clipboard, streamlined copy, simple duplication, clean duplication, basic copy function.
+
+### copyleft
+**Import:** `import { Copyleft } from 'phosphor-svelte';`
+**Description:** Copyleft symbol (🄯) representing open-source licensing, free software rights, and alternative intellectual property approaches. Essential for open-source projects, software licensing interfaces, developer documentation, legal compliance systems, and intellectual property management applications. Alternative terms: copyleft license, open source rights, free software, intellectual property, licensing, software freedom, open source licensing, alternative copyright, software rights, legal symbol, licensing symbol.
+
+### copyright
+**Import:** `import { Copyright } from 'phosphor-svelte';`
+**Description:** Copyright symbol (©) representing intellectual property rights, content ownership, and legal protection. Perfect for content management systems, legal documentation, intellectual property interfaces, media licensing, content protection systems, and copyright compliance applications. Alternative terms: copyright symbol, intellectual property, content ownership, legal rights, copyright protection, media rights, content rights, legal symbol, IP rights, copyright notice, legal compliance, content licensing.
+
+### corners-in
+**Import:** `import { CornersIn } from 'phosphor-svelte';`
+**Description:** Inward-pointing corners representing window minimization, content collapse, and interface compression. Ideal for window management systems, media players, application interfaces, content viewers, and display control applications where users need to reduce or minimize content view. Alternative terms: minimize, collapse, shrink, reduce size, window minimize, compress view, contract, make smaller, windowed mode, reduce display, collapse interface, minimize window.
+
+### corners-out
+**Import:** `import { CornersOut } from 'phosphor-svelte';`
+**Description:** Outward-pointing corners representing fullscreen mode, content expansion, and interface maximization. Perfect for media players, presentation software, image viewers, video applications, and any interface requiring fullscreen or maximization functionality. Alternative terms: maximize, expand, fullscreen, enlarge, full screen mode, expand view, maximize window, make larger, expand interface, fullscreen display, maximize view, expand content.
+
+### couch
+**Import:** `import { Couch } from 'phosphor-svelte';`
+**Description:** Couch or sofa icon representing furniture, home furnishing, and comfortable seating. Essential for furniture stores, home decoration apps, interior design platforms, furniture e-commerce, home furnishing catalogs, and interior decorating applications. Alternative terms: sofa, furniture, seating, home furnishing, living room furniture, upholstery, home decor, interior design, furniture piece, comfortable seating, home furniture, living room sofa.
+
+### court-basketball
+**Import:** `import { CourtBasketball } from 'phosphor-svelte';`
+**Description:** Basketball court layout representing basketball sports, athletic facilities, and sports venue mapping. Perfect for sports applications, facility booking systems, athletic venue maps, sports facility management, basketball team apps, sports location services, and recreational facility interfaces. Alternative terms: basketball court, sports court, athletic facility, basketball venue, sports facility, basketball arena, athletic court, sports ground, basketball field, recreational facility, sports location, athletic venue.
+
+### cow
+**Import:** `import { Cow } from 'phosphor-svelte';`
+**Description:** Cow icon representing livestock, dairy farming, agricultural products, and farm animals. Ideal for agricultural applications, dairy industry platforms, farm management systems, livestock tracking, dairy product stores, organic farming apps, and agricultural marketplace applications. Alternative terms: livestock, dairy cow, farm animal, cattle, dairy farming, agriculture, milk production, dairy industry, farm livestock, agricultural animal, beef cattle, dairy products, farming, rural agriculture.
+
+### cowboy-hat
+**Import:** `import { CowboyHat } from 'phosphor-svelte';`
+**Description:** Western cowboy hat representing western wear, cowboy culture, and western-themed applications. Perfect for western clothing stores, cowboy gear retailers, western-themed entertainment, country music applications, western lifestyle platforms, and clothing e-commerce specializing in western wear. Alternative terms: western hat, cowboy gear, western wear, stetson hat, western clothing, cowboy clothing, western fashion, country style, western accessories, cowboy style, western lifestyle, country fashion.
+
+### cpu
+**Import:** `import { Cpu } from 'phosphor-svelte';`
+**Description:** Computer processor (CPU) representing computer hardware, system performance, and processing power. Essential for system monitoring tools, hardware specifications, computer building applications, performance monitoring, tech specifications, and system information interfaces. Alternative terms: processor, microprocessor, computer chip, CPU chip, processing unit, computer processor, system processor, microchip, computer hardware, processing power, system performance, computer component.
+
+### crane
+**Import:** `import { Crane } from 'phosphor-svelte';`
+**Description:** Construction crane representing building construction, industrial projects, and heavy machinery operations. Perfect for construction management apps, industrial project tracking, heavy equipment rental, construction company platforms, project management systems, and industrial service applications. Alternative terms: construction crane, building crane, heavy machinery, construction equipment, industrial crane, construction tool, building equipment, heavy equipment, construction machinery, industrial equipment, construction site, building machinery.
+
+### crane-tower
+**Import:** `import { CraneTower } from 'phosphor-svelte';`
+**Description:** Tower crane representing large-scale construction projects, urban development, and major building operations. Ideal for construction project management, urban planning applications, building development platforms, construction company systems, and large-scale construction tracking interfaces. Alternative terms: tower crane, construction tower, building crane, construction equipment, urban construction, building development, construction site, heavy construction, industrial crane, construction machinery, building tower, construction project.
+
+### credit-card
+**Import:** `import { CreditCard } from 'phosphor-svelte';`
+**Description:** Credit card icon representing payment methods, financial transactions, and e-commerce payments. Essential for payment processing, e-commerce platforms, financial applications, banking interfaces, payment forms, checkout processes, and financial management systems. Alternative terms: payment card, debit card, bank card, payment method, financial card, payment processing, credit payment, card payment, electronic payment, payment system, financial transaction, payment form.
+
+### cricket
+**Import:** `import { Cricket } from 'phosphor-svelte';`
+**Description:** Cricket sport equipment representing the cricket game, sports activities, and athletic competition. Perfect for sports applications, cricket team management, sports betting platforms, athletic event tracking, sports news applications, and recreational sports interfaces. Alternative terms: cricket sport, cricket game, sports equipment, cricket bat, cricket ball, athletic sport, team sport, competitive sport, sports activity, cricket match, sports competition, athletic game.
+
+### crop
+**Import:** `import { Crop } from 'phosphor-svelte';`
+**Description:** Image cropping tool representing photo editing, image manipulation, and visual content modification. Essential for photo editing applications, image processing tools, content creation platforms, social media editors, graphic design software, and visual content management systems. Alternative terms: image crop, photo crop, picture editing, image editing, photo editing, image manipulation, picture cropping, visual editing, photo modification, image processing, screenshot tool, image trimming.
+
+### cross
+**Import:** `import { Cross } from 'phosphor-svelte';`
+**Description:** Christian cross symbol representing religious faith, Christianity, spiritual content, and religious services. Perfect for religious applications, church management systems, spiritual content platforms, religious community apps, faith-based services, and religious organization interfaces. Alternative terms: Christian cross, religious symbol, Christianity, faith symbol, church symbol, religious cross, spiritual symbol, Christian faith, religious icon, church cross, Christian symbol, religious marker.
+
+### crosshair
+**Import:** `import { Crosshair } from 'phosphor-svelte';`
+**Description:** Detailed crosshair targeting symbol representing location targeting, GPS positioning, and precision aiming. Ideal for mapping applications, location services, target selection interfaces, GPS navigation, geolocation systems, and precision pointing applications. Alternative terms: target, aiming, GPS location, geolocation, location target, position marker, location crosshair, targeting system, location pin, GPS marker, position indicator, location selector.
+
+### crosshair-simple
+**Import:** `import { CrosshairSimple } from 'phosphor-svelte';`
+**Description:** Simplified crosshair representing basic targeting, location selection, and center point indication. Perfect for simple location interfaces, basic targeting systems, center point markers, focus indicators, and minimal location selection tools. Alternative terms: simple target, basic crosshair, center point, location marker, simple aiming, basic targeting, center indicator, focus point, simple location, basic GPS, location center, simple marker.
+
+### crown
+**Import:** `import { Crown } from 'phosphor-svelte';`
+**Description:** Royal crown representing leadership, premium status, royalty, and high-tier content. Essential for premium membership systems, leadership applications, royalty-themed content, high-tier user interfaces, premium services, VIP platforms, and status indicator systems. Alternative terms: royalty, king, queen, premium, leadership, royal status, monarchy, ruler, premium tier, VIP status, elite membership, royal crown, leadership symbol, premium service.
+
+### crown-cross
+**Import:** `import { CrownCross } from 'phosphor-svelte';`
+**Description:** Crown with cross representing religious monarchy, spiritual leadership, and faith-based authority. Perfect for religious leadership applications, church hierarchy systems, spiritual authority platforms, religious organization management, and faith community leadership interfaces. Alternative terms: religious crown, spiritual leadership, church authority, religious monarchy, faith leadership, spiritual ruler, religious hierarchy, church leadership, Christian authority, religious power, spiritual crown, faith-based leadership.
+
+### crown-simple
+**Import:** `import { CrownSimple } from 'phosphor-svelte';`
+**Description:** Simplified crown design representing basic premium status, simple leadership indication, and minimalist royal symbolism. Ideal for clean premium interfaces, simple status indicators, minimalist membership tiers, and streamlined leadership designations. Alternative terms: simple crown, basic royalty, minimal premium, simple leadership, basic crown, clean premium, simple status, minimal royalty, basic premium tier, simple VIP, minimal leadership, clean status.
+
+### cube
+**Import:** `import { Cube } from 'phosphor-svelte';`
+**Description:** Three-dimensional cube representing 3D objects, volume, spatial design, and geometric shapes. Perfect for 3D applications, design software, geometric tools, spatial interfaces, 3D modeling applications, architectural software, and volume calculation systems. Alternative terms: 3D cube, three dimensional, geometric shape, 3D object, spatial cube, volume shape, 3D design, geometric cube, dimensional object, 3D modeling, spatial design, architectural shape.
+
+### cube-focus
+**Import:** `import { CubeFocus } from 'phosphor-svelte';`
+**Description:** Cube with focus indicators representing augmented reality, 3D scanning, object recognition, and spatial tracking. Essential for AR applications, 3D scanning software, object detection systems, spatial recognition tools, augmented reality interfaces, and 3D object tracking applications. Alternative terms: augmented reality, AR scanning, 3D scanning, object detection, spatial tracking, AR focus, 3D recognition, object scanning, AR object, 3D focus, spatial scanning, AR detection.
+
+### cube-transparent
+**Import:** `import { CubeTransparent } from 'phosphor-svelte';`
+**Description:** Transparent or wireframe cube representing 3D wireframes, transparent objects, and structural visualization. Ideal for 3D wireframe applications, architectural planning, structural design software, 3D modeling tools, transparent design systems, and spatial structure visualization. Alternative terms: wireframe cube, transparent cube, 3D wireframe, structural cube, transparent 3D, wireframe design, 3D structure, transparent object, wireframe model, 3D framework, structural wireframe, transparent design.# Phosphor Icons - Batch 10 Documentation
+
+### currency-btc
+**Import:** `import { CurrencyBtc } from 'phosphor-svelte';`
+**Description:** Bitcoin cryptocurrency symbol icon representing the digital currency BTC. Perfect for financial applications, crypto trading platforms, payment methods, blockchain projects, and cryptocurrency wallets. Use when displaying Bitcoin payments, crypto portfolios, digital asset management, or any Bitcoin-related features. Alternative names include Bitcoin symbol, BTC logo, cryptocurrency icon, digital currency symbol, blockchain currency, crypto payment icon.
+
+### currency-circle-dollar
+**Import:** `import { CurrencyCircleDollar } from 'phosphor-svelte';`
+**Description:** US Dollar currency symbol enclosed in a circle, representing American currency and USD payments. Ideal for e-commerce sites, financial dashboards, pricing displays, payment forms, budget trackers, and monetary transactions. Use for dollar amounts, USD pricing, American market features, currency conversion, financial calculations, payment processing, money management, cash transactions, and pricing indicators.
+
+### currency-cny
+**Import:** `import { CurrencyCny } from 'phosphor-svelte';`
+**Description:** Chinese Yuan currency symbol (CNY) representing Chinese Renminbi and Asian market transactions. Essential for international commerce, currency exchange platforms, Asian market applications, and global payment systems. Use when displaying Yuan pricing, Chinese market data, Asian e-commerce, currency conversion rates, international payments, China-focused features, regional pricing, and multi-currency support.
+
+### currency-dollar
+**Import:** `import { CurrencyDollar } from 'phosphor-svelte';`
+**Description:** Standard US Dollar currency symbol for representing American currency, USD transactions, and monetary values. The go-to icon for pricing, financial features, payment systems, e-commerce platforms, budget applications, and money-related functionality. Perfect for price tags, payment buttons, financial calculations, cost displays, salary information, revenue tracking, expense management, and any dollar-denominated transactions.
+
+### currency-dollar-simple
+**Import:** `import { CurrencyDollarSimple } from 'phosphor-svelte';`
+**Description:** Simplified version of the US Dollar currency symbol with a cleaner, minimalist design. Ideal for modern interfaces, compact layouts, small UI elements, and clean financial displays. Use when you need a subtle dollar representation, minimal pricing indicators, simplified payment icons, streamlined financial UI, or when space is limited while maintaining currency clarity.
+
+### currency-eth
+**Import:** `import { CurrencyEth } from 'phosphor-svelte';`
+**Description:** Ethereum cryptocurrency symbol representing ETH digital currency and blockchain transactions. Essential for DeFi applications, crypto trading platforms, Web3 interfaces, NFT marketplaces, and blockchain-based projects. Use for Ethereum payments, smart contract platforms, decentralized applications, crypto portfolios, blockchain wallets, DeFi protocols, gas fee displays, and any Ethereum-related functionality.
+
+### currency-eur
+**Import:** `import { CurrencyEur } from 'phosphor-svelte';`
+**Description:** Euro currency symbol representing European Union currency and EUR transactions. Crucial for European markets, international commerce, currency exchange, and global payment systems. Use when displaying Euro pricing, European e-commerce, EU market features, currency conversion, international payments, European financial services, regional pricing, and multi-currency applications targeting European users.
+
+### currency-gbp
+**Import:** `import { CurrencyGbp } from 'phosphor-svelte';`
+**Description:** British Pound Sterling currency symbol (GBP) representing UK currency and British market transactions. Important for UK-focused applications, European commerce, international payments, and currency exchange platforms. Use for British pricing, UK market data, Sterling transactions, currency conversion, British e-commerce, UK financial services, regional pricing, and applications serving British customers.
+
+### currency-inr
+**Import:** `import { CurrencyInr } from 'phosphor-svelte';`
+**Description:** Indian Rupee currency symbol (INR) representing Indian currency and South Asian market transactions. Essential for Indian market applications, South Asian commerce, regional payment systems, and international currency platforms. Use when displaying Rupee pricing, Indian e-commerce, South Asian markets, currency conversion, regional payments, India-focused features, local pricing, and applications serving Indian customers.
+
+### currency-jpy
+**Import:** `import { CurrencyJpy } from 'phosphor-svelte';`
+**Description:** Japanese Yen currency symbol (JPY) representing Japanese currency and East Asian market transactions. Important for Japanese market applications, Asian commerce, international payments, and currency exchange systems. Use for Yen pricing displays, Japanese e-commerce, Asian market features, currency conversion, regional payments, Japan-focused applications, local pricing, and multi-currency platforms serving Japanese customers.
+
+### currency-krw
+**Import:** `import { CurrencyKrw } from 'phosphor-svelte';`
+**Description:** South Korean Won currency symbol (KRW) representing Korean currency and East Asian market transactions. Essential for Korean market applications, Asian commerce, regional payment systems, and international currency platforms. Use when displaying Won pricing, Korean e-commerce, East Asian markets, currency conversion, regional payments, Korea-focused features, local pricing, and applications serving Korean customers.
+
+### currency-kzt
+**Import:** `import { CurrencyKzt } from 'phosphor-svelte';`
+**Description:** Kazakhstani Tenge currency symbol (KZT) representing Kazakhstan's national currency and Central Asian market transactions. Important for Central Asian commerce, regional payment systems, and international currency platforms. Use for Tenge pricing, Kazakhstan-focused applications, Central Asian markets, currency conversion, regional payments, local pricing, emerging market features, and applications serving Kazakhstani customers.
+
+### currency-ngn
+**Import:** `import { CurrencyNgn } from 'phosphor-svelte';`
+**Description:** Nigerian Naira currency symbol (NGN) representing Nigerian currency and West African market transactions. Essential for African market applications, regional commerce, emerging market platforms, and international currency systems. Use when displaying Naira pricing, Nigerian e-commerce, African markets, currency conversion, regional payments, Nigeria-focused features, local pricing, and applications serving Nigerian and West African customers.
+
+### currency-rub
+**Import:** `import { CurrencyRub } from 'phosphor-svelte';`
+**Description:** Russian Ruble currency symbol (RUB) representing Russian currency and Eastern European market transactions. Important for Russian market applications, Eastern European commerce, regional payment systems, and international currency platforms. Use for Ruble pricing, Russian e-commerce, Eastern European markets, currency conversion, regional payments, Russia-focused features, local pricing, and applications serving Russian customers.
+
+### cursor
+**Import:** `import { Cursor } from 'phosphor-svelte';`
+**Description:** Standard mouse cursor pointer icon representing user interaction, clickable elements, and navigation. Essential for UI design, interactive elements, system interfaces, and user experience indicators. Use for hover states, clickable areas, pointer indicators, mouse interaction guides, interactive tutorials, UI demonstrations, system cursors, navigation elements, and any interface showing user pointer interaction or clickable functionality.
+
+### cursor-click
+**Import:** `import { CursorClick } from 'phosphor-svelte';`
+**Description:** Mouse cursor with click indicator showing active clicking or selection action. Perfect for interactive tutorials, UI demonstrations, click indicators, user guides, and interface instructions. Use when showing click actions, button interactions, selection processes, user onboarding, tutorial steps, interactive help systems, demonstration modes, and any interface highlighting clickable interactions or user engagement points.
+
+### cursor-text
+**Import:** `import { CursorText } from 'phosphor-svelte';`
+**Description:** Text cursor (I-beam) icon representing text selection, input fields, and editable content areas. Essential for text editors, input interfaces, content management systems, and writing applications. Use for text input fields, content editing areas, text selection indicators, writing interfaces, document editors, form inputs, text areas, content creation tools, and any interface involving text editing or input functionality.
+
+### cylinder
+**Import:** `import { Cylinder } from 'phosphor-svelte';`
+**Description:** Geometric cylinder shape representing 3D objects, design elements, and architectural forms. Useful for design applications, 3D modeling interfaces, geometric tools, architectural software, and shape libraries. Use in drawing applications, CAD software, geometry tools, design systems, 3D graphics interfaces, mathematical visualizations, architectural designs, engineering diagrams, and any interface dealing with 3D shapes or geometric forms.
+
+### database
+**Import:** `import { Database } from 'phosphor-svelte';`
+**Description:** Database storage icon representing data storage, server infrastructure, and information management systems. Essential for admin panels, developer tools, data management interfaces, server monitoring, and technical dashboards. Use for database connections, data storage indicators, server status, backup systems, data archives, cloud storage, SQL databases, data warehouses, storage management, information repositories, and any data-related functionality.
+
+### desk
+**Import:** `import { Desk } from 'phosphor-svelte';`
+**Description:** Office desk icon representing workspace, office furniture, and professional work environments. Perfect for office management apps, workspace booking systems, furniture stores, and business applications. Use for office layouts, workspace allocation, desk booking, furniture catalogs, office planning, workspace management, business environments, corporate settings, professional spaces, work-from-home setups, and any office or workspace-related features.
+
+### desktop
+**Import:** `import { Desktop } from 'phosphor-svelte';`
+**Description:** Desktop computer icon representing personal computers, workstations, and computing devices. Essential for technology interfaces, device management, computer services, and IT applications. Use for device selection, computer categories, desktop applications, PC software, workstation indicators, computing platforms, technology services, hardware catalogs, device management systems, IT support, and any desktop computing-related functionality.
+
+### desktop-tower
+**Import:** `import { DesktopTower } from 'phosphor-svelte';`
+**Description:** Desktop computer tower icon representing PC towers, workstations, and high-performance computing systems. Perfect for IT management, computer hardware, gaming systems, and technical applications. Use for PC building, hardware catalogs, computer specifications, tower systems, workstation indicators, gaming setups, server equipment, IT inventory, hardware management, computer services, and any desktop tower or PC-related features.
+
+### detective
+**Import:** `import { Detective } from 'phosphor-svelte';`
+**Description:** Detective icon representing investigation, privacy, security, and law enforcement. Ideal for security applications, privacy tools, investigation features, and monitoring systems. Use for security settings, privacy modes, investigation tools, detective work, law enforcement features, security analysis, monitoring systems, investigation reports, privacy protection, incognito modes, secret operations, and any security or investigation-related functionality.
+
+### dev-to-logo
+**Import:** `import { DevToLogo } from 'phosphor-svelte';`
+**Description:** Dev.to community logo representing the popular developer blogging platform and tech community. Essential for developer portfolios, tech blogs, social media integration, and developer-focused applications. Use for social sharing, developer profiles, tech community features, blog integrations, developer networking, tech article sharing, programming community links, developer social media, tech blogging platforms, and coding community connections.
+
+### device-mobile
+**Import:** `import { DeviceMobile } from 'phosphor-svelte';`
+**Description:** Mobile phone icon representing smartphones, mobile devices, and cellular communication. Essential for responsive design, device selection, mobile applications, and communication features. Use for mobile optimization, device indicators, phone features, responsive layouts, mobile-first design, smartphone categories, cellular services, mobile app development, device management, and any mobile device or smartphone-related functionality.
+
+### device-mobile-camera
+**Import:** `import { DeviceMobileCamera } from 'phosphor-svelte';`
+**Description:** Mobile phone with camera icon representing smartphone photography, mobile camera features, and photo capture functionality. Perfect for camera applications, photo sharing, mobile photography, and media features. Use for photo capture buttons, camera access, mobile photography, image upload, photo editing apps, camera permissions, media capture, smartphone camera features, and any mobile photography or camera-related functionality.
+
+### device-mobile-slash
+**Import:** `import { DeviceMobileSlash } from 'phosphor-svelte';`
+**Description:** Mobile phone with slash icon representing disabled mobile access, no phone zones, or mobile restrictions. Useful for settings, restrictions, offline modes, and accessibility features. Use for mobile blocking, no phone policies, offline indicators, device restrictions, mobile-free zones, accessibility settings, phone restrictions, mobile limitations, device blocking, and any mobile restriction or disabled mobile functionality.
+
+### device-mobile-speaker
+**Import:** `import { DeviceMobileSpeaker } from 'phosphor-svelte';`
+**Description:** Mobile phone with speaker icon representing audio output, speakerphone functionality, and mobile sound features. Perfect for communication apps, audio controls, call features, and sound settings. Use for speakerphone mode, audio output, mobile audio, call controls, sound settings, voice features, audio playback, speaker controls, communication tools, and any mobile audio or speaker-related functionality.
+
+### device-rotate
+**Import:** `import { DeviceRotate } from 'phosphor-svelte';`
+**Description:** Device rotation icon representing screen orientation changes, device rotation, and responsive layout adjustments. Essential for mobile interfaces, orientation controls, and responsive design features. Use for rotation controls, orientation settings, landscape mode, portrait mode, screen rotation, responsive behavior, device orientation, layout adjustments, mobile rotation, and any device orientation or rotation-related functionality.
+
+### device-tablet
+**Import:** `import { DeviceTablet } from 'phosphor-svelte';`
+**Description:** Tablet device icon representing tablets, iPads, and touch-screen computing devices. Important for responsive design, device categories, and tablet-specific features. Use for device selection, tablet optimization, responsive layouts, tablet categories, touch interfaces, tablet applications, device management, tablet-specific features, media consumption devices, and any tablet or iPad-related functionality.
+
+### device-tablet-camera
+**Import:** `import { DeviceTabletCamera } from 'phosphor-svelte';`
+**Description:** Tablet with camera icon representing tablet photography, camera features on tablets, and mobile photography capabilities. Perfect for camera applications, photo capture, and media features on tablet devices. Use for tablet photography, camera access on tablets, photo capture, image editing, media apps, camera permissions, tablet camera features, photo sharing, and any tablet camera or photography-related functionality.
+
+### device-tablet-speaker
+**Import:** `import { DeviceTabletSpeaker } from 'phosphor-svelte';`
+**Description:** Tablet with speaker icon representing audio output, multimedia playback, and sound features on tablet devices. Ideal for media applications, audio controls, and entertainment features. Use for audio playback, media controls, tablet audio, sound settings, multimedia features, entertainment apps, audio output controls, speaker settings, media consumption, and any tablet audio or multimedia-related functionality.
+
+### devices
+**Import:** `import { Devices } from 'phosphor-svelte';`
+**Description:** Multiple devices icon representing responsive design, cross-platform compatibility, and multi-device experiences. Essential for responsive web design, device management, and cross-platform applications. Use for responsive indicators, multi-device support, cross-platform features, device synchronization, universal apps, adaptive layouts, device compatibility, platform agnostic solutions, and any multi-device or responsive design functionality.
+
+### diamond
+**Import:** `import { Diamond } from 'phosphor-svelte';`
+**Description:** Diamond shape icon representing playing card suits, precious gems, luxury items, and geometric shapes. Perfect for gaming applications, card games, jewelry stores, and luxury brands. Use for card games, diamond suits, luxury indicators, precious items, high-value features, premium content, jewelry catalogs, gaming elements, geometric shapes, casino games, and any diamond, luxury, or gaming-related functionality.
+
+### diamonds-four
+**Import:** `import { DiamondsFour } from 'phosphor-svelte';`
+**Description:** Four diamonds pattern icon representing grid layouts, component arrangements, and geometric patterns. Useful for design systems, layout tools, and pattern libraries. Use for grid components, layout patterns, design elements, modular layouts, component grids, pattern displays, geometric arrangements, design systems, layout tools, grid indicators, and any grid or pattern-related functionality.
+
+### dice-five
+**Import:** `import { DiceFive } from 'phosphor-svelte';`
+**Description:** Dice showing five dots representing gaming, chance, probability, and random number generation. Essential for gaming applications, casino games, and probability features. Use for dice games, random generation, gaming mechanics, casino features, probability demonstrations, chance games, board games, gambling applications, random selection tools, gaming elements, and any dice or random number functionality.
+
+### dice-four
+**Import:** `import { DiceFour } from 'phosphor-svelte';`
+**Description:** Dice showing four dots representing gaming, dice games, and random chance elements. Perfect for board games, casino applications, and probability features. Use for dice rolling, gaming mechanics, random number generation, probability tools, casino games, board game apps, chance elements, gaming features, random selection, gambling elements, and any dice or gaming-related functionality.
+
+### dice-one
+**Import:** `import { DiceOne } from 'phosphor-svelte';`
+**Description:** Dice showing one dot representing the lowest dice roll, starting points, and single unit values. Useful for gaming applications, probability tools, and chance-based features. Use for minimum values, single units, dice games, probability demonstrations, gaming mechanics, random generation, casino features, board games, chance elements, starting positions, and any single value or dice-related functionality.
+
+### dice-six
+**Import:** `import { DiceSix } from 'phosphor-svelte';`
+**Description:** Dice showing six dots representing the highest standard dice roll, maximum values, and luck indicators. Essential for gaming applications, casino games, and probability features. Use for maximum values, lucky numbers, dice games, casino features, gaming mechanics, probability tools, random generation, board games, gambling elements, chance games, and any maximum value or dice-related functionality.
+
+### dice-three
+**Import:** `import { DiceThree } from 'phosphor-svelte';`
+**Description:** Dice showing three dots representing mid-range dice rolls, gaming elements, and probability features. Perfect for dice games, casino applications, and random number tools. Use for dice rolling, gaming mechanics, probability demonstrations, casino features, board games, chance elements, random selection, gaming applications, probability tools, and any mid-value dice or gaming-related functionality.
+
+### dice-two
+**Import:** `import { DiceTwo } from 'phosphor-svelte';`
+**Description:** Dice showing two dots representing low dice rolls, pair values, and gaming elements. Useful for dice games, probability tools, and chance-based applications. Use for low values, pair indicators, dice games, gaming mechanics, probability features, casino applications, board games, chance elements, random generation, gaming tools, and any two-value or dice-related functionality.
+
+### disc
+**Import:** `import { Disc } from 'phosphor-svelte';`
+**Description:** Disc icon representing CDs, DVDs, music albums, and optical media. Essential for media applications, music players, disc management, and entertainment software. Use for CD/DVD indicators, music albums, optical media, disc burning, media playback, album covers, music libraries, disc management, media storage, entertainment content, and any disc or optical media-related functionality.
+
+### disco-ball
+**Import:** `import { DiscoBall } from 'phosphor-svelte';`
+**Description:** Disco ball icon representing nightlife, dancing, parties, and entertainment venues. Perfect for event applications, nightlife apps, party planning, and entertainment features. Use for party events, nightclub features, dancing apps, entertainment venues, party planning, nightlife guides, event management, music events, club applications, party themes, and any party, nightlife, or entertainment-related functionality.
+
+### discord-logo
+**Import:** `import { DiscordLogo } from 'phosphor-svelte';`
+**Description:** Discord platform logo representing the popular communication platform for gaming and communities. Essential for social integrations, gaming applications, community features, and communication tools. Use for Discord integration, social sharing, gaming communities, chat features, community links, gaming social features, communication platforms, team chat, gaming networks, and any Discord or gaming communication functionality.
+
+### divide
+**Import:** `import { Divide } from 'phosphor-svelte';`
+**Description:** Division mathematical operator icon representing mathematical division, calculations, and arithmetic operations. Essential for calculator applications, mathematical tools, educational software, and computational features. Use for mathematical calculations, division operations, calculator functions, arithmetic tools, math education, computational features, formula displays, mathematical operations, numeric calculations, and any division or mathematical functionality.
+
+### dna
+**Import:** `import { Dna } from 'phosphor-svelte';`
+**Description:** DNA double helix icon representing genetics, biological sciences, medical research, and life sciences. Perfect for healthcare applications, scientific tools, medical software, and research platforms. Use for genetic information, medical research, biological features, healthcare data, scientific applications, medical genetics, life sciences, research tools, biological processes, genetic testing, and any genetics or biological science functionality.
+
+### dog
+**Import:** `import { Dog } from 'phosphor-svelte';`
+**Description:** Dog icon representing pets, animals, veterinary services, and pet care. Essential for pet applications, veterinary software, animal care services, and pet-related features. Use for pet profiles, animal categories, veterinary services, pet care apps, animal welfare, pet adoption, dog walking services, pet stores, animal health, pet management, and any dog, pet, or animal-related functionality.
+
+### door
+**Import:** `import { Door } from 'phosphor-svelte';`
+**Description:** Closed door icon representing entrances, access control, privacy, and security. Useful for access management, security features, room indicators, and navigation systems. Use for access controls, entrance indicators, security features, room doors, privacy settings, restricted access, building navigation, access permissions, security systems, entry points, and any door, access, or security-related functionality.
+
+### door-open
+**Import:** `import { DoorOpen } from 'phosphor-svelte';`
+**Description:** Open door icon representing access granted, open entrances, welcome indicators, and available access. Perfect for access systems, navigation aids, and security features. Use for open access, available entrances, granted permissions, welcome indicators, accessible areas, open rooms, navigation systems, entry permissions, access granted states, and any open door or accessible entrance functionality.
+
+### dot
+**Import:** `import { Dot } from 'phosphor-svelte';`
+**Description:** Simple dot icon representing points, indicators, status markers, and minimal design elements. Essential for status indicators, navigation dots, list markers, and minimalist UI elements. Use for status indicators, bullet points, navigation dots, active states, progress indicators, list markers, minimal icons, point indicators, selection markers, pagination dots, and any dot, point, or minimal indicator functionality.# Phosphor Icons - Batch 11 Documentation
+
+### dot-outline
+**Import:** `import { DotOutline } from 'phosphor-svelte';`
+**Description:** A single outlined circular dot or point. Perfect for creating minimal indicators, bullet points, list markers, status dots, radio button alternatives, or accent elements in interfaces. Commonly used for pagination dots, step indicators, navigation points, minimal icons, decorative elements, loading states, or anywhere a subtle circular marker is needed. Alternative names include circle outline, ring, point indicator, marker, bullet outline.
+
+### dots-nine
+**Import:** `import { DotsNine } from 'phosphor-svelte';`
+**Description:** A 3x3 grid of nine circular dots arranged in a square pattern. Ideal for representing grid views, app launchers, menu grids, dashboard layouts, category selectors, or design patterns. Commonly used in mobile interfaces for app grids, desktop applications for grid toggle buttons, data visualization for matrix representations, or anywhere a structured grid layout needs to be indicated. Alternative names include grid dots, nine dots, app grid, matrix dots, launcher icon.
+
+### dots-six
+**Import:** `import { DotsSix } from 'phosphor-svelte';`
+**Description:** Six dots arranged in a 2x3 pattern, commonly used as a drag handle or grip indicator. Perfect for sortable lists, draggable elements, reorderable components, moveable panels, or anywhere users need to grab and move interface elements. The knurled pattern provides visual affordance for interactive dragging functionality. Alternative names include drag handle, grip dots, move handle, reorder grip, sortable indicator, knurling pattern.
+
+### dots-six-vertical
+**Import:** `import { DotsSixVertical } from 'phosphor-svelte';`
+**Description:** Six dots arranged in a vertical 3x2 pattern, serving as a vertical drag handle or grip indicator. Ideal for vertically-oriented draggable elements, sidebar resizers, panel dividers, vertical sortable lists, or column manipulation controls. The vertical orientation makes it perfect for narrow spaces or vertical interface elements that need drag functionality. Alternative names include vertical drag handle, vertical grip, column resizer, vertical move handle, vertical knurling.
+
+### dots-three
+**Import:** `import { DotsThree } from 'phosphor-svelte';`
+**Description:** Three horizontal dots representing a menu, more options, or overflow indicator. The universal symbol for "more actions" in modern interfaces. Perfect for dropdown menus, action menus, overflow buttons, context menus, or anywhere additional options are hidden behind a compact trigger. Widely recognized as the standard ellipsis menu in mobile and web applications. Alternative names include more menu, ellipsis, three dots menu, overflow menu, action menu, kebab menu, options dots.
+
+### dots-three-circle
+**Import:** `import { DotsThreeCircle } from 'phosphor-svelte';`
+**Description:** Three horizontal dots enclosed within a circular border, providing a contained version of the standard more menu indicator. Ideal for when you need a more defined boundary around the menu trigger, or when the dots need to stand out more prominently in the interface. Perfect for card headers, list items, or anywhere a bordered menu trigger is preferred over plain dots. Alternative names include circled more menu, bordered ellipsis, contained menu dots, circular overflow menu.
+
+### dots-three-circle-vertical
+**Import:** `import { DotsThreeCircleVertical } from 'phosphor-svelte';`
+**Description:** Three vertical dots enclosed within a circular border, offering a vertical orientation of the contained menu indicator. Perfect for narrow interface elements, sidebar menus, vertical toolbars, or when horizontal space is limited. The circular border provides clear visual boundaries while the vertical orientation fits better in constrained layouts. Alternative names include vertical circled menu, vertical bordered ellipsis, vertical contained menu, circular vertical overflow.
+
+### dots-three-outline
+**Import:** `import { DotsThreeOutline } from 'phosphor-svelte';`
+**Description:** Three horizontal outlined dots providing a lighter, more subtle version of the standard menu indicator. Ideal for minimal interfaces, light themes, or when you need a less prominent menu trigger that still maintains good visibility. The outlined style works well in designs that favor line-based iconography over solid fills. Alternative names include outlined ellipsis, light more menu, subtle menu dots, outlined overflow menu.
+
+### dots-three-outline-vertical
+**Import:** `import { DotsThreeOutlineVertical } from 'phosphor-svelte';`
+**Description:** Three vertical outlined dots offering a subtle, vertical menu indicator. Perfect for minimal vertical interfaces, narrow sidebars, or when you need a lightweight menu trigger in vertically-oriented layouts. The outlined style provides good visibility while maintaining a clean, unobtrusive appearance in space-constrained vertical elements. Alternative names include vertical outlined ellipsis, vertical light menu, subtle vertical menu, vertical outlined overflow.
+
+### dots-three-vertical
+**Import:** `import { DotsThreeVertical } from 'phosphor-svelte';`
+**Description:** Three vertical dots representing a vertical menu or more options indicator. The vertical equivalent of the standard ellipsis menu, perfect for narrow interface elements, sidebar controls, vertical toolbars, or when horizontal space is limited. Commonly used in mobile interfaces where vertical orientation fits better with the overall layout structure. Alternative names include vertical ellipsis, vertical more menu, vertical overflow, column menu, vertical action dots.
+
+### download
+**Import:** `import { Download } from 'phosphor-svelte';`
+**Description:** A downward arrow with a horizontal line at the bottom, representing file downloads, saving content, or importing data. The classic download icon universally recognized across digital platforms. Perfect for download buttons, save functions, file export features, content archiving, or any action that moves data from a remote source to local storage. Alternative names include save, export, get file, retrieve, pull down, import, archive, store locally.
+
+### download-simple
+**Import:** `import { DownloadSimple } from 'phosphor-svelte';`
+**Description:** A simplified downward arrow representing basic download or import functionality. The minimalist design works well in compact interfaces or when you need a clean, uncluttered download indicator. Perfect for simple file downloads, content imports, data retrieval actions, or anywhere a streamlined download symbol is preferred over more complex variations. Alternative names include simple download, basic import, minimal save, clean download arrow, streamlined export.
+
+### dress
+**Import:** `import { Dress } from 'phosphor-svelte';`
+**Description:** A women's dress silhouette representing clothing, fashion, apparel, or gender-specific content. Perfect for e-commerce clothing sections, fashion applications, wardrobe management tools, shopping categories, or gender selection interfaces. Commonly used in retail applications, clothing catalogs, fashion blogs, or anywhere women's clothing needs to be represented visually. Alternative names include gown, women's clothing, apparel, fashion item, garment, outfit, women's wear.
+
+### dresser
+**Import:** `import { Dresser } from 'phosphor-svelte';`
+**Description:** A bedroom dresser or chest of drawers representing furniture, storage, bedroom items, or home organization. Perfect for furniture catalogs, home decoration apps, room planning tools, storage solutions, or interior design applications. Commonly used in home goods e-commerce, bedroom planning interfaces, or furniture inventory systems. Alternative names include chest of drawers, bedroom furniture, storage furniture, drawers, wardrobe, bedroom storage, furniture piece.
+
+### dribbble-logo
+**Import:** `import { DribbbleLogo } from 'phosphor-svelte';`
+**Description:** The official Dribbble brand logo featuring the distinctive pink basketball-like circular design. Essential for design portfolios, creative showcases, social media integrations, or any application that connects with the Dribbble design community. Perfect for designer profiles, portfolio links, creative platform integrations, or branding elements in design-focused applications. Alternative names include Dribbble brand, design community logo, creative platform icon, portfolio platform, design network brand.
+
+### drone
+**Import:** `import { Drone } from 'phosphor-svelte';`
+**Description:** A quadcopter drone representing unmanned aerial vehicles, aerial photography, remote control devices, or modern technology. Perfect for photography applications, aerial services, tech gadget stores, remote control interfaces, or aviation-related content. Commonly used in camera apps with drone features, aerial photography services, tech product catalogs, or mapping applications. Alternative names include quadcopter, UAV, aerial vehicle, remote aircraft, flying camera, aerial drone, unmanned aircraft.
+
+### drop
+**Import:** `import { Drop } from 'phosphor-svelte';`
+**Description:** A water droplet or teardrop shape representing liquid, water, rain, humidity, or fluid-related concepts. Perfect for weather applications, water-related services, hydration trackers, environmental apps, or any interface dealing with liquids. Commonly used for rain indicators, water levels, humidity displays, beverage applications, or environmental monitoring interfaces. Alternative names include water drop, teardrop, raindrop, liquid drop, water droplet, moisture indicator, hydration symbol.
+
+### drop-half
+**Import:** `import { DropHalf } from 'phosphor-svelte';`
+**Description:** A water droplet with half filled, representing partial levels, contrast adjustment, or gradient effects. Perfect for brightness controls, contrast sliders, opacity adjustments, fill level indicators, or any interface element that shows partial states. Commonly used in image editors, display settings, volume controls, or progress indicators where a half-full state needs visual representation. Alternative names include half droplet, contrast drop, brightness indicator, partial fill, gradient drop, level indicator.
+
+### drop-half-bottom
+**Import:** `import { DropHalfBottom } from 'phosphor-svelte';`
+**Description:** A water droplet with the bottom half filled, representing bottom-weighted levels, base fill states, or inverted partial indicators. Perfect for specialized level displays, bottom-up progress indicators, inverted sliders, or unique fill state representations. Useful in applications where the fill direction or weighting needs to be visually distinguished from standard top-down filling patterns. Alternative names include bottom-filled drop, inverted half droplet, base-weighted indicator, bottom fill level.
+
+### drop-simple
+**Import:** `import { DropSimple } from 'phosphor-svelte';`
+**Description:** A simplified, clean water droplet design representing basic liquid concepts, minimal water indicators, or streamlined fluid symbols. Perfect for minimal weather interfaces, clean hydration apps, simple environmental indicators, or anywhere a basic droplet symbol is needed without decorative elements. The simplified design works well in compact spaces or minimal design systems. Alternative names include simple droplet, basic water drop, minimal liquid indicator, clean raindrop, streamlined water symbol.
+
+### drop-slash
+**Import:** `import { DropSlash } from 'phosphor-svelte';`
+**Description:** A water droplet with a diagonal slash through it, representing disabled water features, waterproof indicators, dry conditions, or dehydration warnings. Perfect for weather apps showing no rain, waterproof product indicators, drought conditions, disabled water features, or dry state notifications. The slash clearly indicates the absence or prohibition of water/liquid. Alternative names include no water, waterproof, dry indicator, no rain, water disabled, drought symbol, dehydration warning.
+
+### dropbox-logo
+**Import:** `import { DropboxLogo } from 'phosphor-svelte';`
+**Description:** The official Dropbox brand logo representing cloud storage, file synchronization, backup services, or the Dropbox platform specifically. Essential for cloud storage applications, file sharing interfaces, backup service integrations, or any platform that connects with Dropbox services. Perfect for storage management apps, file sync indicators, cloud service selectors, or backup solution interfaces. Alternative names include Dropbox brand, cloud storage logo, file sync icon, backup service brand, cloud platform logo.
+
+### ear
+**Import:** `import { Ear } from 'phosphor-svelte';`
+**Description:** A human ear representing hearing, audio input, sound detection, or listening functionality. Perfect for accessibility features, audio applications, hearing aid interfaces, sound monitoring tools, or voice recognition systems. Commonly used for microphone alternatives, listening indicators, audio input selectors, or accessibility tools for hearing-impaired users. Alternative names include hearing, audio input, listen, sound detection, auditory, hearing aid, audio receiver.
+
+### ear-slash
+**Import:** `import { EarSlash } from 'phosphor-svelte';`
+**Description:** A human ear with a diagonal slash representing muted audio, hearing difficulties, sound disabled, or accessibility indicators for hearing impairment. Perfect for mute functions, accessibility features, hearing disability indicators, or sound-off states in applications. The slash clearly communicates the absence or impairment of hearing functionality. Alternative names include hearing impaired, muted hearing, audio disabled, deaf indicator, sound off, hearing accessibility, no audio input.
+
+### egg
+**Import:** `import { Egg } from 'phosphor-svelte';`
+**Description:** A whole egg representing food items, cooking ingredients, breakfast foods, protein sources, or agricultural products. Perfect for recipe applications, food delivery services, grocery lists, cooking games, or nutritional tracking apps. Commonly used in meal planning, ingredient catalogs, breakfast menus, or dietary applications focusing on protein content. Alternative names include breakfast food, protein source, cooking ingredient, food item, chicken egg, oval food, breakfast ingredient.
+
+### egg-crack
+**Import:** `import { EggCrack } from 'phosphor-svelte';`
+**Description:** A cracked egg showing the shell breaking, representing fragility, breaking points, hatching processes, or damaged states. Perfect for cooking applications showing egg preparation, fragility indicators, breaking animations, or progress states in applications. The crack suggests action, change, or the beginning of a process. Alternative names include cracked egg, broken egg, hatching, fragile item, breaking point, damaged egg, egg preparation, shell crack.
+
+### eject
+**Import:** `import { Eject } from 'phosphor-svelte';`
+**Description:** The universal eject symbol with triangle and horizontal bar, representing media ejection, device disconnection, or removal actions. Perfect for USB device management, CD/DVD controls, external drive interfaces, or any system where removable media needs to be safely ejected. The standard symbol recognized across all computing platforms for safe removal procedures. Alternative names include remove device, disconnect, safe removal, unmount, media eject, device eject, USB eject, drive removal.
+
+### eject-simple
+**Import:** `import { EjectSimple } from 'phosphor-svelte';`
+**Description:** A simplified version of the eject symbol, maintaining the essential triangle shape while reducing visual complexity. Perfect for minimal interfaces, compact controls, or when a cleaner eject indicator is preferred. The simplified design works well in space-constrained layouts while still being universally recognizable as an eject function. Alternative names include simple eject, minimal disconnect, basic removal, clean eject, streamlined unmount, simple device eject.
+
+### elevator
+**Import:** `import { Elevator } from 'phosphor-svelte';`
+**Description:** An elevator or lift symbol representing vertical transportation, building navigation, accessibility features, or multi-floor movement. Perfect for building directory applications, navigation systems, accessibility interfaces, or any application dealing with multi-level structures. Commonly used in mapping applications, building management systems, or accessibility tools for mobility-impaired users. Alternative names include lift, vertical transport, building navigation, accessibility lift, floor navigation, vertical movement, building elevator.
+
+### empty
+**Import:** `import { Empty } from 'phosphor-svelte';`
+**Description:** The mathematical empty set symbol (∅) representing null values, empty states, void conditions, or absence of data. Perfect for mathematical applications, database interfaces, empty state indicators, or programming contexts where null/empty values need visual representation. The symbol is universally recognized in mathematics and computer science for representing emptiness or void sets. Alternative names include null set, void symbol, empty set, null indicator, void state, absence symbol, mathematical null, zero elements.
+
+### engine
+**Import:** `import { Engine } from 'phosphor-svelte';`
+**Description:** A car engine representing automotive maintenance, vehicle mechanics, power systems, or mechanical components. Perfect for automotive applications, maintenance trackers, mechanic services, vehicle diagnostics, or car repair interfaces. Commonly used in automotive service apps, maintenance scheduling systems, or vehicle management platforms. Alternative names include motor, car engine, automotive repair, vehicle maintenance, mechanical system, car motor, automotive component, power plant.
+
+### envelope
+**Import:** `import { Envelope } from 'phosphor-svelte';`
+**Description:** A sealed envelope representing email, mail services, messaging, correspondence, or communication systems. The universal symbol for electronic and physical mail across all platforms. Perfect for email applications, contact forms, message centers, communication tools, or any interface involving correspondence. One of the most recognized icons in digital communication. Alternative names include email, mail, message, letter, correspondence, communication, postal mail, electronic mail.
+
+### envelope-open
+**Import:** `import { EnvelopeOpen } from 'phosphor-svelte';`
+**Description:** An opened envelope representing read messages, opened mail, message viewing, or active correspondence. Perfect for indicating read status in email applications, opened message states, or active communication threads. The open state clearly differentiates from unread/sealed envelope states, providing important visual feedback in messaging interfaces. Alternative names include opened mail, read email, opened message, mail reader, opened correspondence, read letter, active message.
+
+### envelope-simple
+**Import:** `import { EnvelopeSimple } from 'phosphor-svelte';`
+**Description:** A clean, simplified envelope design representing basic email functionality, minimal messaging, or streamlined communication interfaces. Perfect for minimal design systems, compact mail indicators, or when a cleaner envelope symbol is preferred over detailed versions. The simplified design maintains recognition while reducing visual complexity. Alternative names include simple mail, basic email, minimal envelope, clean message, streamlined mail, simple correspondence.
+
+### envelope-simple-open
+**Import:** `import { EnvelopeSimpleOpen } from 'phosphor-svelte';`
+**Description:** A simplified opened envelope combining the clean aesthetic with read message indication. Perfect for minimal email interfaces, basic messaging systems, or simplified communication tools where both clean design and read status need to be conveyed. The combination provides functionality while maintaining design simplicity. Alternative names include simple opened mail, basic read email, minimal opened message, clean opened envelope, streamlined read mail.
+
+### equalizer
+**Import:** `import { Equalizer } from 'phosphor-svelte';`
+**Description:** An audio equalizer display with multiple frequency bars, representing sound mixing, audio controls, music settings, or frequency adjustment. Perfect for music applications, audio editors, sound systems, streaming services, or any interface dealing with audio manipulation. The multi-bar display clearly indicates audio spectrum control and sound customization capabilities. Alternative names include audio mixer, sound equalizer, frequency bars, audio spectrum, music mixer, sound controls, EQ display, audio levels.
+
+### equals
+**Import:** `import { Equals } from 'phosphor-svelte';`
+**Description:** The mathematical equals sign (=) representing equality, mathematical operations, calculations, or equivalent values. Perfect for calculator applications, mathematical tools, comparison interfaces, or any system dealing with equations and equivalence. The symbol is universally recognized across all cultures and educational systems for representing mathematical equality. Alternative names include equality, mathematical equals, calculation symbol, equivalent sign, math operator, equation symbol, balance indicator.
+
+### eraser
+**Import:** `import { Eraser } from 'phosphor-svelte';`
+**Description:** A pencil eraser representing deletion, editing, correction, undo actions, or content removal. Perfect for drawing applications, text editors, design tools, or any interface where users can remove or correct content. The eraser metaphor is universally understood for undoing or removing unwanted elements. Alternative names include delete, remove, undo, correction tool, editing tool, content eraser, mistake remover, deletion tool.
+
+### escalator-down
+**Import:** `import { EscalatorDown } from 'phosphor-svelte';`
+**Description:** A downward-facing escalator representing downward movement, descending transportation, or lower level access. Perfect for building navigation systems, mall directories, transportation hubs, or accessibility interfaces. The directional indicator clearly shows the movement direction for user navigation and wayfinding purposes. Alternative names include down escalator, descending stairs, downward transport, lower level access, descending movement, down direction, moving stairs down.
+
+### escalator-up
+**Import:** `import { EscalatorUp } from 'phosphor-svelte';`
+**Description:** An upward-facing escalator representing upward movement, ascending transportation, or upper level access. Perfect for building navigation systems, shopping centers, airports, or public transportation interfaces. The upward direction clearly indicates ascending movement for effective wayfinding and navigation assistance. Alternative names include up escalator, ascending stairs, upward transport, upper level access, ascending movement, up direction, moving stairs up.
+
+### exam
+**Import:** `import { Exam } from 'phosphor-svelte';`
+**Description:** A test paper or exam document representing academic testing, evaluations, assessments, or educational content. Perfect for educational applications, testing platforms, grade tracking systems, or academic management tools. The document with evaluation marks clearly indicates testing, assessment, or academic evaluation contexts. Alternative names include test, assessment, evaluation, quiz, academic paper, grade sheet, examination paper, educational test, school exam.
+
+### exclamation-mark
+**Import:** `import { ExclamationMark } from 'phosphor-svelte';`
+**Description:** An exclamation point (!) representing alerts, warnings, important notices, or attention-grabbing elements. Perfect for notification systems, warning dialogs, important messages, or any interface element that requires user attention. The punctuation mark is universally recognized for indicating importance, urgency, or emphasis in communication. Alternative names include alert symbol, warning mark, attention indicator, importance symbol, urgent notice, emphasis mark, priority indicator, caution symbol.
+
+### exclude
+**Import:** `import { Exclude } from 'phosphor-svelte';`
+**Description:** Two overlapping shapes with the intersection removed, representing set exclusion, difference operations, or content filtering. Perfect for data visualization, set theory applications, filtering interfaces, or boolean operations in design tools. The Venn diagram concept visually represents the mathematical exclusion of overlapping elements. Alternative names include set difference, boolean exclusion, filter out, remove overlap, subtract intersection, exclude overlap, set subtraction, difference operation.
+
+### exclude-square
+**Import:** `import { ExcludeSquare } from 'phosphor-svelte';`
+**Description:** Two overlapping squares with the intersection excluded, representing geometric exclusion, shape operations, or design tool functions. Perfect for vector editing software, shape manipulation tools, boolean operations interfaces, or geometric design applications. The square variation provides a more structured geometric representation of exclusion operations. Alternative names include square exclusion, geometric difference, shape subtraction, boolean square operation, exclude squares, geometric exclusion, square difference.
+
+### export
+**Import:** `import { Export } from 'phosphor-svelte';`
+**Description:** An outward arrow representing data export, content sharing, file output, or external sending operations. Perfect for file management systems, data export features, sharing functionalities, or any interface that moves content from internal to external locations. The outward direction clearly indicates the movement of data or content away from the current system. Alternative names include share, send out, output, external sharing, data export, file export, send away, outbound transfer.
+
+### eye
+**Import:** `import { Eye } from 'phosphor-svelte';`
+**Description:** An open human eye representing visibility, viewing, show/hide toggles, or observation actions. Perfect for password visibility controls, layer show/hide functions, privacy settings, or any interface element that reveals or conceals content. One of the most universally recognized symbols for visibility and viewing functionality across all digital platforms. Alternative names include view, visible, show, reveal, visibility toggle, observe, watch, see, preview, display.
+
+### eye-closed
+**Import:** `import { EyeClosed } from 'phosphor-svelte';`
+**Description:** A closed human eye representing hidden content, privacy mode, invisible states, or sleep/rest modes. Perfect for indicating hidden elements, private content, sleep modes, or disabled visibility states. The closed eye clearly communicates that something is not visible or is in a rest/inactive state. Alternative names include hidden, invisible, private, sleep mode, closed visibility, concealed, not visible, privacy indicator, rest mode, inactive view.
+
+### eye-slash
+**Import:** `import { EyeSlash } from 'phosphor-svelte';`
+**Description:** An eye with a diagonal slash representing disabled visibility, blocked viewing, privacy protection, or hidden content states. Perfect for password hiding, privacy controls, blocked content indicators, or disabled viewing features. The slash clearly indicates that visibility is actively prevented or disabled. Alternative names include hidden, invisible, privacy protected, blocked view, disabled visibility, censored, view disabled, sight blocked, visibility off, private mode.
+
+### eyedropper
+**Import:** `import { Eyedropper } from 'phosphor-svelte';`
+**Description:** A color picker eyedropper tool representing color sampling, design tools, art supplies, or color selection functionality. Perfect for design applications, color palette tools, art programs, or any interface where users need to select or sample colors. The traditional artist's tool is universally recognized in digital design contexts for color picking operations. Alternative names include color picker, color sampler, design tool, art tool, color selector, sampling tool, palette picker, color dropper.
+
+### eyedropper-sample
+**Import:** `import { EyedropperSample } from 'phosphor-svelte';`
+**Description:** An eyedropper with a color sample, representing active color sampling, selected colors, or color picker with preview. Perfect for showing the current selected color, active sampling states, or color picker tools with immediate feedback. The sample element provides visual confirmation of the selected or sampled color. Alternative names include color picker with sample, active color selector, sampled color, color dropper with preview, selected color tool, color sampling tool, active eyedropper.# Phosphor Icons Documentation - Batch 12
+
+### eyeglasses
+**Import:** `import { Eyeglasses } from 'phosphor-svelte';`
+**Description:** Represents vision correction eyewear, glasses, spectacles, reading glasses, and optical accessories. Perfect for health and wellness applications, optical stores, vision care services, accessibility features, reading modes, presbyopia aids, myopia correction, hyperopia assistance, and visual impairment support. Also suitable for academic contexts, studious personas, intellectual imagery, library interfaces, reading applications, and professional profiles. Use cases include medical forms, health questionnaires, vision tests, optical shop websites, eye care reminders, and accessibility settings.
+
+### eyes
+**Import:** `import { Eyes } from 'phosphor-svelte';`
+**Description:** Depicts human eyes for viewing, looking, watching, observing, and visual perception. Ideal for surveillance systems, privacy controls, visibility toggles, watch lists, observation tools, monitoring dashboards, and viewing permissions. Also represents attention, focus, awareness, alertness, and watchfulness. Common in social media for views, looks, glances, stares, and visual engagement. Perfect for user interfaces involving show/hide functionality, password visibility toggles, preview modes, and viewing statistics.
+
+### face-mask
+**Import:** `import { FaceMask } from 'phosphor-svelte';`
+**Description:** Represents protective face coverings, medical masks, surgical masks, PPE (personal protective equipment), COVID-19 protection, coronavirus safety measures, flu prevention, cold protection, and health safety protocols. Essential for healthcare applications, pandemic responses, safety reminders, health guidelines, medical facilities, hospital systems, and public health initiatives. Also suitable for air quality apps, pollution protection, dust masks, respiratory protection, and general health and wellness contexts.
+
+### facebook-logo
+**Import:** `import { FacebookLogo } from 'phosphor-svelte';`
+**Description:** Official Facebook brand logo for social media integration, sharing buttons, login authentication, social connections, and Meta platform services. Perfect for social media dashboards, sharing interfaces, social login systems, brand recognition, social networking features, and communication platforms. Use in social sharing widgets, authentication flows, brand galleries, social media marketing tools, and platform integration interfaces.
+
+### factory
+**Import:** `import { Factory } from 'phosphor-svelte';`
+**Description:** Industrial facility representing manufacturing, production, industry, factories, plants, mills, workshops, and commercial operations. Ideal for business applications, industrial maps, manufacturing processes, supply chain management, production tracking, and industrial IoT dashboards. Also represents employment, labor, industrial zones, commercial districts, business locations, and economic activity. Perfect for location services, business directories, industrial real estate, and manufacturing management systems.
+
+### faders
+**Import:** `import { Faders } from 'phosphor-svelte';`
+**Description:** Audio mixing console with vertical sliders for sound control, volume adjustment, equalizer settings, audio mixing, music production, and sound engineering. Essential for media players, audio applications, music software, recording studios, podcast editors, and sound control interfaces. Also represents settings, preferences, configuration panels, adjustment controls, fine-tuning options, and customization features. Perfect for system controls, filter adjustments, and parameter modification interfaces.
+
+### faders-horizontal
+**Import:** `import { FadersHorizontal } from 'phosphor-svelte';`
+**Description:** Horizontal audio mixing sliders for sound control, volume management, equalizer adjustments, and audio production interfaces. Ideal for music applications, media players, sound systems, recording software, and audio editing tools. Also represents horizontal settings panels, preference sliders, configuration controls, adjustment interfaces, and fine-tuning options. Perfect for dashboard controls, parameter adjustments, filter settings, and system customization panels.
+
+### fallout-shelter
+**Import:** `import { FalloutShelter } from 'phosphor-svelte';`
+**Description:** Nuclear fallout shelter symbol indicating radiation protection, radioactive hazards, nuclear safety, contamination warnings, toxic substances, dangerous materials, and emergency protocols. Essential for safety applications, hazard warnings, emergency preparedness, radiation monitoring, nuclear facility management, and safety training systems. Also represents bunkers, quarantine areas, isolation zones, protective measures, caution alerts, and danger notifications.
+
+### fan
+**Import:** `import { Fan } from 'phosphor-svelte';`
+**Description:** Electric cooling fan for air circulation, temperature control, ventilation, cooling systems, and climate comfort. Perfect for home automation, smart home controls, HVAC systems, weather applications, and cooling device management. Also represents airflow, ventilation, cooling solutions, desk accessories, office equipment, and comfort devices. Ideal for IoT dashboards, climate control interfaces, and cooling system monitoring.
+
+### farm
+**Import:** `import { Farm } from 'phosphor-svelte';`
+**Description:** Agricultural property representing farming, agriculture, cultivation, crop production, rural areas, countryside, agricultural business, and food production. Perfect for agricultural applications, farm management systems, rural tourism, food supply chains, and agricultural marketplaces. Also represents sustainable living, organic farming, rural lifestyle, agricultural technology, and farming communities. Ideal for location services, agricultural maps, farming equipment, and agricultural education platforms.
+
+### fast-forward
+**Import:** `import { FastForward } from 'phosphor-svelte';`
+**Description:** Media control for rapid forward playback, seeking ahead, scanning forward, skipping content, and accelerated playback. Essential for video players, audio applications, media controls, streaming interfaces, and playback management. Also represents speed, acceleration, progress advancement, time-saving, and efficiency. Perfect for media streaming apps, podcast players, video editors, and any interface requiring forward navigation controls.
+
+### fast-forward-circle
+**Import:** `import { FastForwardCircle } from 'phosphor-svelte';`
+**Description:** Circular fast-forward button for media playback controls, forward seeking, content skipping, and accelerated navigation. Ideal for media players, streaming applications, audio controls, video interfaces, and playback systems. The circular design provides a more prominent, button-like appearance for touch interfaces and mobile applications. Perfect for media control panels, streaming services, and entertainment applications requiring clear forward navigation.
+
+### feather
+**Import:** `import { Feather } from 'phosphor-svelte';`
+**Description:** Bird feather representing lightness, delicacy, nature, birds, flight, and natural elements. Perfect for nature applications, bird watching apps, wildlife tracking, environmental systems, and outdoor activities. Also represents writing instruments, quill pens, traditional writing, authorship, and creative writing. Ideal for writing applications, note-taking apps, text editors, creative tools, and literary platforms. Symbolizes gentleness, softness, and natural beauty.
+
+### fediverse-logo
+**Import:** `import { FediverseLogo } from 'phosphor-svelte';`
+**Description:** Fediverse network symbol representing decentralized social media, federated networks, distributed social platforms, open-source social networking, and alternative social media ecosystems. Perfect for decentralized applications, federated services, open social networks, privacy-focused platforms, and distributed communication systems. Also represents community-driven networks, interoperable social media, and decentralized web technologies.
+
+### figma-logo
+**Import:** `import { FigmaLogo } from 'phosphor-svelte';`
+**Description:** Figma design tool logo for UI/UX design, interface design, prototyping, collaborative design, vector graphics, and design systems. Essential for design applications, creative tools, prototyping interfaces, design collaboration platforms, and creative workflows. Perfect for design portfolios, creative dashboards, design tool integrations, and professional design environments. Represents modern design, digital creativity, and design thinking.
+
+### file
+**Import:** `import { File } from 'phosphor-svelte';`
+**Description:** Generic document file representing files, documents, papers, records, data storage, and digital content. Essential for file managers, document systems, office applications, and content management interfaces. Perfect for representing any type of file, document creation, file operations, and data organization. Also represents paperwork, documentation, records, and information storage. Ideal for file browsers, document libraries, and general file-related functionality.
+
+### file-archive
+**Import:** `import { FileArchive } from 'phosphor-svelte';`
+**Description:** Compressed archive file representing ZIP files, compressed folders, file compression, data archiving, and file packaging. Perfect for file compression tools, backup systems, archive managers, and data storage applications. Also represents bundled files, packaged content, compressed downloads, and file distribution. Ideal for download managers, backup software, and file organization systems requiring compression functionality.
+
+### file-arrow-down
+**Import:** `import { FileArrowDown } from 'phosphor-svelte';`
+**Description:** File with downward arrow indicating file downloads, saving documents, downloading content, export operations, and downward file transfers. Essential for download managers, file transfer applications, export interfaces, and save operations. Perfect for download buttons, save dialogs, export functions, and file retrieval systems. Also represents data downloads, content saving, and document export functionality.
+
+### file-arrow-up
+**Import:** `import { FileArrowUp } from 'phosphor-svelte';`
+**Description:** File with upward arrow representing file uploads, document submission, content sharing, import operations, and upward file transfers. Perfect for upload interfaces, file sharing systems, document submission forms, and import functions. Essential for cloud storage uploads, file transfer applications, and content management systems. Also represents data submission, document sharing, and file synchronization operations.
+
+### file-audio
+**Import:** `import { FileAudio } from 'phosphor-svelte';`
+**Description:** Audio file format representing music files, sound recordings, audio documents, podcasts, voice memos, and audio content. Perfect for media players, audio libraries, music applications, and sound management systems. Also represents MP3, WAV, FLAC files, audio editing, sound production, and audio streaming. Ideal for music streaming apps, podcast players, audio editing software, and sound management interfaces.
+
+### file-c
+**Import:** `import { FileC } from 'phosphor-svelte';`
+**Description:** C programming language source file representing C code, system programming, low-level development, embedded programming, and C language projects. Essential for code editors, development environments, programming tools, and software development platforms. Perfect for syntax highlighting, file type recognition, development workflows, and programming education. Represents system-level programming, embedded systems, and performance-critical applications.
+
+### file-c-sharp
+**Import:** `import { FileCSharp } from 'phosphor-svelte';`
+**Description:** C# programming language file representing .NET development, Microsoft technologies, object-oriented programming, enterprise applications, and C# projects. Perfect for development environments, Visual Studio integrations, .NET applications, and enterprise software platforms. Essential for code management, project organization, and development tool interfaces. Represents modern application development, enterprise solutions, and Microsoft technology stack.
+
+### file-cloud
+**Import:** `import { FileCloud } from 'phosphor-svelte';`
+**Description:** Cloud-synchronized file representing cloud storage, file synchronization, remote files, cloud backup, and distributed file systems. Perfect for cloud storage applications, file sync services, backup solutions, and remote access systems. Also represents synchronized documents, cloud-based collaboration, remote file access, and distributed storage. Ideal for cloud storage dashboards, sync status indicators, and cloud-based file management.
+
+### file-code
+**Import:** `import { FileCode } from 'phosphor-svelte';`
+**Description:** Source code file representing programming files, software development, code repositories, scripts, and development projects. Essential for code editors, IDEs, version control systems, and development platforms. Perfect for representing any programming language file, development workflows, code organization, and software projects. Also represents scripting, automation, development tools, and programming education.
+
+### file-cpp
+**Import:** `import { FileCpp } from 'phosphor-svelte';`
+**Description:** C++ programming language file representing object-oriented programming, system development, game development, high-performance computing, and C++ projects. Perfect for development environments, game engines, system programming tools, and performance-critical applications. Essential for code management, project organization, and C++ development workflows. Represents modern C++ development, system programming, and performance-oriented applications.
+
+### file-css
+**Import:** `import { FileCss } from 'phosphor-svelte';`
+**Description:** CSS stylesheet file representing web styling, design systems, responsive design, web development, and frontend styling. Essential for web development tools, design systems, CSS editors, and frontend development environments. Perfect for web project organization, stylesheet management, and frontend development workflows. Also represents web design, visual styling, and frontend architecture.
+
+### file-csv
+**Import:** `import { FileCsv } from 'phosphor-svelte';`
+**Description:** Comma-separated values file representing data tables, spreadsheet data, data exports, database exports, and structured data formats. Perfect for data analysis tools, spreadsheet applications, database management, and data import/export systems. Also represents data interchange, tabular data, data processing, and business intelligence. Ideal for analytics dashboards, reporting tools, and data management interfaces.
+
+### file-dashed
+**Import:** `import { FileDashed } from 'phosphor-svelte';`
+**Description:** Dashed file outline representing draft documents, temporary files, placeholder files, empty documents, and file creation states. Perfect for document templates, file placeholders, draft indicators, and temporary file representations. Also represents dotted files, outline files, and file creation workflows. Ideal for drag-and-drop zones, file upload areas, and document creation interfaces.
+
+### file-doc
+**Import:** `import { FileDoc } from 'phosphor-svelte';`
+**Description:** Microsoft Word document file representing word processing documents, text documents, DOC/DOCX files, and office documents. Perfect for office applications, document management systems, word processors, and business document workflows. Essential for document libraries, office suites, and professional document handling. Also represents reports, letters, proposals, and business correspondence.
+
+### file-html
+**Import:** `import { FileHtml } from 'phosphor-svelte';`
+**Description:** HTML markup file representing web pages, HTML documents, web development, markup language, and web content structure. Essential for web development tools, HTML editors, web project management, and frontend development. Perfect for web development workflows, HTML editing, and web content management. Also represents web pages, markup structure, and web development education.
+
+### file-image
+**Import:** `import { FileImage } from 'phosphor-svelte';`
+**Description:** Image file format representing photos, pictures, graphics, visual content, and image files. Perfect for photo galleries, image editors, media libraries, and visual content management. Also represents photographs, digital images, graphics files, and visual media. Ideal for image management systems, photo applications, graphic design tools, and visual content platforms.
+
+### file-ini
+**Import:** `import { FileIni } from 'phosphor-svelte';`
+**Description:** Configuration file representing system settings, application configuration, initialization files, and configuration management. Perfect for system administration tools, configuration editors, settings management, and application configuration. Essential for DevOps tools, system configuration, and application setup interfaces. Represents system settings, application preferences, and configuration data.
+
+### file-jpg
+**Import:** `import { FileJpg } from 'phosphor-svelte';`
+**Description:** JPEG image file representing compressed photos, digital photographs, JPEG/JPG images, and photographic content. Perfect for photo applications, image galleries, photography tools, and visual media management. Also represents digital photography, compressed images, web images, and photographic workflows. Ideal for photo editing software, image viewers, and photography platforms.
+
+### file-js
+**Import:** `import { FileJs } from 'phosphor-svelte';`
+**Description:** JavaScript source file representing web scripts, frontend development, Node.js applications, JavaScript programming, and dynamic web content. Essential for web development tools, JavaScript editors, frontend frameworks, and web application development. Perfect for JavaScript project organization, script management, and web development workflows. Also represents client-side scripting, server-side JavaScript, and modern web development.
+
+### file-jsx
+**Import:** `import { FileJsx } from 'phosphor-svelte';`
+**Description:** React JSX file representing React components, frontend components, modern JavaScript, React development, and component-based architecture. Perfect for React development environments, component libraries, modern frontend development, and React project management. Essential for React development workflows, component organization, and frontend framework projects. Represents modern web development and component-based UI development.
+
+### file-lock
+**Import:** `import { FileLock } from 'phosphor-svelte';`
+**Description:** Locked file representing secure documents, protected files, encrypted content, access-controlled files, and confidential documents. Perfect for security applications, document protection, access control systems, and secure file management. Also represents private files, restricted access, file encryption, and document security. Ideal for security dashboards, access management, and confidential document systems.
+
+### file-magnifying-glass
+**Import:** `import { FileMagnifyingGlass } from 'phosphor-svelte';`
+**Description:** File with magnifying glass representing file search, document search, content discovery, file finding, and search functionality. Perfect for search interfaces, file browsers, document search systems, and content discovery tools. Also represents file exploration, missing files, file location, and search results. Ideal for search applications, file managers, and document discovery interfaces.
+
+### file-md
+**Import:** `import { FileMd } from 'phosphor-svelte';`
+**Description:** Markdown file representing documentation, README files, formatted text, technical writing, and lightweight markup. Perfect for documentation systems, technical writing tools, note-taking applications, and developer documentation. Essential for project documentation, README files, technical blogs, and documentation platforms. Also represents structured text, formatted notes, and technical communication.
+
+### file-minus
+**Import:** `import { FileMinus } from 'phosphor-svelte';`
+**Description:** File with minus sign representing file deletion, document removal, file subtraction, content removal, and delete operations. Perfect for file management systems, delete confirmations, file operations, and content management interfaces. Also represents file removal, document deletion, and destructive file operations. Ideal for file browsers, document management, and file operation interfaces.
+
+### file-pdf
+**Import:** `import { FilePdf } from 'phosphor-svelte';`
+**Description:** Portable Document Format file representing PDF documents, formatted documents, printable files, Adobe Acrobat documents, and portable documents. Perfect for document viewers, PDF readers, report generation, and document distribution systems. Essential for business documents, reports, forms, and professional document handling. Also represents formatted documents, printable content, and document preservation.
+
+### file-plus
+**Import:** `import { FilePlus } from 'phosphor-svelte';`
+**Description:** File with plus sign representing file creation, new documents, document addition, content creation, and file generation. Perfect for document creation interfaces, new file buttons, content creation tools, and file management systems. Also represents document addition, file creation workflows, and new content generation. Ideal for creative applications, document editors, and file creation interfaces.
+
+### file-png
+**Import:** `import { FilePng } from 'phosphor-svelte';`
+**Description:** PNG image file representing lossless images, transparent graphics, web graphics, PNG format images, and high-quality digital images. Perfect for graphic design applications, web development tools, image editors, and visual content management. Also represents transparent images, web graphics, lossless compression, and high-quality visuals. Ideal for design tools, image management, and web development workflows.
+
+### file-ppt
+**Import:** `import { FilePpt } from 'phosphor-svelte';`
+**Description:** Microsoft PowerPoint presentation file representing slideshows, presentations, PPT/PPTX files, and presentation documents. Perfect for presentation software, business presentations, educational materials, and slideshow management. Essential for office suites, presentation tools, and business communication platforms. Also represents slides, presentations, business proposals, and educational content.
+
+### file-py
+**Import:** `import { FilePy } from 'phosphor-svelte';`
+**Description:** Python programming language file representing Python scripts, data science code, automation scripts, web development, and Python applications. Perfect for development environments, data science tools, automation platforms, and Python project management. Essential for Python development workflows, script organization, and scientific computing applications. Represents data analysis, machine learning, web development, and automation.
+
+### file-rs
+**Import:** `import { FileRs } from 'phosphor-svelte';`
+**Description:** Rust programming language file representing systems programming, memory-safe code, performance-critical applications, and Rust development projects. Perfect for systems programming tools, Rust development environments, and performance-oriented applications. Essential for Rust project organization, systems development, and modern systems programming. Represents memory safety, performance, and modern systems programming.
+
+### file-sql
+**Import:** `import { FileSql } from 'phosphor-svelte';`
+**Description:** SQL database script file representing database queries, database scripts, data management, database development, and SQL programming. Perfect for database management tools, SQL editors, data analysis platforms, and database development environments. Essential for database administration, query management, and data manipulation interfaces. Represents database operations, data queries, and database development.
+
+### file-svg
+**Import:** `import { FileSvg } from 'phosphor-svelte';`
+**Description:** Scalable Vector Graphics file representing vector images, scalable graphics, web icons, vector illustrations, and resolution-independent graphics. Perfect for graphic design tools, web development, icon management, and vector graphics applications. Also represents scalable images, web graphics, vector art, and design assets. Ideal for design systems, icon libraries, and vector graphics workflows.
+
+### file-text
+**Import:** `import { FileText } from 'phosphor-svelte';`
+**Description:** Plain text file representing text documents, notes, plain text content, TXT files, and unformatted text. Perfect for text editors, note-taking applications, simple document management, and plain text workflows. Also represents documentation, configuration files, logs, and simple text content. Ideal for minimalist text applications, configuration management, and simple document systems.
+
+### file-ts
+**Import:** `import { FileTs } from 'phosphor-svelte';`
+**Description:** TypeScript source file representing typed JavaScript, modern web development, type-safe programming, and TypeScript projects. Perfect for TypeScript development environments, modern web development tools, and type-safe application development. Essential for TypeScript project management, type checking, and enterprise web development. Represents modern JavaScript development, type safety, and scalable web applications.
+
+### file-tsx
+**Import:** `import { FileTsx } from 'phosphor-svelte';`
+**Description:** TypeScript React file representing typed React components, modern React development, type-safe component development, and TypeScript React projects. Perfect for modern React development environments, enterprise React applications, and type-safe frontend development. Essential for React TypeScript workflows, component development, and scalable React applications. Represents modern frontend development with type safety.# Phosphor Icons - Batch 13 Documentation
+
+### file-txt
+**Import:** `import { FileTxt } from 'phosphor-svelte';`
+**Description:** Text file icon representing plain text documents, TXT files, and text-based content. Perfect for indicating text documents, readme files, plain text content, document editing, word processing, text editors, notes, scripts, code files, configuration files, logs, and any textual data storage. Alternative names: text file, document, plain text, txt document, text editor, notepad file, readme, configuration file, script file.
+
+### file-video
+**Import:** `import { FileVideo } from 'phosphor-svelte';`
+**Description:** Video file icon representing movie files, video documents, and multimedia content. Ideal for video players, media libraries, movie files, video editing applications, streaming services, video uploads, media management, film collections, video formats (MP4, AVI, MOV), video sharing, entertainment apps, and multimedia storage. Alternative names: movie file, video document, multimedia file, cinema file, film file, streaming content, media file, video clip.
+
+### file-vue
+**Import:** `import { FileVue } from 'phosphor-svelte';`
+**Description:** Vue.js file icon specifically for Vue framework files and components. Essential for Vue.js development environments, single file components (SFC), Vue templates, Vue applications, frontend development, JavaScript frameworks, component libraries, web development tools, code editors with Vue support, and Vue project management. Alternative names: Vue component, Vue.js file, SFC file, Vue template, frontend component, JavaScript file, web component.
+
+### file-x
+**Import:** `import { FileX } from 'phosphor-svelte';`
+**Description:** File with X icon representing cancelled, deleted, corrupted, or error state files. Perfect for indicating file deletion, error states, cancelled operations, corrupted files, failed uploads, file removal confirmation, error handling, invalid files, missing files, file system errors, and document management systems showing problematic files. Alternative names: deleted file, error file, cancelled file, corrupted document, invalid file, failed file, removed document, error state.
+
+### file-xls
+**Import:** `import { FileXls } from 'phosphor-svelte';`
+**Description:** Excel spreadsheet file icon representing XLS/XLSX files and Microsoft Excel documents. Ideal for spreadsheet applications, data analysis tools, Excel files, financial documents, accounting software, data tables, business reports, statistics, budgets, calculations, Microsoft Office integration, and business productivity suites. Alternative names: Excel file, spreadsheet, XLS document, XLSX file, Microsoft Excel, data table, financial sheet, business document, accounting file.
+
+### file-zip
+**Import:** `import { FileZip } from 'phosphor-svelte';`
+**Description:** ZIP archive file icon representing compressed files, archives, and file compression. Perfect for file compression utilities, archive managers, backup systems, file downloads, package distribution, software installers, compressed folders, file bundling, storage optimization, and archive extraction tools. Alternative names: archive file, compressed file, ZIP archive, compressed folder, archive document, package file, compressed archive, bundled files.
+
+### files
+**Import:** `import { Files } from 'phosphor-svelte';`
+**Description:** Multiple files icon representing file collections, document libraries, and file management. Excellent for file managers, document libraries, file browsers, multi-file operations, file collections, document storage, file organization, bulk file handling, file galleries, archive systems, and content management interfaces. Alternative names: multiple documents, file collection, document library, file stack, document stack, file browser, multiple files.
+
+### film-reel
+**Import:** `import { FilmReel } from 'phosphor-svelte';`
+**Description:** Film reel icon representing movies, cinema, video production, and filmmaking. Perfect for movie applications, cinema websites, video editing software, film production tools, entertainment platforms, movie theaters, video streaming services, film festivals, photography apps, and media production studios. Alternative names: movie reel, cinema reel, film strip, movie production, video reel, filmmaking, cinema equipment, movie industry.
+
+### film-script
+**Import:** `import { FilmScript } from 'phosphor-svelte';`
+**Description:** Film script icon representing screenplays, movie scripts, and film writing. Ideal for screenwriting software, script editors, film production tools, writing applications, movie development, screenplay management, film industry tools, creative writing apps, and entertainment production workflows. Alternative names: screenplay, movie script, script document, screenwriting, film writing, movie screenplay, script file, writing document.
+
+### film-slate
+**Import:** `import { FilmSlate } from 'phosphor-svelte';`
+**Description:** Film slate (clapperboard) icon representing movie production, film direction, and video recording. Perfect for video editing software, movie production apps, film industry tools, video creation platforms, director tools, movie studios, video recording apps, cinema applications, and film production workflows. Alternative names: clapperboard, movie slate, director slate, film clapboard, movie production, cinema slate, video production, film equipment.
+
+### film-strip
+**Import:** `import { FilmStrip } from 'phosphor-svelte';`
+**Description:** Film strip icon representing analog photography, movie frames, and visual media. Excellent for photo galleries, image viewers, photography apps, movie applications, vintage photo effects, darkroom software, film photography, analog cameras, photo editing tools, and media timeline interfaces. Alternative names: photo strip, movie strip, image strip, photography film, analog film, photo negatives, camera film, visual timeline.
+
+### fingerprint
+**Import:** `import { Fingerprint } from 'phosphor-svelte';`
+**Description:** Detailed fingerprint icon representing biometric security, authentication, and identity verification. Perfect for security applications, login systems, biometric authentication, identity verification, security settings, encrypted access, personal identification, privacy protection, secure authentication, and access control systems. Alternative names: biometric security, identity verification, secure login, biometric authentication, security scan, personal identification, access control, encrypted login.
+
+### fingerprint-simple
+**Import:** `import { FingerprintSimple } from 'phosphor-svelte';`
+**Description:** Simplified fingerprint icon representing basic biometric security and quick authentication. Ideal for simplified security interfaces, touch ID systems, quick login buttons, biometric shortcuts, security icons in minimal designs, authentication indicators, and streamlined security applications. Alternative names: simple biometrics, touch ID, quick authentication, biometric icon, security indicator, simple security, basic authentication, minimal security.
+
+### finn-the-human
+**Import:** `import { FinnTheHuman } from 'phosphor-svelte';`
+**Description:** Finn the Human character icon from Adventure Time representing gaming, cartoons, and pop culture. Perfect for gaming applications, cartoon-themed interfaces, character selection, pop culture references, entertainment apps, cartoon streaming services, gaming profiles, and fan community applications. Alternative names: Adventure Time character, cartoon character, gaming avatar, pop culture icon, TV character, animated character, cartoon hero.
+
+### fire
+**Import:** `import { Fire } from 'phosphor-svelte';`
+**Description:** Fire flame icon representing heat, energy, popularity, and trending content. Excellent for indicating hot topics, trending posts, popular content, energy themes, heating systems, cooking applications, danger warnings, emergency services, performance metrics, and dynamic content indicators. Alternative names: flame, burning, heat, hot content, trending, popular, energy, hot topics, blazing, ignite.
+
+### fire-extinguisher
+**Import:** `import { FireExtinguisher } from 'phosphor-svelte';`
+**Description:** Fire extinguisher icon representing safety equipment, emergency preparedness, and fire prevention. Perfect for safety applications, emergency services, building management, safety training, fire prevention systems, emergency preparedness, safety equipment inventory, and hazard management tools. Alternative names: safety equipment, emergency tool, fire prevention, safety device, emergency equipment, hazard prevention, safety system, fire safety.
+
+### fire-simple
+**Import:** `import { FireSimple } from 'phosphor-svelte';`
+**Description:** Simplified fire icon representing basic heat, energy, or trending indicators. Ideal for minimal interfaces, simple trend indicators, basic energy themes, streamlined heating controls, simplified popularity metrics, and clean design applications requiring fire symbolism. Alternative names: simple flame, basic fire, minimal heat, simple trending, basic energy, clean flame, simplified burning, minimal fire.
+
+### fire-truck
+**Import:** `import { FireTruck } from 'phosphor-svelte';`
+**Description:** Fire truck icon representing emergency services, firefighting, and first responders. Perfect for emergency service applications, first responder tools, firefighter resources, emergency dispatch systems, public safety apps, emergency vehicle tracking, fire department services, and emergency preparedness platforms. Alternative names: emergency vehicle, firefighter truck, rescue vehicle, emergency services, fire department, first responder, emergency response, rescue services.
+
+### first-aid
+**Import:** `import { FirstAid } from 'phosphor-svelte';`
+**Description:** First aid cross icon representing medical assistance, healthcare, and emergency medical care. Ideal for healthcare applications, medical services, emergency care, hospital systems, health and wellness apps, medical assistance tools, emergency medical services, and healthcare provider interfaces. Alternative names: medical cross, healthcare, emergency medical, medical assistance, health services, medical care, hospital services, emergency aid.
+
+### first-aid-kit
+**Import:** `import { FirstAidKit } from 'phosphor-svelte';`
+**Description:** First aid kit icon representing emergency medical supplies, healthcare preparedness, and medical equipment. Perfect for emergency preparedness apps, medical supply management, healthcare tools, safety equipment tracking, medical inventory systems, emergency response, and health and safety applications. Alternative names: medical kit, emergency supplies, medical bag, healthcare supplies, emergency medical kit, medical equipment, safety supplies, medical emergency.
+
+### fish
+**Import:** `import { Fish } from 'phosphor-svelte';`
+**Description:** Fish icon representing aquatic life, seafood, pets, and marine themes. Excellent for aquarium apps, pet care applications, seafood restaurants, fishing applications, marine biology tools, food and dining apps, pet stores, ocean-themed interfaces, and aquatic life management systems. Alternative names: seafood, aquatic animal, marine life, pet fish, ocean creature, aquarium fish, dining seafood, fishing, marine animal.
+
+### fish-simple
+**Import:** `import { FishSimple } from 'phosphor-svelte';`
+**Description:** Simplified fish icon representing basic aquatic themes, minimal pet interfaces, and clean marine designs. Perfect for streamlined aquarium apps, simple pet care tools, minimal seafood menus, basic fishing applications, and clean marine-themed interfaces requiring simple aquatic symbolism. Alternative names: simple seafood, basic fish, minimal marine, clean aquatic, simple pet, basic ocean, minimal fishing, streamlined marine.
+
+### flag
+**Import:** `import { Flag } from 'phosphor-svelte';`
+**Description:** Flag icon representing countries, completion, achievements, and location markers. Perfect for country selectors, achievement systems, milestone markers, location indicators, completion status, goal tracking, progress markers, international applications, and geographic interfaces. Alternative names: country flag, achievement marker, completion indicator, milestone, location marker, nation flag, goal flag, progress indicator, finish marker.
+
+### flag-banner
+**Import:** `import { FlagBanner } from 'phosphor-svelte';`
+**Description:** Banner flag icon representing decorative flags, celebrations, and announcements. Ideal for event applications, celebration themes, announcement banners, decorative elements, party planning, festival apps, promotional banners, and ceremonial interfaces. Alternative names: celebration banner, decorative flag, party banner, announcement flag, festival banner, ceremonial flag, event flag, promotional banner.
+
+### flag-banner-fold
+**Import:** `import { FlagBannerFold } from 'phosphor-svelte';`
+**Description:** Folded banner flag icon representing detailed banner designs, premium celebrations, and sophisticated flag displays. Perfect for high-end event planning, detailed celebration interfaces, sophisticated party applications, premium festival tools, and elegant ceremonial platforms. Alternative names: folded banner, premium flag, elegant banner, sophisticated flag, detailed celebration, luxury banner, premium celebration, refined flag.
+
+### flag-checkered
+**Import:** `import { FlagCheckered } from 'phosphor-svelte';`
+**Description:** Checkered flag icon representing racing, competition finish, and racing sports. Excellent for racing games, sports applications, competition platforms, finish line indicators, racing events, motorsports apps, competitive gaming, and speed-related applications. Alternative names: racing flag, finish line, competition flag, racing finish, motorsports flag, racing checkered, speed racing, finish marker.
+
+### flag-pennant
+**Import:** `import { FlagPennant } from 'phosphor-svelte';`
+**Description:** Pennant flag icon representing sports teams, achievements, and triangular banners. Perfect for sports applications, team management, achievement systems, sports clubs, championship indicators, team pride displays, sports organizations, and competitive platforms. Alternative names: sports pennant, team flag, championship flag, sports banner, team pennant, victory flag, sports achievement, competition pennant.
+
+### flame
+**Import:** `import { Flame } from 'phosphor-svelte';`
+**Description:** Flame icon representing fire, passion, energy, and intensity. Excellent for indicating passionate content, high energy themes, intense activities, burning sensations, powerful performance, dynamic content, and fiery personality indicators. Alternative names: fire, burning flame, passionate fire, energy flame, intense heat, dynamic fire, powerful flame, fiery indicator.
+
+### flashlight
+**Import:** `import { Flashlight } from 'phosphor-svelte';`
+**Description:** Flashlight icon representing search functionality, discovery, exploration, and illumination. Perfect for search interfaces, find features, exploration tools, discovery applications, investigation tools, search utilities, torch functions, and light-themed search implementations. Alternative names: torch, search light, find tool, discovery light, exploration tool, search torch, investigation light, locate tool.
+
+### flask
+**Import:** `import { Flask } from 'phosphor-svelte';`
+**Description:** Laboratory flask icon representing science, chemistry, experimentation, and research. Ideal for scientific applications, chemistry tools, research platforms, laboratory management, educational science apps, experiment tracking, chemical analysis, and scientific research interfaces. Alternative names: science beaker, chemistry flask, lab equipment, research tool, experiment container, scientific instrument, laboratory glass, chemistry beaker.
+
+### flip-horizontal
+**Import:** `import { FlipHorizontal } from 'phosphor-svelte';`
+**Description:** Horizontal flip icon representing image transformation, mirroring, and horizontal rotation. Perfect for image editors, design tools, photo manipulation, graphic design software, transformation controls, mirroring functions, and visual editing applications. Alternative names: horizontal mirror, flip sideways, horizontal invert, mirror horizontal, horizontal rotation, sideways flip, horizontal transform, lateral flip.
+
+### flip-vertical
+**Import:** `import { FlipVertical } from 'phosphor-svelte';`
+**Description:** Vertical flip icon representing upside-down transformation, vertical mirroring, and vertical rotation. Ideal for image editing tools, design applications, photo transformation, vertical mirroring functions, graphic manipulation, and visual transformation controls. Alternative names: vertical mirror, upside down flip, vertical invert, mirror vertical, vertical rotation, upside down, vertical transform, vertical reverse.
+
+### floppy-disk
+**Import:** `import { FloppyDisk } from 'phosphor-svelte';`
+**Description:** Floppy disk icon representing save functionality, data storage, and file preservation. Perfect for save buttons, data storage systems, backup applications, file saving interfaces, document preservation, storage solutions, and legacy computing references. Alternative names: save icon, diskette, data storage, save button, file storage, backup disk, save file, storage device, save function.
+
+### floppy-disk-back
+**Import:** `import { FloppyDiskBack } from 'phosphor-svelte';`
+**Description:** Floppy disk back view icon representing detailed save operations, backup systems, and storage management. Excellent for advanced save options, backup configurations, storage management interfaces, detailed file operations, and comprehensive data preservation systems. Alternative names: detailed save, backup disk, storage management, save options, data backup, detailed storage, file backup, save configuration.
+
+### flow-arrow
+**Import:** `import { FlowArrow } from 'phosphor-svelte';`
+**Description:** Flow arrow icon representing process flow, workflow direction, and sequential operations. Perfect for flowcharts, process diagrams, workflow applications, step-by-step guides, process management, sequential navigation, and directional flow indicators. Alternative names: process arrow, workflow indicator, flow direction, sequence arrow, process flow, directional arrow, workflow arrow, step arrow.
+
+### flower
+**Import:** `import { Flower } from 'phosphor-svelte';`
+**Description:** Flower icon representing nature, beauty, gardening, and environmental themes. Excellent for gardening applications, nature apps, environmental tools, beauty products, floral designs, botanical interfaces, plant care systems, and eco-friendly themes. Alternative names: blossom, plant flower, garden flower, botanical flower, nature bloom, environmental flower, floral design, natural beauty.
+
+### flower-lotus
+**Import:** `import { FlowerLotus } from 'phosphor-svelte';`
+**Description:** Lotus flower icon representing spirituality, meditation, zen, and mindfulness. Perfect for meditation apps, spiritual platforms, wellness applications, mindfulness tools, yoga interfaces, zen themes, spiritual guidance, and holistic health systems. Alternative names: lotus blossom, spiritual flower, meditation symbol, zen flower, mindfulness lotus, spiritual lotus, wellness flower, peaceful lotus.
+
+### flower-tulip
+**Import:** `import { FlowerTulip } from 'phosphor-svelte';`
+**Description:** Tulip flower icon representing spring, gardening, and floral beauty. Ideal for seasonal applications, gardening tools, spring themes, floral arrangements, botanical apps, flower shops, seasonal decorations, and garden management systems. Alternative names: tulip blossom, spring flower, garden tulip, seasonal flower, floral tulip, botanical tulip, spring bloom, garden blossom.
+
+### flying-saucer
+**Import:** `import { FlyingSaucer } from 'phosphor-svelte';`
+**Description:** Flying saucer (UFO) icon representing space, science fiction, aliens, and extraterrestrial themes. Perfect for sci-fi games, space applications, alien-themed content, science fiction interfaces, space exploration games, futuristic themes, and extraterrestrial entertainment. Alternative names: UFO, alien spacecraft, space ship, extraterrestrial vehicle, sci-fi UFO, alien ship, space saucer, ET craft.
+
+### folder
+**Import:** `import { Folder } from 'phosphor-svelte';`
+**Description:** Folder icon representing directories, file organization, and data structure. Essential for file managers, directory browsers, file organization systems, folder navigation, document management, file structure displays, and hierarchical data representations. Alternative names: directory, file folder, document folder, file directory, folder icon, file container, document container, storage folder.
+
+### folder-dashed
+**Import:** `import { FolderDashed } from 'phosphor-svelte';`
+**Description:** Dashed folder icon representing temporary directories, missing folders, or placeholder locations. Perfect for indicating temporary storage, missing directories, placeholder folders, draft locations, incomplete folders, and transient file storage. Alternative names: temporary folder, missing directory, placeholder folder, draft folder, incomplete folder, dotted folder, temporary storage, pending folder.
+
+### folder-lock
+**Import:** `import { FolderLock } from 'phosphor-svelte';`
+**Description:** Locked folder icon representing secure directories, private folders, and protected file storage. Ideal for security applications, private file storage, encrypted folders, secure document management, protected directories, and confidential file systems. Alternative names: secure folder, private directory, encrypted folder, protected folder, secure storage, private storage, locked directory, confidential folder.
+
+### folder-minus
+**Import:** `import { FolderMinus } from 'phosphor-svelte';`
+**Description:** Folder with minus icon representing folder deletion, removal operations, and directory management. Perfect for delete folder functions, removal operations, folder management, directory deletion, file organization cleanup, and folder removal interfaces. Alternative names: delete folder, remove directory, folder removal, delete directory, minus folder, remove folder, folder deletion, directory removal.
+
+### folder-open
+**Import:** `import { FolderOpen } from 'phosphor-svelte';`
+**Description:** Open folder icon representing active directories, opened folders, and accessible file locations. Excellent for indicating current directory, active folder states, opened locations, accessible directories, and current file browser positions. Alternative names: opened directory, active folder, current folder, accessible directory, opened location, active directory, current location, browsing folder.
+
+### folder-plus
+**Import:** `import { FolderPlus } from 'phosphor-svelte';`
+**Description:** Folder with plus icon representing new folder creation, adding directories, and folder expansion. Perfect for create folder functions, new directory operations, folder creation tools, directory addition, file organization expansion, and new folder interfaces. Alternative names: create folder, new directory, add folder, plus folder, new folder, create directory, folder creation, add directory.
+
+### folder-simple
+**Import:** `import { FolderSimple } from 'phosphor-svelte';`
+**Description:** Simple folder icon representing basic directory concepts and minimal file organization. Ideal for simplified file managers, basic directory displays, minimal folder interfaces, clean file organization, and streamlined document management systems. Alternative names: basic folder, simple directory, minimal folder, clean folder, basic directory, simple storage, minimal directory, clean storage.
+
+### folder-simple-dashed
+**Import:** `import { FolderSimpleDashed } from 'phosphor-svelte';`
+**Description:** Simple dashed folder icon representing basic temporary directories and minimal placeholder folders. Perfect for simplified temporary storage, basic missing folders, minimal placeholder directories, and clean temporary file organization. Alternative names: simple temporary folder, basic placeholder, minimal missing folder, simple draft folder, basic dotted folder, minimal temporary storage, simple pending folder, clean placeholder.
+
+### folder-simple-lock
+**Import:** `import { FolderSimpleLock } from 'phosphor-svelte';`
+**Description:** Simple locked folder icon representing basic secure directories and minimal private storage. Excellent for simplified security applications, basic private folders, minimal encrypted storage, clean secure directories, and streamlined protected file systems. Alternative names: simple secure folder, basic private directory, minimal locked folder, simple protected storage, basic encrypted folder, clean secure storage, minimal private folder, simple confidential folder.
+
+### folder-simple-minus
+**Import:** `import { FolderSimpleMinus } from 'phosphor-svelte';`
+**Description:** Simple folder with minus icon representing basic folder deletion and minimal removal operations. Perfect for simplified delete functions, basic folder removal, minimal directory deletion, clean removal operations, and streamlined folder management. Alternative names: simple delete folder, basic remove directory, minimal folder removal, simple directory deletion, basic folder deletion, clean remove folder, minimal delete directory, simple removal.
+
+### folder-simple-plus
+**Import:** `import { FolderSimplePlus } from 'phosphor-svelte';`
+**Description:** Simple folder with plus icon representing basic folder creation and minimal directory addition. Ideal for simplified create folder functions, basic new directory operations, minimal folder creation, clean directory addition, and streamlined new folder interfaces. Alternative names: simple create folder, basic new directory, minimal add folder, simple folder creation, basic directory creation, clean new folder, minimal create directory, simple add directory.# Phosphor Icons Documentation - Batch 14
+
+### folder-simple-star
+**Import:** `import { FolderSimpleStar } from 'phosphor-svelte';`
+**Description:** A minimalist folder icon with a star symbol, representing favorite folders, starred directories, bookmarked locations, or priority file collections. Perfect for file managers, document organizers, bookmark systems, favorites sections, important folders, VIP directories, pinned locations, starred collections, priority files, essential documents, highlighted folders, saved locations, quick access folders, preferred directories, and special collections. Use in file browsers, document management systems, cloud storage interfaces, project organizers, and content management applications where users need to mark important or frequently accessed folders.
+
+### folder-simple-user
+**Import:** `import { FolderSimpleUser } from 'phosphor-svelte';`
+**Description:** A clean folder icon with a user symbol, representing personal folders, user directories, private collections, individual accounts, profile folders, personal storage, user-specific content, private documents, personal files, individual workspaces, account folders, user profiles, personal data, private storage, individual collections, personal archives, user content, private directories, personal workspace, and individual file storage. Ideal for user account systems, personal cloud storage, profile management, individual workspaces, private file areas, personal document storage, user-specific folders, and individual content organization.
+
+### folder-star
+**Import:** `import { FolderStar } from 'phosphor-svelte';`
+**Description:** A detailed folder icon with a star overlay, symbolizing favorited directories, starred folders, bookmarked locations, important collections, priority folders, featured directories, marked locations, essential folders, highlighted collections, pinned directories, special folders, VIP storage, important archives, priority collections, featured content, premium folders, top-rated directories, favorite locations, starred collections, and marked folders. Essential for file management applications, document organizers, cloud storage platforms, content management systems, project management tools, and any interface requiring folder favoriting or prioritization features.
+
+### folder-user
+**Import:** `import { FolderUser } from 'phosphor-svelte';`
+**Description:** A comprehensive folder icon with user representation, indicating personal directories, user folders, individual storage, private collections, account-specific folders, personal workspaces, user profiles, individual archives, private directories, personal document storage, user-specific content, individual collections, account folders, personal files, private storage, user data, individual workspaces, personal organization, profile folders, and account-based storage. Perfect for user management systems, personal cloud platforms, individual account interfaces, profile management, private storage solutions, and personalized file organization systems.
+
+### folders
+**Import:** `import { Folders } from 'phosphor-svelte';`
+**Description:** Multiple overlapping folders representing folder collections, directory groups, file organization, document sets, copied folders, duplicated directories, folder stacks, multiple collections, grouped directories, batch folders, folder arrays, directory clusters, file sets, document groups, organized collections, folder hierarchy, nested directories, multiple storage, grouped files, and bulk folder operations. Useful in file managers, batch operations, folder copying, directory management, bulk file operations, multiple folder selection, group file management, and organizational systems requiring multiple folder representation.
+
+### football
+**Import:** `import { Football } from 'phosphor-svelte';`
+**Description:** An American football icon representing sports, athletics, NFL games, football matches, American football, gridiron, sports events, athletic competitions, team sports, football seasons, sports betting, fantasy football, game schedules, sports news, athletic activities, recreational sports, professional football, college football, sports apps, game tracking, sports statistics, football coaching, team management, sports entertainment, and recreational activities. Perfect for sports applications, fantasy football platforms, game scheduling, sports news sites, athletic event management, team organization tools, and sports-related interfaces.
+
+### football-helmet
+**Import:** `import { FootballHelmet } from 'phosphor-svelte';`
+**Description:** A football helmet icon symbolizing American football equipment, sports safety, athletic protection, NFL gear, football players, team sports, protective equipment, sports gear, athletic safety, football teams, player equipment, sports protection, safety gear, athletic equipment, football coaching, team identity, sports uniforms, player safety, protective headgear, sports equipment, football training, athletic gear, team sports equipment, and player protection. Ideal for sports equipment stores, team management applications, player safety information, athletic gear catalogs, sports coaching tools, team roster management, and football-related platforms.
+
+### footprints
+**Import:** `import { Footprints } from 'phosphor-svelte';`
+**Description:** Footprint tracks representing paths, trails, walking routes, hiking paths, journey tracking, movement history, step counting, walking directions, route following, trail navigation, fitness tracking, outdoor activities, walking paths, hiking trails, nature walks, exploration routes, travel paths, journey records, step tracking, walking history, route planning, trail guides, outdoor navigation, pedestrian routes, and movement patterns. Perfect for fitness apps, hiking applications, GPS navigation, walking trackers, outdoor activity planners, trail guides, fitness monitoring, route planning tools, and location-based services.
+
+### fork-knife
+**Import:** `import { ForkKnife } from 'phosphor-svelte';`
+**Description:** Dining utensils icon representing food, meals, restaurants, dining experiences, eating establishments, culinary services, food delivery, meal planning, kitchen utensils, dining out, restaurant locations, food services, culinary experiences, meal times, dinner settings, food preparation, eating utensils, dining options, restaurant reservations, food ordering, culinary apps, meal delivery, dining establishments, eating places, and food-related activities. Essential for restaurant finders, food delivery apps, dining reservation systems, meal planning applications, culinary services, food ordering platforms, and dining-related interfaces.
+
+### four-k
+**Import:** `import { FourK } from 'phosphor-svelte';`
+**Description:** 4K resolution indicator representing ultra-high definition video, premium video quality, high-resolution content, UHD streaming, 4K displays, premium media, high-quality video, ultra-high definition, superior resolution, advanced video technology, high-end media, professional video, premium streaming, 4K content, high-resolution streaming, advanced display technology, ultra-clear video, premium video services, high-definition media, superior video quality, professional broadcasting, and premium video experiences. Ideal for video streaming platforms, media players, display settings, video quality indicators, streaming services, media applications, and premium content platforms.
+
+### frame-corners
+**Import:** `import { FrameCorners } from 'phosphor-svelte';`
+**Description:** Corner frame brackets representing fullscreen mode, window expansion, screen capture, resize handles, maximizing windows, screen selection, area selection, cropping boundaries, viewport controls, window management, screen recording areas, selection tools, capture regions, frame selection, boundary markers, window controls, screen utilities, display controls, windowing system, maximize functions, fullscreen toggle, screen expansion, window sizing, capture tools, and display management. Perfect for screen capture applications, window management tools, media players, image editors, screen recording software, and interface controls requiring fullscreen or selection functionality.
+
+### framer-logo
+**Import:** `import { FramerLogo } from 'phosphor-svelte';`
+**Description:** Framer brand logo representing the Framer design platform, prototyping tools, interface design, motion design, interactive prototypes, design systems, UI/UX tools, design collaboration, prototype creation, interaction design, design workflows, creative tools, design platforms, prototyping software, design automation, interface development, design technology, creative workflows, design solutions, and modern design tools. Used in design tool collections, creative software lists, prototyping platform references, design system documentation, and interfaces showcasing design tool integrations or Framer-related content.
+
+### function
+**Import:** `import { Function } from 'phosphor-svelte';`
+**Description:** Mathematical function symbol (fx) representing mathematical functions, programming functions, code functions, mathematical operations, formula calculations, algorithmic operations, computational processes, mathematical expressions, programming logic, function definitions, mathematical modeling, computational mathematics, algorithm functions, code execution, mathematical processing, function calls, computational logic, mathematical analysis, programming concepts, and mathematical programming. Essential for mathematical applications, programming interfaces, calculator apps, coding environments, educational math tools, algorithm visualizers, and scientific computing applications.
+
+### funnel
+**Import:** `import { Funnel } from 'phosphor-svelte';`
+**Description:** A detailed funnel icon representing data filtering, content sorting, search refinement, data processing, information filtering, result narrowing, content organization, data analysis, filter options, sorting mechanisms, data refinement, search filters, content filtering, information sorting, data categorization, result filtering, query refinement, content curation, data processing tools, information organization, search optimization, and data management. Perfect for search interfaces, data analytics platforms, content management systems, e-commerce filtering, database queries, and applications requiring sophisticated filtering or sorting functionality.
+
+### funnel-simple
+**Import:** `import { FunnelSimple } from 'phosphor-svelte';`
+**Description:** A streamlined funnel icon for basic filtering, simple sorting, content filtering, data refinement, search filtering, result sorting, information filtering, basic data processing, simple categorization, content organization, filter controls, sorting options, data filtering tools, search refinement, basic filtering mechanisms, content sorting tools, information organization, filter functions, search controls, and simple data management. Ideal for basic search interfaces, simple filtering systems, content organization tools, basic sorting mechanisms, and straightforward filtering applications where minimal visual complexity is preferred.
+
+### funnel-simple-x
+**Import:** `import { FunnelSimpleX } from 'phosphor-svelte';`
+**Description:** A simple funnel with an X symbol representing filter removal, clear filters, reset filtering, remove sorting, clear search filters, filter cancellation, sorting reset, filter clearing, search reset, filter removal tools, clearing applied filters, resetting search parameters, removing data filters, clearing sort options, filter deletion, search clearing, filter reset functionality, removing applied sorting, clearing filter selections, and filter management controls. Essential for search interfaces with filter clearing, data filtering applications with reset options, and systems requiring easy filter removal or clearing functionality.
+
+### funnel-x
+**Import:** `import { FunnelX } from 'phosphor-svelte';`
+**Description:** A detailed funnel with X overlay representing advanced filter removal, comprehensive filter clearing, complex filter reset, multi-filter removal, advanced sorting reset, sophisticated filter management, filter cancellation tools, comprehensive search clearing, advanced filter controls, multi-parameter reset, complex filter deletion, comprehensive filtering reset, advanced search clearing, sophisticated filter removal, complex sorting cancellation, and advanced filter management systems. Perfect for complex search interfaces, advanced filtering systems, sophisticated data analysis tools, and applications requiring comprehensive filter management and removal capabilities.
+
+### game-controller
+**Import:** `import { GameController } from 'phosphor-svelte';`
+**Description:** Gaming controller icon representing video games, gaming platforms, game controllers, console gaming, gaming experiences, interactive entertainment, gaming hardware, controller input, gaming devices, video game systems, gaming accessories, console controllers, gaming peripherals, game interfaces, gaming technology, controller support, gaming experiences, interactive gaming, gaming platforms, entertainment systems, gaming controls, controller compatibility, and gaming functionality. Essential for gaming applications, entertainment platforms, controller setup interfaces, gaming stores, game launchers, gaming communities, and any gaming-related software or hardware interfaces.
+
+### garage
+**Import:** `import { Garage } from 'phosphor-svelte';`
+**Description:** Garage building icon representing vehicle storage, automotive services, car storage, parking structures, automotive workshops, vehicle maintenance, car repair shops, storage buildings, automotive facilities, parking garages, vehicle shelters, automotive services, car care centers, vehicle storage facilities, automotive businesses, parking facilities, car storage solutions, vehicle protection, automotive infrastructure, parking structures, and vehicle-related buildings. Perfect for automotive service apps, parking facility finders, garage door controls, vehicle storage management, automotive business listings, parking applications, and location-based services for automotive facilities.
+
+### gas-can
+**Import:** `import { GasCan } from 'phosphor-svelte';`
+**Description:** Fuel container icon (jerrycan) representing portable fuel storage, gasoline containers, fuel cans, emergency fuel, portable gas storage, fuel containers, petrol cans, fuel reserves, backup fuel, portable fuel solutions, emergency gasoline, fuel storage containers, gas storage, automotive fuel, portable energy storage, fuel transportation, emergency supplies, fuel backup, gasoline reserves, and portable fuel systems. Useful in automotive applications, emergency preparedness tools, fuel management systems, outdoor activity planners, emergency supply lists, and applications dealing with fuel storage or transportation.
+
+### gas-pump
+**Import:** `import { GasPump } from 'phosphor-svelte';`
+**Description:** Gas station pump representing fuel stations, gas stations, refueling stops, gasoline pumps, fuel dispensers, petrol stations, fuel services, automotive fuel, gas station locations, fuel stops, refueling services, fuel dispensing, gas station finder, fuel stations, automotive services, fuel prices, gas station amenities, fuel payment, refueling locations, gas station services, fuel efficiency, and automotive fuel management. Essential for gas station finder apps, fuel price comparisons, travel planning applications, automotive service finders, fuel tracking apps, and location-based services for fuel stations.
+
+### gauge
+**Import:** `import { Gauge } from 'phosphor-svelte';`
+**Description:** Speedometer/gauge icon representing performance metrics, speed measurements, dashboard indicators, performance monitoring, system metrics, measurement tools, monitoring dashboards, performance gauges, speed indicators, measurement displays, system performance, monitoring tools, analytics dashboards, performance tracking, metric visualization, measurement instruments, system monitoring, performance analysis, speed tracking, measurement systems, dashboard controls, performance indicators, system gauges, and metric displays. Perfect for dashboard applications, performance monitoring tools, analytics platforms, system monitoring interfaces, speed tracking applications, and measurement visualization systems.
+
+### gavel
+**Import:** `import { Gavel } from 'phosphor-svelte';`
+**Description:** Judge's gavel representing legal systems, court proceedings, justice, legal decisions, judicial processes, court cases, legal authority, law enforcement, legal proceedings, judicial authority, court orders, legal rulings, justice system, legal processes, courtroom activities, judicial decisions, legal governance, court systems, legal administration, government authority, legal frameworks, judicial proceedings, law and order, legal enforcement, and legal institutions. Ideal for legal applications, court management systems, legal document platforms, justice-related interfaces, legal service websites, government applications, and law-related software platforms.
+
+### gear
+**Import:** `import { Gear } from 'phosphor-svelte';`
+**Description:** Single gear icon representing system settings, configuration options, preferences, setup menus, system controls, settings panels, configuration management, system preferences, application settings, user preferences, system configuration, settings interfaces, control panels, system management, configuration tools, settings menus, system options, preference controls, configuration panels, setup interfaces, system customization, settings screens, and system administration. The standard icon for settings menus, configuration panels, system preferences, application options, and any interface element that leads to customization or configuration options.
+
+### gear-fine
+**Import:** `import { GearFine } from 'phosphor-svelte';`
+**Description:** Detailed gear with fine teeth representing precise settings, advanced configuration, fine-tuned controls, detailed preferences, precise system controls, advanced settings, granular configuration, detailed system options, precision settings, advanced customization, fine-grained controls, detailed configuration options, precise system management, advanced system preferences, detailed control panels, precision configuration, fine-tuned system settings, advanced preference management, detailed system controls, and sophisticated configuration interfaces. Perfect for advanced settings panels, professional configuration tools, detailed system controls, precision adjustment interfaces, and sophisticated customization platforms.
+
+### gear-six
+**Import:** `import { GearSix } from 'phosphor-svelte';`
+**Description:** Six-pointed gear representing robust system settings, heavy-duty configuration, industrial settings, complex system controls, comprehensive preferences, advanced system management, robust configuration options, industrial-strength settings, complex system preferences, heavy-duty system controls, comprehensive configuration, advanced settings management, robust system options, industrial system controls, complex preference management, comprehensive system settings, advanced configuration tools, robust settings panels, industrial system preferences, and heavy-duty system management. Ideal for industrial applications, complex system interfaces, enterprise configuration panels, advanced system management tools, and robust system control interfaces.
+
+### gender-female
+**Import:** `import { GenderFemale } from 'phosphor-svelte';`
+**Description:** Female gender symbol (Venus symbol) representing women, feminine identity, female gender, woman identification, feminine representation, female users, women's categories, feminine demographics, female-specific content, women's sections, feminine identity markers, female gender selection, women's profiles, feminine user categories, female representation, women's services, feminine identity options, female demographics, women's content, and feminine identification. Essential for user profile systems, demographic forms, gender selection interfaces, user registration, identity management, demographic surveys, and inclusive user interface design requiring gender identification options.
+
+### gender-intersex
+**Import:** `import { GenderIntersex } from 'phosphor-svelte';`
+**Description:** Intersex gender symbol representing intersex identity, non-binary gender, gender diversity, intersex individuals, gender inclusivity, diverse gender identity, intersex representation, gender spectrum, inclusive gender options, intersex community, gender variation, intersex rights, gender diversity advocacy, intersex visibility, gender inclusive design, intersex awareness, diverse gender representation, gender identity spectrum, intersex recognition, and inclusive gender selection. Important for inclusive user interfaces, diversity-focused applications, gender-inclusive forms, LGBTQ+ platforms, inclusive identity management, and systems promoting gender diversity and intersex visibility.
+
+### gender-male
+**Import:** `import { GenderMale } from 'phosphor-svelte';`
+**Description:** Male gender symbol (Mars symbol) representing men, masculine identity, male gender, man identification, masculine representation, male users, men's categories, masculine demographics, male-specific content, men's sections, masculine identity markers, male gender selection, men's profiles, masculine user categories, male representation, men's services, masculine identity options, male demographics, men's content, and masculine identification. Essential for user profile systems, demographic forms, gender selection interfaces, user registration, identity management, demographic surveys, and user interface design requiring gender identification options.
+
+### gender-neuter
+**Import:** `import { GenderNeuter } from 'phosphor-svelte';`
+**Description:** Neuter/agender symbol representing agender identity, non-binary gender, gender-neutral options, genderless identity, neutral gender representation, agender individuals, gender-neutral categories, non-gender-specific options, genderless profiles, neutral gender selection, agender representation, gender-neutral demographics, non-gendered identity, neutral identity markers, agender recognition, gender-neutral services, non-binary identity options, genderless representation, and neutral gender identification. Vital for inclusive interfaces, gender-neutral systems, non-binary user support, inclusive demographic collection, and gender-diverse platform design.
+
+### gender-nonbinary
+**Import:** `import { GenderNonbinary } from 'phosphor-svelte';`
+**Description:** Non-binary gender symbol representing non-binary identity, gender fluidity, non-binary individuals, gender spectrum, non-conforming gender, diverse gender identity, non-binary recognition, gender inclusivity, non-binary representation, gender diversity, inclusive gender options, non-binary community, gender identity spectrum, non-binary visibility, gender-inclusive design, non-binary rights, diverse gender expression, gender identity diversity, non-binary awareness, and inclusive gender selection. Critical for LGBTQ+ inclusive platforms, diverse user identity systems, inclusive demographic forms, gender-diverse applications, and interfaces supporting non-binary users and gender diversity.
+
+### gender-transgender
+**Import:** `import { GenderTransgender } from 'phosphor-svelte';`
+**Description:** Transgender symbol representing transgender identity, transgender individuals, trans community, transgender rights, gender transition, transgender representation, trans visibility, transgender recognition, gender identity diversity, transgender advocacy, trans inclusivity, transgender awareness, gender transition support, transgender services, trans-friendly platforms, transgender identity options, gender identity spectrum, transgender community support, trans rights advocacy, and inclusive transgender representation. Essential for LGBTQ+ platforms, transgender-supportive services, inclusive identity management, trans-friendly applications, gender transition resources, and systems promoting transgender visibility and rights.
+
+### ghost
+**Import:** `import { Ghost } from 'phosphor-svelte';`
+**Description:** Ghost character icon representing spirits, Halloween themes, spooky content, paranormal elements, supernatural themes, scary characters, horror elements, Halloween decorations, ghostly figures, supernatural entities, spooky games, horror applications, Halloween apps, paranormal content, ghost stories, supernatural gaming, spooky entertainment, horror themes, ghostly representations, supernatural elements, Halloween festivities, scary content, spooky design elements, and paranormal themes. Perfect for Halloween applications, horror games, spooky entertainment platforms, supernatural content, scary story apps, and seasonal Halloween-themed interfaces.
+
+### gif
+**Import:** `import { Gif } from 'phosphor-svelte';`
+**Description:** GIF format indicator representing animated images, GIF files, animated graphics, image animations, animated content, GIF creation, animated media, motion graphics, animated images, GIF sharing, animated visuals, GIF animations, moving images, animated file format, GIF media, animation files, animated graphics format, GIF content, animated imagery, and motion graphics content. Essential for media applications, image sharing platforms, social media interfaces, animation tools, GIF creators, media file managers, animated content platforms, and applications supporting animated image formats.
+
+### gift
+**Import:** `import { Gift } from 'phosphor-svelte';`
+**Description:** Gift box icon representing presents, gift-giving, holiday gifts, special occasions, birthday presents, holiday celebrations, gift wrapping, present giving, gift boxes, special gifts, holiday shopping, gift certificates, present packages, gift ideas, holiday presents, celebration gifts, special occasion gifts, gift services, present delivery, gift wrapping services, holiday gift guides, gift recommendations, present suggestions, and gifting platforms. Perfect for e-commerce gift sections, holiday shopping apps, gift recommendation systems, special occasion platforms, gift delivery services, and celebration-focused applications.
+
+### git-branch
+**Import:** `import { GitBranch } from 'phosphor-svelte';`
+**Description:** Git branch icon representing version control branching, source code branches, development branches, feature branches, code versioning, branch management, Git workflows, source control branching, repository branches, development workflows, branch creation, branch switching, parallel development, code branching strategies, version control systems, Git repositories, branch visualization, development branch management, code collaboration, version control operations, branch merging, and software development workflows. Essential for development tools, Git clients, version control interfaces, code collaboration platforms, and software development environments.
+
+### git-commit
+**Import:** `import { GitCommit } from 'phosphor-svelte';`
+**Description:** Git commit icon representing code commits, version control commits, source code changes, commit history, code versioning, commit messages, repository commits, development commits, change tracking, commit logs, version history, code snapshots, commit operations, source control commits, development history, commit visualization, code change tracking, commit management, version control operations, commit workflows, and software development tracking. Perfect for Git clients, version control systems, development tools, commit history interfaces, code collaboration platforms, and software development environments requiring commit visualization.
+
+### git-diff
+**Import:** `import { GitDiff } from 'phosphor-svelte';`
+**Description:** Git diff icon representing code differences, file comparisons, change detection, code diff visualization, version comparison, file change tracking, diff viewing, code change analysis, version differences, file modifications, change highlighting, diff tools, code comparison, version control diffs, change visualization, file difference analysis, code change inspection, diff operations, version comparison tools, and change tracking systems. Essential for code review tools, diff viewers, version control systems, code comparison utilities, change tracking applications, and development environments requiring change visualization.
+
+### git-fork
+**Import:** `import { GitFork } from 'phosphor-svelte';`
+**Description:** Git fork icon representing repository forking, code forking, project forking, repository splitting, independent development, fork creation, project branching, repository copying, fork management, open source forking, collaborative development, fork workflows, repository cloning, independent project development, fork visualization, repository splitting, project independence, development forking, code base separation, and collaborative software development. Perfect for Git hosting platforms, open source project management, collaborative development tools, repository management systems, and platforms supporting project forking and collaboration.
+
+### git-merge
+**Import:** `import { GitMerge } from 'phosphor-svelte';`
+**Description:** Git merge icon representing branch merging, code integration, merge operations, branch combining, merge workflows, code consolidation, development merging, branch integration, merge conflicts, merge requests, code merging, development integration, branch consolidation, merge management, version control merging, collaborative development merging, merge visualization, branch unification, merge processes, and development workflow integration. Essential for version control systems, merge request interfaces, code integration tools, collaborative development platforms, and Git workflow management requiring merge operation visualization.
+
+### git-pull-request
+**Import:** `import { GitPullRequest } from 'phosphor-svelte';`
+**Description:** Git pull request icon representing pull requests, merge requests, code review requests, collaborative development, code contribution, development collaboration, code review workflows, pull request management, merge proposals, code integration requests, development contributions, collaborative coding, code review processes, pull request tracking, development workflow management, code collaboration tools, merge request visualization, collaborative development workflows, team coding processes, and code review systems. Critical for code collaboration platforms, pull request management, code review systems, development workflow tools, and collaborative software development environments.
+
+### github-logo
+**Import:** `import { GithubLogo } from 'phosphor-svelte';`
+**Description:** GitHub brand logo (Octocat) representing GitHub platform, Git repositories, source code hosting, version control, open source projects, code collaboration, software development, GitHub services, repository hosting, developer collaboration, code sharing, GitHub integration, developer platforms, software repositories, code management, GitHub authentication, developer tools, open source development, collaborative coding, software version control, development platforms, and GitHub-related services. Essential for GitHub integrations, developer tool listings, version control interfaces, and applications connecting to or referencing GitHub services.
+
+### gitlab-logo
+**Import:** `import { GitlabLogo } from 'phosphor-svelte';`
+**Description:** GitLab brand logo representing GitLab platform, Git repository hosting, DevOps platform, CI/CD pipelines, source code management, collaborative development, GitLab services, repository management, development workflows, GitLab integration, DevOps tools, continuous integration, software development lifecycle, GitLab authentication, development platform services, code collaboration, version control hosting, DevOps workflows, and GitLab-related services. Perfect for GitLab integrations, DevOps tool collections, development platform listings, and applications connecting to GitLab services or featuring GitLab-related functionality.
+
+### gitlab-logo-simple
+**Import:** `import { GitlabLogoSimple } from 'phosphor-svelte';`
+**Description:** Simplified GitLab logo representing streamlined GitLab branding, minimal GitLab representation, clean GitLab identity, simplified GitLab integration, minimalist GitLab reference, basic GitLab recognition, simplified DevOps platform representation, clean GitLab services indication, minimal GitLab platform branding, simplified GitLab authentication, clean GitLab integration markers, minimal GitLab platform indicators, and simplified GitLab service representation. Ideal for clean interfaces requiring GitLab recognition, minimalist design systems featuring GitLab integration, and simplified GitLab service indicators where detailed branding is not required.
+
+### globe
+**Import:** `import { Globe } from 'phosphor-svelte';`
+**Description:** World globe icon representing global reach, worldwide services, international content, global navigation, world map access, international applications, global connectivity, worldwide networks, international communication, global platforms, world-wide web, internet connectivity, global services, international reach, worldwide accessibility, global markets, international business, world coverage, global presence, planetary representation, earth visualization, worldwide distribution, international platforms, global community, world-wide access, and universal connectivity. Essential for international applications, global service platforms, world map interfaces, international business tools, global communication systems, and worldwide service representations.
+
+### globe-hemisphere-east
+**Import:** `import { GlobeHemisphereEast } from 'phosphor-svelte';`
+**Description:** Eastern hemisphere globe showing Europe, Africa, Asia, and Australia, representing eastern world regions, European markets, African content, Asian services, Australian platforms, eastern hemisphere services, European applications, African representation, Asian markets, Australian services, eastern global regions, Europe-Africa-Asia focus, eastern world coverage, regional eastern services, eastern hemisphere platforms, European-Asian markets, Africa-Asia connectivity, eastern regional content, and eastern world representation. Perfect for region-specific applications, eastern market platforms, European-Asian services, regional content systems, and applications serving eastern hemisphere regions.
+
+### globe-hemisphere-west
+**Import:** `import { GlobeHemisphereWest } from 'phosphor-svelte';`
+**Description:** Western hemisphere globe showing North and South America, representing western world regions, American markets, North American services, South American platforms, western hemisphere coverage, Americas-focused content, North-South American connectivity, western regional services, American continental representation, western world markets, Americas-based platforms, western hemisphere applications, North American markets, South American services, American continental coverage, western regional content, Americas-focused services, and western world representation. Ideal for Americas-focused applications, western market platforms, North-South American services, regional western content systems, and applications serving western hemisphere regions.
+
+### globe-simple
+**Import:** `import { GlobeSimple } from 'phosphor-svelte';`
+**Description:** Simplified globe icon representing basic global services, simple worldwide access, minimal international representation, clean global indicators, simplified world coverage, basic international connectivity, minimal global presence, simple worldwide services, clean international access, basic global platforms, simplified world representation, minimal international indicators, clean global services, basic worldwide connectivity, simple international platforms, minimal global coverage, clean world access, basic international services, simplified global representation, and minimal worldwide indicators. Perfect for clean international interfaces, simplified global service indicators, minimal worldwide platform representations, and basic international connectivity features.
+
+### globe-simple-x
+**Import:** `import { GlobeSimpleX } from 'phosphor-svelte';`
+**Description:** Simple globe with X overlay representing blocked international access, disabled global services, restricted worldwide connectivity, blocked international content, disabled global features, restricted world access, blocked global connectivity, disabled international services, restricted worldwide access, blocked global platforms, disabled world services, restricted international connectivity, blocked worldwide services, disabled global access, restricted global features, blocked international platforms, offline global services, disconnected international access, blocked world connectivity, and restricted global services. Essential for offline mode indicators, restricted access notifications, blocked international service warnings, and disabled global connectivity features.
+
+### globe-stand
+**Import:** `import { GlobeStand } from 'phosphor-svelte';`
+**Description:** Desktop globe on stand representing educational tools, geography education, world studies, educational geography, learning resources, educational materials, geography tools, world education, international studies, global education, educational globes, geography resources, world learning, educational platforms, geography applications, world study tools, educational geography resources, international education, global learning platforms, geography education tools, world knowledge systems, educational world resources, geography learning applications, and international educational content. Perfect for educational applications, geography learning platforms, world study tools, international education systems, geography educational resources, and learning platforms focused on world knowledge and international studies.# Phosphor Icons Batch 15 Documentation
+
+### globe-x
+**Import:** `import { GlobeX } from 'phosphor-svelte';`
+**Description:** A globe or world icon with an X mark overlay, representing disabled or blocked global features, disconnected international services, offline world maps, unavailable global connectivity, restricted international access, or network connection issues. Use for indicating disabled internationalization features, blocked global services, unavailable worldwide functionality, restricted internet access, offline geographic services, disconnected global networks, or error states in world-related applications. Perfect for maps and travel applications, international commerce platforms, global communication tools, world news services, or any interface dealing with worldwide connectivity and international features.
+
+### goggles
+**Import:** `import { Goggles } from 'phosphor-svelte';`
+**Description:** Swimming goggles icon representing aquatic sports, pool activities, swimming exercises, water safety equipment, Olympic swimming events, competitive aquatics, pool fitness, swim training, water sports gear, eye protection for swimming, diving equipment, or recreational swimming. Use in fitness applications, sports tracking apps, swimming lesson platforms, aquatic center websites, Olympic sports content, health and wellness apps focused on swimming, water safety guides, or any swimming-related interface. Also suitable for indicating water activities, pool facilities, swim gear shopping, or aquatic fitness programs.
+
+### golf
+**Import:** `import { Golf } from 'phosphor-svelte';`
+**Description:** Golf icon featuring a golf club and ball, representing golf sports, PGA tournaments, tee time bookings, golf courses, country clubs, professional golf, golf equipment, sports gaming, recreational activities, golf lessons, or golf club memberships. Use in sports applications, golf course booking systems, PGA tour apps, golf equipment stores, sports games, fitness tracking for golf, golf lesson platforms, country club websites, or recreational activity planners. Perfect for indicating golf-related content, sports activities, outdoor recreation, or professional golf services.
+
+### goodreads-logo
+**Import:** `import { GoodreadsLogo } from 'phosphor-svelte';`
+**Description:** Official Goodreads platform logo representing book reading, literature community, book reviews, reading lists, book recommendations, social reading, book clubs, literary discussions, reading progress tracking, book discovery, author following, or reading social networks. Use in book-related applications, reading apps, literature platforms, book review websites, social media integrations, book club applications, library systems, literary blogs, or any reading-focused interface. Essential for book enthusiasts, reading communities, literature students, or book recommendation systems.
+
+### google-cardboard-logo
+**Import:** `import { GoogleCardboardLogo } from 'phosphor-svelte';`
+**Description:** Google Cardboard VR platform logo representing virtual reality experiences, VR headsets, immersive technology, 3D experiences, virtual environments, VR gaming, augmented reality, VR applications, mobile VR, virtual tours, or immersive media content. Use in VR applications, virtual reality platforms, 3D gaming interfaces, immersive experience apps, virtual tour applications, VR content creation tools, augmented reality apps, or technology showcases. Perfect for indicating VR capabilities, immersive experiences, virtual environments, or cutting-edge technology features.
+
+### google-chrome-logo
+**Import:** `import { GoogleChromeLogo } from 'phosphor-svelte';`
+**Description:** Official Google Chrome browser logo representing web browsing, internet navigation, web applications, browser compatibility, web development, online activities, internet access, web searches, browser extensions, or web-based services. Use in web applications, browser compatibility notices, web development tools, internet service platforms, browser extension interfaces, web-based applications, online service dashboards, or any web-focused interface. Essential for indicating browser-specific features, web compatibility, internet connectivity, or web-based functionalities.
+
+### google-drive-logo
+**Import:** `import { GoogleDriveLogo } from 'phosphor-svelte';`
+**Description:** Official Google Drive cloud storage logo representing cloud storage, file backup, document synchronization, cloud computing, file sharing, collaborative documents, remote storage, data backup, file access across devices, or cloud-based productivity. Use in cloud storage applications, backup services, file management systems, collaborative platforms, document sharing tools, productivity suites, remote work applications, or cloud integration interfaces. Perfect for indicating cloud storage capabilities, file synchronization, backup services, or collaborative document features.
+
+### google-logo
+**Import:** `import { GoogleLogo } from 'phosphor-svelte';`
+**Description:** Official Google company logo representing search engines, web searches, Google services, Android platform, mobile technology, internet searches, online services, Google ecosystem, search functionality, or Google account integration. Use in search applications, Google service integrations, Android applications, web search interfaces, Google account login screens, search engine optimization tools, or any Google-related services. Essential for indicating search capabilities, Google integrations, Android compatibility, or Google service authentication.
+
+### google-photos-logo
+**Import:** `import { GooglePhotosLogo } from 'phosphor-svelte';`
+**Description:** Official Google Photos service logo representing photo storage, image backup, photo albums, picture organization, photo sharing, image synchronization, photography management, photo editing, visual memories, or cloud photo storage. Use in photo management applications, image gallery apps, photo sharing platforms, photography portfolios, image backup services, photo editing tools, visual content management systems, or memory preservation apps. Perfect for indicating photo storage capabilities, image organization features, photo sharing functionality, or visual content management.
+
+### google-play-logo
+**Import:** `import { GooglePlayLogo } from 'phosphor-svelte';`
+**Description:** Official Google Play Store logo representing Android app distribution, mobile applications, app downloads, Google Play services, mobile games, app store browsing, Android ecosystem, mobile app marketplace, application installation, or mobile content distribution. Use in Android applications, app store interfaces, mobile app promotion, game distribution platforms, mobile development tools, app marketing materials, or Android-focused services. Essential for indicating Android compatibility, app store presence, mobile app availability, or Google Play integration.
+
+### google-podcasts-logo
+**Import:** `import { GooglePodcastsLogo } from 'phosphor-svelte';`
+**Description:** Official Google Podcasts platform logo representing podcast streaming, audio content, podcast subscriptions, audio entertainment, podcast discovery, voice content, audio shows, podcast libraries, audio streaming, or podcast platforms. Use in podcast applications, audio streaming services, media platforms, podcast discovery apps, audio content management, podcast subscription services, or media consumption interfaces. Perfect for indicating podcast capabilities, audio content access, podcast streaming features, or audio media services.
+
+### gps
+**Import:** `import { Gps } from 'phosphor-svelte';`
+**Description:** GPS (Global Positioning System) icon representing location services, navigation systems, geolocation tracking, map navigation, position finding, location-based services, geographic positioning, route planning, location sharing, or satellite navigation. Use in navigation applications, map services, location-based apps, travel planning tools, delivery tracking systems, ride-sharing platforms, location services, or any GPS-enabled interface. Perfect for indicating location functionality, navigation capabilities, position tracking, or geographic services.
+
+### gps-fix
+**Import:** `import { GpsFix } from 'phosphor-svelte';`
+**Description:** GPS fix icon representing successful location lock, accurate positioning, satellite connection established, location services active, precise geolocation, navigation ready state, GPS signal acquired, or location tracking enabled. Use in navigation applications, location services interfaces, GPS status indicators, mapping applications, location-based services, travel apps, or position tracking systems. Perfect for indicating active GPS functionality, successful location acquisition, navigation readiness, or accurate positioning status.
+
+### gps-slash
+**Import:** `import { GpsSlash } from 'phosphor-svelte';`
+**Description:** GPS disabled icon representing location services turned off, navigation unavailable, GPS signal blocked, location tracking disabled, position services inactive, location access denied, offline navigation mode, or geolocation restrictions. Use for indicating disabled location services, unavailable GPS functionality, location privacy settings, offline map modes, restricted location access, location service errors, or when location permissions are denied. Essential for privacy-focused interfaces, location settings, navigation error states, or location service management.
+
+### gradient
+**Import:** `import { Gradient } from 'phosphor-svelte';`
+**Description:** Gradient icon representing color gradients, design transitions, opacity effects, color blending, ombre effects, fade transitions, visual design elements, color schemes, graphic design tools, or design aesthetics. Use in design applications, graphic design software, color palette tools, photo editing applications, web design interfaces, creative platforms, UI design tools, or visual design systems. Perfect for indicating gradient effects, color transitions, design styling options, visual aesthetics, or creative design features.
+
+### graduation-cap
+**Import:** `import { GraduationCap } from 'phosphor-svelte';`
+**Description:** Graduation cap (mortarboard) icon representing education, academic achievement, graduation ceremonies, degrees, educational institutions, learning completion, academic success, schools, colleges, universities, educational milestones, or academic programs. Use in educational applications, learning management systems, academic platforms, university websites, graduation tracking, educational achievement systems, student portals, or academic progress interfaces. Perfect for indicating educational content, academic achievements, learning milestones, graduation status, or educational institution branding.
+
+### grains
+**Import:** `import { Grains } from 'phosphor-svelte';`
+**Description:** Wheat grains icon representing grain products, wheat farming, agriculture, cereal crops, food ingredients, gluten-containing products, farming industry, agricultural produce, grain harvesting, or food production. Use in agricultural applications, food industry platforms, farming management systems, food allergy information, ingredient listings, agricultural marketplaces, farming equipment interfaces, or food production tracking. Perfect for indicating grain products, agricultural content, farming activities, food ingredients, or gluten-containing items.
+
+### grains-slash
+**Import:** `import { GrainsSlash } from 'phosphor-svelte';`
+**Description:** Crossed-out grains icon representing gluten-free products, wheat-free options, grain-free diets, celiac-friendly foods, gluten intolerance accommodation, wheat allergy awareness, or grain-free alternatives. Use in food applications, dietary restriction interfaces, allergy-friendly platforms, gluten-free product catalogs, restaurant menu systems with dietary options, health-focused food apps, or nutritional information systems. Essential for indicating gluten-free options, dietary restrictions, food allergies, wheat-free products, or specialized dietary requirements.
+
+### graph
+**Import:** `import { Graph } from 'phosphor-svelte';`
+**Description:** Node graph icon representing network diagrams, data relationships, system architecture, graph databases, network topology, data visualization, connected systems, relationship mapping, hierarchical structures, or data flow diagrams. Use in data analysis applications, network monitoring tools, system architecture documentation, database visualization, project management systems with dependencies, organizational charts, mind mapping applications, or technical documentation platforms. Perfect for indicating data relationships, system connections, network structures, or complex data visualizations.
+
+### graphics-card
+**Import:** `import { GraphicsCard } from 'phosphor-svelte';`
+**Description:** Graphics card (GPU) icon representing computer graphics processing, gaming hardware, video rendering, graphics acceleration, gaming performance, computer components, high-performance computing, video editing hardware, mining hardware, or graphics processing units. Use in gaming applications, computer hardware stores, system monitoring tools, gaming performance apps, hardware compatibility checkers, computer building guides, graphics benchmarking tools, or gaming optimization interfaces. Perfect for indicating graphics performance, gaming capabilities, hardware specifications, or computer component information.
+
+### greater-than
+**Import:** `import { GreaterThan } from 'phosphor-svelte';`
+**Description:** Greater than symbol (>) representing mathematical comparisons, inequality operations, mathematical expressions, programming operators, logical comparisons, arithmetic calculations, mathematical functions, calculator operations, or comparison logic. Use in calculator applications, mathematical software, programming interfaces, educational math platforms, comparison tools, data filtering systems, mathematical notation, or logical operation interfaces. Perfect for indicating comparison operations, mathematical relationships, programming logic, or inequality expressions.
+
+### greater-than-or-equal
+**Import:** `import { GreaterThanOrEqual } from 'phosphor-svelte';`
+**Description:** Greater than or equal symbol (≥) representing mathematical comparisons, inclusive inequality operations, mathematical expressions, programming operators, logical comparisons, arithmetic calculations, mathematical functions, or comparison logic. Use in calculator applications, mathematical software, programming interfaces, educational math platforms, comparison tools, data filtering systems with inclusive ranges, mathematical notation, or logical operation interfaces. Perfect for indicating inclusive comparison operations, mathematical relationships with equality options, programming logic, or range-based filtering.
+
+### grid-four
+**Import:** `import { GridFour } from 'phosphor-svelte';`
+**Description:** Four-square grid icon representing 2x2 layouts, quadrant displays, four-panel interfaces, grid layouts, application grids, dashboard layouts, tile arrangements, cell structures, tabular data with four sections, or organizational layouts. Use in dashboard applications, app launchers, layout management systems, grid-based interfaces, data presentation tools, portfolio layouts, image galleries with grid view, spreadsheet applications, or organizational interfaces. Perfect for indicating grid layouts, quadrant organizations, tile arrangements, or structured data displays.
+
+### grid-nine
+**Import:** `import { GridNine } from 'phosphor-svelte';`
+**Description:** Nine-square grid icon representing 3x3 layouts, app grids, menu layouts, application launchers, dashboard grids, tile arrangements, spreadsheet structures, data tables, grid-based navigation, or organizational matrices. Use in app launcher interfaces, dashboard applications, menu systems, grid-based layouts, data presentation tools, spreadsheet applications, image galleries with grid view, organizational charts, or structured content displays. Perfect for indicating comprehensive grid layouts, menu organizations, app arrangements, or detailed data structures.
+
+### guitar
+**Import:** `import { Guitar } from 'phosphor-svelte';`
+**Description:** Guitar icon representing musical instruments, music creation, string instruments, musical performance, music education, guitar lessons, musical entertainment, band instruments, acoustic music, or musical hobbies. Use in music applications, instrument learning platforms, music streaming services, musical education apps, band management tools, music creation software, instrument stores, or entertainment platforms. Perfect for indicating musical content, instrument-related features, music education, performance arts, or musical entertainment services.
+
+### hair-dryer
+**Import:** `import { HairDryer } from 'phosphor-svelte';`
+**Description:** Hair dryer (blow dryer) icon representing hair styling tools, beauty equipment, grooming appliances, salon services, personal care devices, hair care routines, beauty treatments, styling accessories, or professional hairdressing tools. Use in beauty applications, salon booking systems, grooming product stores, beauty equipment catalogs, personal care apps, salon management systems, beauty service platforms, or hair care routine trackers. Perfect for indicating hair styling services, beauty treatments, grooming tools, salon equipment, or personal care features.
+
+### hamburger
+**Import:** `import { Hamburger } from 'phosphor-svelte';`
+**Description:** Hamburger icon representing fast food, restaurants, dining options, food delivery, quick meals, American cuisine, food venues, restaurant locations, dining establishments, party food, or food service locations. Use in food delivery applications, restaurant finder platforms, dining review apps, fast food ordering systems, food venue locators, party planning apps, restaurant management systems, or culinary platforms. Perfect for indicating dining options, food venues, restaurant services, meal categories, or food delivery features.
+
+### hammer
+**Import:** `import { Hammer } from 'phosphor-svelte';`
+**Description:** Hammer tool icon representing construction tools, carpentry equipment, building tools, manual labor, construction work, tool sets, repair equipment, handyman services, workshop tools, or construction projects. Use in construction applications, tool inventory systems, home improvement apps, contractor platforms, workshop management tools, construction project trackers, tool rental services, or maintenance scheduling systems. Perfect for indicating construction activities, tool requirements, manual work, building projects, or maintenance tasks.
+
+### hand
+**Import:** `import { Hand } from 'phosphor-svelte';`
+**Description:** Basic hand icon representing human interaction, cursor pointers, touch interfaces, gesture controls, manual actions, user interaction points, selection tools, pointing indicators, or backhand gestures. Use in user interface systems, touch-based applications, gesture control interfaces, pointer indicators, interactive elements, selection tools, accessibility features, or emoji-style communication. Perfect for indicating interactive elements, touch points, selection states, user interaction areas, or gesture-based controls.
+
+### hand-arrow-down
+**Import:** `import { HandArrowDown } from 'phosphor-svelte';`
+**Description:** Hand with downward arrow icon representing taking actions, receiving items, withdrawal operations, removing content, collecting items, downloading actions, receiving payments, taking delivery, or downward movement gestures. Use in financial applications for withdrawal functions, content management systems for removing items, delivery tracking for receiving packages, e-commerce for taking orders, or interaction interfaces for downward actions. Perfect for indicating take actions, receive operations, withdrawal processes, collection activities, or downward movement instructions.
+
+### hand-arrow-up
+**Import:** `import { HandArrowUp } from 'phosphor-svelte';`
+**Description:** Hand with upward arrow icon representing giving actions, inserting items, deposit operations, uploading content, donating items, providing payments, delivering services, offering help, or upward movement gestures. Use in financial applications for deposit functions, content management systems for adding items, donation platforms, e-commerce for order fulfillment, charitable giving interfaces, or interaction systems for upward actions. Perfect for indicating give actions, deposit operations, donation processes, offering services, or upward movement instructions.
+
+### hand-coins
+**Import:** `import { HandCoins } from 'phosphor-svelte';`
+**Description:** Hand holding coins icon representing monetary transactions, payment processing, donation activities, financial exchanges, money handling, purchasing actions, payment methods, financial transactions, tipping services, or monetary gifts. Use in payment applications, e-commerce checkout systems, donation platforms, financial transaction interfaces, tipping services, monetary exchange apps, payment processing systems, or financial service platforms. Perfect for indicating payment actions, monetary transactions, donation features, financial exchanges, or money handling operations.
+
+### hand-deposit
+**Import:** `import { HandDeposit } from 'phosphor-svelte';`
+**Description:** Hand making deposit icon representing banking deposits, ATM transactions, money insertion, financial deposits, saving actions, account funding, cash deposits, investment contributions, or monetary contributions. Use in banking applications, ATM interfaces, financial service platforms, savings account systems, investment apps, deposit tracking systems, financial transaction interfaces, or money management tools. Perfect for indicating deposit operations, banking transactions, savings activities, account funding, or financial contribution features.
+
+### hand-eye
+**Import:** `import { HandEye } from 'phosphor-svelte';`
+**Description:** Hand with eye symbol (Hamsa) icon representing protection symbols, spiritual protection, evil eye protection, cultural symbols, religious imagery, good luck charms, spiritual wellness, protective talismans, or mystical symbols. Use in spiritual applications, cultural platforms, religious content systems, wellness apps with spiritual elements, protective symbol collections, cultural education platforms, or spiritual guidance interfaces. Perfect for indicating spiritual protection, cultural symbols, religious content, good luck features, or mystical design elements.
+
+### hand-fist
+**Import:** `import { HandFist } from 'phosphor-svelte';`
+**Description:** Clenched fist icon representing power symbols, solidarity gestures, strength indicators, protest symbols, determination expressions, activism symbols, unity gestures, resistance symbols, or empowerment representations. Use in activist platforms, social justice applications, empowerment content, solidarity campaigns, community organizing tools, social movement platforms, or advocacy interfaces. Perfect for indicating strength, solidarity, activism, empowerment movements, social justice causes, or unity expressions.
+
+### hand-grabbing
+**Import:** `import { HandGrabbing } from 'phosphor-svelte';`
+**Description:** Grabbing hand cursor icon representing drag operations, holding gestures, cursor states, interactive grabbing, drag-and-drop functionality, content manipulation, object holding, cursor pointers, or grip actions. Use in drag-and-drop interfaces, interactive content systems, cursor state indicators, content manipulation tools, object handling systems, interactive design platforms, or user interface controls. Perfect for indicating grabbing actions, drag states, holding operations, interactive elements, or cursor functionality in drag-and-drop systems.
+
+### hand-heart
+**Import:** `import { HandHeart } from 'phosphor-svelte';`
+**Description:** Hand with heart icon representing care giving, charitable donations, compassionate actions, volunteer work, healthcare services, caring gestures, love expressions, support offerings, helping hands, or community care. Use in healthcare applications, donation platforms, volunteer management systems, charity organizations, care service platforms, community support apps, healthcare provider interfaces, or compassionate service platforms. Perfect for indicating care services, charitable giving, volunteer opportunities, healthcare support, or compassionate actions.
+
+### hand-palm
+**Import:** `import { HandPalm } from 'phosphor-svelte';`
+**Description:** Open palm hand icon representing stop gestures, wait signals, cursor pointers, blocking actions, halt commands, protection symbols, Hamsa symbols, greeting gestures, or open hand signals. Use in user interface controls, stop signal indicators, cursor state systems, access control interfaces, gesture control systems, security applications, or interaction control platforms. Perfect for indicating stop actions, wait states, blocking functions, protection features, or halt commands in user interfaces.
+
+### hand-peace
+**Import:** `import { HandPeace } from 'phosphor-svelte';`
+**Description:** Peace sign hand gesture icon representing victory symbols, peace expressions, positive gestures, celebration signals, triumph indicators, peaceful expressions, victory celebrations, or positive communication. Use in social communication platforms, celebration interfaces, positive messaging systems, victory celebration features, peace-focused applications, social expression tools, or positive interaction platforms. Perfect for indicating victory, peace, positive expressions, celebration moments, or triumphant gestures.
+
+### hand-pointing
+**Import:** `import { HandPointing } from 'phosphor-svelte';`
+**Description:** Pointing finger icon representing cursor pointers, selection indicators, click actions, pointing gestures, direction indicators, interactive elements, selection tools, mouse cursor states, or finger pointing gestures. Use in user interface systems, cursor indicators, interactive element highlights, selection tools, pointing systems, click action indicators, navigation aids, or interactive design platforms. Perfect for indicating clickable elements, pointing actions, selection states, interactive areas, or cursor functionality.
+
+### hand-soap
+**Import:** `import { HandSoap } from 'phosphor-svelte';`
+**Description:** Hand soap dispenser icon representing hygiene products, hand sanitization, cleaning supplies, health safety measures, sanitation equipment, hand washing stations, disinfection tools, hygiene dispensers, or cleaning accessories. Use in health and safety applications, hygiene tracking systems, cleaning supply catalogs, health facility management, sanitation monitoring tools, hygiene compliance systems, or health safety platforms. Perfect for indicating hygiene measures, sanitation equipment, cleaning supplies, health safety protocols, or hand washing facilities.
+
+### hand-swipe-left
+**Import:** `import { HandSwipeLeft } from 'phosphor-svelte';`
+**Description:** Hand swiping left gesture icon representing leftward swipe actions, gesture controls, touch interface navigation, swipe gestures, mobile interaction patterns, gesture-based controls, navigation gestures, or directional swipe commands. Use in mobile applications, touch interface systems, gesture control platforms, swipe-based navigation, mobile interaction guides, gesture recognition systems, or touch-based user interfaces. Perfect for indicating swipe actions, gesture controls, mobile navigation, touch interactions, or directional swipe functionality.
+
+### hand-swipe-right
+**Import:** `import { HandSwipeRight } from 'phosphor-svelte';`
+**Description:** Hand swiping right gesture icon representing rightward swipe actions, gesture controls, touch interface navigation, swipe gestures, mobile interaction patterns, gesture-based controls, navigation gestures, or directional swipe commands. Use in mobile applications, touch interface systems, gesture control platforms, swipe-based navigation, mobile interaction guides, gesture recognition systems, or touch-based user interfaces. Perfect for indicating swipe actions, gesture controls, mobile navigation, touch interactions, or directional swipe functionality.
+
+### hand-tap
+**Import:** `import { HandTap } from 'phosphor-svelte';`
+**Description:** Hand tapping gesture icon representing tap actions, touch interactions, click gestures, selection actions, touch interface controls, mobile interaction patterns, tap-to-select functionality, or touch-based commands. Use in mobile applications, touch interface systems, interaction tutorials, mobile app guides, gesture recognition platforms, touch control systems, or mobile user interface designs. Perfect for indicating tap actions, touch interactions, selection gestures, mobile controls, or touch-based functionality.
+
+### hand-waving
+**Import:** `import { HandWaving } from 'phosphor-svelte';`
+**Description:** Waving hand icon representing greeting gestures, hello expressions, goodbye signals, friendly greetings, welcome gestures, social interactions, farewell expressions, or wave communications. Use in social communication platforms, greeting interfaces, welcome screens, social interaction systems, communication apps, greeting card platforms, or friendly user interface elements. Perfect for indicating greetings, farewells, friendly interactions, welcome messages, social communications, or wave gestures.
+
+### hand-withdraw
+**Import:** `import { HandWithdraw } from 'phosphor-svelte';`
+**Description:** Hand withdrawal icon representing ATM withdrawals, cash removal, money extraction, withdrawal operations, taking money, account withdrawals, cash dispensing, or financial withdrawal transactions. Use in banking applications, ATM interfaces, financial transaction systems, cash withdrawal platforms, banking service apps, account management systems, or financial operation interfaces. Perfect for indicating withdrawal operations, cash extraction, ATM functions, money removal, or financial transaction features.
+
+### handbag
+**Import:** `import { Handbag } from 'phosphor-svelte';`
+**Description:** Detailed handbag icon representing women's accessories, purses, fashion bags, shopping bags, personal accessories, fashion items, luggage accessories, travel bags, or fashion retail products. Use in fashion applications, accessory stores, shopping platforms, fashion retail systems, style applications, accessory catalogs, fashion e-commerce, or personal style platforms. Perfect for indicating fashion accessories, shopping categories, purse collections, fashion retail, personal accessories, or style elements.
+
+### handbag-simple
+**Import:** `import { HandbagSimple } from 'phosphor-svelte';`
+**Description:** Simplified handbag icon representing basic bag shapes, minimalist accessories, simple fashion items, essential bags, basic purses, simplified fashion elements, or streamlined accessory designs. Use in minimalist fashion applications, simple shopping interfaces, basic accessory catalogs, streamlined e-commerce platforms, essential fashion apps, or simplified retail systems. Perfect for indicating basic bag categories, essential accessories, minimalist fashion, simple shopping options, or streamlined accessory selections.
+
+### hands-clapping
+**Import:** `import { HandsClapping } from 'phosphor-svelte';`
+**Description:** Clapping hands icon representing applause gestures, celebration actions, appreciation expressions, congratulatory signals, approval indicators, performance appreciation, achievement recognition, or celebratory reactions. Use in social interaction platforms, celebration interfaces, achievement recognition systems, performance feedback platforms, appreciation features, social reaction systems, or celebratory communication tools. Perfect for indicating applause, celebration, appreciation, achievement recognition, approval expressions, or congratulatory gestures.
+
+### hands-praying
+**Import:** `import { HandsPraying} from 'phosphor-svelte';`
+**Description:** Praying hands icon representing prayer gestures, religious expressions, spiritual activities, worship symbols, gratitude expressions, thankful gestures, religious practices, meditation positions, spiritual devotion, or thank you expressions. Use in religious applications, spiritual platforms, meditation apps, prayer tracking systems, gratitude journals, worship service apps, spiritual wellness platforms, or religious community interfaces. Perfect for indicating prayer, worship, gratitude, spiritual practices, religious content, meditation features, or thankful expressions.# Phosphor Icons - Batch 16 Documentation
+
+### handshake
+**Import:** `import { Handshake } from 'phosphor-svelte';`
+**Description:** A handshake icon representing agreements, deals, partnerships, and business relationships. Perfect for commerce applications, contract signing interfaces, partnership pages, negotiation platforms, business deals, mutual agreements, collaboration tools, merger announcements, diplomatic relations, peace treaties, welcome messages, greeting interfaces, team cooperation, alliance formations, and trust-building features. Also suitable for emoji representations, social interactions, professional networking, customer relations, and conflict resolution interfaces.
+
+### hard-drive
+**Import:** `import { HardDrive } from 'phosphor-svelte';`
+**Description:** A single hard drive storage device icon representing data storage, computer hardware, and file systems. Ideal for system administration interfaces, storage management dashboards, backup applications, server monitoring tools, database management systems, file archiving platforms, computer hardware stores, IT infrastructure displays, data center interfaces, storage capacity indicators, disk utilities, system settings, hardware diagnostics, backup progress indicators, and cloud storage alternatives. Perfect for HDD representations, storage allocation displays, and computer component catalogs.
+
+### hard-drives
+**Import:** `import { HardDrives } from 'phosphor-svelte';`
+**Description:** Multiple hard drives icon representing mass storage systems, RAID configurations, and enterprise storage solutions. Perfect for data center management, server farm interfaces, storage array configurations, backup systems, redundant storage setups, enterprise storage solutions, database clustering interfaces, storage virtualization platforms, disaster recovery systems, archive management, storage scaling indicators, multi-drive setups, storage pool management, distributed storage systems, and high-capacity storage representations.
+
+### hard-hat
+**Import:** `import { HardHat } from 'phosphor-svelte';`
+**Description:** A construction hard hat icon representing workplace safety, construction industry, and personal protective equipment (PPE). Ideal for construction management apps, safety training platforms, industrial websites, contractor services, workplace safety dashboards, construction project management, safety compliance interfaces, industrial safety protocols, construction worker profiles, engineering applications, manufacturing safety systems, occupational health platforms, safety equipment catalogs, construction site monitoring, and development/building applications.
+
+### hash
+**Import:** `import { Hash } from 'phosphor-svelte';`
+**Description:** A hash symbol (# or pound sign) icon for hashtags, social media tagging, and numbering systems. Perfect for social media platforms, tagging interfaces, trending topics, hashtag suggestions, social content categorization, Twitter-like features, Instagram tagging, content discovery systems, topic organization, social media analytics, comment threading, numbering systems, phone dialing interfaces, musical sharp symbols, tic-tac-toe games, grid references, and communication platforms requiring symbol input.
+
+### hash-straight
+**Import:** `import { HashStraight } from 'phosphor-svelte';`
+**Description:** A straight-lined hash symbol icon offering a cleaner, more geometric appearance for hashtags and numbering. Suitable for modern social media interfaces, minimalist tagging systems, clean communication platforms, geometric design applications, structured data representations, organized content systems, systematic categorization tools, social media management dashboards, content organization platforms, and applications requiring a more refined hash symbol appearance.
+
+### head-circuit
+**Import:** `import { HeadCircuit } from 'phosphor-svelte';`
+**Description:** A head with circuit patterns icon representing artificial intelligence, machine learning, and automated systems. Perfect for AI-powered applications, machine learning platforms, automation tools, chatbot interfaces, neural network visualizations, cognitive computing systems, intelligent assistants, algorithmic trading platforms, smart technology interfaces, robotic systems, AI research tools, automated decision-making systems, intelligent analytics, cognitive services, and futuristic technology applications.
+
+### headlights
+**Import:** `import { Headlights } from 'phosphor-svelte';`
+**Description:** Vehicle headlights icon representing automotive lighting, night driving, and vehicle systems. Ideal for automotive applications, car rental interfaces, vehicle maintenance systems, driving assistance features, automotive e-commerce, car parts catalogs, vehicle customization tools, driving safety applications, automotive service platforms, vehicle diagnostics, car lighting controls, automotive repair guides, vehicle inspection systems, and transportation-related interfaces.
+
+### headphones
+**Import:** `import { Headphones } from 'phosphor-svelte';`
+**Description:** Over-ear headphones icon representing audio devices, music listening, and personal audio experiences. Perfect for music streaming platforms, audio equipment stores, podcast applications, music production software, audio editing tools, sound quality settings, personal audio preferences, music player interfaces, audio device management, listening modes, sound isolation features, audio accessibility options, entertainment systems, and multimedia applications.
+
+### headset
+**Import:** `import { Headset } from 'phosphor-svelte';`
+**Description:** A headset with microphone icon representing gaming audio, customer service, and communication systems. Ideal for customer support platforms, call center interfaces, gaming applications, voice chat systems, technical support tools, help desk software, customer service dashboards, gaming communication, voice recording applications, podcast recording setups, online meeting platforms, customer care systems, support ticket interfaces, communication tools, and service-oriented applications.
+
+### heart
+**Import:** `import { Heart } from 'phosphor-svelte';`
+**Description:** A classic heart icon representing love, favorites, likes, and wellness. Essential for social media platforms, dating applications, favorite item collections, wishlist features, health and fitness apps, wellness platforms, social interactions, like buttons, bookmark systems, preferred content indicators, emotional expressions, card game interfaces (hearts suit), romantic applications, health monitoring, vital signs displays, emotional well-being tracking, and general affection representations.
+
+### heart-break
+**Import:** `import { HeartBreak } from 'phosphor-svelte';`
+**Description:** A broken heart icon representing heartbreak, disappointment, and negative emotions. Suitable for relationship applications, emotional support platforms, breakup assistance tools, mental health resources, emotional state tracking, relationship status updates, counseling applications, support group platforms, emotional expression interfaces, relationship advice systems, divorce assistance tools, grief support applications, and platforms dealing with emotional distress or relationship challenges.
+
+### heart-half
+**Import:** `import { HeartHalf } from 'phosphor-svelte';`
+**Description:** A half-filled heart icon representing partial favorites, mixed feelings, or rating systems. Perfect for rating interfaces, partial satisfaction indicators, mixed review systems, intermediate preference levels, rating scales, feedback systems, product evaluation tools, content rating platforms, recommendation engines with nuanced ratings, partial completion indicators, mixed emotional states, and applications requiring granular preference expressions.
+
+### heart-straight
+**Import:** `import { HeartStraight } from 'phosphor-svelte';`
+**Description:** A geometric, straight-lined heart icon offering a modern take on love and favorites. Ideal for contemporary design applications, minimalist interfaces, modern social platforms, sleek dating apps, sophisticated wellness applications, designer preference systems, architectural or design-focused platforms, modern card games, geometric emoji representations, clean favorite indicators, and applications requiring a more refined heart symbol.
+
+### heart-straight-break
+**Import:** `import { HeartStraightBreak } from 'phosphor-svelte';`
+**Description:** A geometric broken heart icon combining modern design with emotional expression. Suitable for contemporary relationship applications, modern breakup support tools, sleek emotional expression interfaces, design-focused mental health platforms, geometric emoji systems, modern divorce assistance applications, contemporary grief support tools, and platforms requiring a more refined representation of heartbreak or relationship challenges.
+
+### heartbeat
+**Import:** `import { Heartbeat } from 'phosphor-svelte';`
+**Description:** An ECG/EKG heartbeat waveform icon representing vital signs, health monitoring, and system performance. Perfect for health and fitness applications, medical monitoring systems, vital signs displays, fitness tracking interfaces, health dashboard indicators, medical equipment interfaces, system performance monitors, uptime indicators, pulse monitoring applications, cardiac health tools, wellness tracking platforms, medical diagnostics, health analytics, and both healthcare and technical monitoring systems.
+
+### hexagon
+**Import:** `import { Hexagon } from 'phosphor-svelte';`
+**Description:** A six-sided hexagon shape icon for geometric designs and polygon representations. Ideal for design applications, shape tools, geometric pattern systems, logo design interfaces, mathematical applications, polygon drawing tools, tessellation patterns, honeycomb representations, chemical structure diagrams, crystal formations, geometric games, shape recognition systems, architectural design tools, pattern generators, and educational geometry applications.
+
+### high-definition
+**Import:** `import { HighDefinition } from 'phosphor-svelte';`
+**Description:** An HD (High Definition) badge icon representing video quality, resolution standards, and media quality indicators. Perfect for video streaming platforms, media quality selectors, resolution settings, video player controls, content quality indicators, streaming service interfaces, video upload platforms, media conversion tools, display quality settings, video editing applications, broadcasting systems, media production tools, and quality assurance interfaces.
+
+### high-heel
+**Import:** `import { HighHeel } from 'phosphor-svelte';`
+**Description:** A high-heeled shoe icon representing women's footwear, fashion, and clothing accessories. Ideal for fashion e-commerce platforms, clothing stores, shoe retailers, fashion design applications, style guides, wardrobe management tools, fashion blogs, clothing catalogs, accessory collections, style recommendation systems, fashion trend platforms, shoe sizing tools, fashion shopping applications, and style-focused interfaces.
+
+### highlighter
+**Import:** `import { Highlighter } from 'phosphor-svelte';`
+**Description:** A highlighter marker pen icon representing text highlighting, editing, and emphasis tools. Perfect for document editing applications, PDF annotation tools, text editors, study applications, note-taking systems, markup tools, proofreading interfaces, content editing platforms, educational software, research tools, document review systems, text emphasis features, writing applications, editing workflows, and content creation platforms.
+
+### highlighter-circle
+**Import:** `import { HighlighterCircle } from 'phosphor-svelte';`
+**Description:** A circular highlighter icon representing highlighting tools within a contained interface element. Suitable for compact editing interfaces, circular tool palettes, round text editing controls, annotation tools with circular design, highlighting features in constrained spaces, circular markup tools, round editing buttons, and design systems requiring circular highlighting tool representations.
+
+### hockey
+**Import:** `import { Hockey } from 'phosphor-svelte';`
+**Description:** A hockey stick and puck icon representing ice hockey, sports, and athletic activities. Perfect for sports applications, NHL-related interfaces, hockey game platforms, sports betting systems, athletic equipment stores, sports statistics applications, hockey team management tools, sports news platforms, athletic training applications, sports league interfaces, hockey tournament systems, sports equipment catalogs, and recreational sports platforms.
+
+### hoodie
+**Import:** `import { Hoodie } from 'phosphor-svelte';`
+**Description:** A hooded sweatshirt icon representing casual clothing, streetwear, and comfort apparel. Ideal for clothing e-commerce platforms, fashion retailers, casual wear collections, streetwear brands, apparel sizing guides, clothing catalogs, fashion design applications, wardrobe management systems, clothing recommendation engines, seasonal clothing sections, comfort wear categories, and casual fashion interfaces.
+
+### horse
+**Import:** `import { Horse } from 'phosphor-svelte';`
+**Description:** A horse icon representing equestrian activities, chess pieces, and animal-related content. Perfect for equestrian sports applications, horse riding platforms, chess game interfaces (knight piece), animal-related websites, farm management systems, veterinary applications, racing applications, equine care platforms, rural lifestyle applications, animal care systems, sports betting (horse racing), chess strategy guides, and nature-focused applications.
+
+### hospital
+**Import:** `import { Hospital } from 'phosphor-svelte';`
+**Description:** A hospital building icon representing healthcare facilities, medical services, and emergency care locations. Essential for medical applications, healthcare facility locators, emergency service platforms, healthcare provider directories, medical appointment systems, hospital information systems, healthcare navigation applications, medical facility management, emergency response tools, healthcare service platforms, medical tourism applications, and location-based medical services.
+
+### hourglass
+**Import:** `import { Hourglass } from 'phosphor-svelte';`
+**Description:** A classic hourglass icon representing time, waiting periods, and progress indicators. Perfect for loading screens, time-based applications, progress indicators, waiting states, scheduling systems, timer applications, time management tools, historical time references, patience indicators, time-sensitive processes, countdown timers, process completion indicators, temporal applications, and classic time measurement representations.
+
+### hourglass-high
+**Import:** `import { HourglassHigh } from 'phosphor-svelte';`
+**Description:** An hourglass with mostly full top chamber representing the beginning of a timed process or high remaining time. Ideal for progress indicators showing early stages, timer applications with significant time remaining, process indicators at initial phases, loading states with substantial remaining time, countdown applications showing ample time left, and time-based interfaces indicating high remaining duration.
+
+### hourglass-low
+**Import:** `import { HourglassLow } from 'phosphor-svelte';`
+**Description:** An hourglass with mostly empty top chamber representing the end of a timed process or low remaining time. Perfect for progress indicators showing final stages, timer applications with little time remaining, urgency indicators, deadline warnings, process indicators nearing completion, countdown applications showing critical time remaining, and time-based interfaces indicating urgency or near-completion states.
+
+### hourglass-medium
+**Import:** `import { HourglassMedium } from 'phosphor-svelte';`
+**Description:** An hourglass with half-full chambers representing the middle of a timed process or moderate remaining time. Suitable for progress indicators showing mid-point stages, timer applications with moderate time remaining, balanced time representations, process indicators at halfway points, progress tracking showing 50% completion, and time-based interfaces indicating moderate duration or mid-process states.
+
+### hourglass-simple
+**Import:** `import { HourglassSimple } from 'phosphor-svelte';`
+**Description:** A simplified hourglass design representing basic time concepts and minimalist progress indicators. Perfect for clean interface designs, simple timer representations, minimalist loading states, basic time management tools, simplified progress indicators, clean waiting states, basic temporal interfaces, and applications requiring understated time representations without complex visual details.
+
+### hourglass-simple-high
+**Import:** `import { HourglassSimpleHigh } from 'phosphor-svelte';`
+**Description:** A simplified hourglass showing high sand level representing early time stages in minimalist design. Ideal for clean progress indicators showing initial phases, minimalist timer interfaces with substantial time remaining, simplified loading states at beginning stages, and clean design systems requiring understated high-time representations.
+
+### hourglass-simple-low
+**Import:** `import { HourglassSimpleLow } from 'phosphor-svelte';`
+**Description:** A simplified hourglass showing low sand level representing final time stages in minimalist design. Perfect for clean progress indicators showing completion phases, minimalist timer interfaces with little time remaining, simplified urgency indicators, clean deadline warnings, and understated representations of time running out.
+
+### hourglass-simple-medium
+**Import:** `import { HourglassSimpleMedium } from 'phosphor-svelte';`
+**Description:** A simplified hourglass showing medium sand level representing mid-point time stages in minimalist design. Suitable for clean progress indicators at halfway points, minimalist timer interfaces showing moderate remaining time, simplified mid-process representations, and understated 50% completion indicators.
+
+### house
+**Import:** `import { House } from 'phosphor-svelte';`
+**Description:** A house icon representing homes, residential properties, and location markers. Essential for real estate applications, home navigation interfaces, property management systems, residential service platforms, home automation controls, property rental applications, real estate listings, home-related services, residential location markers, housing applications, property search interfaces, home improvement platforms, and residential building representations.
+
+### house-line
+**Import:** `import { HouseLine } from 'phosphor-svelte';`
+**Description:** An outlined house icon offering a lighter, more refined appearance for home representations. Perfect for minimalist real estate interfaces, clean property applications, outlined navigation systems, subtle home indicators, refined residential platforms, architectural drawing representations, property outline views, clean location markers, and applications requiring a more delicate house symbol appearance.
+
+### house-simple
+**Import:** `import { HouseSimple } from 'phosphor-svelte';`
+**Description:** A simplified house icon providing basic home representation without complex details. Ideal for clean interface designs, simple home navigation, basic property indicators, minimalist real estate platforms, simple location markers, basic residential representations, clean home buttons, simplified property icons, and applications requiring straightforward house symbols without ornate details.
+
+### hurricane
+**Import:** `import { Hurricane } from 'phosphor-svelte';`
+**Description:** A hurricane or cyclone weather icon representing severe weather conditions, storms, and natural disasters. Perfect for weather applications, meteorological platforms, disaster preparedness tools, emergency alert systems, weather monitoring interfaces, storm tracking applications, climate applications, natural disaster warning systems, severe weather notifications, emergency response platforms, weather safety tools, and atmospheric condition monitors.
+
+### ice-cream
+**Import:** `import { IceCream } from 'phosphor-svelte';`
+**Description:** An ice cream cone icon representing frozen desserts, food services, and sweet treats. Ideal for food delivery applications, restaurant menus, dessert shops, food service platforms, ice cream store interfaces, summer activity applications, food ordering systems, dessert catalogs, food and beverage applications, sweet treat collections, frozen food sections, and food-related e-commerce platforms.
+
+### identification-badge
+**Import:** `import { IdentificationBadge } from 'phosphor-svelte';`
+**Description:** An ID badge icon representing identification, credentials, and user verification systems. Perfect for employee management systems, access control platforms, identification verification tools, credential management applications, security systems, employee directory interfaces, verification processes, authentication systems, user profile platforms, membership systems, badge printing applications, security clearance interfaces, and identity management tools.
+
+### identification-card
+**Import:** `import { IdentificationCard } from 'phosphor-svelte';`
+**Description:** An identification card icon representing licenses, credentials, and official documentation. Essential for identity verification platforms, document management systems, license tracking applications, credential verification tools, official document platforms, membership card systems, license renewal interfaces, identification storage systems, verification processes, document authentication tools, official ID representations, and government service applications.
+
+### image
+**Import:** `import { Image } from 'phosphor-svelte';`
+**Description:** A landscape photograph icon representing images, pictures, and visual content. Essential for photo galleries, image editing applications, media management systems, photography platforms, wallpaper collections, image upload interfaces, photo organization tools, visual content managers, picture viewing applications, image storage systems, photography portfolios, media libraries, and any application handling visual content.
+
+### image-broken
+**Import:** `import { ImageBroken } from 'phosphor-svelte';`
+**Description:** A broken or missing image icon representing failed image loads, missing pictures, and image errors. Perfect for error states in photo applications, missing image placeholders, failed upload indicators, broken link representations, image loading failures, missing media indicators, 404 image errors, corrupted file indicators, failed image processing states, and fallback representations for unavailable visual content.
+
+### image-square
+**Import:** `import { ImageSquare } from 'phosphor-svelte';`
+**Description:** A square-format image icon representing square photographs, social media images, and profile pictures. Ideal for Instagram-style interfaces, profile picture uploads, square photo galleries, social media image tools, square crop interfaces, profile image managers, square format galleries, social media content tools, and applications specifically handling square-format visual content.
+
+### images
+**Import:** `import { Images } from 'phosphor-svelte';`
+**Description:** Multiple stacked images icon representing photo collections, image galleries, and album management. Perfect for photo album applications, gallery management systems, multiple image selection tools, batch image processing interfaces, photo collection managers, album creation tools, multiple photo upload interfaces, image batch operations, photo library organizers, and applications handling multiple visual assets simultaneously.
+
+### images-square
+**Import:** `import { ImagesSquare } from 'phosphor-svelte';`
+**Description:** Multiple stacked square images icon representing square photo collections and social media albums. Ideal for Instagram-style album interfaces, square photo batch tools, social media collection managers, square format galleries, profile picture collections, square image batch operations, social media album creators, and applications specifically managing collections of square-format images.
+
+### infinity
+**Import:** `import { Infinity } from 'phosphor-svelte';`
+**Description:** An infinity symbol (∞) representing unlimited concepts, mathematical infinity, and endless possibilities. Perfect for mathematical applications, calculator interfaces, unlimited plan representations, infinite scroll indicators, mathematical expression tools, premium service indicators (unlimited features), mathematical notation systems, infinite loop representations, continuous process indicators, limitless concept illustrations, mathematical education tools, and applications dealing with unbounded or limitless concepts.
+
+### info
+**Import:** `import { Info } from 'phosphor-svelte';`
+**Description:** An information icon representing help, details, and informational content. Essential for help systems, information displays, tooltip triggers, help documentation interfaces, informational alerts, detail views, support sections, explanatory content indicators, help centers, information panels, contextual help features, user guidance systems, and applications requiring information access points.
+
+### instagram-logo
+**Import:** `import { InstagramLogo } from 'phosphor-svelte';`
+**Description:** The Instagram brand logo icon representing the popular photo-sharing social media platform. Perfect for social media integration features, Instagram sharing buttons, social media login options, brand recognition interfaces, social media marketing tools, photography platform references, social media dashboards, brand logo collections, social media linking features, and applications integrating with Instagram services.
+
+### intersect
+**Import:** `import { Intersect } from 'phosphor-svelte';`
+**Description:** Intersecting circles icon representing intersection operations, overlapping areas, and Venn diagram concepts. Ideal for design applications with boolean operations, set theory interfaces, data overlap visualizations, merge operations, union and intersection tools, design editing software, logical operation interfaces, data analysis showing overlaps, relationship mapping tools, and applications requiring intersection or overlap representations.
+
+### intersect-square
+**Import:** `import { IntersectSquare } from 'phosphor-svelte';`
+**Description:** Intersecting squares icon representing geometric intersections and overlap operations with square shapes. Perfect for geometric design applications, boolean operations with square shapes, architectural intersection tools, square-based Venn diagrams, geometric overlap representations, design software with square intersection features, and applications requiring square-based intersection or overlap visualizations.# Phosphor Icons - Batch 17 Documentation
+
+### intersect-three
+**Import:** `import { IntersectThree } from 'phosphor-svelte';`
+**Description:** A three-way intersection icon representing overlapping elements, Venn diagrams, or shared relationships. Commonly used for data visualization showing three sets of overlapping data, demographic analysis, or gender/pronoun selection interfaces. Alternative names: triple intersection, three-way overlap, trinity diagram, threefold junction, triple Venn, tri-union, three-circle overlap, demographic intersection, identity overlap, pronoun selector, gender diversity indicator.
+
+### intersection
+**Import:** `import { Intersection } from 'phosphor-svelte';`
+**Description:** Mathematical intersection symbol (∩) representing the common elements between sets or groups. Essential for data analysis, database queries, mathematical applications, and financial calculations. Used in set theory, arithmetic operations, calculators, and analytical tools. Alternative names: set intersection, mathematical intersection, cap symbol, AND operation, common elements, shared data, overlap symbol, mathematical operator, set theory symbol, database join, query intersection.
+
+### invoice
+**Import:** `import { Invoice } from 'phosphor-svelte';`
+**Description:** Business invoice or billing document icon for financial transactions, expense tracking, and commercial applications. Perfect for accounting software, e-commerce platforms, billing systems, and expense management tools. Alternative names: bill, receipt, expense report, financial document, billing statement, payment request, commercial document, accounting record, business receipt, expense tracker, billing invoice, payment slip, financial statement.
+
+### island
+**Import:** `import { Island } from 'phosphor-svelte';`
+**Description:** Tropical island with palm tree representing vacation destinations, travel planning, and geographical locations. Ideal for travel apps, tourism websites, location services, and tropical vacation booking platforms. Alternative names: tropical paradise, vacation destination, beach location, palm tree island, travel spot, holiday destination, exotic location, ocean getaway, tropical vacation, beach paradise, travel pin, geographic marker, tourism icon, vacation planning.
+
+### jar
+**Import:** `import { Jar } from 'phosphor-svelte';`
+**Description:** Mason jar or storage container for food preservation, kitchen organization, and pantry management. Perfect for recipe apps, kitchen inventory systems, canning guides, and food storage applications. Alternative names: mason jar, storage container, preserving jar, canning jar, kitchen storage, food container, pantry jar, condiment jar, kitchen organization, food preservation, storage vessel, glass container.
+
+### jar-label
+**Import:** `import { JarLabel } from 'phosphor-svelte';`
+**Description:** Labeled mason jar for organized food storage, ingredient identification, and kitchen inventory management. Essential for recipe organization apps, pantry management systems, and food storage solutions. Alternative names: labeled container, organized storage, ingredient jar, kitchen labels, pantry organization, storage labeling, food identification, inventory jar, organized kitchen, labeled preserves, categorized storage.
+
+### jeep
+**Import:** `import { Jeep } from 'phosphor-svelte';`
+**Description:** Off-road vehicle or SUV representing adventure travel, outdoor transportation, and rugged terrain navigation. Perfect for travel apps, vehicle rental services, and outdoor adventure platforms. Alternative names: SUV, off-road vehicle, 4x4, automobile, adventure vehicle, outdoor transportation, rugged car, all-terrain vehicle, travel transport, expedition vehicle, outdoor adventure, terrain vehicle, wilderness transport.
+
+### joystick
+**Import:** `import { Joystick } from 'phosphor-svelte';`
+**Description:** Classic arcade-style game controller for gaming applications, entertainment systems, and interactive controls. Ideal for gaming platforms, arcade games, controller settings, and entertainment interfaces. Alternative names: game controller, arcade controller, gaming stick, control pad, video game controller, arcade stick, gaming peripheral, game pad, entertainment controller, interactive controller, gaming device, arcade control.
+
+### kanban
+**Import:** `import { Kanban } from 'phosphor-svelte';`
+**Description:** Project management board layout for task organization, workflow visualization, and agile development processes. Essential for project management tools, task tracking systems, and team collaboration platforms. Alternative names: project board, task board, workflow board, agile board, scrum board, process board, task organization, workflow management, project planning, team board, scheduling board, lean management, task scheduler.
+
+### key
+**Import:** `import { Key } from 'phosphor-svelte';`
+**Description:** Security key representing access control, authentication, password protection, and encrypted data. Fundamental for login systems, security settings, access management, and privacy controls. Alternative names: access key, security token, login key, authentication key, password key, encryption key, access control, security access, private key, unlock key, digital key, security credential, access permission.
+
+### key-return
+**Import:** `import { KeyReturn } from 'phosphor-svelte';`
+**Description:** Return or Enter key from keyboard for input confirmation, form submission, and command execution. Essential for form interfaces, text input fields, and command line applications. Alternative names: enter key, return button, submit key, confirmation key, input key, execute key, keyboard key, command key, form submit, text entry, input confirmation.
+
+### keyboard
+**Import:** `import { Keyboard } from 'phosphor-svelte';`
+**Description:** Computer keyboard for text input, typing interfaces, and data entry applications. Perfect for text editors, input settings, typing applications, and computer peripherals sections. Alternative names: input device, typing keyboard, computer input, text input, data entry, typing interface, input keyboard, computer peripheral, text keyboard, typing device, input method.
+
+### keyhole
+**Import:** `import { Keyhole } from 'phosphor-svelte';`
+**Description:** Lock keyhole representing security, privacy, restricted access, and protected content. Ideal for privacy settings, security interfaces, locked content, and access control systems. Alternative names: lock opening, security hole, private access, restricted entry, locked door, security opening, privacy lock, protected access, secure entry, confidential access, encrypted entry, secure portal.
+
+### knife
+**Import:** `import { Knife } from 'phosphor-svelte';`
+**Description:** Kitchen knife or cutting utensil for food preparation, cooking applications, and restaurant interfaces. Perfect for recipe apps, kitchen tools, dining applications, and culinary platforms. Alternative names: kitchen utensil, cutting tool, cooking knife, dining utensil, food preparation, kitchen tool, culinary knife, chef knife, eating utensil, food knife, cooking implement, kitchen equipment.
+
+### ladder
+**Import:** `import { Ladder } from 'phosphor-svelte';`
+**Description:** Climbing ladder with support structure for construction, maintenance, or hierarchical progression concepts. Useful for construction apps, safety equipment, career progression, and step-by-step processes. Alternative names: climbing ladder, step ladder, construction ladder, safety ladder, climbing steps, vertical steps, progression ladder, career ladder, step-by-step, climbing tool, construction equipment.
+
+### ladder-simple
+**Import:** `import { LadderSimple } from 'phosphor-svelte';`
+**Description:** Simplified ladder design for basic climbing, step progression, or hierarchical navigation concepts. Perfect for progress indicators, level systems, and simplified construction references. Alternative names: simple steps, basic ladder, climbing steps, step progression, level indicator, progress ladder, simple climbing, step navigation, basic steps, progression steps.
+
+### lamp
+**Import:** `import { Lamp } from 'phosphor-svelte';`
+**Description:** Table or desk lamp for lighting, home furnishing, and interior design applications. Ideal for furniture stores, lighting controls, home automation, and interior design platforms. Alternative names: desk lamp, table light, reading lamp, task lighting, home lighting, furniture lamp, interior lighting, desk light, workspace lamp, study lamp, home appliance, lighting fixture.
+
+### lamp-pendant
+**Import:** `import { LampPendant } from 'phosphor-svelte';`
+**Description:** Hanging pendant light fixture for interior design, modern lighting, and home decoration applications. Perfect for lighting catalogs, home design apps, and interior furnishing platforms. Alternative names: hanging light, pendant lighting, ceiling light, suspended lamp, hanging fixture, modern lighting, interior light, decorative lighting, ceiling fixture, hanging pendant, suspended lighting, contemporary lamp.
+
+### laptop
+**Import:** `import { Laptop } from 'phosphor-svelte';`
+**Description:** Portable computer or notebook for technology, work, programming, and digital productivity applications. Essential for tech platforms, work tools, computing services, and digital workflows. Alternative names: notebook computer, portable computer, personal computer, work computer, mobile computer, computing device, technology device, digital workspace, portable workstation, mobile workstation.
+
+### lasso
+**Import:** `import { Lasso } from 'phosphor-svelte';`
+**Description:** Selection lasso tool for graphic design, image editing, and creative applications. Perfect for design software, photo editors, selection tools, and creative interfaces. Alternative names: selection tool, lasso selection, freeform select, rope selection, drawing lasso, design tool, creative selection, graphic tool, image selection, freehand selection, cowboy rope, western lasso.
+
+### lastfm-logo
+**Import:** `import { LastfmLogo } from 'phosphor-svelte';`
+**Description:** Last.fm music streaming service logo for music scrobbling, social music sharing, and audio streaming applications. Ideal for music players, social music platforms, and audio streaming services. Alternative names: music streaming, audio service, music social network, scrobbling service, music tracking, audio platform, music discovery, listening history, music statistics.
+
+### layout
+**Import:** `import { Layout } from 'phosphor-svelte';`
+**Description:** User interface layout or wireframe template for design applications, UI development, and interface planning. Essential for design tools, layout editors, and interface builders. Alternative names: UI layout, interface design, wireframe, template layout, page layout, interface template, design layout, UI framework, page structure, interface structure, layout grid, design template.
+
+### leaf
+**Import:** `import { Leaf } from 'phosphor-svelte';`
+**Description:** Natural leaf representing environmental sustainability, organic products, eco-friendly initiatives, and plant-based solutions. Perfect for environmental apps, organic brands, sustainability platforms, and nature-focused applications. Alternative names: plant leaf, nature symbol, environmental icon, eco-friendly, organic symbol, green living, sustainability symbol, natural element, botanical icon, eco symbol, plant life, green energy.
+
+### lectern
+**Import:** `import { Lectern } from 'phosphor-svelte';`
+**Description:** Speaking podium or presentation stand for lectures, speeches, presentations, and public speaking events. Ideal for conference apps, presentation software, educational platforms, and speaking event management. Alternative names: podium, speaking stand, presentation podium, lecture stand, speech platform, keynote stand, pulpit, speaking platform, conference podium, presentation lectern, speaker stand.
+
+### lego
+**Import:** `import { Lego } from 'phosphor-svelte';`
+**Description:** Building block or construction brick for creativity, gaming, toys, and modular construction concepts. Perfect for toy stores, creative applications, building games, and construction-themed platforms. Alternative names: building blocks, construction bricks, toy blocks, creative blocks, building toys, construction toys, modular blocks, plastic bricks, creative building, construction play.
+
+### lego-smiley
+**Import:** `import { LegoSmiley } from 'phosphor-svelte';`
+**Description:** Happy LEGO character face combining emoji expressions with toy branding for playful applications, gaming interfaces, and toy-related platforms. Ideal for children's apps, gaming platforms, and creative play applications. Alternative names: toy face, block character, happy block, smiley block, toy emoji, playful face, building block face, creative character, toy expression, happy toy, block emoji.
+
+### less-than
+**Import:** `import { LessThan } from 'phosphor-svelte';`
+**Description:** Mathematical less-than symbol (<) for comparisons, calculations, and programming applications. Essential for calculators, mathematical tools, programming interfaces, and financial comparison tools. Alternative names: comparison operator, mathematical symbol, inequality symbol, comparison sign, math operator, programming operator, calculator symbol, arithmetic symbol, numerical comparison.
+
+### less-than-or-equal
+**Import:** `import { LessThanOrEqual } from 'phosphor-svelte';`
+**Description:** Mathematical less-than-or-equal symbol (≤) for advanced comparisons, equations, and programming logic. Perfect for mathematical applications, programming tools, scientific calculators, and comparison interfaces. Alternative names: inequality symbol, comparison operator, mathematical operator, programming symbol, calculator operator, arithmetic comparison, mathematical comparison, logical operator.
+
+### letter-circle-h
+**Import:** `import { LetterCircleH } from 'phosphor-svelte';`
+**Description:** Letter H in circle representing hospitals, healthcare facilities, medical services, or alphabetical categorization. Essential for medical apps, healthcare directories, hospital finders, and location-based medical services. Alternative names: hospital symbol, healthcare icon, medical facility, hospital marker, health services, medical location, healthcare symbol, hospital indicator, medical center, health facility.
+
+### letter-circle-p
+**Import:** `import { LetterCircleP } from 'phosphor-svelte';`
+**Description:** Letter P in circle representing parking areas, vehicle parking, valet services, or alphabetical organization. Perfect for parking apps, navigation systems, location services, and transportation platforms. Alternative names: parking symbol, parking lot, vehicle parking, parking space, valet parking, parking indicator, transportation symbol, parking marker, vehicle services.
+
+### letter-circle-v
+**Import:** `import { LetterCircleV } from 'phosphor-svelte';`
+**Description:** Letter V in circle representing vegan options, plant-based products, dietary preferences, or alphabetical categorization. Ideal for restaurant apps, dietary tracking, food services, and nutrition platforms. Alternative names: vegan symbol, plant-based indicator, dietary symbol, vegan option, vegetarian symbol, food preference, dietary restriction, nutrition symbol, healthy eating.
+
+### lifebuoy
+**Import:** `import { Lifebuoy } from 'phosphor-svelte';`
+**Description:** Life preserver ring for safety, help, support, emergency assistance, and maritime safety. Perfect for help systems, support platforms, emergency services, and safety applications. Alternative names: life ring, safety ring, help symbol, support symbol, emergency aid, rescue equipment, safety equipment, assistance symbol, help icon, support icon, emergency symbol.
+
+### lightbulb
+**Import:** `import { Lightbulb } from 'phosphor-svelte';`
+**Description:** Traditional light bulb representing ideas, innovation, creativity, energy solutions, and bright thinking. Essential for creative applications, idea management, innovation platforms, and energy-related services. Alternative names: idea symbol, innovation icon, bright idea, creativity symbol, energy bulb, lighting solution, brilliant idea, inspiration symbol, creative thinking, energy efficient.
+
+### lightbulb-filament
+**Import:** `import { LightbulbFilament } from 'phosphor-svelte';`
+**Description:** Vintage filament bulb representing classic lighting, retro design, Edison bulbs, and traditional illumination. Perfect for vintage-themed apps, interior design, classic lighting, and retro aesthetics. Alternative names: Edison bulb, vintage lighting, retro bulb, classic light, filament lamp, traditional bulb, antique lighting, nostalgic lighting, vintage design, retro lighting.
+
+### lighthouse
+**Import:** `import { Lighthouse } from 'phosphor-svelte';`
+**Description:** Coastal lighthouse for navigation, maritime safety, guidance, and travel landmarks. Ideal for navigation apps, travel guides, maritime services, and coastal location markers. Alternative names: navigation beacon, coastal tower, maritime beacon, sea navigation, ship guidance, coastal landmark, navigation aid, marine safety, seaside beacon, coastal navigation.
+
+### lightning
+**Import:** `import { Lightning } from 'phosphor-svelte';`
+**Description:** Lightning bolt representing electrical power, fast charging, energy, storms, and high-speed performance. Perfect for charging indicators, power management, weather apps, and performance metrics. Alternative names: thunderbolt, power symbol, electricity, energy bolt, fast charging, storm symbol, electrical power, power indicator, energy flash, speed symbol.
+
+### lightning-a
+**Import:** `import { LightningA } from 'phosphor-svelte';`
+**Description:** Lightning bolt with "A" for automatic flash, camera settings, or automated electrical functions. Ideal for camera applications, photography settings, and automatic feature controls. Alternative names: auto flash, automatic lightning, camera flash, auto mode, flash photography, automatic setting, camera auto, photography mode.
+
+### lightning-slash
+**Import:** `import { LightningSlash } from 'phosphor-svelte';`
+**Description:** Disabled lightning bolt indicating no flash, power off, or disabled electrical functions. Perfect for camera settings, power management, and feature toggle interfaces. Alternative names: flash off, no flash, disabled power, power off, flash disabled, no charging, electrical off, power disabled, flash cancel.
+
+### line-segment
+**Import:** `import { LineSegment } from 'phosphor-svelte';`
+**Description:** Single line segment for drawing, vector graphics, geometric shapes, and path creation. Essential for design tools, drawing applications, geometric software, and vector editors. Alternative names: drawing line, vector line, geometric line, path segment, design line, straight line, drawing path, vector path, design element.
+
+### line-segments
+**Import:** `import { LineSegments } from 'phosphor-svelte';`
+**Description:** Multiple line segments for complex drawings, vector graphics, geometric constructions, and multi-path designs. Perfect for advanced design tools, CAD software, and complex drawing applications. Alternative names: multiple lines, drawing paths, vector paths, geometric lines, design paths, complex drawing, multi-line, drawing elements, vector segments.
+
+### line-vertical
+**Import:** `import { LineVertical } from 'phosphor-svelte';`
+**Description:** Vertical line or pipe symbol (|) for dividers, separators, programming syntax, and layout elements. Essential for code editors, layout design, data separation, and programming interfaces. Alternative names: vertical bar, pipe symbol, divider line, separator, vertical divider, column separator, bar symbol, programming pipe, layout divider.
+
+### link
+**Import:** `import { Link } from 'phosphor-svelte';`
+**Description:** Chain link representing hyperlinks, connections, relationships, and linked content. Fundamental for web applications, content linking, relationship mapping, and navigation systems. Alternative names: hyperlink, connection, chain link, web link, URL link, page link, content link, navigation link, relationship link, connected link.
+
+### link-break
+**Import:** `import { LinkBreak } from 'phosphor-svelte';`
+**Description:** Broken chain link indicating disconnection, broken links, severed relationships, or connection errors. Perfect for error handling, link validation, and connection status indicators. Alternative names: broken link, disconnected, severed link, link error, connection broken, failed link, invalid link, broken connection, link failure.
+
+### link-simple
+**Import:** `import { LinkSimple } from 'phosphor-svelte';`
+**Description:** Simplified chain link for basic connections, simple hyperlinks, and minimal link representations. Ideal for clean interfaces, simple navigation, and minimal design systems. Alternative names: simple connection, basic link, minimal link, clean link, simple chain, basic connection, streamlined link.
+
+### link-simple-break
+**Import:** `import { LinkSimpleBreak } from 'phosphor-svelte';`
+**Description:** Broken simple chain link for minimal error indicators, simple disconnection states, and clean broken link representations. Perfect for minimal error handling and simple status indicators. Alternative names: simple broken link, minimal disconnect, basic link error, simple connection failure, clean broken link.
+
+### link-simple-horizontal
+**Import:** `import { LinkSimpleHorizontal } from 'phosphor-svelte';`
+**Description:** Horizontal simple chain link for lateral connections, side-by-side relationships, and horizontal navigation elements. Ideal for horizontal layouts, peer relationships, and lateral connections. Alternative names: horizontal link, lateral connection, side connection, horizontal chain, peer link, adjacent connection.
+
+### link-simple-horizontal-break
+**Import:** `import { LinkSimpleHorizontalBreak } from 'phosphor-svelte';`
+**Description:** Broken horizontal simple chain link for horizontal disconnection states, lateral relationship failures, and side-by-side connection errors. Perfect for horizontal error states and lateral disconnection indicators. Alternative names: horizontal broken link, lateral disconnect, horizontal link error, side connection failure.
+
+### linkedin-logo
+**Import:** `import { LinkedinLogo } from 'phosphor-svelte';`
+**Description:** LinkedIn professional network logo for career networking, job searching, professional connections, and business social media. Essential for career platforms, job boards, professional profiles, and business networking applications. Alternative names: professional network, career social media, job network, business connections, professional platform, employment network, career networking.
+
+### linktree-logo
+**Import:** `import { LinktreeLogo } from 'phosphor-svelte';`
+**Description:** Linktree service logo for link aggregation, social media bio links, and centralized link sharing. Perfect for social media management, link sharing platforms, and personal branding applications. Alternative names: link aggregator, bio links, social media links, link sharing, centralized links, social link tree.
+
+### linux-logo
+**Import:** `import { LinuxLogo } from 'phosphor-svelte';`
+**Description:** Linux operating system logo featuring the penguin mascot for open-source computing, system administration, and developer tools. Ideal for tech platforms, developer tools, system utilities, and open-source applications. Alternative names: penguin logo, open source OS, system logo, developer platform, unix system, computer operating system, tech platform, system administration.# Phosphor Icons - Batch 18
+
+### list
+**Import:** `import { List } from 'phosphor-svelte';`
+**Description:** A versatile list icon representing various types of content organization including hamburger menus, overflow menus, sidebars, unordered lists (ul), ordered lists (ol), checklists, todo lists, menu items, navigation elements, content listings, bullet points, line items, catalog views, index pages, directory structures, file listings, and table of contents. Perfect for navigation bars, dropdown menus, mobile menu toggles, content management interfaces, task management applications, and any interface requiring organized information display.
+
+### list-bullets
+**Import:** `import { ListBullets } from 'phosphor-svelte';`
+**Description:** An unordered list icon with bullet points, ideal for representing bulleted lists, unordered content, checklists, task lists, feature lists, menu items without hierarchy, outline structures, note-taking applications, content with equal priority items, shopping lists, to-do items, and any interface where information needs to be presented in a non-hierarchical bullet format. Commonly used in text editors, documentation, project management tools, and content creation interfaces.
+
+### list-checks
+**Import:** `import { ListChecks } from 'phosphor-svelte';`
+**Description:** A checklist icon with checkboxes, perfect for representing task management, todo lists, completed items, progress tracking, verification lists, quality assurance checklists, approval workflows, form validation, survey responses, compliance checklists, project milestones, goal tracking, habit tracking, shopping lists with completion status, and any interface requiring user interaction with completable items. Essential for productivity apps, project management tools, and workflow applications.
+
+### list-dashes
+**Import:** `import { ListDashes } from 'phosphor-svelte';`
+**Description:** A dashed list icon representing unordered lists with dash markers, suitable for alternative bullet styling, informal lists, note-taking applications, outline structures, content organization with dash separators, menu items, checklist alternatives, and any interface where dash-style markers are preferred over traditional bullets. Commonly used in markdown editors, documentation tools, and text formatting interfaces.
+
+### list-heart
+**Import:** `import { ListHeart } from 'phosphor-svelte';`
+**Description:** A favorites list icon combining list functionality with heart symbolism, perfect for wishlists, favorite items, liked content, bookmarked articles, saved products, preferred settings, loved songs, favorite restaurants, romantic gift lists, valentine's day content, relationship tracking, preference management, and any interface where users can mark items as favorites or express affection. Ideal for e-commerce, social media, dating apps, and content curation platforms.
+
+### list-magnifying-glass
+**Import:** `import { ListMagnifyingGlass } from 'phosphor-svelte';`
+**Description:** A searchable list icon combining listing with search functionality, ideal for search results, filtered lists, searchable directories, query results, lookup tables, database queries, content discovery, search interfaces, find functionality, inspection tools, research applications, data exploration, catalog searches, inventory lookups, and any interface where users can search through organized content. Perfect for search engines, databases, and content management systems.
+
+### list-numbers
+**Import:** `import { ListNumbers } from 'phosphor-svelte';`
+**Description:** An ordered list icon with numbers, representing numbered lists, sequential content, prioritized items, step-by-step instructions, ranked lists, ordered checklists, hierarchical content, procedural workflows, tutorial steps, recipe instructions, installation guides, numbered forms, sequential processes, and any interface requiring content with specific ordering or priority. Essential for educational content, documentation, and process-oriented applications.
+
+### list-plus
+**Import:** `import { ListPlus } from 'phosphor-svelte';`
+**Description:** An add to list icon combining list functionality with addition capability, perfect for creating new lists, adding list items, expandable content, new checklist items, adding tasks, creating categories, append functionality, list management, content creation, item insertion, and any interface where users can dynamically add content to organized structures. Ideal for task managers, content editors, and dynamic list interfaces.
+
+### list-star
+**Import:** `import { ListStar } from 'phosphor-svelte';`
+**Description:** A starred list icon representing favorite lists, priority items, featured content, starred repositories, bookmarked lists, premium content, highlighted items, important tasks, VIP lists, top-rated content, quality indicators, excellence markers, and any interface where star ratings or importance levels are displayed in list format. Perfect for rating systems, favorites management, and priority-based content organization.
+
+### lock
+**Import:** `import { Lock } from 'phosphor-svelte';`
+**Description:** A padlock icon representing security, authentication, privacy, encryption, login systems, secured content, protected areas, locked features, private information, access control, user authentication, password protection, secure connections, encrypted data, privacy settings, restricted access, confidential content, and any interface requiring security indicators. Essential for login forms, security settings, private content areas, and authentication workflows.
+
+### lock-key
+**Import:** `import { LockKey } from 'phosphor-svelte';`
+**Description:** A lock with key icon representing authentication with credentials, secure access, authorized entry, key-based security, credential management, password systems, access keys, security tokens, authentication keys, login credentials, secure authentication, authorized access, and any interface where key-based security or credential access is required. Perfect for authentication systems, security management, and access control interfaces.
+
+### lock-key-open
+**Import:** `import { LockKeyOpen } from 'phosphor-svelte';`
+**Description:** An open lock with key icon representing unlocked security, authenticated access, successful login, authorized entry, decrypted content, accessible areas, open security, unsecured state, unlocked features, authenticated user status, and any interface showing successful security clearance or authentication. Ideal for indicating successful login states, unlocked content, and accessible secured areas.
+
+### lock-laminated
+**Import:** `import { LockLaminated } from 'phosphor-svelte';`
+**Description:** A laminated padlock icon representing high-security, reinforced protection, enhanced encryption, premium security features, heavy-duty authentication, fortified access control, advanced privacy settings, enterprise security, maximum protection, secure vaults, high-value content protection, and any interface requiring indicators of enhanced or premium security levels. Perfect for enterprise applications, high-security areas, and premium protection services.
+
+### lock-laminated-open
+**Import:** `import { LockLaminatedOpen } from 'phosphor-svelte';`
+**Description:** An open laminated lock icon representing successfully unlocked high-security content, authorized access to premium areas, authenticated enterprise access, unlocked secure vaults, accessible protected content, opened high-security features, and any interface showing successful authentication for high-security or premium areas. Ideal for enterprise dashboards, premium content access, and high-security clearance indicators.
+
+### lock-open
+**Import:** `import { LockOpen } from 'phosphor-svelte';`
+**Description:** An open padlock icon representing unlocked content, accessible areas, unsecured state, public access, unprotected information, open authentication, free access, unlocked features, non-private content, and any interface indicating unrestricted access or open security states. Perfect for public content indicators, free access areas, and showing unlocked or accessible states.
+
+### lock-simple
+**Import:** `import { LockSimple } from 'phosphor-svelte';`
+**Description:** A simple lock icon representing basic security, minimal authentication, simple privacy controls, basic access restriction, straightforward protection, essential security features, user-friendly security indicators, and any interface requiring clean, minimalist security symbolism. Ideal for simple authentication systems, basic privacy settings, and clean security interfaces.
+
+### lock-simple-open
+**Import:** `import { LockSimpleOpen } from 'phosphor-svelte';`
+**Description:** A simple open lock icon representing basic unlocked state, accessible simple security, open basic protection, unlocked minimal authentication, and any interface showing simple security clearance or basic access granted. Perfect for indicating basic unlocked states, simple access granted, and minimalist security status indicators.
+
+### lockers
+**Import:** `import { Lockers } from 'phosphor-svelte';`
+**Description:** A lockers icon representing storage facilities, gym lockers, school lockers, employee storage, personal storage compartments, secure storage areas, locker rooms, fitness facilities, educational institutions, workplace storage, temporary storage, personal belongings storage, and any interface related to physical storage locations or locker-based services. Perfect for gym applications, school management systems, and facility management interfaces.
+
+### log
+**Import:** `import { Log } from 'phosphor-svelte';`
+**Description:** A tree log icon representing natural wood, lumber, forestry, tree stumps, wooden materials, branches, sticks, logging industry, woodworking, carpentry, construction materials, natural resources, environmental content, outdoor activities, camping, firewood, and any interface related to wood products, forestry, or natural materials. Ideal for forestry applications, woodworking tools, environmental websites, and outdoor activity platforms.
+
+### magic-wand
+**Import:** `import { MagicWand } from 'phosphor-svelte';`
+**Description:** A magic wand icon representing selection tools, wizard functionality, automatic processing, smart selection, AI-powered features, magical transformations, special effects, gaming elements, fantasy themes, automated tools, quick fixes, enhancement features, filter applications, and any interface requiring magical or automated functionality indicators. Perfect for photo editors, gaming applications, AI tools, and special effects interfaces.
+
+### magnet
+**Import:** `import { Magnet } from 'phosphor-svelte';`
+**Description:** A horseshoe magnet icon representing magnetism, attraction, magnetic fields, physics concepts, science applications, magnetic properties, attractive forces, scientific instruments, educational content, laboratory tools, magnetic attraction, pulling forces, and any interface related to magnetism, physics, or attractive properties. Ideal for educational applications, science tools, physics simulations, and magnetic field visualizations.
+
+### magnet-straight
+**Import:** `import { MagnetStraight } from 'phosphor-svelte';`
+**Description:** A straight bar magnet icon representing linear magnetism, magnetic bars, scientific instruments, physics experiments, magnetic field demonstrations, laboratory equipment, educational tools, magnetic properties, scientific research, and any interface related to straight-line magnetic applications or bar magnet functionality. Perfect for physics education, laboratory management, and scientific instrument interfaces.
+
+### magnifying-glass
+**Import:** `import { MagnifyingGlass } from 'phosphor-svelte';`
+**Description:** A magnifying glass icon representing search functionality, find features, query tools, inspection capabilities, detailed examination, research tools, discovery features, content lookup, search engines, investigation tools, examination features, detail viewing, and any interface requiring search or inspection functionality. Essential for search interfaces, research applications, and detailed content examination tools.
+
+### magnifying-glass-minus
+**Import:** `import { MagnifyingGlassMinus } from 'phosphor-svelte';`
+**Description:** A magnifying glass with minus icon representing zoom out functionality, reduced magnification, search filtering, scope reduction, detailed view reduction, scale down features, and any interface requiring zoom out or search scope reduction capabilities. Perfect for image viewers, map applications, document readers, and detailed content examination tools with zoom functionality.
+
+### magnifying-glass-plus
+**Import:** `import { MagnifyingGlassPlus } from 'phosphor-svelte';`
+**Description:** A magnifying glass with plus icon representing zoom in functionality, increased magnification, enhanced search, detailed examination, scale up features, closer inspection, magnified viewing, and any interface requiring zoom in or enhanced search capabilities. Ideal for image viewers, map applications, document readers, and detailed content examination tools with zoom functionality.
+
+### mailbox
+**Import:** `import { Mailbox } from 'phosphor-svelte';`
+**Description:** A mailbox icon representing postal mail, email systems, message delivery, correspondence, postal services, letter delivery, mail collection, messaging platforms, communication systems, inbox functionality, mail notifications, postal addresses, and any interface related to mail services or message delivery systems. Perfect for email applications, postal services, messaging platforms, and communication tools.
+
+### map-pin
+**Import:** `import { MapPin } from 'phosphor-svelte';`
+**Description:** A map pin icon representing location markers, geographic points, places of interest, map locations, GPS coordinates, address markers, destination points, location-based services, geographic information, spatial data, navigation waypoints, and any interface requiring location or mapping functionality. Essential for mapping applications, GPS systems, location services, and geographic interfaces.
+
+### map-pin-area
+**Import:** `import { MapPinArea } from 'phosphor-svelte';`
+**Description:** A map pin with area indicator representing geographic regions, location zones, service areas, delivery zones, coverage areas, regional markers, area-based locations, territorial boundaries, and any interface showing location-based areas or regional coverage. Perfect for service area maps, delivery zone indicators, and regional location services.
+
+### map-pin-line
+**Import:** `import { MapPinLine } from 'phosphor-svelte';`
+**Description:** A linear map pin icon representing route points, pathway markers, line-based locations, route navigation, path indicators, journey waypoints, linear geographic data, and any interface showing location points along routes or linear geographic features. Ideal for route planning, navigation systems, and linear location mapping.
+
+### map-pin-plus
+**Import:** `import { MapPinPlus } from 'phosphor-svelte';`
+**Description:** A map pin with plus icon representing add location functionality, new place markers, location creation, adding waypoints, new point of interest, location addition tools, and any interface allowing users to add or create new location markers. Perfect for location management, point of interest creation, and interactive mapping applications.
+
+### map-pin-simple
+**Import:** `import { MapPinSimple } from 'phosphor-svelte';`
+**Description:** A simplified map pin icon representing basic location markers, minimal geographic points, clean location indicators, simple place markers, streamlined mapping elements, and any interface requiring clean, minimalist location representation. Ideal for simple mapping interfaces, basic location services, and clean geographic applications.
+
+### map-pin-simple-area
+**Import:** `import { MapPinSimpleArea } from 'phosphor-svelte';`
+**Description:** A simple map pin with area representation for minimalist regional markers, clean zone indicators, simple area-based locations, streamlined geographic regions, and any interface requiring clean area-based location representation. Perfect for simple regional mapping and clean zone indicators.
+
+### map-pin-simple-line
+**Import:** `import { MapPinSimpleLine } from 'phosphor-svelte';`
+**Description:** A simple linear map pin representing minimal route markers, clean pathway indicators, streamlined linear locations, simple line-based geographic points, and any interface requiring clean linear location representation. Ideal for simple route planning and clean linear mapping interfaces.
+
+### map-trifold
+**Import:** `import { MapTrifold } from 'phosphor-svelte';`
+**Description:** A folded map icon representing cartography, geography, navigation tools, travel planning, physical maps, map reading, geographic information, spatial navigation, travel guides, route planning, topographic maps, and any interface related to traditional mapping or geographic navigation. Perfect for travel applications, navigation tools, geographic education, and cartographic interfaces.
+
+### markdown-logo
+**Import:** `import { MarkdownLogo } from 'phosphor-svelte';`
+**Description:** A Markdown logo icon representing markup language, text formatting, documentation, technical writing, README files, .md files, content creation, structured text, lightweight markup, documentation tools, text editors, and any interface related to Markdown formatting or documentation systems. Essential for developer tools, documentation platforms, and technical writing applications.
+
+### marker-circle
+**Import:** `import { MarkerCircle } from 'phosphor-svelte';`
+**Description:** A circular marker icon representing drawing tools, writing implements, editing markers, design elements, highlighting tools, annotation features, markup tools, creative design, drawing applications, and any interface requiring marking or drawing functionality. Perfect for design applications, annotation tools, drawing software, and creative editing interfaces.
+
+### martini
+**Import:** `import { Martini } from 'phosphor-svelte';`
+**Description:** A martini glass icon representing cocktails, beverages, drinks, bars, restaurants, nightlife, dining establishments, alcoholic beverages, social venues, entertainment, hospitality, food service, happy hour, and any interface related to dining, drinking, or hospitality services. Ideal for restaurant applications, bar management, dining guides, and hospitality platforms.
+
+### mask-happy
+**Import:** `import { MaskHappy } from 'phosphor-svelte';`
+**Description:** A happy theater mask icon representing comedy, entertainment, performing arts, theater, drama, theatrical performances, comedy shows, positive emotions, celebration, joy, happiness, smiling expressions, Thalia (comedy muse), and any interface related to entertainment, performing arts, or positive emotional content. Perfect for entertainment applications, theater management, and positive user experience indicators.
+
+### mask-sad
+**Import:** `import { MaskSad } from 'phosphor-svelte';`
+**Description:** A sad theater mask icon representing drama, tragedy, theatrical performances, emotional content, performing arts, theater, dramatic arts, melancholy, crying expressions, Melpomene (tragedy muse), and any interface related to dramatic entertainment, emotional content, or performing arts. Ideal for theater applications, dramatic content, and emotional expression interfaces.
+
+### mastodon-logo
+**Import:** `import { MastodonLogo } from 'phosphor-svelte';`
+**Description:** A Mastodon logo icon representing the fediverse, decentralized social media, ActivityPub protocol, open-source social networking, distributed social platforms, alternative social media, privacy-focused networking, community-driven platforms, and any interface related to Mastodon social networking or decentralized communication systems. Perfect for social media applications, fediverse tools, and decentralized communication platforms.
+
+### math-operations
+**Import:** `import { MathOperations } from 'phosphor-svelte';`
+**Description:** A mathematical operations icon representing arithmetic, calculations, addition, subtraction, multiplication, division, equals, mathematical symbols (+, -, ×, ÷, =), calculator functions, mathematical computations, financial calculations, accounting, numerical processing, and any interface requiring mathematical or calculation functionality. Essential for calculator applications, financial tools, mathematical software, and computational interfaces.
+
+### matrix-logo
+**Import:** `import { MatrixLogo } from 'phosphor-svelte';`
+**Description:** A Matrix protocol logo icon representing secure messaging, encrypted communication, decentralized chat, Matrix protocol, federated messaging, secure communications, privacy-focused messaging, end-to-end encryption, and any interface related to Matrix communication protocol or secure messaging systems. Perfect for secure communication applications, privacy tools, and Matrix-based messaging platforms.
+
+### medal
+**Import:** `import { Medal } from 'phosphor-svelte';`
+**Description:** A medal icon representing awards, achievements, recognition, victory, winning, accomplishments, honors, prizes, competitions, success, excellence, ribbons, rosettes, trophies, and any interface related to achievements, recognition systems, or competitive success. Perfect for gaming applications, achievement systems, award platforms, and recognition interfaces.
+
+### medal-military
+**Import:** `import { MedalMilitary } from 'phosphor-svelte';`
+**Description:** A military medal icon representing military honors, service awards, military achievements, veteran recognition, military service, combat awards, distinguished service, military decorations, honor recognition, and any interface related to military service or veteran affairs. Ideal for military applications, veteran services, honor systems, and military recognition platforms.
+
+### medium-logo
+**Import:** `import { MediumLogo } from 'phosphor-svelte';`
+**Description:** A Medium platform logo icon representing blogging, article publishing, content creation, reading platforms, writing communities, editorial content, journalism, storytelling, content curation, social media publishing, and any interface related to Medium publishing or content creation platforms. Perfect for blogging applications, publishing tools, content management, and writing platforms.
+
+### megaphone
+**Import:** `import { Megaphone } from 'phosphor-svelte';`
+**Description:** A megaphone icon representing announcements, broadcasting, public speaking, loudspeaker functions, bullhorn communications, public address, marketing campaigns, promotional content, alert systems, communication amplification, and any interface requiring announcement or broadcast functionality. Essential for communication platforms, announcement systems, and public address interfaces.
+
+### megaphone-simple
+**Import:** `import { MegaphoneSimple } from 'phosphor-svelte';`
+**Description:** A simplified megaphone icon representing basic announcement functionality, simple broadcasting, clean communication symbols, minimalist alert systems, streamlined public address, and any interface requiring clean, simple announcement or broadcast indicators. Perfect for simple communication tools and clean announcement interfaces.
+
+### member-of
+**Import:** `import { MemberOf } from 'phosphor-svelte';`
+**Description:** A mathematical "member of" symbol (∈) representing set theory, mathematical relationships, element membership, set operations, mathematical logic, data structures, collection membership, mathematical notation, and any interface related to mathematical sets, data relationships, or mathematical notation. Ideal for mathematical applications, data analysis tools, and educational mathematics interfaces.
+
+### memory
+**Import:** `import { Memory } from 'phosphor-svelte';`
+**Description:** A memory chip icon representing RAM, computer memory, microchips, electronic components, computer hardware, memory modules, data storage, processing units, electronic circuits, technology components, and any interface related to computer memory, hardware specifications, or electronic systems. Perfect for computer specifications, hardware monitoring, and technology interfaces.
+
+### messenger-logo
+**Import:** `import { MessengerLogo } from 'phosphor-svelte';`
+**Description:** A Facebook Messenger logo icon representing instant messaging, chat applications, Facebook communication, social media messaging, real-time communication, message platforms, social networking communication, and any interface related to Messenger or Facebook communication services. Ideal for social media integration, messaging applications, and Facebook-connected communication tools.# Phosphor Icons - Batch 19
+
+### meta-logo
+**Import:** `import { MetaLogo } from 'phosphor-svelte';`
+**Description:** Official Meta (formerly Facebook) brand logo icon. Use for social media integrations, login buttons, sharing features, brand recognition, social networking platforms, Meta services, Facebook authentication, social media links, corporate branding, third-party integrations, and Meta company references. Essential for apps with Facebook login, Meta advertising, social sharing, or any Meta platform integration.
+
+### meteor
+**Import:** `import { Meteor } from 'phosphor-svelte';`
+**Description:** Celestial meteor or shooting star icon representing space objects, astronomical phenomena, meteors, asteroids, fireballs, comets, space debris, and cosmic events. Perfect for astronomy apps, weather applications, space-themed content, meteorology, celestial tracking, stargazing guides, space exploration, cosmic phenomena, natural disasters, and scientific educational content about space objects and atmospheric events.
+
+### metronome
+**Import:** `import { Metronome } from 'phosphor-svelte';`
+**Description:** Musical metronome device icon for tempo, rhythm, timing, beat counting, music practice, BPM (beats per minute), musical timing, rhythm training, music education, practice sessions, tempo control, musical instruments, band practice, music lessons, composition tools, and audio production. Essential for music apps, practice tools, recording software, and educational music platforms.
+
+### microphone
+**Import:** `import { Microphone } from 'phosphor-svelte';`
+**Description:** Standard microphone icon for audio recording, voice input, sound capture, music recording, podcasting, broadcasting, voice memos, audio communication, studio recording, live performance, voice commands, speech recognition, audio interfaces, sound equipment, music production, interviews, and voice-over work. Universal symbol for any audio input or recording functionality.
+
+### microphone-slash
+**Import:** `import { MicrophoneSlash } from 'phosphor-svelte';`
+**Description:** Muted or disabled microphone icon indicating audio input is turned off, microphone disabled, muted state, no recording, audio blocked, voice input disabled, silent mode, privacy protection, recording paused, audio permissions denied, or communication muted. Common in video conferencing, voice chat, recording apps, and communication platforms to show mic status.
+
+### microphone-stage
+**Import:** `import { MicrophoneStage } from 'phosphor-svelte';`
+**Description:** Professional stage microphone icon for live performances, concerts, stage shows, public speaking, presentations, live music, performance venues, entertainment events, karaoke, stand-up comedy, theater, broadcasting, live streaming, event management, and professional audio setups. Ideal for entertainment apps, event platforms, and performance-related interfaces.
+
+### microscope
+**Import:** `import { Microscope } from 'phosphor-svelte';`
+**Description:** Scientific microscope instrument icon for laboratory work, scientific research, biology studies, medical analysis, scientific experiments, lab equipment, magnification tools, cellular biology, microbiology, pathology, research facilities, educational science, scientific discovery, laboratory testing, medical diagnostics, and academic research. Perfect for educational apps, scientific platforms, and medical interfaces.
+
+### microsoft-excel-logo
+**Import:** `import { MicrosoftExcelLogo } from 'phosphor-svelte';`
+**Description:** Microsoft Excel brand logo for spreadsheet applications, tabular data, data analysis, financial calculations, business reporting, data visualization, spreadsheet software, Excel files, data management, business intelligence, accounting software, data entry, statistical analysis, charts and graphs, business productivity, and office suite integration. Essential for business applications and data management tools.
+
+### microsoft-outlook-logo
+**Import:** `import { MicrosoftOutlookLogo } from 'phosphor-svelte';`
+**Description:** Microsoft Outlook email client logo for email management, email services, corporate communication, business email, calendar integration, contact management, email client, Microsoft Office integration, enterprise communication, professional email, email synchronization, and business productivity tools. Used in email applications and office suite integrations.
+
+### microsoft-powerpoint-logo
+**Import:** `import { MicrosoftPowerpointLogo } from 'phosphor-svelte';`
+**Description:** Microsoft PowerPoint presentation software logo for slide presentations, business presentations, slideshow creation, presentation software, visual presentations, business meetings, educational presentations, presentation design, slide decks, corporate presentations, training materials, and presentation tools. Ideal for business apps and presentation platforms.
+
+### microsoft-teams-logo
+**Import:** `import { MicrosoftTeamsLogo } from 'phosphor-svelte';`
+**Description:** Microsoft Teams collaboration platform logo for video conferencing, team chat, business communication, remote meetings, team collaboration, video calls, chat messaging, file sharing, workplace communication, remote work tools, enterprise communication, team coordination, and business productivity. Essential for communication and collaboration platforms.
+
+### microsoft-word-logo
+**Import:** `import { MicrosoftWordLogo } from 'phosphor-svelte';`
+**Description:** Microsoft Word document processor logo for word processing, document creation, text editing, document management, DOC/DOCX files, business documents, report writing, document templates, text formatting, document sharing, office productivity, writing tools, document collaboration, and text processing. Used in document management and office applications.
+
+### minus
+**Import:** `import { Minus } from 'phosphor-svelte';`
+**Description:** Mathematical minus sign for subtraction operations, mathematical calculations, removing items, decreasing values, quantity reduction, arithmetic operations, calculator functions, negative values, mathematical expressions, reducing counters, removing content, collapsing sections, minimizing elements, and basic mathematical operations. Universal symbol for subtraction and reduction actions.
+
+### minus-circle
+**Import:** `import { MinusCircle } from 'phosphor-svelte';`
+**Description:** Circular minus icon for removing items, deleting content, reducing quantities, subtraction in rounded interface elements, removing list items, decreasing values, negative actions, item removal, content deletion, quantity controls, and mathematical operations within circular button designs. Common in modern UI designs for removal actions.
+
+### minus-square
+**Import:** `import { MinusSquare } from 'phosphor-svelte';`
+**Description:** Square-shaped minus icon for mathematical operations, removing items, subtraction functions, quantity reduction, negative values, arithmetic calculations, content removal, decreasing counters, mathematical expressions, and calculator interfaces with square button designs. Used in calculator apps and mathematical interfaces.
+
+### money
+**Import:** `import { Money } from 'phosphor-svelte';`
+**Description:** Paper money or cash bills icon representing currency, cash payments, financial transactions, money management, payment methods, cash flow, financial planning, budgeting, economic activities, retail transactions, cash handling, financial services, banking operations, monetary systems, wealth management, and financial applications. Universal symbol for cash and monetary transactions.
+
+### money-wavy
+**Import:** `import { MoneyWavy } from 'phosphor-svelte';`
+**Description:** Stylized wavy money bills icon for cash payments, currency, financial transactions, dynamic money flow, financial movement, cash handling, payment processing, money transfers, financial services, economic activity, wealth visualization, financial apps, banking services, and monetary transactions with a more dynamic, flowing representation of currency.
+
+### monitor
+**Import:** `import { Monitor } from 'phosphor-svelte';`
+**Description:** Computer monitor or display screen icon for desktop computers, external displays, screen sharing, monitor setup, display settings, computer hardware, workstation setup, multi-monitor configurations, display preferences, screen resolution, desktop environments, computer systems, office equipment, and display technology. Essential for system settings and hardware management interfaces.
+
+### monitor-arrow-up
+**Import:** `import { MonitorArrowUp } from 'phosphor-svelte';`
+**Description:** Monitor with upload arrow for screen sharing, screencasting, content upload to displays, video streaming to monitors, screen mirroring, display casting, presentation upload, monitor content sharing, screen broadcasting, remote desktop sharing, video conferencing, presentation systems, and media streaming to external displays. Perfect for collaboration and streaming applications.
+
+### monitor-play
+**Import:** `import { MonitorPlay } from 'phosphor-svelte';`
+**Description:** Monitor with play button for video playback on screens, media streaming, video displays, entertainment systems, media centers, video content, movie watching, screen entertainment, video streaming services, digital signage, presentation playback, multimedia displays, and screen-based entertainment. Ideal for media applications and entertainment platforms.
+
+### moon
+**Import:** `import { Moon } from 'phosphor-svelte';`
+**Description:** Moon icon representing nighttime, dark mode, night theme, sleep mode, evening settings, lunar cycles, astronomy, celestial objects, night sky, dark UI themes, evening time, nocturnal activities, sleep tracking, bedtime features, night shift, low light modes, and astronomical content. Universal symbol for dark mode and nighttime features in applications.
+
+### moon-stars
+**Import:** `import { MoonStars } from 'phosphor-svelte';`
+**Description:** Moon with stars icon for nighttime scenes, starry nights, astronomical content, dark mode with enhanced styling, sleep features, bedtime modes, night sky viewing, stargazing, celestial navigation, constellation tracking, astronomy apps, night photography, evening activities, nocturnal themes, and peaceful nighttime environments. Perfect for astronomy and sleep-related applications.
+
+### moped
+**Import:** `import { Moped } from 'phosphor-svelte';`
+**Description:** Moped or scooter vehicle icon for urban transportation, delivery services, food delivery, ride-sharing, small vehicle transport, city commuting, eco-friendly transport, motorcycle alternatives, urban mobility, transportation options, delivery apps, vehicle selection, travel methods, and lightweight motorized transport. Common in transportation and delivery applications.
+
+### moped-front
+**Import:** `import { MopedFront } from 'phosphor-svelte';`
+**Description:** Front view of moped or scooter for detailed vehicle representation, transportation selection, delivery vehicle identification, urban transport options, vehicle categories, mobility services, transportation apps, delivery platforms, ride-sharing services, and detailed vehicle views. Provides alternative perspective for transportation interfaces.
+
+### mosque
+**Import:** `import { Mosque } from 'phosphor-svelte';`
+**Description:** Islamic mosque building icon for religious locations, Islamic worship places, Muslim community centers, religious mapping, spiritual locations, mosque finder, Islamic architecture, religious buildings, prayer locations, religious services, community centers, religious navigation, cultural landmarks, and Islamic faith representation. Essential for religious and cultural applications.
+
+### motorcycle
+**Import:** `import { Motorcycle } from 'phosphor-svelte';`
+**Description:** Motorcycle or motorbike vehicle icon for transportation, vehicle selection, ride-sharing, motorcycle rentals, delivery services, travel options, vehicle categories, transportation modes, automotive services, motorcycle insurance, vehicle tracking, road transport, and motor vehicle applications. Standard symbol for motorcycle-related services and transportation apps.
+
+### mountains
+**Import:** `import { Mountains } from 'phosphor-svelte';`
+**Description:** Mountain landscape icon for outdoor activities, hiking, mountaineering, terrain mapping, geographical features, nature exploration, adventure travel, outdoor recreation, landscape photography, geological features, topographical maps, outdoor sports, adventure apps, travel destinations, nature guides, and environmental applications. Perfect for travel and outdoor activity platforms.
+
+### mouse
+**Import:** `import { Mouse } from 'phosphor-svelte';`
+**Description:** Computer mouse input device icon for cursor control, computer peripherals, input devices, desktop computing, click actions, mouse settings, computer hardware, user interface controls, desktop interactions, pointing devices, computer accessories, system preferences, and input device management. Essential for computer and system-related interfaces.
+
+### mouse-left-click
+**Import:** `import { MouseLeftClick } from 'phosphor-svelte';`
+**Description:** Mouse with left-click indication for tutorial interfaces, user guides, click instructions, interaction tutorials, UI guidance, input demonstrations, help documentation, user training, interface instructions, interaction patterns, computer tutorials, and educational content about computer usage. Perfect for instructional and tutorial applications.
+
+### mouse-middle-click
+**Import:** `import { MouseMiddleClick } from 'phosphor-svelte';`
+**Description:** Mouse with middle-click or scroll wheel click indication for advanced computer interactions, scroll wheel functions, middle-click actions, power user features, computer tutorials, advanced input methods, browser navigation, tab management, and specialized computer operations. Used in advanced user guides and computer education.
+
+### mouse-right-click
+**Import:** `import { MouseRightClick } from 'phosphor-svelte';`
+**Description:** Mouse with right-click indication for context menus, secondary actions, right-click functions, contextual operations, menu access, computer tutorials, user interface guidance, interaction instructions, context-sensitive actions, and advanced computer operations. Common in instructional content and UI tutorials.
+
+### mouse-scroll
+**Import:** `import { MouseScroll } from 'phosphor-svelte';`
+**Description:** Mouse with scroll indication for scrolling actions, page navigation, vertical movement, scroll wheel functions, page browsing, content navigation, scrolling tutorials, user interface guidance, interaction instructions, and navigation controls. Used in tutorial applications and interface guidance systems.
+
+### mouse-simple
+**Import:** `import { MouseSimple } from 'phosphor-svelte';`
+**Description:** Simplified mouse icon for basic cursor control, simple input device representation, minimalist computer peripherals, basic clicking actions, simplified computer interfaces, input device settings, basic desktop computing, and streamlined user interfaces. Alternative to the detailed mouse icon for cleaner designs.
+
+### music-note
+**Import:** `import { MusicNote } from 'phosphor-svelte';`
+**Description:** Single musical note icon for music applications, audio content, musical compositions, songs, music players, audio streaming, musical notation, sound representation, music education, audio files, music production, musical performances, and audio-related features. Universal symbol for music and audio content.
+
+### music-note-simple
+**Import:** `import { MusicNoteSimple } from 'phosphor-svelte';`
+**Description:** Simplified musical note icon for clean music interfaces, minimalist music apps, basic audio representation, streamlined music players, simple audio controls, and modern music application designs. Alternative to detailed music note for cleaner, more minimal user interfaces and contemporary app designs.
+
+### music-notes
+**Import:** `import { MusicNotes } from 'phosphor-svelte';`
+**Description:** Multiple musical notes icon for complex musical content, musical compositions, songs with multiple instruments, music playlists, audio collections, musical arrangements, harmony representation, music streaming, audio libraries, music albums, musical performances, and rich audio content. Indicates multiple musical elements or complex compositions.
+
+### music-notes-minus
+**Import:** `import { MusicNotesMinus } from 'phosphor-svelte';`
+**Description:** Musical notes with minus sign for removing songs, deleting audio content, removing tracks from playlists, audio content removal, uninstalling music, removing from libraries, decreasing music collection, audio deletion, playlist management, music library cleanup, and removing musical elements. Common in music management applications.
+
+### music-notes-plus
+**Import:** `import { MusicNotesPlus } from 'phosphor-svelte';`
+**Description:** Musical notes with plus sign for adding songs, adding to playlists, music collection expansion, adding audio content, creating new musical compositions, adding tracks, music library growth, audio addition, playlist building, music acquisition, and adding musical elements. Essential for music management and streaming applications.
+
+### music-notes-simple
+**Import:** `import { MusicNotesSimple } from 'phosphor-svelte';`
+**Description:** Simplified multiple musical notes icon for clean music interfaces, minimalist audio apps, streamlined music players, modern music applications, simple audio controls, and contemporary music platform designs. Provides a cleaner alternative to detailed music notes while maintaining multiple note representation.
+
+### navigation-arrow
+**Import:** `import { NavigationArrow } from 'phosphor-svelte';`
+**Description:** Navigation compass arrow icon for GPS navigation, directional guidance, location services, map navigation, compass functionality, direction finding, route guidance, geographical orientation, travel navigation, location tracking, mapping applications, and directional indicators. Essential for navigation and location-based applications.
+
+### needle
+**Import:** `import { Needle } from 'phosphor-svelte';`
+**Description:** Sewing needle icon for tailoring, sewing activities, fabric work, clothing alteration, embroidery, needlework, crafting, textile arts, fashion design, garment construction, handicrafts, sewing supplies, tailoring services, clothing repair, and fabric-related applications. Perfect for fashion, crafting, and textile industry applications.
+
+### network
+**Import:** `import { Network } from 'phosphor-svelte';`
+**Description:** Network connectivity icon for internet connections, network infrastructure, LAN connections, ethernet networks, network settings, connectivity status, network configuration, internet access, network topology, system networks, network administration, and network-related services. Essential for networking and connectivity interfaces.
+
+### network-slash
+**Import:** `import { NetworkSlash } from 'phosphor-svelte';`
+**Description:** Disconnected network icon indicating network errors, connection problems, internet disconnection, network failures, connectivity issues, offline status, network troubleshooting, connection lost, network problems, and connectivity errors. Common in network diagnostics and error reporting interfaces.
+
+### network-x
+**Import:** `import { NetworkX } from 'phosphor-svelte';`
+**Description:** Disabled network icon for turned-off networks, disabled connectivity, network blocking, access restrictions, network deactivation, connection denial, network security, connectivity control, and intentionally disabled network access. Used in security and network management applications.
+
+### newspaper
+**Import:** `import { Newspaper } from 'phosphor-svelte';`
+**Description:** Newspaper publication icon for news content, journalism, media outlets, news articles, press releases, news reading, media consumption, current events, news aggregation, publishing, editorial content, news feeds, media applications, news platforms, and journalistic content. Universal symbol for news and media applications.
+
+### newspaper-clipping
+**Import:** `import { NewspaperClipping } from 'phosphor-svelte';`
+**Description:** Newspaper clipping or article excerpt icon for specific news articles, article sharing, news excerpts, press clippings, article bookmarks, news highlights, featured articles, article collections, news archives, content curation, and news snippet sharing. Perfect for news curation and article management applications.
+
+### not-equals
+**Import:** `import { NotEquals } from 'phosphor-svelte';`
+**Description:** Mathematical not-equals symbol (≠) for inequality comparisons, mathematical operations, data comparison, conditional logic, programming operators, inequality expressions, mathematical notation, logical operations, comparison functions, data analysis, and mathematical expressions. Essential for mathematical and programming applications.
+
+### not-member-of
+**Import:** `import { NotMemberOf } from 'phosphor-svelte';`
+**Description:** Mathematical "not member of" symbol (∉) for set theory operations, mathematical logic, set relationships, element exclusion, mathematical notation, data structure operations, logical expressions, set operations, mathematical education, and advanced mathematics. Used in mathematical and educational applications.
+
+### not-subset-of
+**Import:** `import { NotSubsetOf } from 'phosphor-svelte';`
+**Description:** Mathematical "not subset of" symbol (⊄) for set theory operations, mathematical relationships, set logic, subset exclusion, mathematical notation, advanced mathematics, set theory education, logical operations, mathematical expressions, and set relationship analysis. Essential for mathematical and educational applications.
+
+### not-superset-of
+**Import:** `import { NotSupersetOf } from 'phosphor-svelte';`
+**Description:** Mathematical "not superset of" symbol (⊉) for advanced set theory operations, mathematical logic, set relationships, superset exclusion, mathematical notation, set theory education, logical expressions, mathematical education, advanced mathematics, and set relationship analysis. Used in specialized mathematical and educational applications.# Phosphor Icons Documentation - Batch 20
+
+### notches
+**Import:** `import { Notches } from 'phosphor-svelte';`
+**Description:** Represents resize handles, drag grips, or texture patterns commonly found in user interface elements. This icon depicts parallel lines or ridges that indicate draggable areas, resize controls, text area handles, or knurled surfaces. Perfect for UI elements like resize handles, drag-and-drop areas, textarea corners, window borders, splitter bars, grip handles, texture indicators, knurling patterns, or any interface element that suggests tactile manipulation or resizing functionality.
+
+### note
+**Import:** `import { Note } from 'phosphor-svelte';`
+**Description:** A standard note or document icon representing written content, documentation, or text-based information. Ideal for note-taking applications, documentation systems, text editors, memo creation, reminder apps, post-it note functionality, writing tools, content management, journal entries, draft documents, meeting notes, quick notes, sticky notes, or any feature related to creating, viewing, or managing textual content and written information.
+
+### note-blank
+**Import:** `import { NoteBlank } from 'phosphor-svelte';`
+**Description:** An empty or blank note document, representing new document creation or empty content states. Perfect for new note buttons, create document actions, empty state illustrations, blank page indicators, new memo creation, fresh document templates, empty content placeholders, document creation workflows, or any interface element that represents starting with a clean slate for note-taking or document creation.
+
+### note-pencil
+**Import:** `import { NotePencil } from 'phosphor-svelte';`
+**Description:** A note with a pencil, indicating editable content, writing, or active note-taking. Excellent for edit note functions, writing tools, note editing interfaces, content creation buttons, text composition areas, draft editing, annotation tools, markup features, content modification, writing applications, text editing modes, or any feature that combines note-taking with active writing or editing functionality.
+
+### notebook
+**Import:** `import { Notebook } from 'phosphor-svelte';`
+**Description:** A bound notebook representing structured note-taking, journaling, or organized documentation. Perfect for journal applications, logbook systems, structured note-taking, diary functionality, research notebooks, lab books, project documentation, meeting logs, daily planners, academic notebooks, professional journals, organized content, bound documents, or multi-page note collections that require structured organization and sequential content.
+
+### notepad
+**Import:** `import { Notepad } from 'phosphor-svelte';`
+**Description:** A spiral-bound or tear-off notepad representing quick notes, temporary documentation, or informal note-taking. Ideal for quick note applications, scratch pad functionality, temporary notes, memo pads, to-do lists, shopping lists, quick reminders, informal documentation, draft notes, brainstorming tools, temporary content, disposable notes, or any feature designed for rapid, informal note creation and temporary information capture.
+
+### notification
+**Import:** `import { Notification } from 'phosphor-svelte';`
+**Description:** A notification badge or alert indicator showing unread items, new messages, or system alerts. Essential for notification systems, alert badges, unread count indicators, message notifications, system alerts, status badges, activity indicators, attention markers, new item counters, notification dots, alert badges, push notification icons, or any UI element that needs to draw attention to new or unread content.
+
+### notion-logo
+**Import:** `import { NotionLogo } from 'phosphor-svelte';`
+**Description:** The official Notion brand logo representing the popular productivity and documentation platform. Use for Notion integrations, productivity app connections, documentation tool links, wiki platform references, collaborative workspace features, knowledge management systems, note-taking app integrations, productivity suite connections, workspace management, or any feature that connects to or references the Notion platform and its productivity ecosystem.
+
+### nuclear-plant
+**Import:** `import { NuclearPlant } from 'phosphor-svelte';`
+**Description:** A nuclear power plant facility representing nuclear energy, power generation, or industrial energy production. Perfect for energy sector applications, power generation systems, utility management, renewable energy platforms, industrial monitoring, power plant operations, energy production tracking, utility dashboards, environmental monitoring, energy efficiency tools, power grid management, or any application dealing with energy production, power generation, or industrial energy systems.
+
+### number-circle-eight
+**Import:** `import { NumberCircleEight } from 'phosphor-svelte';`
+**Description:** The number 8 enclosed in a circle, representing the eighth item, step, or position in a sequence. Ideal for step indicators, numbered lists, process flows, pagination controls, ranking systems, sequential navigation, numbered steps, list items, counter displays, progress indicators, enumeration, sequence markers, ordered content, step-by-step guides, or any interface requiring numbered identification with the number eight.
+
+### number-circle-five
+**Import:** `import { NumberCircleFive } from 'phosphor-svelte';`
+**Description:** The number 5 enclosed in a circle, representing the fifth item, step, or position in a sequence. Perfect for step indicators, numbered lists, process flows, pagination controls, ranking systems, sequential navigation, numbered steps, list items, counter displays, progress indicators, enumeration, sequence markers, ordered content, step-by-step guides, or any interface requiring numbered identification with the number five.
+
+### number-circle-four
+**Import:** `import { NumberCircleFour } from 'phosphor-svelte';`
+**Description:** The number 4 enclosed in a circle, representing the fourth item, step, or position in a sequence. Excellent for step indicators, numbered lists, process flows, pagination controls, ranking systems, sequential navigation, numbered steps, list items, counter displays, progress indicators, enumeration, sequence markers, ordered content, step-by-step guides, or any interface requiring numbered identification with the number four.
+
+### number-circle-nine
+**Import:** `import { NumberCircleNine } from 'phosphor-svelte';`
+**Description:** The number 9 enclosed in a circle, representing the ninth item, step, or position in a sequence. Great for step indicators, numbered lists, process flows, pagination controls, ranking systems, sequential navigation, numbered steps, list items, counter displays, progress indicators, enumeration, sequence markers, ordered content, step-by-step guides, or any interface requiring numbered identification with the number nine.
+
+### number-circle-one
+**Import:** `import { NumberCircleOne } from 'phosphor-svelte';`
+**Description:** The number 1 enclosed in a circle, representing the first item, step, or position in a sequence. Perfect for step indicators, numbered lists, process flows, pagination controls, ranking systems, sequential navigation, numbered steps, list items, counter displays, progress indicators, enumeration, sequence markers, ordered content, step-by-step guides, first place indicators, or any interface requiring numbered identification with the number one.
+
+### number-circle-seven
+**Import:** `import { NumberCircleSeven } from 'phosphor-svelte';`
+**Description:** The number 7 enclosed in a circle, representing the seventh item, step, or position in a sequence. Ideal for step indicators, numbered lists, process flows, pagination controls, ranking systems, sequential navigation, numbered steps, list items, counter displays, progress indicators, enumeration, sequence markers, ordered content, step-by-step guides, or any interface requiring numbered identification with the number seven.
+
+### number-circle-six
+**Import:** `import { NumberCircleSix } from 'phosphor-svelte';`
+**Description:** The number 6 enclosed in a circle, representing the sixth item, step, or position in a sequence. Excellent for step indicators, numbered lists, process flows, pagination controls, ranking systems, sequential navigation, numbered steps, list items, counter displays, progress indicators, enumeration, sequence markers, ordered content, step-by-step guides, or any interface requiring numbered identification with the number six.
+
+### number-circle-three
+**Import:** `import { NumberCircleThree } from 'phosphor-svelte';`
+**Description:** The number 3 enclosed in a circle, representing the third item, step, or position in a sequence. Perfect for step indicators, numbered lists, process flows, pagination controls, ranking systems, sequential navigation, numbered steps, list items, counter displays, progress indicators, enumeration, sequence markers, ordered content, step-by-step guides, third place indicators, or any interface requiring numbered identification with the number three.
+
+### number-circle-two
+**Import:** `import { NumberCircleTwo } from 'phosphor-svelte';`
+**Description:** The number 2 enclosed in a circle, representing the second item, step, or position in a sequence. Great for step indicators, numbered lists, process flows, pagination controls, ranking systems, sequential navigation, numbered steps, list items, counter displays, progress indicators, enumeration, sequence markers, ordered content, step-by-step guides, second place indicators, or any interface requiring numbered identification with the number two.
+
+### number-circle-zero
+**Import:** `import { NumberCircleZero } from 'phosphor-svelte';`
+**Description:** The number 0 enclosed in a circle, representing zero value, empty state, or starting point. Ideal for counter displays showing zero, empty state indicators, starting point markers, null value representations, reset indicators, initialization states, zero-based counting, empty counters, cleared values, or any interface element representing the concept of zero or absence of quantity.
+
+### number-eight
+**Import:** `import { NumberEight } from 'phosphor-svelte';`
+**Description:** The standalone number 8, representing the eighth position, value, or count. Perfect for calculators, numeric input, mathematical operations, counting applications, quantity selectors, numeric displays, financial calculations, data entry, number pickers, mathematical interfaces, arithmetic operations, numeric keypad buttons, or any application requiring the digit eight for mathematical, counting, or data entry purposes.
+
+### number-five
+**Import:** `import { NumberFive } from 'phosphor-svelte';`
+**Description:** The standalone number 5, representing the fifth position, value, or count. Excellent for calculators, numeric input, mathematical operations, counting applications, quantity selectors, numeric displays, financial calculations, data entry, number pickers, mathematical interfaces, arithmetic operations, numeric keypad buttons, or any application requiring the digit five for mathematical, counting, or data entry purposes.
+
+### number-four
+**Import:** `import { NumberFour } from 'phosphor-svelte';`
+**Description:** The standalone number 4, representing the fourth position, value, or count. Ideal for calculators, numeric input, mathematical operations, counting applications, quantity selectors, numeric displays, financial calculations, data entry, number pickers, mathematical interfaces, arithmetic operations, numeric keypad buttons, or any application requiring the digit four for mathematical, counting, or data entry purposes.
+
+### number-nine
+**Import:** `import { NumberNine } from 'phosphor-svelte';`
+**Description:** The standalone number 9, representing the ninth position, value, or count. Perfect for calculators, numeric input, mathematical operations, counting applications, quantity selectors, numeric displays, financial calculations, data entry, number pickers, mathematical interfaces, arithmetic operations, numeric keypad buttons, or any application requiring the digit nine for mathematical, counting, or data entry purposes.
+
+### number-one
+**Import:** `import { NumberOne } from 'phosphor-svelte';`
+**Description:** The standalone number 1, representing the first position, value, or count. Great for calculators, numeric input, mathematical operations, counting applications, quantity selectors, numeric displays, financial calculations, data entry, number pickers, mathematical interfaces, arithmetic operations, numeric keypad buttons, or any application requiring the digit one for mathematical, counting, or data entry purposes.
+
+### number-seven
+**Import:** `import { NumberSeven } from 'phosphor-svelte';`
+**Description:** The standalone number 7, representing the seventh position, value, or count. Excellent for calculators, numeric input, mathematical operations, counting applications, quantity selectors, numeric displays, financial calculations, data entry, number pickers, mathematical interfaces, arithmetic operations, numeric keypad buttons, or any application requiring the digit seven for mathematical, counting, or data entry purposes.
+
+### number-six
+**Import:** `import { NumberSix } from 'phosphor-svelte';`
+**Description:** The standalone number 6, representing the sixth position, value, or count. Perfect for calculators, numeric input, mathematical operations, counting applications, quantity selectors, numeric displays, financial calculations, data entry, number pickers, mathematical interfaces, arithmetic operations, numeric keypad buttons, or any application requiring the digit six for mathematical, counting, or data entry purposes.
+
+### number-square-eight
+**Import:** `import { NumberSquareEight } from 'phosphor-svelte';`
+**Description:** The number 8 enclosed in a square, providing an alternative squared design for the eighth position or value. Ideal for grid-based layouts, boxed number displays, squared step indicators, tabular number representations, grid coordinates, squared counters, boxed pagination, geometric number displays, or any interface requiring a squared variant of the number eight for visual consistency or design requirements.
+
+### number-square-five
+**Import:** `import { NumberSquareFive } from 'phosphor-svelte';`
+**Description:** The number 5 enclosed in a square, providing an alternative squared design for the fifth position or value. Perfect for grid-based layouts, boxed number displays, squared step indicators, tabular number representations, grid coordinates, squared counters, boxed pagination, geometric number displays, or any interface requiring a squared variant of the number five for visual consistency or design requirements.
+
+### number-square-four
+**Import:** `import { NumberSquareFour } from 'phosphor-svelte';`
+**Description:** The number 4 enclosed in a square, providing an alternative squared design for the fourth position or value. Excellent for grid-based layouts, boxed number displays, squared step indicators, tabular number representations, grid coordinates, squared counters, boxed pagination, geometric number displays, or any interface requiring a squared variant of the number four for visual consistency or design requirements.
+
+### number-square-nine
+**Import:** `import { NumberSquareNine } from 'phosphor-svelte';`
+**Description:** The number 9 enclosed in a square, providing an alternative squared design for the ninth position or value. Great for grid-based layouts, boxed number displays, squared step indicators, tabular number representations, grid coordinates, squared counters, boxed pagination, geometric number displays, or any interface requiring a squared variant of the number nine for visual consistency or design requirements.
+
+### number-square-one
+**Import:** `import { NumberSquareOne } from 'phosphor-svelte';`
+**Description:** The number 1 enclosed in a square, providing an alternative squared design for the first position or value. Perfect for grid-based layouts, boxed number displays, squared step indicators, tabular number representations, grid coordinates, squared counters, boxed pagination, geometric number displays, first position markers, or any interface requiring a squared variant of the number one for visual consistency or design requirements.
+
+### number-square-seven
+**Import:** `import { NumberSquareSeven } from 'phosphor-svelte';`
+**Description:** The number 7 enclosed in a square, providing an alternative squared design for the seventh position or value. Ideal for grid-based layouts, boxed number displays, squared step indicators, tabular number representations, grid coordinates, squared counters, boxed pagination, geometric number displays, or any interface requiring a squared variant of the number seven for visual consistency or design requirements.
+
+### number-square-six
+**Import:** `import { NumberSquareSix } from 'phosphor-svelte';`
+**Description:** The number 6 enclosed in a square, providing an alternative squared design for the sixth position or value. Excellent for grid-based layouts, boxed number displays, squared step indicators, tabular number representations, grid coordinates, squared counters, boxed pagination, geometric number displays, or any interface requiring a squared variant of the number six for visual consistency or design requirements.
+
+### number-square-three
+**Import:** `import { NumberSquareThree } from 'phosphor-svelte';`
+**Description:** The number 3 enclosed in a square, providing an alternative squared design for the third position or value. Perfect for grid-based layouts, boxed number displays, squared step indicators, tabular number representations, grid coordinates, squared counters, boxed pagination, geometric number displays, or any interface requiring a squared variant of the number three for visual consistency or design requirements.
+
+### number-square-two
+**Import:** `import { NumberSquareTwo } from 'phosphor-svelte';`
+**Description:** The number 2 enclosed in a square, providing an alternative squared design for the second position or value. Great for grid-based layouts, boxed number displays, squared step indicators, tabular number representations, grid coordinates, squared counters, boxed pagination, geometric number displays, or any interface requiring a squared variant of the number two for visual consistency or design requirements.
+
+### number-square-zero
+**Import:** `import { NumberSquareZero } from 'phosphor-svelte';`
+**Description:** The number 0 enclosed in a square, providing a squared design for zero value or starting point. Ideal for grid-based layouts, boxed number displays, squared zero indicators, tabular representations of zero values, grid coordinates, squared empty state markers, boxed reset indicators, geometric zero displays, or any interface requiring a squared variant of zero for visual consistency or design requirements.
+
+### number-three
+**Import:** `import { NumberThree } from 'phosphor-svelte';`
+**Description:** The standalone number 3, representing the third position, value, or count. Perfect for calculators, numeric input, mathematical operations, counting applications, quantity selectors, numeric displays, financial calculations, data entry, number pickers, mathematical interfaces, arithmetic operations, numeric keypad buttons, or any application requiring the digit three for mathematical, counting, or data entry purposes.
+
+### number-two
+**Import:** `import { NumberTwo } from 'phosphor-svelte';`
+**Description:** The standalone number 2, representing the second position, value, or count. Excellent for calculators, numeric input, mathematical operations, counting applications, quantity selectors, numeric displays, financial calculations, data entry, number pickers, mathematical interfaces, arithmetic operations, numeric keypad buttons, or any application requiring the digit two for mathematical, counting, or data entry purposes.
+
+### number-zero
+**Import:** `import { NumberZero } from 'phosphor-svelte';`
+**Description:** The standalone number 0, representing zero value, empty state, or null quantity. Ideal for calculators, numeric input, mathematical operations, zero value displays, empty state indicators, null value representations, counting applications that start from zero, numeric displays, mathematical interfaces, arithmetic operations, or any application requiring the digit zero for mathematical, counting, or data entry purposes.
+
+### numpad
+**Import:** `import { Numpad } from 'phosphor-svelte';`
+**Description:** A numeric keypad or dialer interface representing phone dialers, numeric input methods, or PIN entry systems. Perfect for phone applications, dialer interfaces, PIN entry screens, passcode input, security authentication, numeric keypads, telephone functionality, call center applications, numeric password entry, two-factor authentication inputs, numeric data entry, calculator interfaces, or any feature requiring structured numeric input through a keypad layout.
+
+### nut
+**Import:** `import { Nut } from 'phosphor-svelte';`
+**Description:** A hexagonal nut used with bolts, representing hardware, mechanical components, or system configuration. Excellent for settings menus, configuration panels, hardware tools, mechanical applications, construction software, maintenance systems, engineering tools, bolt and fastener catalogs, machinery interfaces, system preferences, technical documentation, hardware inventory, or any application dealing with mechanical components, tools, or system configuration.
+
+### ny-times-logo
+**Import:** `import { NyTimesLogo } from 'phosphor-svelte';`
+**Description:** The New York Times brand logo representing the prestigious news publication and journalism platform. Use for news aggregation services, journalism platforms, media integrations, newspaper app connections, news reader applications, publishing platforms, editorial systems, media outlet references, news subscription services, article sharing features, or any application that connects to, references, or integrates with The New York Times or similar news and journalism platforms.
+
+### octagon
+**Import:** `import { Octagon } from 'phosphor-svelte';`
+**Description:** An eight-sided geometric shape representing stop signs, geometric design elements, or polygonal shapes. Perfect for stop buttons, halt indicators, geometric design tools, shape libraries, stop sign representations, warning indicators, octagonal badges, geometric patterns, shape selection interfaces, design applications, mathematical visualizations, or any feature requiring an eight-sided geometric shape or stop-related functionality.
+
+### office-chair
+**Import:** `import { OfficeChair } from 'phosphor-svelte';`
+**Description:** An office chair representing workplace furniture, seating, or office environments. Ideal for office management systems, furniture catalogs, workplace applications, seating arrangements, office space planning, furniture inventory, workplace comfort features, ergonomic tools, office equipment tracking, facility management, workspace design, or any application dealing with office furniture, workplace seating, or professional environments.
+
+### onigiri
+**Import:** `import { Onigiri } from 'phosphor-svelte';`
+**Description:** A Japanese rice ball (onigiri) representing Japanese cuisine, Asian food, or cultural dining options. Perfect for food delivery apps, restaurant applications, Japanese cuisine menus, cultural food platforms, Asian dining guides, food category icons, cuisine type selectors, ethnic food filters, international dining, cultural meal options, or any application featuring Japanese food, Asian cuisine, or diverse cultural dining experiences.
+
+### open-ai-logo
+**Import:** `import { OpenAiLogo } from 'phosphor-svelte';`
+**Description:** The OpenAI brand logo representing artificial intelligence, machine learning, and AI-powered services. Excellent for AI integrations, ChatGPT connections, machine learning platforms, artificial intelligence tools, AI-powered features, natural language processing, automated systems, intelligent assistants, AI service integrations, machine learning applications, or any feature that utilizes, connects to, or references OpenAI services and artificial intelligence capabilities.
+
+### option
+**Import:** `import { Option } from 'phosphor-svelte';`
+**Description:** The Option key symbol representing keyboard modifiers, shortcuts, or alternative input methods. Perfect for keyboard shortcut documentation, key combination displays, modifier key indicators, Mac keyboard references, shortcut help systems, accessibility features, keyboard navigation aids, input method selectors, or any interface element that references the Option key or alternative input methods in keyboard-based interactions.
+
+### orange
+**Import:** `import { Orange } from 'phosphor-svelte';`
+**Description:** A whole orange fruit representing citrus fruits, healthy eating, or fresh produce. Ideal for grocery applications, food delivery services, nutrition tracking, fruit and vegetable catalogs, healthy eating platforms, produce sections, vitamin C content, citrus category filters, fresh fruit selections, dietary applications, recipe ingredients, or any application featuring fruits, healthy foods, or grocery shopping experiences.
+
+### orange-slice
+**Import:** `import { OrangeSlice } from 'phosphor-svelte';`
+**Description:** A sliced orange showing the internal segments, representing fresh juice, citrus preparation, or fruit processing. Perfect for juice bars, beverage applications, fruit preparation guides, recipe instructions, cocktail mixing, fresh juice services, citrus-based drinks, food preparation apps, cooking instructions, beverage menus, or any application featuring sliced fruits, juice preparation, or citrus-based products and services.
+
+### oven
+**Import:** `import { Oven } from 'phosphor-svelte';`
+**Description:** A kitchen oven representing baking, cooking, or culinary appliances. Excellent for cooking applications, recipe platforms, kitchen appliance controls, baking timers, cooking instruction apps, culinary tools, kitchen equipment, appliance management, cooking temperature controls, baking guides, culinary education, or any application dealing with cooking, baking, kitchen appliances, or culinary activities and food preparation.# Phosphor Icons - Batch 21
+
+### package
+**Import:** `import { Package } from 'phosphor-svelte';`
+**Description:** Represents packages, boxes, and delivery containers used in shipping, postal services, and software development. Perfect for e-commerce applications, logistics platforms, shipping trackers, package delivery services, mail systems, software package managers, library distributions, bundle representations, NPM packages, shipping containers, parcel delivery, postal boxes, freight shipments, warehouse management systems, inventory tracking, supply chain applications, and any interface dealing with packaged goods or bundled items.
+
+### paint-brush
+**Import:** `import { PaintBrush } from 'phosphor-svelte';`
+**Description:** Classic paint brush icon for creative tools and design applications. Ideal for art software, design tools, drawing applications, color pickers, painting programs, creative suites, artistic interfaces, digital art tools, illustration software, graphic design applications, theme customization, visual editors, creative workflows, art supply stores, painting tutorials, and any interface involving artistic creation, color application, or visual design work.
+
+### paint-brush-broad
+**Import:** `import { PaintBrushBroad } from 'phosphor-svelte';`
+**Description:** Wide paint brush representing broad stroke tools and fill operations. Perfect for design software with large brush tools, fill bucket alternatives, wide painting tools, broad stroke applications, area coverage tools, background painting, large area coloring, fill tools, paint rollers, wide brush applications, texture painting, canvas preparation, base coat application, and any interface requiring broad coverage or wide painting functionality.
+
+### paint-brush-household
+**Import:** `import { PaintBrushHousehold } from 'phosphor-svelte';`
+**Description:** Household paint brush for home improvement and DIY projects. Excellent for home renovation apps, DIY project platforms, house painting services, interior design tools, home improvement stores, painting contractors, renovation planning, wall painting guides, color selection tools, home decoration apps, maintenance scheduling, property management, contractor services, painting tutorials, and residential painting applications.
+
+### paint-bucket
+**Import:** `import { PaintBucket } from 'phosphor-svelte';`
+**Description:** Paint bucket tool for filling areas with color or patterns. Essential for design software, image editors, fill tools, flood fill operations, color replacement, area coloring, background changes, paint can representations, color application, bucket fill, paint pouring, color flooding, area selection tools, solid color fills, pattern fills, and any application requiring area-based color application or fill functionality.
+
+### paint-roller
+**Import:** `import { PaintRoller } from 'phosphor-svelte';`
+**Description:** Paint roller for large surface coverage and theme applications. Perfect for painting applications, wall covering tools, large surface painting, theme switchers, background application, surface preparation, painting contractors, home improvement, interior design, wall painting, surface coating, paint application tools, renovation projects, professional painting services, and any interface dealing with surface coverage or theme application.
+
+### palette
+**Import:** `import { Palette } from 'phosphor-svelte';`
+**Description:** Artist's color palette for creative tools and color selection. Ideal for color pickers, design software, art applications, theme customizers, color scheme builders, artistic tools, paint programs, creative suites, color selectors, art supply interfaces, design systems, brand color management, artistic workflows, digital art tools, illustration software, and any application involving color selection, artistic creation, or visual design work.
+
+### panorama
+**Import:** `import { Panorama } from 'phosphor-svelte';`
+**Description:** Panoramic view representing wide-angle photography and 360-degree images. Perfect for photo applications, camera software, virtual reality platforms, 360-degree viewers, landscape photography, wide-angle shots, VR content, immersive media, photo galleries, virtual tours, street view applications, architectural visualization, real estate virtual tours, and any application dealing with panoramic images, wide-angle photography, or immersive visual content.
+
+### pants
+**Import:** `import { Pants } from 'phosphor-svelte';`
+**Description:** Clothing item representing pants, jeans, and legwear in fashion and commerce. Excellent for clothing stores, fashion e-commerce, apparel catalogs, wardrobe management, outfit planning, clothing categories, fashion retail, garment classification, style guides, dress codes, clothing inventory, fashion apps, retail systems, clothing size guides, and any application dealing with clothing, fashion, or apparel commerce.
+
+### paper-plane
+**Import:** `import { PaperPlane } from 'phosphor-svelte';`
+**Description:** Paper airplane representing message sending, email, and communication. Perfect for email applications, messaging platforms, send buttons, message dispatching, communication tools, mail clients, contact forms, newsletter systems, notification sending, message delivery, chat applications, social media sharing, email marketing, communication interfaces, and any application involving message sending or communication features.
+
+### paper-plane-right
+**Import:** `import { PaperPlaneRight } from 'phosphor-svelte';`
+**Description:** Right-facing paper airplane for directional message sending and communication flow. Ideal for send buttons with directional emphasis, message flow indicators, email sending, communication direction, message routing, directional communication, workflow arrows, process flow, message forwarding, email forwarding, communication channels, and any interface requiring directional message sending or communication flow indication.
+
+### paper-plane-tilt
+**Import:** `import { PaperPlaneTilt } from 'phosphor-svelte';`
+**Description:** Tilted paper airplane for dynamic message sending and playful communication. Great for fun messaging apps, playful email interfaces, dynamic send buttons, creative communication tools, game-like messaging, casual communication platforms, creative mail applications, animated send actions, playful UI elements, and any application requiring a more dynamic or playful approach to message sending.
+
+### paperclip
+**Import:** `import { Paperclip } from 'phosphor-svelte';`
+**Description:** Standard paperclip for file attachments and document linking. Essential for email attachments, file uploading, document linking, attachment indicators, file association, document management, email clients, file sharing, attachment previews, document clips, file connections, office applications, document organization, and any interface dealing with file attachments or document associations.
+
+### paperclip-horizontal
+**Import:** `import { PaperclipHorizontal } from 'phosphor-svelte';`
+**Description:** Horizontal paperclip variation for alternative attachment representation. Perfect for attachment indicators with horizontal emphasis, file linking, document connections, alternative attachment icons, file associations, document management systems, horizontal attachment lists, file organization tools, document linking interfaces, and applications requiring a horizontal orientation for attachment representation.
+
+### parachute
+**Import:** `import { Parachute } from 'phosphor-svelte';`
+**Description:** Parachute representing safety, emergency features, and gradual deployment. Ideal for safety applications, emergency systems, deployment processes, gradual rollouts, safety measures, risk management, emergency preparedness, disaster recovery, safety protocols, backup systems, fail-safe mechanisms, emergency procedures, deployment strategies, safety equipment, and any application dealing with safety, emergency response, or gradual system deployment.
+
+### paragraph
+**Import:** `import { Paragraph } from 'phosphor-svelte';`
+**Description:** Paragraph symbol (pilcrow) for text formatting and document structure. Perfect for text editors, word processors, document formatting, paragraph indicators, text structure tools, writing applications, content management, document editing, text formatting options, paragraph breaks, document layout, editorial tools, writing software, and any application dealing with text formatting or document structure.
+
+### parallelogram
+**Import:** `import { Parallelogram } from 'phosphor-svelte';`
+**Description:** Geometric parallelogram shape for design tools and brand representation. Excellent for geometric design tools, shape libraries, brand logos (like Bandcamp), geometric patterns, design elements, shape creation tools, vector graphics, geometric art, logo design, brand elements, design systems, geometric interfaces, mathematical tools, and any application involving geometric shapes or design elements.
+
+### park
+**Import:** `import { Park } from 'phosphor-svelte';`
+**Description:** Park with bench representing outdoor spaces and recreational areas. Ideal for location services, maps applications, outdoor recreation, park finders, leisure activities, outdoor spaces, recreational facilities, public spaces, nature areas, outdoor dining, rest areas, outdoor fitness, park information, recreational planning, tourism applications, and any interface dealing with outdoor recreational spaces or public parks.
+
+### password
+**Import:** `import { Password } from 'phosphor-svelte';`
+**Description:** Password security symbol for authentication and access control. Essential for login forms, password fields, security settings, authentication systems, access control, security features, encrypted storage, secure areas, password managers, account security, user authentication, security indicators, protected content, secure login, privacy settings, and any application dealing with password protection or user authentication.
+
+### path
+**Import:** `import { Path } from 'phosphor-svelte';`
+**Description:** Path or route representation for navigation and vector graphics. Perfect for GPS navigation, route planning, path finding, travel directions, hiking trails, vector paths, design tools, navigation systems, route optimization, travel planning, pathfinding algorithms, GPS tracking, journey mapping, trail maps, and any application involving navigation, routing, or path-based graphics.
+
+### patreon-logo
+**Import:** `import { PatreonLogo } from 'phosphor-svelte';`
+**Description:** Patreon platform logo for crowdfunding and creator support. Ideal for content creator platforms, crowdfunding applications, subscription services, creator monetization, fan funding, content support, membership platforms, creator tools, donation systems, subscription management, creator economy, fan support platforms, and any application integrating with Patreon or similar creator support services.
+
+### pause
+**Import:** `import { Pause } from 'phosphor-svelte';`
+**Description:** Pause control for media playback and system operations. Essential for media players, audio controls, video playback, music applications, podcast players, streaming services, playback controls, media interfaces, pause buttons, system controls, process pausing, operation suspension, and any application requiring pause functionality for media or system operations.
+
+### pause-circle
+**Import:** `import { PauseCircle } from 'phosphor-svelte';`
+**Description:** Circular pause button for prominent media control interfaces. Perfect for media players with circular controls, audio players, video interfaces, music apps, streaming platforms, podcast players, media control centers, playback interfaces, round media buttons, and applications requiring a more prominent or stylized pause control with circular design elements.
+
+### paw-print
+**Import:** `import { PawPrint } from 'phosphor-svelte';`
+**Description:** Animal paw print for pet-related services and animal care. Excellent for pet stores, veterinary services, animal care applications, pet adoption platforms, pet tracking, animal services, pet grooming, veterinary clinics, pet supply stores, animal shelters, pet health apps, dog walking services, pet insurance, animal welfare, and any application dealing with pets, animals, or animal care services.
+
+### paypal-logo
+**Import:** `import { PaypalLogo } from 'phosphor-svelte';`
+**Description:** PayPal payment platform logo for online payments and commerce. Essential for e-commerce platforms, payment processing, online stores, checkout systems, payment gateways, financial transactions, online payments, purchase systems, payment methods, billing systems, subscription payments, and any application integrating PayPal payment processing or similar payment services.
+
+### peace
+**Import:** `import { Peace } from 'phosphor-svelte';`
+**Description:** Peace symbol for harmony, love, and peaceful messaging. Perfect for social movements, peaceful communication, harmony symbols, love expressions, anti-war messaging, peaceful protests, community building, social causes, harmony indicators, peaceful resolution, meditation apps, wellness platforms, community peace, social justice, and any application promoting peace, harmony, or social unity.
+
+### pen
+**Import:** `import { Pen } from 'phosphor-svelte';`
+**Description:** Writing pen for text editing, signatures, and document creation. Ideal for text editors, writing applications, signature tools, document editing, note-taking apps, writing tools, editorial interfaces, content creation, document signing, handwriting recognition, digital signatures, writing instruments, text input, and any application involving writing, editing, or document creation.
+
+### pen-nib
+**Import:** `import { PenNib } from 'phosphor-svelte';`
+**Description:** Fountain pen nib for premium writing tools and artistic applications. Perfect for calligraphy applications, artistic writing tools, premium text editors, signature tools, illustration software, artistic interfaces, handwriting apps, calligraphy guides, artistic writing, fountain pen simulation, premium writing experiences, and applications emphasizing artistic or premium writing capabilities.
+
+### pen-nib-straight
+**Import:** `import { PenNibStraight } from 'phosphor-svelte';`
+**Description:** Straight fountain pen nib for precise writing and illustration tools. Excellent for precision writing tools, technical drawing, illustration software, precise text editing, architectural tools, technical writing, precision instruments, detailed illustration, fine writing, technical documentation, precise drawing tools, and any application requiring precise or technical writing capabilities.
+
+### pencil
+**Import:** `import { Pencil } from 'phosphor-svelte';`
+**Description:** Standard pencil for editing, writing, and content modification. Essential for edit buttons, content editing, text modification, writing tools, note-taking, draft writing, editing interfaces, content management, text editors, writing applications, editorial tools, content creation, document editing, and any application involving text editing or content modification.
+
+### pencil-circle
+**Import:** `import { PencilCircle } from 'phosphor-svelte';`
+**Description:** Circular pencil icon for prominent editing controls. Perfect for edit buttons with circular design, prominent editing tools, rounded edit controls, editing interfaces with circular elements, content modification tools, and applications requiring a more prominent or stylized edit button with circular design elements.
+
+### pencil-line
+**Import:** `import { PencilLine } from 'phosphor-svelte';`
+**Description:** Pencil with line emphasis for writing and drawing tools. Ideal for drawing applications, line drawing tools, sketching software, writing interfaces, linear drawing, line art tools, sketch applications, drawing programs, artistic tools, and any application emphasizing line-based drawing or writing functionality.
+
+### pencil-ruler
+**Import:** `import { PencilRuler } from 'phosphor-svelte';`
+**Description:** Pencil and ruler combination for precise drawing and construction tools. Perfect for CAD applications, architectural software, construction planning, technical drawing tools, engineering applications, drafting software, precision drawing, construction tools, architectural planning, engineering design, technical documentation, blueprint creation, and any application involving precise drawing or construction planning.
+
+### pencil-simple
+**Import:** `import { PencilSimple } from 'phosphor-svelte';`
+**Description:** Simplified pencil icon for minimalist editing interfaces. Excellent for clean edit buttons, minimalist design systems, simple editing tools, streamlined interfaces, basic text editing, simple content modification, clean UI elements, and applications preferring a simplified or minimalist approach to edit functionality representation.
+
+### pencil-simple-line
+**Import:** `import { PencilSimpleLine } from 'phosphor-svelte';`
+**Description:** Simple pencil with line for basic drawing and writing tools. Great for basic drawing tools, simple sketch applications, line drawing, basic writing interfaces, simple text editing, minimalist drawing tools, basic artistic interfaces, and applications requiring simple drawing or writing functionality with minimal visual complexity.
+
+### pencil-simple-slash
+**Import:** `import { PencilSimpleSlash } from 'phosphor-svelte';`
+**Description:** Crossed-out simple pencil indicating read-only or disabled editing. Perfect for read-only mode indicators, disabled editing states, non-editable content, view-only modes, editing restrictions, protected content indicators, permission-denied states, locked content, read-only documents, and any interface indicating that editing is disabled or not permitted.
+
+### pencil-slash
+**Import:** `import { PencilSlash } from 'phosphor-svelte';`
+**Description:** Crossed-out pencil for disabled editing and read-only states. Essential for read-only indicators, disabled edit modes, non-editable content, editing restrictions, view-only interfaces, protected documents, permission controls, content protection, locked editing states, and any application indicating that content cannot be modified or edited.
+
+### pentagon
+**Import:** `import { Pentagon } from 'phosphor-svelte';`
+**Description:** Five-sided geometric pentagon shape for design and mathematical applications. Ideal for geometric design tools, shape libraries, mathematical applications, polygon tools, geometric patterns, design elements, shape creation, geometry education, mathematical visualization, geometric art, pentagon constructions, five-sided patterns, and any application involving geometric shapes or mathematical concepts.
+
+### pentagram
+**Import:** `import { Pentagram } from 'phosphor-svelte';`
+**Description:** Five-pointed star pentagram for gaming, spirituality, and symbolic applications. Perfect for gaming applications, role-playing games, fantasy themes, spiritual applications, symbolic interfaces, magical themes, gaming icons, fantasy gaming, mystical applications, symbolic representations, star patterns, magical elements, and applications involving mystical, spiritual, or fantasy gaming themes.
+
+### pepper
+**Import:** `import { Pepper } from 'phosphor-svelte';`
+**Description:** Pepper vegetable for food applications and spice indicators. Excellent for recipe applications, food delivery services, grocery apps, restaurant menus, spice indicators, cooking applications, food categories, ingredient lists, dietary information, food allergies, spice levels, cooking guides, meal planning, nutrition apps, and any application dealing with food, cooking, or dietary content.
+
+### percent
+**Import:** `import { Percent } from 'phosphor-svelte';`
+**Description:** Percentage symbol for mathematical operations and financial calculations. Essential for calculators, financial applications, discount indicators, tax calculations, percentage displays, mathematical operations, statistics applications, analytics dashboards, progress indicators, ratio calculations, financial calculators, data visualization, performance metrics, and any application dealing with percentages or mathematical calculations.
+
+### person
+**Import:** `import { Person } from 'phosphor-svelte';`
+**Description:** Human figure for user representation and pedestrian indicators. Perfect for user profiles, account management, people representations, pedestrian navigation, walking directions, human resources, user accounts, profile pictures, people counters, accessibility indicators, user interfaces, person icons, human figures, and any application requiring human or user representation.
+
+### person-arms-spread
+**Import:** `import { PersonArmsSpread } from 'phosphor-svelte';`
+**Description:** Person with arms spread for accessibility and wellness applications. Ideal for accessibility features, wellness applications, stretching exercises, fitness routines, accessibility compliance, human body representations, exercise demonstrations, accessibility symbols, wellness indicators, physical therapy, body movement, stretching guides, and applications focusing on human accessibility or physical wellness.
+
+### person-simple
+**Import:** `import { PersonSimple } from 'phosphor-svelte';`
+**Description:** Simplified human figure for basic user representation and pedestrian symbols. Great for user icons, pedestrian signs, walking indicators, user profiles, people representations, navigation symbols, transit indicators, user accounts, simple human figures, accessibility symbols, and any application requiring a clean, simple representation of a person or user.
+
+### person-simple-bike
+**Import:** `import { PersonSimpleBike } from 'phosphor-svelte';`
+**Description:** Person riding bicycle for cycling and transportation applications. Perfect for cycling apps, bike sharing services, fitness tracking, cycling routes, transportation modes, bike navigation, exercise applications, cycling fitness, bike rental services, cycling maps, urban transportation, eco-friendly transport, and any application dealing with cycling or bike-related activities.
+
+### person-simple-circle
+**Import:** `import { PersonSimpleCircle } from 'phosphor-svelte';`
+**Description:** Person in circle for accessibility and user representation. Excellent for accessibility indicators, user profile circles, accessibility compliance, human-centered design, accessibility features, user representation in circular layouts, accessibility symbols, inclusive design indicators, and applications emphasizing accessibility or human-centered approaches.
+
+### person-simple-hike
+**Import:** `import { PersonSimpleHike } from 'phosphor-svelte';`
+**Description:** Person hiking for outdoor activities and adventure applications. Ideal for hiking apps, trail guides, outdoor recreation, adventure planning, nature activities, hiking trails, outdoor fitness, mountaineering applications, climbing guides, outdoor exploration, nature tourism, adventure sports, and any application dealing with hiking or outdoor adventure activities.
+
+### person-simple-run
+**Import:** `import { PersonSimpleRun } from 'phosphor-svelte';`
+**Description:** Running person for fitness and exercise applications. Perfect for fitness tracking, running apps, exercise applications, fitness goals, running routes, workout tracking, fitness metrics, exercise monitoring, running communities, fitness challenges, marathon training, cardio exercises, and any application focused on running or cardiovascular fitness activities.
+
+### person-simple-ski
+**Import:** `import { PersonSimpleSki } from 'phosphor-svelte';`
+**Description:** Person skiing for winter sports and mountain activities. Excellent for skiing applications, winter sports tracking, mountain resort apps, ski trail maps, winter recreation, skiing lessons, ski equipment, winter tourism, mountain activities, ski resorts, winter sports communities, and any application dealing with skiing or winter sports activities.
+
+### person-simple-snowboard
+**Import:** `import { PersonSimpleSnowboard } from 'phosphor-svelte';`
+**Description:** Person snowboarding for winter sports and mountain recreation. Great for snowboarding apps, winter sports platforms, mountain resort applications, snowboard trail guides, winter recreation, snowboarding communities, mountain activities, winter tourism, snowboard equipment, winter sports tracking, and any application focused on snowboarding or winter mountain sports.# Phosphor Icons - Batch 22 Documentation
+
+### person-simple-swim
+**Import:** `import { PersonSimpleSwim } from 'phosphor-svelte';`
+**Description:** A swimming person icon perfect for aquatic sports, fitness, and wellness applications. Represents swimming activities, water sports, pool facilities, swim meets, aquatic exercises, and recreational swimming. Ideal for sports clubs, fitness centers, health apps, travel booking sites showcasing pools, Olympic swimming events, water safety materials, and exercise tracking applications. Also suitable for human figure representations in active contexts, pedestrian signage for pool areas, and wellness program interfaces focusing on low-impact cardio exercises.
+
+### person-simple-tai-chi
+**Import:** `import { PersonSimpleTaiChi } from 'phosphor-svelte';`
+**Description:** A person performing tai chi movements, perfect for mindfulness, wellness, and fitness applications. Represents meditation practices, martial arts training, yoga sessions, balance exercises, mind-body wellness, spiritual practices, senior fitness programs, and stress reduction activities. Ideal for meditation apps, wellness centers, martial arts studios, yoga platforms, health and fitness applications, mindfulness programs, therapeutic exercise interfaces, and holistic health services. Also suitable for Eastern medicine practices, balance training programs, and therapeutic movement applications.
+
+### person-simple-throw
+**Import:** `import { PersonSimpleThrow } from 'phosphor-svelte';`
+**Description:** A person in throwing motion, excellent for sports and athletic applications. Represents throwing sports like javelin, discus, shot put, baseball pitching, tennis serving, basketball shooting, and general athletic activities. Perfect for sports apps, fitness tracking, Olympic games interfaces, athletic training programs, sports equipment retailers, coaching applications, and performance analytics platforms. Also suitable for exercise demonstrations, sports event management, athletic recruitment platforms, and general human activity representations in active contexts.
+
+### person-simple-walk
+**Import:** `import { PersonSimpleWalk } from 'phosphor-svelte';`
+**Description:** A walking person icon ideal for transportation, fitness, and navigation applications. Represents pedestrian activities, walking exercise, commuting on foot, transit directions, user profiles, step counting, hiking, urban mobility, and accessibility features. Perfect for fitness trackers, navigation apps, public transit interfaces, walking tour applications, health and wellness platforms, urban planning tools, accessibility services, and transportation booking systems. Also suitable for user account representations, pedestrian crossing signage, tourism applications, and general human figure icons in various contexts.
+
+### perspective
+**Import:** `import { Perspective } from 'phosphor-svelte';`
+**Description:** A perspective transformation icon for design and editing applications. Represents 3D transformations, skewing objects, warping images, trapezoid shapes, architectural drawings, perspective correction, design tools, image editing, and geometric transformations. Ideal for design software, photo editors, CAD applications, architectural tools, graphic design platforms, image processing applications, and creative software interfaces. Also suitable for geometric shape tools, distortion effects, layout adjustments, and professional design workflows requiring perspective manipulation.
+
+### phone
+**Import:** `import { Phone } from 'phosphor-svelte';`
+**Description:** A classic telephone icon for communication and contact applications. Represents phone calls, landline phones, telephone communication, contact information, customer service, help desks, business communications, and traditional telephony. Perfect for contact pages, customer support interfaces, communication apps, business directories, call center applications, telephone systems, and professional service websites. Also suitable for emergency contact information, office communications, traditional phone services, and general communication representations.
+
+### phone-call
+**Import:** `import { PhoneCall } from 'phosphor-svelte';`
+**Description:** An active phone call icon showing communication in progress. Represents ongoing calls, calling someone, ringing phones, active telephone conversations, communication status, call management, and telephony activities. Ideal for communication apps, call management systems, phone dialers, VoIP applications, customer service platforms, call center interfaces, and business communication tools. Also suitable for call status indicators, communication dashboards, active conversation representations, and telephony management systems.
+
+### phone-disconnect
+**Import:** `import { PhoneDisconnect } from 'phosphor-svelte';`
+**Description:** A phone disconnection icon for ending calls and communication management. Represents hanging up calls, ending conversations, call termination, disconnected lines, call completion, and communication closure. Perfect for phone applications, call management interfaces, communication platforms, customer service systems, call center tools, and telephony applications. Also suitable for call control buttons, communication status indicators, call ending functions, and telephone system management interfaces.
+
+### phone-incoming
+**Import:** `import { PhoneIncoming } from 'phosphor-svelte';`
+**Description:** An incoming phone call icon for call management and communication interfaces. Represents receiving calls, incoming telephone calls, call notifications, answering phones, inbound communications, and call reception. Ideal for phone applications, communication platforms, call management systems, customer service interfaces, notification systems, and telephony tools. Also suitable for call direction indicators, communication dashboards, call routing systems, and incoming message representations.
+
+### phone-list
+**Import:** `import { PhoneList } from 'phosphor-svelte';`
+**Description:** A phone with list icon for call management and contact organization. Represents call logs, contact lists, phone directories, call history, call center queues, customer databases, communication records, and organized contacts. Perfect for CRM systems, call center applications, contact management platforms, customer service tools, business communication systems, and telephony management interfaces. Also suitable for call tracking, communication analytics, customer relationship management, and organized communication workflows.
+
+### phone-outgoing
+**Import:** `import { PhoneOutgoing } from 'phosphor-svelte';`
+**Description:** An outgoing phone call icon for call management and communication tracking. Represents making calls, outbound communications, calling others, call initiation, outgoing telephone calls, and communication direction. Ideal for phone applications, call management systems, communication platforms, customer service interfaces, call tracking tools, and telephony applications. Also suitable for call direction indicators, communication logs, outbound call management, and communication analytics dashboards.
+
+### phone-pause
+**Import:** `import { PhonePause } from 'phosphor-svelte';`
+**Description:** A phone on hold/pause icon for call management and customer service applications. Represents putting calls on hold, pausing conversations, call waiting, hold music, call center operations, customer service protocols, and communication management. Perfect for call center applications, customer service platforms, phone systems, communication tools, hold queue management, and telephony interfaces. Also suitable for call control features, communication status indicators, and professional communication systems.
+
+### phone-plus
+**Import:** `import { PhonePlus } from 'phosphor-svelte';`
+**Description:** A phone with plus icon for adding contacts and conference calling. Represents adding new contacts, conference calls, call addition, contact management, multi-party calls, communication expansion, and telephony features. Ideal for contact management apps, phone applications, communication platforms, conference calling systems, contact directories, and business communication tools. Also suitable for adding participants to calls, contact creation interfaces, communication expansion features, and call management systems.
+
+### phone-slash
+**Import:** `import { PhoneSlash } from 'phosphor-svelte';`
+**Description:** A phone with slash icon representing disabled or blocked communication. Represents blocked calls, disabled phones, communication restrictions, call blocking, telephone unavailability, silent mode, and communication barriers. Perfect for privacy settings, call blocking applications, communication controls, do not disturb features, phone settings, and security applications. Also suitable for communication restrictions, blocked contact indicators, privacy controls, and telephone accessibility features.
+
+### phone-transfer
+**Import:** `import { PhoneTransfer } from 'phosphor-svelte';`
+**Description:** A phone transfer icon for call management and customer service systems. Represents transferring calls, call forwarding, routing communications, call center operations, customer service workflows, and call management. Ideal for call center applications, customer service platforms, telephony systems, communication routing tools, business phone systems, and call management interfaces. Also suitable for call forwarding settings, communication workflow management, and professional telephony operations.
+
+### phone-x
+**Import:** `import { PhoneX } from 'phosphor-svelte';`
+**Description:** A phone with X icon representing missed calls, call errors, or communication failures. Represents missed calls, failed connections, call errors, communication problems, declined calls, busy signals, and telephony issues. Perfect for call logs, communication status indicators, error handling interfaces, call management systems, notification systems, and telephony troubleshooting. Also suitable for call failure notifications, communication error displays, missed call indicators, and telephone system diagnostics.
+
+### phosphor-logo
+**Import:** `import { PhosphorLogo } from 'phosphor-svelte';`
+**Description:** The official Phosphor Icons logo for branding and attribution purposes. Represents the Phosphor icon library, design system branding, icon attribution, design credits, and Phosphor identity. Perfect for design system documentation, icon library interfaces, attribution sections, design tool branding, and developer resources. Also suitable for design system credits, icon library showcases, branding elements, and design tool interfaces using Phosphor icons.
+
+### pi
+**Import:** `import { Pi } from 'phosphor-svelte';`
+**Description:** The mathematical constant pi (π) symbol for mathematical, scientific, and educational applications. Represents mathematics, geometry, circles, mathematical constants, scientific calculations, engineering formulas, educational content, and mathematical operations. Ideal for calculator applications, educational platforms, mathematics software, scientific tools, geometry applications, engineering interfaces, and academic resources. Also suitable for mathematical symbol libraries, formula editors, scientific calculators, and educational mathematics content.
+
+### piano-keys
+**Import:** `import { PianoKeys } from 'phosphor-svelte';`
+**Description:** Piano keyboard icon perfect for music and audio applications. Represents musical instruments, piano playing, music education, keyboard instruments, musical composition, audio production, music learning, and musical creativity. Ideal for music apps, audio software, music education platforms, instrument retailers, music streaming services, composition tools, and music learning applications. Also suitable for musical interface elements, audio production tools, music theory applications, and creative music software.
+
+### picnic-table
+**Import:** `import { PicnicTable } from 'phosphor-svelte';`
+**Description:** A picnic table icon for outdoor recreation and travel applications. Represents outdoor dining, park facilities, picnic areas, outdoor recreation, camping amenities, public parks, outdoor events, and recreational spaces. Perfect for travel apps, park management systems, outdoor activity platforms, camping reservation sites, recreational facility booking, and tourism applications. Also suitable for outdoor furniture, park amenity indicators, recreational area maps, and outdoor event planning interfaces.
+
+### picture-in-picture
+**Import:** `import { PictureInPicture } from 'phosphor-svelte';`
+**Description:** Picture-in-picture mode icon for media and video applications. Represents PiP mode, video overlays, multi-window viewing, minimized video, pop-out videos, video multitasking, and media viewing modes. Ideal for video players, streaming applications, media software, video conferencing tools, entertainment platforms, and multimedia interfaces. Also suitable for video window management, media player controls, viewing mode options, and video display settings.
+
+### piggy-bank
+**Import:** `import { PiggyBank } from 'phosphor-svelte';`
+**Description:** A piggy bank icon perfect for financial savings and money management applications. Represents personal savings, money management, financial goals, deposit accounts, saving money, budget planning, financial education, and investment planning. Ideal for banking apps, financial planning tools, savings calculators, budget management applications, investment platforms, and personal finance interfaces. Also suitable for children's financial education, savings goal tracking, financial wellness applications, and money management systems.
+
+### pill
+**Import:** `import { Pill } from 'phosphor-svelte';`
+**Description:** A medical pill/capsule icon for healthcare and pharmaceutical applications. Represents prescription medications, over-the-counter drugs, pharmaceutical products, medical treatments, healthcare management, medication reminders, pharmacy services, and health management. Perfect for healthcare apps, medication tracking systems, pharmacy applications, medical records, health management platforms, and pharmaceutical interfaces. Also suitable for drug information systems, medication adherence tools, healthcare provider platforms, and medical treatment tracking.
+
+### ping-pong
+**Import:** `import { PingPong } from 'phosphor-svelte';`
+**Description:** Table tennis paddle icon for sports and recreational applications. Represents ping pong, table tennis, paddle sports, recreational activities, sports equipment, indoor sports, competitive gaming, and athletic activities. Ideal for sports apps, recreational facility booking, sports equipment retailers, fitness tracking, tournament management, and athletic activity platforms. Also suitable for sports club management, recreational center interfaces, sports event organization, and competitive sports applications.
+
+### pint-glass
+**Import:** `import { PintGlass } from 'phosphor-svelte';`
+**Description:** A pint glass icon for beverage, dining, and hospitality applications. Represents beverages, drinks, alcoholic beverages, bar service, restaurant dining, beverage ordering, drink menus, and hospitality services. Perfect for restaurant applications, bar management systems, beverage ordering platforms, hospitality interfaces, dining apps, and food service applications. Also suitable for drink recipe applications, beverage inventory management, restaurant point-of-sale systems, and hospitality service platforms.
+
+### pinterest-logo
+**Import:** `import { PinterestLogo } from 'phosphor-svelte';`
+**Description:** Official Pinterest logo for social media integration and brand recognition. Represents Pinterest platform, social media sharing, visual inspiration, mood boards, vision boards, creative collections, and social discovery. Ideal for social media applications, content sharing platforms, creative tools, inspiration galleries, marketing interfaces, and social integration features. Also suitable for social media analytics, content curation tools, creative workflow applications, and social sharing functionality.
+
+### pinwheel
+**Import:** `import { Pinwheel } from 'phosphor-svelte';`
+**Description:** A pinwheel toy icon for children's content and recreational applications. Represents children's toys, playground equipment, childhood fun, recreational items, spinning toys, outdoor play, and childhood memories. Perfect for children's applications, toy retail platforms, playground design tools, childcare interfaces, educational content for kids, and family-oriented applications. Also suitable for toy inventory systems, children's entertainment platforms, playground equipment catalogs, and youth program interfaces.
+
+### pipe
+**Import:** `import { Pipe } from 'phosphor-svelte';`
+**Description:** A pipe icon for construction, plumbing, and industrial applications. Represents plumbing systems, pipe installations, construction materials, industrial piping, water systems, infrastructure components, and building materials. Ideal for construction management applications, plumbing service platforms, industrial supply interfaces, maintenance management systems, building material catalogs, and infrastructure planning tools. Also suitable for utility management, construction project planning, plumbing contractor applications, and industrial equipment interfaces.
+
+### pipe-wrench
+**Import:** `import { PipeWrench } from 'phosphor-svelte';`
+**Description:** A pipe wrench tool icon for plumbing, construction, and maintenance applications. Represents plumbing tools, construction equipment, pipe fitting, maintenance work, plumbing services, tool inventories, and skilled trades. Perfect for plumbing service applications, construction management platforms, tool rental systems, maintenance management interfaces, skilled trade platforms, and contractor management tools. Also suitable for tool catalogs, service provider applications, maintenance scheduling systems, and construction equipment management.
+
+### pix-logo
+**Import:** `import { PixLogo } from 'phosphor-svelte';`
+**Description:** PIX payment system logo for Brazilian financial and payment applications. Represents PIX payments, instant transfers, Brazilian payment methods, digital payments, financial transactions, payment processing, and electronic banking. Ideal for banking applications, payment platforms, financial service interfaces, e-commerce checkout systems, mobile payment apps, and Brazilian fintech applications. Also suitable for payment method selectors, financial transaction systems, digital wallet interfaces, and payment processing platforms.
+
+### pizza
+**Import:** `import { Pizza } from 'phosphor-svelte';`
+**Description:** A pizza slice icon perfect for food service, delivery, and restaurant applications. Represents pizza restaurants, food delivery, fast food ordering, dining options, restaurant locations, food categories, meal planning, and culinary services. Ideal for food delivery apps, restaurant management systems, menu applications, food ordering platforms, location-based restaurant finders, and culinary service interfaces. Also suitable for food category filters, restaurant discovery applications, dining recommendation systems, and food service marketing materials.
+
+### placeholder
+**Import:** `import { Placeholder } from 'phosphor-svelte';`
+**Description:** A placeholder rectangle icon for design and development applications. Represents empty content areas, missing images, placeholder text, template layouts, content placeholders, design mockups, and unavailable content. Perfect for design tools, content management systems, template builders, mockup applications, web development interfaces, and design software. Also suitable for empty state indicators, content loading placeholders, design system components, and development environment interfaces.
+
+### planet
+**Import:** `import { Planet } from 'phosphor-svelte';`
+**Description:** A planet with rings icon for astronomy, science, and space-related applications. Represents celestial bodies, astronomy education, space exploration, planetary science, Saturn-like planets, cosmic objects, and astronomical content. Ideal for educational platforms, astronomy applications, science museums, space-related games, astronomical calculators, and scientific visualization tools. Also suitable for planetarium software, space exploration interfaces, astronomy reference materials, and scientific educational content.
+
+### plant
+**Import:** `import { Plant } from 'phosphor-svelte';`
+**Description:** A growing plant sprout icon for nature, agriculture, and sustainability applications. Represents plant growth, gardening, farming, agriculture, environmental sustainability, green living, botanical content, and plant care. Perfect for gardening apps, agricultural management systems, plant identification tools, sustainability platforms, environmental applications, and botanical reference materials. Also suitable for garden planning tools, plant care reminders, agricultural tracking systems, and environmental monitoring interfaces.
+
+### play
+**Import:** `import { Play } from 'phosphor-svelte';`
+**Description:** A play button icon essential for media players and audio interfaces. Represents starting playback, resuming media, beginning audio/video content, media controls, entertainment systems, and content consumption. Ideal for music streaming apps, video players, podcast applications, audio interfaces, media management systems, and entertainment platforms. Also suitable for presentation software, educational content players, interactive media, and any interface requiring playback control functionality.
+
+### play-circle
+**Import:** `import { PlayCircle } from 'phosphor-svelte';`
+**Description:** A circular play button icon for prominent media controls and entertainment interfaces. Represents starting media playback, featured content, video thumbnails, audio players, prominent play controls, and media interaction points. Perfect for video streaming platforms, music applications, podcast players, media galleries, featured content sections, and entertainment interfaces. Also suitable for tutorial videos, educational content, media previews, and interactive media elements requiring prominent play functionality.
+
+### play-pause
+**Import:** `import { PlayPause } from 'phosphor-svelte';`
+**Description:** A combined play/pause toggle icon for streamlined media controls. Represents media playback toggle, play/pause functionality, audio control, video management, media state switching, and streamlined player interfaces. Ideal for compact media players, mobile audio apps, minimalist video interfaces, dashboard media controls, and space-efficient player designs. Also suitable for smart home controls, automotive infotainment, compact media widgets, and simplified playback interfaces.
+
+### playlist
+**Import:** `import { Playlist } from 'phosphor-svelte';`
+**Description:** A playlist icon for organizing and managing media collections. Represents music playlists, audio collections, media organization, queue management, curated content, music libraries, and content curation. Perfect for music streaming applications, media management systems, audio players, content organization tools, music discovery platforms, and entertainment interfaces. Also suitable for video playlists, podcast collections, educational content series, and media library management systems.
+
+### plug
+**Import:** `import { Plug } from 'phosphor-svelte';`
+**Description:** An electrical plug icon for power, connectivity, and integration applications. Represents electrical connections, power supply, device charging, electrical outlets, power management, system integrations, and connectivity solutions. Ideal for smart home applications, power management systems, device management interfaces, electrical service platforms, plugin systems, and integration management tools. Also suitable for charging station finders, electrical equipment catalogs, power monitoring applications, and connectivity status indicators.
+
+### plug-charging
+**Import:** `import { PlugCharging } from 'phosphor-svelte';`
+**Description:** A charging plug icon for battery and power management applications. Represents device charging, battery management, power supply, charging status, electrical charging, power connections, and energy management. Perfect for device battery indicators, charging station applications, power management systems, electric vehicle charging platforms, mobile device interfaces, and energy monitoring tools. Also suitable for charging cable management, power status displays, battery health applications, and electrical charging service platforms.
+
+### plugs
+**Import:** `import { Plugs } from 'phosphor-svelte';`
+**Description:** Disconnected plugs icon representing unplugged or separated connections. Represents disconnected devices, unplugged equipment, separated connections, offline status, connection failures, power disconnection, and integration issues. Ideal for system status indicators, connection management interfaces, troubleshooting applications, network status displays, and device management systems. Also suitable for power management applications, connection monitoring tools, system diagnostic interfaces, and connectivity troubleshooting platforms.
+
+### plugs-connected
+**Import:** `import { PlugsConnected } from 'phosphor-svelte';`
+**Description:** Connected plugs icon representing established connections and integrations. Represents connected devices, successful integrations, established connections, active plugins, connected systems, successful pairings, and operational connections. Perfect for system status indicators, integration management platforms, connection monitoring tools, device pairing interfaces, and network management systems. Also suitable for plugin management, API connection status, system integration displays, and connectivity success indicators.
+
+### plus
+**Import:** `import { Plus } from 'phosphor-svelte';`
+**Description:** A plus symbol icon fundamental for addition, creation, and expansion functions. Represents mathematical addition, creating new items, adding content, expanding functionality, positive values, increment operations, and general addition concepts. Essential for calculators, content creation interfaces, form builders, mathematical applications, inventory management, and any interface requiring addition functionality. Also suitable for menu expansion, content addition, mathematical operations, and general positive action indicators.
+
+### plus-circle
+**Import:** `import { PlusCircle } from 'phosphor-svelte';`
+**Description:** A circular plus icon for prominent addition and creation actions. Represents adding new items, creating content, expanding collections, positive actions, mathematical addition in rounded interfaces, and primary action buttons. Ideal for content management systems, social media platforms, project management tools, inventory applications, and any interface emphasizing addition functionality. Also suitable for floating action buttons, primary creation actions, mathematical interfaces, and prominent add functionality.
+
+### plus-minus
+**Import:** `import { PlusMinus } from 'phosphor-svelte';`
+**Description:** A plus-minus (±) symbol for mathematical operations and value adjustments. Represents mathematical plus-minus operations, tolerance values, adjustment controls, positive/negative indicators, mathematical uncertainty, value modifications, and bidirectional changes. Perfect for calculators, scientific applications, statistical tools, measurement interfaces, mathematical software, and precision adjustment controls. Also suitable for tolerance specifications, statistical analysis tools, engineering calculations, and mathematical notation systems.
+
+### plus-square
+**Import:** `import { PlusSquare } from 'phosphor-svelte';`
+**Description:** A square plus icon for structured addition and creation interfaces. Represents adding new items to grids, creating structured content, mathematical addition in square layouts, organized addition functionality, and systematic content creation. Ideal for grid-based interfaces, structured content management, organized addition systems, mathematical grid applications, and systematic creation workflows. Also suitable for spreadsheet applications, grid-based calculators, structured data entry, and organized content addition interfaces.
+
+### poker-chip
+**Import:** `import { PokerChip } from 'phosphor-svelte';`
+**Description:** A poker chip icon for gaming, gambling, and token-based applications. Represents poker games, casino chips, gambling tokens, game currency, betting systems, card games, casino gaming, and gaming rewards. Perfect for online casino platforms, poker applications, gaming reward systems, virtual currency interfaces, gambling applications, and game token management. Also suitable for loyalty point systems, gaming achievement tokens, reward programs, and virtual gaming currency platforms.
+
+### police-car
+**Import:** `import { PoliceCar } from 'phosphor-svelte';`
+**Description:** A police vehicle icon for law enforcement, emergency services, and public safety applications. Represents law enforcement, police services, emergency vehicles, public safety, security services, emergency response, patrol cars, and safety authorities. Ideal for emergency service applications, public safety platforms, law enforcement interfaces, security management systems, emergency response tools, and public service directories. Also suitable for emergency contact systems, safety reporting applications, law enforcement resources, and public safety information platforms.
+
+### polygon
+**Import:** `import { Polygon } from 'phosphor-svelte';`
+**Description:** A geometric polygon shape icon for design, drawing, and mathematical applications. Represents geometric shapes, polygon drawing tools, shape creation, geometric design, mathematical shapes, vector graphics, design elements, and shape manipulation. Perfect for design software, drawing applications, geometric calculation tools, educational mathematics platforms, vector graphics editors, and shape-based design interfaces. Also suitable for CAD applications, geometric modeling tools, mathematical visualization, and design element libraries.
+
+### popcorn
+**Import:** `import { Popcorn } from 'phosphor-svelte';`
+**Description:** A popcorn container icon for entertainment, movie, and food service applications. Represents movie theaters, cinema snacks, entertainment venues, movie nights, film screenings, theater concessions, entertainment food, and recreational dining. Perfect for movie booking applications, theater management systems, entertainment venue platforms, cinema concession interfaces, movie streaming services with snack suggestions, and entertainment-related food services. Also suitable for event planning applications, entertainment venue directories, movie theater finder apps, and recreational food ordering systems.# Phosphor Icons - Batch 23 Documentation
+
+### popsicle
+**Import:** `import { Popsicle } from 'phosphor-svelte';`
+**Description:** Ice cream popsicle icon perfect for summer-themed applications, food delivery services, dessert menus, and frozen treat vendors. Use in commerce applications for ice cream shops, food ordering platforms, seasonal promotions, summer campaigns, frozen dessert categories, kids' menus, cooling product marketing, beach or pool-related content, and temperature-based UI elements. Also suitable for travel apps featuring summer destinations, weather applications showing hot temperatures, and any interface needing frozen food, cold treats, sweet desserts, or refreshing summer imagery.
+
+### potted-plant
+**Import:** `import { PottedPlant } from 'phosphor-svelte';`
+**Description:** Potted plant icon ideal for gardening applications, plant care apps, nursery websites, home decor platforms, and environmental interfaces. Use in commerce applications for plant retailers, garden centers, landscaping services, indoor plant delivery, agriculture platforms, sustainability initiatives, eco-friendly product categories, green living apps, office plant services, and botanical marketplaces. Perfect for nature-themed interfaces, plant identification apps, garden planning tools, greenhouse management systems, plant health monitors, vegan lifestyle apps, sprout tracking, and any application focused on plants, gardening, horticulture, botanicals, or green living.
+
+### power
+**Import:** `import { Power } from 'phosphor-svelte';`
+**Description:** Universal power button icon essential for system controls, device interfaces, and electronic applications. Use for on/off switches, power controls, device management, system startup/shutdown, electronic device interfaces, appliance controls, computer systems, mobile device power options, charging stations, energy management systems, smart home controls, and IoT device interfaces. Perfect for power switches, electrical controls, system states, device status indicators, energy monitoring, battery management, standby modes, and any interface requiring power-related functionality, electrical controls, or system power management.
+
+### prescription
+**Import:** `import { Prescription } from 'phosphor-svelte';`
+**Description:** Medical prescription icon for healthcare applications, pharmacy systems, medical records, and wellness platforms. Use in telemedicine apps, prescription management systems, pharmacy ordering platforms, doctor-patient portals, medication reminders, health tracking apps, medical history interfaces, insurance claim systems, prescription refill services, pharmaceutical marketplaces, and healthcare provider tools. Essential for Rx management, medicine tracking, drug information systems, pharmacist interfaces, medical prescription forms, medication schedules, pharmacy delivery services, and any health-related application dealing with prescriptions, medications, drugs, pharmaceuticals, or medical treatments.
+
+### presentation
+**Import:** `import { Presentation } from 'phosphor-svelte';`
+**Description:** Presentation whiteboard icon for business applications, meeting platforms, educational tools, and office productivity suites. Use in conferencing apps, business meeting tools, educational platforms, training systems, corporate presentation software, team collaboration tools, whiteboard applications, flipchart interfaces, business analytics dashboards, meeting room booking systems, and professional development platforms. Perfect for presentations, meetings, business charts, statistics visualization, data analysis, educational content, training materials, corporate communications, brainstorming sessions, and any interface focused on business presentations, meetings, or analytical content.
+
+### presentation-chart
+**Import:** `import { PresentationChart } from 'phosphor-svelte';`
+**Description:** Presentation chart icon combining whiteboard presentation with data visualization for business analytics, financial reporting, and statistical analysis platforms. Use in business intelligence tools, financial dashboards, data analytics platforms, meeting software with chart capabilities, statistical analysis applications, business reporting systems, corporate presentation tools, market analysis interfaces, performance tracking dashboards, and professional analytics suites. Ideal for graphing tools, statistical presentations, financial analysis, business metrics, data visualization, chart creation, analytical reporting, and any application requiring presentation of graphs, charts, statistics, or business data analysis.
+
+### printer
+**Import:** `import { Printer } from 'phosphor-svelte';`
+**Description:** Printer icon for document management systems, office applications, print services, and productivity tools. Use in document editors, office suites, printing services, copy centers, business applications, administrative interfaces, file management systems, document processing platforms, print job management, office equipment interfaces, and workplace productivity tools. Essential for printing functionality, document output, office printing systems, print queues, printing preferences, document formatting, print services, copy shops, and any application requiring document printing, print management, or office equipment integration.
+
+### prohibit
+**Import:** `import { Prohibit } from 'phosphor-svelte';`
+**Description:** Prohibition sign icon for access control, restriction interfaces, security systems, and warning applications. Use in security platforms, access management systems, content moderation tools, parental controls, travel restriction interfaces, no-entry zones on maps, permission systems, restricted area indicators, safety applications, compliance tools, and administrative controls. Perfect for forbidden actions, prohibited content, access denied states, restricted areas, safety warnings, compliance violations, blocked functionality, do-not-enter signs, and any interface requiring prohibition, restriction, prevention, or access control indicators.
+
+### prohibit-inset
+**Import:** `import { ProhibitInset } from 'phosphor-svelte';`
+**Description:** Inset prohibition icon providing a subtler version of restriction indicators for refined interfaces requiring prohibition symbols. Use in sophisticated access control systems, premium security applications, elegant warning interfaces, professional compliance tools, upscale travel platforms, refined content moderation systems, and polished administrative interfaces. Ideal for subtle restriction indicators, elegant forbidden states, refined access denial, sophisticated prohibition signs, premium security controls, and any high-end application requiring understated prohibition, restriction, or access control elements with a more refined visual approach.
+
+### projector-screen
+**Import:** `import { ProjectorScreen } from 'phosphor-svelte';`
+**Description:** Projector screen icon for presentation systems, meeting rooms, educational platforms, and entertainment applications. Use in conference room booking systems, presentation software, educational technology platforms, cinema applications, meeting management tools, slideshow applications, training platforms, business presentation systems, classroom technology interfaces, and entertainment venues. Perfect for projection systems, presentation displays, meeting room equipment, cinema screens, slideshow presentations, educational displays, business meetings, movie theaters, and any application related to projection, presentations, slideshows, movies, or large-screen displays.
+
+### projector-screen-chart
+**Import:** `import { ProjectorScreenChart } from 'phosphor-svelte';`
+**Description:** Projector screen with chart icon specifically for business presentations, data visualization, and analytical meeting systems. Use in business intelligence platforms, financial presentation tools, meeting software with analytics capabilities, corporate training systems, data analysis presentation tools, statistical reporting interfaces, business meeting platforms, and professional analytics suites. Ideal for business presentations with data, analytical slideshows, financial reporting meetings, statistical presentations, data-driven meetings, chart projection systems, business analytics presentations, and any application combining presentation technology with data visualization, graphs, charts, or business analysis.
+
+### pulse
+**Import:** `import { Pulse } from 'phosphor-svelte';`
+**Description:** Medical pulse/heartbeat icon for healthcare applications, fitness tracking, medical monitoring, and wellness platforms. Use in health monitoring apps, medical devices, fitness trackers, heart rate monitors, medical dashboards, patient monitoring systems, wellness applications, ECG/EKG interfaces, vital signs tracking, medical equipment controls, telemedicine platforms, and health analytics tools. Essential for heartbeat monitoring, medical vitals, health activity tracking, cardiac monitoring, medical diagnostics, patient care systems, fitness metrics, health data visualization, medical monitoring equipment, and any healthcare application requiring pulse, heartbeat, vitals, or medical activity indicators.
+
+### push-pin
+**Import:** `import { PushPin } from 'phosphor-svelte';`
+**Description:** Push pin icon for bookmarking, favorites, location marking, and content organization systems. Use in bookmark managers, favorite systems, map applications for location pinning, note-taking apps, content curation platforms, social media for saving posts, travel planning tools, task management systems, and organizational interfaces. Perfect for pinning content, marking favorites, saving items, location pins on maps, bookmarking features, content organization, note attachments, travel waypoints, task pinning, and any application requiring content saving, location marking, favorites management, or organizational pinning functionality.
+
+### push-pin-simple
+**Import:** `import { PushPinSimple } from 'phosphor-svelte';`
+**Description:** Simplified push pin icon offering a cleaner design for minimalist interfaces requiring bookmarking and favorites functionality. Use in modern bookmark systems, clean favorite interfaces, simplified map applications, minimal note-taking apps, streamlined content organization tools, and refined organizational systems. Ideal for minimalist bookmarking, clean favorites systems, simple location pinning, modern content curation, streamlined task organization, and any application requiring push pin functionality with a simplified, modern aesthetic for contemporary user interfaces prioritizing clean design.
+
+### push-pin-simple-slash
+**Import:** `import { PushPinSimple } from 'phosphor-svelte';`
+**Description:** Disabled simple push pin icon for unpinning, removing favorites, or indicating unavailable pinning functionality. Use in bookmark removal actions, favorite toggling systems, content unpinning interfaces, location pin removal on maps, disabled bookmark states, unavailable pinning features, and organizational system controls. Perfect for removing pins, unfavoriting content, unpinning items, disabled bookmark states, unavailable favorites, pin removal actions, content unorganization, and any interface requiring the removal or disabling of push pin, bookmarking, or favorites functionality with a clean, simple design aesthetic.
+
+### push-pin-slash
+**Import:** `import { PushPinSlash } from 'phosphor-svelte';`
+**Description:** Disabled push pin icon for removing bookmarks, unpinning content, or indicating disabled favorites functionality. Use in bookmark removal systems, favorite management interfaces, content unpinning actions, map pin removal, disabled bookmarking states, unavailable pinning features, and organizational control systems. Essential for unpinning actions, removing favorites, bookmark deletion, disabled pinning states, content unorganization, pin removal controls, unfavoriting items, and any application requiring the removal, disabling, or unavailability of push pin, bookmarking, favorites, or content organization functionality.
+
+### puzzle-piece
+**Import:** `import { PuzzlePiece } from 'phosphor-svelte';`
+**Description:** Puzzle piece icon for extensions, plugins, components, and modular systems. Use in software extension marketplaces, plugin management systems, component libraries, modular application interfaces, game development tools, educational puzzle games, team collaboration tools, integration platforms, add-on systems, and development environments. Perfect for plugins, extensions, components, modules, integrations, add-ons, puzzle games, team building applications, problem-solving interfaces, modular systems, development tools, and any application involving extensibility, modularity, components, integrations, or puzzle-related functionality.
+
+### qr-code
+**Import:** `import { QrCode } from 'phosphor-svelte';`
+**Description:** QR code icon for scanning, digital payments, product identification, and quick information sharing. Use in payment applications, product scanning systems, inventory management, digital menus, contact sharing apps, Wi-Fi sharing tools, ticket systems, authentication platforms, marketing campaigns, retail applications, and mobile commerce. Essential for barcode scanning, UPC reading, product identification, digital payments, quick sharing, contactless transactions, mobile scanning, product information, shopping applications, inventory tracking, and any system requiring QR codes, barcodes, scanning, or quick digital information exchange.
+
+### question
+**Import:** `import { Question } from 'phosphor-svelte';`
+**Description:** Question icon for help systems, support interfaces, FAQ sections, and information requests. Use in help centers, customer support platforms, FAQ interfaces, information tooltips, help documentation, support ticket systems, educational question interfaces, quiz applications, survey systems, and assistance tools. Perfect for help functionality, support systems, information requests, frequently asked questions, help tooltips, assistance features, customer service, educational questioning, survey questions, and any application requiring help, support, information, or questioning functionality.
+
+### question-mark
+**Import:** `import { QuestionMark } from 'phosphor-svelte';`
+**Description:** Question mark punctuation symbol for help interfaces, unknown states, information tooltips, and query systems. Use in help systems, information popups, unknown status indicators, help tooltips, FAQ interfaces, support systems, educational tools, quiz applications, survey platforms, and assistance features. Ideal for help symbols, information indicators, unknown states, help tooltips, assistance markers, support symbols, educational questioning, punctuation elements, and any interface requiring question marks, help indicators, information symbols, or unknown state representations with clear punctuation symbolism.
+
+### queue
+**Import:** `import { Queue } from 'phosphor-svelte';`
+**Description:** Queue icon for playlist management, task queues, waiting systems, and sequential processing. Use in music streaming applications, media players, playlist management systems, task management tools, job processing interfaces, waiting list systems, print queues, processing queues, workflow systems, and sequential operation platforms. Perfect for music playlists, audio queues, task sequences, waiting lists, processing orders, job queues, media playlists, sequential processing, workflow management, and any application requiring queue management, sequential processing, playlists, or ordered task management functionality.
+
+### quotes
+**Import:** `import { Quotes } from 'phosphor-svelte';`
+**Description:** Quotation marks icon for text editing, citations, testimonials, and literary content. Use in text editors, writing applications, citation systems, testimonial platforms, quotation databases, literary applications, publishing tools, academic writing systems, social media quote features, and content creation platforms. Essential for quotations, citations, testimonials, quoted text, literary quotes, text formatting, writing tools, academic references, social quotes, and any application involving quotations, citations, quoted content, testimonials, or literary text formatting and presentation.
+
+### rabbit
+**Import:** `import { Rabbit } from 'phosphor-svelte';`
+**Description:** Rabbit icon for speed indicators, animal-related applications, Easter themes, and quick processing systems. Use in speed testing applications, fast processing indicators, animal identification apps, pet care platforms, wildlife applications, Easter-themed content, children's educational apps, zoo applications, nature guides, and performance optimization interfaces. Perfect for speed indicators, fast processing, quick operations, animal content, pet applications, wildlife identification, nature themes, Easter celebrations, children's content, and any application requiring animal imagery, speed metaphors, or rabbit-related functionality.
+
+### racquet
+**Import:** `import { Racquet } from 'phosphor-svelte';`
+**Description:** Sports racquet icon for tennis, squash, pickleball, and racquet sports applications. Use in sports applications, fitness tracking platforms, tennis court booking systems, sports equipment retailers, coaching applications, sports activity tracking, recreational facility booking, sports social networks, athletic performance tracking, and sports club management systems. Ideal for tennis applications, racquet sports, sports equipment, athletic activities, court sports, fitness tracking, sports coaching, recreational activities, and any application related to racquet sports, tennis, squash, pickleball, or athletic equipment.
+
+### radical
+**Import:** `import { Radical } from 'phosphor-svelte';`
+**Description:** Mathematical radical (square root) symbol for calculators, mathematical applications, educational tools, and scientific computing. Use in calculator applications, mathematical software, educational mathematics platforms, scientific computing tools, algebra applications, mathematical notation systems, engineering calculators, academic mathematics tools, formula editors, and STEM educational platforms. Essential for square root calculations, mathematical operations, algebraic functions, scientific calculations, mathematical notation, formula representation, arithmetic operations, and any application requiring mathematical symbols, calculations, square roots, or mathematical notation systems.
+
+### radio
+**Import:** `import { Radio } from 'phosphor-svelte';`
+**Description:** Radio device icon for broadcasting, audio streaming, communication systems, and media applications. Use in radio streaming applications, broadcast platforms, audio streaming services, communication tools, media players, podcast applications, FM/AM radio interfaces, audio broadcasting systems, emergency communication tools, and entertainment platforms. Perfect for radio broadcasting, audio streaming, communication systems, media transmission, radio stations, podcast platforms, audio entertainment, broadcast media, and any application related to radio, broadcasting, audio transmission, or communication systems.
+
+### radio-button
+**Import:** `import { RadioButton } from 'phosphor-svelte';`
+**Description:** Radio button input icon for form controls, selection interfaces, and user input systems. Use in form builders, survey applications, settings interfaces, option selection systems, configuration panels, quiz applications, polling systems, preference settings, and user input forms. Essential for single-choice selections, option buttons, form inputs, selection controls, user preferences, settings options, survey choices, configuration selections, and any interface requiring radio button functionality, single selection inputs, or exclusive choice controls.
+
+### radioactive
+**Import:** `import { Radioactive } from 'phosphor-svelte';`
+**Description:** Radioactive warning symbol for hazard indicators, safety systems, scientific applications, and warning interfaces. Use in safety management systems, hazard warning platforms, scientific laboratory applications, nuclear facility interfaces, safety compliance tools, environmental monitoring systems, industrial safety platforms, emergency response systems, and scientific research applications. Perfect for radiation warnings, nuclear hazards, safety alerts, dangerous materials, radiation monitoring, safety compliance, hazard indicators, and any application requiring radioactive warnings, nuclear safety, radiation hazards, or dangerous material indicators.
+
+### rainbow
+**Import:** `import { Rainbow } from 'phosphor-svelte';`
+**Description:** Rainbow icon for weather applications, LGBTQ+ pride themes, diversity initiatives, and colorful interfaces. Use in weather applications, meteorological platforms, LGBTQ+ community apps, diversity and inclusion interfaces, pride event applications, weather forecasting, children's applications, creative platforms, and inclusive design systems. Ideal for weather indicators, pride themes, diversity symbols, colorful designs, weather conditions, LGBTQ+ representation, inclusive interfaces, celebration themes, and any application requiring rainbow imagery, weather elements, pride symbolism, or diversity representation.
+
+### rainbow-cloud
+**Import:** `import { RainbowCloud } from 'phosphor-svelte';`
+**Description:** Rainbow with cloud icon combining weather conditions with pride symbolism for meteorological applications and inclusive weather interfaces. Use in weather forecasting applications, meteorological platforms with inclusive themes, LGBTQ+ weather apps, diverse weather interfaces, pride-themed weather services, inclusive meteorological tools, and weather applications emphasizing diversity. Perfect for partly cloudy with rainbow conditions, inclusive weather forecasting, pride weather themes, diverse meteorological interfaces, and any weather application combining meteorological accuracy with diversity and inclusion themes.
+
+### ranking
+**Import:** `import { Ranking } from 'phosphor-svelte';`
+**Description:** Medal ranking icon for leaderboards, competitions, achievements, and performance tracking systems. Use in gaming applications, sports platforms, competitive systems, achievement tracking, performance dashboards, contest applications, tournament platforms, fitness leaderboards, academic ranking systems, and competition management tools. Essential for rankings, leaderboards, medals, achievements, awards, competition results, performance tracking, sports rankings, gaming achievements, and any application requiring ranking systems, competitive elements, achievements, or performance measurement and recognition.
+
+### read-cv-logo
+**Import:** `import { ReadCvLogo } from 'phosphor-svelte';`
+**Description:** Read CV logo icon for resume platforms, job search applications, career development tools, and professional networking systems. Use in job search platforms, resume building applications, career development tools, professional networking systems, recruitment platforms, hiring management systems, professional portfolio applications, and career services interfaces. Perfect for resume management, job applications, career development, professional profiles, recruitment systems, hiring platforms, and any application related to resumes, job searching, career development, or professional networking.
+
+### receipt
+**Import:** `import { Receipt } from 'phosphor-svelte';`
+**Description:** Receipt icon for transaction records, expense tracking, purchase history, and financial management systems. Use in expense tracking applications, financial management tools, point-of-sale systems, e-commerce platforms, accounting software, business expense tools, purchase history interfaces, transaction records, and financial documentation systems. Essential for purchase receipts, transaction records, expense tracking, financial documentation, purchase history, business expenses, accounting records, and any application requiring receipt management, transaction tracking, or financial record keeping.
+
+### receipt-x
+**Import:** `import { ReceiptX } from 'phosphor-svelte';`
+**Description:** Canceled receipt icon for voided transactions, refunded purchases, canceled orders, and expense corrections. Use in refund processing systems, transaction cancellation interfaces, order management platforms, expense correction tools, return processing systems, voided transaction records, and financial correction applications. Perfect for canceled purchases, voided receipts, refunded transactions, expense cancellations, order cancellations, transaction reversals, and any application requiring canceled receipt functionality, transaction voids, or expense/purchase cancellations.
+
+### record
+**Import:** `import { Record } from 'phosphor-svelte';`
+**Description:** Record button icon for audio recording, voice memos, media capture, and recording systems. Use in audio recording applications, voice memo tools, media recording systems, podcast recording platforms, interview applications, meeting recording tools, music production software, audio capture systems, and content creation platforms. Essential for audio recording, voice capture, media recording, sound recording, voice memos, audio production, recording controls, and any application requiring audio recording, voice capture, or media recording functionality.
+
+### rectangle
+**Import:** `import { Rectangle } from 'phosphor-svelte';`
+**Description:** Rectangle shape icon for design tools, drawing applications, geometric interfaces, and shape creation systems. Use in graphic design software, drawing applications, shape creation tools, geometric design platforms, CAD applications, design interfaces, illustration software, layout tools, and creative design systems. Perfect for geometric shapes, design elements, drawing tools, shape selection, rectangular objects, design components, geometric design, and any application requiring rectangle shapes, geometric design, or drawing functionality.
+
+### rectangle-dashed
+**Import:** `import { RectangleDashed } from 'phosphor-svelte';`
+**Description:** Dashed rectangle icon representing placeholder areas, missing content, or draft elements in design and interface applications. Use in design tools for placeholder elements, content management systems for missing images, template builders for empty sections, draft interfaces, placeholder indicators, missing content areas, and design layout tools. Ideal for placeholder rectangles, missing content indicators, draft elements, empty content areas, template placeholders, design wireframes, and any application requiring dashed boundaries, placeholder shapes, or missing content representation.
+
+### recycle
+**Import:** `import { Recycle } from 'phosphor-svelte';`
+**Description:** Recycle symbol icon for environmental applications, sustainability initiatives, waste management, and eco-friendly systems. Use in environmental applications, recycling programs, waste management systems, sustainability platforms, eco-friendly applications, green living tools, environmental awareness platforms, waste sorting applications, and conservation interfaces. Essential for recycling programs, environmental awareness, sustainability features, waste management, eco-friendly options, green initiatives, environmental conservation, and any application focused on recycling, environmental responsibility, or sustainable practices.
+
+### reddit-logo
+**Import:** `import { RedditLogo } from 'phosphor-svelte';`
+**Description:** Reddit logo icon for social media integration, community platforms, and Reddit-related features. Use in social media management tools, community platforms, social media sharing systems, Reddit integration features, social networking applications, content aggregation platforms, discussion forums, and social media analytics tools. Perfect for Reddit integration, social media connectivity, community features, social sharing to Reddit, discussion platforms, subreddit connections, and any application requiring Reddit integration, social media connectivity, or community-based social features.
+
+### repeat
+**Import:** `import { Repeat } from 'phosphor-svelte';`
+**Description:** Repeat/loop icon for media controls, playlist management, and cycling operations. Use in music players, media streaming applications, playlist controls, audio players, video controls, automation systems, workflow tools, process repetition interfaces, and media management systems. Essential for repeat functionality, loop controls, playlist repetition, media cycling, automated repetition, process loops, recurring operations, and any application requiring repeat functionality, looping controls, or cycling operations in media, automation, or process management.
+
+### repeat-once
+**Import:** `import { RepeatOnce } from 'phosphor-svelte';`
+**Description:** Repeat once icon for single repetition controls in media players and automation systems. Use in music players for single track repeat, media controls for one-time repetition, audio players with single repeat functionality, automation systems with single cycle operations, and media management interfaces requiring one-time repeat functionality. Perfect for single track repeat, one-time replay, single cycle automation, media single repeat controls, and any application requiring single repetition functionality, one-time loops, or single cycle operations in media or process management.
+
+### replit-logo
+**Import:** `import { ReplitLogo } from 'phosphor-svelte';`
+**Description:** Replit logo icon for coding platforms, IDE integration, development tools, and programming education systems. Use in code editor applications, programming education platforms, development environment tools, coding tutorial systems, IDE integrations, developer tool platforms, programming learning applications, and code collaboration tools. Ideal for Replit integration, coding platforms, development environments, programming education, code editors, development tools, coding collaboration, and any application related to programming, coding education, development environments, or online coding platforms.
+
+### resize
+**Import:** `import { Resize } from 'phosphor-svelte';`
+**Description:** Resize icon for window controls, image editing, element scaling, and size adjustment interfaces. Use in image editing applications, window management systems, design tools, layout editors, media editing software, interface customization tools, and size adjustment controls. Perfect for resizing elements, scaling operations, window sizing, image scaling, element adjustment, size controls, scaling tools, and any application requiring resize functionality, element scaling, window management, or size adjustment controls for images, windows, or interface elements.
+
+### rewind
+**Import:** `import { Rewind } from 'phosphor-svelte';`
+**Description:** Rewind icon for media controls, audio/video playback, and backward navigation systems. Use in media players, video streaming applications, audio players, podcast applications, media streaming services, video editing tools, and playback control systems. Essential for media rewind, backward playback, audio/video controls, media navigation, playback controls, media seeking, reverse playback, and any application requiring rewind functionality, backward media navigation, or reverse playback controls in audio, video, or media applications.
+
+### rewind-circle
+**Import:** `import { RewindCircle } from 'phosphor-svelte';`
+**Description:** Circular rewind icon providing an enclosed design for media controls and playback interfaces. Use in modern media players, sleek audio applications, contemporary video streaming platforms, elegant podcast applications, refined media controls, and sophisticated playback systems. Ideal for circular media controls, modern rewind buttons, elegant playback interfaces, contemporary media design, refined audio controls, and any media application requiring rewind functionality with a circular, modern aesthetic for sophisticated user interfaces.
+
+### road-horizon
+**Import:** `import { RoadHorizon } from 'phosphor-svelte';`
+**Description:** Road horizon icon for travel applications, navigation systems, journey planning, and transportation platforms. Use in travel planning applications, road trip platforms, navigation systems, transportation apps, journey tracking tools, travel booking platforms, driving applications, route planning systems, and travel-related interfaces. Perfect for road trips, travel planning, transportation services, journey tracking, driving directions, highway travel, road navigation, travel destinations, and any application related to road travel, transportation, journey planning, or travel navigation.
+
+### robot
+**Import:** `import { Robot } from 'phosphor-svelte';`
+**Description:** Robot icon for artificial intelligence, automation systems, chatbots, and technology applications. Use in AI applications, chatbot interfaces, automation platforms, robotic systems, machine learning tools, AI assistant applications, automated customer service, technology platforms, and intelligent system interfaces. Essential for AI functionality, chatbots, automation features, robotic systems, artificial intelligence, automated processes, machine learning applications, intelligent assistants, and any application involving AI, automation, robotics, or intelligent system functionality.
+
+### rocket
+**Import:** `import { Rocket } from 'phosphor-svelte';`
+**Description:** Rocket icon for launches, deployment, speed, and achievement systems. Use in deployment platforms, launch applications, startup interfaces, performance optimization tools, achievement systems, speed indicators, project launch tools, business acceleration platforms, and growth tracking applications. Perfect for launches, deployments, startup features, speed indicators, achievement unlocks, performance boosts, project launches, business growth, acceleration features, and any application requiring rocket imagery for launches, speed, achievements, or growth-related functionality.
+
+### rocket-launch
+**Import:** `import { RocketLaunch } from 'phosphor-svelte';`
+**Description:** Launching rocket icon emphasizing active deployment, startup launch, or acceleration processes. Use in deployment systems with active launch states, startup launch platforms, project deployment tools, performance acceleration interfaces, launch process indicators, and business launch applications. Ideal for active deployments, launch processes, startup launches, project launches, acceleration indicators, blastoff functionality, deployment progress, launch sequences, and any application requiring active launch imagery, deployment processes, or launch-in-progress indicators with dynamic launch visualization.
+
+### rows
+**Import:** `import { Rows } from 'phosphor-svelte';`
+**Description:** Rows icon for table layouts, list views, data organization, and content structure systems. Use in data table applications, list management systems, database interfaces, content organization tools, table layout controls, data visualization platforms, spreadsheet applications, and structured content systems. Perfect for table rows, list layouts, data organization, content structure, table views, row management, list displays, data tables, structured layouts, and any application requiring row-based layouts, table structures, list organization, or data presentation in rows and structured formats.# Phosphor Icons - Batch 24 Documentation
+
+### rows-plus-bottom
+**Import:** `import { RowsPlusBottom } from 'phosphor-svelte';`
+**Description:** A design icon representing rows with an addition element at the bottom. This icon depicts horizontal stacked rows with a plus symbol at the bottom row, indicating the ability to add new rows, append items, or insert content at the bottom of a list, table, or stack. Perfect for data tables, list management, spreadsheets, card layouts, form builders, and any interface where users can add new entries. Commonly used in database interfaces, todo lists, inventory systems, content management systems, and grid layouts. Alternative names include: add row bottom, append row, insert bottom, table add, list append, stack add, row insertion, bottom add, prepend bottom, table extension, grid add, data entry, row creation.
+
+### rows-plus-top
+**Import:** `import { RowsPlusTop } from 'phosphor-svelte';`
+**Description:** A design icon representing rows with an addition element at the top. This icon shows horizontal stacked rows with a plus symbol at the top row, indicating the ability to add new rows, prepend items, or insert content at the top of a list, table, or stack. Ideal for data tables, list management, spreadsheets, card layouts, form builders, and interfaces where users can add new entries at the beginning. Commonly used in database interfaces, todo lists, inventory systems, content management systems, and grid layouts where top insertion is preferred. Alternative names include: add row top, prepend row, insert top, table add top, list prepend, stack add top, row insertion top, top add, header add, table extension top, grid add top, data entry top, row creation top.
+
+### rss
+**Import:** `import { Rss } from 'phosphor-svelte';`
+**Description:** A communications icon representing RSS (Really Simple Syndication) feeds. This icon displays the classic RSS symbol with radiating waves, indicating web feed syndication, news aggregation, and content broadcasting. Essential for blogs, news sites, podcasts, content aggregators, feed readers, and any platform that distributes or consumes syndicated content. Used in media applications, news readers, blog platforms, podcast apps, and content management systems. Alternative names include: RSS feed, web feed, syndication, news feed, feed reader, broadcast, radio waves, content aggregation, XML feed, atom feed, news aggregator, feed subscription, content syndication, news syndication, blog feed, podcast feed.
+
+### rss-simple
+**Import:** `import { RssSimple } from 'phosphor-svelte';`
+**Description:** A simplified communications icon for RSS (Really Simple Syndication) feeds. This streamlined version of the RSS symbol maintains the essential radiating wave pattern while offering a cleaner, more minimal aesthetic. Perfect for modern interfaces, mobile apps, and designs requiring a subtle RSS indicator. Used in news apps, blog platforms, feed readers, content aggregators, and media interfaces where a simplified visual approach is preferred. Alternative names include: RSS simple, minimal RSS, clean feed icon, simple syndication, minimal web feed, basic RSS, streamlined feed, simple broadcast, clean news feed, minimal aggregator, basic syndication, simplified feed reader.
+
+### rug
+**Import:** `import { Rug } from 'phosphor-svelte';`
+**Description:** An objects icon representing a decorative rug or carpet. This icon depicts a floor covering with traditional patterns, symbolizing home decor, interior design, flooring, and living spaces. Useful for furniture stores, interior design apps, home improvement platforms, real estate listings, and e-commerce sites selling home goods. Commonly found in shopping apps, home decor websites, furniture catalogs, and interior design tools. Alternative names include: carpet, floor rug, area rug, tapestry, floor covering, home decor, interior design, mat, floor mat, decorative rug, Persian rug, oriental rug, home furnishing, textile, woven rug, living room rug, bedroom rug, home accessories.
+
+### ruler
+**Import:** `import { Ruler } from 'phosphor-svelte';`
+**Description:** A design and measurement icon representing a ruler or measuring tool. This icon shows a straight edge with measurement markings, symbolizing precision, measurement, scale, distance calculation, and design work. Essential for design applications, CAD software, drawing tools, architecture apps, engineering platforms, and any interface involving measurements or scaling. Used in graphic design software, measurement tools, construction apps, educational platforms teaching geometry, and technical drawing applications. Alternative names include: measuring stick, scale ruler, measurement tool, straight edge, measuring device, design ruler, drafting ruler, architect ruler, engineering scale, measurement scale, distance tool, precision tool, calibration, measuring instrument, technical ruler.
+
+### sailboat
+**Import:** `import { Sailboat } from 'phosphor-svelte';`
+**Description:** A maps & travel icon representing a sailboat or sailing vessel. This icon depicts a boat with sails, symbolizing water sports, sailing, maritime activities, coastal travel, and recreational boating. Perfect for travel apps, weather applications, sports platforms, marine services, and location-based services near waterways. Used in navigation apps, vacation planning tools, water sports apps, marina services, and travel guides for coastal destinations. Alternative names include: sailing boat, yacht, sailing vessel, boat, ship, water sports, maritime transport, sailing craft, recreational boat, leisure sailing, coastal transport, nautical vessel, water transport, sailing ship, marine vessel, regatta, sailing competition.
+
+### scales
+**Import:** `import { Scales } from 'phosphor-svelte';`
+**Description:** A commerce and legal icon representing scales of justice or measuring scales. This icon shows balanced scales, symbolizing justice, law, legal systems, fairness, balance, measurement, and governmental institutions. Essential for legal websites, law firms, government applications, courthouse systems, legal document platforms, and justice-related services. Also used in contexts requiring balance, measurement, or weight comparison. Alternative names include: justice scales, balance scales, legal scales, law symbol, justice symbol, balance tool, measuring scales, weight scales, legal balance, court symbol, judicial symbol, government symbol, fairness symbol, equilibrium, legal system, judiciary, courthouse, legal services.
+
+### scan
+**Import:** `import { Scan } from 'phosphor-svelte';`
+**Description:** A system icon representing barcode or QR code scanning functionality. This icon depicts scanning lines or a scan frame, symbolizing code reading, product identification, inventory management, and digital scanning processes. Essential for e-commerce apps, inventory systems, point-of-sale terminals, shopping applications, and mobile payment platforms. Used in retail apps, warehouse management, product catalogs, and any system requiring barcode or QR code scanning. Alternative names include: barcode scanner, QR scanner, code reader, product scanner, inventory scanner, barcode reader, UPC scanner, scanning device, code scanning, digital scanner, mobile scanner, retail scanner, checkout scanner, product identification, code detection.
+
+### scan-smiley
+**Import:** `import { ScanSmiley } from 'phosphor-svelte';`
+**Description:** A system icon combining scanning technology with facial recognition. This icon represents facial scanning, biometric authentication, face unlock systems, and identity verification through facial recognition technology. Perfect for security applications, authentication systems, mobile device unlock features, access control systems, and identity verification platforms. Used in security apps, biometric systems, phone unlock interfaces, and modern authentication workflows. Alternative names include: face scan, facial recognition, biometric scan, face unlock, identity scan, facial authentication, biometric authentication, face ID, facial verification, security scan, biometric identification, face detection, user authentication, identity verification, facial biometrics.
+
+### scissors
+**Import:** `import { Scissors } from 'phosphor-svelte';`
+**Description:** A design and editing icon representing scissors for cutting operations. This icon depicts cutting shears, symbolizing cut, snip, trim, crop, remove, and editing functions. Essential for text editors, image editing software, design applications, office suites, and any interface with cutting or removal functionality. Commonly used for clipboard operations, content editing, cropping tools, and deletion actions. Alternative names include: cut tool, cutting tool, shears, snippers, crop tool, trim tool, editing scissors, cut function, remove tool, clip tool, cutting shears, text cutter, content cutter, editing tool, deletion tool, trimming scissors, office scissors, craft scissors.
+
+### scooter
+**Import:** `import { Scooter } from 'phosphor-svelte';`
+**Description:** A transportation icon representing a kick scooter or electric scooter. This icon shows a two-wheeled scooter, symbolizing urban mobility, micro-mobility, eco-friendly transport, and short-distance travel. Perfect for transportation apps, bike-sharing services, urban mobility platforms, travel applications, and fitness tracking apps. Used in ride-sharing apps, city transportation guides, and platforms promoting sustainable transport options. Alternative names include: kick scooter, electric scooter, e-scooter, micro-mobility, urban transport, personal transport, city scooter, mobility device, eco transport, sustainable transport, short-range transport, urban mobility, street scooter, transportation device, personal mobility, city commute.
+
+### screencast
+**Import:** `import { Screencast } from 'phosphor-svelte';`
+**Description:** A media and system icon representing screen sharing or screencasting functionality. This icon depicts a screen projection or casting symbol, often associated with AirPlay, Chromecast, or wireless display technologies. Essential for presentation apps, video conferencing platforms, media streaming services, and screen sharing applications. Used in collaboration tools, educational platforms, entertainment apps, and remote work solutions. Alternative names include: screen sharing, screen mirroring, cast screen, wireless display, AirPlay, Chromecast, screen projection, display casting, media casting, TV casting, screen broadcast, presentation mode, display sharing, remote display, streaming display, wireless streaming.
+
+### screwdriver
+**Import:** `import { Screwdriver } from 'phosphor-svelte';`
+**Description:** A tools icon representing a screwdriver for construction and repair work. This icon shows a flathead screwdriver, symbolizing tools, construction, maintenance, repair, DIY projects, and manual work. Perfect for hardware stores, construction apps, maintenance platforms, tool catalogs, and service applications. Used in repair service apps, construction project tools, maintenance scheduling, and DIY instruction platforms. Alternative names include: flathead screwdriver, hand tool, construction tool, repair tool, maintenance tool, hardware tool, manual tool, building tool, fixing tool, assembly tool, mechanic tool, craftsman tool, workshop tool, tool kit, construction equipment, repair equipment.
+
+### scribble
+**Import:** `import { Scribble } from 'phosphor-svelte';`
+**Description:** A design icon representing free-form drawing or scribbling. This icon depicts irregular, flowing lines that suggest doodling, sketching, signature creation, or creative drawing. Perfect for drawing applications, note-taking apps, signature tools, creative platforms, and design software. Used in digital whiteboard applications, art apps, annotation tools, and anywhere users can create freehand drawings or signatures. Alternative names include: doodle, sketch, freehand drawing, squiggle, hand drawing, creative drawing, signature, drawing tool, pen drawing, artistic scribble, creative mark, freeform drawing, artistic expression, sketch tool, drawing lines, creative lines.
+
+### scribble-loop
+**Import:** `import { ScribbleLoop } from 'phosphor-svelte';`
+**Description:** A design icon representing looped or circular scribbling patterns. This icon shows a continuous looped line, often used for signatures, doodles, or decorative elements. Ideal for signature applications, drawing tools, design software, and creative platforms where continuous or looped drawing patterns are needed. Used in digital signature tools, art applications, and creative design interfaces. Alternative names include: signature loop, drawing loop, continuous scribble, signature swirl, decorative loop, artistic loop, signature flourish, drawing pattern, signature design, looped drawing, circular scribble, signature element, decorative scribble, artistic signature, signature style.
+
+### scroll
+**Import:** `import { Scroll } from 'phosphor-svelte';`
+**Description:** A gaming and objects icon representing an ancient scroll or parchment. This icon depicts a rolled or partially unrolled manuscript, symbolizing ancient documents, spells, fantasy elements, historical records, and mystical content. Perfect for gaming applications, fantasy-themed interfaces, educational history apps, document management systems, and medieval or fantasy-styled designs. Used in RPG games, historical apps, document archives, and fantasy-themed platforms. Alternative names include: parchment, manuscript, ancient document, spell scroll, magic scroll, historical document, rolled paper, ancient text, fantasy scroll, game scroll, medieval document, mystical scroll, wizard scroll, RPG scroll, quest scroll, ancient paper.
+
+### seal
+**Import:** `import { Seal } from 'phosphor-svelte';`
+**Description:** A design icon representing a seal or badge with a wavy circular border. This icon features a distinctive wavy-edged circular shape, often used for badges, certifications, verification marks, and official stamps. Perfect for achievement systems, certification platforms, verification badges, quality assurance markers, and official documentation. Used in educational platforms for certificates, business applications for verification, and gaming systems for achievements. Alternative names include: badge, verification seal, certification badge, achievement badge, official seal, quality seal, approval badge, verification mark, certification mark, achievement seal, official badge, quality badge, approval seal, recognition badge, validation seal.
+
+### seal-check
+**Import:** `import { SealCheck } from 'phosphor-svelte';`
+**Description:** A design icon combining a wavy-edged seal with a checkmark. This icon represents verified status, approved content, certification completion, quality assurance, and successful validation. Essential for verification systems, certification platforms, quality control applications, and achievement tracking. Used in educational certificates, business verification, product quality indicators, and user achievement systems. Alternative names include: verified badge, approved seal, certification check, verified seal, quality approved, validation badge, verified status, approved badge, certified mark, quality seal, verification complete, approved status, validated seal, certified badge, quality verified.
+
+### seal-percent
+**Import:** `import { SealPercent } from 'phosphor-svelte';`
+**Description:** A design icon featuring a wavy-edged seal with a percentage symbol. This icon represents discounts, sale badges, percentage deals, promotional offers, and pricing benefits. Perfect for e-commerce platforms, retail applications, promotional campaigns, and sales systems. Used in shopping apps, discount platforms, coupon systems, and promotional marketing materials. Alternative names include: discount badge, sale seal, percentage badge, discount seal, promotional badge, sale badge, offer seal, discount offer, percentage deal, sale promotion, discount tag, promotional seal, special offer badge, discount marker, sale indicator, percentage discount.
+
+### seal-question
+**Import:** `import { SealQuestion } from 'phosphor-svelte';`
+**Description:** A design icon showing a wavy-edged seal with a question mark. This icon represents uncertain status, unverified content, pending verification, unknown quality, or items requiring clarification. Useful for verification systems showing pending states, quality control indicating review needed, and certification platforms showing incomplete status. Used in review systems, verification workflows, and quality assurance processes where status is uncertain. Alternative names include: unverified badge, pending seal, question badge, uncertain status, unverified seal, pending verification, unknown quality, review pending, uncertain badge, verification pending, status unknown, quality uncertain, unconfirmed seal, pending review badge.
+
+### seal-warning
+**Import:** `import { SealWarning } from 'phosphor-svelte';`
+**Description:** A design icon combining a wavy-edged seal with a warning symbol. This icon represents warning status, error conditions, unverified content with issues, failed verification, or problematic quality indicators. Essential for error handling systems, quality control with issues, verification failures, and warning notifications within badge or certification contexts. Used in systems requiring attention to problematic items, failed verifications, or quality issues. Alternative names include: warning badge, error seal, warning seal, error badge, problematic seal, issue badge, failed verification, warning status, error status, problematic badge, issue seal, quality warning, verification error, status warning, failed seal.
+
+### seat
+**Import:** `import { Seat } from 'phosphor-svelte';`
+**Description:** A transportation icon representing a passenger seat. This icon depicts a seat commonly found in vehicles, airplanes, trains, or other transportation modes. Perfect for travel booking platforms, transportation apps, venue seating charts, ticket booking systems, and travel planning tools. Used in airline booking, train reservations, theater seating, event ticketing, and any system involving seat selection or transportation comfort. Alternative names include: passenger seat, airplane seat, vehicle seat, transport seat, travel seat, chair, seating, transportation seating, airline seat, train seat, bus seat, theater seat, venue seat, booking seat, reservation seat, comfort seat.
+
+### seatbelt
+**Import:** `import { Seatbelt } from 'phosphor-svelte';`
+**Description:** A safety icon representing a vehicle seatbelt or safety harness. This icon shows a seatbelt buckle and strap, symbolizing vehicle safety, passenger protection, safety compliance, and responsible driving. Essential for automotive applications, safety training platforms, vehicle rental systems, and transportation safety information. Used in car rental apps, safety education, driving instruction, and vehicle safety features. Alternative names include: safety belt, car seatbelt, vehicle safety, passenger safety, safety harness, seat restraint, car safety, automotive safety, vehicle restraint, safety strap, protection belt, safety device, crash protection, passenger restraint, vehicle protection, safety equipment.
+
+### security-camera
+**Import:** `import { SecurityCamera } from 'phosphor-svelte';`
+**Description:** A security icon representing a surveillance or security camera system. This icon depicts a security camera, symbolizing surveillance, monitoring, safety systems, CCTV, video security, and premises protection. Perfect for security applications, home automation systems, surveillance platforms, safety monitoring tools, and property management systems. Used in security systems, home monitoring apps, business surveillance, and safety management platforms. Alternative names include: surveillance camera, CCTV camera, monitoring camera, video surveillance, security monitoring, safety camera, surveillance system, video security, monitoring system, security device, safety monitoring, property security, premises surveillance, video monitoring, security equipment, safety surveillance.
+
+### selection
+**Import:** `import { Selection } from 'phosphor-svelte';`
+**Description:** A design and editing icon representing a selection tool or marquee selection. This icon shows a dashed rectangular boundary, indicating area selection, object selection, or content highlighting functionality. Essential for design software, image editors, text editors, and any application requiring content selection. Used in graphic design tools, photo editing software, document editors, and selection-based interfaces. Alternative names include: select tool, marquee selection, selection box, area select, selection rectangle, select area, selection tool, marquee tool, selection marquee, rectangular selection, selection frame, select rectangle, area selection, selection boundary, select marquee.
+
+### selection-all
+**Import:** `import { SelectionAll } from 'phosphor-svelte';`
+**Description:** A design and editing icon representing select all functionality. This icon typically shows multiple selection indicators or an encompassing selection, symbolizing the ability to select all items, content, or objects within a container or interface. Essential for text editors, file managers, design applications, and any system with bulk selection capabilities. Used in document editors, file browsers, content management systems, and bulk operation interfaces. Alternative names include: select all, select everything, bulk select, mass selection, universal selection, complete selection, select all items, select all content, global selection, full selection, select entire, choose all, pick all, highlight all, mark all.
+
+### selection-background
+**Import:** `import { SelectionBackground } from 'phosphor-svelte';`
+**Description:** A design and editing icon representing background layer selection in design applications. This icon indicates the ability to select or work with background elements, layers behind other objects, or background content in design software. Perfect for graphic design tools, image editors, layer-based applications, and design platforms with layering functionality. Used in photo editing software, graphic design applications, and web design tools. Alternative names include: background select, background layer, layer selection, background element, select background, background tool, layer select, background mode, select layer, background editing, layer background, design background, background focus, layer tool, background layer selection.
+
+### selection-foreground
+**Import:** `import { SelectionForeground } from 'phosphor-svelte';`
+**Description:** A design and editing icon representing foreground layer selection in design applications. This icon indicates the ability to select or work with foreground elements, top layers, or foreground content in layered design interfaces. Essential for graphic design software, image editors, and applications with layer management. Used in photo editing tools, design applications, and creative software with layering capabilities. Alternative names include: foreground select, foreground layer, top layer selection, foreground element, select foreground, foreground tool, layer select top, foreground mode, select top layer, foreground editing, layer foreground, design foreground, foreground focus, top layer tool, foreground layer selection.
+
+### selection-inverse
+**Import:** `import { SelectionInverse } from 'phosphor-svelte';`
+**Description:** A design and editing icon representing inverse or inverted selection functionality. This icon shows the ability to invert or reverse the current selection, selecting everything that was previously unselected and deselecting what was selected. Essential for design software, image editors, and content management systems with advanced selection tools. Used in photo editing applications, graphic design tools, and any system requiring selection inversion. Alternative names include: invert selection, reverse selection, selection invert, inverted select, opposite selection, flip selection, reverse select, invert select, selection opposite, inverted selection, select inverse, selection flip, opposite select, invert marquee, reverse marquee.
+
+### selection-plus
+**Import:** `import { SelectionPlus } from 'phosphor-svelte';`
+**Description:** A design and editing icon representing additive selection functionality. This icon shows the ability to add to existing selections, expanding the selected area or items without losing the previous selection. Perfect for design applications, image editors, and content management systems requiring cumulative selection capabilities. Used in graphic design software, photo editing tools, and selection-based interfaces where multiple areas need to be selected together. Alternative names include: add to selection, expand selection, additive selection, selection add, plus selection, add selection, cumulative selection, extend selection, selection expand, multiple selection, add to select, selection accumulate, build selection, progressive selection, incremental selection.
+
+### selection-slash
+**Import:** `import { SelectionSlash } from 'phosphor-svelte';`
+**Description:** A design and editing icon representing selection removal or deselection functionality. This icon shows the ability to remove items from the current selection or deselect content while maintaining other selected items. Essential for design software, content editors, and applications with complex selection management. Used in graphic design tools, file managers, and any system requiring selective deselection without clearing all selections. Alternative names include: deselect, remove from selection, subtract selection, selection remove, unselect, selection subtract, remove selection, deselect tool, selection minus, clear selection, selection clear, partial deselect, selective unselect, selection reduction, subtract from selection.
+
+### shapes
+**Import:** `import { Shapes } from 'phosphor-svelte';`
+**Description:** A design icon representing geometric shapes and form creation tools. This icon typically displays multiple basic geometric forms like squares, circles, triangles, symbolizing shape tools, geometry, design elements, and creative building blocks. Perfect for design software, educational geometry apps, drawing tools, and creative platforms. Used in graphic design applications, educational tools teaching geometry, drawing software, and design element libraries. Alternative names include: geometric shapes, geometry, design shapes, basic shapes, shape tools, geometric forms, design elements, creative shapes, drawing shapes, geometric design, shape creation, design geometry, basic geometry, shape library, geometric elements, form shapes.
+
+### share
+**Import:** `import { Share } from 'phosphor-svelte';`
+**Description:** A communications icon representing sharing functionality with directional arrows. This icon depicts the classic share symbol with branching arrows, indicating the ability to share content, send information to others, export data, or distribute content across platforms. Essential for social media, content platforms, file sharing, and communication applications. Used universally across platforms for sharing posts, files, links, and content with others. Alternative names include: share content, send to, export, share button, distribute, share link, send content, share file, content sharing, social share, share post, share item, share data, share information, sharing tool, share feature.
+
+### share-fat
+**Import:** `import { ShareFat } from 'phosphor-svelte';`
+**Description:** A communications icon representing sharing functionality with thicker, more prominent arrows. This bold version of the share icon provides better visibility and emphasis for sharing features. Perfect for mobile interfaces, primary sharing buttons, and designs requiring more visual weight for sharing functionality. Used in social media apps, content sharing platforms, and interfaces where sharing is a primary action. Alternative names include: bold share, thick share, prominent share, heavy share, strong share icon, emphasized share, bold sharing, thick sharing icon, prominent sharing, heavy share button, strong sharing, bold share button, thick share button, emphasized sharing, share icon bold.
+
+### share-network
+**Import:** `import { ShareNetwork } from 'phosphor-svelte';`
+**Description:** A communications icon representing network-based sharing or distributed sharing functionality. This icon combines sharing arrows with network connectivity, symbolizing sharing across networks, social media distribution, multi-platform sharing, and connected sharing systems. Perfect for social media management tools, network-based applications, and platforms emphasizing connected sharing experiences. Used in social media schedulers, network applications, and sharing systems that distribute content across multiple platforms or networks. Alternative names include: network share, social sharing, distributed sharing, multi-platform share, connected sharing, network distribution, social network share, platform sharing, connected share, network send, distributed send, social distribution, network export, connected distribution, multi-network share.
+
+### shield
+**Import:** `import { Shield } from 'phosphor-svelte';`
+**Description:** A security icon representing protection, security, and defense systems. This icon depicts a classic shield shape, symbolizing security, protection, safety, authentication, encryption, defense, and guarded systems. Essential for security applications, authentication systems, antivirus software, privacy tools, and any platform emphasizing security and protection. Used universally to represent secure, protected, or authenticated states in digital interfaces. Alternative names include: security, protection, safety, secure, protected, defense, guard, security shield, protection badge, safety icon, secure system, authentication, encrypted, security symbol, safety symbol, protected system, secured content, security feature, defense system.
+
+### shield-check
+**Import:** `import { ShieldCheck } from 'phosphor-svelte';`
+**Description:** A security icon combining a shield with a checkmark, representing verified security or confirmed protection. This icon symbolizes authenticated security, verified protection, security validation, successful security checks, and confirmed safety status. Perfect for security confirmations, authentication success states, verified secure connections, and security validation systems. Used in security applications when protection is verified, authentication systems showing success, and secure connections. Alternative names include: verified security, authenticated protection, security verified, protected verified, secure check, security validation, authentication success, verified secure, security confirmed, protection confirmed, secure verified, safety verified, security approved, protection approved, verified safety, authenticated secure.
+
+### shield-checkered
+**Import:** `import { ShieldCheckered } from 'phosphor-svelte';`
+**Description:** A security icon featuring a shield with a checkered pattern, representing complex security, multi-layered protection, or racing-themed security contexts. This distinctive pattern suggests comprehensive security coverage, professional security services, or security systems with multiple verification layers. Used in advanced security applications, professional security services, and contexts requiring indication of comprehensive protection. Alternative names include: professional security, advanced protection, multi-layer security, comprehensive security, professional shield, advanced shield, security layers, protection layers, complex security, enterprise security, professional protection, security pattern, protection pattern, layered security, advanced safety.
+
+### shield-chevron
+**Import:** `import { ShieldChevron } from 'phosphor-svelte';`
+**Description:** A security icon featuring a shield with chevron patterns, representing ranked security, military-grade protection, or hierarchical security levels. This icon suggests professional security services, military-grade encryption, or tiered security systems. Perfect for enterprise security applications, professional security services, and systems emphasizing high-grade or military-level protection. Used in professional security platforms, enterprise applications, and high-security contexts. Alternative names include: military security, professional protection, ranked security, tiered security, enterprise shield, military shield, professional security, high-grade security, military protection, enterprise protection, professional safety, ranked protection, military-grade security, tiered protection, hierarchical security.
+
+### shield-plus
+**Import:** `import { ShieldPlus } from 'phosphor-svelte';`
+**Description:** A security icon combining a shield with a plus symbol, representing enhanced security, additional protection, security upgrades, or premium security features. This icon suggests the ability to add security features, upgrade protection levels, or access enhanced security services. Perfect for security upgrade offers, premium security features, and additional protection services. Used in security upgrade prompts, premium feature offerings, and enhanced security options. Alternative names include: enhanced security, security upgrade, premium protection, additional security, security plus, protection plus, enhanced protection, security enhancement, protection enhancement, premium security, upgraded security, advanced security, extra security, boosted protection, security improvement.
+
+### shield-slash
+**Import:** `import { ShieldSlash } from 'phosphor-svelte';`
+**Description:** A security icon showing a shield with a slash through it, representing disabled security, unprotected status, security breach, or compromised protection. This icon indicates when security features are turned off, protection is compromised, or systems are vulnerable. Essential for security warnings, unprotected state indicators, and security breach notifications. Used in security alerts, vulnerability warnings, and unprotected system indicators. Alternative names include: security disabled, unprotected, security off, protection disabled, unsecured, compromised security, security breach, vulnerable, unguarded, security warning, protection off, insecure, unencrypted, security compromised, protection compromised, security alert.
+
+### shield-star
+**Import:** `import { ShieldStar } from 'phosphor-svelte';`
+**Description:** A security icon combining a shield with a star, representing premium security, top-rated protection, starred security features, or excellence in security services. This icon suggests high-quality security, preferred security options, or award-winning security features. Perfect for premium security services, highly-rated security features, and top-tier protection offerings. Used in security service ratings, premium security options, and excellence indicators for security features. Alternative names include: premium security, top security, starred security, excellent protection, premium protection, top-rated security, favorite security, preferred security, quality security, elite security, superior protection, high-quality security, best security, award-winning security, excellence security.
+
+### shield-warning
+**Import:** `import { ShieldWarning } from 'phosphor-svelte';`
+**Description:** A security icon combining a shield with a warning symbol, representing security alerts, compromised protection, security issues requiring attention, or potential security threats. This icon indicates security problems, vulnerable systems, or security warnings that need user attention. Essential for security alert systems, threat notifications, and security issue reporting. Used in security monitoring systems, threat detection alerts, and security problem indicators. Alternative names include: security warning, security alert, compromised security, security threat, vulnerable security, security issue, protection warning, security problem, threatened security, security concern, unsafe security, security risk, compromised protection, security danger, protection alert.
+
+### shipping-container
+**Import:** `import { ShippingContainer } from 'phosphor-svelte';`
+**Description:** A transportation and commerce icon representing a shipping container used for cargo transport. This icon depicts a large rectangular container used in international shipping, freight transport, and logistics operations. Perfect for shipping companies, logistics platforms, cargo tracking systems, international trade applications, and supply chain management tools. Used in shipping tracking, freight management, logistics planning, and import/export operations. Alternative names include: cargo container, freight container, transport container, logistics container, shipping box, cargo box, freight box, container shipping, cargo transport, international shipping, trade container, export container, import container, supply chain container, logistics box.
+
+### shirt-folded
+**Import:** `import { ShirtFolded } from 'phosphor-svelte';`
+**Description:** A clothing icon representing a folded shirt or garment. This icon depicts neatly folded clothing, symbolizing apparel, clothing items, laundry, retail clothing, and textile products. Perfect for clothing stores, fashion e-commerce, laundry applications, wardrobe management tools, and retail platforms. Used in clothing catalogs, fashion apps, laundry services, and apparel inventory systems. Alternative names include: folded clothes, clothing item, apparel, shirt, garment, clothing, textile, fashion item, clothes, t-shirt, folded garment, retail clothing, fashion clothing, clothing product, apparel item, wardrobe item.
+
+### shooting-star
+**Import:** `import { ShootingStar } from 'phosphor-svelte';`
+**Description:** A nature icon representing a shooting star, meteor, or comet streaking across the sky. This icon depicts a star with a trailing line, symbolizing wishes, magical moments, celestial events, dreams coming true, and special occasions. Perfect for wish-making applications, celebration platforms, achievement systems, magical or fantasy-themed interfaces, and aspirational content. Used in gaming for special events, goal-setting apps, celebration features, and dream or wish tracking systems. Alternative names include: meteor, falling star, comet, wish star, celestial event, star trail, magical star, dream star, cosmic event, astronomical event, night sky, celestial body, space object, cosmic phenomenon, stellar event, wish fulfillment.
+
+### shopping-bag
+**Import:** `import { ShoppingBag } from 'phosphor-svelte';`
+**Description:** A commerce icon representing a shopping bag for retail purchases. This icon depicts a paper or fabric shopping bag with handles, symbolizing shopping, retail purchases, e-commerce, market transactions, and consumer activities. Essential for online stores, shopping applications, e-commerce platforms, retail websites, and marketplace interfaces. Used universally to represent shopping carts, purchase actions, retail stores, and commercial transactions. Alternative names include: shopping, retail bag, purchase bag, store bag, market bag, shopping tote, retail purchase, shopping basket, consumer bag, commerce bag, store purchase, shopping trip, retail shopping, marketplace bag, shopping experience.
+
+### shopping-bag-open
+**Import:** `import { ShoppingBagOpen } from 'phosphor-svelte';`
+**Description:** A commerce icon representing an open shopping bag, suggesting active shopping or viewing bag contents. This icon shows an opened shopping bag, symbolizing accessing purchases, viewing shopping cart contents, or active shopping sessions. Perfect for shopping cart reviews, bag content displays, active shopping states, and purchase confirmation screens. Used in e-commerce platforms for cart viewing, purchase review, shopping progress, and bag management features. Alternative names include: open bag, shopping cart view, bag contents, active shopping, shopping review, cart contents, purchase review, shopping session, open shopping, bag viewing, cart viewing, purchase viewing, shopping progress, active cart, shopping status.
+
+### shopping-cart
+**Import:** `import { ShoppingCart } from 'phosphor-svelte';`
+**Description:** A commerce icon representing a shopping cart for retail purchases and grocery shopping. This icon depicts a wheeled shopping cart, symbolizing shopping, groceries, retail purchases, e-commerce, supermarket shopping, and consumer activities. Essential for online stores, grocery apps, shopping platforms, e-commerce websites, and marketplace interfaces. The universal symbol for adding items to cart, checkout processes, and shopping functionality across digital platforms. Alternative names include: shopping trolley, grocery cart, shopping basket, market cart, store cart, retail cart, purchase cart, checkout cart, shopping vehicle, supermarket cart, grocery trolley, shopping wagon, consumer cart, market basket, shopping container.# Phosphor Icons Documentation - Batch 25
+
+### shopping-cart-simple
+**Import:** `import { ShoppingCartSimple } from 'phosphor-svelte';`
+**Description:** A simplified shopping cart icon perfect for ecommerce applications, online stores, and retail websites. This clean, minimalist cart design is ideal for checkout buttons, shopping bag indicators, cart summaries, purchase flows, and market applications. Use for grocery shopping, online marketplaces, retail commerce, buying processes, basket functionality, and any commerce-related interface. Alternative names: cart, basket, shopping bag, purchase cart, buy cart, ecommerce cart, retail cart, checkout cart, store cart, market basket.
+
+### shovel
+**Import:** `import { Shovel } from 'phosphor-svelte';`
+**Description:** A construction and gardening tool icon representing digging, excavation, and manual labor. Perfect for construction applications, gardening tools, landscaping services, farming equipment, maintenance work, and outdoor projects. Use in contexts related to earth moving, soil preparation, construction sites, agricultural tools, yard work, excavation projects, building construction, and manual labor activities. Alternative names: spade, digger, excavator tool, construction tool, garden tool, digging tool, earth mover, landscaping tool.
+
+### shower
+**Import:** `import { Shower } from 'phosphor-svelte';`
+**Description:** A bathroom shower head icon for hygiene, bathing, and bathroom-related applications. Essential for hotel booking systems, home improvement apps, bathroom design tools, plumbing services, and wellness applications. Use for bathroom facilities, personal hygiene features, accommodation amenities, bathing routines, water fixtures, bathroom renovation, plumbing installations, and health and wellness contexts. Alternative names: shower head, bath shower, bathroom fixture, bathing, water spray, hygiene, bathroom amenity, washing facility.
+
+### shrimp
+**Import:** `import { Shrimp } from 'phosphor-svelte';`
+**Description:** A seafood icon representing shrimp, prawns, and marine cuisine. Perfect for restaurant menus, food delivery apps, seafood markets, cooking applications, and culinary websites. Use for seafood restaurants, marine food categories, cooking recipes, food allergies (shellfish), culinary ingredients, ocean cuisine, and gourmet dining. Ideal for food commerce, restaurant ordering systems, and dietary preference selections. Alternative names: prawn, seafood, shellfish, marine food, ocean food, crustacean, cooking ingredient, restaurant menu item.
+
+### shuffle
+**Import:** `import { Shuffle } from 'phosphor-svelte';`
+**Description:** A crossed arrows shuffle icon for randomizing and reordering content. Essential for music players, playlist management, card games, content randomization, and media applications. Use for shuffle play modes, random ordering, content mixing, playlist randomization, game shuffling, data reordering, and any feature that involves random selection or arrangement. Perfect for audio players, video playlists, and gaming interfaces. Alternative names: randomize, mix, random, reorder, crossed arrows, shuffle mode, random play, mix up.
+
+### shuffle-angular
+**Import:** `import { ShuffleAngular } from 'phosphor-svelte';`
+**Description:** An angular-styled shuffle icon with sharp corners for modern music interfaces and media controls. Ideal for contemporary music players, audio streaming apps, playlist controls, and media management systems. Use for shuffle functionality in modern UI designs, random playback features, playlist randomization, and content mixing with a more geometric, angular aesthetic. Perfect for sleek media interfaces and modern audio applications. Alternative names: angular shuffle, modern shuffle, geometric shuffle, sharp shuffle, contemporary randomize.
+
+### shuffle-simple
+**Import:** `import { ShuffleSimple } from 'phosphor-svelte';`
+**Description:** A simplified, clean shuffle icon for minimalist interfaces and streamlined media controls. Perfect for simple music players, basic audio controls, clean UI designs, and minimal media interfaces. Use when you need shuffle functionality without visual complexity, in stripped-down media players, simple playlist controls, and clean interface designs. Ideal for minimalist applications and simplified user experiences. Alternative names: simple shuffle, minimal shuffle, clean shuffle, basic randomize, streamlined shuffle.
+
+### sidebar
+**Import:** `import { Sidebar } from 'phosphor-svelte';`
+**Description:** A sidebar layout icon representing navigation panels, side menus, and UI structure elements. Essential for web applications, dashboard interfaces, admin panels, and content management systems. Use for sidebar toggles, navigation menus, left rail controls, UI layout options, wireframe representations, and interface structure indicators. Perfect for responsive design controls, menu toggles, and layout customization features. Alternative names: side panel, navigation panel, left rail, side menu, layout panel, UI sidebar, menu sidebar, navigation rail.
+
+### sidebar-simple
+**Import:** `import { SidebarSimple } from 'phosphor-svelte';`
+**Description:** A simplified sidebar icon for clean, minimal interface designs and basic layout controls. Perfect for simple navigation systems, minimal UI frameworks, clean dashboard designs, and streamlined interface layouts. Use for basic sidebar toggles, simple navigation panels, minimal layout controls, and clean interface structure representations. Ideal for minimalist applications and simplified user interface designs. Alternative names: simple sidebar, minimal sidebar, clean sidebar, basic side panel, simple navigation panel.
+
+### sigma
+**Import:** `import { Sigma } from 'phosphor-svelte';`
+**Description:** The Greek letter Sigma (Σ) symbol used in mathematics, statistics, and scientific applications. Essential for mathematical software, statistical analysis tools, scientific calculators, educational applications, and data analysis platforms. Use for summation functions, mathematical operations, statistical calculations, scientific notation, academic applications, and technical documentation. Perfect for STEM education, mathematical computing, and scientific research tools. Alternative names: summation, mathematical symbol, Greek sigma, sum symbol, statistics symbol, mathematical notation, scientific symbol.
+
+### sign-in
+**Import:** `import { SignIn } from 'phosphor-svelte';`
+**Description:** A sign-in/login icon for user authentication and access control systems. Essential for login forms, authentication pages, user portals, and security interfaces. Use for login buttons, authentication prompts, user access controls, session management, account entry points, and security features. Perfect for web applications, mobile apps, and any system requiring user authentication. Critical for user experience in login flows and access management. Alternative names: login, log in, enter, authentication, access, user login, account access, signin, user entry.
+
+### sign-out
+**Import:** `import { SignOut } from 'phosphor-svelte';`
+**Description:** A sign-out/logout icon for ending user sessions and account security. Essential for user logout functionality, session termination, security controls, and account management. Use for logout buttons, session end controls, security features, account exit points, and user session management. Critical for user security and proper session handling in applications. Perfect for user account interfaces and security-conscious applications. Alternative names: logout, log out, exit, signout, end session, account logout, user exit, session termination.
+
+### signature
+**Import:** `import { Signature } from 'phosphor-svelte';`
+**Description:** A signature icon for document signing, authentication, and verification processes. Essential for digital signing applications, document management systems, legal software, and contract platforms. Use for electronic signatures, document authentication, legal agreements, contract signing, identity verification, and official document processes. Perfect for business applications, legal tech, and any system requiring signature verification or document authentication. Alternative names: autograph, sign, digital signature, electronic signature, document signing, verification, authentication signature.
+
+### signpost
+**Import:** `import { Signpost } from 'phosphor-svelte';`
+**Description:** A directional signpost icon for navigation, directions, and wayfinding applications. Perfect for map applications, travel guides, navigation systems, and location-based services. Use for route guidance, directional indicators, traffic information, road signs, travel planning, and location services. Essential for transportation apps, travel platforms, and any application providing directional guidance or location-based information. Alternative names: direction sign, road sign, waypoint, directional post, navigation sign, travel sign, route marker, direction marker.
+
+### sim-card
+**Import:** `import { SimCard } from 'phosphor-svelte';`
+**Description:** A SIM card icon for mobile communications, cellular services, and device management. Essential for mobile carrier applications, device setup interfaces, cellular service management, and telecommunications platforms. Use for mobile plan management, device activation, cellular connectivity, carrier services, mobile network settings, and telecommunications features. Perfect for mobile service providers, device management apps, and cellular communication interfaces. Alternative names: cellular card, mobile card, phone card, carrier card, cellular service, mobile network, telecommunications card.
+
+### siren
+**Import:** `import { Siren } from 'phosphor-svelte';`
+**Description:** An emergency siren icon for alerts, warnings, and emergency services. Essential for emergency applications, alert systems, public safety platforms, and warning interfaces. Use for emergency alerts, alarm systems, police services, emergency notifications, warning indicators, and critical system alerts. Perfect for public safety applications, emergency management systems, and any interface requiring urgent attention or emergency communication. Alternative names: alarm, emergency light, police siren, warning siren, emergency alarm, alert siren, police light, emergency signal.
+
+### sketch-logo
+**Import:** `import { SketchLogo } from 'phosphor-svelte';`
+**Description:** The Sketch application logo representing design software, UI/UX design, and creative tools. Perfect for design portfolios, creative applications, UI design tools, and graphic design platforms. Use for design software integration, creative tool references, UI design workflows, prototyping applications, and design-related features. Essential for design professionals, creative software, and any application related to digital design or illustration. Alternative names: design tool, UI design, sketch app, design software, creative tool, prototype tool, interface design, vector design.
+
+### skip-back
+**Import:** `import { SkipBack } from 'phosphor-svelte';`
+**Description:** A skip backward icon for media controls and navigation. Essential for music players, video applications, podcast players, and media streaming services. Use for previous track functionality, backward seeking, media navigation, playlist controls, and content skipping. Perfect for audio players, video controls, and any media interface requiring backward navigation or previous item selection. Critical for media playback controls and content browsing. Alternative names: previous, rewind, back, backward, skip previous, previous track, media back, reverse skip.
+
+### skip-back-circle
+**Import:** `import { SkipBackCircle } from 'phosphor-svelte';`
+**Description:** A circular skip backward icon providing a contained, button-like appearance for media controls. Perfect for music players, audio applications, and media interfaces requiring prominent control buttons. Use for previous track buttons, backward navigation controls, media player interfaces, and playlist management. The circular design makes it ideal for touch interfaces and prominent media control layouts. Alternative names: previous circle, back circle, circular skip back, round previous, media circle back.
+
+### skip-forward
+**Import:** `import { SkipForward } from 'phosphor-svelte';`
+**Description:** A skip forward icon for advancing through media content and navigation. Essential for music players, video streaming, podcast applications, and media controls. Use for next track functionality, forward seeking, content advancement, playlist navigation, and media skipping. Perfect for audio players, video interfaces, and any media application requiring forward navigation or next item selection. Critical component of media playback controls. Alternative names: next, forward, skip next, next track, advance, media forward, fast forward skip.
+
+### skip-forward-circle
+**Import:** `import { SkipForwardCircle } from 'phosphor-svelte';`
+**Description:** A circular skip forward icon with button-like styling for prominent media controls. Ideal for music streaming apps, video players, and audio interfaces requiring clear, touchable controls. Use for next track buttons, forward navigation, media advancement, and playlist controls. The circular design provides a professional, contained look perfect for media player interfaces and touch-friendly controls. Alternative names: next circle, forward circle, circular skip forward, round next, media circle forward.
+
+### skull
+**Import:** `import { Skull } from 'phosphor-svelte';`
+**Description:** A skull icon for gaming, danger warnings, and dark-themed applications. Perfect for gaming interfaces, horror-themed content, warning indicators, and danger alerts. Use in gaming applications for death indicators, elimination markers, danger zones, warning systems, and dark-themed UI elements. Popular in gaming, horror content, warning systems, and applications requiring death or danger symbolism. Alternative names: death, danger, warning, gaming death, elimination, deceased, mortality, danger symbol.
+
+### skype-logo
+**Import:** `import { SkypeLogo } from 'phosphor-svelte';`
+**Description:** The Skype brand logo for video calling, messaging, and communication applications. Essential for communication platforms, video conferencing tools, messaging applications, and social connectivity features. Use for video call integrations, communication service connections, messaging platform references, and telecommunication features. Perfect for business communication tools, personal messaging apps, and video conferencing interfaces. Alternative names: video call, messaging service, communication platform, video chat, voice call, telecommunication service.
+
+### slack-logo
+**Import:** `import { SlackLogo } from 'phosphor-svelte';`
+**Description:** The Slack brand logo representing team communication, workplace messaging, and business collaboration. Essential for business communication tools, team collaboration platforms, workplace applications, and professional messaging systems. Use for Slack integrations, team communication features, business messaging, workspace tools, and professional collaboration interfaces. Perfect for business applications, team management tools, and enterprise communication systems. Alternative names: team communication, workplace messaging, business chat, collaboration tool, team chat, professional messaging.
+
+### sliders
+**Import:** `import { Sliders } from 'phosphor-svelte';`
+**Description:** Vertical sliders/faders icon for audio controls, settings, and adjustment interfaces. Essential for music applications, audio editing software, equalizers, and preference settings. Use for volume controls, audio mixing, equalizer interfaces, settings panels, preference adjustments, and any application requiring slider-based controls. Perfect for audio software, media players, and configuration interfaces requiring granular control adjustments. Alternative names: faders, controls, equalizer, volume, settings, preferences, audio controls, mixer, adjustments.
+
+### sliders-horizontal
+**Import:** `import { SlidersHorizontal } from 'phosphor-svelte';`
+**Description:** Horizontal sliders/faders icon for settings, controls, and configuration interfaces. Perfect for settings panels, preference controls, adjustment interfaces, and configuration tools. Use for horizontal control layouts, settings adjustments, preference panels, audio controls, and any interface requiring horizontal slider controls. Ideal for wide layout configurations and horizontal control arrangements in applications and settings interfaces. Alternative names: horizontal faders, horizontal controls, settings controls, preference sliders, horizontal adjustments.
+
+### slideshow
+**Import:** `import { Slideshow } from 'phosphor-svelte';`
+**Description:** A slideshow icon for image galleries, presentations, and media browsing. Perfect for photo applications, presentation software, image viewers, and gallery interfaces. Use for photo slideshows, presentation modes, image carousels, gallery browsing, and media presentation features. Essential for photography applications, presentation tools, and any interface requiring sequential image or content display functionality. Alternative names: presentation, gallery, carousel, image viewer, photo slideshow, media browser, picture show.
+
+### smiley
+**Import:** `import { Smiley } from 'phosphor-svelte';`
+**Description:** A happy smiley face emoji for positive interactions, feedback, and emotional expression. Essential for messaging applications, feedback systems, social media platforms, and user interaction features. Use for positive feedback, happy emotions, satisfaction indicators, social interactions, emoji selections, and mood expressions. Perfect for communication apps, social platforms, and any interface requiring emotional expression or positive sentiment indicators. Alternative names: happy face, emoji, smile, positive emotion, happy emoji, grinning face, cheerful, joyful.
+
+### smiley-angry
+**Import:** `import { SmileyAngry } from 'phosphor-svelte';`
+**Description:** An angry face emoji for negative feedback, frustration, and emotional expression. Important for messaging apps, feedback systems, emotion selection, and social communication. Use for negative feedback, anger expression, frustration indicators, dissatisfaction markers, and emotional communication. Essential for social platforms, messaging applications, and any interface allowing users to express negative emotions or provide critical feedback. Alternative names: angry face, mad emoji, frustrated face, upset emoji, negative emotion, frown, annoyed face.
+
+### smiley-blank
+**Import:** `import { SmileyBlank } from 'phosphor-svelte';`
+**Description:** A blank, expressionless face emoji for neutral states, unimpressed reactions, and ambiguous emotions. Perfect for messaging applications, feedback systems, and emotional expression interfaces. Use for neutral feedback, blank expressions, unimpressed reactions, ambiguous emotions, and situations requiring a non-committal emotional indicator. Ideal for social communication and messaging platforms where users need to express neutrality or lack of reaction. Alternative names: blank face, neutral emoji, expressionless, no emotion, poker face, indifferent, unimpressed face.
+
+### smiley-meh
+**Import:** `import { SmileyMeh } from 'phosphor-svelte';`
+**Description:** A "meh" or unimpressed face emoji for neutral, lukewarm, or indifferent reactions. Essential for feedback systems, rating interfaces, and emotional expression in messaging. Use for mediocre feedback, neutral opinions, indifferent reactions, lukewarm responses, and situations where users feel neither positive nor negative. Perfect for review systems, satisfaction surveys, and social communication requiring nuanced emotional expression. Alternative names: meh face, neutral face, unimpressed, indifferent emoji, mediocre reaction, lukewarm response.
+
+### smiley-melting
+**Import:** `import { SmileyMelting } from 'phosphor-svelte';`
+**Description:** A melting face emoji representing embarrassment, awkwardness, extreme heat, or overwhelming situations. Perfect for messaging apps, social media, and emotional expression interfaces. Use for expressing embarrassment, sarcasm, shame, awkward situations, extreme heat, overwhelming feelings, and situations that make someone feel like they're "melting." Popular in modern communication for expressing complex emotions and reactions to uncomfortable or intense situations. Alternative names: melting face, embarrassed emoji, awkward face, overwhelmed emoji, shame face, hot face, sarcasm emoji.
+
+### smiley-nervous
+**Import:** `import { SmileyNervous } from 'phosphor-svelte';`
+**Description:** A nervous or anxious face emoji for expressing discomfort, anxiety, or unease. Essential for messaging applications, emotional expression, and social communication platforms. Use for expressing nervousness, anxiety, discomfort, uneasiness, queasiness, sickness, and uncomfortable situations. Perfect for social media, messaging apps, and any platform where users need to communicate feelings of nervousness, illness, or social anxiety. Alternative names: nervous face, anxious emoji, uncomfortable face, uneasy emoji, queasy face, sick emoji, worried face.
+
+### smiley-sad
+**Import:** `import { SmileySad } from 'phosphor-svelte';`
+**Description:** A sad face emoji for expressing disappointment, unhappiness, and negative emotions. Crucial for messaging applications, feedback systems, and emotional communication interfaces. Use for expressing sadness, disappointment, unhappiness, negative feedback, and melancholic emotions. Essential for social platforms, messaging apps, and any interface where users need to communicate negative feelings or disappointment. Critical for emotional expression and user feedback systems. Alternative names: sad face, unhappy emoji, disappointed face, frowning emoji, melancholy face, down emoji.
+
+### smiley-sticker
+**Import:** `import { SmileySticker } from 'phosphor-svelte';`
+**Description:** A happy smiley face designed as a sticker for fun, casual communication and decorative messaging. Perfect for messaging apps, social media stickers, casual communication, and playful interfaces. Use for sticker collections, fun messaging, casual social interaction, decorative communication, and playful user interfaces. Ideal for informal communication platforms and applications targeting younger demographics or casual social interaction. Alternative names: happy sticker, smile sticker, fun emoji, casual smiley, decorative emoji, playful face.
+
+### smiley-wink
+**Import:** `import { SmileyWink } from 'phosphor-svelte';`
+**Description:** A winking smiley face emoji for playful, flirty, or knowing communication. Essential for messaging apps, social platforms, and casual communication interfaces. Use for playful interactions, flirting, knowing gestures, cute expressions, friendly winks, and lighthearted communication. Perfect for social media, dating apps, casual messaging, and any platform where users engage in playful or flirtatious communication. Alternative names: winking face, flirty emoji, playful wink, cute face, knowing smile, cheeky emoji.
+
+### smiley-x-eyes
+**Import:** `import { SmileyXEyes } from 'phosphor-svelte';`
+**Description:** A face with X-shaped eyes representing being knocked out, dead, or unconscious. Popular in gaming, cartoon-style communication, and dramatic expression contexts. Use for gaming interfaces (death/knockout indicators), dramatic messaging, cartoon-style communication, being overwhelmed, exhaustion, and situations where someone feels "dead" from fatigue or shock. Perfect for gaming applications, casual messaging, and expressive communication. Alternative names: dead face, knocked out emoji, unconscious face, x-eyes emoji, cartoon death, overwhelmed emoji, exhausted face.
+
+### snapchat-logo
+**Import:** `import { SnapchatLogo } from 'phosphor-svelte';`
+**Description:** The Snapchat brand logo for social media, ephemeral messaging, and photo sharing. Essential for social media integrations, messaging applications, photo sharing platforms, and social networking features. Use for Snapchat integrations, social media connections, photo sharing features, ephemeral messaging, and social communication tools. Perfect for social platforms, messaging apps, and applications targeting social media integration and youth-oriented communication. Alternative names: social media, photo sharing, messaging app, ephemeral messaging, social platform, snap.
+
+### sneaker
+**Import:** `import { Sneaker } from 'phosphor-svelte';`
+**Description:** A sneaker/athletic shoe icon for sports, fitness, fashion, and retail applications. Perfect for sports apps, fitness platforms, shoe stores, athletic gear, and fashion retailers. Use for sports equipment, athletic wear, fitness tracking, running apps, shoe shopping, fashion categories, and sports-related features. Essential for fitness applications, sports retail, athletic performance tracking, and fashion commerce platforms focusing on footwear and athletic apparel. Alternative names: athletic shoe, running shoe, trainer, sports shoe, tennis shoe, gym shoe, athletic footwear, running gear.
+
+### sneaker-move
+**Import:** `import { SneakerMove } from 'phosphor-svelte';`
+**Description:** A sneaker in motion representing movement, fitness activity, and athletic performance. Perfect for fitness apps, running trackers, sports platforms, and activity monitoring systems. Use for step counting, activity tracking, running apps, fitness goals, movement indicators, athletic performance, and sports activity features. Essential for fitness tracking applications, health platforms, and sports performance monitoring tools that track physical activity and movement. Alternative names: moving shoe, active sneaker, fitness tracker, running motion, athletic movement, step counter, activity indicator.
+
+### snowflake
+**Import:** `import { Snowflake } from 'phosphor-svelte';`
+**Description:** A snowflake icon for weather applications, winter themes, and meteorological interfaces. Essential for weather apps, seasonal applications, climate data, and winter-themed interfaces. Use for weather forecasting, snow conditions, winter weather alerts, seasonal content, holiday themes, and meteorological data presentation. Perfect for weather platforms, seasonal applications, and any interface requiring winter weather representation or snow-related information. Alternative names: snow, winter weather, precipitation, winter storm, snowy conditions, ice crystal, winter symbol.
+
+### soccer-ball
+**Import:** `import { SoccerBall } from 'phosphor-svelte';`
+**Description:** A soccer ball (football) icon for sports applications, gaming, and athletic content. Essential for sports apps, soccer/football platforms, sports betting, team management, and athletic social networks. Use for soccer games, football clubs, sports statistics, team sports, athletic competitions, sports news, and soccer-related features. Perfect for sports platforms, gaming applications, and social networks focused on soccer/football content and community. Alternative names: football, soccer, sports ball, football ball, team sport, athletic ball, soccer game, football match.
+
+### sock
+**Import:** `import { Sock } from 'phosphor-svelte';`
+**Description:** A sock icon for clothing retail, fashion applications, and apparel categories. Perfect for clothing stores, fashion apps, laundry applications, wardrobe management, and retail platforms. Use for clothing categories, fashion retail, apparel shopping, wardrobe organization, laundry sorting, and clothing-related features. Essential for fashion commerce, clothing applications, and retail platforms focusing on apparel and clothing accessories. Alternative names: clothing, apparel, hosiery, footwear accessory, garment, clothing item, wardrobe piece.
+
+### solar-panel
+**Import:** `import { SolarPanel } from 'phosphor-svelte';`
+**Description:** A solar panel icon for renewable energy, sustainability, and green technology applications. Perfect for environmental apps, energy management systems, sustainability platforms, and green technology interfaces. Use for renewable energy features, solar installations, environmental sustainability, green technology, energy efficiency, and eco-friendly applications. Essential for environmental platforms, energy management tools, and applications promoting sustainable technology and renewable energy solutions. Alternative names: renewable energy, green energy, sustainable power, photovoltaic, clean energy, eco technology, environmental energy, green power.
+
+### solar-roof
+**Import:** `import { SolarRoof } from 'phosphor-svelte';`
+**Description:** A house roof with solar panels representing residential renewable energy and sustainable housing. Perfect for home energy systems, residential sustainability, green building applications, and renewable energy platforms. Use for home solar installations, residential energy management, green building features, sustainable housing, energy-efficient homes, and residential renewable energy systems. Essential for home improvement apps, energy management platforms, and sustainable living applications. Alternative names: solar house, green roof, sustainable home, residential solar, eco roof, energy efficient house, renewable home, green building.
+
+### sort-ascending
+**Import:** `import { SortAscending } from 'phosphor-svelte';`
+**Description:** An ascending sort icon for organizing data from low to high or A to Z. Essential for data tables, list interfaces, content organization, and database applications. Use for sorting functionality, data organization, list management, alphabetical ordering, numerical ascending order, and content arrangement features. Critical for data interfaces, spreadsheet applications, and any platform requiring data organization and sorting capabilities. Perfect for admin panels and data management tools. Alternative names: sort up, ascending order, A to Z, low to high, increasing sort, upward sort, data ascending, list sort up.
+
+### sort-descending
+**Import:** `import { SortDescending } from 'phosphor-svelte';`
+**Description:** A descending sort icon for organizing data from high to low or Z to A. Essential for data tables, content management, list organization, and database interfaces. Use for reverse sorting, descending order, Z to A arrangement, high to low organization, and data sorting features. Critical for data management applications, content organization tools, and any interface requiring descending data arrangement. Perfect for analytics dashboards and data visualization platforms. Alternative names: sort down, descending order, Z to A, high to low, decreasing sort, downward sort, data descending, list sort down.
+
+### soundcloud-logo
+**Import:** `import { SoundcloudLogo } from 'phosphor-svelte';`
+**Description:** The SoundCloud brand logo for music streaming, audio sharing, and social audio platforms. Essential for music applications, audio streaming services, podcast platforms, and social music sharing. Use for SoundCloud integrations, music streaming features, audio social media, podcast sharing, and music discovery platforms. Perfect for music apps, audio content platforms, and social media applications focusing on audio content and music community features. Alternative names: music streaming, audio platform, music social media, audio sharing, podcast platform, music community.
+
+### spade
+**Import:** `import { Spade } from 'phosphor-svelte';`
+**Description:** A spade playing card suit for card games, gambling, and gaming applications. Essential for card game interfaces, casino applications, poker platforms, and gambling software. Use for card games, poker interfaces, casino gaming, card suit indicators, gambling applications, and gaming features involving playing cards. Perfect for online casinos, card game apps, poker platforms, and any gaming interface requiring playing card symbolism or card game functionality. Alternative names: playing card suit, card symbol, poker suit, gambling symbol, casino icon, card game, poker spade, gaming suit.
+
+### sparkle
+**Import:** `import { Sparkle } from 'phosphor-svelte';`
+**Description:** A sparkle/star icon for ratings, favorites, special content, and highlighting features. Essential for rating systems, favorite indicators, premium content, and attention-grabbing elements. Use for star ratings, favorite buttons, premium features, special content highlighting, quality indicators, and excellence markers. Perfect for review platforms, content curation, premium services, and any interface requiring positive emphasis or special designation. Critical for user engagement and content highlighting features. Alternative names: star, favorite, rating, premium, special, quality, excellence, highlight, featured content, top rated.# Phosphor Icons Batch 26 Documentation
+
+### speaker-hifi
+**Import:** `import { SpeakerHifi } from 'phosphor-svelte';`
+**Description:** High-fidelity speaker icon representing premium audio equipment, stereo systems, and professional sound hardware. Perfect for music applications, audio equipment catalogs, sound system interfaces, hi-fi audio components, premium speaker products, stereo setups, audiophile equipment, and professional audio gear. Also suitable for media players, sound quality indicators, audio fidelity settings, speaker configuration panels, and high-end audio system representations.
+
+### speaker-high
+**Import:** `import { SpeakerHigh } from 'phosphor-svelte';`
+**Description:** High volume speaker icon showing maximum audio output levels. Essential for volume controls, audio interfaces, media players, sound settings, volume sliders, audio controls, music applications, system audio panels, speaker volume indicators, loud audio representations, maximum volume settings, audio level displays, sound output controls, and volume adjustment interfaces. Updated design for modern applications.
+
+### speaker-low
+**Import:** `import { SpeakerLow } from 'phosphor-svelte';`
+**Description:** Low volume speaker icon representing quiet audio output and minimal sound levels. Ideal for volume controls, audio settings, quiet mode indicators, low volume states, sound level adjustments, audio interface controls, media player volume, system audio settings, whisper mode, soft audio output, volume down controls, and quiet listening preferences. Updated design for contemporary interfaces.
+
+### speaker-none
+**Import:** `import { SpeakerNone } from 'phosphor-svelte';`
+**Description:** Muted speaker icon showing no audio output or silent mode. Perfect for mute buttons, silent mode indicators, no sound states, audio off controls, quiet mode toggles, sound disable buttons, volume mute functions, silent notifications, audio pause states, soundless operations, mute controls in media players, and silence indicators in communication apps. Updated for modern UI standards.
+
+### speaker-simple-high
+**Import:** `import { SpeakerSimpleHigh } from 'phosphor-svelte';`
+**Description:** Simplified high volume speaker icon with clean, minimal design. Great for compact audio controls, simple volume interfaces, basic media players, minimalist audio settings, clean volume indicators, streamlined sound controls, simple music apps, basic audio interfaces, condensed volume controls, and modern minimal UI designs where space is limited.
+
+### speaker-simple-low
+**Import:** `import { SpeakerSimpleLow } from 'phosphor-svelte';`
+**Description:** Simplified low volume speaker icon with minimal visual elements. Perfect for compact volume controls, basic audio interfaces, simple sound settings, minimal media players, clean volume indicators, streamlined audio controls, basic music applications, simplified sound interfaces, condensed volume displays, and space-efficient audio controls in modern applications.
+
+### speaker-simple-none
+**Import:** `import { SpeakerSimpleNone } from 'phosphor-svelte';`
+**Description:** Simplified muted speaker icon with clean, minimal design showing no audio output. Ideal for compact mute buttons, simple silent mode toggles, basic audio off indicators, minimal mute controls, clean soundless states, streamlined silence indicators, simple quiet mode buttons, basic audio disable controls, and minimalist mute functions in space-constrained interfaces.
+
+### speaker-simple-slash
+**Import:** `import { SpeakerSimpleSlash } from 'phosphor-svelte';`
+**Description:** Simplified muted speaker with slash indicating disabled audio or sound prohibition. Perfect for audio disabled states, sound restriction indicators, muted communication tools, disabled audio controls, audio permission denials, sound blocking interfaces, audio restriction warnings, disabled speaker states, sound prohibition symbols, and audio access control indicators.
+
+### speaker-simple-x
+**Import:** `import { SpeakerSimpleX } from 'phosphor-svelte';`
+**Description:** Simplified speaker with X mark indicating audio errors, disabled sound, or failed audio operations. Excellent for audio error states, sound system failures, speaker connection problems, audio device errors, sound output failures, audio troubleshooting interfaces, speaker malfunction indicators, audio system diagnostics, sound error notifications, and audio hardware problem alerts.
+
+### speaker-slash
+**Import:** `import { SpeakerSlash } from 'phosphor-svelte';`
+**Description:** Speaker with diagonal slash indicating disabled audio, muted sound, or audio restrictions. Ideal for muted audio states, disabled sound controls, audio restriction indicators, sound prohibition symbols, muted media players, disabled audio output, sound blocking interfaces, audio access restrictions, muted communication systems, and audio permission controls. Updated design for modern applications.
+
+### speaker-x
+**Import:** `import { SpeakerX } from 'phosphor-svelte';`
+**Description:** Speaker with X mark showing audio errors, sound system failures, or disabled audio hardware. Perfect for audio error notifications, speaker malfunction alerts, sound system diagnostics, audio device problems, speaker connection failures, audio troubleshooting interfaces, sound output errors, audio hardware issues, media player errors, and audio system status indicators. Updated for contemporary error handling.
+
+### speedometer
+**Import:** `import { Speedometer } from 'phosphor-svelte';`
+**Description:** Speedometer gauge icon representing speed measurement, performance monitoring, and dashboard displays. Perfect for performance dashboards, speed indicators, analytics interfaces, monitoring tools, gauge displays, meter readings, performance metrics, dashboard widgets, speed measurement tools, automotive interfaces, system performance indicators, benchmark displays, and progress monitoring interfaces. New addition for comprehensive measurement displays.
+
+### sphere
+**Import:** `import { Sphere } from 'phosphor-svelte';`
+**Description:** Three-dimensional sphere icon representing 3D objects, geometric shapes, and spatial design elements. Ideal for 3D modeling applications, CAD software interfaces, geometric design tools, spatial visualization, 3D graphics applications, modeling software, mesh design interfaces, spherical objects, ball representations, circular 3D elements, design software tools, and computer-aided design applications. New addition for 3D design workflows.
+
+### spinner
+**Import:** `import { Spinner } from 'phosphor-svelte';`
+**Description:** Loading spinner icon indicating ongoing processes, data loading, or waiting states. Essential for loading indicators, progress displays, waiting screens, data fetching states, processing indicators, async operation displays, loading animations, buffering states, system processing alerts, background task indicators, and user interface loading states in applications and websites.
+
+### spinner-ball
+**Import:** `import { SpinnerBall } from 'phosphor-svelte';`
+**Description:** Ball-style loading spinner with distinctive circular design for indicating active processes and loading states. Perfect for modern loading interfaces, animated progress indicators, stylish waiting screens, contemporary loading animations, sleek processing displays, modern async operation indicators, and sophisticated loading states in applications requiring elegant visual feedback. New addition for enhanced loading experiences.
+
+### spinner-gap
+**Import:** `import { SpinnerGap } from 'phosphor-svelte';`
+**Description:** Gap-style loading spinner with segmented circular design indicating active loading or processing states. Ideal for loading screens, progress indicators, waiting displays, data processing states, buffering indicators, async operation feedback, loading animations, system processing alerts, background task displays, and modern loading interfaces requiring clear visual progress feedback.
+
+### spiral
+**Import:** `import { Spiral } from 'phosphor-svelte';`
+**Description:** Spiral icon representing circular motion, rotation, dizziness, or spinning elements. Perfect for rotation controls, spin animations, dizzy state indicators, circular motion representations, spiral patterns, rotating elements, motion graphics, animation controls, spinning objects, circular movement indicators, rotational interfaces, and dynamic motion displays. Updated design for enhanced visual appeal.
+
+### split-horizontal
+**Import:** `import { SplitHorizontal } from 'phosphor-svelte';`
+**Description:** Horizontal split icon showing division into columns or side-by-side layouts. Essential for layout controls, column arrangements, horizontal divisions, split-screen interfaces, dual-pane layouts, side-by-side comparisons, column resize controls, horizontal layout options, multi-column displays, split view toggles, and responsive design controls in editors and applications.
+
+### split-vertical
+**Import:** `import { SplitVertical } from 'phosphor-svelte';`
+**Description:** Vertical split icon representing row divisions or top-bottom layout arrangements. Perfect for vertical layout controls, row arrangements, vertical divisions, split-screen options, stacked layouts, top-bottom comparisons, row resize controls, vertical layout toggles, multi-row displays, split view interfaces, and responsive design options in development and design tools.
+
+### spotify-logo
+**Import:** `import { SpotifyLogo } from 'phosphor-svelte';`
+**Description:** Spotify brand logo icon representing the popular music streaming platform. Perfect for music applications, streaming service integrations, social media sharing, music player interfaces, playlist sharing, audio streaming controls, music service connections, media platform indicators, music discovery interfaces, streaming service logos, and third-party music integration displays.
+
+### spray-bottle
+**Import:** `import { SprayBottle } from 'phosphor-svelte';`
+**Description:** Spray bottle icon representing cleaning supplies, disinfectants, and maintenance tools. Ideal for cleaning applications, household management apps, maintenance interfaces, cleaning supply catalogs, disinfection tools, sanitization controls, cleaning service apps, janitorial software, hygiene applications, and cleaning schedule management. New addition for comprehensive cleaning and maintenance workflows.
+
+### square
+**Import:** `import { Square } from 'phosphor-svelte';`
+**Description:** Basic square shape icon representing geometric forms, four-sided polygons, and fundamental design elements. Perfect for shape tools, geometric design applications, basic drawing interfaces, polygon creation tools, square selections, geometric pattern designs, shape libraries, fundamental form representations, mathematical diagrams, and basic geometric construction in design software.
+
+### square-half
+**Import:** `import { SquareHalf } from 'phosphor-svelte';`
+**Description:** Half-filled square icon representing partial states, split layouts, or column divisions. Excellent for sidebar indicators, split view controls, partial completion states, column layout toggles, vertical split representations, sidebar visibility controls, panel division indicators, half-state displays, partial progress indicators, and split-screen layout options.
+
+### square-half-bottom
+**Import:** `import { SquareHalfBottom } from 'phosphor-svelte';`
+**Description:** Square with bottom half filled, representing bottom-aligned content, partial completion, or lower section focus. Perfect for bottom panel indicators, lower content sections, partial loading states, bottom-heavy layouts, foundation representations, bottom-aligned elements, partial fill indicators, and bottom section highlights in interface designs.
+
+### square-logo
+**Import:** `import { SquareLogo } from 'phosphor-svelte';`
+**Description:** Square payment processor logo representing the financial services and payment platform. Ideal for payment processing interfaces, financial transaction systems, point-of-sale applications, merchant services, payment gateway integrations, e-commerce payment options, financial service connections, transaction processing displays, and payment method selections.
+
+### square-split-horizontal
+**Import:** `import { SquareSplitHorizontal } from 'phosphor-svelte';`
+**Description:** Square divided horizontally into columns representing side-by-side layouts and horizontal splits. Perfect for column layout controls, horizontal divisions, side-by-side arrangements, multi-column displays, horizontal split views, column-based interfaces, dual-pane layouts, horizontal partitions, and responsive column designs in applications and editors.
+
+### square-split-vertical
+**Import:** `import { SquareSplitVertical } from 'phosphor-svelte';`
+**Description:** Square divided vertically into rows representing stacked layouts and vertical divisions. Ideal for row layout controls, vertical splits, stacked arrangements, multi-row displays, vertical split views, row-based interfaces, top-bottom layouts, vertical partitions, and responsive row designs in development and design applications.
+
+### squares-four
+**Import:** `import { SquaresFour } from 'phosphor-svelte';`
+**Description:** Four squares grid icon representing applications, grid layouts, and multi-item displays. Essential for app launchers, application grids, dashboard layouts, grid view toggles, multi-app interfaces, tile displays, application collections, grid-based navigation, four-square layouts, app organization interfaces, Microsoft-style logos, and grid pattern representations.
+
+### stack
+**Import:** `import { Stack } from 'phosphor-svelte';`
+**Description:** Stacked layers icon representing layered content, card stacks, or multiple items. Perfect for layer management, card-based interfaces, stacked content displays, layer controls in design software, card stacks in applications, multiple document indicators, layered interface elements, stack-based navigation, and multi-level content organization.
+
+### stack-minus
+**Import:** `import { StackMinus } from 'phosphor-svelte';`
+**Description:** Stack with minus sign indicating layer removal, stack reduction, or item deletion from collections. Ideal for layer deletion controls, stack item removal, content reduction interfaces, layer management tools, stack manipulation controls, item removal buttons, collection reduction indicators, and layer subtraction operations. New addition for comprehensive stack management.
+
+### stack-overflow-logo
+**Import:** `import { StackOverflowLogo } from 'phosphor-svelte';`
+**Description:** Stack Overflow platform logo representing the developer community and programming Q&A site. Perfect for developer tools, programming resources, coding community links, technical support interfaces, developer platform integrations, programming help sections, coding assistance tools, and technical knowledge sharing applications.
+
+### stack-plus
+**Import:** `import { StackPlus } from 'phosphor-svelte';`
+**Description:** Stack with plus sign indicating layer addition, stack expansion, or new item creation. Excellent for layer creation controls, stack item addition, content expansion interfaces, layer management tools, stack building controls, item addition buttons, collection expansion indicators, and layer addition operations. New addition for enhanced stack manipulation.
+
+### stack-simple
+**Import:** `import { StackSimple } from 'phosphor-svelte';`
+**Description:** Simplified stack icon with clean, minimal design representing layered content or card collections. Perfect for basic layer controls, simple card interfaces, minimal stack displays, clean layer management, streamlined stacked content, basic collection indicators, simplified multi-item displays, and space-efficient stack representations.
+
+### stairs
+**Import:** `import { Stairs } from 'phosphor-svelte';`
+**Description:** Staircase icon representing steps, escalators, or vertical navigation. Ideal for building navigation, floor selection interfaces, multi-level navigation, accessibility information, exit signs, building directories, stairway indicators, level change controls, vertical movement representations, and architectural navigation elements.
+
+### stamp
+**Import:** `import { Stamp } from 'phosphor-svelte';`
+**Description:** Rubber stamp icon representing approval, authentication, or official marking. Perfect for approval workflows, document stamping interfaces, authentication controls, official marking tools, approval stamp functions, document validation systems, certification indicators, official seal representations, and administrative approval processes.
+
+### standard-definition
+**Import:** `import { StandardDefinition } from 'phosphor-svelte';`
+**Description:** Standard definition (SD) video quality indicator representing lower resolution video content. Ideal for video quality selectors, resolution controls, media player settings, video streaming interfaces, quality adjustment options, video resolution indicators, streaming quality controls, and media format displays. New addition for comprehensive video quality management.
+
+### star
+**Import:** `import { Star } from 'phosphor-svelte';`
+**Description:** Star icon representing favorites, ratings, bookmarks, and quality indicators. Essential for rating systems, favorite buttons, bookmark controls, quality ratings, star ratings, preference indicators, featured content markers, excellence symbols, review interfaces, and user preference systems in applications and websites.
+
+### star-and-crescent
+**Import:** `import { StarAndCrescent } from 'phosphor-svelte';`
+**Description:** Star and crescent symbol representing Islamic faith, Muslim religion, and cultural identity. Perfect for religious applications, cultural interfaces, faith-based communities, religious calendar apps, Islamic resources, Muslim community platforms, religious symbol displays, cultural representation, and interfaith dialogue applications.
+
+### star-four
+**Import:** `import { StarFour } from 'phosphor-svelte';`
+**Description:** Four-pointed star icon representing ratings, favorites, or special highlighting with geometric precision. Excellent for rating systems, favorite indicators, star ratings, bookmark controls, featured content markers, preference systems, quality indicators, highlighted items, special selections, and geometric star representations in clean, modern interfaces.
+
+### star-half
+**Import:** `import { StarHalf } from 'phosphor-svelte';`
+**Description:** Half-filled star icon representing partial ratings, intermediate scores, or half-point ratings. Perfect for detailed rating systems, partial score displays, half-star ratings, intermediate quality indicators, precise rating controls, fractional ratings, detailed review systems, and granular rating interfaces requiring half-point precision.
+
+### star-of-david
+**Import:** `import { StarOfDavid } from 'phosphor-svelte';`
+**Description:** Star of David hexagram symbol representing Jewish faith, Judaism, and cultural heritage. Ideal for religious applications, Jewish community platforms, cultural interfaces, religious calendar apps, Hebrew resources, synagogue applications, religious symbol displays, cultural representation, and interfaith community tools.
+
+### steam-logo
+**Import:** `import { SteamLogo } from 'phosphor-svelte';`
+**Description:** Steam gaming platform logo representing PC gaming, game distribution, and the Steam ecosystem. Perfect for gaming applications, game launcher interfaces, Steam integrations, gaming community platforms, game library displays, gaming social features, Steam API integrations, and PC gaming applications. New addition for gaming platform integrations.
+
+### steering-wheel
+**Import:** `import { SteeringWheel } from 'phosphor-svelte';`
+**Description:** Steering wheel icon representing driving, automotive controls, and vehicle navigation. Ideal for driving applications, automotive interfaces, vehicle control systems, navigation apps, driving mode indicators, car-related features, automotive dashboards, driving assistance tools, vehicle management systems, and transportation applications.
+
+### steps
+**Import:** `import { Steps } from 'phosphor-svelte';`
+**Description:** Steps icon representing staircases, sequential progress, or step-by-step processes. Perfect for progress indicators, step-by-step tutorials, multi-stage processes, sequential workflows, building navigation, accessibility features, process flow indicators, tutorial progression, and multi-step form interfaces requiring clear visual progression.
+
+### stethoscope
+**Import:** `import { Stethoscope } from 'phosphor-svelte';`
+**Description:** Stethoscope icon representing medical care, healthcare services, and medical professionals. Essential for healthcare applications, medical interfaces, doctor profiles, health monitoring tools, medical appointment systems, healthcare provider platforms, medical equipment catalogs, health assessment tools, medical emergency interfaces, and healthcare service applications.
+
+### sticker
+**Import:** `import { Sticker } from 'phosphor-svelte';`
+**Description:** Sticker icon representing labels, tags, or decorative elements. Perfect for sticker collections, label management, tagging systems, decorative elements, messaging stickers, label creation tools, organizational systems, categorization interfaces, and communication applications featuring sticker packs or label functionality.
+
+### stool
+**Import:** `import { Stool } from 'phosphor-svelte';`
+**Description:** Stool icon representing seating furniture, bar stools, or casual seating options. Ideal for furniture catalogs, interior design applications, seating arrangement tools, furniture shopping interfaces, restaurant seating management, bar and cafe applications, furniture inventory systems, and interior decorating software.
+
+### stop
+**Import:** `import { Stop } from 'phosphor-svelte';`
+**Description:** Stop button icon representing media playback control, process termination, or halt operations. Essential for media players, audio controls, video interfaces, playback systems, process control panels, music applications, streaming controls, recording interfaces, and any system requiring clear stop functionality.
+
+### stop-circle
+**Import:** `import { StopCircle } from 'phosphor-svelte';`
+**Description:** Circular stop button icon providing rounded design for media controls and process termination. Perfect for modern media players, audio interfaces, video controls, streaming applications, music players, recording software, playback controls, and contemporary media interfaces requiring elegant, rounded stop button designs.
+
+### storefront
+**Import:** `import { Storefront } from 'phosphor-svelte';`
+**Description:** Storefront icon representing retail shops, commercial buildings, and shopping locations. Ideal for shopping applications, store locators, business directories, retail management systems, marketplace interfaces, store profiles, commercial listings, shopping mall directories, retail navigation, and e-commerce platform representations of physical stores.# Phosphor Icons Documentation - Batch 27
+
+### strategy
+**Import:** `import { Strategy } from 'phosphor-svelte';`
+**Description:** Represents strategic planning, tactical thinking, and game strategy. Perfect for business planning applications, game interfaces, sports coaching tools, financial planning dashboards, and strategic consulting services. Use for chess games, tic-tac-toe interfaces, business strategy presentations, tactical planning tools, game theory applications, sports strategizing, military planning, project management, competitive analysis, and strategic decision-making interfaces. Alternative terms include plan, tactics, strategem, game plan, blueprint, scheme, approach, methodology, and strategic thinking.
+
+### stripe-logo
+**Import:** `import { StripeLogo } from 'phosphor-svelte';`
+**Description:** The official Stripe payment processor logo icon. Essential for e-commerce applications, payment processing interfaces, financial technology platforms, and online checkout systems. Use in payment method selection screens, billing integrations, financial dashboard branding, merchant services interfaces, payment gateway configurations, subscription management systems, and fintech applications. Represents online payments, credit card processing, digital transactions, merchant accounts, payment APIs, billing automation, and financial services integration.
+
+### student
+**Import:** `import { Student } from 'phosphor-svelte';`
+**Description:** Represents students, pupils, learners, and educational participants across all academic levels. Ideal for educational platforms, school management systems, learning management systems (LMS), university portals, and classroom applications. Use for student profiles, academic dashboards, enrollment interfaces, gradebook systems, educational analytics, campus directories, student information systems, online learning platforms, tutoring applications, and educational social networks. Encompasses terms like pupil, learner, scholar, apprentice, trainee, graduate, undergraduate, disciple, and academic participant.
+
+### subset-of
+**Import:** `import { SubsetOf } from 'phosphor-svelte';`
+**Description:** Mathematical symbol (⊆) representing subset relationships in set theory and mathematical operations. Essential for educational software, mathematics applications, data analysis tools, and scientific computing interfaces. Use in mathematical equation editors, set theory visualizations, data relationship diagrams, statistical analysis tools, database query builders, logical operation interfaces, academic math software, calculator applications, and data science platforms. Represents mathematical relationships, data categorization, hierarchical structures, inclusion relationships, and logical containment concepts.
+
+### subset-proper-of
+**Import:** `import { SubsetProperOf } from 'phosphor-svelte';`
+**Description:** Mathematical symbol (⊂) for proper subset relationships, indicating strict containment in set theory. Perfect for advanced mathematics applications, academic software, data analysis platforms, and scientific computing tools. Use in mathematical notation editors, set theory teaching tools, statistical software, database relationship modeling, logical operation interfaces, computational mathematics platforms, academic research applications, and advanced calculator functions. Represents strict inclusion, proper containment, mathematical precision, hierarchical data relationships, and formal logic operations.
+
+### subtitles
+**Import:** `import { Subtitles } from 'phosphor-svelte';`
+**Description:** Represents subtitles, captions, and text transcription for media content. Crucial for video players, streaming platforms, accessibility features, and media editing tools. Use in media player controls, video editing interfaces, accessibility settings, language selection menus, transcription services, closed captioning tools, streaming applications, educational video platforms, and multimedia accessibility features. Essential for a11y compliance, hearing impaired accessibility, multilingual content, video transcription, and inclusive media experiences.
+
+### subtitles-slash
+**Import:** `import { SubtitlesSlash } from 'phosphor-svelte';`
+**Description:** Indicates disabled or turned-off subtitles and captions in media applications. Perfect for media player controls, accessibility toggles, and subtitle management interfaces. Use in video player settings, streaming platform controls, accessibility preference panels, caption toggle buttons, media editing tools, and subtitle configuration interfaces. Represents disabled captions, turned-off transcription, accessibility option states, subtitle preferences, and caption control functionality for users who need to toggle text overlays on and off.
+
+### subtract
+**Import:** `import { Subtract } from 'phosphor-svelte';`
+**Description:** Boolean operation for subtracting or removing overlapping areas in design and editing applications. Essential for graphic design tools, vector editors, CAD software, and creative applications. Use in design software toolbars, shape manipulation interfaces, boolean operation panels, vector editing tools, graphic design applications, architectural software, 3D modeling interfaces, and creative editing platforms. Represents shape subtraction, boolean operations, design editing, object manipulation, and creative workflow tools.
+
+### subtract-square
+**Import:** `import { SubtractSquare } from 'phosphor-svelte';`
+**Description:** Square-framed boolean subtraction operation for design and editing applications. Perfect for graphic design software, vector editing tools, and creative applications requiring precise shape manipulation. Use in design tool palettes, boolean operation interfaces, shape editing panels, vector graphics editors, CAD applications, creative software toolbars, and design workflow interfaces. Represents geometric subtraction, precise editing operations, design methodology, shape manipulation, and professional creative tools.
+
+### subway
+**Import:** `import { Subway } from 'phosphor-svelte';`
+**Description:** Represents underground rail transit, metro systems, and subway transportation. Essential for transit applications, mapping services, transportation planning tools, and urban mobility platforms. Use in public transit apps, route planning interfaces, transportation maps, commuter applications, city navigation systems, transit schedules, urban planning tools, and mobility services. Encompasses metro, underground train, light rail, rapid transit, urban railway, public transportation, commuter rail, and metropolitan transit systems.
+
+### suitcase
+**Import:** `import { Suitcase } from 'phosphor-svelte';`
+**Description:** Represents briefcases, business luggage, professional portfolios, and office storage. Perfect for business applications, professional services, office management systems, and corporate interfaces. Use in business travel applications, professional portfolios, office management tools, business document systems, corporate dashboards, professional services platforms, and executive interfaces. Encompasses briefcase, valise, portfolio, attaché case, business bag, professional luggage, document case, and executive accessories.
+
+### suitcase-rolling
+**Import:** `import { SuitcaseRolling } from 'phosphor-svelte';`
+**Description:** Wheeled luggage for travel and transportation applications. Ideal for travel booking platforms, luggage tracking systems, airport applications, and travel management tools. Use in travel planning interfaces, luggage allowance calculators, airport navigation apps, travel booking systems, baggage tracking applications, trip planning tools, and transportation services. Represents travel luggage, wheeled bags, travel gear, trip preparation, baggage handling, and travel convenience features.
+
+### suitcase-simple
+**Import:** `import { SuitcaseSimple } from 'phosphor-svelte';`
+**Description:** Simplified briefcase icon for professional and business applications. Perfect for office software, business management tools, professional portfolios, and corporate systems. Use in business applications, professional service interfaces, office management systems, portfolio platforms, document management tools, business travel apps, and professional networking platforms. Represents business accessories, professional tools, office equipment, document storage, and corporate identity elements.
+
+### sun
+**Import:** `import { Sun } from 'phosphor-svelte';`
+**Description:** Bright sun icon representing daylight, clear weather, and light mode interface themes. Essential for weather applications, theme toggles, brightness controls, and outdoor activity platforms. Use in weather forecasts, light/dark mode switches, brightness adjustment controls, outdoor activity apps, solar energy interfaces, vitamin D tracking, gardening applications, and day/night cycle indicators. Represents sunshine, daylight, clear skies, brightness, light theme, solar energy, sunny weather, and positive energy.
+
+### sun-dim
+**Import:** `import { SunDim } from 'phosphor-svelte';`
+**Description:** Dimmed sun icon for reduced brightness settings, cloudy weather, or subdued lighting conditions. Perfect for brightness controls, weather applications with partial sun, and interface dimming features. Use in screen brightness adjustments, weather apps showing partly cloudy conditions, low-light interface modes, energy-saving settings, adaptive brightness controls, and ambient lighting applications. Represents reduced brightness, cloudy sunshine, dimmed lighting, power-saving modes, and subdued daylight conditions.
+
+### sun-horizon
+**Import:** `import { SunHorizon } from 'phosphor-svelte';`
+**Description:** Sun positioned at the horizon, representing sunrise, sunset, and dawn/dusk transitions. Ideal for time-based applications, photography apps, weather services, and scheduling tools. Use in sunrise/sunset timers, golden hour photography apps, daily schedule interfaces, weather forecast displays, circadian rhythm trackers, meditation timers, and time-sensitive applications. Represents sunrise, sunset, dawn, dusk, golden hour, time transitions, and natural lighting cycles.
+
+### sunglasses
+**Import:** `import { Sunglasses } from 'phosphor-svelte';`
+**Description:** Protective eyewear for sun protection and fashion accessories. Perfect for fashion applications, outdoor activity platforms, health and wellness tools, and lifestyle interfaces. Use in fashion e-commerce, outdoor gear stores, UV protection recommendations, summer activity planning, style applications, beach and vacation tools, and eye protection awareness interfaces. Represents eye protection, fashion accessories, summer gear, outdoor equipment, UV safety, stylish eyewear, and sun protection essentials.
+
+### superset-of
+**Import:** `import { SupersetOf } from 'phosphor-svelte';`
+**Description:** Mathematical symbol (⊇) representing superset relationships in set theory and data analysis. Essential for mathematics education, data science applications, and logical operation interfaces. Use in mathematical software, set theory visualizations, data relationship modeling, statistical analysis tools, database query interfaces, educational mathematics platforms, and scientific computing applications. Represents mathematical containment, data hierarchies, set relationships, logical operations, and advanced mathematical concepts.
+
+### superset-proper-of
+**Import:** `import { SupersetProperOf } from 'phosphor-svelte';`
+**Description:** Mathematical symbol (⊃) for proper superset relationships, indicating strict containment in reverse. Perfect for advanced mathematical applications, academic software, and data analysis platforms. Use in mathematical equation editors, set theory teaching tools, computational mathematics interfaces, database relationship modeling, logical operation systems, and advanced calculator applications. Represents strict superset relationships, proper containment, mathematical precision, and formal logic operations.
+
+### swap
+**Import:** `import { Swap } from 'phosphor-svelte';`
+**Description:** Exchange or switch operation for swapping elements, layers, or positions in design and editing applications. Essential for layer management, element reordering, data exchange, and position swapping features. Use in design software layer panels, drag-and-drop interfaces, data table reordering, element positioning tools, layer management systems, and exchange operation interfaces. Represents element exchange, position swapping, layer reordering, data interchange, and reversible operations.
+
+### swatches
+**Import:** `import { Swatches } from 'phosphor-svelte';`
+**Description:** Color palette samples for design applications, color selection interfaces, and creative tools. Perfect for color pickers, design software, brand management, and creative applications. Use in color selection interfaces, design tool palettes, brand color management, theme customization panels, graphic design applications, and color scheme generators. Represents color samples, design palettes, brand colors, color coordination, design systems, and creative color tools.
+
+### swimming-pool
+**Import:** `import { SwimmingPool } from 'phosphor-svelte';`
+**Description:** Swimming pool for aquatic activities, fitness tracking, and recreational facility management. Ideal for fitness applications, facility booking systems, sports tracking, and recreational activity platforms. Use in gym management systems, fitness tracking apps, sports facility booking, aquatic exercise programs, swimming workout trackers, and recreational activity planning. Represents aquatic fitness, swimming sports, pool activities, water recreation, exercise facilities, and wellness programs.
+
+### sword
+**Import:** `import { Sword } from 'phosphor-svelte';`
+**Description:** Medieval weapon representing combat, gaming, fantasy themes, and warrior concepts. Perfect for gaming applications, RPG interfaces, fantasy-themed software, and adventure gaming platforms. Use in role-playing games, fantasy applications, gaming inventories, combat systems, adventure interfaces, medieval-themed content, and gaming achievement systems. Encompasses weapon, blade, combat, warfare, fantasy gaming, RPG elements, medieval themes, and warrior culture.
+
+### synagogue
+**Import:** `import { Synagogue } from 'phosphor-svelte';`
+**Description:** Jewish place of worship representing religious locations, community centers, and cultural institutions. Essential for mapping applications, religious organization tools, community platforms, and location-based services. Use in religious facility locators, community organization systems, cultural mapping applications, religious calendar tools, and worship service platforms. Represents Jewish worship, religious community, synagogue locations, temple services, and cultural heritage sites.
+
+### syringe
+**Import:** `import { Syringe } from 'phosphor-svelte';`
+**Description:** Medical injection device for healthcare applications, vaccination tracking, and medical record systems. Crucial for healthcare platforms, medical management systems, vaccination schedules, and health monitoring tools. Use in medical appointment systems, vaccination trackers, health record applications, medical inventory management, pharmacy systems, and healthcare provider interfaces. Represents medical injections, vaccinations, medical procedures, healthcare services, and medical device management.
+
+### t-shirt
+**Import:** `import { TShirt } from 'phosphor-svelte';`
+**Description:** Basic clothing item representing apparel, fashion, and clothing categories in e-commerce and retail applications. Perfect for fashion platforms, clothing stores, apparel catalogs, and retail management systems. Use in clothing e-commerce, fashion category navigation, apparel size guides, wardrobe management apps, clothing inventory systems, and retail product catalogs. Represents casual wear, clothing items, fashion basics, apparel categories, and textile products.
+
+### table
+**Import:** `import { Table } from 'phosphor-svelte';`
+**Description:** Data table structure for organizing information in rows and columns. Essential for data management applications, spreadsheet interfaces, database tools, and information organization systems. Use in data grid interfaces, spreadsheet applications, database management tools, report generation systems, table editors, and structured data display components. Represents tabular data, spreadsheets, data organization, information structure, database tables, and data presentation formats.
+
+### tabs
+**Import:** `import { Tabs } from 'phosphor-svelte';`
+**Description:** Interface tabs for organizing content, navigation, and multi-section displays. Perfect for web browsers, application interfaces, content management, and navigation systems. Use in browser interfaces, application navigation, content organization, multi-step forms, dashboard sections, and tabbed content displays. Represents interface organization, content sections, navigation tabs, browser tabs, and structured content presentation.
+
+### tag
+**Import:** `import { Tag } from 'phosphor-svelte';`
+**Description:** Label or tag for content categorization, pricing, and metadata organization. Essential for e-commerce platforms, content management systems, tagging interfaces, and organizational tools. Use in product pricing, content tagging systems, label management, category organization, hashtag interfaces, and metadata editing tools. Represents price tags, content labels, hashtags, categories, metadata, product pricing, and organizational markers.
+
+### tag-chevron
+**Import:** `import { TagChevron } from 'phosphor-svelte';`
+**Description:** Chevron-style tag with directional indication for navigation and categorization systems. Perfect for breadcrumb navigation, category hierarchies, and directional tagging interfaces. Use in navigation breadcrumbs, category trees, hierarchical tagging, directional indicators, and structured navigation systems. Represents directional tags, navigation elements, hierarchical categories, breadcrumb navigation, and structured organization systems.
+
+### tag-simple
+**Import:** `import { TagSimple } from 'phosphor-svelte';`
+**Description:** Simplified tag design for clean labeling and categorization interfaces. Ideal for minimalist tag systems, content organization, and clean interface designs. Use in simple tagging interfaces, clean category systems, minimalist content organization, streamlined labeling, and simplified metadata displays. Represents basic tags, simple labels, clean categories, minimal organization, and streamlined content classification.
+
+### target
+**Import:** `import { Target } from 'phosphor-svelte';`
+**Description:** Bullseye target representing goals, objectives, precision, and targeting functionality. Perfect for goal-setting applications, analytics dashboards, performance tracking, and objective management systems. Use in goal tracking interfaces, performance metrics, targeting tools, objective setting, precision controls, analytics dashboards, and achievement tracking systems. Represents goals, objectives, precision, accuracy, targeting, focus, aims, and performance indicators.
+
+### taxi
+**Import:** `import { Taxi } from 'phosphor-svelte';`
+**Description:** Taxi vehicle for ride-hailing applications, transportation services, and urban mobility platforms. Essential for ride-sharing apps, transportation booking, and urban transit systems. Use in ride-hailing interfaces, taxi booking applications, transportation services, urban mobility platforms, ride-sharing systems, and ground transportation tools. Represents taxi services, ride-hailing, urban transportation, ground transportation, livery services, and mobility solutions.
+
+### tea-bag
+**Import:** `import { TeaBag } from 'phosphor-svelte';`
+**Description:** Tea bag for beverage applications, restaurant menus, and food service platforms. Perfect for café management systems, beverage ordering, and food service applications. Use in restaurant point-of-sale systems, beverage menu interfaces, café applications, hot drink ordering, and food service management tools. Represents tea beverages, hot drinks, café products, beverage service, and food service offerings.
+
+### telegram-logo
+**Import:** `import { TelegramLogo } from 'phosphor-svelte';`
+**Description:** Official Telegram messaging platform logo for communication and social media integrations. Essential for messaging applications, social media dashboards, and communication platform integrations. Use in messaging interfaces, social media aggregators, communication platform lists, contact methods, and messaging service integrations. Represents instant messaging, secure communication, social messaging, and communication platform branding.
+
+### television
+**Import:** `import { Television } from 'phosphor-svelte';`
+**Description:** Television set representing media consumption, entertainment systems, and display devices. Perfect for media applications, entertainment platforms, smart home controls, and device management systems. Use in media center interfaces, entertainment applications, smart TV controls, display settings, and home automation systems. Represents television viewing, media consumption, entertainment devices, display technology, and home entertainment systems.
+
+### television-simple
+**Import:** `import { TelevisionSimple } from 'phosphor-svelte';`
+**Description:** Simplified television icon for clean interface designs and minimalist media applications. Ideal for streamlined media interfaces, simple device controls, and clean entertainment platforms. Use in simplified media controls, minimalist smart home interfaces, basic TV applications, and clean entertainment system designs. Represents basic television functionality, simple media devices, and streamlined entertainment interfaces.
+
+### tennis-ball
+**Import:** `import { TennisBall } from 'phosphor-svelte';`
+**Description:** Tennis ball for sports applications, fitness tracking, and recreational activity management. Perfect for sports scheduling, fitness tracking, and recreational facility management systems. Use in sports booking applications, tennis court reservations, fitness activity tracking, sports equipment management, and recreational facility systems. Represents tennis sports, racquet games, sports equipment, recreational activities, and athletic pursuits.
+
+### tent
+**Import:** `import { Tent } from 'phosphor-svelte';`
+**Description:** Camping tent for outdoor recreation, travel planning, and adventure activity management. Essential for camping applications, outdoor gear platforms, and adventure travel tools. Use in camping site booking, outdoor gear e-commerce, adventure travel planning, campground management, and outdoor activity tracking systems. Represents camping, outdoor recreation, adventure travel, wilderness activities, and outdoor gear.
+
+### terminal
+**Import:** `import { Terminal } from 'phosphor-svelte';`
+**Description:** Command-line terminal interface for development tools, system administration, and technical applications. Crucial for developer tools, system management, and technical platform interfaces. Use in code editors, development environments, system administration tools, command-line interfaces, and technical application menus. Represents command line, shell access, development tools, system administration, technical computing, and programming environments.
+
+### terminal-window
+**Import:** `import { TerminalWindow } from 'phosphor-svelte';`
+**Description:** Windowed terminal interface representing development environments and system administration tools. Perfect for IDE interfaces, development platforms, and system management applications. Use in integrated development environments, code editor interfaces, system administration dashboards, and technical application windows. Represents development environments, windowed terminals, coding interfaces, and system management tools.
+
+### test-tube
+**Import:** `import { TestTube } from 'phosphor-svelte';`
+**Description:** Laboratory test tube for scientific applications, research platforms, and educational tools. Essential for scientific software, laboratory management systems, and educational platforms. Use in laboratory information management systems, scientific research applications, chemistry education tools, experiment tracking, and scientific data management platforms. Represents scientific research, laboratory work, chemical analysis, experiments, and scientific methodology.
+
+### text-a-underline
+**Import:** `import { TextAUnderline } from 'phosphor-svelte';`
+**Description:** Underlined text formatting representing text decoration and typography emphasis options. Perfect for text editors, word processors, and content creation tools. Use in rich text editors, document formatting interfaces, typography controls, text styling panels, and content creation platforms. Represents text underlining, typography emphasis, text decoration, formatting options, and editorial markup.
+
+### text-aa
+**Import:** `import { TextAa } from 'phosphor-svelte';`
+**Description:** Typography icon representing font settings, text formatting, and typeface selection. Essential for text editors, design applications, and typography management systems. Use in font selection interfaces, typography panels, text formatting controls, design software, and content creation tools. Represents typography, font management, text styling, typeface selection, and document formatting.
+
+### text-align-center
+**Import:** `import { TextAlignCenter } from 'phosphor-svelte';`
+**Description:** Center text alignment for document formatting and content creation tools. Perfect for word processors, design applications, and content management systems. Use in text formatting toolbars, document editing interfaces, content creation platforms, and design software alignment controls. Represents centered text, text alignment, document formatting, content presentation, and typography control.
+
+### text-align-justify
+**Import:** `import { TextAlignJustify } from 'phosphor-svelte';`
+**Description:** Justified text alignment creating even left and right margins in document formatting. Essential for professional document creation, publishing tools, and text layout systems. Use in word processors, document layout tools, publishing software, and professional text formatting interfaces. Represents justified text, even margins, professional formatting, document layout, and publication-quality text alignment.
+
+### text-align-left
+**Import:** `import { TextAlignLeft } from 'phosphor-svelte';`
+**Description:** Left-aligned text formatting for standard document layouts and content creation. Perfect for text editors, document formatting, and content management systems. Use in word processing applications, text formatting controls, document creation tools, and content editing interfaces. Represents left alignment, flush left text, standard formatting, and conventional text layout.
+
+### text-align-right
+**Import:** `import { TextAlignRight } from 'phosphor-svelte';`
+**Description:** Right-aligned text formatting for specialized document layouts and design applications. Ideal for design software, document formatting, and content presentation tools. Use in text formatting toolbars, design applications, document layout tools, and specialized content creation interfaces. Represents right alignment, flush right text, design formatting, and alternative text layouts.
+
+### text-b
+**Import:** `import { TextB } from 'phosphor-svelte';`
+**Description:** Bold text formatting representing emphasis, strong formatting, and typography weight options. Essential for text editors, content creation tools, and document formatting systems. Use in rich text editors, word processors, content management systems, text formatting panels, and document creation platforms. Represents bold text, strong emphasis, typography weight, text formatting, and content emphasis.
+
+### text-columns
+**Import:** `import { TextColumns } from 'phosphor-svelte';`
+**Description:** Multi-column text layout for publishing, document design, and content presentation systems. Perfect for publishing software, newsletter creation, and document layout tools. Use in document layout applications, publishing platforms, newsletter creators, magazine layout tools, and multi-column content management systems. Represents column layout, text flow, publishing design, article formatting, and professional document presentation.# Phosphor Icons Documentation - Batch 28
+
+### text-h
+**Import:** `import { TextH } from 'phosphor-svelte';`
+**Description:** Text heading icon representing HTML heading elements and typography formatting. Used in text editors, word processors, content management systems, and document formatting tools. Essential for indicating heading styles, hierarchical content structure, title formatting, and editorial controls. Perfect for WYSIWYG editors, markdown editors, blog platforms, documentation tools, and any interface dealing with text hierarchy and typography controls.
+
+### text-h-five
+**Import:** `import { TextHFive } from 'phosphor-svelte';`
+**Description:** HTML H5 heading level icon for fifth-level headings in document hierarchy. Used in content editors, HTML editors, markdown processors, and documentation systems. Represents the fifth tier of heading importance, typically used for subsection titles, minor headings, and detailed content organization. Essential for content management systems, blog editors, documentation platforms, and any interface requiring precise heading level control and semantic HTML structure.
+
+### text-h-four
+**Import:** `import { TextHFour } from 'phosphor-svelte';`
+**Description:** HTML H4 heading level icon for fourth-level headings in content structure. Used in rich text editors, content management systems, documentation tools, and publishing platforms. Represents mid-level headings in document hierarchy, perfect for subsection titles, topic divisions, and structured content organization. Essential for editorial interfaces, blog platforms, technical documentation, and any system requiring detailed heading level management.
+
+### text-h-one
+**Import:** `import { TextHOne } from 'phosphor-svelte';`
+**Description:** HTML H1 heading level icon representing the main title or primary heading. Used in text editors, content management systems, SEO tools, and document processors. Represents the highest level of heading hierarchy, typically for page titles, article headlines, main topics, and primary content divisions. Critical for editorial interfaces, blogging platforms, website builders, and any system emphasizing content structure and search engine optimization.
+
+### text-h-six
+**Import:** `import { TextHSix } from 'phosphor-svelte';`
+**Description:** HTML H6 heading level icon for sixth-level headings, the smallest heading in HTML hierarchy. Used in detailed content editors, technical documentation systems, and structured document platforms. Represents the finest level of content organization, typically for minor subsections, detailed breakdowns, and granular content divisions. Perfect for comprehensive documentation tools, academic writing platforms, and technical specification systems.
+
+### text-h-three
+**Import:** `import { TextHThree } from 'phosphor-svelte';`
+**Description:** HTML H3 heading level icon for third-level headings in document structure. Used in content editors, blogging platforms, documentation systems, and publishing tools. Represents important subsection headings, major topic divisions, and significant content breaks. Essential for content management interfaces, editorial tools, structured writing platforms, and any system requiring clear content hierarchy and organization.
+
+### text-h-two
+**Import:** `import { TextHTwo } from 'phosphor-svelte';`
+**Description:** HTML H2 heading level icon for secondary headings in content hierarchy. Used in text editors, content management systems, blog platforms, and document processors. Represents major section headings, chapter divisions, primary topic breaks, and important content organization. Critical for editorial interfaces, publishing platforms, SEO-focused tools, and any system emphasizing structured content and readability.
+
+### text-indent
+**Import:** `import { TextIndent } from 'phosphor-svelte';`
+**Description:** Text indentation icon representing paragraph indenting, tab functionality, and text alignment controls. Used in word processors, text editors, document formatting tools, and content management systems. Essential for indicating indent operations, tab controls, paragraph formatting, code indentation, and text structure manipulation. Perfect for editorial interfaces, programming editors, document processors, and any tool requiring precise text positioning and formatting controls.
+
+### text-italic
+**Import:** `import { TextItalic } from 'phosphor-svelte';`
+**Description:** Italic text formatting icon representing slanted, oblique text styling for emphasis. Used in text editors, word processors, content management systems, and typography tools. Essential for indicating italic formatting, text emphasis, stylistic text, font styling, calligraphic effects, and typographic controls. Perfect for rich text editors, publishing platforms, design tools, and any interface requiring text formatting and emphasis options.
+
+### text-outdent
+**Import:** `import { TextOutdent } from 'phosphor-svelte';`
+**Description:** Text outdent icon representing unindent, dedent, and reverse indentation operations. Used in text editors, code editors, document processors, and content formatting tools. Essential for reducing indentation, moving text leftward, decreasing tab levels, and adjusting paragraph alignment. Perfect for programming environments, word processors, outline editors, and any tool requiring precise text positioning and hierarchical content management.
+
+### text-strikethrough
+**Import:** `import { TextStrikethrough } from 'phosphor-svelte';`
+**Description:** Strikethrough text formatting icon representing crossed-out, struck-through text for deletions or changes. Used in text editors, document review systems, version control interfaces, and collaborative editing tools. Essential for indicating deleted content, text removal, editing changes, revision tracking, and content modification. Perfect for editorial systems, collaboration platforms, document comparison tools, and any interface dealing with text revisions and change tracking.
+
+### text-subscript
+**Import:** `import { TextSubscript } from 'phosphor-svelte';`
+**Description:** Subscript text formatting icon for lowered text characters used in mathematical, scientific, and chemical notation. Used in equation editors, scientific document processors, academic writing tools, and formula input systems. Essential for mathematical expressions, chemical formulas, scientific notation, footnote references, and technical documentation. Perfect for educational platforms, research tools, STEM applications, and any system requiring precise typographical control for academic or scientific content.
+
+### text-superscript
+**Import:** `import { TextSuperscript } from 'phosphor-svelte';`
+**Description:** Superscript text formatting icon for raised text characters used in mathematical expressions, exponents, and ordinal numbers. Used in equation editors, mathematical tools, academic writing systems, and scientific document processors. Essential for exponents, mathematical powers, ordinal indicators, footnote markers, and scientific notation. Perfect for educational applications, research platforms, mathematical tools, and any system requiring advanced typographical formatting for technical or academic content.
+
+### text-t
+**Import:** `import { TextT } from 'phosphor-svelte';`
+**Description:** Generic text formatting icon representing typography, font controls, and text styling options. Used in text editors, design tools, word processors, and content management systems. Essential for indicating text formatting menus, typography controls, font selection, text styling options, and general text manipulation features. Perfect for editorial interfaces, design applications, publishing tools, and any system providing comprehensive text formatting capabilities.
+
+### text-t-slash
+**Import:** `import { TextTSlash } from 'phosphor-svelte';`
+**Description:** Clear text formatting icon representing the removal of text styling, format clearing, and typography reset. Used in text editors, word processors, design tools, and content management systems. Essential for clearing formatting, removing text styles, resetting typography, plain text conversion, and format stripping operations. Perfect for editorial tools, document processors, content migration systems, and any interface requiring format removal and text standardization capabilities.
+
+### text-underline
+**Import:** `import { TextUnderline } from 'phosphor-svelte';`
+**Description:** Underline text formatting icon representing underscored text for emphasis and highlighting. Used in text editors, word processors, content management systems, and typography tools. Essential for text emphasis, link styling, important content highlighting, typographical decoration, and text formatting controls. Perfect for editorial interfaces, web design tools, document processors, and any system requiring text styling and emphasis options.
+
+### textbox
+**Import:** `import { Textbox } from 'phosphor-svelte';`
+**Description:** Text input field icon representing text boxes, input fields, and form elements. Used in form builders, UI design tools, web development interfaces, and content management systems. Essential for indicating text inputs, input fields, form controls, data entry areas, and interactive text elements. Perfect for form designers, web development tools, user interface builders, and any system dealing with user input and form creation.
+
+### thermometer
+**Import:** `import { Thermometer } from 'phosphor-svelte';`
+**Description:** Temperature measurement device icon representing weather monitoring, health tracking, and environmental sensing. Used in weather applications, health monitoring systems, HVAC controls, and environmental dashboards. Essential for temperature readings, weather data, fever monitoring, climate control, thermal measurement, and environmental conditions. Perfect for weather apps, health platforms, smart home systems, industrial monitoring, and any application dealing with temperature measurement and climate data.
+
+### thermometer-cold
+**Import:** `import { ThermometerCold } from 'phosphor-svelte';`
+**Description:** Cold temperature thermometer icon representing low temperatures, cold weather conditions, and freezing measurements. Used in weather applications, climate monitoring systems, refrigeration controls, and environmental tracking platforms. Essential for cold weather alerts, freezing conditions, low temperature warnings, winter weather, and climate data visualization. Perfect for weather services, HVAC systems, food storage applications, and any system monitoring or displaying cold temperature conditions.
+
+### thermometer-hot
+**Import:** `import { ThermometerHot } from 'phosphor-svelte';`
+**Description:** Hot temperature thermometer icon representing high temperatures, warm weather conditions, and heat measurements. Used in weather applications, climate monitoring systems, heating controls, and environmental tracking platforms. Essential for hot weather alerts, high temperature warnings, heat wave monitoring, fever detection, and thermal safety systems. Perfect for weather services, health monitoring apps, industrial safety systems, and any application dealing with elevated temperature conditions.
+
+### thermometer-simple
+**Import:** `import { ThermometerSimple } from 'phosphor-svelte';`
+**Description:** Simple temperature measurement icon representing basic thermometer functionality and temperature monitoring. Used in weather widgets, health applications, environmental dashboards, and climate control interfaces. Essential for temperature displays, weather conditions, health monitoring, environmental sensing, and basic thermal measurement. Perfect for minimalist weather apps, simple health trackers, basic environmental monitors, and any interface requiring clean temperature representation.
+
+### threads-logo
+**Import:** `import { ThreadsLogo } from 'phosphor-svelte';`
+**Description:** Meta Threads social media platform logo representing the text-based conversation platform. Used in social media integrations, sharing interfaces, social login systems, and social media management tools. Essential for Threads integration, social sharing, Meta ecosystem connections, text-based social networking, and social media authentication. Perfect for social media dashboards, content sharing platforms, social login interfaces, and any application integrating with Meta's Threads platform.
+
+### three-d
+**Import:** `import { ThreeD } from 'phosphor-svelte';`
+**Description:** Three-dimensional modeling and rendering icon representing 3D graphics, CAD design, and dimensional modeling. Used in 3D modeling software, CAD applications, design tools, and visualization platforms. Essential for 3D rendering, computer-aided design, dimensional modeling, virtual reality, augmented reality, and spatial design. Perfect for design applications, engineering tools, gaming interfaces, architectural software, and any system dealing with three-dimensional content creation or visualization.
+
+### thumbs-down
+**Import:** `import { ThumbsDown } from 'phosphor-svelte';`
+**Description:** Negative feedback icon representing dislike, disapproval, and negative reactions. Used in rating systems, feedback interfaces, social media platforms, and review systems. Essential for expressing dissatisfaction, negative votes, disapproval indicators, poor ratings, and negative feedback collection. Perfect for review platforms, social networks, feedback systems, voting interfaces, and any application requiring negative sentiment expression or rating capabilities.
+
+### thumbs-up
+**Import:** `import { ThumbsUp } from 'phosphor-svelte';`
+**Description:** Positive feedback icon representing like, approval, and positive reactions. Used in social media platforms, rating systems, feedback interfaces, and approval workflows. Essential for expressing satisfaction, positive votes, approval indicators, good ratings, favorites, and positive feedback collection. Perfect for social networks, review platforms, feedback systems, voting interfaces, and any application requiring positive sentiment expression or approval mechanisms.
+
+### ticket
+**Import:** `import { Ticket } from 'phosphor-svelte';`
+**Description:** Entry ticket icon representing event tickets, admission passes, and entry credentials. Used in event management systems, ticketing platforms, booking interfaces, and access control systems. Essential for event tickets, movie tickets, concert passes, admission control, entry management, and event access. Perfect for ticketing applications, event platforms, booking systems, entertainment apps, and any service dealing with event admission and ticket management.
+
+### tidal-logo
+**Import:** `import { TidalLogo } from 'phosphor-svelte';`
+**Description:** Tidal music streaming service logo representing high-fidelity music streaming and audio platform. Used in music applications, streaming integrations, audio platforms, and music service connections. Essential for Tidal integration, music streaming, audio service authentication, high-quality music playback, and music platform connectivity. Perfect for music applications, streaming dashboards, audio players, music discovery platforms, and any service integrating with Tidal's music streaming platform.
+
+### tiktok-logo
+**Import:** `import { TiktokLogo } from 'phosphor-svelte';`
+**Description:** TikTok social media platform logo representing short-form video content and social networking. Used in social media integrations, video sharing interfaces, social login systems, and content management platforms. Essential for TikTok integration, video sharing, social media authentication, short-form content, and viral video platforms. Perfect for social media dashboards, content sharing apps, video platforms, social login interfaces, and any application integrating with TikTok's video social network.
+
+### tilde
+**Import:** `import { Tilde } from 'phosphor-svelte';`
+**Description:** Tilde symbol icon representing approximation, proportionality, and mathematical relationships. Used in mathematical applications, programming interfaces, calculator tools, and scientific notation systems. Essential for approximation indicators, proportional relationships, mathematical symbols, programming operators, and comparison operations. Perfect for mathematical tools, scientific calculators, programming environments, statistical applications, and any system requiring mathematical notation or approximation symbols.
+
+### timer
+**Import:** `import { Timer } from 'phosphor-svelte';`
+**Description:** Timer and stopwatch icon representing time measurement, scheduling, and time-based activities. Used in productivity applications, sports tracking, cooking apps, and time management systems. Essential for timers, stopwatches, alarms, scheduling, time tracking, countdown functionality, and temporal measurement. Perfect for productivity tools, sports applications, cooking timers, project management systems, and any application requiring time measurement and tracking capabilities.
+
+### tip-jar
+**Import:** `import { TipJar } from 'phosphor-svelte';`
+**Description:** Tip jar icon representing gratuities, donations, and monetary contributions. Used in payment systems, donation platforms, service applications, and financial interfaces. Essential for tipping functionality, donation collection, gratuity systems, monetary gifts, contribution mechanisms, and service appreciation. Perfect for payment apps, service platforms, donation systems, hospitality applications, and any service enabling tips, donations, or monetary appreciation features.
+
+### tipi
+**Import:** `import { Tipi } from 'phosphor-svelte';`
+**Description:** Traditional tipi tent icon representing camping, outdoor accommodation, and indigenous shelter. Used in camping applications, outdoor recreation platforms, travel booking systems, and accommodation services. Essential for camping sites, outdoor adventures, tent camping, glamping, outdoor accommodation, and recreational activities. Perfect for camping apps, outdoor recreation platforms, travel services, accommodation booking, and any application dealing with outdoor lodging and camping experiences.
+
+### tire
+**Import:** `import { Tire } from 'phosphor-svelte';`
+**Description:** Vehicle tire icon representing automotive components, wheel systems, and transportation maintenance. Used in automotive applications, vehicle service platforms, transportation systems, and maintenance tracking tools. Essential for tire services, vehicle maintenance, automotive parts, wheel replacement, transportation safety, and vehicle care. Perfect for automotive service apps, vehicle maintenance platforms, transportation systems, car care applications, and any service dealing with vehicle components and maintenance.
+
+### toggle-left
+**Import:** `import { ToggleLeft } from 'phosphor-svelte';`
+**Description:** Toggle switch in left/off position representing disabled state, inactive settings, and off controls. Used in settings interfaces, control panels, configuration systems, and preference management tools. Essential for binary controls, on/off switches, boolean settings, feature toggles, and state management. Perfect for settings panels, control interfaces, configuration tools, preference screens, and any system requiring binary state controls and toggle functionality.
+
+### toggle-right
+**Import:** `import { ToggleRight } from 'phosphor-svelte';`
+**Description:** Toggle switch in right/on position representing enabled state, active settings, and on controls. Used in settings interfaces, control panels, configuration systems, and preference management tools. Essential for binary controls, on/off switches, boolean settings, feature toggles, and state management. Perfect for settings panels, control interfaces, configuration tools, preference screens, and any system requiring binary state controls and toggle functionality.
+
+### toilet
+**Import:** `import { Toilet } from 'phosphor-svelte';`
+**Description:** Toilet fixture icon representing bathroom facilities, restroom locations, and sanitary facilities. Used in facility management systems, building directories, accessibility applications, and location services. Essential for restroom indicators, bathroom facilities, public facilities, accessibility features, and building navigation. Perfect for facility management apps, building directories, accessibility tools, public facility locators, and any application helping users find or manage bathroom facilities.
+
+### toilet-paper
+**Import:** `import { ToiletPaper } from 'phosphor-svelte';`
+**Description:** Toilet paper roll icon representing bathroom supplies, sanitary products, and household essentials. Used in household management applications, supply tracking systems, shopping lists, and inventory management tools. Essential for household supplies, bathroom essentials, personal care products, inventory tracking, and supply management. Perfect for household apps, shopping platforms, supply management systems, inventory trackers, and any application dealing with household essentials and personal care products.
+
+### toolbox
+**Import:** `import { Toolbox } from 'phosphor-svelte';`
+**Description:** Toolbox container icon representing tools, utilities, maintenance equipment, and repair systems. Used in maintenance applications, utility interfaces, settings panels, and system administration tools. Essential for tool collections, maintenance systems, utility access, repair services, system tools, and administrative functions. Perfect for maintenance apps, system utilities, repair services, administrative interfaces, and any application providing tools, utilities, or system maintenance functionality.
+
+### tooth
+**Import:** `import { Tooth } from 'phosphor-svelte';`
+**Description:** Tooth icon representing dental health, oral care, and medical dentistry. Used in healthcare applications, dental practice management, health tracking systems, and medical interfaces. Essential for dental care, oral health, dentistry services, medical records, health tracking, and dental appointments. Perfect for healthcare apps, dental practice software, health monitoring platforms, medical systems, and any application dealing with dental health and oral care services.
+
+### tornado
+**Import:** `import { Tornado } from 'phosphor-svelte';`
+**Description:** Tornado weather icon representing severe weather, natural disasters, and meteorological phenomena. Used in weather applications, emergency alert systems, disaster preparedness platforms, and environmental monitoring tools. Essential for severe weather warnings, tornado alerts, natural disasters, emergency notifications, meteorological data, and weather safety. Perfect for weather apps, emergency systems, disaster preparedness tools, safety applications, and any platform dealing with severe weather conditions and natural disaster alerts.
+
+### tote
+**Import:** `import { Tote } from 'phosphor-svelte';`
+**Description:** Tote bag icon representing shopping bags, portable containers, and carrying accessories. Used in e-commerce platforms, shopping applications, retail systems, and fashion interfaces. Essential for shopping bags, tote bags, carry-on luggage, portable accessories, retail packaging, and shopping experiences. Perfect for e-commerce sites, shopping apps, retail platforms, fashion applications, and any service dealing with bags, carrying accessories, or shopping containers.
+
+### tote-simple
+**Import:** `import { ToteSimple } from 'phosphor-svelte';`
+**Description:** Simple tote bag icon representing minimalist shopping bags, basic carrying containers, and essential portable accessories. Used in e-commerce platforms, shopping applications, retail systems, and minimalist design interfaces. Essential for shopping bags, simple containers, basic accessories, clean retail design, and streamlined shopping experiences. Perfect for minimalist e-commerce sites, simple shopping apps, clean retail interfaces, and any application requiring a clean, simple representation of bags or carrying containers.
+
+### towel
+**Import:** `import { Towel } from 'phosphor-svelte';`
+**Description:** Towel icon representing bath linens, hotel amenities, and personal care accessories. Used in hospitality applications, hotel management systems, personal care platforms, and household management tools. Essential for bathroom linens, hotel amenities, personal care, swimming accessories, spa services, and household textiles. Perfect for hospitality apps, hotel systems, personal care platforms, household management tools, and any application dealing with linens, personal care, or hospitality services.
+
+### tractor
+**Import:** `import { Tractor } from 'phosphor-svelte';`
+**Description:** Agricultural tractor icon representing farming equipment, agricultural machinery, and rural transportation. Used in agricultural applications, farming management systems, equipment tracking platforms, and rural service applications. Essential for farming operations, agricultural equipment, rural transportation, field work, farming machinery, and agricultural services. Perfect for farming apps, agricultural management systems, equipment tracking platforms, rural service applications, and any system dealing with agricultural operations and farming equipment.
+
+### trademark
+**Import:** `import { Trademark } from 'phosphor-svelte';`
+**Description:** Trademark symbol icon representing intellectual property, brand protection, and commercial rights. Used in legal applications, brand management systems, intellectual property platforms, and business documentation tools. Essential for trademark indicators, intellectual property, brand protection, commercial rights, legal documentation, and business identity. Perfect for legal platforms, brand management tools, business applications, intellectual property systems, and any service dealing with trademarks and commercial rights.
+
+### trademark-registered
+**Import:** `import { TrademarkRegistered } from 'phosphor-svelte';`
+**Description:** Registered trademark symbol icon representing officially registered intellectual property and protected commercial rights. Used in legal applications, brand management systems, intellectual property platforms, and official business documentation. Essential for registered trademarks, official intellectual property, protected brands, legal compliance, commercial rights, and business identity protection. Perfect for legal platforms, official business tools, brand management systems, compliance applications, and any service dealing with registered intellectual property.
+
+### traffic-cone
+**Import:** `import { TrafficCone } from 'phosphor-svelte';`
+**Description:** Traffic cone icon representing road safety, construction zones, and traffic management. Used in transportation applications, safety systems, construction management platforms, and traffic monitoring tools. Essential for road construction, traffic control, safety zones, transportation safety, construction alerts, and traffic management. Perfect for transportation apps, construction management systems, safety platforms, traffic applications, and any service dealing with road safety and traffic management.
+
+### traffic-sign
+**Import:** `import { TrafficSign } from 'phosphor-svelte';`
+**Description:** Traffic sign icon representing road signage, transportation guidance, and traffic regulations. Used in navigation applications, transportation systems, driving education platforms, and traffic management tools. Essential for road signs, traffic regulations, transportation guidance, navigation aids, driving instructions, and traffic control. Perfect for navigation apps, driving applications, transportation systems, traffic management platforms, and any service providing traffic guidance and road information.
+
+### traffic-signal
+**Import:** `import { TrafficSignal } from 'phosphor-svelte';`
+**Description:** Traffic light signal icon representing intersection control, traffic regulation, and transportation safety systems. Used in traffic management applications, smart city platforms, transportation monitoring systems, and safety control interfaces. Essential for traffic lights, intersection control, traffic safety, transportation regulation, smart traffic systems, and urban mobility management. Perfect for smart city applications, traffic management systems, transportation platforms, safety monitoring tools, and any service dealing with traffic control and urban transportation.
+
+### train
+**Import:** `import { Train } from 'phosphor-svelte';`
+**Description:** Train transportation icon representing rail travel, public transit, and railway systems. Used in transportation applications, travel booking platforms, public transit systems, and navigation tools. Essential for train travel, railway transportation, public transit, commuter rail, subway systems, light rail, and mass transportation. Perfect for travel apps, transit applications, transportation platforms, navigation systems, and any service dealing with rail transportation and public transit options.# Phosphor Icons Documentation - Batch 29
+
+### train-regional
+**Import:** `import { TrainRegional } from 'phosphor-svelte';`
+**Description:** Regional train transportation icon featuring a passenger train or commuter rail system. Perfect for public transit applications, transportation planning, railway stations, commuter services, subway maps, metro systems, urban transportation, and regional rail networks. Use for travel booking platforms, transit apps, transportation logistics, freight shipping, railroad services, train schedules, and location-based services that include rail transport options.
+
+### train-simple
+**Import:** `import { TrainSimple } from 'phosphor-svelte';`
+**Description:** Simplified train icon representing light rail, subway, or basic passenger train systems. Ideal for minimalist transit interfaces, public transportation apps, commuter rail services, urban mobility solutions, metro navigation, railway symbols, and transportation hubs. Perfect for maps showing train routes, travel planning applications, transit schedules, and location services highlighting rail connections.
+
+### tram
+**Import:** `import { Tram } from 'phosphor-svelte';`
+**Description:** Tram or streetcar icon representing urban light rail transportation. Essential for city transportation apps, public transit systems, streetcar routes, urban mobility platforms, light rail networks, and metropolitan transportation services. Use in travel guides, city navigation apps, public transport schedules, urban planning interfaces, and location-based services showing tram stops and routes.
+
+### translate
+**Import:** `import { Translate } from 'phosphor-svelte';`
+**Description:** Translation and language conversion icon for internationalization features. Perfect for multilingual applications, language switchers, translation services, i18n implementations, localization tools, language learning platforms, communication apps with translation features, speech-to-text services, and global content management systems. Essential for websites serving international audiences and applications requiring multi-language support.
+
+### trash
+**Import:** `import { Trash } from 'phosphor-svelte';`
+**Description:** Trash can or garbage bin icon for delete and removal actions. Universal symbol for deleting files, removing items, clearing data, recycling content, destroying records, and waste management. Essential for file managers, content management systems, data cleanup interfaces, recycle bin functionality, item removal confirmations, and any application requiring destructive actions with clear visual feedback.
+
+### trash-simple
+**Import:** `import { TrashSimple } from 'phosphor-svelte';`
+**Description:** Simplified trash can icon for minimalist delete functionality. Clean, streamlined version perfect for modern interfaces requiring subtle delete actions, file removal, content deletion, data cleanup, recycling operations, and item destruction. Ideal for applications prioritizing minimal design while maintaining clear delete functionality and user-friendly removal processes.
+
+### tray
+**Import:** `import { Tray } from 'phosphor-svelte';`
+**Description:** Inbox tray or mailbox icon representing message containers and organizational systems. Perfect for email clients, message inboxes, document trays, file organization systems, notification centers, task management platforms, and communication hubs. Use for representing incoming items, pending messages, document storage, mail systems, and organizational workflows requiring visual container metaphors.
+
+### tray-arrow-down
+**Import:** `import { TrayArrowDown } from 'phosphor-svelte';`
+**Description:** Inbox tray with downward arrow indicating incoming, saving, or downloading actions. Perfect for download managers, file saving interfaces, archive operations, inbox functionality, document storage, backup systems, and data import processes. Essential for representing downloaded files, saved documents, archived content, incoming messages, and any downward data flow or storage operations.
+
+### tray-arrow-up
+**Import:** `import { TrayArrowUp } from 'phosphor-svelte';`
+**Description:** Outbox tray with upward arrow indicating outgoing, uploading, or unarchiving actions. Ideal for upload interfaces, outbound message systems, file export functionality, data transmission, unarchive operations, and content publishing platforms. Use for representing uploaded files, sent messages, exported data, published content, and any upward data flow or distribution operations.
+
+### treasure-chest
+**Import:** `import { TreasureChest } from 'phosphor-svelte';`
+**Description:** Treasure chest icon perfect for gaming, rewards, and loot systems. Essential for game interfaces featuring loot boxes, reward systems, inventory management, prize collections, achievement unlocks, and pirate-themed content. Ideal for gaming platforms, reward programs, loyalty systems, collectible applications, adventure games, and any interface requiring visual representation of valuable items or rewards.
+
+### tree
+**Import:** `import { Tree } from 'phosphor-svelte';`
+**Description:** Generic tree icon representing nature, environmental themes, and organic growth. Perfect for environmental applications, nature-focused websites, conservation platforms, outdoor recreation apps, botanical references, green technology interfaces, and ecological content. Use for representing forests, natural landscapes, environmental awareness, plant life, organic concepts, and sustainability themes.
+
+### tree-evergreen
+**Import:** `import { TreeEvergreen } from 'phosphor-svelte';`
+**Description:** Evergreen or coniferous tree icon, specifically representing pine, fir, or similar needle-bearing trees. Ideal for Christmas themes, winter applications, forest management systems, camping and outdoor apps, environmental conservation platforms, and seasonal content. Perfect for representing coniferous forests, holiday decorations, winter landscapes, and year-round green vegetation.
+
+### tree-palm
+**Import:** `import { TreePalm } from 'phosphor-svelte';`
+**Description:** Palm tree icon representing tropical environments, beaches, and vacation destinations. Perfect for travel applications, tropical resorts, beach-themed content, vacation planning platforms, tropical climate references, and leisure travel websites. Essential for representing paradise destinations, warm weather locations, tropical landscaping, beach resorts, and vacation experiences.
+
+### tree-structure
+**Import:** `import { TreeStructure } from 'phosphor-svelte';`
+**Description:** Hierarchical tree structure icon for data organization and family relationships. Essential for family tree applications, genealogy software, organizational charts, data structure visualization, hierarchical navigation, taxonomy systems, decision trees, flowcharts, and any interface requiring visual representation of branching relationships or hierarchical data organization.
+
+### tree-view
+**Import:** `import { TreeView } from 'phosphor-svelte';`
+**Description:** Tree view interface icon representing hierarchical navigation and expandable content structures. Perfect for file explorers, folder hierarchies, navigation menus with sub-categories, organizational interfaces, content management systems, and any application requiring visual representation of nested or hierarchical data structures with expandable/collapsible functionality.
+
+### trend-down
+**Import:** `import { TrendDown } from 'phosphor-svelte';`
+**Description:** Downward trending arrow icon indicating decreasing values, declining performance, or negative growth. Essential for financial dashboards, analytics platforms, statistical reports, performance monitoring, stock market applications, business intelligence tools, and data visualization interfaces showing declining metrics, reduced sales, falling prices, or negative trends.
+
+### trend-up
+**Import:** `import { TrendUp } from 'phosphor-svelte';`
+**Description:** Upward trending arrow icon indicating increasing values, improving performance, or positive growth. Perfect for financial dashboards, analytics platforms, success metrics, performance improvements, stock market gains, business growth indicators, and data visualization showing rising trends, increased sales, growing values, or positive performance indicators.
+
+### triangle
+**Import:** `import { Triangle } from 'phosphor-svelte';`
+**Description:** Basic triangle geometric shape for design and mathematical applications. Essential for geometry tools, shape selectors, design applications, mathematical interfaces, polygon tools, graphic design software, educational mathematics platforms, and any application requiring basic geometric shapes or three-sided polygon representations.
+
+### triangle-dashed
+**Import:** `import { TriangleDashed } from 'phosphor-svelte';`
+**Description:** Dashed triangle outline indicating missing, incomplete, or pending triangular elements. Perfect for placeholder content, incomplete shapes, pending geometry, missing triangular elements, draft designs, temporary shapes, and any interface element requiring visual indication of absent or incomplete triangular components.
+
+### trolley
+**Import:** `import { Trolley } from 'phosphor-svelte';`
+**Description:** Luggage trolley or baggage cart icon for travel and transportation applications. Perfect for airport interfaces, travel booking platforms, hotel services, luggage handling systems, transportation hubs, and travel management applications. Essential for representing baggage assistance, airport services, travel convenience, luggage transport, and travel-related support services.
+
+### trolley-suitcase
+**Import:** `import { TrolleySuitcase } from 'phosphor-svelte';`
+**Description:** Rolling suitcase or wheeled luggage icon representing portable travel baggage. Ideal for travel applications, airport navigation, luggage tracking systems, hotel check-in interfaces, travel planning platforms, and transportation services. Perfect for representing personal baggage, travel convenience, mobile luggage solutions, and traveler essentials.
+
+### trophy
+**Import:** `import { Trophy } from 'phosphor-svelte';`
+**Description:** Trophy cup icon representing victory, achievement, and recognition. Essential for gaming platforms, competition interfaces, achievement systems, award ceremonies, recognition programs, leaderboards, contest applications, and success celebrations. Perfect for representing wins, prizes, medals, awards, championships, accomplishments, and competitive success indicators.
+
+### truck
+**Import:** `import { Truck } from 'phosphor-svelte';`
+**Description:** Delivery truck icon for shipping, logistics, and transportation services. Perfect for e-commerce platforms, delivery tracking, shipping calculators, logistics management, fleet tracking, courier services, and supply chain applications. Essential for representing package delivery, freight transport, commercial vehicles, shipping services, and goods transportation.
+
+### truck-trailer
+**Import:** `import { TruckTrailer } from 'phosphor-svelte';`
+**Description:** Semi-truck with trailer icon representing heavy freight transportation and long-haul shipping. Ideal for logistics platforms, freight management systems, trucking companies, supply chain applications, cargo tracking, interstate shipping services, and commercial transportation interfaces requiring heavy-duty vehicle representation.
+
+### tumblr-logo
+**Import:** `import { TumblrLogo } from 'phosphor-svelte';`
+**Description:** Tumblr social media platform logo for microblogging and creative content sharing. Essential for social media integration, blog platforms, content sharing applications, social networking interfaces, creative community platforms, and any application requiring Tumblr connectivity or brand representation.
+
+### twitch-logo
+**Import:** `import { TwitchLogo } from 'phosphor-svelte';`
+**Description:** Twitch streaming platform logo for live gaming and video content. Perfect for gaming applications, live streaming interfaces, esports platforms, gaming community features, content creator tools, streaming integrations, and video game-related applications requiring Twitch connectivity or gaming culture representation.
+
+### twitter-logo
+**Import:** `import { TwitterLogo } from 'phosphor-svelte';`
+**Description:** Twitter/X social media platform logo for microblogging and social networking. Essential for social media sharing, tweet integration, social networking applications, news platforms, communication tools, and any interface requiring Twitter connectivity or social media brand representation.
+
+### umbrella
+**Import:** `import { Umbrella } from 'phosphor-svelte';`
+**Description:** Umbrella icon representing weather protection, rain coverage, and insurance concepts. Perfect for weather applications, rain forecasts, insurance platforms, protection services, outdoor activity planning, and safety interfaces. Use for representing weather preparedness, protection from elements, insurance coverage, and safety measures.
+
+### umbrella-simple
+**Import:** `import { UmbrellaSimple } from 'phosphor-svelte';`
+**Description:** Simplified umbrella icon for minimalist weather and protection interfaces. Clean design perfect for weather apps, rain indicators, protection symbols, insurance representations, and safety interfaces requiring subtle visual elements while maintaining clear protection and weather-related messaging.
+
+### union
+**Import:** `import { Union } from 'phosphor-svelte';`
+**Description:** Mathematical union symbol (∪) for set theory and mathematical operations. Essential for educational mathematics platforms, calculator applications, set theory interfaces, mathematical notation tools, data science applications, and academic software requiring mathematical symbol representation and set operations.
+
+### unite
+**Import:** `import { Unite } from 'phosphor-svelte';`
+**Description:** Unite or merge icon with rounded elements for combining, joining, and intersection operations. Perfect for design tools, shape merging, data combination, group operations, collaborative features, integration interfaces, and any application requiring visual representation of merging, combining, or uniting separate elements.
+
+### unite-square
+**Import:** `import { UniteSquare } from 'phosphor-svelte';`
+**Description:** Square unite icon for geometric merging and rectangular combination operations. Ideal for design applications, shape tools, geometric operations, grid systems, layout tools, and interface elements requiring rectangular or square-based merging, combining, or intersection functionality.
+
+### upload
+**Import:** `import { Upload } from 'phosphor-svelte';`
+**Description:** Upload icon with hard drive representation for file uploading and data transfer. Essential for file upload interfaces, cloud storage, data backup systems, file managers, content management platforms, and any application requiring clear visual indication of uploading, saving, archiving, or data transfer operations.
+
+### upload-simple
+**Import:** `import { UploadSimple } from 'phosphor-svelte';`
+**Description:** Simplified upload arrow icon for clean, minimalist upload interfaces. Perfect for modern file upload components, drag-and-drop areas, cloud storage interfaces, data transfer tools, and applications prioritizing clean design while maintaining clear upload functionality and user-friendly file transfer processes.
+
+### usb
+**Import:** `import { Usb } from 'phosphor-svelte';`
+**Description:** USB connector icon representing universal serial bus connectivity and peripheral devices. Perfect for device connection interfaces, hardware compatibility indicators, peripheral device management, data transfer systems, computer accessories, and technical applications requiring USB connectivity representation.
+
+### user
+**Import:** `import { User } from 'phosphor-svelte';`
+**Description:** Generic user icon representing individual persons, user accounts, and profile systems. Universal symbol for login interfaces, user profiles, account management, contact systems, personal identification, user authentication, member areas, and any application requiring clear user representation and account-related functionality.
+
+### user-check
+**Import:** `import { UserCheck } from 'phosphor-svelte';`
+**Description:** Verified user icon with checkmark indicating approved, authenticated, or verified user accounts. Perfect for verification systems, approved profiles, authenticated users, quality assurance, user validation, account verification, trusted users, and premium account indicators requiring verification status visualization.
+
+### user-circle
+**Import:** `import { UserCircle } from 'phosphor-svelte';`
+**Description:** Circular user profile icon for user accounts and personal identification. Popular choice for profile pictures, user avatars, account interfaces, login systems, personal profiles, contact lists, and member directories requiring clean, contained user representation with circular design aesthetics.
+
+### user-circle-check
+**Import:** `import { UserCircleCheck } from 'phosphor-svelte';`
+**Description:** Verified circular user icon combining profile representation with verification status. Ideal for verified accounts, authenticated profiles, approved users, premium members, trusted contacts, quality-assured accounts, and user systems requiring both profile representation and verification status indication.
+
+### user-circle-dashed
+**Import:** `import { UserCircleDashed } from 'phosphor-svelte';`
+**Description:** Dashed circular user icon indicating pending, missing, or removed user accounts. Perfect for placeholder profiles, pending user approval, removed accounts, missing contacts, temporary users, incomplete profiles, and user states requiring visual indication of uncertainty or transitional status.
+
+### user-circle-gear
+**Import:** `import { UserCircleGear } from 'phosphor-svelte';`
+**Description:** User profile with settings gear icon for account configuration and user preferences. Essential for user settings, account management, profile configuration, user preferences, account customization, personal settings, and administrative user controls requiring combined profile and settings functionality.
+
+### user-circle-minus
+**Import:** `import { UserCircleMinus } from 'phosphor-svelte';`
+**Description:** User profile with minus sign for removing, deleting, or blocking user accounts. Perfect for user management, account removal, contact deletion, user blocking, member removal, unsubscribe functions, and administrative actions requiring user removal or negative user actions.
+
+### user-circle-plus
+**Import:** `import { UserCirclePlus } from 'phosphor-svelte';`
+**Description:** User profile with plus sign for adding new users, creating accounts, or inviting members. Ideal for user creation, account registration, member invitations, contact addition, user recruitment, team building, and any interface requiring clear visual indication of adding new users or expanding user base.
+
+### user-focus
+**Import:** `import { UserFocus } from 'phosphor-svelte';`
+**Description:** User with focus indicator for identification, targeting, or biometric recognition systems. Perfect for facial recognition, user identification, biometric authentication, user targeting, profile focusing, identification systems, security applications, and personal recognition interfaces requiring precise user identification.
+
+### user-gear
+**Import:** `import { UserGear } from 'phosphor-svelte';`
+**Description:** User with settings gear for account management and user configuration. Essential for user preferences, account settings, profile customization, user administration, personal configuration, account management interfaces, and user control panels requiring settings and user management functionality.
+
+### user-list
+**Import:** `import { UserList } from 'phosphor-svelte';`
+**Description:** User list icon representing multiple users, member directories, and contact collections. Perfect for member lists, user directories, contact books, team rosters, address books, user management interfaces, member databases, and any application requiring clear representation of multiple users or user collections.
+
+### user-minus
+**Import:** `import { UserMinus } from 'phosphor-svelte';`
+**Description:** User with minus sign for removing, deleting, or unsubscribing users. Ideal for user removal, account deletion, contact removal, member management, unsubscribe functions, user blocking, and administrative actions requiring clear visual indication of removing or reducing user presence.
+
+### user-plus
+**Import:** `import { UserPlus } from 'phosphor-svelte';`
+**Description:** User with plus sign for adding, creating, or inviting new users. Essential for user registration, account creation, member invitations, contact addition, user recruitment, team expansion, and any interface requiring clear visual indication of adding new users or growing user base.
+
+### user-rectangle
+**Import:** `import { UserRectangle } from 'phosphor-svelte';`
+**Description:** Rectangular user profile icon for structured user representation and ID cards. Perfect for identification cards, user badges, formal profiles, employee directories, membership cards, credential systems, and applications requiring rectangular or card-like user representation with structured design aesthetics.
+
+### user-sound
+**Import:** `import { UserSound } from 'phosphor-svelte';`
+**Description:** User with sound waves indicating voice, speech, or audio communication. Ideal for voice chat, audio communication, speech recognition, voice commands, audio profiles, speaking indicators, voice messaging, podcast platforms, and communication interfaces requiring visual representation of voice or audio user interaction.# Phosphor Icons - Batch 30
+
+### user-square
+**Import:** `import { UserSquare } from 'phosphor-svelte';`
+**Description:** A user profile icon displayed within a square frame, perfect for representing user accounts, profiles, contacts, and login interfaces. Use this icon for user avatars, profile pictures, account management sections, contact cards, member directories, user lists, login buttons, and personal information areas. Alternative terms include: person icon, profile avatar, account picture, user photo, contact image, member icon, profile square, user badge, account holder, and personal identity symbol.
+
+### user-switch
+**Import:** `import { UserSwitch } from 'phosphor-svelte';`
+**Description:** An icon depicting user account switching or toggling between different user profiles, ideal for multi-user applications and account management. Use this for switching between user accounts, user role changes, profile switching, account toggling, login/logout functionality, user session management, account preferences, settings panels, multi-tenant applications, and user authentication flows. Alternative terms include: account switcher, profile toggle, user changer, account selector, login switcher, user rotation, profile changer, account alternator, user flipper, and multi-user interface.
+
+### users
+**Import:** `import { Users } from 'phosphor-svelte';`
+**Description:** A group of people icon representing multiple users, teams, or communities, perfect for social features and group management interfaces. Use this for team management, group chats, user groups, community sections, member lists, team directories, collaboration tools, social networks, group projects, organization charts, staff listings, and collective user representations. Alternative terms include: team icon, group of people, multiple users, user community, team members, staff group, people collection, user cluster, group representation, and collective profiles.
+
+### users-four
+**Import:** `import { UsersFour } from 'phosphor-svelte';`
+**Description:** An icon showing four users arranged together, representing larger teams, departments, or communities with more structured organization. Use this for department management, larger teams, community groups, user clusters, organization units, team formations, group collaborations, department directories, multi-user systems, community management, team structures, and collective workspaces. Alternative terms include: four people icon, department team, user quartet, team of four, group formation, user cluster, four-person team, department group, team unit, and organized collective.
+
+### users-three
+**Import:** `import { UsersThree } from 'phosphor-svelte';`
+**Description:** An icon displaying three users grouped together, perfect for representing small teams, project groups, or intimate communities. Use this for small team management, project groups, trio collaborations, team formations, group projects, community clusters, team units, collaborative workspaces, small group chats, and intimate user groups. Alternative terms include: three people icon, user trio, small team, group of three, team triangle, user triplet, three-person team, project team, collaborative group, and team cluster.
+
+### van
+**Import:** `import { Van } from 'phosphor-svelte';`
+**Description:** A van or microbus vehicle icon, ideal for transportation, travel, and delivery-related applications. Use this for delivery services, transportation options, travel planning, moving services, cargo transport, mobile businesses, road trips, camping adventures, vehicle selection, transit options, logistics applications, and shipping services. Alternative terms include: microbus icon, delivery van, transport vehicle, westfalia bus, cargo van, moving truck, travel van, mobile unit, delivery vehicle, transport van, shipping truck, and utility vehicle.
+
+### vault
+**Import:** `import { Vault } from 'phosphor-svelte';`
+**Description:** A secure vault or safe icon representing security, protection, and encrypted storage, perfect for financial and security applications. Use this for password managers, secure storage, banking applications, encrypted data, financial security, safe deposits, secure vaults, protected content, authentication systems, security features, encrypted files, and privacy protection. Alternative terms include: safe icon, security vault, bank safe, encrypted storage, secure container, protected storage, safety deposit, security box, locked vault, financial safe, and protection symbol.
+
+### vector-three
+**Import:** `import { VectorThree } from 'phosphor-svelte';`
+**Description:** A three-dimensional vector icon showing XYZ coordinates, perfect for 3D graphics, mathematical applications, and design tools. Use this for 3D modeling software, coordinate systems, mathematical visualizations, design applications, CAD tools, 3D graphics interfaces, spatial calculations, geometric representations, vector graphics, dimensional analysis, and scientific applications. Alternative terms include: 3D vector, XYZ coordinates, three-dimensional axis, spatial vector, coordinate system, 3D direction, dimensional vector, cartesian coordinates, 3D mathematics, and spatial representation.
+
+### vector-two
+**Import:** `import { VectorTwo } from 'phosphor-svelte';`
+**Description:** A two-dimensional vector icon showing XY coordinates, ideal for 2D graphics, mathematical applications, and design interfaces. Use this for 2D design tools, coordinate systems, vector graphics, mathematical visualizations, graphic design applications, 2D modeling, plane geometry, directional indicators, design grids, and spatial calculations. Alternative terms include: 2D vector, XY coordinates, two-dimensional axis, planar vector, coordinate plane, 2D direction, dimensional vector, cartesian plane, 2D mathematics, and planar representation.
+
+### vibrate
+**Import:** `import { Vibrate } from 'phosphor-svelte';`
+**Description:** A vibration or shake icon representing haptic feedback, phone vibration, and audio settings, perfect for mobile device interfaces. Use this for vibration settings, silent mode indicators, haptic feedback controls, phone ringer options, notification settings, mobile preferences, audio controls, device settings, alert configurations, and accessibility options. Alternative terms include: shake icon, haptic feedback, phone vibration, silent mode, ringer settings, vibration mode, shake alert, haptic response, device vibration, and tremor symbol.
+
+### video
+**Import:** `import { Video } from 'phosphor-svelte';`
+**Description:** A video or training content icon, ideal for educational platforms, course materials, and tutorial interfaces. Use this for video tutorials, online courses, educational content, training materials, learning platforms, instructional videos, course catalogs, educational resources, tutorial sections, and knowledge sharing interfaces. Alternative terms include: training video, educational content, tutorial icon, course material, learning video, instruction icon, educational media, training course, video lesson, and instructional content.
+
+### video-camera
+**Import:** `import { VideoCamera } from 'phosphor-svelte';`
+**Description:** A video camera icon perfect for recording, filming, and videography applications. Use this for video recording, camera applications, filming interfaces, videography tools, movie creation, content recording, media production, live streaming, video capture, and recording controls. Alternative terms include: camera icon, recording device, film camera, videography equipment, movie camera, recording tool, media camera, capture device, filming equipment, and video recorder.
+
+### video-camera-slash
+**Import:** `import { VideoCameraSlash } from 'phosphor-svelte';`
+**Description:** A disabled or turned-off video camera icon, indicating video is unavailable or turned off. Use this for disabled video feeds, camera off states, video muting, privacy modes, disabled recording, video call controls, camera permissions, video settings, and media controls. Alternative terms include: camera off, disabled camera, video muted, camera blocked, no video, video disabled, camera unavailable, video off, recording disabled, and camera restricted.
+
+### video-conference
+**Import:** `import { VideoConference } from 'phosphor-svelte';`
+**Description:** A video conferencing icon showing multiple participants in a video call interface, perfect for meeting and communication applications. Use this for video calls, online meetings, conference calls, virtual meetings, remote collaboration, video chat, team calls, webinars, virtual conferences, and communication platforms. Alternative terms include: video call, online meeting, conference call, video chat, virtual meeting, video meeting, remote call, team conference, video collaboration, and digital meeting.
+
+### vignette
+**Import:** `import { Vignette } from 'phosphor-svelte';`
+**Description:** A vignette effect icon used in photography and design, representing image editing and visual effects. Use this for photo editing tools, image filters, photography applications, visual effects, image processing, photo enhancement, design tools, artistic effects, and creative editing interfaces. Alternative terms include: photo effect, image filter, photography filter, visual effect, photo enhancement, image vignetting, artistic filter, photo styling, image editing, and photographic effect.
+
+### vinyl-record
+**Import:** `import { VinylRecord } from 'phosphor-svelte';`
+**Description:** A vinyl record icon representing music, audio recordings, and retro media formats. Use this for music applications, audio players, music collections, record libraries, retro music interfaces, DJ applications, music streaming, album representations, audio content, and music discovery platforms. Alternative terms include: music record, LP record, album disc, music disc, audio record, phonograph record, music album, sound recording, music media, and audio disc.
+
+### virtual-reality
+**Import:** `import { VirtualReality } from 'phosphor-svelte';`
+**Description:** A VR headset icon representing virtual reality experiences, immersive technology, and the metaverse. Use this for VR applications, virtual reality games, immersive experiences, 3D environments, VR content, metaverse platforms, virtual worlds, augmented reality, immersive media, and next-generation interfaces. Alternative terms include: VR headset, VR goggles, virtual reality device, immersive headset, VR equipment, metaverse device, virtual goggles, VR technology, immersive technology, and virtual device.
+
+### virus
+**Import:** `import { Virus } from 'phosphor-svelte';`
+**Description:** A virus or pathogen icon representing disease, illness, and health concerns, perfect for medical and health applications. Use this for health tracking, medical applications, disease information, health alerts, medical warnings, illness indicators, health monitoring, medical content, virus tracking, and healthcare interfaces. Alternative terms include: pathogen icon, disease symbol, germ representation, illness indicator, medical virus, health threat, infectious agent, microorganism, disease marker, and health hazard.
+
+### visor
+**Import:** `import { Visor } from 'phosphor-svelte';`
+**Description:** A visor or protective eyewear icon representing vision protection, safety equipment, and wearable technology. Use this for safety applications, protective equipment, wearable devices, vision enhancement, safety gear, protective eyewear, industrial safety, equipment catalogs, and safety interfaces. Alternative terms include: safety goggles, protective eyewear, safety visor, vision protection, safety glasses, protective gear, eye protection, safety equipment, industrial goggles, and protective shield.
+
+### voicemail
+**Import:** `import { Voicemail } from 'phosphor-svelte';`
+**Description:** A voicemail icon representing voice messages, missed calls, and phone communication features. Use this for voicemail systems, missed call indicators, voice message interfaces, phone applications, communication tools, message centers, call management, phone features, and telecommunication interfaces. Alternative terms include: voice message, missed call, phone message, voice recording, telephone message, call recording, message indicator, voice note, phone voicemail, and recorded message.
+
+### volleyball
+**Import:** `import { Volleyball } from 'phosphor-svelte';`
+**Description:** A volleyball icon representing the sport, athletics, and recreational activities. Use this for sports applications, fitness tracking, recreational activities, sports equipment, athletic programs, game interfaces, sports catalogs, fitness apps, and recreational planning. Alternative terms include: sport ball, athletic equipment, recreational ball, sports gear, volleyball game, athletic activity, sports equipment, recreational sport, team sport, and athletic ball.
+
+### wall
+**Import:** `import { Wall } from 'phosphor-svelte';`
+**Description:** A wall or barrier icon representing security, protection, and system boundaries, often used for firewall and security concepts. Use this for security systems, firewall interfaces, protection barriers, system security, network security, access control, security walls, protective barriers, system boundaries, and security configurations. Alternative terms include: firewall icon, security barrier, protection wall, system barrier, security fence, protective wall, access barrier, security boundary, system wall, and defensive barrier.
+
+### wallet
+**Import:** `import { Wallet } from 'phosphor-svelte';`
+**Description:** A wallet icon representing money, payments, and financial transactions, perfect for e-commerce and financial applications. Use this for payment systems, financial apps, e-commerce checkout, money management, payment methods, financial transactions, digital wallets, payment processing, purchase interfaces, and financial services. Alternative terms include: money wallet, payment wallet, digital wallet, financial wallet, payment method, money holder, payment icon, financial purse, payment container, and money management.
+
+### warehouse
+**Import:** `import { Warehouse } from 'phosphor-svelte';`
+**Description:** A warehouse or storage facility icon representing inventory, logistics, and industrial operations. Use this for inventory management, logistics applications, storage systems, warehouse management, supply chain interfaces, industrial applications, storage facilities, distribution centers, and inventory tracking. Alternative terms include: storage facility, distribution center, inventory warehouse, logistics center, storage building, industrial facility, supply depot, storage hub, distribution warehouse, and logistics facility.
+
+### warning
+**Import:** `import { Warning } from 'phosphor-svelte';`
+**Description:** A triangular warning icon indicating alerts, dangers, and cautionary messages, essential for system notifications and safety interfaces. Use this for error messages, system alerts, warning notifications, danger indicators, caution signs, safety warnings, alert dialogs, critical notifications, hazard warnings, and attention-grabbing messages. Alternative terms include: alert icon, danger sign, caution symbol, warning triangle, alert triangle, hazard indicator, safety alert, error warning, attention symbol, and danger warning.
+
+### warning-circle
+**Import:** `import { WarningCircle } from 'phosphor-svelte';`
+**Description:** A circular warning icon providing a softer alert indicator while maintaining urgency, perfect for rounded interface designs. Use this for system notifications, error states, alert messages, warning dialogs, cautionary notices, attention indicators, safety alerts, critical messages, and user warnings. Alternative terms include: round warning, circular alert, warning badge, alert circle, round caution, circular warning, warning bubble, alert indicator, round alert, and circular danger.
+
+### warning-diamond
+**Import:** `import { WarningDiamond } from 'phosphor-svelte';`
+**Description:** A diamond-shaped warning icon providing a distinctive alert indicator, commonly used for hazard and caution signage. Use this for hazard warnings, safety alerts, caution indicators, danger signs, warning notifications, safety signage, hazardous material warnings, and critical alerts. Alternative terms include: diamond alert, hazard diamond, diamond caution, warning diamond, danger diamond, safety diamond, alert diamond, caution diamond, hazard indicator, and diamond warning.
+
+### warning-octagon
+**Import:** `import { WarningOctagon } from 'phosphor-svelte';`
+**Description:** An octagonal warning icon resembling a stop sign shape, providing strong visual emphasis for critical warnings and alerts. Use this for critical alerts, emergency warnings, stop notifications, urgent messages, high-priority alerts, safety stops, emergency signals, critical warnings, and immediate attention indicators. Alternative terms include: octagon alert, eight-sided warning, stop-sign warning, octagonal alert, critical octagon, emergency octagon, stop warning, urgent octagon, alert octagon, and eight-sided alert.
+
+### washing-machine
+**Import:** `import { WashingMachine } from 'phosphor-svelte';`
+**Description:** A washing machine appliance icon representing laundry, cleaning, and household appliances. Use this for laundry services, appliance controls, cleaning applications, household management, laundromat interfaces, appliance catalogs, home automation, cleaning schedules, and domestic applications. Alternative terms include: laundry machine, clothes washer, laundry appliance, washing appliance, laundry equipment, clothes cleaning, laundry device, washing unit, cleaning machine, and household appliance.
+
+### watch
+**Import:** `import { Watch } from 'phosphor-svelte';`
+**Description:** A wristwatch icon representing time, scheduling, and wearable devices, perfect for time-related applications and smartwatch interfaces. Use this for time tracking, scheduling applications, smartwatch apps, time management, calendar interfaces, alarm systems, timer applications, wearable device controls, and time-sensitive features. Alternative terms include: wristwatch, timepiece, smartwatch, time tracker, wearable watch, digital watch, time device, chronometer, time keeper, and wearable timepiece.
+
+### wave-sawtooth
+**Import:** `import { WaveSawtooth } from 'phosphor-svelte';`
+**Description:** A sawtooth waveform icon representing audio synthesis, sound generation, and electronic music production. Use this for music production software, synthesizer interfaces, audio generation tools, sound design applications, electronic music creation, waveform displays, audio synthesis, and music technology interfaces. Alternative terms include: sawtooth wave, synth waveform, audio wave, synthesizer wave, electronic waveform, sound wave, audio synthesis, music waveform, electronic sound, and synthesis pattern.
+
+### wave-sine
+**Import:** `import { WaveSine } from 'phosphor-svelte';`
+**Description:** A sine wave icon representing smooth audio waveforms, natural sound patterns, and pure tones in audio applications. Use this for audio applications, music software, sound generation, waveform displays, audio synthesis, music production, sound design, audio visualization, and electronic music interfaces. Alternative terms include: sine waveform, smooth wave, audio sine, natural waveform, pure tone, audio pattern, sound sine, music waveform, oscillation wave, and harmonic wave.
+
+### wave-square
+**Import:** `import { WaveSquare } from 'phosphor-svelte';`
+**Description:** A square wave icon representing digital audio signals, electronic music synthesis, and harsh audio tones. Use this for electronic music production, digital audio interfaces, synthesizer controls, sound design tools, audio generation, music technology, waveform displays, and digital sound applications. Alternative terms include: square waveform, digital wave, electronic waveform, square signal, digital audio, electronic sound, square tone, music synthesis, audio square, and digital waveform.
+
+### wave-triangle
+**Import:** `import { WaveTriangle } from 'phosphor-svelte';`
+**Description:** A triangle wave icon representing audio synthesis with characteristics between sine and square waves, used in electronic music production. Use this for music synthesis, electronic music creation, audio generation, synthesizer interfaces, sound design, music production software, waveform visualization, and audio technology applications. Alternative terms include: triangle waveform, triangular wave, synth triangle, audio triangle, electronic waveform, music waveform, synthesis wave, triangle signal, audio synthesis, and electronic sound.
+
+### waveform
+**Import:** `import { Waveform } from 'phosphor-svelte';`
+**Description:** A general audio waveform icon representing sound visualization, audio analysis, and music production interfaces. Use this for audio editing software, music production, sound analysis, audio visualization, podcast applications, voice recording, audio processing, sound editing, and music creation tools. Alternative terms include: audio wave, sound visualization, audio spectrum, sound pattern, audio graph, music visualization, sound wave, audio display, sonic representation, and sound analysis.
+
+### waveform-slash
+**Import:** `import { WaveformSlash } from 'phosphor-svelte';`
+**Description:** A disabled or muted audio waveform icon indicating no audio, muted sound, or disabled audio features. Use this for audio muting, sound disabled states, audio controls, muted audio, disabled sound, audio settings, volume controls, and audio interface states. Alternative terms include: muted audio, sound off, audio disabled, no sound, audio muted, sound disabled, waveform off, audio blocked, silent mode, and disabled audio.
+
+### waves
+**Import:** `import { Waves } from 'phosphor-svelte';`
+**Description:** Ocean waves icon representing water, nature, surf conditions, and marine environments. Use this for weather applications, ocean conditions, surf forecasts, marine weather, beach information, water sports, coastal applications, and nature-related interfaces. Alternative terms include: ocean waves, water waves, sea waves, surf waves, tidal waves, marine waves, coastal waves, beach waves, water motion, and oceanic movement.
+
+### webcam
+**Import:** `import { Webcam } from 'phosphor-svelte';`
+**Description:** A webcam or computer camera icon representing video capture, video conferencing, and computer-based video recording. Use this for video conferencing, webcam controls, video recording, online meetings, video chat, camera settings, streaming applications, and video communication tools. Alternative terms include: computer camera, web camera, PC camera, video camera, online camera, conference camera, streaming camera, video capture, computer webcam, and digital camera.
+
+### webcam-slash
+**Import:** `import { WebcamSlash } from 'phosphor-svelte';`
+**Description:** A disabled webcam icon indicating camera is turned off, unavailable, or access is denied. Use this for camera disabled states, privacy modes, webcam off indicators, video call controls, camera permissions, and video settings. Alternative terms include: camera off, webcam disabled, camera blocked, no camera, video disabled, camera unavailable, webcam blocked, camera restricted, video off, and camera denied.
+
+### webhooks-logo
+**Import:** `import { WebhooksLogo } from 'phosphor-svelte';`
+**Description:** The Webhooks service logo representing API integrations, automated workflows, and web service connections. Use this for API documentation, webhook configurations, integration platforms, automation tools, developer tools, API management, service connections, and technical integrations. Alternative terms include: webhook service, API integration, automation platform, integration tool, webhook platform, API service, integration service, automation webhook, and API connector.
+
+### wechat-logo
+**Import:** `import { WechatLogo } from 'phosphor-svelte';`
+**Description:** The WeChat (Weixin) messaging platform logo representing Chinese social media, messaging, and communication services. Use this for social media integration, messaging applications, communication platforms, social sharing, Chinese market applications, and international communication tools. Alternative terms include: WeChat app, Weixin logo, Chinese messaging, social platform, messaging service, communication app, Chinese social media, and messaging platform.
+
+### whatsapp-logo
+**Import:** `import { WhatsappLogo } from 'phosphor-svelte';`
+**Description:** The WhatsApp messaging platform logo representing instant messaging, communication, and mobile messaging services. Use this for messaging applications, social media integration, communication tools, contact methods, social sharing, and mobile communication platforms. Alternative terms include: WhatsApp messenger, messaging app, instant messaging, communication platform, mobile messaging, chat application, messaging service, and social messaging.
+
+### wheelchair
+**Import:** `import { Wheelchair } from 'phosphor-svelte';`
+**Description:** A wheelchair icon representing accessibility, disability support, and inclusive design, essential for accessibility features and universal design. Use this for accessibility features, disabled access, barrier-free design, handicap accessibility, medical equipment, mobility assistance, accessibility indicators, inclusive interfaces, and disability support features. Alternative terms include: accessibility icon, disabled access, handicap symbol, mobility device, accessible design, disability icon, accessibility symbol, universal access, inclusive design, and barrier-free access.
+
+### wheelchair-motion
+**Import:** `import { WheelchairMotion } from 'phosphor-svelte';`
+**Description:** A wheelchair in motion icon emphasizing active accessibility and movement, perfect for dynamic accessibility features. Use this for active accessibility, mobility in motion, accessible transportation, dynamic accessibility features, movement assistance, accessible navigation, mobility services, and active disability support. Alternative terms include: moving wheelchair, accessible mobility, wheelchair movement, active accessibility, dynamic wheelchair, mobility motion, accessible transport, moving accessibility, and wheelchair navigation.
+
+### wifi-high
+**Import:** `import { WifiHigh } from 'phosphor-svelte';`
+**Description:** A WiFi icon showing strong signal strength with full bars, representing excellent wireless connectivity and high-speed internet access. Use this for network status indicators, connectivity displays, internet strength meters, wireless signal indicators, network quality displays, and connection status interfaces. Alternative terms include: strong WiFi, full signal, excellent connectivity, high-speed wireless, maximum signal strength, strong internet, full bars WiFi, optimal connection, strong wireless signal, and excellent network.
+
+### wifi-low
+**Import:** `import { WifiLow } from 'phosphor-svelte';`
+**Description:** A WiFi icon showing weak signal strength with minimal bars, indicating poor wireless connectivity and limited internet access. Use this for network status warnings, connectivity issues, weak signal indicators, network troubleshooting, connection problems, and signal strength displays. Alternative terms include: weak WiFi, poor signal, limited connectivity, slow wireless, weak internet, minimal bars, poor connection, weak network signal, limited wireless, and low connectivity.
+
+### wifi-medium
+**Import:** `import { WifiMedium } from 'phosphor-svelte';`
+**Description:** A WiFi icon showing moderate signal strength with partial bars, representing adequate wireless connectivity and reasonable internet access. Use this for network status displays, connectivity indicators, moderate signal strength, network quality meters, and connection status monitoring. Alternative terms include: moderate WiFi, decent signal, average connectivity, moderate wireless, fair internet, partial bars, adequate connection, moderate network signal, reasonable wireless, and medium connectivity.
+
+### wifi-none
+**Import:** `import { WifiNone } from 'phosphor-svelte';`
+**Description:** A WiFi icon showing no signal bars, indicating no wireless connectivity or completely unavailable internet access. Use this for network unavailability, no connection states, offline indicators, connectivity errors, network failure displays, and disconnected status indicators. Alternative terms include: no WiFi, no signal, no connectivity, offline status, no internet, disconnected WiFi, no wireless, network unavailable, no connection, and offline mode.
+
+### wifi-slash
+**Import:** `import { WifiSlash } from 'phosphor-svelte';`
+**Description:** A WiFi icon with a slash through it, indicating disabled wireless connectivity, turned-off WiFi, or blocked network access. Use this for disabled WiFi states, airplane mode, network blocking, WiFi off indicators, disabled connectivity, and network restriction displays. Alternative terms include: WiFi off, disabled wireless, network blocked, WiFi disabled, airplane mode, wireless off, connectivity disabled, network off, WiFi blocked, and disabled internet.
+
+### wifi-x
+**Import:** `import { WifiX } from 'phosphor-svelte';`
+**Description:** A WiFi icon with an X mark, indicating WiFi connection errors, network failures, or connectivity problems that need attention. Use this for connection errors, network failures, WiFi problems, connectivity issues, network troubleshooting, connection warnings, and network error states. Alternative terms include: WiFi error, connection failed, network error, connectivity problem, WiFi failure, connection issue, network trouble, WiFi warning, connection problem, and network disconnection.# Phosphor Icons - Batch 31 Documentation
+
+### wind
+**Import:** `import { Wind } from 'phosphor-svelte';`
+**Description:** Represents wind, air movement, and weather conditions. This icon depicts flowing air currents and is ideal for meteorological applications, weather forecasts, climate displays, and environmental dashboards. Use for windy conditions, storms, breezy weather, gusty winds, air quality indicators, ventilation systems, HVAC controls, fan settings, air conditioning, cooling systems, drafts, breeze indicators, atmospheric pressure displays, wind speed measurements, sailing conditions, outdoor activity warnings, and general air circulation representations. Also suitable for representing air elements, breath, respiration, pneumatic systems, and wind energy concepts.
+
+### windmill
+**Import:** `import { Windmill } from 'phosphor-svelte';`
+**Description:** Represents wind turbines, renewable energy, and sustainable power generation. This icon shows a windmill or wind turbine and is perfect for green energy applications, environmental sustainability projects, renewable power systems, wind farms, clean energy initiatives, eco-friendly solutions, carbon footprint reduction, alternative energy sources, power generation facilities, electricity production, environmental conservation, green technology, sustainable development, rural landscapes, countryside views, agricultural settings, and traditional windmills. Use for energy companies, environmental organizations, sustainability reports, green building certifications, clean tech applications, and renewable energy portfolios.
+
+### windows-logo
+**Import:** `import { WindowsLogo } from 'phosphor-svelte';`
+**Description:** Represents Microsoft Windows operating system and Microsoft brand identity. This icon displays the distinctive Windows logo and is essential for technology applications, software compatibility indicators, operating system references, Microsoft services, Windows applications, PC gaming, desktop computing, enterprise software, Microsoft Office suite, cloud services like Azure, Windows Store, system requirements, platform compatibility, computer specifications, tech support documentation, and cross-platform development. Use in software installation guides, system requirements, tech tutorials, computer setup instructions, and any Microsoft-related technology content.
+
+### wine
+**Import:** `import { Wine } from 'phosphor-svelte';`
+**Description:** Represents wine, alcoholic beverages, and dining experiences. This icon depicts a wine glass and is ideal for restaurant applications, bar menus, beverage services, wine lists, alcohol catalogs, dining establishments, food and drink apps, culinary experiences, wine tasting events, vineyard tours, sommelier services, restaurant reservations, beverage pairings, cocktail menus, liquor stores, wine shops, hospitality services, fine dining, celebration events, romantic dinners, social gatherings, adult beverages, alcohol delivery services, and entertainment venues. Also suitable for representing luxury dining, special occasions, nightlife, and premium beverage experiences.
+
+### wrench
+**Import:** `import { Wrench } from 'phosphor-svelte';`
+**Description:** Represents tools, repairs, settings, and mechanical work. This icon shows a wrench tool and is perfect for maintenance applications, repair services, mechanical work, automotive services, plumbing, construction tools, hardware stores, mechanical engineering, equipment maintenance, system configuration, settings panels, preferences menus, technical support, troubleshooting guides, repair shops, workshop tools, machinery maintenance, industrial equipment, tool inventories, maintenance schedules, service appointments, mechanical repairs, equipment servicing, and technical adjustments. Use for any application requiring tool representation, system settings, configuration options, or maintenance-related functionality.
+
+### x
+**Import:** `import { X } from 'phosphor-svelte';`
+**Description:** Represents closure, cancellation, deletion, and multiplication operations. This versatile icon displays an X symbol and is essential for close buttons, cancel actions, delete functions, dismiss dialogs, clear inputs, remove items, exit operations, error indicators, multiplication symbols, mathematical operations, calculator functions, algebraic expressions, arithmetic calculations, cross marks, negative responses, rejection indicators, prohibition signs, and termination actions. Use for modal close buttons, form cancellation, item removal, mathematical applications, error states, validation failures, and any interface element requiring a clear "no" or "stop" indication.
+
+### x-circle
+**Import:** `import { XCircle } from 'phosphor-svelte';`
+**Description:** Represents enclosed cancellation, dismissal, and closure actions within a circular boundary. This icon combines an X with a circular container and is ideal for prominent close buttons, cancel confirmations, error notifications, dismissible alerts, removal confirmations, deletion warnings, form validation errors, failed operations, cancelled processes, rejected submissions, invalid inputs, warning dialogs, error messages, prohibition indicators, and negative feedback. The circular design provides visual weight and emphasis, making it perfect for important cancellation actions that need user attention or confirmation before execution.
+
+### x-logo
+**Import:** `import { XLogo } from 'phosphor-svelte';`
+**Description:** Represents the X social media platform (formerly Twitter) and social networking. This icon displays the distinctive X logo and is essential for social media integration, sharing functionality, tweet buttons, social login options, X platform connections, social media dashboards, content sharing, microblogging, social networking features, tweet embedding, social media marketing, digital communication, online presence, social media analytics, follower management, trending topics, hashtag functionality, social media APIs, cross-platform sharing, and social engagement metrics. Use for connecting with X/Twitter services, social media widgets, and social networking applications.
+
+### x-square
+**Import:** `import { XSquare } from 'phosphor-svelte';`
+**Description:** Represents cancellation, closure, and dismissal actions within a square boundary. This icon combines an X with a square container and is suitable for close buttons, cancel operations, delete functions, remove actions, dismiss notifications, clear selections, exit dialogs, form cancellation, item removal, process termination, error indicators, invalid states, rejection markers, prohibition signs, and negative actions. The square design provides a structured, contained appearance that works well in grid layouts, card interfaces, and geometric design systems where consistency with other square-based interface elements is important.
+
+### yarn
+**Import:** `import { Yarn } from 'phosphor-svelte';`
+**Description:** Represents yarn, knitting, sewing, and crafting activities. This icon depicts a ball of yarn and is perfect for craft applications, knitting patterns, sewing projects, textile work, hobby supplies, craft stores, knitting communities, DIY projects, handmade goods, fiber arts, embroidery, needlework, quilting, crocheting, weaving, textile design, fashion design, garment creation, craft tutorials, maker spaces, art supplies, creative workshops, handicrafts, artisan work, and crafting marketplaces. Also suitable for representing creativity, handmade products, traditional crafts, and textile industries.
+
+### yin-yang
+**Import:** `import { YinYang } from 'phosphor-svelte';`
+**Description:** Represents balance, harmony, duality, and philosophical concepts. This icon displays the traditional yin-yang symbol and is ideal for wellness applications, meditation apps, spiritual content, philosophy discussions, balance concepts, holistic health, mindfulness practices, Eastern philosophy, Taoist principles, complementary opposites, harmony representations, equilibrium indicators, spiritual symbols, religious content, cultural references, alternative medicine, wellness centers, yoga studios, meditation guides, life coaching, personal development, mental health applications, and balance-focused interfaces. Use for representing unity of opposites, natural balance, and harmonious relationships.
+
+### youtube-logo
+**Import:** `import { YoutubeLogo } from 'phosphor-svelte';`
+**Description:** Represents YouTube platform, video content, and media sharing. This icon displays the distinctive YouTube logo and is essential for video applications, media players, content sharing, video streaming, YouTube integration, video uploads, channel management, playlist creation, video embedding, media galleries, entertainment platforms, educational content, tutorial videos, streaming services, video marketing, content creation tools, social media integration, video analytics, subscriber management, video monetization, live streaming, video production, multimedia content, and digital media platforms. Use for connecting with YouTube services, video sharing functionality, and media-related applications.
