@@ -1,58 +1,79 @@
-# Phosphor Icons Documentation
+# Phosphor Icons Quick Reference
 
-This document provides a comprehensive list of all 1512 Phosphor icons available in the `phosphor-svelte` package, along with alternative names and descriptions to make searching easier.
+This project uses `phosphor-svelte` for icons. There are **1,512 icons** available.
 
-## How to Use This Documentation
+## Finding Icons
 
-### Finding Icons
-
-Use `grep` or `ripgrep` to search for icons by their name or alternative descriptions:
+The complete searchable list is in `docs/icons-all.md`. Use `ripgrep` (rg) or `grep` to search:
 
 ```bash
-# Using ripgrep (recommended - faster)
-rg -i "trash" docs/icons.md
+# Find trash/delete icons
+rg -i "trash\|delete\|remove" docs/icons-all.md
 
-# Using grep
-grep -i "trash" docs/icons.md
+# Find user/person icons  
+rg -i "user\|person\|avatar\|profile" docs/icons-all.md
 
-# Find all arrow-related icons
-rg -i "arrow\|direction\|pointer" docs/icons.md
+# Find arrow/direction icons
+rg -i "arrow\|direction\|point" docs/icons-all.md
 
-# Find all user/person icons
-rg -i "user\|person\|people\|avatar\|profile" docs/icons.md
+# Find social media icons
+rg -i "twitter\|facebook\|instagram\|social" docs/icons-all.md
 ```
 
-### Importing Icons in Svelte
-
-Icons follow PascalCase naming when importing:
+## Using Icons in Svelte
 
 ```svelte
 <script>
-  // Single word icon: kebab-case 'trash' becomes PascalCase 'Trash'
-  import { Trash } from 'phosphor-svelte';
+  // Import icons using PascalCase
+  import { Trash, User, ArrowRight } from 'phosphor-svelte';
   
-  // Multi-word icon: kebab-case 'trash-simple' becomes PascalCase 'TrashSimple'
-  import { TrashSimple } from 'phosphor-svelte';
-  
-  // Icons with numbers: 'number-one' becomes 'NumberOne'
-  import { NumberOne } from 'phosphor-svelte';
+  // Multi-word icons: kebab-case becomes PascalCase
+  // trash-simple → TrashSimple
+  // arrow-down-left → ArrowDownLeft
+  import { TrashSimple, ArrowDownLeft } from 'phosphor-svelte';
 </script>
 
-<Trash size={24} weight="regular" />
-<TrashSimple size={32} weight="bold" class="text-red-200 dark:text-red-800" />
+<!-- Basic usage -->
+<Trash />
+
+<!-- With Tailwind classes (recommended) -->
+<User size={32} weight="bold" class="text-red-500 dark:text-red-400" />
+
+<!-- Available weights: thin, light, regular, bold, fill, duotone -->
+<ArrowRight size={24} weight="duotone" />
 ```
 
-### Icon Properties
+## Icon Props
 
-All icons accept the following props:
-- `size` - Icon size (number or string with units)
-- `weight` - Style variant: "thin" | "light" | "regular" | "bold" | "fill" | "duotone"
-- `color` - Do not use this prop, use `class` instead
-- `class` - Additional CSS classes, specify colors here, including dark mode colors
-- `mirrored` - Boolean to flip the icon horizontally
+- `size` - Size in pixels (number or string with units)
+- `weight` - Style: "thin" | "light" | "regular" | "bold" | "fill" | "duotone"  
+- `class` - Tailwind classes for styling (use instead of `color` prop)
+- `mirrored` - Boolean to flip horizontally
 
-## Complete Icon List
+## Common Icon Categories
 
-The icons are listed in alphabetical order with their kebab-case name in `icons-all.md`, PascalCase import name, and searchable descriptions including alternative names.
+- **Navigation**: arrow-*, caret-*, chevron-*
+- **Actions**: plus, minus, x, check, trash, download, upload
+- **Users**: user, users, person-*
+- **Communication**: chat-*, envelope, phone, bell
+- **Media**: play, pause, camera, image, video
+- **Files**: file-*, folder-*, document
+- **System**: gear, settings, warning, info, question
+- **Social**: Brand logos ending in -logo
 
----
+## Examples
+
+```bash
+# Find all file type icons
+rg "^file-" docs/icons-all.md
+
+# Find all brand logos
+rg "\-logo:" docs/icons-all.md
+
+# Find icons with "simple" variants
+rg "\-simple:" docs/icons-all.md
+```
+
+## Full Documentation
+
+For the complete searchable list with descriptions, see [`docs/icons-all.md`](./icons-all.md)
