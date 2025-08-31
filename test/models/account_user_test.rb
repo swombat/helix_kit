@@ -103,8 +103,9 @@ class AccountUserTest < ActiveSupport::TestCase
   # === Role Helper Methods Tests ===
 
   test "role helper methods work correctly" do
+    timestamp = Time.current.to_i
     account = accounts(:team_account)
-    user = User.create!(email_address: "rolehelper@example.com")
+    user = User.create!(email_address: "rolehelper-#{timestamp}@example.com")
 
     # Test owner
     owner = AccountUser.create!(
@@ -115,7 +116,7 @@ class AccountUserTest < ActiveSupport::TestCase
     assert owner.can_manage?
 
     # Test admin
-    admin_user = User.create!(email_address: "admin@example.com")
+    admin_user = User.create!(email_address: "admin-#{timestamp}-#{rand(1000)}@example.com")
     admin = AccountUser.create!(
       account: account, user: admin_user, role: "admin", skip_confirmation: true
     )
@@ -124,7 +125,7 @@ class AccountUserTest < ActiveSupport::TestCase
     assert admin.can_manage?
 
     # Test member
-    member_user = User.create!(email_address: "member@example.com")
+    member_user = User.create!(email_address: "member-#{timestamp}-#{rand(1000)}@example.com")
     member = AccountUser.create!(
       account: account, user: member_user, role: "member", skip_confirmation: true
     )
@@ -349,6 +350,106 @@ class AccountUserTest < ActiveSupport::TestCase
     assert_equal account_user, confirmed
     assert confirmed.confirmed?
     assert_nil confirmed.confirmation_token
+  end
+
+  # === Association Validation Edge Cases ===
+
+  test "destroys cleanly when account is destroyed" do
+    account = Account.create!(name: "Temp Account", account_type: :team)
+    user = User.create!(email_address: "temp@example.com")
+    account_user = account.add_user!(user, role: "owner", skip_confirmation: true)
+    account_user_id = account_user.id
+
+    account.destroy
+
+    assert_not AccountUser.exists?(account_user_id)
+  end
+
+  test "destroys cleanly when user is destroyed" do
+    user = User.create!(email_address: "temp-user@example.com")
+    account_user_id = user.account_users.first.id
+
+    user.destroy
+
+    assert_not AccountUser.exists?(account_user_id)
+  end
+
+  test "invited_by association works correctly" do
+    inviter = users(:user_1)
+    account = accounts(:team_account)
+    invitee = User.create!(email_address: "invitee@example.com")
+
+    account_user = AccountUser.create!(
+      account: account,
+      user: invitee,
+      role: "member",
+      invited_by: inviter
+    )
+
+    assert_equal inviter, account_user.invited_by
+    assert_equal inviter, account_user.reload.invited_by
+  end
+
+  # === Role Method Comprehensive Tests ===
+
+  test "role helper methods handle all valid roles" do
+    account = accounts(:team_account)
+
+    AccountUser::ROLES.each_with_index do |role, index|
+      user = User.create!(email_address: "#{role}-#{Time.current.to_i}-#{index}@example.com")
+      account_user = AccountUser.create!(
+        account: account,
+        user: user,
+        role: role,
+        skip_confirmation: true
+      )
+
+      case role
+      when "owner"
+        assert account_user.owner?
+        assert account_user.admin?
+        assert account_user.can_manage?
+      when "admin"
+        assert_not account_user.owner?
+        assert account_user.admin?
+        assert account_user.can_manage?
+      when "member"
+        assert_not account_user.owner?
+        assert_not account_user.admin?
+        assert_not account_user.can_manage?
+      end
+    end
+  end
+
+  # === Confirmation Email Behavior Tests ===
+
+  test "sends confirmation email after create unless skip_confirmation" do
+    account = accounts(:team_account)
+    user = User.create!(email_address: "email-test@example.com")
+
+    # This should trigger email sending
+    assert_enqueued_with(job: ActionMailer::MailDeliveryJob) do
+      AccountUser.create!(
+        account: account,
+        user: user,
+        role: "member"
+      )
+    end
+  end
+
+  test "does not send confirmation email when skip_confirmation is true" do
+    account = accounts(:team_account)
+    user = User.create!(email_address: "noemail-test@example.com")
+
+    # This should NOT trigger email sending
+    assert_no_enqueued_jobs do
+      AccountUser.create!(
+        account: account,
+        user: user,
+        role: "member",
+        skip_confirmation: true
+      )
+    end
   end
 
 end

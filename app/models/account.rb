@@ -42,6 +42,21 @@ class Account < ApplicationRecord
     personal? && owner == user
   end
 
+  def make_personal!
+    return unless team? && account_users.count == 1
+    update!(account_type: :personal)
+    account_users.first.update!(role: :owner)
+  end
+
+  def make_team!(name)
+    return unless personal?
+    update!(account_type: :team, name: name)
+  end
+
+  def can_be_personal?
+    team? && account_users.count == 1
+  end
+
   def name
     if personal? && owner&.full_name.present?
       "#{owner.full_name}'s Account"

@@ -119,6 +119,35 @@ class AccountTest < ActiveSupport::TestCase
     assert_equal owner, account.owner
   end
 
+  test "owner_membership association works correctly" do
+    account = accounts(:personal_account)
+    owner_membership = account.owner_membership
+
+    assert owner_membership.present?
+    assert_equal "owner", owner_membership.role
+    assert_equal users(:user_1), owner_membership.user
+  end
+
+  test "owner association returns nil when no owner exists" do
+    account = Account.create!(name: "No Owner Account", account_type: :team)
+    user = User.create!(email_address: "member-only@example.com")
+    account.add_user!(user, role: "member", skip_confirmation: true)
+
+    assert_nil account.owner
+  end
+
+  test "has_many users through account_users includes all confirmed users" do
+    account = accounts(:team_account)
+
+    confirmed_users = account.users
+
+    # Should include all confirmed users
+    confirmed_users.each do |user|
+      membership = account.account_users.find_by(user: user)
+      assert membership.confirmed?, "User #{user.email_address} should be confirmed"
+    end
+  end
+
   # === Validation Tests ===
 
   test "validates name presence when not using callback" do
@@ -178,6 +207,172 @@ class AccountTest < ActiveSupport::TestCase
     user = users(:user_1)
 
     assert_not team_account.personal_account_for?(user)
+  end
+
+  # === Account Type Conversion Tests ===
+
+  test "make_personal! converts team account to personal when single user" do
+    account = Account.create!(name: "Solo Team", account_type: :team)
+    user = User.create!(email_address: "solo@example.com")
+    account.add_user!(user, role: "owner", skip_confirmation: true)
+
+    assert account.team?
+    assert account.can_be_personal?
+
+    account.make_personal!
+
+    assert account.personal?
+    assert_equal "owner", account.account_users.first.role
+  end
+
+  test "make_personal! does nothing for team account with multiple users" do
+    account = accounts(:team_account)
+    original_type = account.account_type
+
+    account.make_personal!
+
+    assert_equal original_type, account.reload.account_type
+  end
+
+  test "make_personal! does nothing for already personal account" do
+    account = accounts(:personal_account)
+    original_type = account.account_type
+
+    account.make_personal!
+
+    assert_equal original_type, account.reload.account_type
+  end
+
+  test "make_team! converts personal account to team with new name" do
+    account = accounts(:personal_account)
+
+    assert account.personal?
+
+    account.make_team!("New Team Name")
+
+    assert account.team?
+    assert_equal "New Team Name", account.name
+  end
+
+  test "make_team! does nothing for already team account" do
+    account = accounts(:team_account)
+    original_name = account.name
+
+    account.make_team!("Should Not Change")
+
+    assert_equal original_name, account.reload.name
+    assert account.team?
+  end
+
+  test "can_be_personal? returns true for team with single user" do
+    account = Account.create!(name: "Single User Team", account_type: :team)
+    user = User.create!(email_address: "singleuser@example.com")
+    account.add_user!(user, role: "owner", skip_confirmation: true)
+
+    assert account.can_be_personal?
+  end
+
+  test "can_be_personal? returns false for team with multiple users" do
+    account = accounts(:team_account)
+
+    assert_not account.can_be_personal?
+  end
+
+  test "can_be_personal? returns false for personal account" do
+    account = accounts(:personal_account)
+
+    assert_not account.can_be_personal?
+  end
+
+  test "can_be_personal? returns false when team has pending invitations" do
+    account = accounts(:another_team)  # Has 3 users: one confirmed, one admin, one pending
+
+    # Verify test data assumption
+    assert_equal 3, account.account_users.count
+    assert account.account_users.where(confirmed_at: nil).exists?, "Should have pending invitations"
+
+    assert_not account.can_be_personal?
+  end
+
+  test "make_personal! fails when team has pending invitations" do
+    account = accounts(:another_team)  # Has 3 users: one confirmed, one admin, one pending
+    original_type = account.account_type
+
+    # Should not convert because total account_users.count > 1
+    account.make_personal!
+
+    # Should remain as team account
+    assert_equal original_type, account.reload.account_type
+    assert account.team?
+  end
+
+  test "make_personal! works when all extra users are removed" do
+    account = accounts(:another_team)
+
+    # Remove the pending invitation and one confirmed user, leaving only one confirmed user
+    pending_invitation = account.account_users.find_by(confirmed_at: nil)
+    pending_invitation.destroy!
+
+    # Remove the admin (user_1), keep only the member (user_3)
+    admin_membership = account.account_users.find_by(user_id: 1)
+    admin_membership.destroy!
+
+    assert_equal 1, account.account_users.count
+    assert account.can_be_personal?
+
+    account.make_personal!
+
+    assert account.personal?
+    assert_equal "owner", account.account_users.first.role
+  end
+
+  test "make_personal! requires exactly one user (not zero)" do
+    account = Account.create!(name: "Empty Team", account_type: :team)
+
+    # Team with no users cannot be made personal
+    assert_not account.can_be_personal?
+
+    account.make_personal!
+
+    # Should remain team
+    assert account.team?
+  end
+
+  # === Name Method Override Tests ===
+
+  test "name returns owner's full name for personal accounts when available" do
+    user = users(:user_1)
+    account = user.personal_account
+
+    expected_name = "#{user.full_name}'s Account"
+    assert_equal expected_name, account.name
+  end
+
+  test "name falls back to stored name for personal accounts without full name" do
+    user = User.create!(email_address: "nonames@example.com")
+    account = user.personal_account
+
+    # User has no first_name/last_name, so should use stored name
+    assert_equal account.read_attribute(:name), account.name
+  end
+
+  test "name returns stored name for team accounts" do
+    account = accounts(:team_account)
+    stored_name = account.read_attribute(:name)
+
+    assert_equal stored_name, account.name
+  end
+
+  # === Dynamic Name Updates ===
+
+  test "personal account name updates when owner name changes" do
+    user = users(:user_1)
+    account = user.personal_account
+
+    # Update user's name
+    user.update!(first_name: "Updated", last_name: "Name", password: "newpass123", password_confirmation: "newpass123")
+
+    assert_equal "Updated Name's Account", account.name
   end
 
   # === Critical Update Method Safety Tests (For the bug we fixed) ===

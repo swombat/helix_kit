@@ -2,11 +2,31 @@
   // grab page props from inertia
   import { page, Link, router } from '@inertiajs/svelte';
   import Logo from '$lib/components/misc/HelixKitLogo.svelte';
-  import { UserCircle, List, SignOut, Password, Moon, Sun, ShieldWarning, Buildings } from 'phosphor-svelte';
+  import {
+    UserCircle,
+    List,
+    SignOut,
+    Password,
+    Moon,
+    Sun,
+    ShieldWarning,
+    Buildings,
+    Monitor,
+    Palette,
+    Gear,
+  } from 'phosphor-svelte';
   import * as DropdownMenu from '$lib/components/shadcn/dropdown-menu/index.js';
   import { Button, buttonVariants } from '$lib/components/shadcn/button/index.js';
   import { cn } from '$lib/utils.js';
-  import { rootPath, loginPath, signupPath, logoutPath, editUserPath, editPasswordUserPath } from '@/routes';
+  import {
+    rootPath,
+    loginPath,
+    signupPath,
+    logoutPath,
+    editUserPath,
+    editPasswordUserPath,
+    accountPath,
+  } from '@/routes';
   import { toggleMode, setMode, resetMode } from 'mode-watcher';
   import { ModeWatcher } from 'mode-watcher';
 
@@ -19,6 +39,37 @@
 
   const currentUser = $derived($page.props?.user);
   const currentAccount = $derived($page.props?.account);
+
+  // Theme management
+  const currentTheme = $derived(currentUser?.preferences?.theme || $page.props?.theme_preference || 'system');
+
+  async function updateTheme(theme) {
+    // Update UI immediately
+    if (theme === 'system') {
+      resetMode();
+    } else {
+      setMode(theme);
+    }
+
+    // Save to server for logged-in users
+    if (currentUser) {
+      router.patch(
+        '/user',
+        {
+          user: {
+            preferences: { theme },
+          },
+        },
+        {
+          preserveState: true,
+          preserveScroll: true,
+          only: [], // Don't reload any props
+        }
+      );
+    }
+
+    // currentTheme will update automatically via derived
+  }
 </script>
 
 <nav>
@@ -38,19 +89,22 @@
 
     <div class="flex-grow"></div>
 
-    <DropdownMenu.Root>
-      <DropdownMenu.Trigger class={buttonVariants({ variant: 'outline', size: 'icon' })}>
-        <Sun class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 !transition-all dark:-rotate-90 dark:scale-0" />
-        <Moon
-          class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 !transition-all dark:rotate-0 dark:scale-100 text-slate-100" />
-        <span class="sr-only">Toggle theme</span>
-      </DropdownMenu.Trigger>
-      <DropdownMenu.Content align="end">
-        <DropdownMenu.Item onclick={() => setMode('light')}>Light</DropdownMenu.Item>
-        <DropdownMenu.Item onclick={() => setMode('dark')}>Dark</DropdownMenu.Item>
-        <DropdownMenu.Item onclick={() => resetMode()}>System</DropdownMenu.Item>
-      </DropdownMenu.Content>
-    </DropdownMenu.Root>
+    <!-- Theme toggle for guest users only -->
+    {#if !currentUser}
+      <DropdownMenu.Root>
+        <DropdownMenu.Trigger class={buttonVariants({ variant: 'outline', size: 'icon' })}>
+          <Sun class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 !transition-all dark:-rotate-90 dark:scale-0" />
+          <Moon
+            class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 !transition-all dark:rotate-0 dark:scale-100 text-slate-100" />
+          <span class="sr-only">Toggle theme</span>
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content align="end">
+          <DropdownMenu.Item onclick={() => setMode('light')}>Light</DropdownMenu.Item>
+          <DropdownMenu.Item onclick={() => setMode('dark')}>Dark</DropdownMenu.Item>
+          <DropdownMenu.Item onclick={() => resetMode()}>System</DropdownMenu.Item>
+        </DropdownMenu.Content>
+      </DropdownMenu.Root>
+    {/if}
 
     {#if currentUser}
       {#if currentUser?.site_admin}
@@ -99,12 +153,44 @@
             <DropdownMenu.Separator />
             <DropdownMenu.Item onclick={() => router.visit(editUserPath())}>
               <UserCircle class="mr-2 size-4" />
-              <span>Settings</span>
+              <span>User Settings</span>
             </DropdownMenu.Item>
+            {#if currentAccount?.id}
+              <DropdownMenu.Item onclick={() => router.visit(accountPath(currentAccount.id))}>
+                <Gear class="mr-2 size-4" />
+                <span>Account Settings</span>
+              </DropdownMenu.Item>
+            {/if}
             <DropdownMenu.Item onclick={() => router.visit(editPasswordUserPath())}>
               <Password class="mr-2 size-4" />
               <span>Change Password</span>
             </DropdownMenu.Item>
+            <DropdownMenu.Sub>
+              <DropdownMenu.SubTrigger>
+                <Palette class="mr-2 size-4" />
+                <span>Theme</span>
+              </DropdownMenu.SubTrigger>
+              <DropdownMenu.SubContent>
+                <DropdownMenu.Item
+                  onclick={() => updateTheme('light')}
+                  class={currentTheme === 'light' ? 'bg-accent' : ''}>
+                  <Sun class="mr-2 size-4" />
+                  Light
+                </DropdownMenu.Item>
+                <DropdownMenu.Item
+                  onclick={() => updateTheme('dark')}
+                  class={currentTheme === 'dark' ? 'bg-accent' : ''}>
+                  <Moon class="mr-2 size-4" />
+                  Dark
+                </DropdownMenu.Item>
+                <DropdownMenu.Item
+                  onclick={() => updateTheme('system')}
+                  class={currentTheme === 'system' ? 'bg-accent' : ''}>
+                  <Monitor class="mr-2 size-4" />
+                  System
+                </DropdownMenu.Item>
+              </DropdownMenu.SubContent>
+            </DropdownMenu.Sub>
             <DropdownMenu.Separator />
             <DropdownMenu.Item onclick={handleLogout}>
               <SignOut class="mr-2 size-4" />

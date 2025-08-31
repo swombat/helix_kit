@@ -25,6 +25,8 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :accounts, only: [ :show, :edit, :update ]
+
   namespace :admin do
     resources :accounts, only: [ :index ]
   end

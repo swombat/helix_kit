@@ -1,6 +1,9 @@
 class User < ApplicationRecord
 
   has_secure_password validations: false
+
+  # User preferences stored as JSON
+  store_accessor :preferences, :theme
   has_many :sessions, dependent: :destroy
 
   # Account associations
@@ -27,9 +30,12 @@ class User < ApplicationRecord
   validates :timezone, inclusion: { in: ActiveSupport::TimeZone.all.map(&:name) },
     allow_blank: true
 
+  validates :theme, inclusion: { in: %w[light dark system] }, allow_nil: true
+
   validates_presence_of :first_name, :last_name, on: :update, if: -> { confirmed? }
 
   after_create :ensure_account_user_exists
+  after_initialize :set_default_theme, if: :new_record?
 
   generates_token_for :password_reset, expires_in: 2.hours do
     password_salt&.last(10)
@@ -130,11 +136,18 @@ class User < ApplicationRecord
     accounts.where(is_site_admin: true).exists?
   end
 
+  # Alias for site_admin method to match common Rails pattern
+  alias_method :is_site_admin?, :site_admin
+
   def as_json(options = {})
     super(options.merge(methods: [ :full_name, :site_admin ]))
   end
 
   private
+
+  def set_default_theme
+    self.theme ||= "system"
+  end
 
   def ensure_account_user_exists
     # Ensure any User created gets an AccountUser

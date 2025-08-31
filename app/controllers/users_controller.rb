@@ -8,12 +8,20 @@ class UsersController < ApplicationController
 
   def update
     if Current.user.update(user_params)
+      # Set theme cookie for faster initial page loads
+      if params[:user][:preferences]&.key?(:theme)
+        cookies[:theme] = {
+          value: Current.user.theme,
+          expires: 1.year.from_now,
+          httponly: true,
+          secure: Rails.env.production?
+        }
+      end
       flash[:success] = "Settings updated successfully"
     else
       flash[:errors] = Current.user.errors.full_messages
     end
 
-    # flash[:errors] = [ "test error", "test error 2" ]
     redirect_to edit_user_path
   end
 
@@ -39,7 +47,7 @@ class UsersController < ApplicationController
   private
 
   def user_params
-    params.require(:user).permit(:first_name, :last_name, :timezone)
+    params.require(:user).permit(:first_name, :last_name, :timezone, preferences: [ :theme ])
   end
 
 end

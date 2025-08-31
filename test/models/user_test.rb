@@ -17,13 +17,14 @@ class UserTest < ActiveSupport::TestCase
 
   test "register! handles existing unconfirmed user" do
     # Create an unconfirmed user directly
+    email = "existing-#{rand(10000)}@example.com"
     existing = User.create!(
-      email_address: "existing@example.com"
+      email_address: email
     )
     existing_id = existing.id
 
     assert_no_difference "User.count" do
-      user = User.register!("existing@example.com")
+      user = User.register!(email)
       assert_equal existing_id, user.id
       assert user.personal_account.present?
     end
@@ -109,11 +110,11 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "ensure_account_user_exists skips if account_users already exist" do
-    user = User.create!(email_address: "existing@example.com")
+    user = User.create!(email_address: "existing-#{rand(10000)}@example.com")
     initial_count = user.account_users.count
 
     # Trigger callback again by updating - callback should skip
-    user.update!(email_address: "updated@example.com", password: "newpassword", password_confirmation: "newpassword")
+    user.update!(email_address: "updated-#{rand(10000)}@example.com", password: "newpassword", password_confirmation: "newpassword")
 
     assert_equal initial_count, user.account_users.count
   end
@@ -162,6 +163,55 @@ class UserTest < ActiveSupport::TestCase
     assert_not user.member_of?(other_account)
     assert_not user.can_manage?(other_account)
     assert_not user.owns?(other_account)
+  end
+
+  test "member_of? requires confirmed membership" do
+    user = User.create!(email_address: "member-test@example.com")
+    account = Account.create!(name: "Test Account", account_type: :team)
+
+    # Add unconfirmed membership
+    account_user = account.add_user!(user, role: "member")
+    assert_not account_user.confirmed?
+
+    # Should not be considered a member while unconfirmed
+    assert_not user.member_of?(account)
+
+    # Confirm and test again
+    account_user.confirm!
+    assert user.member_of?(account)
+  end
+
+  test "can_manage? returns true for owners and admins only" do
+    team_account = Account.create!(name: "Management Test", account_type: :team)
+
+    # Test owner
+    owner = User.create!(email_address: "owner-#{rand(10000)}@example.com")
+    team_account.add_user!(owner, role: "owner", skip_confirmation: true)
+    assert owner.can_manage?(team_account)
+
+    # Test admin
+    admin = User.create!(email_address: "admin-#{rand(10000)}@example.com")
+    team_account.add_user!(admin, role: "admin", skip_confirmation: true)
+    assert admin.can_manage?(team_account)
+
+    # Test member
+    member = User.create!(email_address: "member-#{rand(10000)}@example.com")
+    team_account.add_user!(member, role: "member", skip_confirmation: true)
+    assert_not member.can_manage?(team_account)
+  end
+
+  test "owns? returns true only for owners" do
+    team_account = Account.create!(name: "Ownership Test", account_type: :team)
+
+    # Test owner
+    owner = User.create!(email_address: "test-owner@example.com")
+    team_account.add_user!(owner, role: "owner", skip_confirmation: true)
+    assert owner.owns?(team_account)
+
+    # Test admin (should not own)
+    admin = User.create!(email_address: "test-admin@example.com")
+    team_account.add_user!(admin, role: "admin", skip_confirmation: true)
+    assert_not admin.owns?(team_account)
   end
 
   # === Critical Update Method Safety Tests (For the bug we fixed) ===
@@ -234,7 +284,11 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "validates password length when password present" do
-    user = User.new(email_address: "test@example.com")
+    user = User.new(
+      email_address: "test-#{rand(10000)}@example.com",
+      first_name: "Test",
+      last_name: "User"
+    )
 
     # Too short
     user.password = "12345"
@@ -259,6 +313,14 @@ class UserTest < ActiveSupport::TestCase
     assert_not AccountUser.exists?(account_user_id)
   end
 
+  test "has_many accounts through account_users" do
+    user = users(:user_1)
+
+    assert user.accounts.present?
+    assert_includes user.accounts, user.personal_account
+    assert user.accounts.all? { |account| account.is_a?(Account) }
+  end
+
   test "personal_account association works correctly" do
     user = users(:user_1)
     personal = user.personal_account
@@ -266,6 +328,30 @@ class UserTest < ActiveSupport::TestCase
     assert personal.present?
     assert_equal "personal", personal.account_type
     assert_equal user, personal.owner
+  end
+
+  test "personal_account_user association works correctly" do
+    user = users(:user_1)
+    personal_account_user = user.personal_account_user
+
+    assert personal_account_user.present?
+    assert_equal user, personal_account_user.user
+    assert_equal user.personal_account, personal_account_user.account
+    assert_equal "owner", personal_account_user.role
+  end
+
+  test "default_account returns confirmed account or fallback" do
+    user = users(:user_1)
+
+    # Should return the first confirmed account
+    assert_equal user.personal_account, user.default_account
+
+    # Test with unconfirmed user
+    unconfirmed = users(:unconfirmed_user)
+    unconfirmed.account_users.update_all(confirmed_at: nil)
+
+    # Should still return an account even if unconfirmed
+    assert unconfirmed.default_account.present?
   end
 
   # === Business Logic Tests ===
@@ -304,13 +390,23 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
-  # === site_admin Tests ===
+  # === site_admin and is_site_admin? Tests ===
 
   test "site_admin returns true when user has is_site_admin set" do
     user = users(:user_1)
     user.update_column(:is_site_admin, true)
 
     assert user.site_admin
+  end
+
+  test "is_site_admin? alias method works correctly" do
+    user = users(:user_1)
+    user.update_column(:is_site_admin, true)
+
+    assert user.is_site_admin?
+
+    user.update_column(:is_site_admin, false)
+    assert_not user.is_site_admin?
   end
 
   test "site_admin returns false when user does not have is_site_admin set" do
@@ -365,6 +461,127 @@ class UserTest < ActiveSupport::TestCase
     json = user.as_json
     assert json.key?("site_admin")
     assert_equal true, json["site_admin"]
+  end
+
+  # === Theme Preferences Tests ===
+
+  test "theme defaults to system for new users" do
+    user = User.new(email_address: "theme-test@example.com")
+    assert_equal "system", user.theme
+  end
+
+  test "theme can be set to valid values" do
+    user = users(:user_1)
+
+    [ "light", "dark", "system" ].each do |theme|
+      user.theme = theme
+      assert user.valid?, "Theme '#{theme}' should be valid"
+      assert_equal theme, user.theme
+    end
+  end
+
+  test "theme validation rejects invalid values" do
+    user = users(:user_1)
+
+    [ "invalid", "blue", "auto", "" ].each do |invalid_theme|
+      user.theme = invalid_theme
+      assert_not user.valid?, "Theme '#{invalid_theme}' should be invalid"
+      assert user.errors[:theme].present?
+    end
+  end
+
+  test "theme allows nil values" do
+    user = users(:user_1)
+    user.theme = nil
+    assert user.valid?
+  end
+
+  test "preferences are stored as JSON" do
+    user = users(:user_1)
+    user.theme = "dark"
+    user.save!
+
+    user.reload
+    assert_equal "dark", user.theme
+    assert_equal({ "theme" => "dark" }, user.preferences)
+  end
+
+  test "as_json includes preferences" do
+    user = users(:user_1)
+    user.theme = "light"
+    user.save!
+
+    json = user.as_json
+    assert json.key?("preferences")
+    assert_equal({ "theme" => "light" }, json["preferences"])
+  end
+
+  # === Full Name and Display Tests ===
+
+  test "full_name returns combined first and last name" do
+    user = users(:user_1)
+    assert_equal "Test User", user.full_name
+  end
+
+  test "full_name handles missing names gracefully" do
+    user = User.new(email_address: "noname@example.com")
+    assert_equal " ", user.full_name # Should not crash, just return space
+  end
+
+  test "full_name handles partial names" do
+    user = User.new(
+      email_address: "partial@example.com",
+      first_name: "John",
+      last_name: nil
+    )
+    assert_equal "John ", user.full_name
+  end
+
+  # === Complex Site Admin Scenarios ===
+
+  test "site_admin works with multiple account memberships" do
+    user = User.create!(email_address: "multi-member@example.com")
+    user.update_column(:is_site_admin, false)
+
+    # Add to regular team account
+    regular_account = Account.create!(name: "Regular Team", account_type: :team, is_site_admin: false)
+    regular_account.add_user!(user, role: "member", skip_confirmation: true)
+
+    assert_not user.site_admin
+
+    # Add to site admin account
+    admin_account = Account.create!(name: "Admin Team", account_type: :team, is_site_admin: true)
+    admin_account.add_user!(user, role: "member", skip_confirmation: true)
+
+    assert user.site_admin
+  end
+
+  test "site_admin prioritizes individual user flag over account flag" do
+    user = User.create!(email_address: "priority-test@example.com")
+    user.update_column(:is_site_admin, true)
+
+    # Even if personal account is not admin, user should be admin
+    user.personal_account.update_column(:is_site_admin, false)
+
+    assert user.site_admin
+    assert user.is_site_admin?
+  end
+
+  # === Edge Case Tests ===
+
+  test "user without personal account still functions" do
+    user = User.create!(email_address: "orphan@example.com")
+
+    # Manually remove personal account for edge case testing
+    user.account_users.destroy_all
+    user.accounts.destroy_all
+    user.reload
+
+    assert_nil user.personal_account
+    assert_nil user.personal_account_user
+    assert_nil user.default_account
+    assert_not user.confirmed?
+    assert_not user.can_login?
   end
 
 end

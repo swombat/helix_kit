@@ -9,7 +9,12 @@ class ApplicationController < ActionController::Base
     if authenticated?
       {
         user: Current.user.as_json,
-        account: current_account&.as_json
+        account: current_account&.as_json,
+        theme_preference: Current.user&.theme || cookies[:theme]
+      }
+    else
+      {
+        theme_preference: cookies[:theme]
       }
     end
   end
