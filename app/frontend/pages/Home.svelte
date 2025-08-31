@@ -45,9 +45,9 @@
       icon: Train,
     },
     {
-      title: 'Inertia.js',
+      title: 'Inertia.js Rails',
       description: 'Enables single-page applications using classic Rails routing and controllers.',
-      link: 'https://inertiajs.com/',
+      link: 'https://inertia-rails.dev/',
       icon: Lightning,
     },
     {
@@ -123,9 +123,6 @@
         'Full test suite setup with Playwright Component Testing for page testing, Vitest for Svelte component unit testing, Minitest for Rails model and controller testing.',
       icon: TestTube,
     },
-  ];
-
-  const todoFeatures = [
     {
       title: 'Full-featured user system',
       description:
@@ -133,6 +130,9 @@
       link: 'https://jumpstartrails.com/docs/accounts',
       icon: Users,
     },
+  ];
+
+  const todoFeatures = [
     {
       title: 'Svelte Object Synchronization',
       description:
@@ -208,7 +208,7 @@
                     <svelte:component this={feature.icon} size={48} weight="duotone" class="text-primary" />
                   </div>
                   <div class="flex-1">
-                    <Card.Title>{feature.title}</Card.Title>
+                    <Card.Title class="mb-2">{feature.title}</Card.Title>
                     <Card.Description>{feature.description}</Card.Description>
                   </div>
                 </div>
@@ -241,7 +241,7 @@
                     <svelte:component this={feature.icon} size={48} weight="duotone" class="text-muted-foreground" />
                   </div>
                   <div class="flex-1">
-                    <Card.Title>{feature.title}</Card.Title>
+                    <Card.Title class="mb-2">{feature.title}</Card.Title>
                     <Card.Description>{feature.description}</Card.Description>
                   </div>
                 </div>

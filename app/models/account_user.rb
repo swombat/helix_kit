@@ -21,7 +21,7 @@ class AccountUser < ApplicationRecord
     message: "is already a member of this account"
   }
   validate :enforce_personal_account_rules
-  validate :ensure_removable, on: :destroy
+  before_destroy :ensure_removable
 
   # Callbacks with proper naming
   before_create :set_invitation_details
@@ -88,8 +88,11 @@ class AccountUser < ApplicationRecord
     self.invited_at = Time.current
     generate_confirmation_token
 
-    # Save and let callback handle email
-    save!
+    # Save and send the email
+    if save!
+      send_invitation_email
+      true
+    end
   end
 
   def display_name

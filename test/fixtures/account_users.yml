@@ -45,7 +45,7 @@ no_password_user_account_user:
   created_at: <%= 1.day.ago %>
   updated_at: <%= 1.day.ago %>
 
-team_owner:
+team_account_owner:
   id: 2
   account_id: 2
   user_id: 1

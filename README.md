@@ -10,7 +10,7 @@ This is a start app kit template analogous to Jumpstart Pro or BulletTrain, but 
 
 - **[Svelte 5](https://svelte.dev/)** - A modern JavaScript framework for building user interfaces.
 - **[Ruby on Rails](https://rubyonrails.org/)** - A powerful web application framework for building server-side applications.
-- **[Inertia.js](https://inertiajs.com/)** - Enables single-page applications using classic Rails routing and controllers.
+- **[Inertia.js Rails](https://inertia-rails.dev/)** - Enables single-page applications using classic Rails routing and controllers.
 - **[ShadcnUI](https://ui.shadcn.com/)** - A collection of UI components for Svelte.
 - **[Tailwind CSS](https://tailwindcss.com/)** - A utility-first CSS framework for building custom designs.
 - **[Phosphor Icons](https://phosphoricons.com/)** - A versatile icon library for user interfaces.
@@ -23,16 +23,16 @@ This is a start app kit template analogous to Jumpstart Pro or BulletTrain, but 
 - **[SolidQueue/Cable/Cache](https://medium.com/@reinteractivehq/rails-8-solid-trifecta-comparison-44a76cb92ac3)** - Set up in development environment, for background jobs, real-time features, and caching.
 - **[Obfuscated IDs](https://github.com/bullet-train-co/bullet_train-core/blob/3c12343eba5745dbe0f02db4cb8fb588e4a091e7/bullet_train-obfuscates_id/app/models/concerns/obfuscates_id.rb)** - For better security and aesthetics in URLs. Copy implementation from BulletTrain.
 - **Testing** - Full test suite setup with [Playwright Component Testing](https://testomat.io/blog/playwright-component-testing-as-modern-alternative-to-traditional-tools/) for page testing, [Vitest](https://vitest.dev/) for Svelte component unit testing, [Minitest](https://guides.rubyonrails.org/testing.html) for Rails model and controller testing.
+- **[Full-featured user system](https://jumpstartrails.com/docs/accounts)** - Necessary for most commercial applications, but not included in the default user setup.
+    - [x] User signup and confirmation
+    - [x] Personal/Organization Accounts
+    - [x] Site Admin
+    - [x] User Profiles
+    - [x] Invitations
+    - [x] Roles
 
 ## Target features (TODO)
 
-- **[Full-featured user system](https://jumpstartrails.com/docs/accounts)** - Necessary for most commercial applications, but not included in the default user setup.
-    - [x] User signup and confirmation
-    - [ ] Personal/Organization Accounts
-    - [x] Site Admin
-    - [x] User Profiles
-    - [ ] Invitations
-    - [ ] Roles
 - **Svelte Object Synchronization** - Using ActionCable and Inertia's partial reload and a custom Regitry to keep Svelte $props up to date in real-time.
 - Audit Logging with audit log viewer (required in many business applications).
 - MultiAttachment system supporting:

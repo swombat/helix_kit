@@ -7,15 +7,17 @@ class SignupConfirmationTest < ActionDispatch::IntegrationTest
     get signup_path
     assert_response :success
 
+    rand_email = "test-#{Time.now.to_i}@example.com"
+
     # Submit email
     assert_difference "User.count", 1 do
-      post signup_path, params: { email_address: "test@example.com" }
+      post signup_path, params: { email_address: rand_email }
     end
     assert_redirected_to check_email_path
 
     # Check user was created without password
     user = User.last
-    assert_equal "test@example.com", user.email_address
+    assert_equal rand_email, user.email_address
     assert_nil user.password_digest
     assert_not user.confirmed?
 
@@ -60,19 +62,14 @@ class SignupConfirmationTest < ActionDispatch::IntegrationTest
   end
 
   test "cannot login without confirmation" do
-    # Create unconfirmed user
-    user = User.create!(
-      email_address: "unconfirmed-login-test@example.com",
-      password: "password123",
-      first_name: "Unconfirmed",
-      last_name: "Login"
-    )
-    # Ensure the user is unconfirmed
-    user.account_users.update_all(confirmed_at: nil)
+    # Use existing unconfirmed user fixture
+    user = users(:unconfirmed_user)
+    # Set a password for the unconfirmed user
+    user.update!(password: "password123")
 
     # Try to login
     post login_path, params: {
-      email_address: "unconfirmed-login-test@example.com",
+      email_address: user.email_address,
       password: "password123"
     }
     assert_redirected_to signup_path
@@ -80,16 +77,13 @@ class SignupConfirmationTest < ActionDispatch::IntegrationTest
   end
 
   test "resends confirmation email for existing unconfirmed user" do
-    # Create unconfirmed user
-    user = User.create!(
-      email_address: "existing@example.com"
-    )
+    user = users(:unconfirmed_user)
     account_user = user.personal_account_user
     old_token = account_user.confirmation_token
 
     # Try to signup again with same email
     assert_no_difference "User.count" do
-      post signup_path, params: { email_address: "existing@example.com" }
+      post signup_path, params: { email_address: user.email_address }
     end
     assert_redirected_to check_email_path
 

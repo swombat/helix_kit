@@ -153,9 +153,13 @@ class AccountTypeSwitchingTest < ActionDispatch::IntegrationTest
 
     post login_path, params: { email_address: other_user.email_address, password: "password123" }
 
-    assert_raises(ActiveRecord::RecordNotFound) do
-      put account_path(account), params: { convert_to: "team", account: { name: "Unauthorized" } }
-    end
+    # Try to access the account directly first to ensure it's not accessible
+    get account_path(account)
+    assert_response :not_found
+
+    # Try to update the account
+    put account_path(account), params: { convert_to: "team", account: { name: "Unauthorized" } }
+    assert_response :not_found
 
     account.reload
     # Should remain unchanged
