@@ -49,4 +49,12 @@ class ActionDispatch::IntegrationTest
 
   include InertiaTestHelpers
 
+  # Authentication helper for tests
+  def sign_in(user)
+    post login_path, params: {
+      email_address: user.email_address,
+      password: "password123"  # Fixture users use this password
+    }
+  end
+
 end

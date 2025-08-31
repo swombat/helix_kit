@@ -452,4 +452,183 @@ class AccountUserTest < ActiveSupport::TestCase
     end
   end
 
+  # === Invitation System Tests ===
+
+  test "validates role inclusion for invitations" do
+    account = accounts(:team)
+    user = User.create!(email_address: "roletest@example.com")
+    account_user = AccountUser.new(account: account, user: user, role: "invalid")
+    assert_not account_user.valid?
+    assert_includes account_user.errors[:role], "is not included in the list"
+  end
+
+  test "prevents duplicate memberships" do
+    account = accounts(:team)
+    user = users(:owner)
+
+    # First create a membership
+    AccountUser.create!(
+      account: account,
+      user: user,
+      role: "owner",
+      skip_confirmation: true
+    )
+
+    # Try to create duplicate
+    duplicate = AccountUser.new(
+      account: account,
+      user: user,
+      role: "member"
+    )
+
+    assert_not duplicate.valid?
+    assert_includes duplicate.errors[:user_id], "is already a member of this account"
+  end
+
+  test "prevents removing last owner" do
+    # Create account with single owner
+    account = Account.create!(name: "Test Account", account_type: :team)
+    user = User.create!(email_address: "lastowner@example.com")
+    owner_membership = AccountUser.create!(
+      account: account,
+      user: user,
+      role: "owner",
+      skip_confirmation: true
+    )
+
+    assert_not owner_membership.destroy
+    assert_includes owner_membership.errors[:base], "Cannot remove the last owner"
+  end
+
+  test "sends invitation email on create with invited_by" do
+    account = accounts(:team)
+    admin = users(:admin)
+
+    assert_enqueued_emails 1 do
+      AccountUser.create!(
+        account: account,
+        user: User.find_or_invite("new@example.com"),
+        role: "member",
+        invited_by: admin
+      )
+    end
+  end
+
+  test "became_confirmed? detects confirmation changes" do
+    invitation = AccountUser.create!(
+      account: accounts(:team),
+      user: User.find_or_invite("test@example.com"),
+      role: "member",
+      invited_by: users(:admin)
+    )
+
+    invitation.confirmed_at = Time.current
+    assert invitation.became_confirmed?
+  end
+
+  test "removable_by? logic" do
+    account = accounts(:team)
+    admin = users(:admin)
+    member = users(:member)
+
+    # Create member account user
+    member_account_user = AccountUser.create!(
+      account: account,
+      user: member,
+      role: "member",
+      skip_confirmation: true
+    )
+
+    # Admin can remove member
+    assert member_account_user.removable_by?(admin)
+
+    # Member cannot remove themselves
+    assert_not member_account_user.removable_by?(member)
+
+    # Non-admin cannot remove
+    other_member = users(:other_member)
+    assert_not member_account_user.removable_by?(other_member)
+  end
+
+  test "as_json includes can_remove when current_user provided" do
+    account = accounts(:team)
+    member = users(:member)
+    admin = users(:admin)
+
+    member_account_user = AccountUser.create!(
+      account: account,
+      user: member,
+      role: "member",
+      skip_confirmation: true
+    )
+
+    json = member_account_user.as_json(current_user: admin)
+
+    assert json.key?(:can_remove)
+    assert json[:can_remove]
+  end
+
+  test "resend_invitation! updates token and timestamp" do
+    invitation = AccountUser.create!(
+      account: accounts(:team),
+      user: User.find_or_invite("pending@example.com"),
+      role: "member",
+      invited_by: users(:admin)
+    )
+
+    old_token = invitation.confirmation_token
+    old_time = invitation.invited_at
+
+    travel 1.hour do
+      assert invitation.resend_invitation!
+      assert_not_equal old_token, invitation.reload.confirmation_token
+      assert_not_equal old_time, invitation.invited_at
+    end
+  end
+
+  test "invitation? returns true when invited_by is present" do
+    invitation = account_users(:pending_team_invitation)
+    regular = account_users(:team_owner)
+
+    assert invitation.invitation?
+    assert_not regular.invitation?
+  end
+
+  test "invitation_pending? checks both invitation and confirmation" do
+    invitation = account_users(:pending_team_invitation)
+
+    assert invitation.invitation_pending?
+
+    # After confirmation, should not be pending
+    invitation.confirm!
+    assert_not invitation.invitation_pending?
+  end
+
+  test "pending_invitations scope works" do
+    pending = AccountUser.pending_invitations
+    pending.each do |au|
+      assert au.invitation?
+      assert_not au.confirmed?
+    end
+  end
+
+  test "accepted_invitations scope works" do
+    # Create and confirm an invitation
+    invitation = AccountUser.create!(
+      account: accounts(:team),
+      user: User.find_or_invite("accepted@example.com"),
+      role: "member",
+      invited_by: users(:admin)
+    )
+    invitation.confirm!
+
+    accepted = AccountUser.accepted_invitations
+    assert_includes accepted, invitation
+
+    accepted.each do |au|
+      assert au.invitation?
+      assert au.confirmed?
+    end
+  end
+
 end

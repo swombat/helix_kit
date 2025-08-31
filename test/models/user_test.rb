@@ -584,4 +584,78 @@ class UserTest < ActiveSupport::TestCase
     assert_not user.can_login?
   end
 
+  # === Invitation System Tests ===
+
+  test "invited? returns true for unconfirmed users with invitations" do
+    user = User.create!(email_address: "newuser@example.com")
+    account = accounts(:team)
+
+    # Remove the auto-created account
+    user.account_users.destroy_all
+
+    AccountUser.create!(
+      account: account,
+      user: user,
+      role: "member",
+      invited_by: users(:admin)
+    )
+
+    assert user.invited?
+  end
+
+  test "invited? returns false for confirmed users" do
+    user = users(:owner)
+    assert_not user.invited?
+  end
+
+  test "password validation skipped for invited users" do
+    user = User.new(email_address: "invited@example.com")
+
+    # Create invitation without password
+    AccountUser.create!(
+      account: accounts(:team),
+      user: user,
+      role: "member",
+      invited_by: users(:admin)
+    )
+
+    # User should be valid without password
+    assert user.valid?
+  end
+
+  test "password validation required for non-invited users" do
+    user = User.new(email_address: "regular@example.com")
+
+    # Should require password for regular users
+    assert_not user.valid?
+    assert_includes user.errors[:password], "can't be blank"
+  end
+
+  test "find_or_invite creates user without password" do
+    assert_difference "User.count" do
+      user = User.find_or_invite("brandnew@example.com")
+      assert user.persisted?
+      assert_nil user.password_digest
+    end
+  end
+
+  test "find_or_invite finds existing user" do
+    existing = users(:owner)
+
+    assert_no_difference "User.count" do
+      user = User.find_or_invite(existing.email_address)
+      assert_equal existing, user
+    end
+  end
+
+  test "full_name returns email when name is blank" do
+    user = User.new(
+      email_address: "nofullname@example.com",
+      first_name: "",
+      last_name: ""
+    )
+
+    assert_equal "nofullname@example.com", user.full_name
+  end
+
 end

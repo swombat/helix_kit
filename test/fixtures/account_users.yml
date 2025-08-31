@@ -133,3 +133,53 @@ team_single_user_member:
   confirmed_at: <%= 1.day.ago %>
   created_at: <%= 1.day.ago %>
   updated_at: <%= 1.day.ago %>
+
+# For invitation system testing
+team_owner:
+  id: 16
+  account_id: 12
+  user_id: 9
+  role: owner
+  confirmed_at: <%= 1.day.ago %>
+  created_at: <%= 1.day.ago %>
+  updated_at: <%= 1.day.ago %>
+
+team_admin_member:
+  id: 17
+  account_id: 12
+  user_id: 10
+  role: admin
+  confirmed_at: <%= 1.day.ago %>
+  created_at: <%= 1.day.ago %>
+  updated_at: <%= 1.day.ago %>
+
+team_member_user:
+  id: 18
+  account_id: 12
+  user_id: 11
+  role: member
+  confirmed_at: <%= 1.day.ago %>
+  created_at: <%= 1.day.ago %>
+  updated_at: <%= 1.day.ago %>
+
+personal_owner:
+  id: 19
+  account_id: 13
+  user_id: 9
+  role: owner
+  confirmed_at: <%= 1.day.ago %>
+  created_at: <%= 1.day.ago %>
+  updated_at: <%= 1.day.ago %>
+
+# Pending invitation
+pending_team_invitation:
+  id: 20
+  account_id: 12
+  user_id: 12
+  role: member
+  confirmation_token: <%= SecureRandom.hex(32) %>
+  confirmation_sent_at: <%= 1.hour.ago %>
+  invited_by_id: 10
+  invited_at: <%= 1.hour.ago %>
+  created_at: <%= 1.hour.ago %>
+  updated_at: <%= 1.hour.ago %>

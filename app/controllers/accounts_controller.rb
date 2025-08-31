@@ -3,9 +3,14 @@ class AccountsController < ApplicationController
   before_action :set_account
 
   def show
+    @members = @account.members_with_details if !@account.personal?
+
     render inertia: "accounts/show", props: {
       account: @account,
-      can_be_personal: @account.can_be_personal?
+      can_be_personal: @account.can_be_personal?,
+      members: @members ? @members.map { |m| m.as_json(current_user: Current.user) } : [],
+      can_manage: Current.user.can_manage?(@account),
+      current_user_id: Current.user.id
     }
   end
 

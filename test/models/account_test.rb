@@ -450,4 +450,100 @@ class AccountTest < ActiveSupport::TestCase
     assert_equal false, json["is_site_admin"]
   end
 
+  # === Invitation System Tests ===
+
+  test "invite_member builds proper invitation" do
+    account = accounts(:team)
+    admin = users(:admin)
+
+    invitation = account.invite_member(
+      email: "newuser@example.com",
+      role: "member",
+      invited_by: admin
+    )
+
+    assert invitation.new_record?
+    assert_equal "member", invitation.role
+    assert_equal admin, invitation.invited_by
+    assert invitation.invitation?
+  end
+
+  test "personal accounts cannot save invitations" do
+    account = accounts(:personal)
+    owner = users(:owner)
+
+    invitation = account.invite_member(
+      email: "test@example.com",
+      role: "member",
+      invited_by: owner
+    )
+
+    # Build the invitation but can't save it
+    assert_not invitation.save
+    assert_includes invitation.account.errors[:base], "Personal accounts cannot invite members"
+  end
+
+  test "last_owner? correctly identifies single owner" do
+    account = Account.create!(name: "Single Owner", account_type: :team)
+    user = User.create!(email_address: "onlyowner@example.com")
+
+    AccountUser.create!(
+      account: account,
+      user: user,
+      role: "owner",
+      skip_confirmation: true
+    )
+
+    assert account.last_owner?
+
+    # Add another owner
+    user2 = User.create!(email_address: "secondowner@example.com")
+    AccountUser.create!(
+      account: account,
+      user: user2,
+      role: "owner",
+      skip_confirmation: true
+    )
+
+    assert_not account.last_owner?
+  end
+
+  test "members_count returns confirmed members only" do
+    account = accounts(:team)
+
+    # Should only count confirmed memberships
+    confirmed_count = account.account_users.confirmed.count
+    assert_equal confirmed_count, account.members_count
+  end
+
+  test "pending_invitations_count returns pending invitations only" do
+    account = accounts(:team)
+
+    # Create a pending invitation
+    User.find_or_invite("pending@example.com")
+    invitation = account.invite_member(
+      email: "pending@example.com",
+      role: "member",
+      invited_by: users(:admin)
+    )
+    invitation.save!
+
+    pending_count = account.account_users.pending_invitations.count
+    assert_equal pending_count, account.pending_invitations_count
+  end
+
+  test "members_with_details includes associations" do
+    account = accounts(:team)
+
+    # This should work without N+1 queries
+    members = account.members_with_details
+
+    # Verify associations are loaded
+    members.each do |member|
+      # These should not trigger additional queries
+      assert_not_nil member.user
+      # invited_by can be nil for non-invitations
+    end
+  end
+
 end

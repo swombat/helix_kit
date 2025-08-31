@@ -20,16 +20,22 @@ class AccountUser < ApplicationRecord
     scope: :account_id,
     message: "is already a member of this account"
   }
-  validate :enforce_personal_account_role
-  validate :enforce_single_owner_per_personal_account
+  validate :enforce_personal_account_rules
+  validate :ensure_removable, on: :destroy
 
-  # Callbacks
+  # Callbacks with proper naming
+  before_create :set_invitation_details
   before_create :auto_confirm_if_skip_confirmation
-  after_create_commit :send_confirmation_email, unless: :skip_confirmation
+  after_create_commit :send_invitation_email, if: :invitation?
+  after_create_commit :send_confirmation_email, unless: -> { skip_confirmation || invitation? }
+  after_update_commit :track_invitation_acceptance, if: :became_confirmed?
 
   # Scopes
   scope :owners, -> { where(role: "owner") }
   scope :admins, -> { where(role: [ "owner", "admin" ]) }
+  scope :members, -> { where(role: "member") }
+  scope :pending_invitations, -> { where(confirmed_at: nil).where.not(invited_by_id: nil) }
+  scope :accepted_invitations, -> { where.not(confirmed_at: nil).where.not(invited_by_id: nil) }
 
   # Class Methods
   def self.confirm_by_token!(token)
@@ -55,12 +61,71 @@ class AccountUser < ApplicationRecord
     owner? || admin?
   end
 
-  def send_confirmation_email
-    if invited_by_id.present?
-      AccountMailer.team_invitation(self).deliver_later
+  # Business Logic Methods
+  def invitation?
+    invited_by_id.present?
+  end
+
+  def invitation_pending?
+    invitation? && !confirmed?
+  end
+
+  def invitation_accepted?
+    invitation? && confirmed?
+  end
+
+  def removable_by?(user)
+    return false unless user.can_manage?(account)
+    return false if self.user_id == user.id # Can't remove yourself
+    return false if owner? && account.last_owner? # Can't remove last owner
+    true
+  end
+
+  def resend_invitation!
+    return false unless invitation_pending?
+
+    # Update invitation details
+    self.invited_at = Time.current
+    generate_confirmation_token
+
+    # Save and let callback handle email
+    save!
+  end
+
+  def display_name
+    if user.confirmed? && user.first_name.present?
+      user.full_name
     else
-      AccountMailer.confirmation(self).deliver_later
+      user.email_address
     end
+  end
+
+  def status
+    if invitation_pending?
+      "invited"
+    elsif confirmed?
+      "active"
+    else
+      "pending"
+    end
+  end
+
+  # Complete serialization with authorization logic
+  def as_json(options = {})
+    current_user = options.delete(:current_user)
+
+    json = super(options.merge(
+      methods: [ :display_name, :status, :invitation?, :invitation_pending? ],
+      include: {
+        user: { only: [ :id, :email_address ], methods: [ :full_name ] },
+        invited_by: { only: [ :id ], methods: [ :full_name ] }
+      }
+    ))
+
+    # Add removable flag if current_user provided
+    json[:can_remove] = removable_by?(current_user) if current_user
+
+    json
   end
 
   private
@@ -73,12 +138,43 @@ class AccountUser < ApplicationRecord
     "#{account_id}-#{user_id}-#{user.email_address}"
   end
 
-  def enforce_personal_account_role
-    errors.add(:role, "must be owner for personal accounts") if account&.personal? && role != "owner"
+  def enforce_personal_account_rules
+    if account&.personal?
+      errors.add(:role, "must be owner for personal accounts") if role != "owner"
+      errors.add(:base, "Personal accounts can only have one user") if account.account_users.where.not(id: id).exists?
+    end
   end
 
-  def enforce_single_owner_per_personal_account
-    errors.add(:base, "Personal accounts can only have one user") if account&.personal? && account.account_users.where.not(id: id).exists?
+  def ensure_removable
+    if owner? && account.last_owner?
+      errors.add(:base, "Cannot remove the last owner")
+      throw :abort
+    end
+  end
+
+  def set_invitation_details
+    self.invited_at = Time.current if invitation?
+  end
+
+  def send_invitation_email
+    if invitation?
+      AccountMailer.team_invitation(self).deliver_later
+    else
+      AccountMailer.confirmation(self).deliver_later
+    end
+  end
+
+  def send_confirmation_email
+    AccountMailer.confirmation(self).deliver_later
+  end
+
+  # Properly named callback method
+  def became_confirmed?
+    saved_change_to_confirmed_at? && confirmed_at.present?
+  end
+
+  def track_invitation_acceptance
+    update_column(:invitation_accepted_at, Time.current) if invitation?
   end
 
   def needs_confirmation?

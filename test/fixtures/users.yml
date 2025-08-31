@@ -76,3 +76,40 @@ confirmed_user:
   last_name: User
   created_at: <%= 3.days.ago %>
   updated_at: <%= 3.days.ago %>
+
+# Users for invitation system testing
+owner:
+  id: 9
+  email_address: teamowner@example.com
+  password_digest: <%= BCrypt::Password.create("password123") %>
+  first_name: Team
+  last_name: Owner
+  created_at: <%= 1.day.ago %>
+  updated_at: <%= 1.day.ago %>
+
+admin:
+  id: 10
+  email_address: teamadmin@example.com
+  password_digest: <%= BCrypt::Password.create("password123") %>
+  first_name: Team
+  last_name: Admin
+  created_at: <%= 1.day.ago %>
+  updated_at: <%= 1.day.ago %>
+
+member:
+  id: 11
+  email_address: teammember@example.com
+  password_digest: <%= BCrypt::Password.create("password123") %>
+  first_name: Team
+  last_name: Member
+  created_at: <%= 1.day.ago %>
+  updated_at: <%= 1.day.ago %>
+
+other_member:
+  id: 12
+  email_address: othermember@example.com
+  password_digest: <%= BCrypt::Password.create("password123") %>
+  first_name: Other
+  last_name: Member
+  created_at: <%= 1.day.ago %>
+  updated_at: <%= 1.day.ago %>

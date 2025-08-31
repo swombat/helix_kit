@@ -25,7 +25,14 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :accounts, only: [ :show, :edit, :update ]
+  resources :accounts, only: [ :show, :edit, :update ] do
+    resources :members, controller: "account_members", only: [ :index, :destroy ]
+    resources :invitations, only: [ :create ] do
+      member do
+        post :resend
+      end
+    end
+  end
 
   namespace :admin do
     resources :accounts, only: [ :index ]

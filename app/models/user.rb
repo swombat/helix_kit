@@ -21,11 +21,9 @@ class User < ApplicationRecord
     uniqueness: { case_sensitive: false },
     format: { with: URI::MailTo::EMAIL_REGEXP }
 
-  validates :password, confirmation: true,
-    length: { in: 6..72 },
-    if: :password_digest_changed?
-
-  validates :password, presence: true, on: :update, if: -> { confirmed? && password_digest_changed? }
+  # Conditional validations - The right way!
+  validates :password, presence: true, length: { minimum: 8 }, unless: :invited?
+  validates :password, confirmation: true, length: { in: 6..72 }, if: :password_digest_changed?
 
   validates :timezone, inclusion: { in: ActiveSupport::TimeZone.all.map(&:name) },
     allow_blank: true
@@ -109,17 +107,22 @@ class User < ApplicationRecord
     confirmed? && password_digest?
   end
 
-  # Authorization helpers
-  def member_of?(account)
-    account_users.confirmed.where(account: account).exists?
-  end
-
+  # Clean authorization methods
   def can_manage?(account)
-    account_users.confirmed.admins.where(account: account).exists?
+    account_users.confirmed.admins.exists?(account: account)
   end
 
   def owns?(account)
-    account_users.confirmed.owners.where(account: account).exists?
+    account_users.confirmed.owners.exists?(account: account)
+  end
+
+  def member_of?(account)
+    account_users.confirmed.exists?(account: account)
+  end
+
+  # Check if user was created via invitation
+  def invited?
+    account_users.any?(&:invitation?) && !confirmed?
   end
 
   def default_account
@@ -127,7 +130,18 @@ class User < ApplicationRecord
   end
 
   def full_name
-    "#{first_name} #{last_name}"
+    "#{first_name} #{last_name}".strip.presence || email_address
+  end
+
+  # For finding or creating invited users
+  def self.find_or_invite(email_address)
+    user = find_by(email_address: email_address)
+    return user if user
+
+    # Create user without validation (no password required for invitations)
+    user = new(email_address: email_address)
+    user.save!(validate: false)
+    user
   end
 
   def site_admin

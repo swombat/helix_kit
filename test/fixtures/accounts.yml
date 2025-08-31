@@ -86,3 +86,28 @@ team_single_user:
   slug: single-user-team
   created_at: <%= 1.day.ago %>
   updated_at: <%= 1.day.ago %>
+
+# For invitation testing
+team:
+  id: 12
+  name: "Team for Testing"
+  account_type: 1
+  slug: team-for-testing
+  created_at: <%= 1.day.ago %>
+  updated_at: <%= 1.day.ago %>
+
+personal:
+  id: 13
+  name: "Personal Account"
+  account_type: 0
+  slug: personal-account
+  created_at: <%= 1.day.ago %>
+  updated_at: <%= 1.day.ago %>
+
+other:
+  id: 14
+  name: "Other Account"
+  account_type: 1
+  slug: other-account
+  created_at: <%= 1.day.ago %>
+  updated_at: <%= 1.day.ago %>

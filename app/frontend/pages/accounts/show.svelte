@@ -3,10 +3,14 @@
   import { Button } from '$lib/components/shadcn/button/index.js';
   import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/shadcn/card';
   import { Badge } from '$lib/components/shadcn/badge';
+  import { Alert, AlertDescription } from '$lib/components/shadcn/alert';
   import { editAccountPath } from '@/routes';
-  import { UserCircle, Users, Gear } from 'phosphor-svelte';
+  import { UserCircle, Users, Gear, UserPlus, Trash, Envelope } from 'phosphor-svelte';
+  import InviteMemberForm from '$lib/components/forms/InviteMemberForm.svelte';
 
-  const { account, can_be_personal } = $page.props;
+  const { account, can_be_personal, members = [], can_manage = false, current_user_id } = $page.props;
+
+  let showInviteForm = $state(false);
 
   function formatDate(dateString) {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -19,9 +23,36 @@
   function goToEdit() {
     router.visit(editAccountPath(account.id));
   }
+
+  function removeMember(member) {
+    if (confirm(`Remove ${member.display_name} from ${account.name}?`)) {
+      router.delete(`/accounts/${account.id}/members/${member.id}`);
+    }
+  }
+
+  function resendInvitation(member) {
+    router.post(`/accounts/${account.id}/invitations/${member.id}/resend`);
+  }
+
+  function handleInvite(event) {
+    const { email, role } = event.detail;
+    router.post(`/accounts/${account.id}/invitations`, { email, role });
+    showInviteForm = false;
+  }
+
+  // Reactive derived values
+  $effect(() => {
+    // Close invite form on successful submission or error
+    if ($page.props.flash?.success || $page.props.flash?.errors) {
+      showInviteForm = false;
+    }
+  });
+
+  const pendingInvitations = $derived(members.filter((m) => m.invitation_pending));
+  const activeMembers = $derived(members.filter((m) => !m.invitation_pending));
 </script>
 
-<div class="container mx-auto p-8 max-w-4xl">
+<div class="container mx-auto p-8 max-w-6xl">
   <div class="mb-8">
     <div class="flex items-center justify-between">
       <div>
@@ -34,6 +65,25 @@
       </Button>
     </div>
   </div>
+
+  <!-- Flash Messages -->
+  {#if $page.props.flash?.success}
+    <Alert class="mb-6">
+      <AlertDescription>{$page.props.flash.success}</AlertDescription>
+    </Alert>
+  {/if}
+
+  {#if $page.props.flash?.notice}
+    <Alert class="mb-6">
+      <AlertDescription>{$page.props.flash.notice}</AlertDescription>
+    </Alert>
+  {/if}
+
+  {#if $page.props.flash?.alert}
+    <Alert class="mb-6" variant="destructive">
+      <AlertDescription>{$page.props.flash.alert}</AlertDescription>
+    </Alert>
+  {/if}
 
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
     <!-- Account Information -->
@@ -89,7 +139,7 @@
           <div>
             <dt class="text-sm font-medium text-muted-foreground">Total Users</dt>
             <dd class="text-2xl font-bold">
-              {account.users?.length || account.users_count || 0}
+              {activeMembers.length || 0}
             </dd>
           </div>
           {#if !account.personal && can_be_personal}
@@ -109,6 +159,164 @@
       </CardContent>
     </Card>
   </div>
+
+  <!-- Team Members Section (only for team accounts) -->
+  {#if !account.personal}
+    <Card class="mt-8">
+      <CardHeader>
+        <div class="flex items-center justify-between">
+          <CardTitle class="text-lg flex items-center gap-2">
+            <Users class="h-5 w-5" />
+            Team Members ({activeMembers.length})
+          </CardTitle>
+          {#if can_manage}
+            {#if showInviteForm}
+              <Button onclick={() => (showInviteForm = false)} variant="outline" size="sm">Cancel</Button>
+            {:else}
+              <Button onclick={() => (showInviteForm = true)} size="sm" class="gap-2">
+                <UserPlus class="h-4 w-4" />
+                Invite Member
+              </Button>
+            {/if}
+          {/if}
+        </div>
+      </CardHeader>
+      <CardContent>
+        <!-- Invite Form -->
+        {#if showInviteForm}
+          <div class="mb-6 p-4 border rounded-lg bg-muted/50">
+            <InviteMemberForm on:close={() => (showInviteForm = false)} on:invite={handleInvite} />
+          </div>
+        {/if}
+
+        <!-- Members Table -->
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="border-b">
+                <th class="text-left p-4 font-medium">Name</th>
+                <th class="text-left p-4 font-medium">Email</th>
+                <th class="text-left p-4 font-medium">Role</th>
+                <th class="text-left p-4 font-medium">Joined</th>
+                {#if can_manage}
+                  <th class="text-left p-4 font-medium">Actions</th>
+                {/if}
+              </tr>
+            </thead>
+            <tbody>
+              {#each activeMembers as member (member.id)}
+                <tr class="border-b">
+                  <td class="p-4">
+                    <div class="flex items-center gap-2">
+                      <span class="font-medium">{member.display_name}</span>
+                      {#if member.user_id === current_user_id}
+                        <Badge variant="outline" class="text-xs">You</Badge>
+                      {/if}
+                    </div>
+                  </td>
+                  <td class="p-4 text-sm">{member.user.email_address}</td>
+                  <td class="p-4">
+                    <Badge
+                      variant={member.role === 'owner' ? 'default' : member.role === 'admin' ? 'secondary' : 'outline'}>
+                      {member.role}
+                    </Badge>
+                  </td>
+                  <td class="p-4 text-sm text-muted-foreground">
+                    {member.confirmed_at ? formatDate(member.confirmed_at) : 'Not confirmed'}
+                  </td>
+                  {#if can_manage}
+                    <td class="p-4">
+                      {#if member.can_remove}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onclick={() => removeMember(member)}
+                          class="text-destructive hover:text-destructive">
+                          <Trash class="h-4 w-4" />
+                          Remove
+                        </Button>
+                      {/if}
+                    </td>
+                  {/if}
+                </tr>
+              {:else}
+                <tr>
+                  <td colspan={can_manage ? 5 : 4} class="p-8 text-center text-muted-foreground">
+                    You're the only member of this team account. Invite others to collaborate with you.
+                  </td>
+                </tr>
+              {/each}
+            </tbody>
+          </table>
+        </div>
+      </CardContent>
+    </Card>
+
+    <!-- Pending Invitations -->
+    {#if pendingInvitations.length > 0}
+      <Card class="mt-8">
+        <CardHeader>
+          <CardTitle class="text-lg flex items-center gap-2">
+            <Envelope class="h-5 w-5" />
+            Pending Invitations ({pendingInvitations.length})
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead>
+                <tr class="border-b">
+                  <th class="text-left p-4 font-medium">Email</th>
+                  <th class="text-left p-4 font-medium">Role</th>
+                  <th class="text-left p-4 font-medium">Invited By</th>
+                  <th class="text-left p-4 font-medium">Invited On</th>
+                  {#if can_manage}
+                    <th class="text-left p-4 font-medium">Actions</th>
+                  {/if}
+                </tr>
+              </thead>
+              <tbody>
+                {#each pendingInvitations as member (member.id)}
+                  <tr class="border-b">
+                    <td class="p-4">{member.user.email_address}</td>
+                    <td class="p-4">
+                      <Badge variant="outline">{member.role}</Badge>
+                    </td>
+                    <td class="p-4 text-sm">
+                      {member.invited_by?.full_name || 'System'}
+                    </td>
+                    <td class="p-4 text-sm text-muted-foreground">
+                      {formatDate(member.invited_at)}
+                    </td>
+                    {#if can_manage}
+                      <td class="p-4">
+                        <div class="flex items-center gap-2">
+                          <Button variant="ghost" size="sm" onclick={() => resendInvitation(member)}>
+                            <Envelope class="h-4 w-4" />
+                            Resend
+                          </Button>
+                          {#if member.can_remove}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onclick={() => removeMember(member)}
+                              class="text-destructive hover:text-destructive">
+                              <Trash class="h-4 w-4" />
+                              Cancel
+                            </Button>
+                          {/if}
+                        </div>
+                      </td>
+                    {/if}
+                  </tr>
+                {/each}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+    {/if}
+  {/if}
 
   <!-- Account Type Switching -->
   <Card class="mt-8">

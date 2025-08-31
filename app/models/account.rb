@@ -14,6 +14,7 @@ class Account < ApplicationRecord
   validates :name, presence: true
   validates :account_type, presence: true
   validate :enforce_personal_account_limit, if: :personal?
+  validate :can_invite_members, if: -> { account_users.any?(&:invitation?) }
 
   # Callbacks
   before_validation :set_default_name, on: :create
@@ -36,6 +37,32 @@ class Account < ApplicationRecord
       account_user.save!
       account_user
     end
+  end
+
+  # Business Logic for Invitations
+  def invite_member(email:, role:, invited_by:)
+    account_users.build(
+      user: User.find_or_invite(email),
+      role: role,
+      invited_by: invited_by
+    )
+  end
+
+  def last_owner?
+    account_users.owners.confirmed.count == 1
+  end
+
+  def members_count
+    account_users.confirmed.count
+  end
+
+  def pending_invitations_count
+    account_users.pending_invitations.count
+  end
+
+  # Association with proper includes for N+1 prevention
+  def members_with_details
+    account_users.includes(:user, :invited_by).order(:created_at)
   end
 
   def personal_account_for?(user)
@@ -80,6 +107,10 @@ class Account < ApplicationRecord
     if personal? && account_users.count > 1
       errors.add(:base, "Personal accounts can only have one user")
     end
+  end
+
+  def can_invite_members
+    errors.add(:base, "Personal accounts cannot invite members") if personal?
   end
 
   def set_default_name

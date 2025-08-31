@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_31_051450) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_31_070029) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -25,10 +25,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_31_051450) do
     t.bigint "invited_by_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "invitation_accepted_at"
     t.index ["account_id", "user_id"], name: "index_account_users_on_account_id_and_user_id", unique: true
     t.index ["account_id"], name: "index_account_users_on_account_id"
     t.index ["confirmation_token"], name: "index_account_users_on_confirmation_token", unique: true
     t.index ["confirmed_at"], name: "index_account_users_on_confirmed_at"
+    t.index ["invitation_accepted_at"], name: "index_account_users_on_invitation_accepted_at"
     t.index ["invited_by_id"], name: "index_account_users_on_invited_by_id"
     t.index ["user_id"], name: "index_account_users_on_user_id"
   end
