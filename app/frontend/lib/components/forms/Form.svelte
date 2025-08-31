@@ -36,6 +36,7 @@
     // Content slots
     children,
     narrow = false,
+    wide = false,
   } = $props();
 
   let processing = $state(false);
@@ -87,7 +88,7 @@
   }
 </script>
 
-<div class="container mx-auto px-4 py-8 {narrow ? 'max-w-lg' : 'max-w-2xl'}">
+<div class="container mx-auto px-4 py-8 {narrow ? 'max-w-lg' : wide ? 'max-w-4xl' : 'max-w-2xl'}">
   <Card>
     <CardHeader>
       <CardTitle>{title}</CardTitle>

@@ -142,19 +142,6 @@
               {activeMembers.length || 0}
             </dd>
           </div>
-          {#if !account.personal && can_be_personal}
-            <div class="p-3 bg-blue-50 dark:bg-blue-950/20 rounded-md border border-blue-200 dark:border-blue-800">
-              <p class="text-sm text-blue-800 dark:text-blue-200">
-                <strong>Note:</strong> You can convert this team account back to personal since you're the only member.
-              </p>
-            </div>
-          {:else if !account.personal}
-            <div class="p-3 bg-amber-50 dark:bg-amber-950/20 rounded-md border border-amber-200 dark:border-amber-800">
-              <p class="text-sm text-amber-800 dark:text-amber-200">
-                <strong>Note:</strong> Team accounts with multiple users cannot be converted to personal accounts.
-              </p>
-            </div>
-          {/if}
         </dl>
       </CardContent>
     </Card>
@@ -331,11 +318,6 @@
             with others.
           {:else}
             Your account is currently set up as a team account.
-            {#if can_be_personal}
-              Since you're the only member, you can convert it back to a personal account.
-            {:else}
-              Team accounts with multiple users cannot be converted to personal accounts.
-            {/if}
           {/if}
         </p>
 
@@ -349,4 +331,21 @@
       </div>
     </CardContent>
   </Card>
+
+  <!-- Conversion Note -->
+  {#if !account.personal}
+    {#if can_be_personal}
+      <div class="mt-4 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-md border border-blue-200 dark:border-blue-800">
+        <p class="text-sm text-blue-800 dark:text-blue-200">
+          <strong>Note:</strong> Since you're the only member, you can convert this team account back to a personal account.
+        </p>
+      </div>
+    {:else}
+      <div class="mt-4 p-3 bg-amber-50 dark:bg-amber-950/20 rounded-md border border-amber-200 dark:border-amber-800">
+        <p class="text-sm text-amber-800 dark:text-amber-200">
+          <strong>Note:</strong> Team accounts with multiple users cannot be converted to personal accounts.
+        </p>
+      </div>
+    {/if}
+  {/if}
 </div>

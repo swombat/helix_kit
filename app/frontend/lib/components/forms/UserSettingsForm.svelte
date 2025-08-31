@@ -14,10 +14,10 @@
   action={userPath()}
   method="patch"
   data={() => ({ user: user_form })}
-  title="{user.first_name} {user.last_name} Settings"
-  description="Update your personal information and preferences"
+  title="Personal Information"
   submitLabel="Save Changes"
   submitLabelProcessing="Saving..."
+  wide={true}
   {onCancel}
   {onSuccess}>
   <div>
