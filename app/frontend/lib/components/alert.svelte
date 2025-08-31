@@ -3,7 +3,7 @@
   import * as Alert from '$lib/components/shadcn/alert/index.js';
   import { CheckCircle, Warning, WarningOctagon, ArrowCircleRight } from 'phosphor-svelte';
 
-  let { type = $bindable(), title = $bindable(), description = $bindable() } = $props();
+  let { type = $bindable(), title = $bindable(), description = $bindable(), children } = $props();
 
   function splitDescription(description) {
     console.log('Description:', description);
@@ -48,6 +48,9 @@
   {/if}
   <Alert.Title>{title}</Alert.Title>
   <Alert.Description>
-    {@html splitDescription(description)}
+    {@render children?.()}
+    {#if description}
+      {@html splitDescription(description)}
+    {/if}
   </Alert.Description>
 </Alert.Root>

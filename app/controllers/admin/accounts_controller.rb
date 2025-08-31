@@ -20,7 +20,9 @@ class Admin::AccountsController < ApplicationController
             id: account.owner.to_param,
             email: account.owner.email_address
           } : nil,
-          users_count: account.account_users.size
+          users_count: account.account_users.size,
+          members_count: account.members_count,
+          active: account.active?
         }
       end,
       selected_account: @selected_account ? {
@@ -40,7 +42,8 @@ class Admin::AccountsController < ApplicationController
             email: account_user.user.email_address,
             name: account_user.user.full_name,
             role: account_user.role,
-            created_at: account_user.created_at
+            created_at: account_user.created_at,
+            confirmed: account_user.confirmed?
           }
         end
       } : nil

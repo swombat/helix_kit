@@ -3,10 +3,11 @@
   import { Button } from '$lib/components/shadcn/button/index.js';
   import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/shadcn/card';
   import { Badge } from '$lib/components/shadcn/badge';
-  import { Alert, AlertDescription } from '$lib/components/shadcn/alert';
+  import Alert from '$lib/components/alert.svelte';
   import { editAccountPath } from '@/routes';
   import { UserCircle, Users, Gear, UserPlus, Trash, Envelope } from 'phosphor-svelte';
   import InviteMemberForm from '$lib/components/forms/InviteMemberForm.svelte';
+  import InfoCard from '$lib/components/InfoCard.svelte';
 
   const { account, can_be_personal, members = [], can_manage = false, current_user_id } = $page.props;
 
@@ -68,83 +69,61 @@
 
   <!-- Flash Messages -->
   {#if $page.props.flash?.success}
-    <Alert class="mb-6">
-      <AlertDescription>{$page.props.flash.success}</AlertDescription>
-    </Alert>
+    <Alert type="success" title="Success" description={$page.props.flash.success} class="mb-6" />
   {/if}
 
   {#if $page.props.flash?.notice}
-    <Alert class="mb-6">
-      <AlertDescription>{$page.props.flash.notice}</AlertDescription>
-    </Alert>
+    <Alert type="notice" title="Notice" description={$page.props.flash.notice} class="mb-6" />
   {/if}
 
   {#if $page.props.flash?.alert}
-    <Alert class="mb-6" variant="destructive">
-      <AlertDescription>{$page.props.flash.alert}</AlertDescription>
-    </Alert>
+    <Alert type="error" title="Alert" description={$page.props.flash.alert} class="mb-6" />
   {/if}
 
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
     <!-- Account Information -->
-    <Card>
-      <CardHeader>
-        <CardTitle class="flex items-center gap-2">
-          <UserCircle class="h-5 w-5" />
-          Account Information
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <dl class="space-y-4">
-          <div>
-            <dt class="text-sm font-medium text-muted-foreground">Account Name</dt>
-            <dd class="text-lg font-semibold">
-              {account.personal ? 'Personal Account' : account.name}
-            </dd>
-          </div>
-          <div>
-            <dt class="text-sm font-medium text-muted-foreground">Account Type</dt>
-            <dd>
-              <Badge variant={account.personal ? 'default' : 'secondary'}>
-                {account.personal ? 'Personal' : 'Team'}
-              </Badge>
-            </dd>
-          </div>
-          <div>
-            <dt class="text-sm font-medium text-muted-foreground">Account ID</dt>
-            <dd class="font-mono text-sm text-muted-foreground">
-              {account.id}
-            </dd>
-          </div>
-          <div>
-            <dt class="text-sm font-medium text-muted-foreground">Created</dt>
-            <dd class="text-sm">
-              {formatDate(account.created_at)}
-            </dd>
-          </div>
-        </dl>
-      </CardContent>
-    </Card>
+    <InfoCard title="Account Information" icon="UserCircle">
+      <dl class="space-y-4">
+        <div>
+          <dt class="text-sm font-medium text-muted-foreground">Account Name</dt>
+          <dd class="text-lg font-semibold">
+            {account.personal ? 'Personal Account' : account.name}
+          </dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-muted-foreground">Account Type</dt>
+          <dd>
+            <Badge variant={account.personal ? 'default' : 'secondary'}>
+              {account.personal ? 'Personal' : 'Team'}
+            </Badge>
+          </dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-muted-foreground">Account ID</dt>
+          <dd class="font-mono text-sm text-muted-foreground">
+            {account.id}
+          </dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-muted-foreground">Created</dt>
+          <dd class="text-sm">
+            {formatDate(account.created_at)}
+          </dd>
+        </div>
+      </dl>
+    </InfoCard>
 
     <!-- Account Usage -->
-    <Card>
-      <CardHeader>
-        <CardTitle class="flex items-center gap-2">
-          <Users class="h-5 w-5" />
-          Account Usage
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <dl class="space-y-4">
-          <div>
-            <dt class="text-sm font-medium text-muted-foreground">Total Users</dt>
-            <dd class="text-2xl font-bold">
-              {activeMembers.length || 0}
-            </dd>
-          </div>
-        </dl>
-      </CardContent>
-    </Card>
+    <InfoCard title="Account Usage" icon="Users">
+      <dl class="space-y-4">
+        <div>
+          <dt class="text-sm font-medium text-muted-foreground">Total Users</dt>
+          <dd class="text-2xl font-bold">
+            {activeMembers.length || 0}
+          </dd>
+        </div>
+      </dl>
+    </InfoCard>
   </div>
 
   <!-- Team Members Section (only for team accounts) -->
@@ -306,46 +285,37 @@
   {/if}
 
   <!-- Account Type Switching -->
-  <Card class="mt-8">
-    <CardHeader>
-      <CardTitle>Account Type</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <div class="space-y-4">
-        <p class="text-muted-foreground">
-          {#if account.personal}
-            Your account is currently set up as a personal account. You can convert it to a team account to collaborate
-            with others.
-          {:else}
-            Your account is currently set up as a team account.
-          {/if}
-        </p>
+  <InfoCard title="Account Type" icon="UserSwitch" class="mt-8">
+    <div class="space-y-4">
+      <p class="text-muted-foreground">
+        {#if account.personal}
+          Your account is currently set up as a personal account. You can convert it to a team account to collaborate
+          with others.
+        {:else}
+          Your account is currently set up as a team account.
+        {/if}
+      </p>
 
-        <div class="flex gap-4">
-          {#if account.personal}
-            <Button onclick={goToEdit} variant="outline">Convert to Team Account</Button>
-          {:else if can_be_personal}
-            <Button onclick={goToEdit} variant="outline">Convert to Personal Account</Button>
-          {/if}
-        </div>
+      <div class="flex gap-4">
+        {#if account.personal}
+          <Button onclick={goToEdit} variant="outline">Convert to Team Account</Button>
+        {:else if can_be_personal}
+          <Button onclick={goToEdit} variant="outline">Convert to Personal Account</Button>
+        {/if}
       </div>
-    </CardContent>
-  </Card>
 
-  <!-- Conversion Note -->
-  {#if !account.personal}
-    {#if can_be_personal}
-      <div class="mt-4 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-md border border-blue-200 dark:border-blue-800">
-        <p class="text-sm text-blue-800 dark:text-blue-200">
-          <strong>Note:</strong> Since you're the only member, you can convert this team account back to a personal account.
-        </p>
-      </div>
-    {:else}
-      <div class="mt-4 p-3 bg-amber-50 dark:bg-amber-950/20 rounded-md border border-amber-200 dark:border-amber-800">
-        <p class="text-sm text-amber-800 dark:text-amber-200">
-          <strong>Note:</strong> Team accounts with multiple users cannot be converted to personal accounts.
-        </p>
-      </div>
-    {/if}
-  {/if}
+      <!-- Conversion Note -->
+      {#if !account.personal}
+        {#if can_be_personal}
+          <Alert type="notice" title="Can convert to personal account">
+            Since you're the only member, you can convert this team account back to a personal account.
+          </Alert>
+        {:else}
+          <Alert type="warning" title="Cannot convert to personal account">
+            Team accounts with multiple users cannot be converted to personal accounts.
+          </Alert>
+        {/if}
+      {/if}
+    </div>
+  </InfoCard>
 </div>

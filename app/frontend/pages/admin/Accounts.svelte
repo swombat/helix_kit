@@ -3,6 +3,7 @@
   import { router } from '@inertiajs/svelte';
   import { Badge } from '$lib/components/shadcn/badge';
   import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/shadcn/card';
+  import InfoCard from '$lib/components/InfoCard.svelte';
 
   let { accounts = [], selected_account = null } = $props();
   let search = $state('');
@@ -55,12 +56,16 @@
             <button
               onclick={() => selectAccount(account.id)}
               class="w-full text-left p-4 hover:bg-muted/50 transition-colors border-b border-border
-                     {selected_account?.id === account.id ? 'bg-primary/10 border-l-4 border-l-primary' : ''}">
+                     {selected_account?.id === account.id ? 'bg-primary/10 border-l-4 border-l-primary' : ''}
+                     {account.active ? '' : 'bg-neutral-50 opacity-50'}">
               <div class="font-medium text-base">{account.name}</div>
               <div class="text-sm text-muted-foreground mt-1">
-                {account.account_type === 'personal' ? 'Personal' : 'Organization'} •
-                {account.users_count}
-                {account.users_count === 1 ? 'user' : 'users'}
+                {account.account_type === 'personal' ? 'Personal' : 'Organization'}
+                {#if account.users_count}
+                  •
+                  {account.users_count}
+                  {account.users_count === 1 ? 'user' : 'users'}
+                {/if}
               </div>
               {#if account.owner}
                 <div class="text-xs text-muted-foreground/80 mt-1">
@@ -94,56 +99,46 @@
 
         <!-- Account details -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          <Card>
-            <CardHeader>
-              <CardTitle>Account Information</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <dl class="space-y-3">
+          <InfoCard title="Account Information" icon="Info">
+            <dl class="space-y-3">
+              <div>
+                <dt class="text-sm text-muted-foreground">Account ID</dt>
+                <dd class="font-mono text-sm">{selected_account.id}</dd>
+              </div>
+              <div>
+                <dt class="text-sm text-muted-foreground">Type</dt>
+                <dd>{selected_account.account_type === 'personal' ? 'Personal' : 'Organization'}</dd>
+              </div>
+              {#if selected_account.owner}
                 <div>
-                  <dt class="text-sm text-muted-foreground">Account ID</dt>
-                  <dd class="font-mono text-sm">{selected_account.id}</dd>
+                  <dt class="text-sm text-muted-foreground">Owner</dt>
+                  <dd>
+                    {selected_account.owner.name || selected_account.owner.email}
+                    {#if selected_account.owner.name}
+                      <div class="text-sm text-muted-foreground">{selected_account.owner.email}</div>
+                    {/if}
+                  </dd>
                 </div>
-                <div>
-                  <dt class="text-sm text-muted-foreground">Type</dt>
-                  <dd>{selected_account.account_type === 'personal' ? 'Personal' : 'Organization'}</dd>
-                </div>
-                {#if selected_account.owner}
-                  <div>
-                    <dt class="text-sm text-muted-foreground">Owner</dt>
-                    <dd>
-                      {selected_account.owner.name || selected_account.owner.email}
-                      {#if selected_account.owner.name}
-                        <div class="text-sm text-muted-foreground">{selected_account.owner.email}</div>
-                      {/if}
-                    </dd>
-                  </div>
-                {/if}
-              </dl>
-            </CardContent>
-          </Card>
+              {/if}
+            </dl>
+          </InfoCard>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Statistics</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <dl class="space-y-3">
-                <div>
-                  <dt class="text-sm text-muted-foreground">Total Users</dt>
-                  <dd class="text-2xl font-bold">{selected_account.users?.length || 0}</dd>
-                </div>
-                <div>
-                  <dt class="text-sm text-muted-foreground">Created</dt>
-                  <dd>{formatDate(selected_account.created_at)}</dd>
-                </div>
-                <div>
-                  <dt class="text-sm text-muted-foreground">Last Updated</dt>
-                  <dd>{formatDate(selected_account.updated_at)}</dd>
-                </div>
-              </dl>
-            </CardContent>
-          </Card>
+          <InfoCard title="Statistics" icon="ChartBar">
+            <dl class="space-y-3">
+              <div>
+                <dt class="text-sm text-muted-foreground">Total Users</dt>
+                <dd class="text-2xl font-bold">{selected_account.users?.length || 0}</dd>
+              </div>
+              <div>
+                <dt class="text-sm text-muted-foreground">Created</dt>
+                <dd>{formatDate(selected_account.created_at)}</dd>
+              </div>
+              <div>
+                <dt class="text-sm text-muted-foreground">Last Updated</dt>
+                <dd>{formatDate(selected_account.updated_at)}</dd>
+              </div>
+            </dl>
+          </InfoCard>
         </div>
 
         <!-- Users list -->
@@ -167,7 +162,7 @@
                   </thead>
                   <tbody>
                     {#each selected_account.users as user (user.id)}
-                      <tr>
+                      <tr class={user.confirmed ? '' : 'opacity-50'}>
                         <td>
                           <div class="font-medium">{user.email}</div>
                         </td>

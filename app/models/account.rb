@@ -57,6 +57,10 @@ class Account < ApplicationRecord
     account_users.confirmed.count
   end
 
+  def active?
+    members_count > 0
+  end
+
   def pending_invitations_count
     account_users.pending_invitations.count
   end
@@ -99,6 +103,7 @@ class Account < ApplicationRecord
     hash["personal"] = !!personal?
     hash["team"] = !!team?
     hash["is_site_admin"] = !!is_site_admin
+    hash["id"] = to_param
     hash
   end
 
