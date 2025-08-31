@@ -1,6 +1,6 @@
 import { render, fireEvent, screen } from '@testing-library/svelte';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import Accounts from './Accounts.svelte';
+import Accounts from './accounts.svelte';
 import { router } from '@inertiajs/svelte';
 
 describe('Accounts Admin Page Component', () => {

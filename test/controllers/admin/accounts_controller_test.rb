@@ -34,7 +34,7 @@ class Admin::AccountsControllerTest < ActionDispatch::IntegrationTest
 
     get admin_accounts_path
     assert_response :success
-    assert_equal "admin/Accounts", inertia_component
+    assert_equal "admin/accounts", inertia_component
   end
 
   # === Data and Props Tests ===
@@ -187,7 +187,7 @@ class Admin::AccountsControllerTest < ActionDispatch::IntegrationTest
     assert inertia_props.key?("props")
     assert inertia_props.key?("url")
     assert inertia_props.key?("version")
-    assert_equal "admin/Accounts", inertia_component
+    assert_equal "admin/accounts", inertia_component
   end
 
   test "should handle inertia version conflicts gracefully" do

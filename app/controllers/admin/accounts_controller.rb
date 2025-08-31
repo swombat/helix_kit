@@ -9,7 +9,7 @@ class Admin::AccountsController < ApplicationController
     selected_account_id = params[:account_id]
     @selected_account = @accounts.find { |a| a.to_param == selected_account_id } if selected_account_id
 
-    render inertia: "admin/Accounts", props: {
+    render inertia: "admin/accounts", props: {
       accounts: @accounts.map do |account|
         {
           id: account.to_param,
