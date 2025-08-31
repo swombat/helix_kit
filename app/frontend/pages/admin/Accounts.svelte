@@ -2,6 +2,7 @@
   import { page } from '@inertiajs/svelte';
   import { router } from '@inertiajs/svelte';
   import { Badge } from '$lib/components/shadcn/badge';
+  import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/shadcn/card';
 
   let { accounts = [], selected_account = null } = $props();
   let search = $state('');
@@ -93,9 +94,11 @@
 
         <!-- Account details -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          <div class="card bg-card border border-border">
-            <div class="card-body">
-              <h2 class="card-title text-lg">Account Information</h2>
+          <Card>
+            <CardHeader>
+              <CardTitle>Account Information</CardTitle>
+            </CardHeader>
+            <CardContent>
               <dl class="space-y-3">
                 <div>
                   <dt class="text-sm text-muted-foreground">Account ID</dt>
@@ -117,12 +120,14 @@
                   </div>
                 {/if}
               </dl>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
-          <div class="card bg-card border border-border">
-            <div class="card-body">
-              <h2 class="card-title text-lg">Statistics</h2>
+          <Card>
+            <CardHeader>
+              <CardTitle>Statistics</CardTitle>
+            </CardHeader>
+            <CardContent>
               <dl class="space-y-3">
                 <div>
                   <dt class="text-sm text-muted-foreground">Total Users</dt>
@@ -137,16 +142,18 @@
                   <dd>{formatDate(selected_account.updated_at)}</dd>
                 </div>
               </dl>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
 
         <!-- Users list -->
-        <div class="card">
-          <div class="card-body">
-            <h2 class="card-title text-lg mb-4">
+        <Card>
+          <CardHeader>
+            <CardTitle>
               Users ({selected_account.users?.length || 0})
-            </h2>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
             {#if selected_account.users && selected_account.users.length > 0}
               <div class="overflow-x-auto">
                 <table class="table">
@@ -181,8 +188,8 @@
             {:else}
               <p class="text-muted-foreground">No users in this account.</p>
             {/if}
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
     {:else}
       <div class="flex items-center justify-center h-full">
