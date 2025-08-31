@@ -2,7 +2,7 @@
   // grab page props from inertia
   import { page, Link, router } from '@inertiajs/svelte';
   import Logo from '$lib/components/misc/HelixKitLogo.svelte';
-  import { UserCircle, List, SignOut, Password, Moon, Sun, ShieldWarning } from 'phosphor-svelte';
+  import { UserCircle, List, SignOut, Password, Moon, Sun, ShieldWarning, Buildings } from 'phosphor-svelte';
   import * as DropdownMenu from '$lib/components/shadcn/dropdown-menu/index.js';
   import { Button, buttonVariants } from '$lib/components/shadcn/button/index.js';
   import { cn } from '$lib/utils.js';
@@ -59,6 +59,12 @@
             <ShieldWarning class="text-red-500" />
             <span class="text-xs font-normal text-muted-foreground text-red-500"> Site Admin </span>
           </DropdownMenu.Trigger>
+          <DropdownMenu.Content align="end">
+            <DropdownMenu.Item onclick={() => router.visit('/admin/accounts')}>
+              <Buildings class="mr-2 size-4" />
+              <span>Manage Accounts</span>
+            </DropdownMenu.Item>
+          </DropdownMenu.Content>
         </DropdownMenu.Root>
       {/if}
       <DropdownMenu.Root>
