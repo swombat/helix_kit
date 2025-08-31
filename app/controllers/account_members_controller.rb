@@ -3,17 +3,6 @@ class AccountMembersController < ApplicationController
 
   before_action :set_account
 
-  def index
-    @members = @account.members_with_details
-
-    render inertia: "accounts/Members", props: {
-      account: @account,
-      members: @members.map { |m| m.as_json(current_user: Current.user) },
-      can_manage: Current.user.can_manage?(@account),
-      current_user_id: Current.user.id
-    }
-  end
-
   def destroy
     @member = @account.account_users.find(params[:id])
 

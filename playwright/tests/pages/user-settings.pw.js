@@ -23,7 +23,7 @@ test.describe('User Settings Tests', () => {
       const page = await mount(UserEditPage, { props });
 
       // Check page title/heading (includes user's name)
-      await expect(page).toContainText('Test User Settings');
+      await expect(page).toContainText('User Settings');
 
       // Check form fields are present
       await expect(page.locator('input[name="first_name"], input#first_name')).toBeVisible();

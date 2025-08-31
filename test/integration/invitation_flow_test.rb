@@ -82,13 +82,6 @@ class InvitationFlowTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to account_path(account)
     assert_match /don't have permission/, flash[:alert]
-
-    # Members can view the members page but not manage
-    get account_members_path(account)
-    assert_response :success
-
-    # Members should not have management permissions
-    # The view should not show management options for regular members
   end
 
   test "cannot remove last owner from account" do

@@ -9,16 +9,6 @@ class AccountMembersControllerTest < ActionDispatch::IntegrationTest
     sign_in @admin
   end
 
-  test "index returns members with can_remove flag" do
-    get account_members_path(@account)
-    assert_response :success
-
-    # Verify the response structure includes necessary props
-    assert inertia_shared_props["members"].present?
-    assert inertia_shared_props["can_manage"].present?
-    assert inertia_shared_props["current_user_id"].present?
-  end
-
   test "destroy removes member" do
     # Use existing fixture member that can be removed
     member = account_users(:team_member_user)
@@ -47,22 +37,13 @@ class AccountMembersControllerTest < ActionDispatch::IntegrationTest
     assert_match /Cannot remove the last owner/, flash[:alert]
   end
 
-  test "requires account membership" do
-    other_account = accounts(:other)
+  test "requires account membership for destroy" do
+    # Try to delete a member from an account the user doesn't belong to
+    other_account = accounts(:personal)  # Account that admin doesn't belong to
+    other_member = account_users(:daniel_personal)
 
-    get account_members_path(other_account)
+    delete account_member_path(other_account, other_member)
     assert_response :not_found
-  end
-
-  test "member cannot access members page" do
-    member = users(:member)
-    sign_in member
-
-    # Member should be able to view but not manage
-    get account_members_path(@account)
-    assert_response :success
-
-    assert_not inertia_shared_props["can_manage"]
   end
 
 end

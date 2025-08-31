@@ -26,7 +26,7 @@ Rails.application.routes.draw do
   end
 
   resources :accounts, only: [ :show, :edit, :update ] do
-    resources :members, controller: "account_members", only: [ :index, :destroy ]
+    resources :members, controller: "account_members", only: [ :destroy ]
     resources :invitations, only: [ :create ] do
       member do
         post :resend
