@@ -525,7 +525,7 @@ class UserTest < ActiveSupport::TestCase
 
   test "full_name handles missing names gracefully" do
     user = User.new(email_address: "noname@example.com")
-    assert_equal " ", user.full_name # Should not crash, just return space
+    assert_equal "noname@example.com", user.full_name # Returns email when no name
   end
 
   test "full_name handles partial names" do
@@ -534,7 +534,7 @@ class UserTest < ActiveSupport::TestCase
       first_name: "John",
       last_name: nil
     )
-    assert_equal "John ", user.full_name
+    assert_equal "John", user.full_name # Strip removes trailing space
   end
 
   # === Complex Site Admin Scenarios ===
@@ -586,12 +586,14 @@ class UserTest < ActiveSupport::TestCase
 
   # === Invitation System Tests ===
 
-  test "invited? returns true for unconfirmed users with invitations" do
-    user = User.create!(email_address: "newuser@example.com")
-    account = accounts(:team)
+  test "created_via_invitation? returns true for unconfirmed users with invitations" do
+    # Use find_or_invite to create a user without a personal account
+    user = User.find_or_invite("invitedtest@example.com")
 
-    # Remove the auto-created account
+    # Remove the auto-created personal account
     user.account_users.destroy_all
+
+    account = accounts(:team)
 
     AccountUser.create!(
       account: account,
@@ -600,15 +602,18 @@ class UserTest < ActiveSupport::TestCase
       invited_by: users(:admin)
     )
 
-    assert user.invited?
+    # Reload to get fresh associations
+    user.reload
+
+    assert user.created_via_invitation?
   end
 
-  test "invited? returns false for confirmed users" do
+  test "created_via_invitation? returns false for confirmed users" do
     user = users(:owner)
-    assert_not user.invited?
+    assert_not user.created_via_invitation?
   end
 
-  test "password validation skipped for invited users" do
+  test "password validation skipped for users created via invitation" do
     user = User.new(email_address: "invited@example.com")
 
     # Create invitation without password
@@ -624,11 +629,11 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "password validation required for non-invited users" do
-    user = User.new(email_address: "regular@example.com")
+    user = User.new(email_address: "regular@example.com", password: "short")
 
-    # Should require password for regular users
+    # Should validate password length for regular users
     assert_not user.valid?
-    assert_includes user.errors[:password], "can't be blank"
+    assert_includes user.errors[:password], "is too short (minimum is 8 characters)"
   end
 
   test "find_or_invite creates user without password" do

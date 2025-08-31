@@ -112,18 +112,19 @@ class Admin::AccountsControllerTest < ActionDispatch::IntegrationTest
   test "should include selected_account when valid account_id param provided" do
     post login_path, params: { email_address: @site_admin_user.email_address, password: "password123" }
 
-    # Use a known account ID from fixtures
-    test_account_id = accounts(:personal_account).id
+    # Use a known account from fixtures
+    test_account = accounts(:personal_account)
+    test_account_param = test_account.to_param
 
     # Request with that account_id
-    get admin_accounts_path, params: { account_id: test_account_id }
+    get admin_accounts_path, params: { account_id: test_account_param }
     assert_response :success
 
     props = inertia_shared_props
     selected_account = props["selected_account"]
 
     assert selected_account.present?, "Selected account should be present when valid account_id is provided"
-    assert_equal test_account_id, selected_account["id"]
+    assert_equal test_account_param, selected_account["id"]
 
     # Verify selected account structure
     assert selected_account.key?("id")
@@ -161,16 +162,17 @@ class Admin::AccountsControllerTest < ActionDispatch::IntegrationTest
   test "should handle string account_id param correctly" do
     post login_path, params: { email_address: @site_admin_user.email_address, password: "password123" }
 
-    # Use a known account ID from fixtures and convert to string
-    test_account_id = accounts(:team_account).id.to_s
+    # Use a known account from fixtures
+    test_account = accounts(:team_account)
+    test_account_param = test_account.to_param
 
-    # Request with string account_id
-    get admin_accounts_path, params: { account_id: test_account_id }
+    # Request with account_id param
+    get admin_accounts_path, params: { account_id: test_account_param }
     assert_response :success
 
     selected_account = inertia_shared_props["selected_account"]
     assert selected_account.present?, "Selected account should be present when string account_id is provided"
-    assert_equal test_account_id.to_i, selected_account["id"]
+    assert_equal test_account_param, selected_account["id"]
   end
 
   # === Inertia Response Structure Tests ===
@@ -227,12 +229,12 @@ class Admin::AccountsControllerTest < ActionDispatch::IntegrationTest
 
     post login_path, params: { email_address: @site_admin_user.email_address, password: "password123" }
 
-    get admin_accounts_path, params: { account_id: empty_account.id }
+    get admin_accounts_path, params: { account_id: empty_account.to_param }
     assert_response :success
 
     selected_account = inertia_shared_props["selected_account"]
     assert selected_account.present?
-    assert_equal empty_account.id, selected_account["id"]
+    assert_equal empty_account.to_param, selected_account["id"]
     assert_nil selected_account["owner"]
     assert_equal [], selected_account["users"]
   end
@@ -298,10 +300,10 @@ class Admin::AccountsControllerTest < ActionDispatch::IntegrationTest
   test "should show detailed user information in selected account" do
     post login_path, params: { email_address: @site_admin_user.email_address, password: "password123" }
 
-    # Get team account ID
+    # Get team account
     team_account = accounts(:team_account)
 
-    get admin_accounts_path, params: { account_id: team_account.id }
+    get admin_accounts_path, params: { account_id: team_account.to_param }
     assert_response :success
 
     selected_account = inertia_shared_props["selected_account"]

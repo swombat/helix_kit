@@ -22,7 +22,7 @@ class InvitationsControllerTest < ActionDispatch::IntegrationTest
       end
     end
 
-    assert_redirected_to account_members_path(@account)
+    assert_redirected_to account_path(@account)
     assert_equal "Invitation sent to newmember@example.com", flash[:notice]
   end
 
@@ -37,25 +37,19 @@ class InvitationsControllerTest < ActionDispatch::IntegrationTest
       }
     end
 
-    assert_redirected_to account_members_path(@account)
+    assert_redirected_to account_path(@account)
     assert_match /already a member/, flash[:alert]
   end
 
   test "resend updates invitation" do
-    # Create a pending invitation using find_or_invite to avoid double email issue
-    invited_user = User.find_or_invite("pending@example.com")
-    invitation = AccountUser.create!(
-      account: @account,
-      user: invited_user,
-      role: "member",
-      invited_by: @admin
-    )
+    # Use existing pending invitation fixture
+    invitation = account_users(:pending_team_invitation)
 
     assert_enqueued_emails 1 do
       post resend_account_invitation_path(@account, invitation)
     end
 
-    assert_redirected_to account_members_path(@account)
+    assert_redirected_to account_path(@account)
     assert_equal "Invitation resent", flash[:notice]
   end
 
@@ -76,12 +70,12 @@ class InvitationsControllerTest < ActionDispatch::IntegrationTest
     other_account = accounts(:other)
     # Admin doesn't have access to this other account
 
-    assert_raises(ActiveRecord::RecordNotFound) do
-      post account_invitations_path(other_account), params: {
-        email: "test@example.com",
-        role: "member"
-      }
-    end
+    post account_invitations_path(other_account), params: {
+      email: "test@example.com",
+      role: "member"
+    }
+
+    assert_response :not_found
   end
 
   test "personal accounts cannot invite" do
@@ -95,7 +89,7 @@ class InvitationsControllerTest < ActionDispatch::IntegrationTest
       role: "member"
     }
 
-    assert_redirected_to account_members_path(personal_account)
+    assert_redirected_to account_path(personal_account)
     # Check for the actual validation error from personal account rules
     assert_match /Personal accounts cannot invite members|must be owner for personal accounts/, flash[:alert]
   end

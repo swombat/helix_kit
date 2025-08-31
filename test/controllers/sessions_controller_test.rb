@@ -13,7 +13,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should redirect to root when accessing login while authenticated" do
-    post login_path, params: { email_address: @user.email_address, password: "password" }
+    post login_path, params: { email_address: @user.email_address, password: "password123" }
 
     get login_path
     assert_redirected_to root_path
@@ -23,7 +23,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
   test "should login with valid credentials" do
     post login_path, params: {
       email_address: @user.email_address,
-      password: "password"
+      password: "password123"
     }
 
     assert_redirected_to root_path
@@ -33,7 +33,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
   test "should not login with invalid email" do
     post login_path, params: {
       email_address: "wrong@example.com",
-      password: "password"
+      password: "password123"
     }
 
     assert_redirected_to login_path
@@ -63,7 +63,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
   test "should not login with blank email" do
     post login_path, params: {
       email_address: "",
-      password: "password"
+      password: "password123"
     }
 
     assert_redirected_to login_path
@@ -84,7 +84,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     # First login
     post login_path, params: {
       email_address: @user.email_address,
-      password: "password"
+      password: "password123"
     }
     assert_redirected_to root_path
 
@@ -118,7 +118,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_changes -> { Session.count }, 1 do
       post login_path, params: {
         email_address: @user.email_address,
-        password: "password"
+        password: "password123"
       }
     end
     assert_redirected_to root_path
@@ -128,7 +128,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     # Login first
     post login_path, params: {
       email_address: @user.email_address,
-      password: "password"
+      password: "password123"
     }
 
     # Then logout and verify session is destroyed

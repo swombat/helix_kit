@@ -21,8 +21,9 @@ class User < ApplicationRecord
     uniqueness: { case_sensitive: false },
     format: { with: URI::MailTo::EMAIL_REGEXP }
 
-  # Conditional validations - The right way!
-  validates :password, presence: true, length: { minimum: 8 }, if: -> { password.present? }, unless: :invited?
+  # Conditional password validation
+  # Only validate password if it's being set (present) and user wasn't created via invitation
+  validates :password, presence: true, length: { minimum: 8 }, if: -> { password.present? }, unless: :created_via_invitation?
   validates :password, confirmation: true, length: { in: 6..72 }, if: :password_digest_changed?
 
   validates :timezone, inclusion: { in: ActiveSupport::TimeZone.all.map(&:name) },
@@ -120,8 +121,9 @@ class User < ApplicationRecord
     account_users.confirmed.exists?(account: account)
   end
 
-  # Check if user was created via invitation
-  def invited?
+  # Check if user was created via invitation and hasn't set up their account yet
+  # These users don't require a password until they confirm their account
+  def created_via_invitation?
     account_users.any?(&:invitation?) && !confirmed?
   end
 
@@ -154,7 +156,9 @@ class User < ApplicationRecord
   alias_method :is_site_admin?, :site_admin
 
   def as_json(options = {})
-    super(options.merge(methods: [ :full_name, :site_admin ]))
+    json = super(options.merge(methods: [ :full_name, :site_admin ]))
+    json[:id] = self.to_param
+    json
   end
 
   private

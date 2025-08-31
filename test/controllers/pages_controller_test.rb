@@ -10,7 +10,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
   test "should get home page with authentication" do
     user = users(:user_1)
-    post login_path, params: { email_address: user.email_address, password: "password" }
+    post login_path, params: { email_address: user.email_address, password: "password123" }
 
     get root_path
     assert_response :success

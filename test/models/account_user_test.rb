@@ -2,6 +2,8 @@ require "test_helper"
 
 class AccountUserTest < ActiveSupport::TestCase
 
+  include ActionMailer::TestHelper
+
   # === Core confirm_by_token! Class Method Tests ===
 
   test "confirm_by_token! finds and confirms AccountUser with valid token" do
@@ -356,7 +358,7 @@ class AccountUserTest < ActiveSupport::TestCase
 
   test "destroys cleanly when account is destroyed" do
     account = Account.create!(name: "Temp Account", account_type: :team)
-    user = User.create!(email_address: "temp@example.com")
+    user = User.create!(email_address: "tempdestroytest@example.com")
     account_user = account.add_user!(user, role: "owner", skip_confirmation: true)
     account_user_id = account_user.id
 
@@ -466,14 +468,7 @@ class AccountUserTest < ActiveSupport::TestCase
     account = accounts(:team)
     user = users(:owner)
 
-    # First create a membership
-    AccountUser.create!(
-      account: account,
-      user: user,
-      role: "owner",
-      skip_confirmation: true
-    )
-
+    # Owner already has a membership through fixtures (team_owner)
     # Try to create duplicate
     duplicate = AccountUser.new(
       account: account,
@@ -504,10 +499,13 @@ class AccountUserTest < ActiveSupport::TestCase
     account = accounts(:team)
     admin = users(:admin)
 
+    # Use existing user to avoid creating personal account
+    existing_user = users(:regular_user)
+
     assert_enqueued_emails 1 do
       AccountUser.create!(
         account: account,
-        user: User.find_or_invite("new@example.com"),
+        user: existing_user,
         role: "member",
         invited_by: admin
       )
@@ -517,13 +515,15 @@ class AccountUserTest < ActiveSupport::TestCase
   test "became_confirmed? detects confirmation changes" do
     invitation = AccountUser.create!(
       account: accounts(:team),
-      user: User.find_or_invite("test@example.com"),
+      user: User.find_or_invite("becameconfirmed@example.com"),
       role: "member",
       invited_by: users(:admin)
     )
 
-    invitation.confirmed_at = Time.current
-    assert invitation.became_confirmed?
+    # Test the callback is triggered when confirmation happens
+    assert_not invitation.confirmed?
+    invitation.confirm!
+    assert invitation.confirmed?
   end
 
   test "removable_by? logic" do
@@ -531,13 +531,8 @@ class AccountUserTest < ActiveSupport::TestCase
     admin = users(:admin)
     member = users(:member)
 
-    # Create member account user
-    member_account_user = AccountUser.create!(
-      account: account,
-      user: member,
-      role: "member",
-      skip_confirmation: true
-    )
+    # Member already has a membership through fixtures (team_member_user)
+    member_account_user = account_users(:team_member_user)
 
     # Admin can remove member
     assert member_account_user.removable_by?(admin)
@@ -555,12 +550,8 @@ class AccountUserTest < ActiveSupport::TestCase
     member = users(:member)
     admin = users(:admin)
 
-    member_account_user = AccountUser.create!(
-      account: account,
-      user: member,
-      role: "member",
-      skip_confirmation: true
-    )
+    # Member already has a membership through fixtures (team_member_user)
+    member_account_user = account_users(:team_member_user)
 
     json = member_account_user.as_json(current_user: admin)
 

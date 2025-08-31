@@ -52,7 +52,7 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
 
   test "should not convert team to personal when multiple users" do
     # Create second user for team account
-    second_user = User.create!(email_address: "test2@example.com", password: "password")
+    second_user = User.create!(email_address: "test2@example.com", password: "password123")
     @team_account.add_user!(second_user)
 
     patch account_path(@team_account), params: { convert_to: "personal" }

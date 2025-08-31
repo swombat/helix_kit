@@ -10,7 +10,7 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
 
   test "should redirect to root when accessing signup while authenticated" do
     user = users(:user_1)
-    post login_path, params: { email_address: user.email_address, password: "password" }
+    post login_path, params: { email_address: user.email_address, password: "password123" }
 
     get signup_path
     assert_redirected_to root_path
@@ -64,14 +64,12 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should resend confirmation for existing unconfirmed user" do
-    # Create an unconfirmed user
-    user = User.create!(
-      email_address: "existing@example.com"
-    )
+    # Use unconfirmed user fixture
+    user = users(:unconfirmed_user)
 
     assert_no_difference("User.count") do
       post signup_path, params: {
-        email_address: "existing@example.com"
+        email_address: user.email_address
       }
     end
 

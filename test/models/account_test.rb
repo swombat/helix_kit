@@ -96,7 +96,7 @@ class AccountTest < ActiveSupport::TestCase
 
   test "has_many account_users dependent destroy" do
     account = Account.create!(name: "Destroy Test", account_type: :team)
-    user = User.create!(email_address: "destroytest@example.com")
+    user = User.create!(email_address: "accountdestroytest@example.com")
     account_user = account.add_user!(user, role: "owner", skip_confirmation: true)
     account_user_id = account_user.id
 
@@ -473,14 +473,15 @@ class AccountTest < ActiveSupport::TestCase
     owner = users(:owner)
 
     invitation = account.invite_member(
-      email: "test@example.com",
+      email: "personalcannotinvite@example.com",
       role: "member",
       invited_by: owner
     )
 
-    # Build the invitation but can't save it
-    assert_not invitation.save
-    assert_includes invitation.account.errors[:base], "Personal accounts cannot invite members"
+    # The validation runs on the account when it has invitations
+    account.account_users << invitation
+    assert_not account.valid?
+    assert_includes account.errors[:base], "Personal accounts cannot invite members"
   end
 
   test "last_owner? correctly identifies single owner" do

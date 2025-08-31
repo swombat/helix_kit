@@ -19,6 +19,7 @@ class Account < ApplicationRecord
   # Callbacks
   before_validation :set_default_name, on: :create
   before_validation :generate_slug, on: :create
+  before_destroy :mark_account_users_for_skip_check, prepend: true
 
   # Scopes
   scope :personal, -> { where(account_type: :personal) }
@@ -124,6 +125,10 @@ class Account < ApplicationRecord
     if Account.exists?(slug: slug)
       self.slug = "#{slug}-#{SecureRandom.hex(4)}"
     end
+  end
+
+  def mark_account_users_for_skip_check
+    account_users.each { |au| au.skip_owner_check = true }
   end
 
 end

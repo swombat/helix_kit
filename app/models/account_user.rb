@@ -14,6 +14,9 @@ class AccountUser < ApplicationRecord
   belongs_to :user
   belongs_to :invited_by, class_name: "User", optional: true
 
+  # Track if we're being destroyed by parent
+  attr_accessor :skip_owner_check
+
   # Validations (Rails-only!)
   validates :role, inclusion: { in: ROLES }
   validates :user_id, uniqueness: {
@@ -149,6 +152,9 @@ class AccountUser < ApplicationRecord
   end
 
   def ensure_removable
+    # Skip check if explicitly told to (e.g., when account is being destroyed)
+    return if skip_owner_check
+
     if owner? && account.last_owner?
       errors.add(:base, "Cannot remove the last owner")
       throw :abort
