@@ -18,6 +18,18 @@ We will create a model concern that handles the broadcasting of updates to this 
 
 This will then be used by the javascript side to do a partial reload of the relevant page and transparently update the relevant data.
 
+On the Object side, the model concern will call `ActionCable.server.broadcast` upon update or creation or deletion, with the identifying string (`Account:PNvAYr`, `Account:PNvAYr/account_users`, `Account:all`) so that the object and collection will be broadcast to the cable channel, with code like this:
+
+```ruby
+  after_commit :broadcast_identifier
+
+  private
+
+  def broadcast_identifier
+    ActionCable.server.broadcast("accounts", "Account:#{id}")
+  end
+```
+
 ## Javascript side
 
 We need to set up a javascript side registry of interest. This will be a simple object that will be used to store the ids of the objects and collections that the user is interested in, along with the server-side properties they map to.
@@ -78,23 +90,16 @@ From a svelte page point of view, the boilerplate should be minimal:
 ```svelte
 <script>
   import { onMount, onDestroy } from 'svelte';
-  import { SyncRegistry } from '$lib/sync-registry';
-
-  let syncRegistry = new SyncRegistry();
+  import { syncWithRails } from '$lib/sync-registry';
 
   let { accounts = [], selected_account = null } = $props();
 
-  onMount(() => {
-    syncRegistry.subscribe({
-      'Account:all': 'accounts',
-      'Account:' + selected_account.id: 'selected_account',
-      'Account:' + selected_account.id + '/account_users': 'selected_account'
-    });
-  });
+  syncWithRails({ 'accounts': {
+    'Account:all': 'accounts',
+    'Account:' + selected_account.id: 'selected_account',
+    'Account:' + selected_account.id + '/account_users': 'selected_account'
+  }});
 
-  onDestroy(() => {
-    syncRegistry.unsubscribe();
-  });
 </script>
 ```
 
