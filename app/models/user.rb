@@ -156,9 +156,7 @@ class User < ApplicationRecord
   alias_method :is_site_admin?, :site_admin
 
   def as_json(options = {})
-    json = super(options.merge(methods: [ :full_name, :site_admin ]))
-    json[:id] = self.to_param
-    json
+    super(options.merge(methods: [ :full_name, :site_admin ]))
   end
 
   private
