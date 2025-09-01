@@ -27,11 +27,30 @@ module Broadcastable
                         action: "refresh",
                         prop: self.class.refresh_props[:collection] || model_prop_name.pluralize)
       when Hash
-        # Parent broadcast
+        # Legacy hash format for backward compatibility
         if target[:parent] && (parent = send(target[:parent]))
           broadcast_marker("#{parent.class.name}:#{parent.obfuscated_id}",
                           action: "refresh",
                           prop: self.class.refresh_props[:parent] || parent.class.name.underscore)
+        end
+      when Symbol
+        # Smart detection of association type
+        if (association = self.class.reflect_on_association(target))
+          if association.collection?
+            # It's a has_many/has_and_belongs_to_many - broadcast to each
+            send(target).each do |record|
+              broadcast_marker("#{record.class.name}:#{record.obfuscated_id}",
+                              action: "refresh")
+            end
+          else
+            # It's a belongs_to/has_one - broadcast to single record
+            if (record = send(target))
+              broadcast_marker("#{record.class.name}:#{record.obfuscated_id}",
+                              action: "refresh")
+            end
+          end
+        else
+          Rails.logger.warn "Broadcastable: Unknown target '#{target}' for #{self.class.name}"
         end
       end
     end
@@ -50,10 +69,30 @@ module Broadcastable
                         action: "remove",
                         prop: self.class.refresh_props[:collection] || model_prop_name.pluralize)
       when Hash
+        # Legacy hash format for backward compatibility
         if target[:parent] && (parent = send(target[:parent]))
           broadcast_marker("#{parent.class.name}:#{parent.obfuscated_id}",
                           action: "refresh",
                           prop: self.class.refresh_props[:parent] || parent.class.name.underscore)
+        end
+      when Symbol
+        # Smart detection of association type
+        if (association = self.class.reflect_on_association(target))
+          if association.collection?
+            # For removals, still notify all associated records
+            send(target).each do |record|
+              broadcast_marker("#{record.class.name}:#{record.obfuscated_id}",
+                              action: "refresh")
+            end
+          else
+            # It's a belongs_to/has_one
+            if (record = send(target))
+              broadcast_marker("#{record.class.name}:#{record.obfuscated_id}",
+                              action: "refresh")
+            end
+          end
+        else
+          Rails.logger.warn "Broadcastable: Unknown target '#{target}' for #{self.class.name}"
         end
       end
     end

@@ -2,7 +2,9 @@
 class AccountUser < ApplicationRecord
 
   include Confirmable,
-          JsonAttributes
+          JsonAttributes,
+          SyncAuthorizable,
+          Broadcastable
 
   # Constants
   ROLES = %w[owner admin member].freeze
@@ -14,6 +16,9 @@ class AccountUser < ApplicationRecord
   belongs_to :account
   belongs_to :user
   belongs_to :invited_by, class_name: "User", optional: true
+
+  # Broadcasting configuration - when AccountUser changes, broadcast to parent account
+  broadcasts_to :account
 
   # Track if we're being destroyed by parent
   attr_accessor :skip_owner_check

@@ -1,6 +1,8 @@
 class User < ApplicationRecord
 
   include JsonAttributes
+  include SyncAuthorizable
+  include Broadcastable
 
   has_secure_password validations: false
 
@@ -14,6 +16,9 @@ class User < ApplicationRecord
   has_one :personal_account_user, -> { joins(:account).where(accounts: { account_type: 0 }) },
           class_name: "AccountUser"
   has_one :personal_account, through: :personal_account_user, source: :account
+
+  # Broadcasting configuration - automatically broadcasts to all associated accounts
+  broadcasts_to :accounts
 
   normalizes :email_address, with: ->(e) { e.strip.downcase }
   normalizes :first_name, with: ->(name) { name&.strip }

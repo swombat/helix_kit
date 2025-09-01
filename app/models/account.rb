@@ -6,8 +6,6 @@ class Account < ApplicationRecord
 
   # Broadcasting configuration
   broadcasts_to :all # Admin collection
-  broadcasts_refresh_prop :account
-  broadcasts_refresh_prop :accounts, collection: true
 
   # Enums
   enum :account_type, { personal: 0, team: 1 }
