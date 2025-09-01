@@ -3,6 +3,7 @@
   import { router } from '@inertiajs/svelte';
   import { Badge } from '$lib/components/shadcn/badge';
   import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/shadcn/card';
+  import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '$lib/components/shadcn/table';
   import InfoCard from '$lib/components/InfoCard.svelte';
 
   let { accounts = [], selected_account = null } = $props();
@@ -144,42 +145,40 @@
         <!-- Users list -->
         <Card>
           <CardHeader>
-            <CardTitle>
+            <CardTitle class="mb-2">
               Users ({selected_account.users?.length || 0})
             </CardTitle>
           </CardHeader>
           <CardContent>
             {#if selected_account.users && selected_account.users.length > 0}
-              <div class="overflow-x-auto">
-                <table class="table">
-                  <thead>
-                    <tr>
-                      <th>Email</th>
-                      <th>Name</th>
-                      <th>Role</th>
-                      <th>Joined</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {#each selected_account.users as user (user.id)}
-                      <tr class={user.confirmed ? '' : 'opacity-50'}>
-                        <td>
-                          <div class="font-medium">{user.email}</div>
-                        </td>
-                        <td>{user.name || '-'}</td>
-                        <td>
-                          <Badge variant={user.role === 'owner' ? 'default' : 'secondary'}>
-                            {user.role}
-                          </Badge>
-                        </td>
-                        <td class="text-sm text-muted-foreground">
-                          {formatDate(user.created_at)}
-                        </td>
-                      </tr>
-                    {/each}
-                  </tbody>
-                </table>
-              </div>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Role</TableHead>
+                    <TableHead>Joined</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {#each selected_account.users as user (user.id)}
+                    <TableRow class={user.confirmed ? '' : 'opacity-50'}>
+                      <TableCell>
+                        <div class="font-medium">{user.email}</div>
+                      </TableCell>
+                      <TableCell>{user.name || '-'}</TableCell>
+                      <TableCell>
+                        <Badge variant={user.role === 'owner' ? 'default' : 'secondary'}>
+                          {user.role}
+                        </Badge>
+                      </TableCell>
+                      <TableCell class="text-sm text-muted-foreground">
+                        {formatDate(user.created_at)}
+                      </TableCell>
+                    </TableRow>
+                  {/each}
+                </TableBody>
+              </Table>
             {:else}
               <p class="text-muted-foreground">No users in this account.</p>
             {/if}

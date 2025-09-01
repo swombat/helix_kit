@@ -3,6 +3,7 @@
   import { Button } from '$lib/components/shadcn/button/index.js';
   import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/shadcn/card';
   import { Badge } from '$lib/components/shadcn/badge';
+  import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '$lib/components/shadcn/table';
   import Alert from '$lib/components/alert.svelte';
   import { editAccountPath } from '@/routes';
   import { UserCircle, Users, Gear, UserPlus, Trash, Envelope } from 'phosphor-svelte';
@@ -129,7 +130,7 @@
   <!-- Team Members Section (only for team accounts) -->
   {#if !account.personal}
     <Card class="mt-8">
-      <CardHeader>
+      <CardHeader class="mb-2">
         <div class="flex items-center justify-between">
           <CardTitle class="text-lg flex items-center gap-2">
             <Users class="h-5 w-5" />
@@ -156,42 +157,42 @@
         {/if}
 
         <!-- Members Table -->
-        <div class="overflow-x-auto">
-          <table class="w-full">
-            <thead>
-              <tr class="border-b">
-                <th class="text-left p-4 font-medium">Name</th>
-                <th class="text-left p-4 font-medium">Email</th>
-                <th class="text-left p-4 font-medium">Role</th>
-                <th class="text-left p-4 font-medium">Joined</th>
+        {#if activeMembers.length > 0}
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Role</TableHead>
+                <TableHead>Joined</TableHead>
                 {#if can_manage}
-                  <th class="text-left p-4 font-medium">Actions</th>
+                  <TableHead>Actions</TableHead>
                 {/if}
-              </tr>
-            </thead>
-            <tbody>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {#each activeMembers as member (member.id)}
-                <tr class="border-b">
-                  <td class="p-4">
+                <TableRow>
+                  <TableCell>
                     <div class="flex items-center gap-2">
                       <span class="font-medium">{member.display_name}</span>
                       {#if member.user_id === current_user_id}
                         <Badge variant="outline" class="text-xs">You</Badge>
                       {/if}
                     </div>
-                  </td>
-                  <td class="p-4 text-sm">{member.user.email_address}</td>
-                  <td class="p-4">
+                  </TableCell>
+                  <TableCell>{member.user.email_address}</TableCell>
+                  <TableCell>
                     <Badge
                       variant={member.role === 'owner' ? 'default' : member.role === 'admin' ? 'secondary' : 'outline'}>
                       {member.role}
                     </Badge>
-                  </td>
-                  <td class="p-4 text-sm text-muted-foreground">
+                  </TableCell>
+                  <TableCell class="text-muted-foreground">
                     {member.confirmed_at ? formatDate(member.confirmed_at) : 'Not confirmed'}
-                  </td>
+                  </TableCell>
                   {#if can_manage}
-                    <td class="p-4">
+                    <TableCell>
                       {#if member.can_remove}
                         <Button
                           variant="ghost"
@@ -202,19 +203,17 @@
                           Remove
                         </Button>
                       {/if}
-                    </td>
+                    </TableCell>
                   {/if}
-                </tr>
-              {:else}
-                <tr>
-                  <td colspan={can_manage ? 5 : 4} class="p-8 text-center text-muted-foreground">
-                    You're the only member of this team account. Invite others to collaborate with you.
-                  </td>
-                </tr>
+                </TableRow>
               {/each}
-            </tbody>
-          </table>
-        </div>
+            </TableBody>
+          </Table>
+        {:else}
+          <p class="p-8 text-center text-muted-foreground">
+            You're the only member of this team account. Invite others to collaborate with you.
+          </p>
+        {/if}
       </CardContent>
     </Card>
 
@@ -222,63 +221,61 @@
     {#if pendingInvitations.length > 0}
       <Card class="mt-8">
         <CardHeader>
-          <CardTitle class="text-lg flex items-center gap-2">
+          <CardTitle class="text-lg flex items-center gap-2 mb-2">
             <Envelope class="h-5 w-5" />
             Pending Invitations ({pendingInvitations.length})
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div class="overflow-x-auto">
-            <table class="w-full">
-              <thead>
-                <tr class="border-b">
-                  <th class="text-left p-4 font-medium">Email</th>
-                  <th class="text-left p-4 font-medium">Role</th>
-                  <th class="text-left p-4 font-medium">Invited By</th>
-                  <th class="text-left p-4 font-medium">Invited On</th>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Email</TableHead>
+                <TableHead>Role</TableHead>
+                <TableHead>Invited By</TableHead>
+                <TableHead>Invited On</TableHead>
+                {#if can_manage}
+                  <TableHead>Actions</TableHead>
+                {/if}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {#each pendingInvitations as member (member.id)}
+                <TableRow>
+                  <TableCell>{member.user.email_address}</TableCell>
+                  <TableCell>
+                    <Badge variant="outline">{member.role}</Badge>
+                  </TableCell>
+                  <TableCell>
+                    {member.invited_by?.full_name || 'System'}
+                  </TableCell>
+                  <TableCell class="text-muted-foreground">
+                    {formatDate(member.invited_at)}
+                  </TableCell>
                   {#if can_manage}
-                    <th class="text-left p-4 font-medium">Actions</th>
-                  {/if}
-                </tr>
-              </thead>
-              <tbody>
-                {#each pendingInvitations as member (member.id)}
-                  <tr class="border-b">
-                    <td class="p-4">{member.user.email_address}</td>
-                    <td class="p-4">
-                      <Badge variant="outline">{member.role}</Badge>
-                    </td>
-                    <td class="p-4 text-sm">
-                      {member.invited_by?.full_name || 'System'}
-                    </td>
-                    <td class="p-4 text-sm text-muted-foreground">
-                      {formatDate(member.invited_at)}
-                    </td>
-                    {#if can_manage}
-                      <td class="p-4">
-                        <div class="flex items-center gap-2">
-                          <Button variant="ghost" size="sm" onclick={() => resendInvitation(member)}>
-                            <Envelope class="h-4 w-4" />
-                            Resend
+                    <TableCell>
+                      <div class="flex items-center gap-2">
+                        <Button variant="ghost" size="sm" onclick={() => resendInvitation(member)}>
+                          <Envelope class="h-4 w-4" />
+                          Resend
+                        </Button>
+                        {#if member.can_remove}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onclick={() => removeMember(member)}
+                            class="text-destructive hover:text-destructive">
+                            <Trash class="h-4 w-4" />
+                            Cancel
                           </Button>
-                          {#if member.can_remove}
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onclick={() => removeMember(member)}
-                              class="text-destructive hover:text-destructive">
-                              <Trash class="h-4 w-4" />
-                              Cancel
-                            </Button>
-                          {/if}
-                        </div>
-                      </td>
-                    {/if}
-                  </tr>
-                {/each}
-              </tbody>
-            </table>
-          </div>
+                        {/if}
+                      </div>
+                    </TableCell>
+                  {/if}
+                </TableRow>
+              {/each}
+            </TableBody>
+          </Table>
         </CardContent>
       </Card>
     {/if}
