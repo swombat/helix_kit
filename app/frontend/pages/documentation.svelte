@@ -37,17 +37,24 @@
   include SyncAuthorizable
   include Broadcastable
   
-  # Configure what to broadcast
-  broadcasts_to :all # Broadcast to admin collection
+  # Broadcast to admin collection (for index pages)
+  broadcasts_to :all
+end
+
+class AccountUser < ApplicationRecord
+  include Broadcastable
+  belongs_to :account
   
-  # IMPORTANT: broadcasts_refresh_prop tells the system which Inertia prop name to reload
-  # These should match the prop names used in your controller's render inertia call
+  # Broadcast changes to parent account
+  broadcasts_to :account
+end
+
+class User < ApplicationRecord
+  include Broadcastable
+  has_many :accounts, through: :account_users
   
-  # When this specific account changes, reload the 'account' prop
-  broadcasts_refresh_prop :account
-  
-  # When any account changes (for :all broadcasts), reload the 'accounts' prop
-  broadcasts_refresh_prop :accounts, collection: true
+  # Broadcast to all associated accounts (auto-detected as collection)
+  broadcasts_to :accounts
 end`}</code></pre>
           </div>
 
@@ -163,75 +170,88 @@ end`}</code></pre>
         </div>
       </div>
 
-      <!-- Understanding broadcasts_refresh_prop -->
+      <!-- Understanding broadcasts_to -->
       <div>
-        <h3 class="text-lg font-semibold mb-3">Understanding broadcasts_refresh_prop</h3>
+        <h3 class="text-lg font-semibold mb-3">Understanding broadcasts_to</h3>
 
         <p class="text-muted-foreground mb-4">
-          The <code class="text-sm bg-muted px-1 py-0.5 rounded">broadcasts_refresh_prop</code> method is crucial for telling
-          the system which Inertia.js props to reload when a model changes. The prop names must match exactly what your controller
-          uses.
+          The <code class="text-sm bg-muted px-1 py-0.5 rounded">broadcasts_to</code> method configures where model changes
+          are broadcast. Rails automatically detects association types and handles them correctly.
         </p>
 
         <div class="space-y-4">
           <div>
-            <h4 class="font-medium mb-2">Example Controller:</h4>
-            <pre class="bg-muted p-4 rounded-lg overflow-x-auto"><code
-                >{`# app/controllers/accounts_controller.rb
-def show
-  @account = current_user.accounts.find(params[:id])
-  
-  render inertia: "accounts/show", props: {
-    account: @account.as_json,        # This creates the 'account' prop
-    recent_activity: @account.activities.recent
-  }
-end
-
-def index
-  @accounts = current_user.accounts
-  
-  render inertia: "accounts/index", props: {
-    accounts: @accounts.as_json,      # This creates the 'accounts' prop
-    total_count: @accounts.count
-  }
-end`}</code></pre>
+            <h4 class="font-medium mb-2">Broadcasting Options:</h4>
+            <ul class="space-y-3 text-sm">
+              <li class="flex items-start gap-2">
+                <code class="bg-muted px-2 py-1 rounded text-xs mt-0.5">:all</code>
+                <span class="text-muted-foreground">
+                  Broadcasts to a collection channel, typically used for admin index pages. Only site admins can
+                  subscribe.
+                </span>
+              </li>
+              <li class="flex items-start gap-2">
+                <code class="bg-muted px-2 py-1 rounded text-xs mt-0.5">:association_name</code>
+                <span class="text-muted-foreground">
+                  Broadcasts to associated records. Rails automatically detects the association type:
+                  <ul class="mt-2 ml-4 space-y-1">
+                    <li>
+                      • <code class="text-xs">belongs_to</code> / <code class="text-xs">has_one</code> → broadcasts to single
+                      record
+                    </li>
+                    <li>
+                      • <code class="text-xs">has_many</code> / <code class="text-xs">has_and_belongs_to_many</code> → broadcasts
+                      to each record
+                    </li>
+                  </ul>
+                </span>
+              </li>
+            </ul>
           </div>
 
           <div>
-            <h4 class="font-medium mb-2">Matching Model Configuration:</h4>
+            <h4 class="font-medium mb-2">Complete Working Example:</h4>
             <pre class="bg-muted p-4 rounded-lg overflow-x-auto"><code
-                >{`class Account < ApplicationRecord
+                >{`# Controller provides props
+class AccountsController < ApplicationController
+  def show
+    @account = current_user.accounts.find(params[:id])
+    render inertia: "accounts/show", props: {
+      account: @account.as_json,
+      members: @account.account_users.as_json
+    }
+  end
+end
+
+# Models broadcast their identity
+class AccountUser < ApplicationRecord
   include Broadcastable
+  belongs_to :account
   
-  # When a single account updates, reload the 'account' prop
-  # (matches the prop name in the show action)
-  broadcasts_refresh_prop :account
-  
-  # When broadcasting to :all, reload the 'accounts' prop
-  # (matches the prop name in the index action)
-  broadcasts_refresh_prop :accounts, collection: true
-  
-  # You could also reload multiple props if needed:
-  # broadcasts_refresh_prop :recent_activity, parent: true
+  # When AccountUser changes, broadcast to its account
+  broadcasts_to :account
 end`}</code></pre>
+            <pre class="bg-muted p-4 rounded-lg overflow-x-auto mt-4"><code
+                >{`// Svelte component maps channels to props
+<script>
+  import { useSync } from '$lib/use-sync';
+  
+  let { account, members } = $props();
+  
+  // When Account:123 broadcasts, reload both props
+  useSync({
+    [\`Account:\${account.id}\`]: ['account', 'members']
+  });
+</script>`}</code></pre>
           </div>
 
-          <div class="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg">
-            <p class="text-sm font-medium mb-2">⚠️ Important Notes:</p>
-            <ul class="text-sm text-muted-foreground space-y-1 list-disc list-inside">
-              <li>
-                The prop name in <code>broadcasts_refresh_prop</code> must exactly match the key used in your
-                controller's <code>render inertia:</code> props hash
-              </li>
-              <li>
-                Use <code>collection: true</code> for props that represent arrays of models (typically used with
-                <code>broadcasts_to :all</code>)
-              </li>
-              <li>Use <code>parent: true</code> when a child model should trigger reload of its parent's prop</li>
-              <li>
-                If you don't specify <code>broadcasts_refresh_prop</code>, it defaults to the model's underscored name
-              </li>
-            </ul>
+          <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+            <p class="text-sm font-medium mb-2">💡 Key Insight:</p>
+            <p class="text-sm text-muted-foreground">
+              Models only broadcast their identity (e.g., "Account:123"). The Svelte components decide which props to
+              reload based on their subscriptions. This separation of concerns keeps models clean and gives views full
+              control.
+            </p>
           </div>
         </div>
       </div>
@@ -259,10 +279,20 @@ end`}</code></pre>
   include Broadcastable
   
   belongs_to :account
+  belongs_to :user
   
-  # When AccountUser changes, also broadcast to parent Account
-  broadcasts_to parent: :account
-  broadcasts_refresh_prop :account # Refresh parent's prop
+  # When AccountUser changes, broadcast to parent account
+  broadcasts_to :account
+end
+
+class User < ApplicationRecord
+  include Broadcastable
+  
+  has_many :account_users
+  has_many :accounts, through: :account_users
+  
+  # When user changes, broadcast to all their accounts
+  broadcasts_to :accounts
 end`}</code></pre>
           </div>
 

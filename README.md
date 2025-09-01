@@ -139,25 +139,36 @@ class Account < ApplicationRecord
   include SyncAuthorizable
   include Broadcastable
   
-  # Configure what to broadcast
-  broadcasts_to :all # Broadcast to admin collection
+  # Configure what to broadcast to
+  broadcasts_to :all  # Broadcast to admin collection (for index pages)
+end
+
+class AccountUser < ApplicationRecord
+  include Broadcastable
   
-  # IMPORTANT: broadcasts_refresh_prop tells the system which Inertia prop name to reload
-  # These should match the prop names used in your controller's render inertia call
+  belongs_to :account
+  belongs_to :user
   
-  # When this specific account changes, reload the 'account' prop
-  broadcasts_refresh_prop :account
+  # Broadcast changes to the parent account
+  broadcasts_to :account
+end
+
+class User < ApplicationRecord
+  include Broadcastable
   
-  # When any account changes (for :all broadcasts), reload the 'accounts' prop
-  broadcasts_refresh_prop :accounts, collection: true
+  has_many :accounts
+  
+  # Broadcast changes to all associated accounts (uses Rails reflection)
+  broadcasts_to :accounts
 end
 ```
 
-**Understanding `broadcasts_refresh_prop`:**
-- This configures which Inertia.js prop should be reloaded when a model changes
-- The prop name must match exactly what your Rails controller uses in `render inertia:`
-- Use `collection: true` for props that represent arrays/collections
-- Without this, the system defaults to the model's underscored name (e.g., 'account' for Account model)
+**Understanding `broadcasts_to`:**
+- `:all` - Broadcasts to a collection channel (typically for admin index pages)
+- Association name - Broadcasts to associated records automatically:
+  - For `belongs_to`/`has_one`: Broadcasts to the single associated record
+  - For `has_many`/`has_and_belongs_to_many`: Broadcasts to each record in the collection
+- Rails uses reflection to automatically detect the association type and handle it correctly
 
 **2. Use in your Svelte component:**
 
@@ -208,24 +219,32 @@ Here's how all the pieces work together:
 class DashboardController < ApplicationController
   def index
     render inertia: "Dashboard", props: {
-      current_user: current_user.as_json,     # Creates 'current_user' prop
-      notifications: current_user.notifications, # Creates 'notifications' prop
-      stats: calculate_stats                  # Creates 'stats' prop
+      current_user: current_user.as_json,
+      account: current_account.as_json,
+      notifications: current_user.notifications
     }
   end
 end
 ```
 
-**Rails Model:**
+**Rails Models:**
 ```ruby
 # app/models/notification.rb
 class Notification < ApplicationRecord
   include Broadcastable
   belongs_to :user
   
-  # Tell the system which props to reload when notifications change
-  broadcasts_refresh_prop :notifications  # Matches controller's 'notifications' prop
-  broadcasts_to parent: :user  # Also broadcast to parent user
+  # Broadcast changes to the parent user
+  broadcasts_to :user
+end
+
+# app/models/user.rb  
+class User < ApplicationRecord
+  include Broadcastable
+  has_many :accounts, through: :account_users
+  
+  # Broadcast changes to all associated accounts
+  broadcasts_to :accounts
 end
 ```
 
@@ -235,17 +254,18 @@ end
   import { useSync } from '$lib/use-sync';
   
   // These prop names match what the controller sends
-  let { current_user, notifications, stats } = $props();
+  let { current_user, account, notifications } = $props();
   
-  // Subscribe to updates - the second value is the prop name to reload
+  // Subscribe to updates - map channels to props to reload
   useSync({
     [`User:${current_user.id}`]: 'current_user',
-    [`Notification:all`]: 'notifications'  // Will reload when any notification changes
+    [`Account:${account.id}`]: 'account',
+    [`Notification:all`]: 'notifications'
   });
 </script>
 ```
 
-The key insight: `broadcasts_refresh_prop :notifications` tells the system to reload the 'notifications' prop (from your controller) whenever a Notification model changes.
+The key insight: The model just broadcasts its identity (e.g., "User:123"), and the Svelte component decides which props need reloading based on its subscriptions.
 
 #### Authorization Model
 

@@ -26,13 +26,6 @@ module Broadcastable
         broadcast_marker("#{self.class.name}:all",
                         action: "refresh",
                         prop: self.class.refresh_props[:collection] || model_prop_name.pluralize)
-      when Hash
-        # Legacy hash format for backward compatibility
-        if target[:parent] && (parent = send(target[:parent]))
-          broadcast_marker("#{parent.class.name}:#{parent.obfuscated_id}",
-                          action: "refresh",
-                          prop: self.class.refresh_props[:parent] || parent.class.name.underscore)
-        end
       when Symbol
         # Smart detection of association type
         if (association = self.class.reflect_on_association(target))
@@ -68,13 +61,6 @@ module Broadcastable
         broadcast_marker("#{self.class.name}:all",
                         action: "remove",
                         prop: self.class.refresh_props[:collection] || model_prop_name.pluralize)
-      when Hash
-        # Legacy hash format for backward compatibility
-        if target[:parent] && (parent = send(target[:parent]))
-          broadcast_marker("#{parent.class.name}:#{parent.obfuscated_id}",
-                          action: "refresh",
-                          prop: self.class.refresh_props[:parent] || parent.class.name.underscore)
-        end
       when Symbol
         # Smart detection of association type
         if (association = self.class.reflect_on_association(target))
