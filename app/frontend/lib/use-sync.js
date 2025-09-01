@@ -45,3 +45,51 @@ export function useSync(subscriptions) {
     unsubscribers.forEach((unsub) => unsub());
   });
 }
+
+/**
+ * Create sync subscriptions that can be managed dynamically
+ * Returns a function to update subscriptions
+ *
+ * @example
+ * const updateSync = createDynamicSync();
+ *
+ * $effect(() => {
+ *   const subs = { 'Account:all': 'accounts' };
+ *   if (selected) subs[`Account:${selected.id}`] = 'selected';
+ *   updateSync(subs);
+ * });
+ */
+export function createDynamicSync() {
+  let currentUnsubscribers = [];
+
+  // Clean up all subscriptions when component is destroyed
+  onDestroy(() => {
+    currentUnsubscribers.forEach((unsub) => unsub());
+    currentUnsubscribers = [];
+  });
+
+  // Return a function that can be called to update subscriptions
+  return (subscriptions) => {
+    // Clean up old subscriptions
+    currentUnsubscribers.forEach((unsub) => unsub());
+    currentUnsubscribers = [];
+
+    // Create new subscriptions
+    Object.entries(subscriptions).forEach(([key, prop]) => {
+      // Parse the subscription key
+      const match = key.match(/^([A-Z]\w+):([^\/]+)(\/.*)?$/);
+      if (!match) {
+        console.warn(`Invalid subscription key: ${key}`);
+        return;
+      }
+
+      const [, model, id, collection] = match;
+      const props = Array.isArray(prop) ? prop : [prop];
+
+      // Create subscription
+      console.log('Creating dynamic subscription for', model, id, props);
+      const unsubscribe = subscribeToModel(model, id, props);
+      currentUnsubscribers.push(unsubscribe);
+    });
+  };
+}

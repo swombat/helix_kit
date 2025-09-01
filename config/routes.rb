@@ -5,6 +5,9 @@ Rails.application.routes.draw do
   get "favicon.:format", to: "favicon#show", as: :favicon, defaults: { format: "ico" }
   get "favicon", to: "favicon#show", defaults: { format: "ico" }
 
+  # Documentation
+  get "documentation" => "documentation#index", as: :documentation
+
   get "login" => "sessions#new", as: :login
   post "login" => "sessions#create"
   delete "logout" => "sessions#destroy", as: :logout

@@ -35,7 +35,10 @@
     router.delete(logoutPath());
   }
 
-  const links = [{ href: '#', label: 'About' }];
+  const links = [
+    { href: '/documentation', label: 'Documentation' },
+    { href: '#', label: 'About' },
+  ];
 
   const currentUser = $derived($page.props?.user);
   const currentAccount = $derived($page.props?.account);

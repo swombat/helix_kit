@@ -106,6 +106,163 @@ This template integrates Svelte with Rails using Inertia.js to manage front-end 
 
 Feel free to fork this repository and submit pull requests with improvements, fixes, or additional features.
 
+## Documentation
+
+### Real-time Synchronization System
+
+This application includes a powerful real-time synchronization system that automatically updates Svelte components when Rails models change, using ActionCable and Inertia.js partial reloads.
+
+#### How It Works
+
+1. Rails models broadcast minimal "marker" messages when they change
+2. Svelte components subscribe to these broadcasts via ActionCable
+3. When a broadcast is received, Inertia performs a partial reload of just the affected props
+4. Updates are debounced (300ms) to handle multiple rapid changes efficiently
+
+#### Key Files
+
+**Rails Side:**
+- [`app/channels/sync_channel.rb`](https://github.com/danieltenner/helix_kit/blob/master/app/channels/sync_channel.rb) - ActionCable channel with authorization
+- [`app/models/concerns/broadcastable.rb`](https://github.com/danieltenner/helix_kit/blob/master/app/models/concerns/broadcastable.rb) - Model concern for automatic broadcasting
+- [`app/models/concerns/sync_authorizable.rb`](https://github.com/danieltenner/helix_kit/blob/master/app/models/concerns/sync_authorizable.rb) - Authorization logic for sync access
+- [`app/channels/application_cable/connection.rb`](https://github.com/danieltenner/helix_kit/blob/master/app/channels/application_cable/connection.rb) - WebSocket authentication
+
+**JavaScript/Svelte Side:**
+- [`app/frontend/lib/cable.js`](https://github.com/danieltenner/helix_kit/blob/master/app/frontend/lib/cable.js) - Core ActionCable subscription management
+- [`app/frontend/lib/use-sync.js`](https://github.com/danieltenner/helix_kit/blob/master/app/frontend/lib/use-sync.js) - Svelte hook for easy integration
+
+#### Usage Example
+
+**1. Add to your Rails model:**
+```ruby
+class Account < ApplicationRecord
+  include SyncAuthorizable
+  include Broadcastable
+  
+  # Configure what to broadcast
+  broadcasts_to :all # Broadcast to admin collection
+  
+  # IMPORTANT: broadcasts_refresh_prop tells the system which Inertia prop name to reload
+  # These should match the prop names used in your controller's render inertia call
+  
+  # When this specific account changes, reload the 'account' prop
+  broadcasts_refresh_prop :account
+  
+  # When any account changes (for :all broadcasts), reload the 'accounts' prop
+  broadcasts_refresh_prop :accounts, collection: true
+end
+```
+
+**Understanding `broadcasts_refresh_prop`:**
+- This configures which Inertia.js prop should be reloaded when a model changes
+- The prop name must match exactly what your Rails controller uses in `render inertia:`
+- Use `collection: true` for props that represent arrays/collections
+- Without this, the system defaults to the model's underscored name (e.g., 'account' for Account model)
+
+**2. Use in your Svelte component:**
+
+For static subscriptions:
+```svelte
+<script>
+  import { useSync } from '$lib/use-sync';
+  
+  let { accounts = [] } = $props();
+  
+  // Simple static subscriptions
+  useSync({
+    'Account:all': 'accounts',  // Updates when any account changes
+  });
+</script>
+```
+
+For dynamic subscriptions (when the subscribed objects can change):
+```svelte
+<script>
+  import { createDynamicSync } from '$lib/use-sync';
+  
+  let { accounts = [], selected_account = null } = $props();
+  
+  // Create dynamic sync handler
+  const updateSync = createDynamicSync();
+  
+  // Update subscriptions when selected_account changes
+  $effect(() => {
+    const subs = { 'Account:all': 'accounts' };
+    if (selected_account) {
+      subs[`Account:${selected_account.id}`] = 'selected_account';
+    }
+    updateSync(subs);
+  });
+</script>
+```
+
+That's it! Your component will now automatically update when the data changes on the server.
+
+#### Complete Example: Controller + Model + Component
+
+Here's how all the pieces work together:
+
+**Rails Controller:**
+```ruby
+# app/controllers/dashboard_controller.rb
+class DashboardController < ApplicationController
+  def index
+    render inertia: "Dashboard", props: {
+      current_user: current_user.as_json,     # Creates 'current_user' prop
+      notifications: current_user.notifications, # Creates 'notifications' prop
+      stats: calculate_stats                  # Creates 'stats' prop
+    }
+  end
+end
+```
+
+**Rails Model:**
+```ruby
+# app/models/notification.rb
+class Notification < ApplicationRecord
+  include Broadcastable
+  belongs_to :user
+  
+  # Tell the system which props to reload when notifications change
+  broadcasts_refresh_prop :notifications  # Matches controller's 'notifications' prop
+  broadcasts_to parent: :user  # Also broadcast to parent user
+end
+```
+
+**Svelte Component:**
+```svelte
+<script>
+  import { useSync } from '$lib/use-sync';
+  
+  // These prop names match what the controller sends
+  let { current_user, notifications, stats } = $props();
+  
+  // Subscribe to updates - the second value is the prop name to reload
+  useSync({
+    [`User:${current_user.id}`]: 'current_user',
+    [`Notification:all`]: 'notifications'  // Will reload when any notification changes
+  });
+</script>
+```
+
+The key insight: `broadcasts_refresh_prop :notifications` tells the system to reload the 'notifications' prop (from your controller) whenever a Notification model changes.
+
+#### Authorization Model
+
+- Objects with an `account` property: Accessible by all users in that account
+- Objects without an `account` property: Admin-only access
+- Site admins can subscribe to `:all` collections for any model
+
+#### Testing
+
+Run the synchronization tests:
+```sh
+rails test test/channels/sync_channel_test.rb
+rails test test/models/concerns/broadcastable_test.rb
+```
+
+See the [in-app documentation](/documentation) for more detailed information and advanced usage.
+
 ## License
 
 This project is open-source and available under the [MIT License](LICENSE).
