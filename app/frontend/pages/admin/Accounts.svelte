@@ -8,7 +8,6 @@
 
   let { accounts = [], selected_account = null } = $props();
   let search = $state('');
-  console.log(selected_account);
 
   const filtered = $derived(
     accounts.filter((account) => {
