@@ -30,10 +30,10 @@ This is a start app kit template analogous to Jumpstart Pro or BulletTrain, but 
     - [x] User Profiles
     - [x] Invitations
     - [x] Roles
+- **Svelte Object Synchronization** - Using ActionCable and Inertia's partial reload and a custom Regitry to keep Svelte $props up to date in real-time.
 
 ## Target features (TODO)
 
-- **Svelte Object Synchronization** - Using ActionCable and Inertia's partial reload and a custom Regitry to keep Svelte $props up to date in real-time.
 - Audit Logging with audit log viewer (required in many business applications).
 - MultiAttachment system supporting:
     - Direct uploads to S3

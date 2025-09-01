@@ -5,9 +5,25 @@
   import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/shadcn/card';
   import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '$lib/components/shadcn/table';
   import InfoCard from '$lib/components/InfoCard.svelte';
+  import { useSync } from '$lib/use-sync';
 
   let { accounts = [], selected_account = null } = $props();
   let search = $state('');
+
+  // Subscribe to real-time updates
+  const subs = {
+    'Account:all': 'accounts',
+  };
+
+  if (selected_account) {
+    subs[`Account:${selected_account.id}`] = 'selected_account';
+  }
+
+  useSync(subs);
+
+  console.log('subs', subs);
+  console.log('accounts', accounts);
+  console.log('selected_account', selected_account);
 
   const filtered = $derived(
     accounts.filter((account) => {

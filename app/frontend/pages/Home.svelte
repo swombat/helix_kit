@@ -130,15 +130,15 @@
       link: 'https://jumpstartrails.com/docs/accounts',
       icon: Users,
     },
-  ];
-
-  const todoFeatures = [
     {
       title: 'Svelte Object Synchronization',
       description:
         "Using ActionCable and Inertia's partial reload and a custom Registry to keep Svelte $props up to date in real-time.",
       icon: ArrowsClockwise,
     },
+  ];
+
+  const todoFeatures = [
     {
       title: 'Audit Logging',
       description: 'Audit logging with audit log viewer (required in many business applications).',
