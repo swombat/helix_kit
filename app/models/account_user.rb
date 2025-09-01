@@ -1,7 +1,8 @@
 # app/models/account_user.rb
 class AccountUser < ApplicationRecord
 
-  include Confirmable
+  include Confirmable,
+          JsonAttributes
 
   # Constants
   ROLES = %w[owner admin member].freeze
@@ -39,6 +40,15 @@ class AccountUser < ApplicationRecord
   scope :members, -> { where(role: "member") }
   scope :pending_invitations, -> { where(confirmed_at: nil).where.not(invited_by_id: nil) }
   scope :accepted_invitations, -> { where.not(confirmed_at: nil).where.not(invited_by_id: nil) }
+
+  # Default Json Serialization
+  json_attributes :display_name, :status, :invitation?, :invitation_pending?, :email_address, :full_name, :confirmed?,
+                  include: {
+                    user: { only: [ :id, :email_address ], methods: [ :full_name ] },
+                    invited_by: { only: [ :id ], methods: [ :full_name ] }
+                  } do |json, options|
+    json[:can_remove] = removable_by?(options[:current_user]) if options && options[:current_user]
+  end
 
   # Class Methods
   def self.confirm_by_token!(token)
@@ -106,6 +116,14 @@ class AccountUser < ApplicationRecord
     end
   end
 
+  def full_name
+    user.full_name || "-"
+  end
+
+  def email_address
+    user.email_address
+  end
+
   def status
     if invitation_pending?
       "invited"
@@ -114,24 +132,6 @@ class AccountUser < ApplicationRecord
     else
       "pending"
     end
-  end
-
-  # Complete serialization with authorization logic
-  def as_json(options = {})
-    current_user = options.delete(:current_user)
-
-    json = super(options.merge(
-      methods: [ :display_name, :status, :invitation?, :invitation_pending? ],
-      include: {
-        user: { only: [ :id, :email_address ], methods: [ :full_name ] },
-        invited_by: { only: [ :id ], methods: [ :full_name ] }
-      }
-    ))
-
-    # Add removable flag if current_user provided
-    json[:can_remove] = removable_by?(current_user) if current_user
-
-    json
   end
 
   private

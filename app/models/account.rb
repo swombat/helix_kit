@@ -1,5 +1,7 @@
 class Account < ApplicationRecord
 
+  include JsonAttributes
+
   # Enums
   enum :account_type, { personal: 0, team: 1 }
 
@@ -24,6 +26,8 @@ class Account < ApplicationRecord
   # Scopes
   scope :personal, -> { where(account_type: :personal) }
   scope :team, -> { where(account_type: :team) }
+
+  json_attributes :personal?, :team?, :active?, :is_site_admin, :name
 
   # Business Logic Methods
   def add_user!(user, role: "member", skip_confirmation: false)
@@ -97,14 +101,15 @@ class Account < ApplicationRecord
     end
   end
 
-  def as_json(options = {})
-    hash = super(options.merge(methods: [ :name ]))
-    # Explicitly assign boolean values to ensure they are included
-    hash["personal"] = !!personal?
-    hash["team"] = !!team?
-    hash["is_site_admin"] = !!is_site_admin
-    hash
+  def users_count
+    account_users.count
   end
+
+  def members_count
+    account_users.confirmed.count
+  end
+
+  alias_method :active, :active?
 
   private
 

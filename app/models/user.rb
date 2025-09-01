@@ -1,5 +1,7 @@
 class User < ApplicationRecord
 
+  include JsonAttributes
+
   has_secure_password validations: false
 
   # User preferences stored as JSON
@@ -35,6 +37,8 @@ class User < ApplicationRecord
 
   after_create :ensure_account_user_exists
   after_initialize :set_default_theme, if: :new_record?
+
+  json_attributes :full_name, :site_admin, except: [ :password_digest ]
 
   generates_token_for :password_reset, expires_in: 2.hours do
     password_salt&.last(10)
@@ -132,7 +136,7 @@ class User < ApplicationRecord
   end
 
   def full_name
-    "#{first_name} #{last_name}".strip.presence || email_address
+    "#{first_name} #{last_name}".strip.presence
   end
 
   # For finding or creating invited users
@@ -152,12 +156,10 @@ class User < ApplicationRecord
     accounts.where(is_site_admin: true).exists?
   end
 
+  include JsonAttributes
+
   # Alias for site_admin method to match common Rails pattern
   alias_method :is_site_admin?, :site_admin
-
-  def as_json(options = {})
-    super(options.merge(methods: [ :full_name, :site_admin ]))
-  end
 
   private
 

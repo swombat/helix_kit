@@ -8,12 +8,13 @@
 
   let { accounts = [], selected_account = null } = $props();
   let search = $state('');
+  console.log(selected_account);
 
   const filtered = $derived(
     accounts.filter((account) => {
       if (!search) return true;
       const term = search.toLowerCase();
-      return account.name?.toLowerCase().includes(term) || account.owner?.email?.toLowerCase().includes(term);
+      return account.name?.toLowerCase().includes(term) || account.owner?.email_address?.toLowerCase().includes(term);
     })
   );
 
@@ -70,7 +71,7 @@
               </div>
               {#if account.owner}
                 <div class="text-xs text-muted-foreground/80 mt-1">
-                  Owner: {account.owner.email}
+                  Owner: {account.owner.email_address}
                 </div>
               {/if}
             </button>
@@ -114,9 +115,9 @@
                 <div>
                   <dt class="text-sm text-muted-foreground">Owner</dt>
                   <dd>
-                    {selected_account.owner.name || selected_account.owner.email}
+                    {selected_account.owner.name || selected_account.owner.email_address}
                     {#if selected_account.owner.name}
-                      <div class="text-sm text-muted-foreground">{selected_account.owner.email}</div>
+                      <div class="text-sm text-muted-foreground">{selected_account.owner.email_address}</div>
                     {/if}
                   </dd>
                 </div>
@@ -128,7 +129,7 @@
             <dl class="space-y-3">
               <div>
                 <dt class="text-sm text-muted-foreground">Total Users</dt>
-                <dd class="text-2xl font-bold">{selected_account.users?.length || 0}</dd>
+                <dd class="text-2xl font-bold">{selected_account.users_count || 0}</dd>
               </div>
               <div>
                 <dt class="text-sm text-muted-foreground">Created</dt>
@@ -146,27 +147,27 @@
         <Card>
           <CardHeader>
             <CardTitle class="mb-2">
-              Users ({selected_account.users?.length || 0})
+              Users ({selected_account.users_count || 0})
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {#if selected_account.users && selected_account.users.length > 0}
+            {#if selected_account.account_users && selected_account.account_users.length > 0}
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Email</TableHead>
                     <TableHead>Name</TableHead>
+                    <TableHead>Email</TableHead>
                     <TableHead>Role</TableHead>
                     <TableHead>Joined</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {#each selected_account.users as user (user.id)}
+                  {#each selected_account.account_users as user (user.id)}
                     <TableRow class={user.confirmed ? '' : 'opacity-50'}>
+                      <TableCell>{user.full_name || '-'}</TableCell>
                       <TableCell>
-                        <div class="font-medium">{user.email}</div>
+                        <div class="font-medium">{user.email_address}</div>
                       </TableCell>
-                      <TableCell>{user.name || '-'}</TableCell>
                       <TableCell>
                         <Badge variant={user.role === 'owner' ? 'default' : 'secondary'}>
                           {user.role}
