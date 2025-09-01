@@ -1,6 +1,6 @@
 <script>
   import { Link } from '@inertiajs/svelte';
-  import NewPasswordForm from '$lib/components/forms/NewPasswordForm.svelte';
+  import ResetPasswordForm from '$lib/components/forms/ResetPasswordForm.svelte';
   import Logo from '$lib/components/misc/HelixKitLogo.svelte';
   import AuthLayout from '../../layouts/AuthLayout.svelte';
 </script>
@@ -10,6 +10,6 @@
     <Link href="/" class="mb-8">
       <Logo class="h-8 w-48" />
     </Link>
-    <NewPasswordForm />
+    <ResetPasswordForm />
   </div>
 </AuthLayout>

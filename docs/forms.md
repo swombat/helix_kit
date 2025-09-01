@@ -117,8 +117,8 @@ All form components follow a consistent pattern and accept `onCancel` and `onSuc
 - **Width**: Narrow
 - **Fields**: New password, confirmation
 
-#### NewPasswordForm
-- **Location**: `/app/frontend/lib/components/forms/NewPasswordForm.svelte`
+#### ResetPasswordForm
+- **Location**: `/app/frontend/lib/components/forms/ResetPasswordForm.svelte`
 - **Purpose**: Request password reset
 - **Width**: Narrow
 - **Fields**: Email address

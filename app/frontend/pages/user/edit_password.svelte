@@ -10,6 +10,8 @@
   function handleSuccess() {
     router.visit(rootPath());
   }
+
+  let { user } = $props();
 </script>
 
-<ChangePasswordForm onCancel={handleCancel} onSuccess={handleSuccess} />
+<ChangePasswordForm {user} onCancel={handleCancel} onSuccess={handleSuccess} />

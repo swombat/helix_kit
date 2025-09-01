@@ -27,7 +27,13 @@
   {onSuccess}>
   <div>
     <Label for="password">New Password</Label>
-    <Input id="password" type="password" placeholder="Enter new password" required bind:value={passwordData.password} />
+    <Input
+      id="password"
+      type="password"
+      placeholder="Enter new password"
+      autocomplete="new-password"
+      required
+      bind:value={passwordData.password} />
   </div>
 
   <div>
@@ -36,6 +42,7 @@
       id="password_confirmation"
       type="password"
       placeholder="Repeat new password"
+      autocomplete="new-password"
       required
       bind:value={passwordData.password_confirmation} />
   </div>
