@@ -23,6 +23,7 @@ This directory contains detailed documentation for the Helix Kit Rails applicati
 - **[Frontend](./frontend.md)** - Svelte, Inertia.js, and component organization
 - **[Database](./database.md)** - PostgreSQL setup and Solid adapters configuration
 - **[Icons](./icons.md)** - Comprehensive Phosphor Icons reference with 1500+ searchable icons
+- **[JSON Attributes](./json-attributes.md)** - Declarative JSON serialization with automatic ID obfuscation
 - **[Real-time Synchronization Usage](./synchronization-usage.md)** - How to use the real-time sync system to update Svelte components when Rails models change
 - **[Real-time Synchronization Internals](./synchronization-internals.md)** - ⚠️ ONLY consult if explicitly asked to debug sync issues. Contains deep implementation details.
 

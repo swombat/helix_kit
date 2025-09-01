@@ -283,6 +283,74 @@ rails test test/models/concerns/broadcastable_test.rb
 
 See the [in-app documentation](/documentation) for more detailed information and advanced usage.
 
+### JSON Serialization with json_attributes
+
+This application includes a powerful convention for controlling how Rails models are serialized to JSON, with automatic ID obfuscation for better security and cleaner URLs.
+
+#### How It Works
+
+The `json_attributes` concern provides a declarative way to specify which attributes and methods should be included when a model is converted to JSON (for Inertia props or API responses). It also automatically obfuscates model IDs using `to_param`.
+
+#### Key Features
+
+1. **Declarative Attribute Selection** - Explicitly define which attributes/methods to include
+2. **Automatic ID Obfuscation** - IDs are automatically replaced with obfuscated versions via `to_param`
+3. **Boolean Key Cleaning** - Methods ending with `?` have the `?` removed in JSON (e.g., `admin?` becomes `admin`)
+4. **Association Support** - Include associated models with their own json_attributes
+5. **Context Propagation** - Pass context (like `current_user`) through nested associations
+
+#### Usage Example
+
+```ruby
+class User < ApplicationRecord
+  include JsonAttributes
+  
+  # Specify what to include in JSON, excluding sensitive fields
+  json_attributes :full_name, :site_admin, except: [:password_digest]
+end
+
+class Account < ApplicationRecord
+  include JsonAttributes
+  
+  # Include boolean methods (the ? will be stripped in JSON)
+  json_attributes :personal?, :team?, :active?, :is_site_admin, :name
+end
+
+class AccountUser < ApplicationRecord
+  include JsonAttributes
+  
+  # Include associations with their json_attributes
+  json_attributes :role, :confirmed_at, include: { user: {}, account: {} }
+end
+```
+
+#### In Controllers
+
+```ruby
+class AccountsController < ApplicationController
+  def show
+    @account = current_user.accounts.find(params[:id])
+    
+    render inertia: "accounts/show", props: {
+      # as_json automatically uses json_attributes configuration
+      account: @account.as_json,
+      # Pass current_user context for authorization in nested associations
+      members: @account.account_users.as_json(current_user: current_user)
+    }
+  end
+end
+```
+
+#### Benefits
+
+- **Security**: Sensitive attributes like `password_digest` are never accidentally exposed
+- **Clean URLs**: Obfuscated IDs provide better aesthetics and security
+- **Consistency**: All models serialize the same way throughout the application
+- **Performance**: Only specified attributes are serialized, reducing payload size
+- **Maintainability**: JSON structure is defined in one place (the model)
+
+See the [in-app documentation](/documentation) for more detailed information and advanced usage.
+
 ## License
 
 This project is open-source and available under the [MIT License](LICENSE).

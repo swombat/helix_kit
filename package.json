@@ -44,6 +44,7 @@
     "@tailwindcss/vite": "^4.1.11",
     "mode-watcher": "^1.1.0",
     "svelte": "^5.35.6",
+    "svelte-highlight": "^7.8.4",
     "svelte-radix": "^2.0.1",
     "tailwindcss": "^4.1.11",
     "tw-animate-css": "^1.3.5"
