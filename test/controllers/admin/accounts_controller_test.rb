@@ -66,7 +66,7 @@ class Admin::AccountsControllerTest < ActionDispatch::IntegrationTest
     if account["owner"]
       owner = account["owner"]
       assert owner.key?("id")
-      assert owner.key?("email")
+      assert owner.key?("email_address")
     end
   end
 
@@ -133,19 +133,23 @@ class Admin::AccountsControllerTest < ActionDispatch::IntegrationTest
     assert selected_account.key?("created_at")
     assert selected_account.key?("updated_at")
     assert selected_account.key?("owner")
-    assert selected_account.key?("users")
+    assert selected_account.key?("account_users")
 
-    # Verify users array structure
-    users = selected_account["users"]
-    assert users.is_a?(Array)
+    # Verify account_users array structure
+    account_users = selected_account["account_users"]
+    assert account_users.is_a?(Array)
 
-    if users.any?
-      user = users.first
+    if account_users.any?
+      account_user = account_users.first
+      assert account_user.key?("id")
+      assert account_user.key?("user")
+      assert account_user.key?("role")
+      assert account_user.key?("created_at")
+      # User nested structure
+      user = account_user["user"]
       assert user.key?("id")
-      assert user.key?("email")
-      assert user.key?("name")
-      assert user.key?("role")
-      assert user.key?("created_at")
+      assert user.key?("email_address")
+      assert user.key?("full_name")
     end
   end
 
@@ -153,10 +157,7 @@ class Admin::AccountsControllerTest < ActionDispatch::IntegrationTest
     post login_path, params: { email_address: @site_admin_user.email_address, password: "password123" }
 
     get admin_accounts_path, params: { account_id: 99999 }
-    assert_response :success
-
-    props = inertia_shared_props
-    assert_nil props["selected_account"]
+    assert_response :not_found
   end
 
   test "should handle string account_id param correctly" do
@@ -236,7 +237,7 @@ class Admin::AccountsControllerTest < ActionDispatch::IntegrationTest
     assert selected_account.present?
     assert_equal empty_account.to_param, selected_account["id"]
     assert_nil selected_account["owner"]
-    assert_equal [], selected_account["users"]
+    assert_equal [], selected_account["account_users"]
   end
 
   # === Authorization Edge Cases ===
@@ -309,16 +310,16 @@ class Admin::AccountsControllerTest < ActionDispatch::IntegrationTest
     selected_account = inertia_shared_props["selected_account"]
     assert selected_account.present?
 
-    users = selected_account["users"]
-    assert users.is_a?(Array)
-    assert users.size >= 1
+    account_users = selected_account["account_users"]
+    assert account_users.is_a?(Array)
+    assert account_users.size >= 1
 
-    # Check user structure
-    user = users.first
-    assert user["email"].present?
-    assert user["name"].present?
-    assert %w[owner admin member].include?(user["role"])
-    assert user["created_at"].present?
+    # Check account_user structure
+    account_user = account_users.first
+    assert account_user["user"]["email_address"].present?
+    assert account_user["user"]["full_name"].present?
+    assert %w[owner admin member].include?(account_user["role"])
+    assert account_user["created_at"].present?
   end
 
   # === Performance and Data Loading Tests ===

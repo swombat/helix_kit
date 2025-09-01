@@ -525,7 +525,7 @@ class UserTest < ActiveSupport::TestCase
 
   test "full_name handles missing names gracefully" do
     user = User.new(email_address: "noname@example.com")
-    assert_equal "noname@example.com", user.full_name # Returns email when no name
+    assert_nil user.full_name # Returns nil when no name
   end
 
   test "full_name handles partial names" do
@@ -653,14 +653,14 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
-  test "full_name returns email when name is blank" do
+  test "full_name returns nil when name is blank" do
     user = User.new(
       email_address: "nofullname@example.com",
       first_name: "",
       last_name: ""
     )
 
-    assert_equal "nofullname@example.com", user.full_name
+    assert_nil user.full_name
   end
 
 end

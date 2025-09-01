@@ -18,28 +18,6 @@ class Admin::AccountsController < ApplicationController
           include: [ :owner, :account_users ],
           methods: [ :users_count, :members_count, :active ]
         ) : nil
-      # selected_account: @selected_account ? {
-      #   id: @selected_account.to_param,
-      #   name: @selected_account.name,
-      #   account_type: @selected_account.account_type,
-      #   created_at: @selected_account.created_at,
-      #   updated_at: @selected_account.updated_at,
-      #   owner: @selected_account.owner ? {
-      #     id: @selected_account.owner.to_param,
-      #     email: @selected_account.owner.email_address,
-      #     name: @selected_account.owner.full_name
-      #   } : nil,
-      #   users: @selected_account.account_users.map do |account_user|
-      #     {
-      #       id: account_user.user.to_param,
-      #       email: account_user.user.email_address,
-      #       name: account_user.user.full_name,
-      #       role: account_user.role,
-      #       created_at: account_user.created_at,
-      #       confirmed: account_user.confirmed?
-      #     }
-      #   end
-      # } : nil
     }
   end
 

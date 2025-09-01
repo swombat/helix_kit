@@ -169,7 +169,7 @@ describe('Show Account Page', () => {
       const { container } = render(ShowAccount);
 
       // Should show a note about conversion restrictions
-      const noteElement = container.querySelector('[class*="amber"]');
+      const noteElement = container.querySelector('[class*="yellow"]');
       expect(noteElement).toBeInTheDocument();
     });
 
