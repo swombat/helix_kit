@@ -77,7 +77,7 @@
               onclick={() => selectAccount(account.id)}
               class="w-full text-left p-4 hover:bg-muted/50 transition-colors border-b border-border
                      {selected_account?.id === account.id ? 'bg-primary/10 border-l-4 border-l-primary' : ''}
-                     {account.active ? '' : 'bg-neutral-50 opacity-50'}">
+                     {account.active ? '' : 'bg-neutral-50 dark:bg-neutral-800 opacity-50'}">
               <div class="font-medium text-base">{account.name}</div>
               <div class="text-sm text-muted-foreground mt-1">
                 {account.account_type === 'personal' ? 'Personal' : 'Organization'}

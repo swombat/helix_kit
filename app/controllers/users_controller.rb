@@ -17,12 +17,22 @@ class UsersController < ApplicationController
           secure: Rails.env.production?
         }
       end
-      flash[:success] = "Settings updated successfully"
-    else
-      flash[:errors] = Current.user.errors.full_messages
-    end
 
-    redirect_to edit_user_path
+      # For non-Inertia requests (like theme updates from navbar), just return success
+      if !request.headers["X-Inertia"]
+        render json: { success: true }, status: :ok
+      else
+        flash[:success] = "Settings updated successfully"
+        redirect_to edit_user_path
+      end
+    else
+      if !request.headers["X-Inertia"]
+        render json: { errors: Current.user.errors.full_messages }, status: :unprocessable_entity
+      else
+        flash[:errors] = Current.user.errors.full_messages
+        redirect_to edit_user_path
+      end
+    end
   end
 
   def edit_password

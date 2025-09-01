@@ -54,21 +54,29 @@
       setMode(theme);
     }
 
-    // Save to server for logged-in users
+    // Save to server for logged-in users using a regular fetch request
+    // to avoid Inertia navigation
     if (currentUser) {
-      router.patch(
-        '/user',
-        {
-          user: {
-            preferences: { theme },
+      try {
+        const response = await fetch('/user', {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || '',
           },
-        },
-        {
-          preserveState: true,
-          preserveScroll: true,
-          only: [], // Don't reload any props
+          body: JSON.stringify({
+            user: {
+              preferences: { theme },
+            },
+          }),
+        });
+
+        if (!response.ok) {
+          console.error('Failed to save theme preference');
         }
-      );
+      } catch (error) {
+        console.error('Error saving theme preference:', error);
+      }
     }
 
     // currentTheme will update automatically via derived
