@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_02_065102) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_02_092214) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -66,6 +66,18 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_02_065102) do
     t.index ["user_id"], name: "index_audit_logs_on_user_id"
   end
 
+  create_table "prompt_outputs", force: :cascade do |t|
+    t.bigint "account_id"
+    t.string "prompt_key"
+    t.text "output"
+    t.jsonb "output_json", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_prompt_outputs_on_account_id"
+    t.index ["created_at"], name: "index_prompt_outputs_on_created_at"
+    t.index ["prompt_key"], name: "index_prompt_outputs_on_prompt_key"
+  end
+
   create_table "sessions", force: :cascade do |t|
     t.integer "user_id", null: false
     t.string "ip_address"
@@ -94,5 +106,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_02_065102) do
   add_foreign_key "account_users", "users", column: "invited_by_id"
   add_foreign_key "audit_logs", "accounts"
   add_foreign_key "audit_logs", "users"
+  add_foreign_key "prompt_outputs", "accounts"
   add_foreign_key "sessions", "users"
 end

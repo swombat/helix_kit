@@ -38,7 +38,7 @@ This is a start app kit template analogous to Jumpstart Pro or BulletTrain, but 
 - **[Discard gem](https://github.com/jhawthorn/discard): Never delete anything important (e.g. accounts, users, etc), only discard it.
 - AI Integration features:
     - [x] OpenRouter integration
-    - [ ] Prompt system
+    - [x] Prompt system
     - [ ] Basic Conversation System
     - [ ] Agentic Conversation System
 - MultiAttachment system supporting:

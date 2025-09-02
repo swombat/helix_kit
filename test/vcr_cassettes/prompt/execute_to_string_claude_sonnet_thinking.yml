@@ -1,0 +1,97 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://openrouter.ai/api/v1/chat/completions
+    body:
+      encoding: UTF-8
+      string: '{"model":"anthropic/claude-3.7-sonnet:thinking","messages":[{"role":"system","content":"You
+        are a helpful assistant."},{"role":"user","content":"What is the capital of
+        Spain?"}],"temperature":0.7,"stream":true}'
+    headers:
+      Content-Type:
+      - application/json
+      Authorization:
+      - Bearer <OPENROUTER_API_KEY>
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      date:
+      - Tue, 02 Sep 2025 09:18:48 GMT
+      content-type:
+      - text/event-stream
+      transfer-encoding:
+      - chunked
+      connection:
+      - keep-alive
+      cf-ray:
+      - 978bec078c4f0284-MAD
+      access-control-allow-origin:
+      - "*"
+      cache-control:
+      - no-cache
+      vary:
+      - Accept-Encoding
+      permissions-policy:
+      - payment=(self "https://checkout.stripe.com" "https://connect-js.stripe.com"
+        "https://js.stripe.com" "https://*.js.stripe.com" "https://hooks.stripe.com")
+      referrer-policy:
+      - no-referrer, strict-origin-when-cross-origin
+      x-content-type-options:
+      - nosniff
+      server:
+      - cloudflare
+    body:
+      encoding: UTF-8
+      string: |+
+        : OPENROUTER PROCESSING
+
+        : OPENROUTER PROCESSING
+
+        data: {"id":"gen-1756804726-w1iLiQ8k6gSr9BtCpnRN","provider":"Anthropic","model":"anthropic/claude-3.7-sonnet:thinking","object":"chat.completion.chunk","created":1756804726,"choices":[{"index":0,"delta":{"role":"assistant","content":"","reasoning":null,"reasoning_details":[]},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1756804726-w1iLiQ8k6gSr9BtCpnRN","provider":"Anthropic","model":"anthropic/claude-3.7-sonnet:thinking","object":"chat.completion.chunk","created":1756804726,"choices":[{"index":0,"delta":{"role":"assistant","content":"","reasoning":null,"reasoning_details":[{"type":"reasoning.text","text":"","signature":"","format":"anthropic-claude-v1","index":0}]},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1756804726-w1iLiQ8k6gSr9BtCpnRN","provider":"Anthropic","model":"anthropic/claude-3.7-sonnet:thinking","object":"chat.completion.chunk","created":1756804726,"choices":[{"index":0,"delta":{"role":"assistant","content":"","reasoning":"The capital","reasoning_details":[{"type":"reasoning.text","text":"The capital","format":"anthropic-claude-v1","index":0}]},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1756804726-w1iLiQ8k6gSr9BtCpnRN","provider":"Anthropic","model":"anthropic/claude-3.7-sonnet:thinking","object":"chat.completion.chunk","created":1756804726,"choices":[{"index":0,"delta":{"role":"assistant","content":"","reasoning":" of Spain is Madrid. Madrid is both","reasoning_details":[{"type":"reasoning.text","text":" of Spain is Madrid. Madrid is both","format":"anthropic-claude-v1","index":0}]},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1756804726-w1iLiQ8k6gSr9BtCpnRN","provider":"Anthropic","model":"anthropic/claude-3.7-sonnet:thinking","object":"chat.completion.chunk","created":1756804726,"choices":[{"index":0,"delta":{"role":"assistant","content":"","reasoning":" the capital city and the largest city of","reasoning_details":[{"type":"reasoning.text","text":" the capital city and the largest city of","format":"anthropic-claude-v1","index":0}]},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1756804726-w1iLiQ8k6gSr9BtCpnRN","provider":"Anthropic","model":"anthropic/claude-3.7-sonnet:thinking","object":"chat.completion.chunk","created":1756804726,"choices":[{"index":0,"delta":{"role":"assistant","content":"","reasoning":" Spain. It is located in the center of the","reasoning_details":[{"type":"reasoning.text","text":" Spain. It is located in the center of the","format":"anthropic-claude-v1","index":0}]},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1756804726-w1iLiQ8k6gSr9BtCpnRN","provider":"Anthropic","model":"anthropic/claude-3.7-sonnet:thinking","object":"chat.completion.chunk","created":1756804726,"choices":[{"index":0,"delta":{"role":"assistant","content":"","reasoning":" country and is a major cultural, financial, and political center for","reasoning_details":[{"type":"reasoning.text","text":" country and is a major cultural, financial, and political center for","format":"anthropic-claude-v1","index":0}]},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1756804726-w1iLiQ8k6gSr9BtCpnRN","provider":"Anthropic","model":"anthropic/claude-3.7-sonnet:thinking","object":"chat.completion.chunk","created":1756804726,"choices":[{"index":0,"delta":{"role":"assistant","content":"","reasoning":" Spain and Europe.","reasoning_details":[{"type":"reasoning.text","text":" Spain and Europe.","format":"anthropic-claude-v1","index":0}]},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1756804726-w1iLiQ8k6gSr9BtCpnRN","provider":"Anthropic","model":"anthropic/claude-3.7-sonnet:thinking","object":"chat.completion.chunk","created":1756804726,"choices":[{"index":0,"delta":{"role":"assistant","content":"","reasoning":null,"reasoning_details":[{"type":"reasoning.text","signature":"ErUBCkYIBxgCIkCsHX302o90pGflfpBVSlgC8kVXNhCZZAkvuWIHZ6JN/MTDUPspJur0q6yOnxs7I+EGqZhozyna7/4avVoKPjJ5Egz9GZdsYVnZsrSbcN8aDPkWArCyEl97QRBgTiIwVwtPYSgAP/5bkvXFVb4zeFqGyVIA6obCzMuxwLEHgKez5ydm9eaOu4CFtPj1tCQNKh3kx7EfABlGkMP17RKI84N9aYGD8P6mU8Oowb8qcRgC","format":"anthropic-claude-v1","index":0}]},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1756804726-w1iLiQ8k6gSr9BtCpnRN","provider":"Anthropic","model":"anthropic/claude-3.7-sonnet:thinking","object":"chat.completion.chunk","created":1756804726,"choices":[{"index":0,"delta":{"role":"assistant","content":"","reasoning":null,"reasoning_details":[]},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1756804726-w1iLiQ8k6gSr9BtCpnRN","provider":"Anthropic","model":"anthropic/claude-3.7-sonnet:thinking","object":"chat.completion.chunk","created":1756804726,"choices":[{"index":0,"delta":{"role":"assistant","content":"","reasoning":null,"reasoning_details":[]},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1756804726-w1iLiQ8k6gSr9BtCpnRN","provider":"Anthropic","model":"anthropic/claude-3.7-sonnet:thinking","object":"chat.completion.chunk","created":1756804726,"choices":[{"index":0,"delta":{"role":"assistant","content":"The capital of Spain is Madrid. It's not only the capital but also the largest city in","reasoning":null,"reasoning_details":[]},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1756804726-w1iLiQ8k6gSr9BtCpnRN","provider":"Anthropic","model":"anthropic/claude-3.7-sonnet:thinking","object":"chat.completion.chunk","created":1756804726,"choices":[{"index":0,"delta":{"role":"assistant","content":" Spain, located in the center of the country. Madrid is","reasoning":null,"reasoning_details":[]},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1756804726-w1iLiQ8k6gSr9BtCpnRN","provider":"Anthropic","model":"anthropic/claude-3.7-sonnet:thinking","object":"chat.completion.chunk","created":1756804726,"choices":[{"index":0,"delta":{"role":"assistant","content":" known for its rich cultural heritage, including","reasoning":null,"reasoning_details":[]},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1756804726-w1iLiQ8k6gSr9BtCpnRN","provider":"Anthropic","model":"anthropic/claude-3.7-sonnet:thinking","object":"chat.completion.chunk","created":1756804726,"choices":[{"index":0,"delta":{"role":"assistant","content":" world-class museums like the Prado,","reasoning":null,"reasoning_details":[]},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1756804726-w1iLiQ8k6gSr9BtCpnRN","provider":"Anthropic","model":"anthropic/claude-3.7-sonnet:thinking","object":"chat.completion.chunk","created":1756804726,"choices":[{"index":0,"delta":{"role":"assistant","content":" beautiful parks such as Retiro Park, an","reasoning":null,"reasoning_details":[]},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1756804726-w1iLiQ8k6gSr9BtCpnRN","provider":"Anthropic","model":"anthropic/claude-3.7-sonnet:thinking","object":"chat.completion.chunk","created":1756804726,"choices":[{"index":0,"delta":{"role":"assistant","content":"d historic squares like Plaza Mayor.","reasoning":null,"reasoning_details":[]},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1756804726-w1iLiQ8k6gSr9BtCpnRN","provider":"Anthropic","model":"anthropic/claude-3.7-sonnet:thinking","object":"chat.completion.chunk","created":1756804726,"choices":[{"index":0,"delta":{"role":"assistant","content":"","reasoning":null,"reasoning_details":[]},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1756804726-w1iLiQ8k6gSr9BtCpnRN","provider":"Anthropic","model":"anthropic/claude-3.7-sonnet:thinking","object":"chat.completion.chunk","created":1756804726,"choices":[{"index":0,"delta":{"role":"assistant","content":"","reasoning":null,"reasoning_details":[]},"finish_reason":"stop","native_finish_reason":"stop","logprobs":null}]}
+
+        data: {"id":"gen-1756804726-w1iLiQ8k6gSr9BtCpnRN","provider":"Anthropic","model":"anthropic/claude-3.7-sonnet:thinking","object":"chat.completion.chunk","created":1756804726,"choices":[{"index":0,"delta":{"role":"assistant","content":""},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"usage":{"prompt_tokens":49,"completion_tokens":122,"total_tokens":171}}
+
+        data: [DONE]
+
+  recorded_at: Tue, 02 Sep 2025 09:18:50 GMT
+recorded_with: VCR 6.3.1
+...
