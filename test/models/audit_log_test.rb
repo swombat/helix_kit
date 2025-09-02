@@ -75,6 +75,9 @@ class AuditLogTest < ActiveSupport::TestCase
   end
 
   test "recent scope orders by created_at desc" do
+    # Clear existing audit logs to ensure test isolation
+    AuditLog.destroy_all
+
     old_log = AuditLog.create!(action: :old_action, created_at: 2.days.ago)
     new_log = AuditLog.create!(action: :new_action, created_at: 1.day.ago)
 
@@ -83,28 +86,28 @@ class AuditLogTest < ActiveSupport::TestCase
     assert_equal old_log, recent_logs.second
   end
 
-  test "for_account scope filters by account" do
+  test "by_account scope filters by account" do
     other_account = accounts(:team_account)
 
     log1 = AuditLog.create!(user: @user, account: @account, action: :action1)
     log2 = AuditLog.create!(user: @user, account: other_account, action: :action2)
     log3 = AuditLog.create!(user: @user, action: :action3) # No account
 
-    account_logs = AuditLog.for_account(@account)
+    account_logs = AuditLog.by_account(@account.id)
 
     assert_includes account_logs, log1
     assert_not_includes account_logs, log2
     assert_not_includes account_logs, log3
   end
 
-  test "for_user scope filters by user" do
+  test "by_user scope filters by user" do
     other_user = users(:existing_user)
 
     log1 = AuditLog.create!(user: @user, action: :action1)
     log2 = AuditLog.create!(user: other_user, action: :action2)
     log3 = AuditLog.create!(action: :action3) # No user
 
-    user_logs = AuditLog.for_user(@user)
+    user_logs = AuditLog.by_user(@user.id)
 
     assert_includes user_logs, log1
     assert_not_includes user_logs, log2
@@ -140,6 +143,151 @@ class AuditLogTest < ActiveSupport::TestCase
     account_log.reload
     assert_equal @account, account_log.auditable
     assert_equal "Account", account_log.auditable_type
+  end
+
+  test "by_action scope accepts single value" do
+    login_log = AuditLog.create!(action: "login", user: @user)
+    logout_log = AuditLog.create!(action: "logout", user: @user)
+
+    # Test with single string
+    results = AuditLog.by_action("login")
+    assert_includes results, login_log
+    assert_not_includes results, logout_log
+  end
+
+  test "by_action scope accepts arrays" do
+    login_log = AuditLog.create!(action: "login", user: @user)
+    logout_log = AuditLog.create!(action: "logout", user: @user)
+    other_log = AuditLog.create!(action: "update_profile", user: @user)
+
+    # Test with array
+    results = AuditLog.by_action([ "login", "logout" ])
+    assert_includes results, login_log
+    assert_includes results, logout_log
+    assert_not_includes results, other_log
+  end
+
+  test "by_type scope accepts single value" do
+    user_log = AuditLog.create!(action: "test", auditable: @user)
+    account_log = AuditLog.create!(action: "test", auditable: @account)
+
+    # Test with single string
+    results = AuditLog.by_type("User")
+    assert_includes results, user_log
+    assert_not_includes results, account_log
+  end
+
+  test "by_type scope accepts arrays" do
+    user_log = AuditLog.create!(action: "test", auditable: @user)
+    account_log = AuditLog.create!(action: "test", auditable: @account)
+    system_log = AuditLog.create!(action: "system_task")
+
+    # Test with array
+    results = AuditLog.by_type([ "User", "Account" ])
+    assert_includes results, user_log
+    assert_includes results, account_log
+    assert_not_includes results, system_log
+  end
+
+  test "by_user scope accepts single value" do
+    other_user = users(:existing_user)
+
+    log1 = AuditLog.create!(user: @user, action: "action1")
+    log2 = AuditLog.create!(user: other_user, action: "action2")
+
+    # Test with single ID
+    results = AuditLog.by_user(@user.id)
+    assert_includes results, log1
+    assert_not_includes results, log2
+  end
+
+  test "by_user scope accepts arrays" do
+    other_user = users(:existing_user)
+
+    log1 = AuditLog.create!(user: @user, action: "action1")
+    log2 = AuditLog.create!(user: other_user, action: "action2")
+    log3 = AuditLog.create!(action: "action3") # No user
+
+    # Test with array
+    results = AuditLog.by_user([ @user.id, other_user.id ])
+    assert_includes results, log1
+    assert_includes results, log2
+    assert_not_includes results, log3
+  end
+
+  test "by_account scope accepts single value" do
+    other_account = accounts(:team_account)
+
+    log1 = AuditLog.create!(account: @account, action: "action1")
+    log2 = AuditLog.create!(account: other_account, action: "action2")
+
+    # Test with single ID
+    results = AuditLog.by_account(@account.id)
+    assert_includes results, log1
+    assert_not_includes results, log2
+  end
+
+  test "by_account scope accepts arrays" do
+    other_account = accounts(:team_account)
+
+    log1 = AuditLog.create!(account: @account, action: "action1")
+    log2 = AuditLog.create!(account: other_account, action: "action2")
+    log3 = AuditLog.create!(action: "action3") # No account
+
+    # Test with array
+    results = AuditLog.by_account([ @account.id, other_account.id ])
+    assert_includes results, log1
+    assert_includes results, log2
+    assert_not_includes results, log3
+  end
+
+  test "filtered method processes comma-separated strings" do
+    login_log = AuditLog.create!(action: "login", user: @user)
+    logout_log = AuditLog.create!(action: "logout", user: @user)
+    update_log = AuditLog.create!(action: "update_profile", user: @user)
+
+    # Test with comma-separated string in filters
+    results = AuditLog.filtered(audit_action: "login,logout")
+    assert_includes results, login_log
+    assert_includes results, logout_log
+    assert_not_includes results, update_log
+
+    # Test with spaces around commas
+    results = AuditLog.filtered(audit_action: "login, logout")
+    assert_includes results, login_log
+    assert_includes results, logout_log
+    assert_not_includes results, update_log
+  end
+
+  test "filtered method processes arrays" do
+    login_log = AuditLog.create!(action: "login", user: @user)
+    logout_log = AuditLog.create!(action: "logout", user: @user)
+    update_log = AuditLog.create!(action: "update_profile", user: @user)
+
+    # Test with array in filters
+    results = AuditLog.filtered(audit_action: [ "login", "logout" ])
+    assert_includes results, login_log
+    assert_includes results, logout_log
+    assert_not_includes results, update_log
+  end
+
+  test "filtered method handles multiple comma-separated filters" do
+    other_user = users(:existing_user)
+    other_account = accounts(:team_account)
+
+    log1 = AuditLog.create!(user: @user, account: @account, action: "login", auditable: @user)
+    log2 = AuditLog.create!(user: other_user, account: other_account, action: "logout", auditable: other_user)
+    log3 = AuditLog.create!(user: @user, account: @account, action: "update", auditable: @account)
+
+    # Test with multiple comma-separated filters
+    results = AuditLog.filtered(
+      audit_action: "login,logout",
+      auditable_type: "User,Account"
+    )
+
+    assert_includes results, log1  # login action, User type
+    assert_includes results, log2  # logout action, User type
+    assert_not_includes results, log3  # update action (not in filter)
   end
 
 end

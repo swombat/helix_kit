@@ -101,6 +101,8 @@
 
   function clearFilters() {
     localFilters = {};
+    dateFrom = undefined;
+    dateTo = undefined;
     updateUrl({ page: 1 });
   }
 
@@ -142,52 +144,92 @@
   <!-- Filters -->
   <div class="rounded-lg p-4 mb-6">
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-      <Select.Root bind:value={localFilters.user_id}>
+      <Select.Root
+        type="single"
+        value={localFilters.user_id || undefined}
+        onValueChange={(v) => {
+          console.log('User ID changed to:', v);
+          if (v) {
+            localFilters.user_id = v;
+          } else {
+            delete localFilters.user_id;
+          }
+        }}>
         <Select.Trigger class="w-full">
           {localFilters.user_id
             ? filters.users?.find((u) => u.id.toString() === localFilters.user_id)?.email_address
             : 'All users'}
         </Select.Trigger>
         <Select.Content>
-          <Select.Item value="">All users</Select.Item>
+          <Select.Item value={undefined}>All users</Select.Item>
           {#each filters.users || [] as user}
             <Select.Item value={user.id.toString()}>{user.email_address}</Select.Item>
           {/each}
         </Select.Content>
       </Select.Root>
 
-      <Select.Root bind:value={localFilters.account_id}>
+      <Select.Root
+        type="single"
+        value={localFilters.account_id || undefined}
+        onValueChange={(v) => {
+          console.log('Account ID changed to:', v);
+          if (v) {
+            localFilters.account_id = v;
+          } else {
+            delete localFilters.account_id;
+          }
+        }}>
         <Select.Trigger class="w-full">
           {localFilters.account_id
             ? filters.accounts?.find((a) => a.id.toString() === localFilters.account_id)?.name
             : 'All accounts'}
         </Select.Trigger>
         <Select.Content>
-          <Select.Item value="">All accounts</Select.Item>
+          <Select.Item value={undefined}>All accounts</Select.Item>
           {#each filters.accounts || [] as account}
             <Select.Item value={account.id.toString()}>{account.name}</Select.Item>
           {/each}
         </Select.Content>
       </Select.Root>
 
-      <Select.Root bind:value={localFilters.audit_action}>
+      <Select.Root
+        type="single"
+        value={localFilters.audit_action || undefined}
+        onValueChange={(v) => {
+          console.log('Action changed to:', v);
+          if (v) {
+            localFilters.audit_action = v;
+          } else {
+            delete localFilters.audit_action;
+          }
+        }}>
         <Select.Trigger class="w-full">
           {localFilters.audit_action || 'All actions'}
         </Select.Trigger>
         <Select.Content>
-          <Select.Item value="">All actions</Select.Item>
+          <Select.Item value={undefined}>All actions</Select.Item>
           {#each filters.actions || [] as action}
             <Select.Item value={action}>{action}</Select.Item>
           {/each}
         </Select.Content>
       </Select.Root>
 
-      <Select.Root bind:value={localFilters.auditable_type}>
+      <Select.Root
+        type="single"
+        value={localFilters.auditable_type || undefined}
+        onValueChange={(v) => {
+          console.log('Type changed to:', v);
+          if (v) {
+            localFilters.auditable_type = v;
+          } else {
+            delete localFilters.auditable_type;
+          }
+        }}>
         <Select.Trigger class="w-full">
           {localFilters.auditable_type || 'All types'}
         </Select.Trigger>
         <Select.Content>
-          <Select.Item value="">All types</Select.Item>
+          <Select.Item value={undefined}>All types</Select.Item>
           {#each filters.types || [] as type}
             <Select.Item value={type}>{type}</Select.Item>
           {/each}
@@ -306,101 +348,149 @@
 
   <!-- Detail Drawer -->
   <Drawer open={drawerOpen} onOpenChange={(open) => !open && closeDrawer()}>
-    <DrawerContent class="h-[80vh]">
+    <DrawerContent class="h-[85vh] max-w-3xl mx-auto">
       {#if selected_log}
-        <DrawerHeader>
-          <DrawerTitle>Audit Log Details</DrawerTitle>
+        <DrawerHeader class="border-b pb-4">
+          <DrawerTitle class="text-xl font-semibold flex items-center gap-3">
+            <span>Audit Log Details</span>
+            <Badge class="badge-{getActionColor(selected_log.action)}">
+              {selected_log.display_action}
+            </Badge>
+          </DrawerTitle>
+          <p class="text-sm text-muted-foreground mt-2">
+            {formatTime(selected_log.created_at)} • Event #{selected_log.id}
+          </p>
         </DrawerHeader>
 
         <div class="overflow-y-auto flex-1 p-6">
-          <dl class="grid grid-cols-1 gap-4">
-            <div>
-              <dt class="font-medium text-sm text-base-content/60">ID</dt>
-              <dd class="mt-1 font-mono">#{selected_log.id}</dd>
+          <div class="space-y-6">
+            <!-- Primary Information Section -->
+            <div class="bg-card rounded-lg border p-4 space-y-4">
+              <h3 class="font-semibold text-base mb-3">Event Information</h3>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <dt class="text-xs font-medium text-muted-foreground uppercase tracking-wider">Timestamp</dt>
+                  <dd class="mt-1 text-sm font-medium">
+                    {new Date(selected_log.created_at).toLocaleString('en-US', {
+                      dateStyle: 'medium',
+                      timeStyle: 'medium',
+                    })}
+                  </dd>
+                </div>
+
+                <div>
+                  <dt class="text-xs font-medium text-muted-foreground uppercase tracking-wider">Event ID</dt>
+                  <dd class="mt-1 text-sm font-mono bg-muted px-2 py-1 rounded inline-block">
+                    #{selected_log.id}
+                  </dd>
+                </div>
+              </div>
             </div>
 
-            <div>
-              <dt class="font-medium text-sm text-base-content/60">Action</dt>
-              <dd class="mt-1">
-                <Badge class="badge-{getActionColor(selected_log.action)}">
-                  {selected_log.display_action}
-                </Badge>
-              </dd>
-            </div>
+            <!-- Actor Information -->
+            {#if selected_log.user || selected_log.account}
+              <div class="bg-card rounded-lg border p-4 space-y-4">
+                <h3 class="font-semibold text-base mb-3">Actor Information</h3>
 
-            <div>
-              <dt class="font-medium text-sm text-base-content/60">Timestamp</dt>
-              <dd class="mt-1">{new Date(selected_log.created_at).toLocaleString()}</dd>
-            </div>
-
-            {#if selected_log.user}
-              <div>
-                <dt class="font-medium text-sm text-base-content/60">User</dt>
-                <dd class="mt-1">
-                  {selected_log.user.email_address}
-                  {#if selected_log.user.id}
-                    <span class="text-sm text-base-content/60">(ID: {selected_log.user.id})</span>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {#if selected_log.user}
+                    <div>
+                      <dt class="text-xs font-medium text-muted-foreground uppercase tracking-wider">User</dt>
+                      <dd class="mt-1 text-sm">
+                        <div class="font-medium">{selected_log.user.email_address}</div>
+                        {#if selected_log.user.id}
+                          <div class="text-xs text-muted-foreground">ID: {selected_log.user.id}</div>
+                        {/if}
+                      </dd>
+                    </div>
                   {/if}
-                </dd>
+
+                  {#if selected_log.account}
+                    <div>
+                      <dt class="text-xs font-medium text-muted-foreground uppercase tracking-wider">Account</dt>
+                      <dd class="mt-1 text-sm">
+                        <div class="font-medium">{selected_log.account.name}</div>
+                        {#if selected_log.account.id}
+                          <div class="text-xs text-muted-foreground">ID: {selected_log.account.id}</div>
+                        {/if}
+                      </dd>
+                    </div>
+                  {/if}
+                </div>
               </div>
             {/if}
 
-            {#if selected_log.account}
-              <div>
-                <dt class="font-medium text-sm text-base-content/60">Account</dt>
-                <dd class="mt-1">
-                  {selected_log.account.name}
-                  {#if selected_log.account.id}
-                    <span class="text-sm text-base-content/60">(ID: {selected_log.account.id})</span>
-                  {/if}
-                </dd>
-              </div>
-            {/if}
-
+            <!-- Affected Object -->
             {#if selected_log.auditable_type || selected_log.auditable}
-              <div>
-                <dt class="font-medium text-sm text-base-content/60">Affected Object</dt>
-                <dd class="mt-1">
-                  <div>{selected_log.auditable_type} #{selected_log.auditable_id}</div>
-                  {#if selected_log.auditable}
-                    <pre class="mt-2 p-3 rounded text-xs overflow-x-auto">
+              <div class="bg-card rounded-lg border p-4 space-y-4">
+                <h3 class="font-semibold text-base mb-3">Affected Object</h3>
+
+                <div>
+                  <dt class="text-xs font-medium text-muted-foreground uppercase tracking-wider">Object Type</dt>
+                  <dd class="mt-1 text-sm font-medium">
+                    <span class="bg-primary/10 text-primary px-2 py-1 rounded">
+                      {selected_log.auditable_type} #{selected_log.auditable_id}
+                    </span>
+                  </dd>
+                </div>
+
+                {#if selected_log.auditable}
+                  <div>
+                    <dt class="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Object Data</dt>
+                    <dd>
+                      <pre class="bg-muted p-3 rounded-lg text-xs overflow-x-auto font-mono">
 {JSON.stringify(selected_log.auditable, null, 2)}
-                    </pre>
-                  {/if}
-                </dd>
+                      </pre>
+                    </dd>
+                  </div>
+                {/if}
               </div>
             {/if}
 
+            <!-- Additional Data -->
             {#if selected_log.data && Object.keys(selected_log.data).length > 0}
-              <div>
-                <dt class="font-medium text-sm text-base-content/60">Additional Data</dt>
-                <dd class="mt-1">
-                  <pre class="p-3 rounded text-xs overflow-x-auto">
+              <div class="bg-card rounded-lg border p-4 space-y-4">
+                <h3 class="font-semibold text-base mb-3">Additional Data</h3>
+
+                <pre class="bg-muted p-3 rounded-lg text-xs overflow-x-auto font-mono">
 {JSON.stringify(selected_log.data, null, 2)}
-                  </pre>
-                </dd>
+                </pre>
               </div>
             {/if}
 
-            {#if selected_log.ip_address}
-              <div>
-                <dt class="font-medium text-sm text-base-content/60">IP Address</dt>
-                <dd class="mt-1 font-mono">{selected_log.ip_address}</dd>
-              </div>
-            {/if}
+            <!-- Technical Details -->
+            {#if selected_log.ip_address || selected_log.user_agent}
+              <div class="bg-card rounded-lg border p-4 space-y-4">
+                <h3 class="font-semibold text-base mb-3">Technical Details</h3>
 
-            {#if selected_log.user_agent}
-              <div>
-                <dt class="font-medium text-sm text-base-content/60">User Agent</dt>
-                <dd class="mt-1 text-sm break-words">{selected_log.user_agent}</dd>
+                <div class="space-y-3">
+                  {#if selected_log.ip_address}
+                    <div>
+                      <dt class="text-xs font-medium text-muted-foreground uppercase tracking-wider">IP Address</dt>
+                      <dd class="mt-1 text-sm font-mono bg-muted px-2 py-1 rounded inline-block">
+                        {selected_log.ip_address}
+                      </dd>
+                    </div>
+                  {/if}
+
+                  {#if selected_log.user_agent}
+                    <div>
+                      <dt class="text-xs font-medium text-muted-foreground uppercase tracking-wider">User Agent</dt>
+                      <dd class="mt-1 text-xs bg-muted p-2 rounded break-words font-mono">
+                        {selected_log.user_agent}
+                      </dd>
+                    </div>
+                  {/if}
+                </div>
               </div>
             {/if}
-          </dl>
+          </div>
         </div>
 
-        <div class="p-4 border-t">
+        <div class="p-4 border-t bg-background">
           <DrawerClose asChild>
-            <Button variant="outline">Close</Button>
+            <Button variant="outline" class="w-full sm:w-auto">Close</Button>
           </DrawerClose>
         </div>
       {/if}
