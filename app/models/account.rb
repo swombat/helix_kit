@@ -6,6 +6,7 @@ class Account < ApplicationRecord
 
   # Broadcasting configuration
   broadcasts_to :all # Admin collection
+  skip_broadcasts_on_destroy :account_users
 
   # Enums
   enum :account_type, { personal: 0, team: 1 }

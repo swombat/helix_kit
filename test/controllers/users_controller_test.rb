@@ -26,7 +26,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
         last_name: "Name",
         timezone: "UTC"
       }
-    }
+    }, headers: { "X-Inertia" => true }
 
     assert_redirected_to edit_user_path
     @user.reload
@@ -43,7 +43,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
         last_name: @user.last_name,
         preferences: { theme: "dark" }
       }
-    }
+    }, headers: { "X-Inertia" => true }
 
     assert_redirected_to edit_user_path
     @user.reload
@@ -59,7 +59,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
         last_name: @user.last_name,
         preferences: { theme: "invalid" }
       }
-    }
+    }, headers: { "X-Inertia" => true }
 
     assert_redirected_to edit_user_path
     @user.reload
@@ -76,7 +76,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
         first_name: "Updated",
         last_name: "Name"
       }
-    }
+    }, headers: { "X-Inertia" => true }
 
     assert_redirected_to edit_user_path
     assert_nil cookies[:theme]
@@ -89,10 +89,26 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
         last_name: @user.last_name,
         preferences: { theme: "light" }
       }
-    }
+    }, headers: { "X-Inertia" => true }
 
     # Simply verify the cookie value is set correctly
     assert_equal "light", cookies[:theme]
+  end
+
+  test "PATCH update without Inertia header returns JSON (for navbar theme updates)" do
+    patch user_path, params: {
+      user: {
+        preferences: { theme: "dark" }
+      }
+    }
+
+    assert_response :success
+    json_response = JSON.parse(@response.body)
+    assert json_response["success"]
+
+    @user.reload
+    assert_equal "dark", @user.theme
+    assert_equal "dark", cookies[:theme]
   end
 
   test "GET edit_password renders password edit page" do
@@ -144,7 +160,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     get edit_user_path
     assert_redirected_to login_path
 
-    patch user_path, params: { user: { first_name: "Test" } }
+    patch user_path, params: { user: { first_name: "Test" } }, headers: { "X-Inertia" => true }
     assert_redirected_to login_path
 
     get edit_password_user_path

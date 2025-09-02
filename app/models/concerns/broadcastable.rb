@@ -8,11 +8,16 @@ module Broadcastable
 
     class_attribute :broadcast_targets, default: []
     class_attribute :refresh_props, default: {}
+
+    # Flag to skip broadcasting when being destroyed as part of parent destruction
+    attr_accessor :skip_broadcast
   end
 
   private
 
   def broadcast_refresh
+    return if skip_broadcast
+
     # Broadcast to self
     broadcast_marker("#{self.class.name}:#{obfuscated_id}",
                     action: "refresh",
@@ -50,6 +55,8 @@ module Broadcastable
   end
 
   def broadcast_removal
+    return if skip_broadcast
+
     broadcast_marker("#{self.class.name}:#{obfuscated_id}",
                     action: "remove",
                     prop: self.class.refresh_props[:single] || model_prop_name)
@@ -96,6 +103,15 @@ module Broadcastable
 
     def broadcasts_to(*targets)
       self.broadcast_targets = targets
+    end
+
+    # Helper to skip broadcasts when destroying dependent associations
+    def skip_broadcasts_on_destroy(*associations)
+      before_destroy do
+        associations.each do |association|
+          Array(send(association)).each { |record| record.skip_broadcast = true if record.respond_to?(:skip_broadcast=) }
+        end
+      end
     end
 
     def broadcasts_refresh_prop(name, collection: false, parent: false)
