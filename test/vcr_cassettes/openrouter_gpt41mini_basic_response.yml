@@ -1,0 +1,60 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://openrouter.ai/api/v1/chat/completions
+    body:
+      encoding: UTF-8
+      string: '{"model":"openai/gpt-4.1-mini","messages":[{"role":"system","content":"Be
+        helpful"},{"role":"user","content":"Hi, please help."}],"temperature":0.7}'
+    headers:
+      Content-Type:
+      - application/json
+      Authorization:
+      - Bearer <OPENROUTER_API_KEY>
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      date:
+      - Tue, 02 Sep 2025 07:05:45 GMT
+      content-type:
+      - application/json
+      transfer-encoding:
+      - chunked
+      connection:
+      - keep-alive
+      access-control-allow-origin:
+      - "*"
+      vary:
+      - Accept-Encoding
+      permissions-policy:
+      - payment=(self "https://checkout.stripe.com" "https://connect-js.stripe.com"
+        "https://js.stripe.com" "https://*.js.stripe.com" "https://hooks.stripe.com")
+      referrer-policy:
+      - no-referrer, strict-origin-when-cross-origin
+      x-content-type-options:
+      - nosniff
+      server:
+      - cloudflare
+      cf-ray:
+      - 978b29267fd102d4-MAD
+    body:
+      encoding: ASCII-8BIT
+      base64_string: |
+        CiAgICAgICAgIAp7ImlkIjoiZ2VuLTE3NTY3OTY3NDQtYVRLZDJuVDlqRG1V
+        UlN3T2JhMWIiLCJwcm92aWRlciI6Ik9wZW5BSSIsIm1vZGVsIjoib3BlbmFp
+        L2dwdC00LjEtbWluaSIsIm9iamVjdCI6ImNoYXQuY29tcGxldGlvbiIsImNy
+        ZWF0ZWQiOjE3NTY3OTY3NDQsImNob2ljZXMiOlt7ImxvZ3Byb2JzIjpudWxs
+        LCJmaW5pc2hfcmVhc29uIjoic3RvcCIsIm5hdGl2ZV9maW5pc2hfcmVhc29u
+        Ijoic3RvcCIsImluZGV4IjowLCJtZXNzYWdlIjp7InJvbGUiOiJhc3Npc3Rh
+        bnQiLCJjb250ZW50IjoiT2YgY291cnNlISBIb3cgY2FuIEkgYXNzaXN0IHlv
+        dSB0b2RheT8iLCJyZWZ1c2FsIjpudWxsLCJyZWFzb25pbmciOm51bGx9fV0s
+        InN5c3RlbV9maW5nZXJwcmludCI6ImZwXzNmNThkMTEyZjciLCJ1c2FnZSI6
+        eyJwcm9tcHRfdG9rZW5zIjoxOCwiY29tcGxldGlvbl90b2tlbnMiOjEwLCJ0
+        b3RhbF90b2tlbnMiOjI4LCJwcm9tcHRfdG9rZW5zX2RldGFpbHMiOnsiY2Fj
+        aGVkX3Rva2VucyI6MCwiYXVkaW9fdG9rZW5zIjowfSwiY29tcGxldGlvbl90
+        b2tlbnNfZGV0YWlscyI6eyJyZWFzb25pbmdfdG9rZW5zIjowfX19
+  recorded_at: Tue, 02 Sep 2025 07:05:45 GMT
+recorded_with: VCR 6.3.1

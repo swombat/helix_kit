@@ -51,10 +51,12 @@ class ActionDispatch::IntegrationTest
 
   # Authentication helper for tests
   def sign_in(user)
-    post login_path, params: {
+    post "/login", params: {
       email_address: user.email_address,
       password: "password123"  # Fixture users use this password
     }
   end
 
 end
+
+require "support/vcr_setup"

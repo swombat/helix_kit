@@ -99,6 +99,9 @@ GEM
       logger (~> 1.5)
     concurrent-ruby (1.3.5)
     connection_pool (2.5.3)
+    crack (1.0.0)
+      bigdecimal
+      rexml
     crass (1.0.6)
     date (3.4.1)
     debug (1.11.0)
@@ -112,6 +115,15 @@ GEM
     erubi (1.13.1)
     et-orbi (1.2.11)
       tzinfo
+    event_stream_parser (1.0.0)
+    faraday (2.13.4)
+      faraday-net_http (>= 2.0, < 3.5)
+      json
+      logger
+    faraday-multipart (1.1.1)
+      multipart-post (~> 2.0)
+    faraday-net_http (3.4.1)
+      net-http (>= 0.5.0)
     ffi (1.17.2-aarch64-linux-gnu)
     ffi (1.17.2-aarch64-linux-musl)
     ffi (1.17.2-arm-linux-gnu)
@@ -125,6 +137,7 @@ GEM
       raabro (~> 1.4)
     globalid (1.2.1)
       activesupport (>= 6.1)
+    hashdiff (1.2.0)
     hashids (1.0.6)
     i18n (1.14.7)
       concurrent-ruby (~> 1.0)
@@ -180,7 +193,10 @@ GEM
     mini_mime (1.1.5)
     minitest (5.25.5)
     msgpack (1.8.0)
+    multipart-post (2.4.1)
     mutex_m (0.3.0)
+    net-http (0.6.0)
+      uri
     net-imap (0.5.9)
       date
       net-protocol
@@ -312,6 +328,10 @@ GEM
       rubocop (>= 1.72)
       rubocop-performance (>= 1.24)
       rubocop-rails (>= 2.30)
+    ruby-openai (7.4.0)
+      event_stream_parser (>= 0.3.0, < 2.0.0)
+      faraday (>= 1)
+      faraday-multipart (>= 1)
     ruby-progressbar (1.13.0)
     ruby-vips (2.2.5)
       ffi (~> 1.12)
@@ -379,6 +399,10 @@ GEM
       activemodel (>= 6.0.0)
       bindex (>= 0.4.0)
       railties (>= 6.0.0)
+    webmock (3.25.1)
+      addressable (>= 2.8.0)
+      crack (>= 0.3.2)
+      hashdiff (>= 0.4.0, < 2.0.0)
     websocket (1.2.11)
     websocket-driver (0.8.0)
       base64
@@ -417,6 +441,7 @@ DEPENDENCIES
   puma (>= 6.6.0)
   rails (~> 8.0.2)
   rubocop-rails-omakase
+  ruby-openai
   selenium-webdriver
   solid_cable
   solid_cache
@@ -426,6 +451,7 @@ DEPENDENCIES
   vcr
   vite_rails (~> 3.0)
   web-console
+  webmock
 
 BUNDLED WITH
    2.5.3

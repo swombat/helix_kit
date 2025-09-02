@@ -47,6 +47,7 @@ group :development, :test do
 
   # For testing external API calls
   gem "vcr"
+  gem "webmock"
 end
 
 group :development do
@@ -69,3 +70,5 @@ gem "bcrypt", "~> 3.1"
 gem "js-routes", "~> 2.3"
 
 gem "hashids"
+
+gem "ruby-openai"
