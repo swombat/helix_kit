@@ -8,6 +8,22 @@ class UsersController < ApplicationController
 
   def update
     if Current.user.update(user_params)
+      # Use the audit_with_changes helper to automatically track changes
+      changes = Current.user.saved_changes.except(:updated_at)
+
+      if changes.any?
+        # Determine the action based on what changed
+        action = if changes.key?("theme")
+          :change_theme
+        elsif changes.key?("timezone")
+          :update_timezone
+        else
+          :update_profile
+        end
+
+        audit_with_changes(action, Current.user)
+      end
+
       # Set theme cookie for faster initial page loads
       if params[:user][:preferences]&.key?(:theme)
         cookies[:theme] = {
@@ -42,6 +58,7 @@ class UsersController < ApplicationController
   def update_password
     if Current.user.authenticate(params[:current_password])
       if Current.user.update(password: params[:password], password_confirmation: params[:password_confirmation])
+        audit(:change_password, Current.user)  # Never log passwords!
         flash[:success] = "Password updated successfully"
         redirect_to edit_user_path
       else

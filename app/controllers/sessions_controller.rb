@@ -19,6 +19,7 @@ class SessionsController < ApplicationController
       redirect_to signup_path, alert: alert
     elsif user = User.authenticate_by(session_params)
       start_new_session_for user
+      audit(:login, user)
       redirect_to after_authentication_url, notice: "You have been signed in."
     else
       redirect_to login_path, alert: "Invalid email or password.",
@@ -27,6 +28,7 @@ class SessionsController < ApplicationController
   end
 
   def destroy
+    audit(:logout)
     terminate_session
     redirect_to root_path, notice: "You have been signed out."
   end

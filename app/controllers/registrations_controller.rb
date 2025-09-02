@@ -58,6 +58,7 @@ class RegistrationsController < ApplicationController
     if @user.update(password_params)
       session.delete(:pending_password_user_id)
       start_new_session_for @user
+      audit(:complete_registration, @user)
       redirect_to after_authentication_url, notice: "Account setup complete! Welcome!"
     else
       flash[:errors] = @user.errors.full_messages

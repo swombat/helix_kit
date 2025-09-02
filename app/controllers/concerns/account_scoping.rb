@@ -4,6 +4,7 @@ module AccountScoping
 
   included do
     helper_method :current_account, :current_account_user
+    before_action :set_current_account
   end
 
   private
@@ -12,7 +13,6 @@ module AccountScoping
     @current_account ||= Current.user&.default_account
   end
 
-  # The account membership/invitation object
   def current_account_user
     @current_account_user ||= if current_account && Current.user
       Current.user.account_users.confirmed.find_by(account: current_account)
@@ -21,6 +21,10 @@ module AccountScoping
 
   def require_account
     redirect_to account_required_path unless current_account
+  end
+
+  def set_current_account
+    Current.account = current_account
   end
 
   def authorize_account_resource(resource)

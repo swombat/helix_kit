@@ -22,13 +22,18 @@ class AccountsController < ApplicationController
     case params[:convert_to]
     when "personal"
       @account.make_personal!
+      audit(:convert_to_personal, @account, name: @account.name)
       redirect_to @account, notice: "Converted to personal account"
     when "team"
+      old_name = @account.name
       @account.make_team!(params[:account][:name])
+      audit(:convert_to_team, @account, from: old_name, to: @account.name)
       redirect_to @account, notice: "Converted to team account"
     else
-      @account.update!(account_params)
-      redirect_to @account, notice: "Account updated"
+      if @account.update!(account_params)
+        audit_with_changes(:update_account_settings, @account) if @account.saved_changes.except(:updated_at).any?
+        redirect_to @account, notice: "Account updated"
+      end
     end
   rescue ActiveRecord::RecordInvalid => e
     redirect_to @account, alert: e.message

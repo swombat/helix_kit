@@ -9,6 +9,7 @@ class PasswordsController < ApplicationController
 
   def create
     if user = User.find_by(email_address: params[:email_address])
+      audit_as(user, :password_reset_requested, user, requested_at: Time.current)
       PasswordsMailer.reset(user).deliver_later
     end
 
@@ -21,6 +22,7 @@ class PasswordsController < ApplicationController
 
   def update
     if @user.update(params.permit(:password, :password_confirmation))
+      audit_as(@user, :password_reset_completed, @user)
       redirect_to login_path, notice: "Password has been reset."
     else
       redirect_to edit_password_path(params[:token]), inertia: { errors: @user.errors }

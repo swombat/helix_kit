@@ -11,6 +11,10 @@ class InvitationsController < ApplicationController
     )
 
     if @invitation.save
+      # Clean and simple - account context is automatic
+      audit(:invite_member, @invitation,
+            invited_email: invitation_params[:email],
+            role: invitation_params[:role])
       redirect_to account_path(@account),
         notice: "Invitation sent to #{invitation_params[:email]}"
     else
@@ -23,6 +27,9 @@ class InvitationsController < ApplicationController
     @member = @account.account_users.find(params[:id])
 
     if @member.resend_invitation!
+      audit(:resend_invitation, @member,
+            member_email: @member.user.email_address,
+            role: @member.role)
       redirect_to account_path(@account),
         notice: "Invitation resent"
     else

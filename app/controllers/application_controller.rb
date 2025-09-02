@@ -2,6 +2,7 @@ class ApplicationController < ActionController::Base
 
   include Authentication
   include AccountScoping
+  include Auditable
   allow_browser versions: :modern
 
   inertia_share flash: -> { flash.to_hash }
