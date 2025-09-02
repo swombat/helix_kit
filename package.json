@@ -43,6 +43,7 @@
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/typography": "^0.5.16",
     "@tailwindcss/vite": "^4.1.11",
+    "date-fns": "^4.1.0",
     "mode-watcher": "^1.1.0",
     "svelte": "^5.35.6",
     "svelte-highlight": "^7.8.4",

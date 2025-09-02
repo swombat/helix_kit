@@ -14,6 +14,7 @@
     Monitor,
     Palette,
     Gear,
+    ClockClockwise,
   } from 'phosphor-svelte';
   import * as DropdownMenu from '$lib/components/shadcn/dropdown-menu/index.js';
   import { Button, buttonVariants } from '$lib/components/shadcn/button/index.js';
@@ -128,6 +129,10 @@
             <DropdownMenu.Item onclick={() => router.visit('/admin/accounts')}>
               <Buildings class="mr-2 size-4" />
               <span>Manage Accounts</span>
+            </DropdownMenu.Item>
+            <DropdownMenu.Item onclick={() => router.visit('/admin/audit_logs')}>
+              <ClockClockwise class="mr-2 size-4" />
+              <span>Audit Logs</span>
             </DropdownMenu.Item>
           </DropdownMenu.Content>
         </DropdownMenu.Root>

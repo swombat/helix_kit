@@ -1,0 +1,9 @@
+simple_log:
+  action: "login"
+  data: { description: "User logged in" }
+  created_at: <%= 1.day.ago %>
+
+another_log:
+  action: "logout"
+  data: { description: "User logged out" }
+  created_at: <%= 1.hour.ago %>

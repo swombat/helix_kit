@@ -229,6 +229,7 @@ GEM
     nokogiri (1.18.8-x86_64-linux-musl)
       racc (~> 1.4)
     ostruct (0.6.2)
+    pagy (9.4.0)
     parallel (1.27.0)
     parser (3.3.8.0)
       ast (~> 2.4.1)
@@ -437,6 +438,7 @@ DEPENDENCIES
   js-routes (~> 2.3)
   kamal
   letter_opener
+  pagy (~> 9.3)
   pg (~> 1.1)
   puma (>= 6.6.0)
   rails (~> 8.0.2)

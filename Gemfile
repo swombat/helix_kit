@@ -72,3 +72,5 @@ gem "js-routes", "~> 2.3"
 gem "hashids"
 
 gem "ruby-openai"
+
+gem "pagy", "~> 9.3"
