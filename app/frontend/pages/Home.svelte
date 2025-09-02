@@ -153,14 +153,14 @@
       icon: Trash,
     },
     {
-      title: 'MultiAttachment System',
-      description: 'Supporting direct uploads to S3, PDF/Document parsing, URL fetch, and free text.',
-      icon: Paperclip,
-    },
-    {
       title: 'AI Integration',
       description: 'OpenRouter integration, Prompt system, Basic Conversation System, Agentic Conversation System.',
       icon: Brain,
+    },
+    {
+      title: 'MultiAttachment System',
+      description: 'Supporting direct uploads to S3, PDF/Document parsing, URL fetch, and free text.',
+      icon: Paperclip,
     },
     {
       title: 'Organisation Account Settings',
