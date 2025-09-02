@@ -236,7 +236,7 @@ user.as_json
             <ul class="space-y-1 text-sm">
               <li>
                 <a
-                  href="https://github.com/danieltenner/helix_kit/blob/master/app/channels/sync_channel.rb"
+                  href="https://github.com/swombat/helix_kit/blob/master/app/channels/sync_channel.rb"
                   class="text-primary hover:underline"
                   target="_blank">
                   app/channels/sync_channel.rb
@@ -245,7 +245,7 @@ user.as_json
               </li>
               <li>
                 <a
-                  href="https://github.com/danieltenner/helix_kit/blob/master/app/models/concerns/broadcastable.rb"
+                  href="https://github.com/swombat/helix_kit/blob/master/app/models/concerns/broadcastable.rb"
                   class="text-primary hover:underline"
                   target="_blank">
                   app/models/concerns/broadcastable.rb
@@ -254,7 +254,7 @@ user.as_json
               </li>
               <li>
                 <a
-                  href="https://github.com/danieltenner/helix_kit/blob/master/app/models/concerns/sync_authorizable.rb"
+                  href="https://github.com/swombat/helix_kit/blob/master/app/models/concerns/sync_authorizable.rb"
                   class="text-primary hover:underline"
                   target="_blank">
                   app/models/concerns/sync_authorizable.rb
@@ -263,7 +263,7 @@ user.as_json
               </li>
               <li>
                 <a
-                  href="https://github.com/danieltenner/helix_kit/blob/master/app/channels/application_cable/connection.rb"
+                  href="https://github.com/swombat/helix_kit/blob/master/app/channels/application_cable/connection.rb"
                   class="text-primary hover:underline"
                   target="_blank">
                   app/channels/application_cable/connection.rb
@@ -278,7 +278,7 @@ user.as_json
             <ul class="space-y-1 text-sm">
               <li>
                 <a
-                  href="https://github.com/danieltenner/helix_kit/blob/master/app/frontend/lib/cable.js"
+                  href="https://github.com/swombat/helix_kit/blob/master/app/frontend/lib/cable.js"
                   class="text-primary hover:underline"
                   target="_blank">
                   app/frontend/lib/cable.js
@@ -287,7 +287,7 @@ user.as_json
               </li>
               <li>
                 <a
-                  href="https://github.com/danieltenner/helix_kit/blob/master/app/frontend/lib/use-sync.js"
+                  href="https://github.com/swombat/helix_kit/blob/master/app/frontend/lib/use-sync.js"
                   class="text-primary hover:underline"
                   target="_blank">
                   app/frontend/lib/use-sync.js
@@ -584,7 +584,7 @@ rails test test/models/concerns/broadcastable_test.rb`} />
         <ul class="space-y-1 text-sm">
           <li>
             <a
-              href="https://github.com/danieltenner/helix_kit/blob/master/app/models/concerns/json_attributes.rb"
+              href="https://github.com/swombat/helix_kit/blob/master/app/models/concerns/json_attributes.rb"
               class="text-primary hover:underline"
               target="_blank">
               app/models/concerns/json_attributes.rb
@@ -593,7 +593,7 @@ rails test test/models/concerns/broadcastable_test.rb`} />
           </li>
           <li>
             <a
-              href="https://github.com/danieltenner/helix_kit/blob/master/docs/json-attributes.md"
+              href="https://github.com/swombat/helix_kit/blob/master/docs/json-attributes.md"
               class="text-primary hover:underline"
               target="_blank">
               docs/json-attributes.md
