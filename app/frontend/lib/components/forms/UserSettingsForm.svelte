@@ -55,8 +55,9 @@
       </Select.Trigger>
       <Select.Content>
         {#each timezones as tz}
-          <Select.Item value={tz.value} label={tz.label}>
-            {tz.label}
+          <Select.Item value={tz.value}>
+            <span class="min-w-48">{tz.label.substring(tz.label.indexOf(' ') + 1)}</span>
+            {tz.label.split(' ')[0]}
           </Select.Item>
         {/each}
       </Select.Content>
