@@ -55,11 +55,12 @@
       </Select.Trigger>
       <Select.Content>
         {#each timezones as tz}
-          <Select.Item value={tz.value}>
+          <Select.Item value={tz.value} label={tz.label}>
             {tz.label}
           </Select.Item>
         {/each}
       </Select.Content>
     </Select.Root>
+    <p class="text-sm text-gray-500 mt-1">Type to search for your timezone (e.g., "London")</p>
   </div>
 </Form>
