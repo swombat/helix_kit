@@ -35,6 +35,7 @@ This is a start app kit template analogous to Jumpstart Pro or BulletTrain, but 
 ## Target features (TODO)
 
 - Audit Logging with audit log viewer (required in many business applications).
+- **[Discard gem](https://github.com/jhawthorn/discard): Never delete anything important (e.g. accounts, users, etc), only discard it.
 - MultiAttachment system supporting:
     - Direct uploads to S3
     - PDF/Document parsing

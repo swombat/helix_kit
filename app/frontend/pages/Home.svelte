@@ -26,6 +26,7 @@
     Buildings,
     CreditCard,
     Plugs,
+    Trash,
   } from 'phosphor-svelte';
   import * as Card from '$lib/components/shadcn/card/index.js';
 
@@ -143,6 +144,13 @@
       title: 'Audit Logging',
       description: 'Audit logging with audit log viewer (required in many business applications).',
       icon: FileText,
+    },
+    {
+      title: 'Discard Gem',
+      description:
+        'Never delete anything important (e.g. accounts, users, etc), only soft-delete it for data integrity and recovery.',
+      link: 'https://github.com/jhawthorn/discard',
+      icon: Trash,
     },
     {
       title: 'MultiAttachment System',
