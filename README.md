@@ -83,11 +83,30 @@ This is a start app kit template analogous to Jumpstart Pro or BulletTrain, but 
    rails db:schema:dump:cable db:schema:dump:cache db:schema:dump:queue
    ```
    Check that the solid* databases have been created by checking `db/cable_schema.rb`, `db/cache_schema.rb`, and `db/queue_schema.rb` and seeing that they contain a comment at the top about auto-generation.
-5. Start the development server:
+5. Either download the `config/master.key` from a colleague, or `rails credentials:edit` and add the following credentials:
+    ```yaml
+    aws:
+      access_key_id: ...
+      s3_bucket: ...
+      s3_region: ...
+      secret_access_key: ...
+
+    ai:
+      claude:
+        api_token: ...
+      open_ai:
+        api_token: ...
+      openrouter:
+        api_token: ...
+
+    honeybadger:
+      api_key: ...
+    ```
+6. Start the development server:
    ```sh
    bin/dev
    ```
-6. Open in browser at localhost:3100
+7. Open in browser at localhost:3100
 
 ### Optional: Claude setup
 
