@@ -248,7 +248,7 @@
         {:else}
           {#each audit_logs as log}
             <TableRow class="hover cursor-pointer" onclick={() => selectLog(log.id)}>
-              <TableCell class="font-mono text-sm">{formatTime(log.created_at)}</TableCell>
+              <TableCell class="font-mono text-xs">{formatTime(log.created_at)}</TableCell>
               <TableCell>
                 <Badge class="badge-{getActionColor(log.action)}">
                   {log.display_action}
