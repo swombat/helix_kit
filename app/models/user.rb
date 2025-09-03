@@ -156,7 +156,16 @@ class User < ApplicationRecord
 
   # Avatar methods
   def avatar_url
-    avatar.attached? ? avatar.url : nil
+    return nil unless avatar.attached?
+
+    if avatar.variable?
+      Rails.application.routes.url_helpers.rails_representation_url(
+        avatar.variant(resize_to_fill: [ 200, 200 ]),
+        only_path: true
+      )
+    else
+      Rails.application.routes.url_helpers.rails_blob_url(avatar, only_path: true)
+    end
   end
 
   def initials
@@ -185,6 +194,8 @@ class User < ApplicationRecord
   def audit_profile_changes!(changes)
     return unless changes.any?
 
+
+    debug "=== #{changes.inspect} ==="
     # Determine the action based on what changed
     action = if changes[:preferences]&.first&.key?("theme")
       :change_theme

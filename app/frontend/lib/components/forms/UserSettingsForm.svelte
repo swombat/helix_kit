@@ -1,13 +1,21 @@
 <script>
   import { userPath } from '@/routes';
+  import { router } from '@inertiajs/svelte';
   import Form from './Form.svelte';
   import Input from '$lib/components/shadcn/input/input.svelte';
   import Label from '$lib/components/shadcn/label/label.svelte';
   import * as Select from '$lib/components/shadcn/select/index.js';
+  import AvatarUpload from '$lib/components/AvatarUpload.svelte';
+  import Avatar from '$lib/components/Avatar.svelte';
 
   let { user, timezones, onCancel, onSuccess } = $props();
 
   let user_form = $state({ ...user });
+
+  function handleAvatarUpdate() {
+    // Reload the page to get updated user data
+    router.reload();
+  }
 </script>
 
 <Form
@@ -20,6 +28,17 @@
   wide={true}
   {onCancel}
   {onSuccess}>
+  <!-- Avatar section positioned at top right -->
+  <div class="flex justify-between items-start mb-6">
+    <div>
+      <h3 class="text-lg font-semibold">Profile Picture</h3>
+      <p class="text-sm text-muted-foreground">Click your avatar to upload or change your profile picture</p>
+    </div>
+    <AvatarUpload {user} onUpdate={handleAvatarUpdate} />
+  </div>
+  <!-- Separator line -->
+  <div class="border-t my-6"></div>
+
   <div>
     <Label for="email">Email Address</Label>
     <Input type="email" id="email" value={user_form.email_address} disabled class="bg-gray-50 dark:bg-gray-900" />

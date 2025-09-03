@@ -10,8 +10,18 @@ class UsersController < ApplicationController
 
   def update
     if Current.user.update(user_params)
+
       changes = Current.user.saved_changes.except(:updated_at)
-      Current.user.audit_profile_changes!(changes)
+      action = if changes[:preferences]&.first&.key?("theme")
+        :change_theme
+      elsif changes.key?("timezone")
+        :update_timezone
+      elsif user_params[:avatar].present?
+        :set_avatar
+      else
+        :update_profile
+      end
+      audit_with_changes(action, Current.user)
 
       set_theme_cookie if theme_changed?
       respond_to_success("Settings updated successfully", edit_user_path)

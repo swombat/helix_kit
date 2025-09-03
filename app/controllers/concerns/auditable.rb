@@ -14,19 +14,13 @@ module Auditable
     create_audit_log(user, action, auditable, data)
   end
 
-  def audit_with_changes(action, record, attributes: nil, **extra_data)
+  def audit_with_changes(action, record, **extra_data)
     return unless Current.user
 
-    changed_data = if attributes
-      attributes.index_with { |attr|
-        [ record.attribute_before_last_save(attr), record.send(attr) ]
-      }.compact
-    else
-      record.saved_changes.transform_values { |values| values }
-    end
+    changes = record.saved_changes.except(:updated_at)
 
-    data = extra_data.merge(changes: changed_data) if changed_data.present?
-    data ||= extra_data
+    data = extra_data.merge(changes)
+    # data ||= extra_data
 
     audit(action, record, **data)
   end
