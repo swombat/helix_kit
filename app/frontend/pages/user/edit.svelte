@@ -1,14 +1,7 @@
 <script>
   import UserSettingsForm from '$lib/components/forms/UserSettingsForm.svelte';
 
-  let { current_user, timezones } = $props();
-
-  $effect(() => {
-    // user = $state(user);
-    console.log('UserEdit effect', current_user);
-  });
-
-  console.log('UserEdit current_user', current_user);
+  let { user, timezones } = $props();
 </script>
 
 <div class="container mx-auto p-8 max-w-6xl">
@@ -21,5 +14,5 @@
     </div>
   </div>
 
-  <UserSettingsForm user={current_user} {timezones} />
+  <UserSettingsForm {user} {timezones} />
 </div>

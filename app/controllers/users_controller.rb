@@ -4,7 +4,6 @@ class UsersController < ApplicationController
 
   def edit
     render inertia: "user/edit", props: {
-      current_user: Current.user.as_json,
       timezones: ActiveSupport::TimeZone.all.map { |tz| { value: tz.name, label: tz.to_s } }
     }
   end
