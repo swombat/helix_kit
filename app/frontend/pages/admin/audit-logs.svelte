@@ -19,6 +19,9 @@
   import { DateFormatter, getLocalTimeZone, parseDate, CalendarDate } from '@internationalized/date';
   import { Calendar } from '$lib/components/shadcn/calendar/index.js';
   import * as Popover from '$lib/components/shadcn/popover/index.js';
+  import Highlight from 'svelte-highlight';
+  import json from 'svelte-highlight/languages/json';
+  import 'svelte-highlight/styles/atom-one-dark.css';
 
   let { audit_logs = [], selected_log = null, pagination = {}, filters = {}, current_filters = {} } = $props();
 
@@ -155,7 +158,7 @@
                 </span>
               {/each}
             {:else}
-              All users
+              All Users
             {/if}
           </span>
         </Select.Trigger>
@@ -174,13 +177,16 @@
           accountFilter = v;
         }}>
         <Select.Trigger class="w-full">
-          <span class="truncate">
-            {accountFilter && accountFilter.length > 0
-              ? accountFilter
-                  .map((id) => filters.accounts?.find((a) => a.id.toString() === id)?.name)
-                  .filter(Boolean)
-                  .join(', ')
-              : 'All accounts'}
+          <span class="truncate text-clip">
+            {#if accountFilter && accountFilter.length > 0}
+              {#each accountFilter as id}
+                <span class="text-xs mx-1 border-1 px-1 py-0.5 rounded-md bg-accent">
+                  {filters.accounts?.find((u) => u.id.toString() === id)?.name}
+                </span>
+              {/each}
+            {:else}
+              All Accounts
+            {/if}
           </span>
         </Select.Trigger>
         <Select.Content>
@@ -198,8 +204,16 @@
           actionFilter = v;
         }}>
         <Select.Trigger class="w-full">
-          <span class="truncate">
-            {actionFilter && actionFilter.length > 0 ? actionFilter.join(', ') : 'All actions'}
+          <span class="truncate text-clip">
+            {#if actionFilter && actionFilter.length > 0}
+              {#each actionFilter as id}
+                <span class="text-xs mx-1 border-1 px-1 py-0.5 rounded-md bg-accent">
+                  {filters.actions?.find((u) => u.toString() === id)}
+                </span>
+              {/each}
+            {:else}
+              All Actions
+            {/if}
           </span>
         </Select.Trigger>
         <Select.Content>
@@ -217,8 +231,16 @@
           typeFilter = v;
         }}>
         <Select.Trigger class="w-full">
-          <span class="truncate">
-            {typeFilter && typeFilter.length > 0 ? typeFilter.join(', ') : 'All types'}
+          <span class="truncate text-clip">
+            {#if typeFilter && typeFilter.length > 0}
+              {#each typeFilter as id}
+                <span class="text-xs mx-1 border-1 px-1 py-0.5 rounded-md bg-accent">
+                  {filters.types?.find((u) => u.toString() === id)}
+                </span>
+              {/each}
+            {:else}
+              All Types
+            {/if}
           </span>
         </Select.Trigger>
         <Select.Content>
@@ -307,14 +329,8 @@
       {#if selected_log}
         <DrawerHeader class="border-b pb-4">
           <DrawerTitle class="text-xl font-semibold flex items-center gap-3">
-            <span>Audit Log Details</span>
-            <Badge>
-              {selected_log.display_action}
-            </Badge>
+            <span>Audit Log Details - {selected_log.display_action}</span>
           </DrawerTitle>
-          <p class="text-sm text-muted-foreground mt-2">
-            {formatTime(selected_log.created_at)} • Event #{selected_log.id}
-          </p>
         </DrawerHeader>
 
         <div class="overflow-y-auto flex-1 p-6">
@@ -391,9 +407,9 @@
                         Object Data
                       </dt>
                       <dd>
-                        <pre class="bg-muted p-3 rounded-lg text-xs overflow-x-auto font-mono">
-{JSON.stringify(selected_log.auditable, null, 2)}
-                        </pre>
+                        <div class="rounded-lg overflow-x-auto text-xs">
+                          <Highlight language={json} code={JSON.stringify(selected_log.auditable, null, 2)} />
+                        </div>
                       </dd>
                     </div>
                   {/if}
@@ -404,9 +420,9 @@
             <!-- Additional Data -->
             {#if selected_log.data && Object.keys(selected_log.data).length > 0}
               <InfoCard title="Additional Data" icon="Database">
-                <pre class="bg-muted p-3 rounded-lg text-xs overflow-x-auto font-mono">
-{JSON.stringify(selected_log.data, null, 2)}
-                </pre>
+                <div class="rounded-lg overflow-x-auto text-xs">
+                  <Highlight language={json} code={JSON.stringify(selected_log.data, null, 2)} />
+                </div>
               </InfoCard>
             {/if}
 
