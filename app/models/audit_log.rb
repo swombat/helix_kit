@@ -26,21 +26,13 @@ class AuditLog < ApplicationRecord
   def self.filtered(filters = {})
     result = all
 
-    # Pre-process filters to convert comma-separated strings to arrays
-    processed_filters = filters.dup
-    [ :user_id, :account_id, :audit_action, :auditable_type ].each do |key|
-      if processed_filters[key].is_a?(String) && processed_filters[key].include?(",")
-        processed_filters[key] = processed_filters[key].split(",").map(&:strip)
-      end
-    end
-
     # Apply filters only if they have values
-    result = result.by_user(processed_filters[:user_id]) if processed_filters[:user_id].present?
-    result = result.by_account(processed_filters[:account_id]) if processed_filters[:account_id].present?
-    result = result.by_action(processed_filters[:audit_action]) if processed_filters[:audit_action].present?
-    result = result.by_type(processed_filters[:auditable_type]) if processed_filters[:auditable_type].present?
-    result = result.date_from(processed_filters[:date_from]) if processed_filters[:date_from].present?
-    result = result.date_to(processed_filters[:date_to]) if processed_filters[:date_to].present?
+    result = result.by_user(filters[:user_id]) if filters[:user_id].present?
+    result = result.by_account(filters[:account_id]) if filters[:account_id].present?
+    result = result.by_action(filters[:audit_action]) if filters[:audit_action].present?
+    result = result.by_type(filters[:auditable_type]) if filters[:auditable_type].present?
+    result = result.date_from(filters[:date_from]) if filters[:date_from].present?
+    result = result.date_to(filters[:date_to]) if filters[:date_to].present?
 
     result.recent
   end

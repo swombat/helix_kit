@@ -30,6 +30,14 @@ module ObfuscatesId
       end
     end
 
+    def decode_ids_from_string(string)
+      if string.is_a?(String) && string.include?(",")
+        string.split(",").map(&:strip).map { |id| decode_id(id) }
+      else
+        decode_id(string)
+      end
+    end
+
     def decode_single_id(id)
       return id if id.to_i > 0
       hashids.decode(id).first

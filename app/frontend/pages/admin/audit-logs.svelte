@@ -29,11 +29,18 @@
 
   let { audit_logs = [], selected_log = null, pagination = {}, filters = {}, current_filters = {} } = $props();
 
-  let localFilters = $state({ ...current_filters });
   let drawerOpen = $state(!!selected_log);
 
+  // Initialize filter arrays from current_filters
+  let userFilter = $state(typeof current_filters.user_id === 'string' ? current_filters.user_id.split(',') : undefined);
+  let accountFilter = $state(
+    typeof current_filters.account_id === 'string' ? current_filters.account_id.split(',') : undefined
+  );
   let actionFilter = $state(
     typeof current_filters.audit_action === 'string' ? current_filters.audit_action.split(',') : undefined
+  );
+  let typeFilter = $state(
+    typeof current_filters.auditable_type === 'string' ? current_filters.auditable_type.split(',') : undefined
   );
 
   // Date picker setup
@@ -47,22 +54,7 @@
   );
   let dateToDisplay = $derived(dateTo && dateTo.toDate ? df.format(dateTo.toDate(getLocalTimeZone())) : 'To date');
 
-  // Update localFilters when dates change
-  $effect(() => {
-    if (dateFrom) {
-      localFilters.date_from = dateFrom.toString();
-    } else {
-      delete localFilters.date_from;
-    }
-  });
-
-  $effect(() => {
-    if (dateTo) {
-      localFilters.date_to = dateTo.toString();
-    } else {
-      delete localFilters.date_to;
-    }
-  });
+  // No longer needed - we'll pass dates directly in applyFilters
 
   // Set up real-time synchronization
   const updateSync = createDynamicSync();
@@ -98,11 +90,23 @@
   }
 
   function applyFilters() {
-    updateUrl({ ...localFilters, audit_action: actionFilter ? actionFilter.join(',') : undefined, page: 1 });
+    const params = {
+      user_id: userFilter ? userFilter.join(',') : undefined,
+      account_id: accountFilter ? accountFilter.join(',') : undefined,
+      audit_action: actionFilter ? actionFilter.join(',') : undefined,
+      auditable_type: typeFilter ? typeFilter.join(',') : undefined,
+      date_from: dateFrom ? dateFrom.toString() : undefined,
+      date_to: dateTo ? dateTo.toString() : undefined,
+      page: 1,
+    };
+    updateUrl(params);
   }
 
   function clearFilters() {
-    localFilters = {};
+    userFilter = undefined;
+    accountFilter = undefined;
+    actionFilter = undefined;
+    typeFilter = undefined;
     dateFrom = undefined;
     dateTo = undefined;
     updateUrl({ page: 1 });
@@ -145,25 +149,25 @@
 
   <!-- Filters -->
   <div class="rounded-lg p-4 mb-6">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-4">
       <Select.Root
-        type="single"
-        value={localFilters.user_id || undefined}
+        type="multiple"
+        value={userFilter}
         onValueChange={(v) => {
-          console.log('User ID changed to:', v);
-          if (v) {
-            localFilters.user_id = v;
-          } else {
-            delete localFilters.user_id;
-          }
+          console.log('User filter changed to:', v);
+          userFilter = v;
         }}>
         <Select.Trigger class="w-full">
-          {localFilters.user_id
-            ? filters.users?.find((u) => u.id.toString() === localFilters.user_id)?.email_address
-            : 'All users'}
+          <span class="truncate">
+            {userFilter && userFilter.length > 0
+              ? userFilter
+                  .map((id) => filters.users?.find((u) => u.id.toString() === id)?.email_address)
+                  .filter(Boolean)
+                  .join(', ')
+              : 'All users'}
+          </span>
         </Select.Trigger>
         <Select.Content>
-          <Select.Item value={undefined}>All users</Select.Item>
           {#each filters.users || [] as user}
             <Select.Item value={user.id.toString()}>{user.email_address}</Select.Item>
           {/each}
@@ -171,23 +175,23 @@
       </Select.Root>
 
       <Select.Root
-        type="single"
-        value={localFilters.account_id || undefined}
+        type="multiple"
+        value={accountFilter}
         onValueChange={(v) => {
-          console.log('Account ID changed to:', v);
-          if (v) {
-            localFilters.account_id = v;
-          } else {
-            delete localFilters.account_id;
-          }
+          console.log('Account filter changed to:', v);
+          accountFilter = v;
         }}>
         <Select.Trigger class="w-full">
-          {localFilters.account_id
-            ? filters.accounts?.find((a) => a.id.toString() === localFilters.account_id)?.name
-            : 'All accounts'}
+          <span class="truncate">
+            {accountFilter && accountFilter.length > 0
+              ? accountFilter
+                  .map((id) => filters.accounts?.find((a) => a.id.toString() === id)?.name)
+                  .filter(Boolean)
+                  .join(', ')
+              : 'All accounts'}
+          </span>
         </Select.Trigger>
         <Select.Content>
-          <Select.Item value={undefined}>All accounts</Select.Item>
           {#each filters.accounts || [] as account}
             <Select.Item value={account.id.toString()}>{account.name}</Select.Item>
           {/each}
@@ -199,17 +203,14 @@
         value={actionFilter}
         onValueChange={(v) => {
           console.log('Action changed to:', v);
-          if (v) {
-            actionFilter = v;
-          } else {
-            actionFilter = undefined;
-          }
+          actionFilter = v;
         }}>
         <Select.Trigger class="w-full">
-          {actionFilter || 'All actions'}
+          <span class="truncate">
+            {actionFilter && actionFilter.length > 0 ? actionFilter.join(', ') : 'All actions'}
+          </span>
         </Select.Trigger>
         <Select.Content>
-          <Select.Item value={undefined}>All actions</Select.Item>
           {#each filters.actions || [] as action}
             <Select.Item value={action}>{action}</Select.Item>
           {/each}
@@ -217,21 +218,18 @@
       </Select.Root>
 
       <Select.Root
-        type="single"
-        value={localFilters.auditable_type || undefined}
+        type="multiple"
+        value={typeFilter}
         onValueChange={(v) => {
-          console.log('Type changed to:', v);
-          if (v) {
-            localFilters.auditable_type = v;
-          } else {
-            delete localFilters.auditable_type;
-          }
+          console.log('Type filter changed to:', v);
+          typeFilter = v;
         }}>
         <Select.Trigger class="w-full">
-          {localFilters.auditable_type || 'All types'}
+          <span class="truncate">
+            {typeFilter && typeFilter.length > 0 ? typeFilter.join(', ') : 'All types'}
+          </span>
         </Select.Trigger>
         <Select.Content>
-          <Select.Item value={undefined}>All types</Select.Item>
           {#each filters.types || [] as type}
             <Select.Item value={type}>{type}</Select.Item>
           {/each}

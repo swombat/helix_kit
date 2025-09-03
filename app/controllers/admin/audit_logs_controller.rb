@@ -4,12 +4,8 @@ class Admin::AuditLogsController < ApplicationController
 
   def index
     # Fat model handles filtering
-    logs = AuditLog.filtered(filter_params)
+    logs = AuditLog.filtered(processed_filters)
                    .includes(:user, :account)
-
-    # Debug: Log the count
-    Rails.logger.info "Audit logs count before pagination: #{logs.count}"
-    Rails.logger.info "Filter params: #{filter_params.inspect}"
 
     # Pagy handles pagination elegantly
     @pagy, @audit_logs = pagy(logs, items: params[:per_page] || 10)
@@ -47,11 +43,28 @@ class Admin::AuditLogsController < ApplicationController
 
   def filter_options
     {
-      users: User.all.order(:email_address).map { |u| { id: u.id, email_address: u.email_address } },
-      accounts: Account.all.order(:name).map { |a| { id: a.id, name: a.name } },
+      users: User.all.order(:email_address).map { |u| { id: u.to_param, email_address: u.email_address } },
+      accounts: Account.all.order(:name).map { |a| { id: a.to_param, name: a.name } },
       actions: AuditLog.available_actions,
       types: AuditLog.available_types
     }
+  end
+
+  def processed_filters
+    # Pre-process filters to convert comma-separated strings to arrays
+    processed_filters = filter_params.dup
+    if processed_filters[:user_id].is_a?(String)
+      processed_filters[:user_id] = User.decode_ids_from_string(processed_filters[:user_id])
+    end
+    if processed_filters[:account_id].is_a?(String)
+      processed_filters[:account_id] = Account.decode_ids_from_string(processed_filters[:account_id])
+    end
+    [ :audit_action, :auditable_type ].each do |key|
+      if processed_filters[key].is_a?(String) && processed_filters[key].include?(",")
+        processed_filters[key] = processed_filters[key].split(",").map(&:strip)
+      end
+    end
+    processed_filters
   end
 
   def filter_params
