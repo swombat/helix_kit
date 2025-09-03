@@ -19,8 +19,8 @@ class AuditLog < ApplicationRecord
   scope :by_account, ->(account_id) { where(account_id: account_id) if account_id.present? }
   scope :by_action, ->(action) { where(action: action) if action.present? }
   scope :by_type, ->(type) { where(auditable_type: type) if type.present? }
-  scope :date_from, ->(date) { where("created_at >= ?", date) if date.present? }
-  scope :date_to, ->(date) { where("created_at <= ?", date.end_of_day) if date.present? }
+  scope :date_from, ->(date) { where("created_at >= ?", Date.parse(date.to_s)) if date.present? }
+  scope :date_to, ->(date) { where("created_at <= ?", Date.parse(date.to_s).end_of_day) if date.present? }
 
   # Single method for filtered results (fat model)
   def self.filtered(filters = {})

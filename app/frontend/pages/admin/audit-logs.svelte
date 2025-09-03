@@ -32,6 +32,10 @@
   let localFilters = $state({ ...current_filters });
   let drawerOpen = $state(!!selected_log);
 
+  let actionFilter = $state(
+    typeof current_filters.audit_action === 'string' ? current_filters.audit_action.split(',') : undefined
+  );
+
   // Date picker setup
   const df = new DateFormatter('en-US', { dateStyle: 'medium' });
   let dateFrom = $state(current_filters.date_from ? parseDate(current_filters.date_from) : undefined);
@@ -42,8 +46,6 @@
     dateFrom && dateFrom.toDate ? df.format(dateFrom.toDate(getLocalTimeZone())) : 'From date'
   );
   let dateToDisplay = $derived(dateTo && dateTo.toDate ? df.format(dateTo.toDate(getLocalTimeZone())) : 'To date');
-
-  console.log('Pagination', pagination);
 
   // Update localFilters when dates change
   $effect(() => {
@@ -96,7 +98,7 @@
   }
 
   function applyFilters() {
-    updateUrl({ ...localFilters, page: 1 });
+    updateUrl({ ...localFilters, audit_action: actionFilter ? actionFilter.join(',') : undefined, page: 1 });
   }
 
   function clearFilters() {
@@ -193,18 +195,18 @@
       </Select.Root>
 
       <Select.Root
-        type="single"
-        value={localFilters.audit_action || undefined}
+        type="multiple"
+        value={actionFilter}
         onValueChange={(v) => {
           console.log('Action changed to:', v);
           if (v) {
-            localFilters.audit_action = v;
+            actionFilter = v;
           } else {
-            delete localFilters.audit_action;
+            actionFilter = undefined;
           }
         }}>
         <Select.Trigger class="w-full">
-          {localFilters.audit_action || 'All actions'}
+          {actionFilter || 'All actions'}
         </Select.Trigger>
         <Select.Content>
           <Select.Item value={undefined}>All actions</Select.Item>
