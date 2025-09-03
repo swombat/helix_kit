@@ -10,11 +10,17 @@
 
   let { user, timezones, onCancel, onSuccess } = $props();
 
+  console.log('UserSettingsForm', user);
+
   let user_form = $state({ ...user });
+
+  $effect(() => {
+    console.log('UserSettingsForm effect', user);
+  });
 
   function handleAvatarUpdate() {
     // Reload the page to get updated user data
-    router.reload();
+    router.reload({ only: ['user'] });
   }
 </script>
 

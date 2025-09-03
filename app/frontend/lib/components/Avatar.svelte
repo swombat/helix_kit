@@ -3,6 +3,8 @@
 
   let { user = null, size = 'default', class: className = '', onClick = null, ...restProps } = $props();
 
+  console.log('Avatar', user);
+
   // Extract avatar data from user
   const avatarUrl = user?.avatar_url;
   const name = user ? `${user.first_name || ''} ${user.last_name || ''}`.trim() : '';

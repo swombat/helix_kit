@@ -190,31 +190,6 @@ class User < ApplicationRecord
     accounts.where(is_site_admin: true).exists?
   end
 
-  # Audit profile changes after update
-  def audit_profile_changes!(changes)
-    return unless changes.any?
-
-
-    debug "=== #{changes.inspect} ==="
-    # Determine the action based on what changed
-    action = if changes[:preferences]&.first&.key?("theme")
-      :change_theme
-    elsif changes.key?("timezone")
-      :update_timezone
-    else
-      :update_profile
-    end
-
-    # Create audit log entry
-    AuditLog.create!(
-      user: Current.user,
-      account: Current.account,
-      action: action,
-      auditable: self,
-      data: { changes: changes }
-    )
-  end
-
   # Alias for site_admin method to match common Rails pattern
   alias_method :is_site_admin?, :site_admin
 

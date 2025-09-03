@@ -8,6 +8,12 @@
 
   let { user, onUpdate = () => {} } = $props();
 
+  console.log('AvatarUpload', user);
+
+  $effect(() => {
+    console.log('AvatarUpload effect', user);
+  });
+
   let dialogOpen = $state(false);
   let fileInput;
   let uploading = $state(false);
