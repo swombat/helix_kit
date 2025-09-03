@@ -11,6 +11,7 @@
   import * as Select from '$lib/components/shadcn/select/index.js';
   import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '$lib/components/shadcn/table/index.js';
   import PaginationNav from '$lib/components/navigation/PaginationNav.svelte';
+  import InfoCard from '$lib/components/InfoCard.svelte';
   import { Button } from '$lib/components/shadcn/button/index.js';
   import { Badge } from '$lib/components/shadcn/badge/index.js';
   import { formatDistanceToNow } from 'date-fns';
@@ -319,9 +320,7 @@
         <div class="overflow-y-auto flex-1 p-6">
           <div class="space-y-6">
             <!-- Primary Information Section -->
-            <div class="bg-card rounded-lg border p-4 space-y-4">
-              <h3 class="font-semibold text-base mb-3">Event Information</h3>
-
+            <InfoCard title="Event Information" icon="Info">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <dt class="text-xs font-medium text-muted-foreground uppercase tracking-wider">Timestamp</dt>
@@ -340,13 +339,11 @@
                   </dd>
                 </div>
               </div>
-            </div>
+            </InfoCard>
 
             <!-- Actor Information -->
             {#if selected_log.user || selected_log.account}
-              <div class="bg-card rounded-lg border p-4 space-y-4">
-                <h3 class="font-semibold text-base mb-3">Actor Information</h3>
-
+              <InfoCard title="Actor Information" icon="User">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {#if selected_log.user}
                     <div>
@@ -372,52 +369,50 @@
                     </div>
                   {/if}
                 </div>
-              </div>
+              </InfoCard>
             {/if}
 
             <!-- Affected Object -->
             {#if selected_log.auditable_type || selected_log.auditable}
-              <div class="bg-card rounded-lg border p-4 space-y-4">
-                <h3 class="font-semibold text-base mb-3">Affected Object</h3>
-
-                <div>
-                  <dt class="text-xs font-medium text-muted-foreground uppercase tracking-wider">Object Type</dt>
-                  <dd class="mt-1 text-sm font-medium">
-                    <span class="bg-primary/10 text-primary px-2 py-1 rounded">
-                      {selected_log.auditable_type} #{selected_log.auditable_id}
-                    </span>
-                  </dd>
-                </div>
-
-                {#if selected_log.auditable}
+              <InfoCard title="Affected Object" icon="Target">
+                <div class="space-y-4">
                   <div>
-                    <dt class="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Object Data</dt>
-                    <dd>
-                      <pre class="bg-muted p-3 rounded-lg text-xs overflow-x-auto font-mono">
-{JSON.stringify(selected_log.auditable, null, 2)}
-                      </pre>
+                    <dt class="text-xs font-medium text-muted-foreground uppercase tracking-wider">Object Type</dt>
+                    <dd class="mt-1 text-sm font-medium">
+                      <span class="bg-primary/10 text-primary px-2 py-1 rounded">
+                        {selected_log.auditable_type} #{selected_log.auditable_id}
+                      </span>
                     </dd>
                   </div>
-                {/if}
-              </div>
+
+                  {#if selected_log.auditable}
+                    <div>
+                      <dt class="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
+                        Object Data
+                      </dt>
+                      <dd>
+                        <pre class="bg-muted p-3 rounded-lg text-xs overflow-x-auto font-mono">
+{JSON.stringify(selected_log.auditable, null, 2)}
+                        </pre>
+                      </dd>
+                    </div>
+                  {/if}
+                </div>
+              </InfoCard>
             {/if}
 
             <!-- Additional Data -->
             {#if selected_log.data && Object.keys(selected_log.data).length > 0}
-              <div class="bg-card rounded-lg border p-4 space-y-4">
-                <h3 class="font-semibold text-base mb-3">Additional Data</h3>
-
+              <InfoCard title="Additional Data" icon="Database">
                 <pre class="bg-muted p-3 rounded-lg text-xs overflow-x-auto font-mono">
 {JSON.stringify(selected_log.data, null, 2)}
                 </pre>
-              </div>
+              </InfoCard>
             {/if}
 
             <!-- Technical Details -->
             {#if selected_log.ip_address || selected_log.user_agent}
-              <div class="bg-card rounded-lg border p-4 space-y-4">
-                <h3 class="font-semibold text-base mb-3">Technical Details</h3>
-
+              <InfoCard title="Technical Details" icon="GearSix">
                 <div class="space-y-3">
                   {#if selected_log.ip_address}
                     <div>
@@ -437,7 +432,7 @@
                     </div>
                   {/if}
                 </div>
-              </div>
+              </InfoCard>
             {/if}
           </div>
         </div>
