@@ -10,15 +10,7 @@
   } from '$lib/components/shadcn/drawer/index.js';
   import * as Select from '$lib/components/shadcn/select/index.js';
   import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '$lib/components/shadcn/table/index.js';
-  import {
-    Pagination,
-    PaginationContent,
-    PaginationItem,
-    PaginationLink,
-    PaginationPrevButton,
-    PaginationNextButton,
-    PaginationEllipsis,
-  } from '$lib/components/shadcn/pagination/index.js';
+  import PaginationNav from '$lib/components/navigation/PaginationNav.svelte';
   import { Button } from '$lib/components/shadcn/button/index.js';
   import { Badge } from '$lib/components/shadcn/badge/index.js';
   import { formatDistanceToNow } from 'date-fns';
@@ -45,11 +37,6 @@
   let typeFilter = $state(
     typeof current_filters.auditable_type === 'string' ? current_filters.auditable_type.split(',') : undefined
   );
-
-  // Update currentPage when pagination changes from server
-  $effect(() => {
-    currentPage = pagination.page || 1;
-  });
 
   console.log('pagination', pagination, !pagination.prev);
 
@@ -310,48 +297,7 @@
       </TableBody>
     </Table>
 
-    {#if pagination.last > 1}
-      <div class="flex justify-between items-center p-4 border-t">
-        <span class="text-sm text-base-content/60 whitespace-nowrap">
-          Showing {pagination.from || 0} to {pagination.to || 0} of {pagination.count} entries
-        </span>
-        <Pagination
-          bind:page={currentPage}
-          count={pagination.count}
-          perPage={pagination.per_page || 20}
-          onPageChange={(newPage) => {
-            // If newPage is an object with a value property, extract it
-            const pageNum = typeof newPage === 'object' ? newPage.value : newPage;
-            if (pageNum && pageNum !== pagination.page) {
-              goToPage(pageNum);
-            }
-          }}>
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevButton disabled={pagination.page <= 1} />
-            </PaginationItem>
-
-            {#each pagination.series || [] as item}
-              {#if item === 'gap'}
-                <PaginationItem>
-                  <PaginationEllipsis />
-                </PaginationItem>
-              {:else}
-                <PaginationItem>
-                  <PaginationLink page={{ value: item }} isActive={item == pagination.page}>
-                    {item}
-                  </PaginationLink>
-                </PaginationItem>
-              {/if}
-            {/each}
-
-            <PaginationItem>
-              <PaginationNextButton disabled={pagination.page >= pagination.last} />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-      </div>
-    {/if}
+    <PaginationNav {pagination} bind:currentPage onPageChange={goToPage} />
   </div>
 
   <!-- Detail Drawer -->
@@ -361,7 +307,7 @@
         <DrawerHeader class="border-b pb-4">
           <DrawerTitle class="text-xl font-semibold flex items-center gap-3">
             <span>Audit Log Details</span>
-            <Badge class="badge-{getActionColor(selected_log.action)}">
+            <Badge>
               {selected_log.display_action}
             </Badge>
           </DrawerTitle>
