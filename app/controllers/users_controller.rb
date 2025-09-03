@@ -13,7 +13,7 @@ class UsersController < ApplicationController
 
       if changes.any?
         # Determine the action based on what changed
-        action = if changes.key?("theme")
+        action = if changes[:preferences]&.first&.key?("theme")
           :change_theme
         elsif changes.key?("timezone")
           :update_timezone

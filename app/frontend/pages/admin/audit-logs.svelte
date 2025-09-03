@@ -43,6 +43,8 @@
     typeof current_filters.auditable_type === 'string' ? current_filters.auditable_type.split(',') : undefined
   );
 
+  console.log('pagination', pagination, !pagination.prev);
+
   // Date picker setup
   const df = new DateFormatter('en-US', { dateStyle: 'medium' });
   let dateFrom = $state(current_filters.date_from ? parseDate(current_filters.date_from) : undefined);
@@ -158,18 +160,22 @@
           userFilter = v;
         }}>
         <Select.Trigger class="w-full">
-          <span class="truncate">
-            {userFilter && userFilter.length > 0
-              ? userFilter
-                  .map((id) => filters.users?.find((u) => u.id.toString() === id)?.email_address)
-                  .filter(Boolean)
-                  .join(', ')
-              : 'All users'}
+          <span class="truncate text-clip">
+            {#if userFilter && userFilter.length > 0}
+              {#each userFilter as id}
+                <span class="text-xs mx-1 border-1 px-1 py-0.5 rounded-md bg-accent">
+                  {filters.users?.find((u) => u.id.toString() === id)?.full_name ||
+                    filters.users?.find((u) => u.id.toString() === id)?.email_address}
+                </span>
+              {/each}
+            {:else}
+              All users
+            {/if}
           </span>
         </Select.Trigger>
         <Select.Content>
           {#each filters.users || [] as user}
-            <Select.Item value={user.id.toString()}>{user.email_address}</Select.Item>
+            <Select.Item value={user.id.toString()}>{user.full_name} &lt;{user.email_address}&gt;</Select.Item>
           {/each}
         </Select.Content>
       </Select.Root>
@@ -276,7 +282,6 @@
           <TableHead>Action</TableHead>
           <TableHead>User</TableHead>
           <TableHead>Account</TableHead>
-          <TableHead>Summary</TableHead>
           <TableHead class="w-20"></TableHead>
         </TableRow>
       </TableHeader>
@@ -298,7 +303,6 @@
               </TableCell>
               <TableCell>{log.actor_name}</TableCell>
               <TableCell>{log.target_name}</TableCell>
-              <TableCell>{log.summary}</TableCell>
               <TableCell>
                 <Button size="sm" variant="ghost">View</Button>
               </TableCell>
@@ -310,7 +314,7 @@
 
     {#if pagination.last > 1}
       <div class="flex justify-between items-center p-4 border-t">
-        <span class="text-sm text-base-content/60">
+        <span class="text-sm text-base-content/60 whitespace-nowrap">
           Showing {pagination.from || 0} to {pagination.to || 0} of {pagination.count} entries
         </span>
         <Pagination>

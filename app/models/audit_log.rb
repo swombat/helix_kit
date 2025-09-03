@@ -51,13 +51,6 @@ class AuditLog < ApplicationRecord
     action.to_s.humanize
   end
 
-  def summary
-    parts = [ display_action ]
-    parts << auditable_type.to_s.humanize if auditable_type
-    parts << "##{auditable_id}" if auditable_id
-    parts.join(" ")
-  end
-
   def actor_name
     user&.email_address || "System"
   end
@@ -70,7 +63,6 @@ class AuditLog < ApplicationRecord
   def as_json(options = {})
     super(options).merge(
       display_action: display_action,
-      summary: summary,
       actor_name: actor_name,
       target_name: target_name
     )

@@ -43,8 +43,8 @@ class Admin::AuditLogsController < ApplicationController
 
   def filter_options
     {
-      users: User.all.order(:email_address).map { |u| { id: u.to_param, email_address: u.email_address } },
-      accounts: Account.all.order(:name).map { |a| { id: a.to_param, name: a.name } },
+      users: User.all.order(:email_address).map(&:as_json),
+      accounts: Account.all.order(:name).map(&:as_json),
       actions: AuditLog.available_actions,
       types: AuditLog.available_types
     }
