@@ -31,6 +31,9 @@
 
   let drawerOpen = $state(!!selected_log);
 
+  // Create a reactive page state that syncs with pagination
+  let currentPage = $state(pagination.page || 1);
+
   // Initialize filter arrays from current_filters
   let userFilter = $state(typeof current_filters.user_id === 'string' ? current_filters.user_id.split(',') : undefined);
   let accountFilter = $state(
@@ -42,6 +45,11 @@
   let typeFilter = $state(
     typeof current_filters.auditable_type === 'string' ? current_filters.auditable_type.split(',') : undefined
   );
+
+  // Update currentPage when pagination changes from server
+  $effect(() => {
+    currentPage = pagination.page || 1;
+  });
 
   console.log('pagination', pagination, !pagination.prev);
 
@@ -125,7 +133,10 @@
   }
 
   function goToPage(page) {
-    updateUrl({ ...current_filters, page });
+    router.visit(`/admin/audit_logs?${new URLSearchParams({ ...current_filters, page })}`, {
+      preserveState: false,
+      preserveScroll: true, // Preserve scroll position
+    });
   }
 
   function formatTime(dateString) {
@@ -317,12 +328,20 @@
         <span class="text-sm text-base-content/60 whitespace-nowrap">
           Showing {pagination.from || 0} to {pagination.to || 0} of {pagination.count} entries
         </span>
-        <Pagination>
+        <Pagination
+          bind:page={currentPage}
+          count={pagination.count}
+          perPage={pagination.per_page || 20}
+          onPageChange={(newPage) => {
+            // If newPage is an object with a value property, extract it
+            const pageNum = typeof newPage === 'object' ? newPage.value : newPage;
+            if (pageNum && pageNum !== pagination.page) {
+              goToPage(pageNum);
+            }
+          }}>
           <PaginationContent>
             <PaginationItem>
-              <PaginationPrevButton
-                disabled={!pagination.prev}
-                onclick={() => pagination.prev && goToPage(pagination.prev)} />
+              <PaginationPrevButton disabled={pagination.page <= 1} />
             </PaginationItem>
 
             {#each pagination.series || [] as item}
@@ -332,7 +351,7 @@
                 </PaginationItem>
               {:else}
                 <PaginationItem>
-                  <PaginationLink page={item} isActive={item == pagination.page} onclick={() => goToPage(item)}>
+                  <PaginationLink page={{ value: item }} isActive={item == pagination.page}>
                     {item}
                   </PaginationLink>
                 </PaginationItem>
@@ -340,9 +359,7 @@
             {/each}
 
             <PaginationItem>
-              <PaginationNextButton
-                disabled={!pagination.next}
-                onclick={() => pagination.next && goToPage(pagination.next)} />
+              <PaginationNextButton disabled={pagination.page >= pagination.last} />
             </PaginationItem>
           </PaginationContent>
         </Pagination>
