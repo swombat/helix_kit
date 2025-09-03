@@ -33,7 +33,7 @@ class Admin::AuditLogsController < ApplicationController
         to: @pagy.to,
         prev: @pagy.prev,
         next: @pagy.next,
-        series: @pagy.series.collect(&:to_i),
+        series: @pagy.series.collect(&:to_s),
         items: @pagy.vars[:items],
         per_page: 10
       } : {},
