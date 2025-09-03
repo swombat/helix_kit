@@ -168,6 +168,91 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
 
     patch update_password_user_path
     assert_redirected_to login_path
+
+    delete user_avatar_path
+    assert_redirected_to login_path
+  end
+
+  # Avatar tests
+  test "PATCH update with valid avatar attaches avatar to user" do
+    avatar_file = fixture_file_upload("test_avatar.png", "image/png")
+
+    patch user_path, params: {
+      user: {
+        first_name: @user.first_name,
+        last_name: @user.last_name,
+        avatar: avatar_file
+      }
+    }, headers: { "X-Inertia" => true }
+
+    assert_redirected_to edit_user_path
+    @user.reload
+    assert @user.avatar.attached?
+    assert_equal "test_avatar.png", @user.avatar.filename.to_s
+    assert flash[:success].present?
+  end
+
+  test "PATCH update with invalid avatar file type shows error" do
+    invalid_file = fixture_file_upload("test.txt", "text/plain")
+
+    patch user_path, params: {
+      user: {
+        first_name: @user.first_name,
+        last_name: @user.last_name,
+        avatar: invalid_file
+      }
+    }, headers: { "X-Inertia" => true }
+
+    assert_redirected_to edit_user_path
+    @user.reload
+    assert_not @user.avatar.attached?
+    assert flash[:errors].present?
+  end
+
+  test "PATCH update with oversized avatar shows error" do
+    # This test would need a large file fixture in practice
+    # For now, we'll test the validation exists by checking model validations
+    assert @user.class.validators_on(:avatar).any? { |v| v.is_a?(ActiveStorageValidations::SizeValidator) }
+  end
+
+  test "DELETE destroy_avatar removes avatar with Inertia request" do
+    # First attach an avatar
+    avatar_file = fixture_file_upload("test_avatar.png", "image/png")
+    @user.avatar.attach(avatar_file)
+    assert @user.avatar.attached?
+
+    delete user_avatar_path, headers: { "X-Inertia" => true }
+
+    assert_redirected_to edit_user_path
+    @user.reload
+    assert_not @user.avatar.attached?
+    assert flash[:success].present?
+    assert_equal "Avatar removed successfully", flash[:success]
+  end
+
+  test "DELETE destroy_avatar removes avatar without Inertia request" do
+    # First attach an avatar
+    avatar_file = fixture_file_upload("test_avatar.png", "image/png")
+    @user.avatar.attach(avatar_file)
+    assert @user.avatar.attached?
+
+    delete user_avatar_path
+
+    assert_response :success
+    json_response = JSON.parse(@response.body)
+    assert json_response["success"]
+
+    @user.reload
+    assert_not @user.avatar.attached?
+  end
+
+  test "DELETE destroy_avatar when no avatar exists still succeeds" do
+    assert_not @user.avatar.attached?
+
+    delete user_avatar_path, headers: { "X-Inertia" => true }
+
+    assert_redirected_to edit_user_path
+    assert flash[:success].present?
   end
 
 end

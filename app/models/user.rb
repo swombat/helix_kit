@@ -6,6 +6,12 @@ class User < ApplicationRecord
 
   has_secure_password validations: false
 
+  # Avatar attachment
+  has_one_attached :avatar do |attachable|
+    attachable.variant :thumb, resize_to_fill: [ 100, 100 ]
+    attachable.variant :medium, resize_to_fill: [ 300, 300 ]
+  end
+
   # User preferences stored as JSON
   store_accessor :preferences, :theme
   has_many :sessions, dependent: :destroy
@@ -38,12 +44,16 @@ class User < ApplicationRecord
 
   validates :theme, inclusion: { in: %w[light dark system] }, allow_nil: true
 
+  # Avatar validations
+  validates :avatar, content_type: [ "image/png", "image/jpeg", "image/gif", "image/webp" ],
+                     size: { less_than: 5.megabytes }
+
   validates_presence_of :first_name, :last_name, on: :update, if: -> { confirmed? }
 
   after_create :ensure_account_user_exists
   after_initialize :set_default_theme, if: :new_record?
 
-  json_attributes :full_name, :site_admin, except: [ :password_digest ]
+  json_attributes :full_name, :site_admin, :avatar_url, :initials, except: [ :password_digest ]
 
   generates_token_for :password_reset, expires_in: 2.hours do
     password_salt&.last(10)
@@ -144,6 +154,16 @@ class User < ApplicationRecord
     "#{first_name} #{last_name}".strip.presence
   end
 
+  # Avatar methods
+  def avatar_url
+    avatar.attached? ? avatar.url : nil
+  end
+
+  def initials
+    return "?" unless full_name.present?
+    full_name.split.map(&:first).first(2).join.upcase
+  end
+
   # For finding or creating invited users
   def self.find_or_invite(email_address)
     user = find_by(email_address: email_address)
@@ -161,7 +181,28 @@ class User < ApplicationRecord
     accounts.where(is_site_admin: true).exists?
   end
 
-  include JsonAttributes
+  # Audit profile changes after update
+  def audit_profile_changes!(changes)
+    return unless changes.any?
+
+    # Determine the action based on what changed
+    action = if changes[:preferences]&.first&.key?("theme")
+      :change_theme
+    elsif changes.key?("timezone")
+      :update_timezone
+    else
+      :update_profile
+    end
+
+    # Create audit log entry
+    AuditLog.create!(
+      user: Current.user,
+      account: Current.account,
+      action: action,
+      auditable: self,
+      data: { changes: changes }
+    )
+  end
 
   # Alias for site_admin method to match common Rails pattern
   alias_method :is_site_admin?, :site_admin

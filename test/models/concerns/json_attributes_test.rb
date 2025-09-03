@@ -724,7 +724,7 @@ class JsonAttributesTest < ActiveSupport::TestCase
     assert_nil Account.json_enhancer
 
     # Test User configuration
-    assert_equal [ :full_name, :site_admin ], User.json_attrs
+    assert_equal [ :full_name, :site_admin, :avatar_url, :initials ], User.json_attrs
     assert_equal({}, User.json_includes)
     assert_equal({ except: [ :password_digest ] }, User.json_options)
     assert_nil User.json_enhancer

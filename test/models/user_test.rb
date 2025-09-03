@@ -663,4 +663,142 @@ class UserTest < ActiveSupport::TestCase
     assert_nil user.full_name
   end
 
+  # === Avatar Tests ===
+
+  test "avatar attachment works correctly" do
+    user = users(:user_1)
+    avatar_path = Rails.root.join("test", "fixtures", "files", "test_avatar.png")
+
+    user.avatar.attach(
+      io: File.open(avatar_path),
+      filename: "test_avatar.png",
+      content_type: "image/png"
+    )
+    assert user.avatar.attached?
+    assert_equal "test_avatar.png", user.avatar.filename.to_s
+  end
+
+  test "avatar_url returns nil when no avatar attached" do
+    user = users(:user_1)
+    user.avatar.purge if user.avatar.attached?
+
+    assert_nil user.avatar_url
+  end
+
+  test "avatar_url returns URL when avatar attached" do
+    user = users(:user_1)
+    avatar_path = Rails.root.join("test", "fixtures", "files", "test_avatar.png")
+    user.avatar.attach(
+      io: File.open(avatar_path),
+      filename: "test_avatar.png",
+      content_type: "image/png"
+    )
+
+    assert_not_nil user.avatar_url
+    assert user.avatar_url.include?("test_avatar.png")
+  end
+
+  test "initials returns ? when no full name" do
+    user = User.new(email_address: "noname@example.com")
+    assert_equal "?", user.initials
+  end
+
+  test "initials returns first letters of first and last name" do
+    user = User.new(
+      email_address: "test@example.com",
+      first_name: "John",
+      last_name: "Doe"
+    )
+    assert_equal "JD", user.initials
+  end
+
+  test "initials handles single name" do
+    user = User.new(
+      email_address: "test@example.com",
+      first_name: "John",
+      last_name: ""
+    )
+    assert_equal "J", user.initials
+  end
+
+  test "initials handles multiple names" do
+    user = User.new(
+      email_address: "test@example.com",
+      first_name: "Mary Jane",
+      last_name: "Watson Smith"
+    )
+    # Should take first 2 initials only
+    assert_equal "MJ", user.initials
+  end
+
+  test "initials are uppercase" do
+    user = User.new(
+      email_address: "test@example.com",
+      first_name: "john",
+      last_name: "doe"
+    )
+    assert_equal "JD", user.initials
+  end
+
+  test "as_json includes avatar_url and initials" do
+    user = users(:user_1)
+    avatar_path = Rails.root.join("test", "fixtures", "files", "test_avatar.png")
+    user.avatar.attach(
+      io: File.open(avatar_path),
+      filename: "test_avatar.png",
+      content_type: "image/png"
+    )
+
+    json = user.as_json
+    assert json.key?("avatar_url")
+    assert json.key?("initials")
+    assert_not_nil json["avatar_url"]
+    assert_equal "TU", json["initials"] # Test User
+  end
+
+  test "avatar validation accepts valid image types" do
+    user = users(:user_1)
+    avatar_path = Rails.root.join("test", "fixtures", "files", "test_avatar.png")
+
+    user.avatar.attach(
+      io: File.open(avatar_path),
+      filename: "test_avatar.png",
+      content_type: "image/png"
+    )
+    assert user.valid?
+  end
+
+  test "avatar validation rejects invalid file types" do
+    user = users(:user_1)
+    text_path = Rails.root.join("test", "fixtures", "files", "test.txt")
+
+    user.avatar.attach(
+      io: File.open(text_path),
+      filename: "test.txt",
+      content_type: "text/plain"
+    )
+    assert_not user.valid?
+    assert_includes user.errors[:avatar].first, "has an invalid content type"
+  end
+
+  test "avatar has variants configured" do
+    user = users(:user_1)
+    avatar_path = Rails.root.join("test", "fixtures", "files", "test_avatar.png")
+    user.avatar.attach(
+      io: File.open(avatar_path),
+      filename: "test_avatar.png",
+      content_type: "image/png"
+    )
+
+    # Test that variants can be accessed (this confirms they're configured)
+    assert_respond_to user.avatar, :variant
+
+    # Test specific variants exist
+    thumb_variant = user.avatar.variant(:thumb)
+    medium_variant = user.avatar.variant(:medium)
+
+    assert_not_nil thumb_variant
+    assert_not_nil medium_variant
+  end
+
 end

@@ -1,5 +1,7 @@
 class UsersController < ApplicationController
 
+  include InertiaResponses
+
   def edit
     render inertia: "user/edit", props: {
       timezones: ActiveSupport::TimeZone.all.map { |tz| { value: tz.name, label: tz.to_s } }
@@ -8,46 +10,13 @@ class UsersController < ApplicationController
 
   def update
     if Current.user.update(user_params)
-      # Use the audit_with_changes helper to automatically track changes
       changes = Current.user.saved_changes.except(:updated_at)
+      Current.user.audit_profile_changes!(changes)
 
-      if changes.any?
-        # Determine the action based on what changed
-        action = if changes[:preferences]&.first&.key?("theme")
-          :change_theme
-        elsif changes.key?("timezone")
-          :update_timezone
-        else
-          :update_profile
-        end
-
-        audit_with_changes(action, Current.user)
-      end
-
-      # Set theme cookie for faster initial page loads
-      if params[:user][:preferences]&.key?(:theme)
-        cookies[:theme] = {
-          value: Current.user.theme,
-          expires: 1.year.from_now,
-          httponly: true,
-          secure: Rails.env.production?
-        }
-      end
-
-      # For non-Inertia requests (like theme updates from navbar), just return success
-      if !request.headers["X-Inertia"]
-        render json: { success: true }, status: :ok
-      else
-        flash[:success] = "Settings updated successfully"
-        redirect_to edit_user_path
-      end
+      set_theme_cookie if theme_changed?
+      respond_to_success("Settings updated successfully", edit_user_path)
     else
-      if !request.headers["X-Inertia"]
-        render json: { errors: Current.user.errors.full_messages }, status: :unprocessable_entity
-      else
-        flash[:errors] = Current.user.errors.full_messages
-        redirect_to edit_user_path
-      end
+      respond_to_error(Current.user.errors.full_messages, edit_user_path)
     end
   end
 
@@ -71,10 +40,29 @@ class UsersController < ApplicationController
     end
   end
 
+  def destroy
+    Current.user.avatar.purge_later
+    audit(:remove_avatar, Current.user)
+    respond_to_success("Avatar removed successfully", edit_user_path)
+  end
+
   private
 
   def user_params
-    params.require(:user).permit(:first_name, :last_name, :timezone, preferences: [ :theme ])
+    params.require(:user).permit(:first_name, :last_name, :timezone, :avatar, preferences: [ :theme ])
+  end
+
+  def theme_changed?
+    params[:user][:preferences]&.key?(:theme)
+  end
+
+  def set_theme_cookie
+    cookies[:theme] = {
+      value: Current.user.theme,
+      expires: 1.year.from_now,
+      httponly: true,
+      secure: Rails.env.production?
+    }
   end
 
 end

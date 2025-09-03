@@ -16,6 +16,11 @@ module ActiveSupport
 
     # Add more helper methods to be used by all tests here...
 
+    # Configure Active Storage URL options for tests
+    setup do
+      ActiveStorage::Current.url_options = { host: "test.host" }
+    end
+
   end
 end
 

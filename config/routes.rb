@@ -28,6 +28,8 @@ Rails.application.routes.draw do
     end
   end
 
+  resource :user_avatar, only: %i[destroy], controller: "users", path: "user/avatar"
+
   resources :accounts, only: [ :show, :edit, :update ] do
     resources :members, controller: "account_members", only: [ :destroy ]
     resources :invitations, only: [ :create ] do
