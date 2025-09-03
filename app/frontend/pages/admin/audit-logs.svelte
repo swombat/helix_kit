@@ -142,19 +142,6 @@
   function formatTime(dateString) {
     return formatDistanceToNow(new Date(dateString), { addSuffix: true });
   }
-
-  function getActionColor(action) {
-    const colorMap = {
-      create: 'success',
-      update: 'warning',
-      delete: 'error',
-      destroy: 'error',
-      login: 'info',
-      logout: 'info',
-      register: 'primary',
-    };
-    return colorMap[action.toLowerCase()] || 'default';
-  }
 </script>
 
 <div class="container mx-auto px-4 py-6">
@@ -308,7 +295,7 @@
             <TableRow class="hover cursor-pointer" onclick={() => selectLog(log.id)}>
               <TableCell class="font-mono text-xs">{formatTime(log.created_at)}</TableCell>
               <TableCell>
-                <Badge class="badge-{getActionColor(log.action)}">
+                <Badge>
                   {log.display_action}
                 </Badge>
               </TableCell>
