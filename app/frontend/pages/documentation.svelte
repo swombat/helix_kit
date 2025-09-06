@@ -185,14 +185,188 @@ user.as_json
 #   "site_admin": true         # Note: no "?" in key
 #   # password_digest is excluded
 # }`;
+
+  // Prompt.rb examples
+  const promptBasicExample = `# Create a prompt with a template
+prompt = Prompt.new(template: "summarize_text")
+
+# Or specify a model
+prompt = Prompt.new(
+  model: "openai/gpt-5",
+  template: "analyze_user_feedback"
+)
+
+# Available model constants
+Prompt::DEFAULT_MODEL # "openai/gpt-5"
+Prompt::SMART_MODEL   # "openai/gpt-5"
+Prompt::LIGHT_MODEL   # "openai/gpt-5-mini"
+Prompt::CHAT_MODEL    # "openai/gpt-5-chat"`;
+
+  const promptTemplateStructure = `# File structure for prompts
+app/prompts/
+└── my_prompt_type/
+    ├── system.prompt.erb  # System message template (optional)
+    └── user.prompt.erb    # User message template (optional)
+
+# Example: app/prompts/summarize_text/system.prompt.erb
+You are a helpful assistant that summarizes text concisely.
+Focus on key points and maintain clarity.
+
+# Example: app/prompts/summarize_text/user.prompt.erb
+Please summarize the following text:
+
+<%= text %>
+
+Provide a summary in <%= max_words %> words or less.`;
+
+  const promptExecutionMethods = `# Execute to get a string response
+response = prompt.execute_to_string
+
+# Execute with streaming (yields incremental responses)
+prompt.execute_to_string do |incremental_response, delta|
+  puts incremental_response  # Full response so far
+  puts delta                  # Just the new chunk
+end
+
+# Execute to get JSON response(s)
+json_response = prompt.execute_to_json
+
+# Execute with JSON streaming
+prompt.execute_to_json do |json_object|
+  # Each complete JSON object is yielded as parsed
+  process_json(json_object)
+end
+
+# Execute and save to a model (PromptOutput or similar)
+prompt.execute(
+  output_class: "PromptOutput",
+  output_id: prompt_output.id,
+  output_property: :ai_summary  # Property to update
+)`;
+
+  const promptRenderingExample = `# Render template with arguments
+prompt = Prompt.new(template: "summarize_text")
+
+params = prompt.render(
+  text: "Long article text here...",
+  max_words: 100
+)
+# Returns: { system: "...", user: "...", model: "openai/gpt-5" }
+
+# Templates use ERB with hash arguments
+# In user.prompt.erb:
+# <%= text %>        # Inserts the text variable
+# <%= max_words %>   # Inserts the max_words variable`;
+
+  const promptSubclassExample = `# Create a specialized prompt class
+class SummarizePrompt < Prompt
+  def initialize(text:, max_words: 100)
+    super(model: Prompt::LIGHT_MODEL, template: "summarize")
+    
+    @text = text
+    @max_words = max_words
+  end
+  
+  def render(**args)
+    super(
+      text: @text,
+      max_words: @max_words
+    )
+  end
+end
+
+# Usage
+prompt = SummarizePrompt.new(
+  text: article.content,
+  max_words: 150
+)
+summary = prompt.execute_to_string`;
+
+  const promptConversationExample = `# For conversation-based prompts
+prompt = Prompt.new(
+  model: "openai/gpt-5",
+  template: "conversation"  # Special template type
+)
+
+# Render conversation from messages
+params = prompt.render(
+  conversation: conversation  # Must have .messages association
+)
+# Returns messages in OpenRouter format:
+# {
+#   messages: [
+#     { role: "user", content: "Hello" },
+#     { role: "assistant", content: "Hi there!" }
+#   ],
+#   model: "openai/gpt-5"
+# }`;
+
+  const promptErrorHandling = `# Built-in retry logic for API errors
+
+# Automatically retries on rate limiting:
+# - Up to 6 attempts with exponential backoff (2^n seconds)
+# - Logs retry attempts for debugging
+
+# Automatically retries on timeout:
+# - Up to 3 attempts
+# - Useful for long-running requests
+
+# All other errors bubble up immediately
+try
+  response = prompt.execute_to_string
+rescue StandardError => e
+  # Handle non-retryable errors
+  Rails.logger.error "Prompt failed: #{e.message}"
+end`;
 </script>
 
 <div class="container mx-auto py-8 px-4 max-w-5xl">
   <h1 class="text-4xl font-bold mb-2">Documentation</h1>
   <p class="text-muted-foreground mb-8">Learn how to use the features of this application</p>
 
-  <!-- Real-time Synchronization Section -->
+  <!-- Table of Contents -->
   <Card class="mb-8">
+    <CardHeader>
+      <CardTitle>Quick Navigation</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <h4 class="font-medium mb-2 text-sm text-muted-foreground">Core Features</h4>
+          <ul class="space-y-2">
+            <li>
+              <a href="#realtime-sync" class="text-primary hover:underline"> → Real-time Synchronization System </a>
+            </li>
+            <li>
+              <a href="#json-attributes" class="text-primary hover:underline">
+                → JSON Serialization with json_attributes
+              </a>
+            </li>
+            <li>
+              <a href="#prompt-system" class="text-primary hover:underline"> → AI Prompt System (Prompt.rb) </a>
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-medium mb-2 text-sm text-muted-foreground">Prompt System Sections</h4>
+          <ul class="space-y-2">
+            <li>
+              <a href="#prompt-basics" class="text-sm text-primary hover:underline"> • Basic Usage & Templates </a>
+            </li>
+            <li>
+              <a href="#prompt-execution" class="text-sm text-primary hover:underline"> • Execution Methods </a>
+            </li>
+            <li>
+              <a href="#prompt-advanced" class="text-sm text-primary hover:underline"> • Advanced Patterns </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </CardContent>
+  </Card>
+
+  <!-- Real-time Synchronization Section -->
+  <Card id="realtime-sync" class="mb-8">
     <CardHeader>
       <CardTitle class="text-2xl">Real-time Synchronization System</CardTitle>
       <p class="text-muted-foreground mt-2">Automatically update Svelte components when Rails models change</p>
@@ -426,7 +600,7 @@ rails test test/models/concerns/broadcastable_test.rb`} />
   </Card>
 
   <!-- JSON Attributes Section -->
-  <Card class="mb-8">
+  <Card id="json-attributes" class="mb-8">
     <CardHeader>
       <CardTitle class="text-2xl">JSON Serialization with json_attributes</CardTitle>
       <p class="text-muted-foreground mt-2">
@@ -611,6 +785,245 @@ rails test test/models/concerns/broadcastable_test.rb`} />
           the Network tab in your browser's DevTools to see the clean, secure JSON payloads being sent to Svelte
           components. Notice how all IDs are obfuscated and sensitive fields are never included.
         </p>
+      </div>
+    </CardContent>
+  </Card>
+
+  <!-- Prompt System Section -->
+  <Card id="prompt-system" class="mb-8">
+    <CardHeader>
+      <CardTitle class="text-2xl">AI Prompt System (Prompt.rb)</CardTitle>
+      <p class="text-muted-foreground mt-2">
+        Flexible system for managing AI prompts with ERB templates, streaming support, and automatic retry logic
+      </p>
+    </CardHeader>
+    <CardContent class="space-y-6">
+      <!-- How it Works -->
+      <div>
+        <h3 class="text-lg font-semibold mb-3">How It Works</h3>
+        <p class="text-muted-foreground mb-3">
+          The Prompt.rb system provides a structured way to interact with AI models through OpenRouter API. It uses ERB
+          templates for prompt composition and supports multiple execution modes.
+        </p>
+        <ol class="list-decimal list-inside space-y-2 text-muted-foreground">
+          <li>
+            Create prompt templates in <code class="text-xs bg-muted px-1 rounded">/app/prompts/</code> subdirectories
+          </li>
+          <li>Use ERB syntax to inject dynamic variables into prompts</li>
+          <li>Execute prompts with various output formats (string, JSON, streaming)</li>
+          <li>Automatically handle rate limiting and timeouts with built-in retry logic</li>
+          <li>Optionally save outputs directly to database models</li>
+        </ol>
+      </div>
+
+      <!-- Basic Usage -->
+      <div id="prompt-basics">
+        <h3 class="text-lg font-semibold mb-3">Basic Usage & Template Structure</h3>
+
+        <div class="space-y-4">
+          <div>
+            <h4 class="font-medium mb-2">1. Creating a Prompt:</h4>
+            <Highlight language={ruby} code={promptBasicExample} />
+          </div>
+
+          <div>
+            <h4 class="font-medium mb-2">2. Template File Structure:</h4>
+            <Highlight language={ruby} code={promptTemplateStructure} />
+            <p class="text-sm text-muted-foreground mt-2">
+              Templates use ERB syntax and can access any variables passed to the <code
+                class="text-xs bg-muted px-1 rounded">render</code> method. Both system and user templates are optional -
+              use what makes sense for your use case.
+            </p>
+          </div>
+
+          <div>
+            <h4 class="font-medium mb-2">3. Rendering Templates:</h4>
+            <Highlight language={ruby} code={promptRenderingExample} />
+          </div>
+        </div>
+      </div>
+
+      <!-- Execution Methods -->
+      <div id="prompt-execution">
+        <h3 class="text-lg font-semibold mb-3">Execution Methods</h3>
+
+        <div class="space-y-4">
+          <div>
+            <h4 class="font-medium mb-2">Available Execution Methods:</h4>
+            <Highlight language={ruby} code={promptExecutionMethods} />
+          </div>
+
+          <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+            <p class="text-sm font-medium mb-2">💡 Streaming Support:</p>
+            <p class="text-sm text-muted-foreground">
+              Both <code class="text-xs bg-muted px-1 rounded">execute_to_string</code> and
+              <code class="text-xs bg-muted px-1 rounded">execute_to_json</code> support streaming via blocks. This is useful
+              for real-time UI updates or processing large responses incrementally.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Advanced Patterns -->
+      <div id="prompt-advanced">
+        <h3 class="text-lg font-semibold mb-3">Advanced Patterns</h3>
+
+        <div class="space-y-4">
+          <div>
+            <h4 class="font-medium mb-2">Creating Specialized Prompt Classes:</h4>
+            <Highlight language={ruby} code={promptSubclassExample} />
+            <p class="text-sm text-muted-foreground mt-2">
+              Subclassing <code class="text-xs bg-muted px-1 rounded">Prompt</code> allows you to create reusable, domain-specific
+              prompt classes with their own logic and defaults.
+            </p>
+          </div>
+
+          <div>
+            <h4 class="font-medium mb-2">Conversation-Based Prompts:</h4>
+            <Highlight language={ruby} code={promptConversationExample} />
+            <p class="text-sm text-muted-foreground mt-2">
+              The special <code class="text-xs bg-muted px-1 rounded">"conversation"</code> template type formats messages
+              from a conversation object for chat-based interactions.
+            </p>
+          </div>
+
+          <div>
+            <h4 class="font-medium mb-2">Error Handling & Retries:</h4>
+            <Highlight language={ruby} code={promptErrorHandling} />
+          </div>
+        </div>
+      </div>
+
+      <!-- Key Features -->
+      <div>
+        <h3 class="text-lg font-semibold mb-3">Key Features</h3>
+
+        <div class="grid md:grid-cols-2 gap-4">
+          <div class="space-y-3">
+            <div>
+              <h4 class="font-medium text-sm mb-1">📝 ERB Templates</h4>
+              <p class="text-xs text-muted-foreground">
+                Use familiar ERB syntax to create dynamic, reusable prompt templates
+              </p>
+            </div>
+
+            <div>
+              <h4 class="font-medium text-sm mb-1">🔄 Streaming Support</h4>
+              <p class="text-xs text-muted-foreground">
+                Process responses incrementally for better UX and memory efficiency
+              </p>
+            </div>
+
+            <div>
+              <h4 class="font-medium text-sm mb-1">🔁 Automatic Retries</h4>
+              <p class="text-xs text-muted-foreground">
+                Built-in exponential backoff for rate limiting and timeout errors
+              </p>
+            </div>
+          </div>
+
+          <div class="space-y-3">
+            <div>
+              <h4 class="font-medium text-sm mb-1">🎯 Multiple Output Formats</h4>
+              <p class="text-xs text-muted-foreground">Support for text, JSON, and direct model updates</p>
+            </div>
+
+            <div>
+              <h4 class="font-medium text-sm mb-1">🤖 Model Flexibility</h4>
+              <p class="text-xs text-muted-foreground">
+                Easy switching between GPT-5, Claude, and other OpenRouter models
+              </p>
+            </div>
+
+            <div>
+              <h4 class="font-medium text-sm mb-1">💾 Database Integration</h4>
+              <p class="text-xs text-muted-foreground">
+                Save outputs directly to ActiveRecord models with streaming updates
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Model Mappings -->
+      <div>
+        <h3 class="text-lg font-semibold mb-3">Model Mappings</h3>
+        <p class="text-muted-foreground mb-3">The system includes shorthand mappings for common models:</p>
+        <div class="bg-muted p-4 rounded-lg">
+          <ul class="space-y-1 text-sm font-mono">
+            <li><code>"4o"</code> → <code>"openai/chatgpt-4o-latest"</code></li>
+            <li><code>"o1"</code> → <code>"openai/o1"</code></li>
+            <li><code>"4o-mini"</code> → <code>"openai/gpt-4o-mini"</code></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Key Files -->
+      <div>
+        <h3 class="text-lg font-semibold mb-3">Implementation Files</h3>
+
+        <ul class="space-y-1 text-sm">
+          <li>
+            <code class="bg-muted px-2 py-0.5 rounded">app/prompts/prompt.rb</code>
+            <span class="text-muted-foreground"> - Core Prompt class implementation</span>
+          </li>
+          <li>
+            <code class="bg-muted px-2 py-0.5 rounded">app/prompts/*/</code>
+            <span class="text-muted-foreground"> - Template directories (create as needed)</span>
+          </li>
+          <li>
+            <code class="bg-muted px-2 py-0.5 rounded">app/models/prompt_output.rb</code>
+            <span class="text-muted-foreground"> - Model for storing prompt outputs</span>
+          </li>
+          <li>
+            <code class="bg-muted px-2 py-0.5 rounded">test/prompts/*_prompt_test.rb</code>
+            <span class="text-muted-foreground"> - Test examples showing usage patterns</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Testing -->
+      <div>
+        <h3 class="text-lg font-semibold mb-3">Testing</h3>
+        <p class="text-muted-foreground mb-2">
+          The system uses VCR to record and replay API responses in tests. This allows for fast, deterministic testing
+          without hitting the API:
+        </p>
+        <Highlight
+          language={ruby}
+          code={`rails test test/prompts/  # Run all prompt tests
+
+# VCR cassettes are stored in test/vcr_cassettes/
+# Delete a cassette to re-record API responses`} />
+      </div>
+
+      <!-- Best Practices -->
+      <div>
+        <h3 class="text-lg font-semibold mb-3">Best Practices</h3>
+        <div class="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+          <ul class="space-y-2 text-sm">
+            <li class="flex items-start gap-2">
+              <span class="text-green-600 dark:text-green-400">✓</span>
+              <span><strong>Use templates for reusable prompts:</strong> Keep prompts DRY and maintainable</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-green-600 dark:text-green-400">✓</span>
+              <span><strong>Choose the right model:</strong> Use LIGHT_MODEL for simple tasks to save costs</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-green-600 dark:text-green-400">✓</span>
+              <span><strong>Handle streaming for long responses:</strong> Improves perceived performance</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-green-600 dark:text-green-400">✓</span>
+              <span><strong>Create prompt subclasses:</strong> For domain-specific logic and validation</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-green-600 dark:text-green-400">✓</span>
+              <span><strong>Use VCR in tests:</strong> Ensures tests are fast and reproducible</span>
+            </li>
+          </ul>
+        </div>
       </div>
     </CardContent>
   </Card>

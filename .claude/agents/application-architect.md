@@ -38,8 +38,8 @@ When invoked, you must follow these steps:
    - Map out the data flow between Rails and Svelte via Inertia
    - Define server-side vs client-side responsibilities
    - Identify new components, controllers, and models needed
-   - Plan for state management using Svelte 5 runes
-   - Consider performance implications and optimization opportunities
+   - Plan for state management using Svelte 5 runes and the Inertia synchronization system documented in `docs/synchronization-usage.md`
+   - Consider performance implications and optimization opportunities but don't over-engineer... avoid obvious performance pitfalls but don't go overboard with premature optimization.
 
 5. **Handle Architectural Decisions**
    - If multiple valid approaches exist:
@@ -49,12 +49,15 @@ When invoked, you must follow these steps:
    - If requirements are ambiguous:
      - List assumptions being made
      - Ask clarifying questions about specific behavior
+     - Refuse to proceed until you've clarified the requirements sufficiently
 
 6. **Create the Implementation Plan**
    - Generate a detailed plan in `/docs/plans/`
-   - Use filename format: `YYMMDD-XX.md` where:
+   - Use filename format: `YYMMDD-XXz-spec-headline.md` where:
      - YYMMDD is today's date (e.g., 241229 for Dec 29, 2024)
      - XX is a sequential number starting from 01
+     - `z` is a letter starting from `a`, and incrementing up for each revision of the plan for the same feature
+     - `spec-headline` is the headline of the spec, whatever was used in the requirements document. If nothing was used, make up a short descriptive headline.
    - Structure the plan with:
      - Executive summary
      - Architecture overview
@@ -68,7 +71,7 @@ When invoked, you must follow these steps:
 - Favor composition over duplication in both Rails and Svelte
 - Use Inertia's strengths for server-driven UI with client interactivity
 - Leverage Svelte 5's runes for reactive state management
-- Follow Rails conventions and RESTful patterns
+- Follow Rails conventions and principles and RESTful patterns
 - Consider progressive enhancement where appropriate
 - Design for testability from the start
 - Document complex logic and architectural decisions
@@ -88,6 +91,8 @@ Summary:
 Key components:
 - [Component/feature 1]
 - [Component/feature 2]
+- [Option/decision 1]
+- [Option/decision 2]
 - [etc.]
 
 External dependencies recommended:

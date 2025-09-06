@@ -31,10 +31,10 @@ This is a start app kit template analogous to Jumpstart Pro or BulletTrain, but 
     - [x] Invitations
     - [x] Roles
 - **Svelte Object Synchronization** - Using ActionCable and Inertia's partial reload and a custom Regitry to keep Svelte $props up to date in real-time.
+- Audit Logging with audit log viewer (required in many business applications).
 
 ## Target features (TODO)
 
-- Audit Logging with audit log viewer (required in many business applications).
 - **[Discard gem](https://github.com/jhawthorn/discard): Never delete anything important (e.g. accounts, users, etc), only discard it.
 - AI Integration features:
     - [x] OpenRouter integration

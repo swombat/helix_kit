@@ -137,14 +137,20 @@
         "Using ActionCable and Inertia's partial reload and a custom Registry to keep Svelte $props up to date in real-time.",
       icon: ArrowsClockwise,
     },
-  ];
-
-  const todoFeatures = [
     {
       title: 'Audit Logging',
       description: 'Audit logging with audit log viewer (required in many business applications).',
       icon: FileText,
     },
+    {
+      title: 'Basic AI Integration',
+      description: 'OpenRouter integration, Prompt system',
+      icon: Brain,
+      link: 'https://openrouter.ai/',
+    },
+  ];
+
+  const todoFeatures = [
     {
       title: 'Discard Gem',
       description:
@@ -153,8 +159,8 @@
       icon: Trash,
     },
     {
-      title: 'AI Integration',
-      description: 'OpenRouter integration, Prompt system, Basic Conversation System, Agentic Conversation System.',
+      title: 'Agentic AI Integration',
+      description: 'Basic Conversation System, Agentic Conversation System.',
       icon: Brain,
     },
     {
