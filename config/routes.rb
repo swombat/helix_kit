@@ -37,6 +37,9 @@ Rails.application.routes.draw do
         post :resend
       end
     end
+    resources :chats do
+      resources :messages, only: :create
+    end
   end
 
   namespace :admin do

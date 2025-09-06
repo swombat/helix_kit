@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_03_090416) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_06_131753) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -94,6 +94,33 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_03_090416) do
     t.index ["user_id"], name: "index_audit_logs_on_user_id"
   end
 
+  create_table "chats", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.string "title"
+    t.string "model_id", default: "openrouter/auto", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "created_at"], name: "index_chats_on_account_id_and_created_at"
+    t.index ["account_id"], name: "index_chats_on_account_id"
+  end
+
+  create_table "messages", force: :cascade do |t|
+    t.bigint "chat_id", null: false
+    t.bigint "user_id"
+    t.string "role", null: false
+    t.text "content"
+    t.string "model_id"
+    t.integer "input_tokens"
+    t.integer "output_tokens"
+    t.bigint "tool_call_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["chat_id", "created_at"], name: "index_messages_on_chat_id_and_created_at"
+    t.index ["chat_id"], name: "index_messages_on_chat_id"
+    t.index ["tool_call_id"], name: "index_messages_on_tool_call_id"
+    t.index ["user_id"], name: "index_messages_on_user_id"
+  end
+
   create_table "prompt_outputs", force: :cascade do |t|
     t.bigint "account_id"
     t.string "prompt_key"
@@ -113,6 +140,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_03_090416) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_sessions_on_user_id"
+  end
+
+  create_table "tool_calls", force: :cascade do |t|
+    t.bigint "message_id", null: false
+    t.string "tool_call_id", null: false
+    t.string "name", null: false
+    t.jsonb "arguments", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["message_id"], name: "index_tool_calls_on_message_id"
+    t.index ["tool_call_id"], name: "index_tool_calls_on_tool_call_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -136,6 +174,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_03_090416) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "audit_logs", "accounts"
   add_foreign_key "audit_logs", "users"
+  add_foreign_key "chats", "accounts"
+  add_foreign_key "messages", "chats"
+  add_foreign_key "messages", "users"
   add_foreign_key "prompt_outputs", "accounts"
   add_foreign_key "sessions", "users"
+  add_foreign_key "tool_calls", "messages"
 end
