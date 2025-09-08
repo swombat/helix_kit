@@ -31,7 +31,6 @@ class AuditLog < ApplicationRecord
     distinct.pluck(:auditable_type).compact.sort
   end
 
-  # Instance methods for display
   def display_action
     action.to_s.humanize
   end
@@ -44,7 +43,6 @@ class AuditLog < ApplicationRecord
     account&.name || "-"
   end
 
-  # For JSON serialization
   def as_json(options = {})
     super(options).merge(
       display_action: display_action,
