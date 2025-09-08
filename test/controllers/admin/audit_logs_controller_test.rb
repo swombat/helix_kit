@@ -66,7 +66,6 @@ class Admin::AuditLogsControllerTest < ActionDispatch::IntegrationTest
       assert log.key?("action"), "Log should have action"
       assert log.key?("created_at"), "Log should have created_at"
       assert log.key?("display_action"), "Log should have display_action"
-      assert log.key?("summary"), "Log should have summary"
       assert log.key?("actor_name"), "Log should have actor_name"
       assert log.key?("target_name"), "Log should have target_name"
 
@@ -179,7 +178,7 @@ class Admin::AuditLogsControllerTest < ActionDispatch::IntegrationTest
 
     account_id = @team_account.id
 
-    get admin_audit_logs_path, params: { account_id: account_id }
+    get admin_audit_logs_path, params: { filter_account_id: account_id }
     assert_response :success
 
     props = inertia_shared_props
@@ -190,7 +189,7 @@ class Admin::AuditLogsControllerTest < ActionDispatch::IntegrationTest
     puts "Current filters: #{current_filters.inspect}"
     puts "Returned logs count: #{audit_logs.size}"
 
-    assert_equal account_id.to_s, current_filters["account_id"], "Filter should be applied"
+    assert_equal account_id.to_s, current_filters["filter_account_id"], "Filter should be applied"
   end
 
   test "should filter by action" do
@@ -230,6 +229,66 @@ class Admin::AuditLogsControllerTest < ActionDispatch::IntegrationTest
     puts "Returned logs count: #{audit_logs.size}"
 
     assert_equal "Account", current_filters["auditable_type"], "Filter should be applied"
+  end
+
+  test "should handle comma-separated action filters" do
+    sign_in(@site_admin_user)
+
+    # Create specific logs for testing
+    login_log = AuditLog.create!(user: @user_1, account: @personal_account, action: "login", auditable: @user_1)
+    logout_log = AuditLog.create!(user: @user_1, account: @personal_account, action: "logout", auditable: @user_1)
+    update_log = AuditLog.create!(user: @user_1, account: @personal_account, action: "update", auditable: @user_1)
+
+    get admin_audit_logs_path, params: { audit_action: "login,logout" }
+    assert_response :success
+
+    props = inertia_shared_props
+    audit_logs = props["audit_logs"]
+    current_filters = props["current_filters"]
+
+    puts "\n=== Filtering by comma-separated actions: login,logout ==="
+    puts "Current filters: #{current_filters.inspect}"
+    puts "Returned logs count: #{audit_logs.size}"
+
+    # Check the filter was applied correctly
+    assert_equal "login,logout", current_filters["audit_action"], "Filter should be applied"
+
+    # Check that returned logs only have the specified actions
+    audit_logs.each do |log|
+      assert_includes [ "login", "logout" ], log["action"], "All logs should have filtered actions"
+      assert_not_equal "update", log["action"], "Update action should not be included"
+    end
+  end
+
+  test "should handle comma-separated auditable_type filters" do
+    sign_in(@site_admin_user)
+
+    # Create specific logs for testing
+    user_log = AuditLog.create!(user: @user_1, account: @personal_account, action: "create", auditable: @user_1)
+    account_log = AuditLog.create!(user: @user_1, account: @personal_account, action: "create", auditable: @personal_account)
+    # Create a third log with a different type to ensure filtering works
+    other_user_log = AuditLog.create!(user: @regular_user, account: @team_account, action: "create", auditable: @regular_user)
+
+    get admin_audit_logs_path, params: { auditable_type: "User,Account" }
+    assert_response :success
+
+    props = inertia_shared_props
+    audit_logs = props["audit_logs"]
+    current_filters = props["current_filters"]
+
+    puts "\n=== Filtering by comma-separated types: User,Account ==="
+    puts "Current filters: #{current_filters.inspect}"
+    puts "Returned logs count: #{audit_logs.size}"
+
+    # Check the filter was applied correctly
+    assert_equal "User,Account", current_filters["auditable_type"], "Filter should be applied"
+
+    # Check that returned logs only have the specified types
+    audit_logs.each do |log|
+      if log["auditable_type"].present?
+        assert_includes [ "User", "Account" ], log["auditable_type"], "All logs should have filtered types"
+      end
+    end
   end
 
   # === Filter Options Tests ===

@@ -241,19 +241,14 @@ class AuditLogTest < ActiveSupport::TestCase
     assert_not_includes results, log3
   end
 
-  test "filtered method processes comma-separated strings" do
+  test "filtered method accepts arrays for filtering" do
     login_log = AuditLog.create!(action: "login", user: @user)
     logout_log = AuditLog.create!(action: "logout", user: @user)
     update_log = AuditLog.create!(action: "update_profile", user: @user)
 
-    # Test with comma-separated string in filters
-    results = AuditLog.filtered(audit_action: "login,logout")
-    assert_includes results, login_log
-    assert_includes results, logout_log
-    assert_not_includes results, update_log
-
-    # Test with spaces around commas
-    results = AuditLog.filtered(audit_action: "login, logout")
+    # Model accepts arrays, not comma-separated strings
+    # (Controller handles parsing comma-separated strings into arrays)
+    results = AuditLog.filtered(audit_action: [ "login", "logout" ])
     assert_includes results, login_log
     assert_includes results, logout_log
     assert_not_includes results, update_log
@@ -271,7 +266,7 @@ class AuditLogTest < ActiveSupport::TestCase
     assert_not_includes results, update_log
   end
 
-  test "filtered method handles multiple comma-separated filters" do
+  test "filtered method handles multiple filters as arrays" do
     other_user = users(:existing_user)
     other_account = accounts(:team_account)
 
@@ -279,10 +274,10 @@ class AuditLogTest < ActiveSupport::TestCase
     log2 = AuditLog.create!(user: other_user, account: other_account, action: "logout", auditable: other_user)
     log3 = AuditLog.create!(user: @user, account: @account, action: "update", auditable: @account)
 
-    # Test with multiple comma-separated filters
+    # Test with arrays of values (as the controller would pass them)
     results = AuditLog.filtered(
-      audit_action: "login,logout",
-      auditable_type: "User,Account"
+      audit_action: [ "login", "logout" ],
+      auditable_type: [ "User", "Account" ]
     )
 
     assert_includes results, log1  # login action, User type

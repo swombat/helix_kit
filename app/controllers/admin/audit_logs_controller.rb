@@ -8,7 +8,7 @@ class Admin::AuditLogsController < ApplicationController
                    .includes(:user, :account)
 
     # Pagy handles pagination elegantly
-    @pagy, @audit_logs = pagy(logs, limit: 10)
+    @pagy, @audit_logs = pagy(logs, limit: params[:per_page] || 10)
 
     # Load selected log if requested
     @selected_log = AuditLog.find(params[:log_id]) if params[:log_id]
@@ -34,11 +34,14 @@ class Admin::AuditLogsController < ApplicationController
         prev: @pagy.prev,
         next: @pagy.next,
         series: @pagy.series.collect(&:to_s),
-        items: @pagy.vars[:items],
-        per_page: 10
+        items: @pagy.vars[:limit].to_s,
+        per_page: @pagy.vars[:limit].to_s
       } : {},
       filters: filter_options,
-      current_filters: filter_params
+      current_filters: filter_params.to_h.transform_keys { |key|
+        # Return filter_account_id to frontend, not account_id
+        key.to_s
+      }
     }
   end
 
@@ -55,10 +58,18 @@ class Admin::AuditLogsController < ApplicationController
     # Pre-process filters to convert comma-separated strings to arrays
     processed_filters = filter_params.dup
     if processed_filters[:user_id].is_a?(String)
-      processed_filters[:user_id] = User.decode_ids_from_string(processed_filters[:user_id])
+      # Handle both numeric and obfuscated IDs
+      decoded = User.decode_ids_from_string(processed_filters[:user_id])
+      # Ensure we always get a consistent type (integer)
+      processed_filters[:user_id] = decoded.is_a?(String) ? decoded.to_i : decoded
     end
-    if processed_filters[:account_id].is_a?(String)
-      processed_filters[:account_id] = Account.decode_ids_from_string(processed_filters[:account_id])
+    if processed_filters[:filter_account_id].is_a?(String)
+      # Handle both numeric and obfuscated IDs
+      decoded = Account.decode_ids_from_string(processed_filters[:filter_account_id])
+      # Ensure we always get a consistent type (integer)
+      # Note: AuditLog.filtered expects :account_id, not :filter_account_id
+      processed_filters[:account_id] = decoded.is_a?(String) ? decoded.to_i : decoded
+      processed_filters.delete(:filter_account_id)
     end
     [ :audit_action, :auditable_type ].each do |key|
       if processed_filters[key].is_a?(String) && processed_filters[key].include?(",")
@@ -70,7 +81,8 @@ class Admin::AuditLogsController < ApplicationController
 
   def filter_params
     # NOTE: Exclude :action to avoid conflict with Rails controller action parameter
-    params.permit(:user_id, :account_id, :audit_action, :auditable_type,
+    # NOTE: Use filter_account_id instead of account_id to avoid conflict with AccountScoping
+    params.permit(:user_id, :filter_account_id, :audit_action, :auditable_type,
                   :date_from, :date_to, :page, :per_page, :log_id)
   end
 

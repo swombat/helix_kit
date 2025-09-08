@@ -33,7 +33,7 @@
   // Initialize filter arrays from current_filters
   let userFilter = $state(typeof current_filters.user_id === 'string' ? current_filters.user_id.split(',') : undefined);
   let accountFilter = $state(
-    typeof current_filters.account_id === 'string' ? current_filters.account_id.split(',') : undefined
+    typeof current_filters.filter_account_id === 'string' ? current_filters.filter_account_id.split(',') : undefined
   );
   let actionFilter = $state(
     typeof current_filters.audit_action === 'string' ? current_filters.audit_action.split(',') : undefined
@@ -93,7 +93,7 @@
   function applyFilters() {
     const params = {
       user_id: userFilter ? userFilter.join(',') : undefined,
-      account_id: accountFilter ? accountFilter.join(',') : undefined,
+      filter_account_id: accountFilter ? accountFilter.join(',') : undefined,
       audit_action: actionFilter ? actionFilter.join(',') : undefined,
       auditable_type: typeFilter ? typeFilter.join(',') : undefined,
       date_from: dateFrom ? dateFrom.toString() : undefined,

@@ -133,6 +133,48 @@ rescue ActiveRecord::RecordInvalid => e
 end
 ```
 
+### Parameter Processing
+
+#### Controllers Handle Parameter Transformation
+Parameter processing (like parsing comma-separated strings) belongs in controllers, not models:
+
+```ruby
+# GOOD - Controller processes parameters before passing to model
+class Admin::AuditLogsController < ApplicationController
+  def index
+    logs = AuditLog.filtered(processed_filters)
+    # ...
+  end
+  
+  private
+  
+  def processed_filters
+    filters = filter_params.dup
+    
+    # Convert comma-separated strings to arrays
+    [:audit_action, :auditable_type].each do |key|
+      if filters[key].is_a?(String) && filters[key].include?(",")
+        filters[key] = filters[key].split(",").map(&:strip)
+      end
+    end
+    
+    filters
+  end
+end
+
+# Model scopes remain clean and accept arrays
+class AuditLog < ApplicationRecord
+  scope :by_action, ->(action) { where(action: action) if action.present? }
+  scope :by_type, ->(type) { where(auditable_type: type) if type.present? }
+end
+```
+
+#### Why This Pattern:
+- **Separation of Concerns**: Controllers handle HTTP concerns (parameter parsing), models handle data
+- **Clean Scopes**: Model scopes remain simple and reusable
+- **Testability**: Parameter processing can be tested in controller tests
+- **Flexibility**: Different controllers can process parameters differently for the same model
+
 ### Inertia.js Integration
 
 Controllers use Inertia to render Svelte components:
