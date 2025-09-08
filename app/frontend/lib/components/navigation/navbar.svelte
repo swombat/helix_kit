@@ -30,6 +30,7 @@
   } from '@/routes';
   import { toggleMode, setMode, resetMode } from 'mode-watcher';
   import { ModeWatcher } from 'mode-watcher';
+  import Avatar from '$lib/components/Avatar.svelte';
 
   function handleLogout(event) {
     event.preventDefault();
@@ -138,8 +139,9 @@
         </DropdownMenu.Root>
       {/if}
       <DropdownMenu.Root>
-        <DropdownMenu.Trigger class={cn(buttonVariants({ variant: 'outline' }), 'rounded-full px-2.5 gap-1')}>
-          <UserCircle class={currentUser?.site_admin ? 'text-red-500' : ''} />
+        <DropdownMenu.Trigger
+          class={cn(buttonVariants({ variant: 'outline' }), 'rounded-full pl-0.5 pr-2.5 gap-1 h-9')}>
+          <Avatar user={currentUser} size="small" class="!size-8" />
           {#if currentUser?.full_name}
             <span class="text-xs font-normal text-muted-foreground">
               {currentUser?.full_name}

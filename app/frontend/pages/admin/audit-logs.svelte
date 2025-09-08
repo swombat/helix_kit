@@ -22,6 +22,7 @@
   import Highlight from 'svelte-highlight';
   import json from 'svelte-highlight/languages/json';
   import 'svelte-highlight/styles/atom-one-dark.css';
+  import Avatar from '$lib/components/Avatar.svelte';
 
   let { audit_logs = [], selected_log = null, pagination = {}, filters = {}, current_filters = {} } = $props();
 
@@ -309,7 +310,14 @@
                   {log.display_action}
                 </Badge>
               </TableCell>
-              <TableCell>{log.actor_name}</TableCell>
+              <TableCell>
+                <div class="flex items-center gap-2">
+                  {#if log.user}
+                    <Avatar user={log.user} size="small" />
+                  {/if}
+                  <span>{log.actor_name}</span>
+                </div>
+              </TableCell>
               <TableCell>{log.target_name}</TableCell>
               <TableCell>
                 <Button size="sm" variant="ghost">View</Button>
@@ -365,10 +373,15 @@
                     <div>
                       <dt class="text-xs font-medium text-muted-foreground uppercase tracking-wider">User</dt>
                       <dd class="mt-1 text-sm">
-                        <div class="font-medium">{selected_log.user.email_address}</div>
-                        {#if selected_log.user.id}
-                          <div class="text-xs text-muted-foreground">ID: {selected_log.user.id}</div>
-                        {/if}
+                        <div class="flex items-center gap-2">
+                          <Avatar user={selected_log.user} size="small" />
+                          <div>
+                            <div class="font-medium">{selected_log.user.email_address}</div>
+                            {#if selected_log.user.id}
+                              <div class="text-xs text-muted-foreground">ID: {selected_log.user.id}</div>
+                            {/if}
+                          </div>
+                        </div>
                       </dd>
                     </div>
                   {/if}

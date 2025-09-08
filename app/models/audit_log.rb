@@ -50,7 +50,8 @@ class AuditLog < ApplicationRecord
     super(options).merge(
       display_action: display_action,
       actor_name: actor_name,
-      target_name: target_name
+      target_name: target_name,
+      user: user&.as_json
     )
   end
 

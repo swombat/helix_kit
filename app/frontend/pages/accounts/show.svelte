@@ -10,6 +10,7 @@
   import InviteMemberForm from '$lib/components/forms/InviteMemberForm.svelte';
   import InfoCard from '$lib/components/InfoCard.svelte';
   import { useSync } from '$lib/use-sync';
+  import Avatar from '$lib/components/Avatar.svelte';
 
   let { account, can_be_personal, members = [], can_manage = false, current_user_id } = $props();
 
@@ -186,6 +187,7 @@
                 <TableRow>
                   <TableCell>
                     <div class="flex items-center gap-2">
+                      <Avatar user={member.user} size="small" />
                       <span class="font-medium">{member.display_name}</span>
                       {#if member.user_id === current_user_id}
                         <Badge variant="outline" class="text-xs">You</Badge>
@@ -258,7 +260,14 @@
                     <Badge variant="outline">{member.role}</Badge>
                   </TableCell>
                   <TableCell>
-                    {member.invited_by?.full_name || 'System'}
+                    <div class="flex items-center gap-2">
+                      {#if member.invited_by}
+                        <Avatar user={member.invited_by} size="small" />
+                        <span>{member.invited_by.full_name}</span>
+                      {:else}
+                        <span>System</span>
+                      {/if}
+                    </div>
                   </TableCell>
                   <TableCell class="text-muted-foreground">
                     {formatDate(member.invited_at)}

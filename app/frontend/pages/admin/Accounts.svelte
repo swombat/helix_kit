@@ -6,6 +6,7 @@
   import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '$lib/components/shadcn/table';
   import InfoCard from '$lib/components/InfoCard.svelte';
   import { createDynamicSync } from '$lib/use-sync';
+  import Avatar from '$lib/components/Avatar.svelte';
 
   let { accounts = [], selected_account = null } = $props();
   let search = $state('');
@@ -131,10 +132,15 @@
                 <div>
                   <dt class="text-sm text-muted-foreground">Owner</dt>
                   <dd>
-                    {selected_account.owner.name || selected_account.owner.email_address}
-                    {#if selected_account.owner.name}
-                      <div class="text-sm text-muted-foreground">{selected_account.owner.email_address}</div>
-                    {/if}
+                    <div class="flex items-center gap-2">
+                      <Avatar user={selected_account.owner} size="small" />
+                      <div>
+                        {selected_account.owner.name || selected_account.owner.email_address}
+                        {#if selected_account.owner.name}
+                          <div class="text-sm text-muted-foreground">{selected_account.owner.email_address}</div>
+                        {/if}
+                      </div>
+                    </div>
                   </dd>
                 </div>
               {/if}
@@ -180,7 +186,12 @@
                 <TableBody>
                   {#each selected_account.users as user (user.id)}
                     <TableRow class={user.confirmed ? '' : 'opacity-50'}>
-                      <TableCell>{user.full_name || '-'}</TableCell>
+                      <TableCell>
+                        <div class="flex items-center gap-2">
+                          <Avatar {user} size="small" />
+                          <span>{user.full_name || '-'}</span>
+                        </div>
+                      </TableCell>
                       <TableCell>
                         <div class="font-medium">{user.email_address}</div>
                       </TableCell>
