@@ -1,7 +1,5 @@
 class UsersController < ApplicationController
 
-  include InertiaResponses
-
   def edit
     render inertia: "user/edit", props: {
       timezones: ActiveSupport::TimeZone.all.map { |tz| { value: tz.name, label: tz.to_s } }
@@ -24,9 +22,18 @@ class UsersController < ApplicationController
       audit_with_changes(action, Current.user)
 
       set_theme_cookie if theme_changed?
-      respond_to_success("Settings updated successfully", edit_user_path)
+
+      if request.headers["X-Inertia"]
+        redirect_with_inertia_flash(:success, "Settings updated successfully", edit_user_path)
+      else
+        render json: { success: true }, status: :ok
+      end
     else
-      respond_to_error(Current.user.errors.full_messages, edit_user_path)
+      if request.headers["X-Inertia"]
+        redirect_with_inertia_flash(:errors, Current.user.errors.full_messages, edit_user_path)
+      else
+        render json: { errors: Current.user.errors.full_messages }, status: :unprocessable_entity
+      end
     end
   end
 
@@ -53,7 +60,12 @@ class UsersController < ApplicationController
   def destroy
     Current.user.avatar.purge_later
     audit(:remove_avatar, Current.user)
-    respond_to_success("Avatar removed successfully", edit_user_path)
+
+    if request.headers["X-Inertia"]
+      redirect_with_inertia_flash(:success, "Avatar removed successfully", edit_user_path)
+    else
+      render json: { success: true }, status: :ok
+    end
   end
 
   private
