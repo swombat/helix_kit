@@ -2,6 +2,18 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 🚨 CRITICAL DATABASE RULES - NEVER VIOLATE THESE 🚨
+
+### NEVER WIPE OR RESET THE DEVELOPMENT DATABASE
+- **NEVER run `rails db:drop` in development**
+- **NEVER run `rails db:reset` in development**
+- **NEVER run `rails db:setup` on an existing database**
+- **NEVER run destructive ActiveRecord commands like `User.destroy_all` in development console**
+- **NEVER truncate tables in development**
+- The development database contains important data that must be preserved
+- Only run migrations that are additive or safely reversible
+- If you need to test something destructive, use the test database only
+
 ## Essential Information
 
 This is a Rails 8 + Svelte 5 application using Inertia.js. **Always check the `/docs/` folder for detailed documentation before making changes.**
@@ -47,7 +59,9 @@ Start with **[/docs/overview.md](/docs/overview.md)** which indexes all document
 
 ## Always Remember
 
-1. **Read the docs first** - Check `/docs/` before implementing
-2. **Follow patterns** - Look at existing code for conventions
-3. **Test your changes** - Run `rails test` after modifications
-4. **Security matters** - Never commit secrets, use credentials
+1. **NEVER WIPE THE DEVELOPMENT DATABASE** - See `/docs/database-safety.md`
+2. **Read the docs first** - Check `/docs/` before implementing
+3. **Follow patterns** - Look at existing code for conventions
+4. **Test your changes** - Run `rails test` after modifications
+5. **Security matters** - Never commit secrets, use credentials
+6. **Preserve development data** - Never run `destroy_all` or `db:reset` in development
