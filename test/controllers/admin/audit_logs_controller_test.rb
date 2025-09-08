@@ -312,22 +312,23 @@ class Admin::AuditLogsControllerTest < ActionDispatch::IntegrationTest
 
   # === Model Method Tests ===
 
-  test "should use AuditLog.filtered method correctly" do
+  test "should chain scopes correctly" do
     sign_in(@site_admin_user)
 
-    # Test the filtered method directly
-    filters = { user_id: @user_1.id, audit_action: "create" }
-    filtered_logs = AuditLog.filtered(filters)
+    # Test scope chaining directly
+    user_id = @user_1.id
+    action = "create"
+    scoped_logs = AuditLog.by_user(user_id).by_action(action).recent
 
     # Test via controller
-    get admin_audit_logs_path, params: filters
+    get admin_audit_logs_path, params: { user_id: user_id, audit_action: action }
     assert_response :success
 
     props = inertia_shared_props
     controller_logs = props["audit_logs"]
 
     # Both should return the same results
-    assert_equal filtered_logs.count, controller_logs.size, "Controller and model should return same count"
+    assert_equal scoped_logs.count, controller_logs.size, "Controller and model should return same count"
   end
 
   test "should handle available_actions and available_types class methods" do

@@ -3,9 +3,10 @@ class Admin::AuditLogsController < ApplicationController
   before_action :require_site_admin
 
   def index
-    # Fat model handles filtering
-    logs = AuditLog.filtered(processed_filters)
-                   .includes(:user, :account)
+    # Controller orchestrates scope chaining
+    logs = AuditLog.all
+    logs = apply_filters(logs)
+    logs = logs.includes(:user, :account).recent
 
     # Pagy handles pagination elegantly
     @pagy, @audit_logs = pagy(logs, limit: params[:per_page] || 10)
@@ -17,6 +18,20 @@ class Admin::AuditLogsController < ApplicationController
   end
 
   private
+
+  def apply_filters(scope)
+    filters = processed_filters
+
+    # Chain scopes based on provided filters
+    scope = scope.by_user(filters[:user_id]) if filters[:user_id].present?
+    scope = scope.by_account(filters[:account_id]) if filters[:account_id].present?
+    scope = scope.by_action(filters[:audit_action]) if filters[:audit_action].present?
+    scope = scope.by_type(filters[:auditable_type]) if filters[:auditable_type].present?
+    scope = scope.date_from(filters[:date_from]) if filters[:date_from].present?
+    scope = scope.date_to(filters[:date_to]) if filters[:date_to].present?
+
+    scope
+  end
 
   def audit_logs_props
     {

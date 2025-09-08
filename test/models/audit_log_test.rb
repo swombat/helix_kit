@@ -241,32 +241,31 @@ class AuditLogTest < ActiveSupport::TestCase
     assert_not_includes results, log3
   end
 
-  test "filtered method accepts arrays for filtering" do
+  test "scopes can be chained for filtering" do
     login_log = AuditLog.create!(action: "login", user: @user)
     logout_log = AuditLog.create!(action: "logout", user: @user)
     update_log = AuditLog.create!(action: "update_profile", user: @user)
 
-    # Model accepts arrays, not comma-separated strings
-    # (Controller handles parsing comma-separated strings into arrays)
-    results = AuditLog.filtered(audit_action: [ "login", "logout" ])
+    # Scopes are chainable as the Rails Way intends
+    results = AuditLog.by_action([ "login", "logout" ]).recent
     assert_includes results, login_log
     assert_includes results, logout_log
     assert_not_includes results, update_log
   end
 
-  test "filtered method processes arrays" do
+  test "scopes accept arrays and are composable" do
     login_log = AuditLog.create!(action: "login", user: @user)
     logout_log = AuditLog.create!(action: "logout", user: @user)
     update_log = AuditLog.create!(action: "update_profile", user: @user)
 
-    # Test with array in filters
-    results = AuditLog.filtered(audit_action: [ "login", "logout" ])
+    # Test with array in scope
+    results = AuditLog.by_action([ "login", "logout" ])
     assert_includes results, login_log
     assert_includes results, logout_log
     assert_not_includes results, update_log
   end
 
-  test "filtered method handles multiple filters as arrays" do
+  test "multiple scopes can be chained together" do
     other_user = users(:existing_user)
     other_account = accounts(:team_account)
 
@@ -274,11 +273,11 @@ class AuditLogTest < ActiveSupport::TestCase
     log2 = AuditLog.create!(user: other_user, account: other_account, action: "logout", auditable: other_user)
     log3 = AuditLog.create!(user: @user, account: @account, action: "update", auditable: @account)
 
-    # Test with arrays of values (as the controller would pass them)
-    results = AuditLog.filtered(
-      audit_action: [ "login", "logout" ],
-      auditable_type: [ "User", "Account" ]
-    )
+    # Test chaining multiple scopes
+    results = AuditLog
+      .by_action([ "login", "logout" ])
+      .by_type([ "User", "Account" ])
+      .recent
 
     assert_includes results, log1  # login action, User type
     assert_includes results, log2  # logout action, User type
