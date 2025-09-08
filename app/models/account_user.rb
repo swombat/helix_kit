@@ -1,4 +1,41 @@
 # app/models/account_user.rb
+
+# IMPORTANT: Why AccountUser contains "complex" business logic
+#
+# This model intentionally combines membership, invitation, and confirmation logic
+# in a single place rather than splitting into separate Membership, Invitation,
+# and Confirmation models. This is a deliberate design choice that actually
+# REDUCES complexity by:
+#
+# 1. **Single Source of Truth**: One record tracks a user's entire relationship
+#    with an account from invitation through active membership. No need to
+#    coordinate state across multiple models or worry about orphaned records.
+#
+# 2. **Natural State Machine**: A user's journey from invited → confirmed → active
+#    member is a single state progression on one record. Splitting this would
+#    require complex coordination between models and increase the chance of
+#    inconsistent states.
+#
+# 3. **Simpler Queries**: Finding all pending invitations, active members, or
+#    checking permissions requires querying just one table instead of joining
+#    across multiple tables.
+#
+# 4. **Follows Rails Patterns**: This is exactly what ActiveRecord polymorphic
+#    associations and STI were designed to avoid - unnecessary model proliferation.
+#    The complexity here is domain complexity, not accidental complexity.
+#
+# Example of what the alternative would look like:
+#   - Invitation model (tracks invite status, token, expiry)
+#   - Membership model (tracks active memberships and roles)
+#   - Confirmation model (tracks email confirmation state)
+#   - Complex service objects to coordinate transitions between these models
+#   - Risk of orphaned invitations when memberships are created
+#   - Duplicate role tracking across Invitation and Membership
+#
+# The current approach keeps related concerns together, making the code easier
+# to understand and maintain, even if the single model appears "complex" at
+# first glance. This is cohesion, not coupling.
+
 class AccountUser < ApplicationRecord
 
   include Confirmable,

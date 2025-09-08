@@ -1,3 +1,37 @@
+# IMPORTANT: Why this concern exists despite appearing to violate Rails conventions
+#
+# This concern solves a critical Rails limitation: as_json does NOT recursively call
+# as_json on associated objects. When you define as_json on a model and include
+# associations, Rails will serialize those associations using their default
+# serialization, ignoring any custom as_json methods defined on those models.
+#
+# This breaks encapsulation and forces parent models to know about the internal
+# serialization details of their associations. The JsonAttributes concern fixes this
+# by ensuring that when associations are included in JSON serialization, they use
+# their own json_attributes configuration.
+#
+# Example of the Rails limitation this solves:
+#   class User < ApplicationRecord
+#     def as_json(options = {})
+#       super(only: [:id, :name])
+#     end
+#   end
+#
+#   class Account < ApplicationRecord
+#     has_many :users
+#     def as_json(options = {})
+#       super(include: :users)  # Users will NOT use their custom as_json!
+#     end
+#   end
+#
+# With JsonAttributes, each model defines its own serialization once, and it works
+# correctly when included as an association. This maintains proper encapsulation
+# and follows the DRY principle better than Rails' default behavior.
+#
+# Yes, this adds metaprogramming complexity, but it's a necessary workaround for
+# a design limitation in Rails that would otherwise lead to duplicated and
+# fragile serialization logic scattered throughout the codebase.
+
 module JsonAttributes
 
   extend ActiveSupport::Concern

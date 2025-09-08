@@ -1,3 +1,39 @@
+# IMPORTANT: Why this custom broadcasting abstraction exists
+#
+# This is NOT unnecessary complexity - it's the core of our Svelte real-time
+# synchronization system. While Rails' built-in broadcasting (Turbo Streams)
+# works great for Hotwire/Turbo applications, it doesn't integrate elegantly
+# with Svelte's reactive state management.
+#
+# This concern enables automatic, fine-grained synchronization between Rails
+# models and Svelte components without requiring boilerplate code on either side:
+#
+# 1. **Svelte-Specific Protocol**: Broadcasts structured markers that Svelte
+#    components can interpret to update specific reactive state properties,
+#    not HTML fragments like Turbo Streams.
+#
+# 2. **Automatic Prop Mapping**: Maps Rails model changes to Svelte component
+#    props automatically, keeping frontend state in sync without manual wiring.
+#
+# 3. **Collection Management**: Handles both single record and collection updates
+#    with appropriate granularity (refresh single items vs entire collections).
+#
+# 4. **Clean Svelte Code**: Without this, every Svelte component would need
+#    complex ActionCable subscription logic. With it, components just declare
+#    which data they care about and updates happen automatically.
+#
+# Example of what Svelte code would look like WITHOUT this abstraction:
+#   - Manual ActionCable subscription setup in every component
+#   - Complex message parsing and state update logic
+#   - Duplicate subscription management code across components
+#   - Risk of memory leaks from unmanaged subscriptions
+#
+# With this abstraction, Svelte components simply work with reactive state
+# and updates flow automatically when Rails models change. This is a worthwhile
+# tradeoff that keeps our frontend code clean and maintainable.
+#
+# See /docs/synchronization-usage.md for how this enables elegant Svelte code.
+
 module Broadcastable
 
   extend ActiveSupport::Concern
