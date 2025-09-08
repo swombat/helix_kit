@@ -1,4 +1,3 @@
-# app/models/concerns/confirmable.rb
 module Confirmable
 
   extend ActiveSupport::Concern
@@ -10,7 +9,6 @@ module Confirmable
     scope :unconfirmed, -> { where(confirmed_at: nil) }
 
     generates_token_for :email_confirmation, expires_in: 24.hours do
-      # Include unique attributes to invalidate token if they change
       confirmable_attributes_for_token
     end
   end
@@ -45,7 +43,6 @@ module Confirmable
     confirmation_token.blank? && confirmed_at.blank?
   end
 
-  # Override in including class to specify attributes
   def confirmable_attributes_for_token
     respond_to?(:email_address) ? email_address : id.to_s
   end

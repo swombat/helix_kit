@@ -227,7 +227,7 @@ class JsonAttributesTest < ActiveSupport::TestCase
     # The nested user should only include configured attributes from User.json_attributes
     user_json = json["user"]
     assert user_json.key?("full_name")     # Configured in User
-    assert_not user_json.key?("timezone") # Not in User.json_attributes
+    assert user_json.key?("timezone") # In User.json_attributes
     assert user_json.key?("preferences") # Now in User.json_attributes
   end
 
@@ -724,7 +724,7 @@ class JsonAttributesTest < ActiveSupport::TestCase
     assert_nil Account.json_enhancer
 
     # Test User configuration
-    assert_equal [ :full_name, :site_admin, :avatar_url, :initials, :preferences ], User.json_attrs
+    assert_equal [ :first_name, :last_name, :timezone, :full_name, :site_admin, :avatar_url, :initials, :preferences ], User.json_attrs
     assert_equal({}, User.json_includes)
     assert_equal({ except: [ :password_digest, :password_reset_token, :password_reset_sent_at ] }, User.json_options)
     assert_nil User.json_enhancer

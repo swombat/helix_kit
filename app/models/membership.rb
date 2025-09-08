@@ -92,7 +92,6 @@ class Membership < ApplicationRecord
     json[:can_remove] = removable_by?(options[:current_user]) if options && options[:current_user]
   end
 
-  # Class Methods
   def self.confirm_by_token!(token)
     raise ActiveSupport::MessageVerifier::InvalidSignature if token.nil?
 

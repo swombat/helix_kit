@@ -37,8 +37,6 @@ class Prompt
         stream_response_type: :text
       )
 
-      debug "#{self.class}#execute response: #{response}"
-
       return response
     end
   end
@@ -53,8 +51,6 @@ class Prompt
         stream_response_type: :json
       )
 
-      debug "#{self.class}#execute response: #{response}"
-
       return response
     end
   end
@@ -63,8 +59,6 @@ class Prompt
     info "Executing #{self.class} with output class #{output_class} and id #{output_id} on property #{output_property}"
 
     params = render
-
-    debug "params: #{params.inspect}"
 
     @output = output_class.constantize.find(output_id)
 
@@ -82,8 +76,6 @@ class Prompt
         stream_proc: stream_proc,
         stream_response_type: json ? :json : :text
       )
-
-      debug "#{self.class}#execute response: #{response}"
 
       info "#{self.class}#execute response (short): #{response.inspect[0..200]}"
 

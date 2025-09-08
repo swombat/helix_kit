@@ -94,15 +94,12 @@ class RegistrationsController < ApplicationController
   end
 
   def complete_registration
-    # Separate profile params from password params
     all_params = password_params.dup
     profile_data = all_params.extract!(:first_name, :last_name)
 
     User.transaction do
-      # Update password
       return false unless @user.update(all_params)
 
-      # Update profile if we have profile data
       if profile_data.present?
         @user.profile.update!(profile_data)
       end
@@ -117,7 +114,6 @@ class RegistrationsController < ApplicationController
 
   def redirect_with_password_errors
     flash[:errors] = @user.errors.full_messages
-    debug "Errors: #{flash[:errors].inspect}"
     redirect_to set_password_path
   end
 

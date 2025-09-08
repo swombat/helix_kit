@@ -23,7 +23,6 @@ class AuditLog < ApplicationRecord
   scope :date_to, ->(date) { where("created_at <= ?", Date.parse(date.to_s).end_of_day) if date.present? }
 
 
-  # Class methods for filter options
   def self.available_actions
     distinct.pluck(:action).compact.sort
   end
