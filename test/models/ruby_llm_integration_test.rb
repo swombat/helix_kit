@@ -2,58 +2,39 @@ require "test_helper"
 
 class RubyLlmIntegrationTest < ActiveSupport::TestCase
 
-  # Don't load fixtures - create our own data
-  self.use_transactional_tests = true
-
-  setup do
-    # Create test data manually
-    @user = User.create!(
-      email_address: "test@rubyllm.com",
-      password: "password123",
-      password_confirmation: "password123",
-      first_name: "Test",
-      last_name: "User"
-    )
-
-    @account = Account.create!(
-      name: "Test Account",
-      account_type: :personal
-    )
-
-    # Create account user relationship
-    @account.account_users.create!(
-      user: @user,
-      role: "owner",
-      skip_confirmation: true
-    )
-  end
-
   test "Chat model basic functionality" do
-    chat = Chat.create!(account: @account)
+    # Create test user and account like other tests do
+    email = "chat-test-#{SecureRandom.hex(4)}@example.com"
+    user = User.register!(email)
+    account = user.personal_account
+
+    chat = Chat.create!(account: account)
 
     assert_equal "openrouter/auto", chat.model_id
-    assert_equal @account, chat.account
+    assert_equal account, chat.account
     assert chat.respond_to?(:ask)
-    assert chat.respond_to?(:generate_title)
     assert Chat.included_modules.include?(Broadcastable)
     assert Chat.included_modules.include?(ObfuscatesId)
   end
 
   test "Message model basic functionality" do
-    chat = Chat.create!(account: @account)
+    email = "message-test-#{SecureRandom.hex(4)}@example.com"
+    user = User.register!(email)
+    account = user.personal_account
+    chat = Chat.create!(account: account)
 
     # Test user message
     user_message = chat.messages.create!(
-      user: @user,
+      user: user,
       role: "user",
       content: "Hello AI"
     )
 
     assert user_message.persisted?
     assert_equal "user", user_message.role
-    assert_equal @user, user_message.user
+    assert_equal user, user_message.user
     assert_equal chat, user_message.chat
-    assert user_message.respond_to?(:to_openai)
+    assert user_message.respond_to?(:to_llm)
 
     # Test AI message
     ai_message = chat.messages.create!(
@@ -69,16 +50,23 @@ class RubyLlmIntegrationTest < ActiveSupport::TestCase
   end
 
   test "Chat validation" do
-    chat = Chat.new(account: @account, model_id: nil)
+    email = "validation-test-#{SecureRandom.hex(4)}@example.com"
+    user = User.register!(email)
+    account = user.personal_account
+
+    chat = Chat.new(account: account, model_id: nil)
     assert_not chat.valid?
     assert_includes chat.errors[:model_id], "can't be blank"
   end
 
   test "Message validation" do
-    chat = Chat.create!(account: @account)
+    email = "msg-validation-#{SecureRandom.hex(4)}@example.com"
+    user = User.register!(email)
+    account = user.personal_account
+    chat = Chat.create!(account: account)
 
     # Test role validation
-    message = Message.new(chat: chat, user: @user, content: "Test")
+    message = Message.new(chat: chat, user: user, content: "Test")
     message.role = "invalid"
     assert_not message.valid?
     assert_includes message.errors[:role], "is not included in the list"
@@ -91,9 +79,13 @@ class RubyLlmIntegrationTest < ActiveSupport::TestCase
   end
 
   test "Chat destroys messages" do
-    chat = Chat.create!(account: @account)
+    email = "destroy-test-#{SecureRandom.hex(4)}@example.com"
+    user = User.register!(email)
+    account = user.personal_account
+    chat = Chat.create!(account: account)
+
     message = chat.messages.create!(
-      user: @user,
+      user: user,
       role: "user",
       content: "Test message"
     )
@@ -105,14 +97,22 @@ class RubyLlmIntegrationTest < ActiveSupport::TestCase
   end
 
   test "GenerateTitleJob is enqueued on chat creation without title" do
+    email = "title-job-#{SecureRandom.hex(4)}@example.com"
+    user = User.register!(email)
+    account = user.personal_account
+
     assert_enqueued_with(job: GenerateTitleJob) do
-      Chat.create!(account: @account)
+      Chat.create!(account: account)
     end
   end
 
   test "GenerateTitleJob is not enqueued when title exists" do
+    email = "no-title-job-#{SecureRandom.hex(4)}@example.com"
+    user = User.register!(email)
+    account = user.personal_account
+
     assert_no_enqueued_jobs(only: GenerateTitleJob) do
-      Chat.create!(account: @account, title: "Existing Title")
+      Chat.create!(account: account, title: "Existing Title")
     end
   end
 

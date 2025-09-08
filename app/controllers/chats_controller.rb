@@ -32,7 +32,11 @@ class ChatsController < ApplicationController
   end
 
   def chat_params
-    params.require(:chat).permit(:model_id).with_defaults(model_id: "openrouter/auto")
+    if params[:chat]
+      params.require(:chat).permit(:model_id).with_defaults(model_id: "openrouter/auto")
+    else
+      { model_id: "openrouter/auto" }
+    end
   end
 
 end

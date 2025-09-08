@@ -3,7 +3,7 @@ class MessagesController < ApplicationController
   before_action :set_chat
 
   def create
-    @message = @chat.messages.create!(message_params.merge(user: current_user))
+    @message = @chat.messages.create!(message_params.merge(user: Current.user))
     @message.files.attach(params[:files]) if params[:files]
 
     AiResponseJob.perform_later(@chat, @message)

@@ -2,33 +2,59 @@ require "test_helper"
 
 class MessageTest < ActiveSupport::TestCase
 
+  def setup
+    @user = User.create!(
+      email_address: "test#{SecureRandom.hex(4)}@example.com",
+      password: "password123",
+      first_name: "Test",
+      last_name: "User"
+    )
+    @account = @user.personal_account
+    @chat = Chat.create!(account: @account)
+  end
+
   test "belongs to chat with touch" do
-    message = messages(:user_message)
-    chat_updated_at = message.chat.updated_at
+    message = @chat.messages.create!(
+      user: @user,
+      role: "user",
+      content: "Test message"
+    )
+    chat_updated_at = @chat.updated_at
 
     message.touch
 
     # Chat should have been touched too
-    assert message.chat.reload.updated_at > chat_updated_at
+    assert @chat.reload.updated_at > chat_updated_at
   end
 
   test "belongs to user optionally" do
-    user_message = messages(:user_message)
-    ai_message = messages(:ai_message)
+    user_message = @chat.messages.create!(
+      user: @user,
+      role: "user",
+      content: "User message"
+    )
+    ai_message = @chat.messages.create!(
+      role: "assistant",
+      content: "AI message"
+    )
 
-    assert_equal users(:user_1), user_message.user
+    assert_equal @user, user_message.user
     assert_nil ai_message.user
   end
 
   test "has many attached files" do
-    message = messages(:user_message)
+    message = @chat.messages.create!(
+      user: @user,
+      role: "user",
+      content: "Test message"
+    )
     assert message.respond_to?(:files)
   end
 
   test "validates role inclusion" do
     message = Message.new(
-      chat: chats(:conversation),
-      user: users(:user_1),
+      chat: @chat,
+      user: @user,
       content: "Test content"
     )
 
@@ -42,8 +68,8 @@ class MessageTest < ActiveSupport::TestCase
 
   test "validates content presence" do
     message = Message.new(
-      chat: chats(:conversation),
-      user: users(:user_1),
+      chat: @chat,
+      user: @user,
       role: "user"
     )
 
@@ -56,13 +82,10 @@ class MessageTest < ActiveSupport::TestCase
   end
 
   test "allows valid roles" do
-    chat = chats(:conversation)
-    user = users(:user_1)
-
     %w[user assistant system].each do |role|
       message = Message.create!(
-        chat: chat,
-        user: (role == "user" ? user : nil),
+        chat: @chat,
+        user: (role == "user" ? @user : nil),
         role: role,
         content: "Test #{role} message"
       )
@@ -76,14 +99,17 @@ class MessageTest < ActiveSupport::TestCase
   end
 
   test "acts as message" do
-    message = messages(:user_message)
-    # RubyLLM methods should be available
-    assert message.respond_to?(:to_openai)
+    message = @chat.messages.create!(
+      user: @user,
+      role: "user",
+      content: "Test message"
+    )
+    # RubyLLM methods should be available - updated method name
+    assert message.respond_to?(:to_llm)
   end
 
   test "broadcasts to chat" do
-    message = messages(:user_message)
-    assert_equal [ :chat ], message.class.broadcast_targets
+    assert_equal [ :chat ], Message.broadcast_targets
   end
 
 end

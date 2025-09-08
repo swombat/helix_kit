@@ -58,7 +58,7 @@ class ChatSimpleTest < ActiveSupport::TestCase
 
     # RubyLLM methods should be available
     assert chat.respond_to?(:ask)
-    assert message.respond_to?(:to_openai)
+    assert message.respond_to?(:to_llm)
   end
 
 end

@@ -5,7 +5,10 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
   setup do
     @user = users(:user_1)
     @account = accounts(:personal_account)
-    @chat = chats(:conversation)
+    @chat = @account.chats.create!(
+      model_id: "openrouter/auto",
+      title: "Test Conversation"
+    )
 
     # Sign in user
     post login_path, params: {
@@ -49,14 +52,23 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should scope to current account" do
-    other_account = accounts(:team_account)
-    other_chat = chats(:gpt_chat)
+    # Create a completely separate user and account
+    other_user = User.create!(
+      email_address: "msgother@example.com",
+      first_name: "Other",
+      last_name: "User"
+    )
+    other_account = other_user.personal_account
+    other_chat = other_account.chats.create!(
+      model_id: "gpt-4o",
+      title: "Other Account Chat"
+    )
 
-    assert_raises(ActiveRecord::RecordNotFound) do
-      post account_chat_messages_path(@account, other_chat), params: {
-        message: { content: "Should fail" }
-      }
-    end
+    # Should return 404 when trying to post to a chat in a different account
+    post account_chat_messages_path(@account, other_chat), params: {
+      message: { content: "Should fail" }
+    }
+    assert_response :not_found
   end
 
   test "should require authentication" do
@@ -70,11 +82,10 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
 
   test "should require content" do
     assert_no_difference "Message.count" do
-      assert_raises(ActiveRecord::RecordInvalid) do
-        post account_chat_messages_path(@account, @chat), params: {
-          message: { content: "" }
-        }
-      end
+      post account_chat_messages_path(@account, @chat), params: {
+        message: { content: "" }
+      }
+      assert_response :unprocessable_entity
     end
   end
 

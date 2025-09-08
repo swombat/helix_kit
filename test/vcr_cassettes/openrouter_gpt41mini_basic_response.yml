@@ -57,4 +57,65 @@ http_interactions:
         aGVkX3Rva2VucyI6MCwiYXVkaW9fdG9rZW5zIjowfSwiY29tcGxldGlvbl90
         b2tlbnNfZGV0YWlscyI6eyJyZWFzb25pbmdfdG9rZW5zIjowfX19
   recorded_at: Tue, 02 Sep 2025 07:05:45 GMT
+- request:
+    method: post
+    uri: https://openrouter.ai/api/v1/chat/completions
+    body:
+      encoding: UTF-8
+      string: '{"model":"openai/gpt-4.1-mini","messages":[{"role":"user","content":"Hi,
+        please help."}],"stream":false}'
+    headers:
+      User-Agent:
+      - Faraday v2.13.4
+      Authorization:
+      - Bearer <OPENROUTER_API_KEY>
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      date:
+      - Sat, 06 Sep 2025 16:28:38 GMT
+      content-type:
+      - application/json
+      transfer-encoding:
+      - chunked
+      connection:
+      - keep-alive
+      access-control-allow-origin:
+      - "*"
+      vary:
+      - Accept-Encoding
+      permissions-policy:
+      - payment=(self "https://checkout.stripe.com" "https://connect-js.stripe.com"
+        "https://js.stripe.com" "https://*.js.stripe.com" "https://hooks.stripe.com")
+      referrer-policy:
+      - no-referrer, strict-origin-when-cross-origin
+      x-content-type-options:
+      - nosniff
+      server:
+      - cloudflare
+      cf-ray:
+      - 97af572a8e5b4f65-MAD
+    body:
+      encoding: ASCII-8BIT
+      base64_string: |
+        CiAgICAgICAgIAoKICAgICAgICAgCgogICAgICAgICAKeyJpZCI6Imdlbi0x
+        NzU3MTc2MTE3LVZnSENXZmNza1dWQnhPaTg5enZHIiwicHJvdmlkZXIiOiJP
+        cGVuQUkiLCJtb2RlbCI6Im9wZW5haS9ncHQtNC4xLW1pbmkiLCJvYmplY3Qi
+        OiJjaGF0LmNvbXBsZXRpb24iLCJjcmVhdGVkIjoxNzU3MTc2MTE3LCJjaG9p
+        Y2VzIjpbeyJsb2dwcm9icyI6bnVsbCwiZmluaXNoX3JlYXNvbiI6InN0b3Ai
+        LCJuYXRpdmVfZmluaXNoX3JlYXNvbiI6InN0b3AiLCJpbmRleCI6MCwibWVz
+        c2FnZSI6eyJyb2xlIjoiYXNzaXN0YW50IiwiY29udGVudCI6IkhlbGxvISBP
+        ZiBjb3Vyc2UsIEnigJltIGhlcmUgdG8gaGVscC4gV2hhdCBkbyB5b3UgbmVl
+        ZCBhc3Npc3RhbmNlIHdpdGg/IiwicmVmdXNhbCI6bnVsbCwicmVhc29uaW5n
+        IjpudWxsfX1dLCJzeXN0ZW1fZmluZ2VycHJpbnQiOiJmcF80ZmNlMDc3OGFm
+        IiwidXNhZ2UiOnsicHJvbXB0X3Rva2VucyI6MTIsImNvbXBsZXRpb25fdG9r
+        ZW5zIjoxOCwidG90YWxfdG9rZW5zIjozMCwicHJvbXB0X3Rva2Vuc19kZXRh
+        aWxzIjp7ImNhY2hlZF90b2tlbnMiOjAsImF1ZGlvX3Rva2VucyI6MH0sImNv
+        bXBsZXRpb25fdG9rZW5zX2RldGFpbHMiOnsicmVhc29uaW5nX3Rva2VucyI6
+        MH19fQ==
+  recorded_at: Sat, 06 Sep 2025 16:28:38 GMT
 recorded_with: VCR 6.3.1

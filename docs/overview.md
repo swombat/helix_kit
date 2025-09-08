@@ -20,6 +20,7 @@ This directory contains detailed documentation for the Helix Kit Rails applicati
 ### Feature Documentation
 
 - **[Authentication](./authentication.md)** - User authentication system details
+- **[Chat with RubyLLM](./chat_with_rubyllm.md)** - AI chat functionality API usage guide and frontend integration
 - **[Frontend](./frontend.md)** - Svelte, Inertia.js, and component organization
 - **[Database](./database.md)** - PostgreSQL setup and Solid adapters configuration
 - **[Icons](./icons.md)** - Comprehensive Phosphor Icons reference with 1500+ searchable icons

@@ -17,6 +17,7 @@ class Account < ApplicationRecord
   has_one :owner_membership, -> { where(role: "owner") },
           class_name: "AccountUser"
   has_one :owner, through: :owner_membership, source: :user
+  has_many :chats, dependent: :destroy
 
   # Validations (Rails-only, no SQL constraints!)
   validates :name, presence: true

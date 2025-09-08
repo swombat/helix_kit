@@ -1,0 +1,87 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://api.anthropic.com/v1/messages
+    body:
+      encoding: UTF-8
+      string: '{"model":"claude-3-haiku-20240307","messages":[{"role":"user","content":[{"type":"text","text":"What
+        is 10 * 10? Please respond with just the number."}]}],"stream":false,"max_tokens":4096}'
+    headers:
+      User-Agent:
+      - Faraday v2.13.4
+      x-api-key:
+      - "<CLAUDE_API_KEY>"
+      anthropic-version:
+      - '2023-06-01'
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      date:
+      - Sat, 06 Sep 2025 16:27:02 GMT
+      content-type:
+      - application/json
+      transfer-encoding:
+      - chunked
+      connection:
+      - keep-alive
+      anthropic-ratelimit-input-tokens-limit:
+      - '400000'
+      anthropic-ratelimit-input-tokens-remaining:
+      - '400000'
+      anthropic-ratelimit-input-tokens-reset:
+      - '2025-09-06T16:27:01Z'
+      anthropic-ratelimit-output-tokens-limit:
+      - '80000'
+      anthropic-ratelimit-output-tokens-remaining:
+      - '80000'
+      anthropic-ratelimit-output-tokens-reset:
+      - '2025-09-06T16:27:01Z'
+      anthropic-ratelimit-requests-limit:
+      - '4000'
+      anthropic-ratelimit-requests-remaining:
+      - '3999'
+      anthropic-ratelimit-requests-reset:
+      - '2025-09-06T16:27:01Z'
+      anthropic-ratelimit-tokens-limit:
+      - '480000'
+      anthropic-ratelimit-tokens-remaining:
+      - '480000'
+      anthropic-ratelimit-tokens-reset:
+      - '2025-09-06T16:27:01Z'
+      request-id:
+      - req_011CSsTgVkCgxYKDgpM2tWns
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      anthropic-organization-id:
+      - 6a8e33e6-86cf-4a52-bdb3-c4eef5c23fc1
+      x-envoy-upstream-service-time:
+      - '309'
+      via:
+      - 1.1 google
+      cf-cache-status:
+      - DYNAMIC
+      x-robots-tag:
+      - none
+      server:
+      - cloudflare
+      cf-ray:
+      - 97af54d70dc2f77f-MAD
+    body:
+      encoding: ASCII-8BIT
+      base64_string: |
+        eyJpZCI6Im1zZ18wMTJnc2ROUWFoUG44c0c1amhhVjJNdXUiLCJ0eXBlIjoi
+        bWVzc2FnZSIsInJvbGUiOiJhc3Npc3RhbnQiLCJtb2RlbCI6ImNsYXVkZS0z
+        LWhhaWt1LTIwMjQwMzA3IiwiY29udGVudCI6W3sidHlwZSI6InRleHQiLCJ0
+        ZXh0IjoiMTAwIn1dLCJzdG9wX3JlYXNvbiI6ImVuZF90dXJuIiwic3RvcF9z
+        ZXF1ZW5jZSI6bnVsbCwidXNhZ2UiOnsiaW5wdXRfdG9rZW5zIjoyMywiY2Fj
+        aGVfY3JlYXRpb25faW5wdXRfdG9rZW5zIjowLCJjYWNoZV9yZWFkX2lucHV0
+        X3Rva2VucyI6MCwiY2FjaGVfY3JlYXRpb24iOnsiZXBoZW1lcmFsXzVtX2lu
+        cHV0X3Rva2VucyI6MCwiZXBoZW1lcmFsXzFoX2lucHV0X3Rva2VucyI6MH0s
+        Im91dHB1dF90b2tlbnMiOjUsInNlcnZpY2VfdGllciI6InN0YW5kYXJkIn19
+  recorded_at: Sat, 06 Sep 2025 16:27:02 GMT
+recorded_with: VCR 6.3.1

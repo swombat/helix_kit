@@ -10,7 +10,11 @@ module AccountScoping
   private
 
   def current_account
-    @current_account ||= Current.user&.default_account
+    @current_account ||= if params[:account_id]
+      Current.user&.accounts&.find(params[:account_id])
+    else
+      Current.user&.default_account
+    end
   end
 
   def current_account_user

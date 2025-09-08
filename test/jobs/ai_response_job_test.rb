@@ -1,11 +1,21 @@
 require "test_helper"
+require "ostruct"
 
 class AiResponseJobTest < ActiveJob::TestCase
 
   setup do
-    # Mock RubyLLM to avoid actual API calls in tests
-    @chat = chats(:conversation)
-    @user_message = messages(:user_message)
+    # Create test data instead of using fixtures
+    @user = users(:user_1)
+    @account = accounts(:personal_account)
+    @chat = @account.chats.create!(
+      model_id: "openrouter/auto",
+      title: "Test Conversation"
+    )
+    @user_message = @chat.messages.create!(
+      content: "Hello, how are you?",
+      role: "user",
+      user: @user
+    )
   end
 
   test "creates AI message and streams content" do
@@ -16,12 +26,13 @@ class AiResponseJobTest < ActiveJob::TestCase
       OpenStruct.new(content: "how can I help?")
     ]
 
-    @chat.stub(:ask, ->(content, &block) {
+    # Override the ask method for this test
+    @chat.define_singleton_method(:ask) do |content, &block|
       mock_chunks.each { |chunk| block.call(chunk) }
-    }) do
-      assert_difference "Message.count" do
-        AiResponseJob.perform_now(@chat, @user_message)
-      end
+    end
+
+    assert_difference "Message.count" do
+      AiResponseJob.perform_now(@chat, @user_message)
     end
 
     ai_message = Message.last
@@ -38,11 +49,12 @@ class AiResponseJobTest < ActiveJob::TestCase
       OpenStruct.new(content: "")
     ]
 
-    @chat.stub(:ask, ->(content, &block) {
+    # Override the ask method for this test
+    @chat.define_singleton_method(:ask) do |content, &block|
       mock_chunks.each { |chunk| block.call(chunk) }
-    }) do
-      AiResponseJob.perform_now(@chat, @user_message)
     end
+
+    AiResponseJob.perform_now(@chat, @user_message)
 
     ai_message = Message.last
     assert_equal "Valid content", ai_message.content
