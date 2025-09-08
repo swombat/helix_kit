@@ -6,16 +6,16 @@ class Account < ApplicationRecord
 
   # Broadcasting configuration
   broadcasts_to :all # Admin collection
-  skip_broadcasts_on_destroy :account_users
+  skip_broadcasts_on_destroy :memberships
 
   # Enums
   enum :account_type, { personal: 0, team: 1 }
 
   # Associations
-  has_many :account_users, dependent: :destroy
-  has_many :users, through: :account_users
+  has_many :memberships, dependent: :destroy
+  has_many :users, through: :memberships
   has_one :owner_membership, -> { where(role: "owner") },
-          class_name: "AccountUser"
+          class_name: "Membership"
   has_one :owner, through: :owner_membership, source: :user
   has_many :chats, dependent: :destroy
 
@@ -23,12 +23,12 @@ class Account < ApplicationRecord
   validates :name, presence: true
   validates :account_type, presence: true
   validate :enforce_personal_account_limit, if: :personal?
-  validate :can_invite_members, if: -> { account_users.any?(&:invitation?) }
+  validate :can_invite_members, if: -> { memberships.any?(&:invitation?) }
 
   # Callbacks
   before_validation :set_default_name, on: :create
   before_validation :generate_slug, on: :create
-  before_destroy :mark_account_users_for_skip_check, prepend: true
+  before_destroy :mark_memberships_for_skip_check, prepend: true
 
   # Scopes
   scope :personal, -> { where(account_type: :personal) }
@@ -45,22 +45,22 @@ class Account < ApplicationRecord
 
   # Business Logic Methods
   def add_user!(user, role: "member", skip_confirmation: false)
-    account_user = account_users.find_or_initialize_by(user: user)
+    membership = memberships.find_or_initialize_by(user: user)
 
-    if account_user.persisted?
-      account_user.resend_confirmation! unless account_user.confirmed?
-      account_user
+    if membership.persisted?
+      membership.resend_confirmation! unless membership.confirmed?
+      membership
     else
-      account_user.role = role
-      account_user.skip_confirmation = skip_confirmation
-      account_user.save!
-      account_user
+      membership.role = role
+      membership.skip_confirmation = skip_confirmation
+      membership.save!
+      membership
     end
   end
 
   # Business Logic for Invitations
   def invite_member(email:, role:, invited_by:)
-    account_users.build(
+    memberships.build(
       user: User.find_or_invite(email),
       role: role,
       invited_by: invited_by
@@ -68,11 +68,11 @@ class Account < ApplicationRecord
   end
 
   def last_owner?
-    account_users.owners.confirmed.count == 1
+    memberships.owners.confirmed.count == 1
   end
 
   def members_count
-    account_users.confirmed.count
+    memberships.confirmed.count
   end
 
   def active?
@@ -80,12 +80,12 @@ class Account < ApplicationRecord
   end
 
   def pending_invitations_count
-    account_users.pending_invitations.count
+    memberships.pending_invitations.count
   end
 
   # Association with proper includes for N+1 prevention
   def members_with_details
-    account_users.includes(:user, :invited_by).order(:created_at)
+    memberships.includes(:user, :invited_by).order(:created_at)
   end
 
   def personal_account_for?(user)
@@ -93,9 +93,9 @@ class Account < ApplicationRecord
   end
 
   def make_personal!
-    return unless team? && account_users.count == 1
+    return unless team? && memberships.count == 1
     update!(account_type: :personal)
-    account_users.first.update!(role: :owner)
+    memberships.first.update!(role: :owner)
   end
 
   def make_team!(name)
@@ -104,7 +104,7 @@ class Account < ApplicationRecord
   end
 
   def can_be_personal?
-    team? && account_users.count == 1
+    team? && memberships.count == 1
   end
 
   def name
@@ -116,11 +116,11 @@ class Account < ApplicationRecord
   end
 
   def users_count
-    account_users.count
+    memberships.count
   end
 
   def members_count
-    account_users.confirmed.count
+    memberships.confirmed.count
   end
 
   alias_method :active, :active?
@@ -129,19 +129,19 @@ class Account < ApplicationRecord
   def manageable_by?(user)
     return false unless user
     return true if user.site_admin
-    account_users.confirmed.admins.exists?(user: user)
+    memberships.confirmed.admins.exists?(user: user)
   end
 
   def owned_by?(user)
     return false unless user
     return true if user.site_admin
-    account_users.confirmed.owners.exists?(user: user)
+    memberships.confirmed.owners.exists?(user: user)
   end
 
   def accessible_by?(user)
     return false unless user
     return true if user.site_admin
-    account_users.confirmed.exists?(user: user)
+    memberships.confirmed.exists?(user: user)
   end
 
   # Custom error for authorization failures
@@ -150,7 +150,7 @@ class Account < ApplicationRecord
   private
 
   def enforce_personal_account_limit
-    if personal? && account_users.count > 1
+    if personal? && memberships.count > 1
       errors.add(:base, "Personal accounts can only have one user")
     end
   end
@@ -172,8 +172,8 @@ class Account < ApplicationRecord
     end
   end
 
-  def mark_account_users_for_skip_check
-    account_users.each { |au| au.skip_owner_check = true }
+  def mark_memberships_for_skip_check
+    memberships.each { |m| m.skip_owner_check = true }
   end
 
 end

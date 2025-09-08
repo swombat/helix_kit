@@ -2,7 +2,7 @@
 
 <p>Hi <%= @user.email_address %>,</p>
 
-<p><%= @inviter.email_address %> has invited you to join <strong><%= @account.name %></strong> as a <%= @account_user.role %>.</p>
+<p><%= @inviter.email_address %> has invited you to join <strong><%= @account.name %></strong> as a <%= @membership.role %>.</p>
 
 <p>
   <%= link_to "Accept Invitation", @confirmation_url, 

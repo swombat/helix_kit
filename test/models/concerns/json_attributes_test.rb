@@ -7,7 +7,7 @@ require "test_helper"
 # - Nested association handling with json_attributes inheritance
 # - ID obfuscation behavior (documents current bug)
 # - Option merging and runtime overrides
-# - Real-world usage patterns with Account, User, and AccountUser models
+# - Real-world usage patterns with Account, User, and Membership models
 class JsonAttributesTest < ActiveSupport::TestCase
 
   # Helper method to get users without ObfuscatesId interference
@@ -44,9 +44,9 @@ class JsonAttributesTest < ActiveSupport::TestCase
   end
 
   test "json_attributes includes associations when configured" do
-    account_user = AccountUser.find(13) # invited member with invited_by
+    membership = Membership.find(13) # invited member with invited_by
 
-    json = account_user.as_json
+    json = membership.as_json
 
     # Should include nested associations
     assert json.key?("user"), "JSON should have 'user' key. Keys: #{json.keys.inspect}"
@@ -121,11 +121,11 @@ class JsonAttributesTest < ActiveSupport::TestCase
   # === Enhancement Block Tests ===
 
   test "enhancement block adds dynamic fields with context" do
-    # Use real data: member account_user and admin who can manage
-    account_user = AccountUser.find(13) # invited member (user 2, account 3)
+    # Use real data: member membership and admin who can manage
+    membership = Membership.find(13) # invited member (user 2, account 3)
     admin_user = get_user(1) # admin of account 3
 
-    json = account_user.as_json(current_user: admin_user)
+    json = membership.as_json(current_user: admin_user)
 
     # Should include can_remove field added by the enhancement block (as symbol)
     assert json.key?(:can_remove), "JSON should have :can_remove key. Keys: #{json.keys.inspect}"
@@ -134,27 +134,27 @@ class JsonAttributesTest < ActiveSupport::TestCase
   end
 
   test "enhancement block receives hash and options parameters" do
-    account_user = AccountUser.find(1) # confirmed owner
+    membership = Membership.find(1) # confirmed owner
 
     # Create a test to verify the block receives the right parameters
-    original_enhancer = AccountUser.json_enhancer
+    original_enhancer = Membership.json_enhancer
 
     block_called = false
     received_hash = nil
     received_options = nil
 
     # Temporarily replace the enhancer to capture parameters
-    AccountUser.instance_variable_set(:@json_enhancer, proc do |hash, options|
+    Membership.instance_variable_set(:@json_enhancer, proc do |hash, options|
       block_called = true
       received_hash = hash
       received_options = options
     end)
 
     test_options = { current_user: get_user(1), test_param: "test_value" }
-    account_user.as_json(test_options)
+    membership.as_json(test_options)
 
     # Restore original enhancer
-    AccountUser.instance_variable_set(:@json_enhancer, original_enhancer)
+    Membership.instance_variable_set(:@json_enhancer, original_enhancer)
 
     assert block_called
     assert_kind_of Hash, received_hash
@@ -163,9 +163,9 @@ class JsonAttributesTest < ActiveSupport::TestCase
   end
 
   test "enhancement block does not run when no current_user provided" do
-    account_user = AccountUser.find(13) # invited member
+    membership = Membership.find(13) # invited member
 
-    json = account_user.as_json
+    json = membership.as_json
 
     # Should not include can_remove when no current_user context
     assert_not json.key?(:can_remove)
@@ -175,7 +175,7 @@ class JsonAttributesTest < ActiveSupport::TestCase
 
   test "context options propagate to nested associations" do
     # Create a test model with nested associations to verify context propagation
-    account_user = AccountUser.find(18) # confirmed member
+    membership = Membership.find(18) # confirmed member
     admin_user = get_user(9) # owner
 
     # Temporarily modify User to have an enhancement block that uses current_user
@@ -185,7 +185,7 @@ class JsonAttributesTest < ActiveSupport::TestCase
       hash[:received_current_user] = options[:current_user]&.id if options && options[:current_user]
     end)
 
-    json = account_user.as_json(current_user: admin_user)
+    json = membership.as_json(current_user: admin_user)
 
     # The nested user should have received the current_user context
     user_json = json["user"]
@@ -220,15 +220,15 @@ class JsonAttributesTest < ActiveSupport::TestCase
   # === Nested Association Handling Tests ===
 
   test "nested models use their own json_attributes configuration" do
-    account_user = AccountUser.find(13) # invited member
+    membership = Membership.find(13) # invited member
 
-    json = account_user.as_json
+    json = membership.as_json
 
     # The nested user should only include configured attributes from User.json_attributes
     user_json = json["user"]
     assert user_json.key?("full_name")     # Configured in User
     assert_not user_json.key?("timezone") # Not in User.json_attributes
-    assert_not user_json.key?("preferences") # Not in User.json_attributes for nested inclusion
+    assert user_json.key?("preferences") # Now in User.json_attributes
   end
 
   test "process_includes_for_nesting handles different include formats" do
@@ -241,10 +241,10 @@ class JsonAttributesTest < ActiveSupport::TestCase
     assert_equal expected, result
 
     # Test array include
-    result = account.send(:process_includes_for_nesting, [ :users, :account_users ], { current_user: admin_user })
+    result = account.send(:process_includes_for_nesting, [ :users, :memberships ], { current_user: admin_user })
     expected = [
       { users: { current_user: admin_user } },
-      { account_users: { current_user: admin_user } }
+      { memberships: { current_user: admin_user } }
     ]
     assert_equal expected, result
 
@@ -276,7 +276,7 @@ class JsonAttributesTest < ActiveSupport::TestCase
     base = {
       include: {
         users: { methods: [ :full_name ] },
-        account_users: { only: [ :role ] }
+        memberships: { only: [ :role ] }
       }
     }
 
@@ -292,7 +292,7 @@ class JsonAttributesTest < ActiveSupport::TestCase
     # Should deep merge includes
     expected_include = {
       users: { methods: [ :full_name ], only: [ :email_address ] },
-      account_users: { only: [ :role ] },
+      memberships: { only: [ :role ] },
       sessions: { methods: [ :ip_address ] }
     }
 
@@ -337,13 +337,13 @@ class JsonAttributesTest < ActiveSupport::TestCase
   test "runtime options can add additional includes" do
     account = accounts(:personal_account)
 
-    json = account.as_json(include: { account_users: { methods: [ :status ] } })
+    json = account.as_json(include: { memberships: { methods: [ :status ] } })
 
     # Should include the requested association
-    assert json.key?("account_users")
+    assert json.key?("memberships")
 
-    account_user_json = json["account_users"].first
-    assert account_user_json.key?("status")
+    membership_json = json["memberships"].first
+    assert membership_json.key?("status")
   end
 
   # === Edge Cases and Error Handling ===
@@ -371,11 +371,11 @@ class JsonAttributesTest < ActiveSupport::TestCase
   # === Complex Nested Association Tests ===
 
   test "deeply nested associations maintain json_attributes behavior" do
-    account_user = account_users(:team_member_user)
+    membership = memberships(:team_member_user)
     admin_user = users(:admin)
 
-    # Request account_user with user and user's accounts
-    json = account_user.as_json(
+    # Request membership with user and user's accounts
+    json = membership.as_json(
       current_user: admin_user,
       include: {
         user: {
@@ -438,12 +438,12 @@ class JsonAttributesTest < ActiveSupport::TestCase
     assert_equal user.to_param, json[:id]  # Symbol key has obfuscated ID
   end
 
-  test "AccountUser model json_attributes with enhancement block" do
-    # Use AccountUser that has invited_by relationship
-    account_user = AccountUser.where.not(invited_by_id: nil).first
-    admin_user = account_user.invited_by
+  test "Membership model json_attributes with enhancement block" do
+    # Use Membership that has invited_by relationship
+    membership = Membership.where.not(invited_by_id: nil).first
+    admin_user = membership.invited_by
 
-    json = account_user.as_json(current_user: admin_user)
+    json = membership.as_json(current_user: admin_user)
 
     # Test configured methods
     assert json.key?("display_name")
@@ -460,7 +460,7 @@ class JsonAttributesTest < ActiveSupport::TestCase
 
     # Test nested associations
     assert json.key?("user"), "JSON should have 'user' key. Keys: #{json.keys.inspect}"
-    if account_user.invited_by_id
+    if membership.invited_by_id
       assert json.key?("invited_by"), "JSON should have 'invited_by' key when invited_by_id present"
     else
       assert_not json.key?("invited_by"), "JSON should not have 'invited_by' key when invited_by_id is nil"
@@ -470,31 +470,31 @@ class JsonAttributesTest < ActiveSupport::TestCase
   # === Context Sensitivity Tests ===
 
   test "can_remove field reflects actual permissions" do
-    # Get member's AccountUser record and admin who can manage
-    member_account_user = AccountUser.find(13) # invited member (user 2, account 3)
+    # Get member's Membership record and admin who can manage
+    member_membership = Membership.find(13) # invited member (user 2, account 3)
     admin_user = get_user(1) # admin of account 3
-    member_user = member_account_user.user # the member user
+    member_user = member_membership.user # the member user
 
     # Admin should be able to remove member
-    json_as_admin = member_account_user.as_json(current_user: admin_user)
+    json_as_admin = member_membership.as_json(current_user: admin_user)
     assert json_as_admin[:can_remove]
 
     # Member should not be able to remove themselves
-    json_as_member = member_account_user.as_json(current_user: member_user)
+    json_as_member = member_membership.as_json(current_user: member_user)
     assert_not json_as_member[:can_remove]
   end
 
   test "context propagation works with complex nested structures" do
-    account_user = AccountUser.find(18) # confirmed member
+    membership = Membership.find(18) # confirmed member
     admin_user = get_user(9) # owner
 
     # Request deep nesting with context
-    json = account_user.as_json(
+    json = membership.as_json(
       current_user: admin_user,
       include: {
         account: {
           include: {
-            account_users: { methods: [ :status ] }
+            memberships: { methods: [ :status ] }
           }
         }
       }
@@ -504,10 +504,10 @@ class JsonAttributesTest < ActiveSupport::TestCase
     assert json.key?(:can_remove)  # Top level should have enhancement
     assert json.key?("account")
 
-    # Nested account_users should also have access to context if they define enhancements
-    nested_account_users = json["account"]["account_users"]
-    assert nested_account_users.is_a?(Array)
-    assert nested_account_users.all? { |au| au.key?("status") }
+    # Nested memberships should also have access to context if they define enhancements
+    nested_memberships = json["account"]["memberships"]
+    assert nested_memberships.is_a?(Array)
+    assert nested_memberships.all? { |au| au.key?("status") }
   end
 
   # === Serialization Consistency Tests ===
@@ -547,8 +547,8 @@ class JsonAttributesTest < ActiveSupport::TestCase
   test "normalize_include handles array includes" do
     klass = Account
 
-    result = klass.send(:normalize_include, [ :users, :account_users ])
-    expected = { users: {}, account_users: {} }
+    result = klass.send(:normalize_include, [ :users, :memberships ])
+    expected = { users: {}, memberships: {} }
 
     assert_equal expected, result
   end
@@ -556,8 +556,8 @@ class JsonAttributesTest < ActiveSupport::TestCase
   test "normalize_include handles mixed array includes" do
     klass = Account
 
-    result = klass.send(:normalize_include, [ :users, { account_users: { methods: [ :status ] } } ])
-    expected = { users: {}, account_users: { methods: [ :status ] } }
+    result = klass.send(:normalize_include, [ :users, { memberships: { methods: [ :status ] } } ])
+    expected = { users: {}, memberships: { methods: [ :status ] } }
 
     assert_equal expected, result
   end
@@ -565,7 +565,7 @@ class JsonAttributesTest < ActiveSupport::TestCase
   test "normalize_include handles hash includes" do
     klass = Account
 
-    original = { users: { methods: [ :full_name ] }, account_users: {} }
+    original = { users: { methods: [ :full_name ] }, memberships: {} }
     result = klass.send(:normalize_include, original)
 
     assert_equal original, result
@@ -617,20 +617,20 @@ class JsonAttributesTest < ActiveSupport::TestCase
     end
   end
 
-  test "account_user serialization includes all required member management data" do
-    account_user = account_users(:team_member_user)
+  test "membership serialization includes all required member management data" do
+    membership = memberships(:team_member_user)
     admin_user = users(:admin)
 
-    json = account_user.as_json(current_user: admin_user)
+    json = membership.as_json(current_user: admin_user)
 
     # Should include all fields needed for member management UI (mix of string and symbol keys)
     string_fields = %w[id display_name status invitation invitation_pending email_address full_name confirmed]
     string_fields.each do |field|
-      assert json.key?(field), "Expected member field '#{field}' missing from AccountUser JSON"
+      assert json.key?(field), "Expected member field '#{field}' missing from Membership JSON"
     end
 
     # can_remove is added as symbol by enhancement block
-    assert json.key?(:can_remove), "Expected member field 'can_remove' missing from AccountUser JSON"
+    assert json.key?(:can_remove), "Expected member field 'can_remove' missing from Membership JSON"
 
     # Should include nested user data
     assert json.key?("user")
@@ -653,24 +653,24 @@ class JsonAttributesTest < ActiveSupport::TestCase
 
     # This should complete without errors or excessive queries
     assert_nothing_raised do
-      json = team_account.as_json(include: { account_users: { include: :user } })
-      assert json.key?("account_users")
-      assert_equal 5, json["account_users"].length
+      json = team_account.as_json(include: { memberships: { include: :user } })
+      assert json.key?("memberships")
+      assert_equal 5, json["memberships"].length
     end
   end
 
   test "json_attributes with nil associations" do
-    # Test AccountUser with nil invited_by (Rails omits nil associations)
-    account_user = AccountUser.find(1)  # Personal account membership, no invitation
+    # Test Membership with nil invited_by (Rails omits nil associations)
+    membership = Membership.find(1)  # Personal account membership, no invitation
 
-    json = account_user.as_json
+    json = membership.as_json
 
     # Rails omits nil associations from JSON by default
     assert_not json.key?("invited_by"), "invited_by should be omitted when nil"
 
-    # But invited AccountUser should have invited_by
-    invited_account_user = AccountUser.find(13)
-    invited_json = invited_account_user.as_json
+    # But invited Membership should have invited_by
+    invited_membership = Membership.find(13)
+    invited_json = invited_membership.as_json
     assert invited_json.key?("invited_by"), "invited_by should be present for invited users"
   end
 
@@ -724,21 +724,21 @@ class JsonAttributesTest < ActiveSupport::TestCase
     assert_nil Account.json_enhancer
 
     # Test User configuration
-    assert_equal [ :full_name, :site_admin, :avatar_url, :initials ], User.json_attrs
+    assert_equal [ :full_name, :site_admin, :avatar_url, :initials, :preferences ], User.json_attrs
     assert_equal({}, User.json_includes)
     assert_equal({ except: [ :password_digest, :password_reset_token, :password_reset_sent_at ] }, User.json_options)
     assert_nil User.json_enhancer
 
-    # Test AccountUser configuration
+    # Test Membership configuration
     expected_methods = [ :display_name, :status, :invitation?, :invitation_pending?, :email_address, :full_name, :confirmed? ]
-    assert_equal expected_methods, AccountUser.json_attrs
+    assert_equal expected_methods, Membership.json_attrs
 
     expected_includes = {
       user: { only: [ :id, :email_address ], methods: [ :full_name ] },
       invited_by: { only: [ :id ], methods: [ :full_name ] }
     }
-    assert_equal expected_includes, AccountUser.json_includes
-    assert AccountUser.json_enhancer.present?
+    assert_equal expected_includes, Membership.json_includes
+    assert Membership.json_enhancer.present?
   end
 
 end

@@ -19,6 +19,43 @@ module ActiveSupport
     # Configure Active Storage URL options for tests
     setup do
       ActiveStorage::Current.url_options = { host: "test.host" }
+      ensure_profiles_exist
+    end
+
+    private
+
+    # Ensure that all fixture users have profiles
+    # since fixtures don't trigger callbacks
+    def ensure_profiles_exist
+      User.find_each do |user|
+        next if user.profile.present?
+
+        # Create profile with some test data based on user email
+        profile_data = case user.email_address
+        when "test@example.com"
+          { first_name: "Test", last_name: "User" }
+        when "existing@example.com"
+          { first_name: "Existing", last_name: "User" }
+        when "admin@example.com"
+          { first_name: "Admin", last_name: "User" }
+        when "regular@example.com"
+          { first_name: "Regular", last_name: "User" }
+        when "confirmed@example.com"
+          { first_name: "Confirmed", last_name: "User" }
+        when "teamowner@example.com"
+          { first_name: "Team", last_name: "Owner" }
+        when "teamadmin@example.com"
+          { first_name: "Team", last_name: "Admin" }
+        when "teammember@example.com"
+          { first_name: "Team", last_name: "Member" }
+        when "othermember@example.com"
+          { first_name: "Other", last_name: "Member" }
+        else
+          { first_name: "Test", last_name: "User" }
+        end
+
+        user.build_profile(profile_data.merge(theme: "system")).save!
+      end
     end
 
   end

@@ -78,7 +78,8 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
 
   test "should only show user's accounts" do
     # Create a completely new user with their own account
-    other_user = User.create!(email_address: "isolated@example.com", first_name: "Isolated", last_name: "User")
+    other_user = User.create!(email_address: "isolated@example.com")
+    other_user.profile.update!(first_name: "Isolated", last_name: "User")
     other_account = Account.create!(name: "Isolated Account", account_type: :personal)
     other_account.add_user!(other_user, role: "owner", skip_confirmation: true)
 

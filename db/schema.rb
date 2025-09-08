@@ -10,30 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_08_054757) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_08_070833) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
-
-  create_table "account_users", force: :cascade do |t|
-    t.bigint "account_id", null: false
-    t.bigint "user_id", null: false
-    t.string "role", default: "owner", null: false
-    t.string "confirmation_token"
-    t.datetime "confirmation_sent_at"
-    t.datetime "confirmed_at"
-    t.datetime "invited_at"
-    t.bigint "invited_by_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.datetime "invitation_accepted_at"
-    t.index ["account_id", "user_id"], name: "index_account_users_on_account_id_and_user_id", unique: true
-    t.index ["account_id"], name: "index_account_users_on_account_id"
-    t.index ["confirmation_token"], name: "index_account_users_on_confirmation_token", unique: true
-    t.index ["confirmed_at"], name: "index_account_users_on_confirmed_at"
-    t.index ["invitation_accepted_at"], name: "index_account_users_on_invitation_accepted_at"
-    t.index ["invited_by_id"], name: "index_account_users_on_invited_by_id"
-    t.index ["user_id"], name: "index_account_users_on_user_id"
-  end
 
   create_table "accounts", force: :cascade do |t|
     t.string "name", null: false
@@ -104,6 +83,27 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_08_054757) do
     t.index ["account_id"], name: "index_chats_on_account_id"
   end
 
+  create_table "memberships", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.bigint "user_id", null: false
+    t.string "role", default: "owner", null: false
+    t.string "confirmation_token"
+    t.datetime "confirmation_sent_at"
+    t.datetime "confirmed_at"
+    t.datetime "invited_at"
+    t.bigint "invited_by_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.datetime "invitation_accepted_at"
+    t.index ["account_id", "user_id"], name: "index_memberships_on_account_id_and_user_id", unique: true
+    t.index ["account_id"], name: "index_memberships_on_account_id"
+    t.index ["confirmation_token"], name: "index_memberships_on_confirmation_token", unique: true
+    t.index ["confirmed_at"], name: "index_memberships_on_confirmed_at"
+    t.index ["invitation_accepted_at"], name: "index_memberships_on_invitation_accepted_at"
+    t.index ["invited_by_id"], name: "index_memberships_on_invited_by_id"
+    t.index ["user_id"], name: "index_memberships_on_user_id"
+  end
+
   create_table "messages", force: :cascade do |t|
     t.bigint "chat_id", null: false
     t.bigint "user_id"
@@ -119,6 +119,18 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_08_054757) do
     t.index ["chat_id"], name: "index_messages_on_chat_id"
     t.index ["tool_call_id"], name: "index_messages_on_tool_call_id"
     t.index ["user_id"], name: "index_messages_on_user_id"
+  end
+
+  create_table "profiles", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "first_name"
+    t.string "last_name"
+    t.string "theme", default: "system"
+    t.string "timezone"
+    t.jsonb "preferences", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_profiles_on_user_id", unique: true
   end
 
   create_table "prompt_outputs", force: :cascade do |t|
@@ -159,27 +171,24 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_08_054757) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "migrated_to_accounts", default: false
-    t.string "first_name"
-    t.string "last_name"
-    t.string "timezone"
     t.boolean "is_site_admin", default: false, null: false
-    t.json "preferences", default: {}
     t.string "password_reset_token"
     t.datetime "password_reset_sent_at"
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
     t.index ["password_reset_token"], name: "index_users_on_password_reset_token", unique: true
   end
 
-  add_foreign_key "account_users", "accounts"
-  add_foreign_key "account_users", "users"
-  add_foreign_key "account_users", "users", column: "invited_by_id"
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "audit_logs", "accounts"
   add_foreign_key "audit_logs", "users"
   add_foreign_key "chats", "accounts"
+  add_foreign_key "memberships", "accounts"
+  add_foreign_key "memberships", "users"
+  add_foreign_key "memberships", "users", column: "invited_by_id"
   add_foreign_key "messages", "chats"
   add_foreign_key "messages", "users"
+  add_foreign_key "profiles", "users"
   add_foreign_key "prompt_outputs", "accounts"
   add_foreign_key "sessions", "users"
   add_foreign_key "tool_calls", "messages"

@@ -54,10 +54,9 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
   test "should scope to current account" do
     # Create a completely separate user and account
     other_user = User.create!(
-      email_address: "msgother@example.com",
-      first_name: "Other",
-      last_name: "User"
+      email_address: "msgother@example.com"
     )
+    other_user.profile.update!(first_name: "Other", last_name: "User")
     other_account = other_user.personal_account
     other_chat = other_account.chats.create!(
       model_id: "gpt-4o",

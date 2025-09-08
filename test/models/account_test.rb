@@ -4,17 +4,17 @@ class AccountTest < ActiveSupport::TestCase
 
   # === Core add_user! Method Tests ===
 
-  test "add_user! creates new AccountUser for new membership" do
+  test "add_user! creates new Membership for new membership" do
     account = accounts(:team_account)
     new_user = User.create!(email_address: "newmember@example.com")
 
-    assert_difference "AccountUser.count" do
-      account_user = account.add_user!(new_user, role: "member")
-      assert account_user.persisted?
-      assert_equal "member", account_user.role
-      assert_equal account, account_user.account
-      assert_equal new_user, account_user.user
-      assert_not account_user.confirmed? # Should require confirmation by default
+    assert_difference "Membership.count" do
+      membership = account.add_user!(new_user, role: "member")
+      assert membership.persisted?
+      assert_equal "member", membership.role
+      assert_equal account, membership.account
+      assert_equal new_user, membership.user
+      assert_not membership.confirmed? # Should require confirmation by default
     end
   end
 
@@ -22,13 +22,13 @@ class AccountTest < ActiveSupport::TestCase
     account = accounts(:team_account)
     new_user = User.create!(email_address: "skipmember@example.com")
 
-    account_user = account.add_user!(new_user, role: "admin", skip_confirmation: true)
+    membership = account.add_user!(new_user, role: "admin", skip_confirmation: true)
 
-    # When skip_confirmation is true, the AccountUser should be confirmed
+    # When skip_confirmation is true, the Membership should be confirmed
     # The Confirmable module sets confirmed_at when needs_confirmation? returns false
-    account_user.reload
-    assert account_user.confirmed?, "AccountUser should be confirmed when skip_confirmation is true"
-    assert_nil account_user.confirmation_token
+    membership.reload
+    assert membership.confirmed?, "Membership should be confirmed when skip_confirmation is true"
+    assert_nil membership.confirmation_token
   end
 
   test "add_user! enforces personal account user limit" do
@@ -49,8 +49,8 @@ class AccountTest < ActiveSupport::TestCase
     user2 = User.create!(email_address: "user2@example.com")
 
     # First user should work
-    account_user1 = account.add_user!(user1, role: "owner", skip_confirmation: true)
-    assert account_user1.persisted?
+    membership1 = account.add_user!(user1, role: "owner", skip_confirmation: true)
+    assert membership1.persisted?
 
     # Second user should fail validation
     assert_raises(ActiveRecord::RecordInvalid) do
@@ -94,18 +94,18 @@ class AccountTest < ActiveSupport::TestCase
 
   # === Association Tests ===
 
-  test "has_many account_users dependent destroy" do
+  test "has_many memberships dependent destroy" do
     account = Account.create!(name: "Destroy Test", account_type: :team)
     user = User.create!(email_address: "accountdestroytest@example.com")
-    account_user = account.add_user!(user, role: "owner", skip_confirmation: true)
-    account_user_id = account_user.id
+    membership = account.add_user!(user, role: "owner", skip_confirmation: true)
+    membership_id = membership.id
 
     account.destroy
 
-    assert_not AccountUser.exists?(account_user_id)
+    assert_not Membership.exists?(membership_id)
   end
 
-  test "has_many users through account_users" do
+  test "has_many users through memberships" do
     account = accounts(:team_account)
 
     assert account.users.present?
@@ -136,14 +136,14 @@ class AccountTest < ActiveSupport::TestCase
     assert_nil account.owner
   end
 
-  test "has_many users through account_users includes all confirmed users" do
+  test "has_many users through memberships includes all confirmed users" do
     account = accounts(:team_account)
 
     confirmed_users = account.users
 
     # Should include all confirmed users
     confirmed_users.each do |user|
-      membership = account.account_users.find_by(user: user)
+      membership = account.memberships.find_by(user: user)
       assert membership.confirmed?, "User #{user.email_address} should be confirmed"
     end
   end
@@ -222,7 +222,7 @@ class AccountTest < ActiveSupport::TestCase
     account.make_personal!
 
     assert account.personal?
-    assert_equal "owner", account.account_users.first.role
+    assert_equal "owner", account.memberships.first.role
   end
 
   test "make_personal! does nothing for team account with multiple users" do
@@ -288,8 +288,8 @@ class AccountTest < ActiveSupport::TestCase
     account = accounts(:another_team)  # Has 3 users: one confirmed, one admin, one pending
 
     # Verify test data assumption
-    assert_equal 3, account.account_users.count
-    assert account.account_users.where(confirmed_at: nil).exists?, "Should have pending invitations"
+    assert_equal 3, account.memberships.count
+    assert account.memberships.where(confirmed_at: nil).exists?, "Should have pending invitations"
 
     assert_not account.can_be_personal?
   end
@@ -298,7 +298,7 @@ class AccountTest < ActiveSupport::TestCase
     account = accounts(:another_team)  # Has 3 users: one confirmed, one admin, one pending
     original_type = account.account_type
 
-    # Should not convert because total account_users.count > 1
+    # Should not convert because total memberships.count > 1
     account.make_personal!
 
     # Should remain as team account
@@ -310,20 +310,20 @@ class AccountTest < ActiveSupport::TestCase
     account = accounts(:another_team)
 
     # Remove the pending invitation and one confirmed user, leaving only one confirmed user
-    pending_invitation = account.account_users.find_by(confirmed_at: nil)
+    pending_invitation = account.memberships.find_by(confirmed_at: nil)
     pending_invitation.destroy!
 
     # Remove the admin (user_1), keep only the member (user_3)
-    admin_membership = account.account_users.find_by(user_id: 1)
+    admin_membership = account.memberships.find_by(user_id: 1)
     admin_membership.destroy!
 
-    assert_equal 1, account.account_users.count
+    assert_equal 1, account.memberships.count
     assert account.can_be_personal?
 
     account.make_personal!
 
     assert account.personal?
-    assert_equal "owner", account.account_users.first.role
+    assert_equal "owner", account.memberships.first.role
   end
 
   test "make_personal! requires exactly one user (not zero)" do
@@ -370,7 +370,8 @@ class AccountTest < ActiveSupport::TestCase
     account = user.personal_account
 
     # Update user's name
-    user.update!(first_name: "Updated", last_name: "Name", password: "newpass123", password_confirmation: "newpass123")
+    user.update!(password: "newpass123", password_confirmation: "newpass123")
+    user.profile.update!(first_name: "Updated", last_name: "Name")
 
     assert_equal "Updated Name's Account", account.name
   end
@@ -479,7 +480,7 @@ class AccountTest < ActiveSupport::TestCase
     )
 
     # The validation runs on the account when it has invitations
-    account.account_users << invitation
+    account.memberships << invitation
     assert_not account.valid?
     assert_includes account.errors[:base], "Personal accounts cannot invite members"
   end
@@ -488,7 +489,7 @@ class AccountTest < ActiveSupport::TestCase
     account = Account.create!(name: "Single Owner", account_type: :team)
     user = User.create!(email_address: "onlyowner@example.com")
 
-    AccountUser.create!(
+    Membership.create!(
       account: account,
       user: user,
       role: "owner",
@@ -499,7 +500,7 @@ class AccountTest < ActiveSupport::TestCase
 
     # Add another owner
     user2 = User.create!(email_address: "secondowner@example.com")
-    AccountUser.create!(
+    Membership.create!(
       account: account,
       user: user2,
       role: "owner",
@@ -513,7 +514,7 @@ class AccountTest < ActiveSupport::TestCase
     account = accounts(:team)
 
     # Should only count confirmed memberships
-    confirmed_count = account.account_users.confirmed.count
+    confirmed_count = account.memberships.confirmed.count
     assert_equal confirmed_count, account.members_count
   end
 
@@ -529,7 +530,7 @@ class AccountTest < ActiveSupport::TestCase
     )
     invitation.save!
 
-    pending_count = account.account_users.pending_invitations.count
+    pending_count = account.memberships.pending_invitations.count
     assert_equal pending_count, account.pending_invitations_count
   end
 

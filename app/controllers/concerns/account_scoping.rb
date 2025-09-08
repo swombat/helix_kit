@@ -3,7 +3,7 @@ module AccountScoping
   extend ActiveSupport::Concern
 
   included do
-    helper_method :current_account, :current_account_user
+    helper_method :current_account, :current_membership
     before_action :set_current_account
   end
 
@@ -17,9 +17,9 @@ module AccountScoping
     end
   end
 
-  def current_account_user
-    @current_account_user ||= if current_account && Current.user
-      Current.user.account_users.confirmed.find_by(account: current_account)
+  def current_membership
+    @current_membership ||= if current_account && Current.user
+      Current.user.memberships.confirmed.find_by(account: current_account)
     end
   end
 

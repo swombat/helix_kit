@@ -10,15 +10,15 @@ class InvitationFlowTest < ActionDispatch::IntegrationTest
     # 1. Admin sends invitation
     sign_in admin
 
-    # Two AccountUser records: personal account + team invitation
-    assert_difference "AccountUser.count", 2 do
+    # Two Membership records: personal account + team invitation
+    assert_difference "Membership.count", 2 do
       post account_invitations_path(account), params: {
         email: "newuser@example.com",
         role: "member"
       }
     end
 
-    invitation = AccountUser.last
+    invitation = Membership.last
     assert invitation.invitation?
     assert_equal admin, invitation.invited_by
     assert invitation.invitation_pending?
@@ -33,7 +33,8 @@ class InvitationFlowTest < ActionDispatch::IntegrationTest
 
     # 3. User can now access the account
     user = invitation.user
-    user.update!(password: "ValidPassword123", first_name: "New", last_name: "User")
+    user.update!(password: "ValidPassword123")
+    user.profile.update!(first_name: "New", last_name: "User")
 
     sign_in user
     get account_path(account)
@@ -52,7 +53,7 @@ class InvitationFlowTest < ActionDispatch::IntegrationTest
       role: "member"
     }
 
-    invitation = AccountUser.last
+    invitation = Membership.last
     original_token = invitation.confirmation_token
     original_time = invitation.invited_at
 
@@ -88,12 +89,12 @@ class InvitationFlowTest < ActionDispatch::IntegrationTest
     # Use existing fixtures
     account = accounts(:team_single_user)
     owner = users(:user_1)
-    owner_membership = account_users(:team_single_user_member)
+    owner_membership = memberships(:team_single_user_member)
 
     sign_in owner
 
     # Try to remove the owner
-    assert_no_difference "AccountUser.count" do
+    assert_no_difference "Membership.count" do
       delete account_member_path(account, owner_membership)
     end
 

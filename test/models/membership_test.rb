@@ -1,31 +1,31 @@
 require "test_helper"
 
-class AccountUserTest < ActiveSupport::TestCase
+class MembershipTest < ActiveSupport::TestCase
 
   include ActionMailer::TestHelper
 
   # === Core confirm_by_token! Class Method Tests ===
 
-  test "confirm_by_token! finds and confirms AccountUser with valid token" do
-    account_user = account_users(:pending_invitation)
-    token = account_user.confirmation_token
+  test "confirm_by_token! finds and confirms Membership with valid token" do
+    membership = memberships(:pending_invitation)
+    token = membership.confirmation_token
 
-    confirmed = AccountUser.confirm_by_token!(token)
+    confirmed = Membership.confirm_by_token!(token)
 
-    assert_equal account_user, confirmed
+    assert_equal membership, confirmed
     assert confirmed.confirmed?
     assert_nil confirmed.confirmation_token
   end
 
   test "confirm_by_token! raises error for invalid token" do
     assert_raises(ActiveSupport::MessageVerifier::InvalidSignature) do
-      AccountUser.confirm_by_token!("invalid-token")
+      Membership.confirm_by_token!("invalid-token")
     end
   end
 
   test "confirm_by_token! raises error for nil token" do
     assert_raises(ActiveSupport::MessageVerifier::InvalidSignature) do
-      AccountUser.confirm_by_token!(nil)
+      Membership.confirm_by_token!(nil)
     end
   end
 
@@ -37,17 +37,17 @@ class AccountUserTest < ActiveSupport::TestCase
     # Valid roles should work - use different users for each
     %w[owner admin member].each_with_index do |role, index|
       user = User.create!(email_address: "test#{index}@example.com")
-      account_user = AccountUser.new(account: account, user: user, role: role)
-      account_user.skip_confirmation = true
-      assert account_user.valid?, "#{role} should be valid"
+      membership = Membership.new(account: account, user: user, role: role)
+      membership.skip_confirmation = true
+      assert membership.valid?, "#{role} should be valid"
     end
 
     # Invalid role should fail
     user = User.create!(email_address: "invalid@example.com")
-    account_user = AccountUser.new(account: account, user: user, role: "invalid")
-    account_user.skip_confirmation = true
-    assert_not account_user.valid?
-    assert account_user.errors[:role].present?
+    membership = Membership.new(account: account, user: user, role: "invalid")
+    membership.skip_confirmation = true
+    assert_not membership.valid?
+    assert membership.errors[:role].present?
   end
 
   test "enforces personal account role restrictions" do
@@ -55,16 +55,16 @@ class AccountUserTest < ActiveSupport::TestCase
     user = User.create!(email_address: "roletest@example.com")
 
     # Member role should fail for personal account
-    account_user = AccountUser.new(account: account, user: user, role: "member")
-    account_user.skip_confirmation = true
-    assert_not account_user.valid?
-    assert account_user.errors[:role].include?("must be owner for personal accounts")
+    membership = Membership.new(account: account, user: user, role: "member")
+    membership.skip_confirmation = true
+    assert_not membership.valid?
+    assert membership.errors[:role].include?("must be owner for personal accounts")
 
     # Owner role should work
-    account_user.role = "owner"
+    membership.role = "owner"
     # But will still fail due to single user limit - that's expected
-    assert_not account_user.valid?
-    assert account_user.errors[:base].include?("Personal accounts can only have one user")
+    assert_not membership.valid?
+    assert membership.errors[:base].include?("Personal accounts can only have one user")
   end
 
   # === Uniqueness Validation Tests ===
@@ -74,19 +74,19 @@ class AccountUserTest < ActiveSupport::TestCase
     user = users(:confirmed_user)
 
     # First membership should work
-    account_user1 = AccountUser.create!(
+    membership1 = Membership.create!(
       account: account,
       user: user,
       role: "owner",
       skip_confirmation: true
     )
-    assert account_user1.persisted?
+    assert membership1.persisted?
 
     # Second membership should fail
-    account_user2 = AccountUser.new(account: account, user: user, role: "member")
-    account_user2.skip_confirmation = true
-    assert_not account_user2.valid?
-    assert account_user2.errors[:user_id].include?("is already a member of this account")
+    membership2 = Membership.new(account: account, user: user, role: "member")
+    membership2.skip_confirmation = true
+    assert_not membership2.valid?
+    assert membership2.errors[:user_id].include?("is already a member of this account")
   end
 
   test "allows same user across different accounts" do
@@ -95,11 +95,11 @@ class AccountUserTest < ActiveSupport::TestCase
     account2 = accounts(:another_team)
 
     assert_nothing_raised do
-      AccountUser.create!(account: account1, user: user, role: "admin", skip_confirmation: true)
-      AccountUser.create!(account: account2, user: user, role: "member", skip_confirmation: true)
+      Membership.create!(account: account1, user: user, role: "admin", skip_confirmation: true)
+      Membership.create!(account: account2, user: user, role: "member", skip_confirmation: true)
     end
 
-    assert_equal 3, user.account_users.count # personal account + 2 team accounts
+    assert_equal 3, user.memberships.count # personal account + 2 team accounts
   end
 
   # === Role Helper Methods Tests ===
@@ -110,7 +110,7 @@ class AccountUserTest < ActiveSupport::TestCase
     user = User.create!(email_address: "rolehelper-#{timestamp}@example.com")
 
     # Test owner
-    owner = AccountUser.create!(
+    owner = Membership.create!(
       account: account, user: user, role: "owner", skip_confirmation: true
     )
     assert owner.owner?
@@ -119,7 +119,7 @@ class AccountUserTest < ActiveSupport::TestCase
 
     # Test admin
     admin_user = User.create!(email_address: "admin-#{timestamp}-#{rand(1000)}@example.com")
-    admin = AccountUser.create!(
+    admin = Membership.create!(
       account: account, user: admin_user, role: "admin", skip_confirmation: true
     )
     assert_not admin.owner?
@@ -128,7 +128,7 @@ class AccountUserTest < ActiveSupport::TestCase
 
     # Test member
     member_user = User.create!(email_address: "member-#{timestamp}-#{rand(1000)}@example.com")
-    member = AccountUser.create!(
+    member = Membership.create!(
       account: account, user: member_user, role: "member", skip_confirmation: true
     )
     assert_not member.owner?
@@ -144,7 +144,7 @@ class AccountUserTest < ActiveSupport::TestCase
     user2 = User.create!(email_address: "scope_test_unconfirmed@example.com")
 
     # Confirmed user
-    confirmed = AccountUser.create!(
+    confirmed = Membership.create!(
       account: account,
       user: user1,
       role: "owner",
@@ -153,7 +153,7 @@ class AccountUserTest < ActiveSupport::TestCase
     )
 
     # Unconfirmed user - don't skip confirmation to keep it unconfirmed
-    unconfirmed = AccountUser.new(
+    unconfirmed = Membership.new(
       account: account,
       user: user2,
       role: "member"
@@ -161,15 +161,15 @@ class AccountUserTest < ActiveSupport::TestCase
     unconfirmed.save!(validate: false) # Save without triggering confirmation email
     unconfirmed.update_column(:confirmed_at, nil) # Ensure it's unconfirmed
 
-    assert_includes AccountUser.confirmed, confirmed
-    assert_not_includes AccountUser.confirmed, unconfirmed
+    assert_includes Membership.confirmed, confirmed
+    assert_not_includes Membership.confirmed, unconfirmed
 
-    assert_includes AccountUser.unconfirmed, unconfirmed
-    assert_not_includes AccountUser.unconfirmed, confirmed
+    assert_includes Membership.unconfirmed, unconfirmed
+    assert_not_includes Membership.unconfirmed, confirmed
   end
 
-  test "owners scope returns only owner role AccountUsers" do
-    owners = AccountUser.owners
+  test "owners scope returns only owner role Memberships" do
+    owners = Membership.owners
 
     owners.each do |au|
       assert_equal "owner", au.role
@@ -177,7 +177,7 @@ class AccountUserTest < ActiveSupport::TestCase
   end
 
   test "admins scope returns owner and admin roles" do
-    admins = AccountUser.admins
+    admins = Membership.admins
 
     admins.each do |au|
       assert au.role.in?(%w[owner admin])
@@ -187,85 +187,85 @@ class AccountUserTest < ActiveSupport::TestCase
   # === Association Tests ===
 
   test "belongs_to account and user" do
-    account_user = account_users(:daniel_personal)
+    membership = memberships(:daniel_personal)
 
-    assert_equal accounts(:personal_account), account_user.account
-    assert_equal users(:user_1), account_user.user
+    assert_equal accounts(:personal_account), membership.account
+    assert_equal users(:user_1), membership.user
   end
 
   test "belongs_to invited_by optional" do
-    account_user = account_users(:pending_invitation)
-    assert_equal users(:user_1), account_user.invited_by
+    membership = memberships(:pending_invitation)
+    assert_equal users(:user_1), membership.invited_by
 
     # Should work without invited_by
     new_user = User.create!(email_address: "noinviter@example.com")
-    account_user = AccountUser.create!(
+    membership = Membership.create!(
       account: accounts(:team_account),
       user: new_user,
       role: "member",
       skip_confirmation: true
     )
-    assert_nil account_user.invited_by
+    assert_nil membership.invited_by
   end
 
   # === Confirmation Logic Tests ===
 
   test "confirmed? method from Confirmable module" do
-    confirmed = account_users(:daniel_personal)
-    unconfirmed = account_users(:pending_invitation)
+    confirmed = memberships(:daniel_personal)
+    unconfirmed = memberships(:pending_invitation)
 
     assert confirmed.confirmed?
     assert_not unconfirmed.confirmed?
   end
 
   test "confirm! method from Confirmable module works" do
-    account_user = account_users(:pending_invitation)
+    membership = memberships(:pending_invitation)
 
-    assert_not account_user.confirmed?
+    assert_not membership.confirmed?
 
-    account_user.confirm!
+    membership.confirm!
 
-    assert account_user.confirmed?
-    assert_nil account_user.confirmation_token
-    assert account_user.confirmed_at.present?
+    assert membership.confirmed?
+    assert_nil membership.confirmation_token
+    assert membership.confirmed_at.present?
   end
 
   # === Critical Update Method Safety Tests (For the bug we fixed) ===
 
-  test "update! methods work correctly on AccountUser model" do
-    account_user = account_users(:team_admin)
+  test "update! methods work correctly on Membership model" do
+    membership = memberships(:team_admin)
 
     # Test update!
     assert_nothing_raised do
-      account_user.update!(role: "member")
+      membership.update!(role: "member")
     end
-    assert_equal "member", account_user.reload.role
+    assert_equal "member", membership.reload.role
   end
 
-  test "update_column works correctly on AccountUser model" do
-    account_user = account_users(:team_admin)
-    original_updated_at = account_user.updated_at
+  test "update_column works correctly on Membership model" do
+    membership = memberships(:team_admin)
+    original_updated_at = membership.updated_at
 
     # Test update_column (should work without callbacks and not update updated_at)
     assert_nothing_raised do
-      account_user.update_column(:role, "member")
+      membership.update_column(:role, "member")
     end
 
-    account_user.reload
-    assert_equal "member", account_user.role
-    assert_equal original_updated_at.to_i, account_user.updated_at.to_i # Should not change updated_at
+    membership.reload
+    assert_equal "member", membership.role
+    assert_equal original_updated_at.to_i, membership.updated_at.to_i # Should not change updated_at
   end
 
-  test "save! works correctly on AccountUser model" do
+  test "save! works correctly on Membership model" do
     account = accounts(:team_account)
     user = User.create!(email_address: "savetest@example.com")
-    account_user = AccountUser.new(account: account, user: user, role: "member", skip_confirmation: true)
+    membership = Membership.new(account: account, user: user, role: "member", skip_confirmation: true)
 
     # Test save!
     assert_nothing_raised do
-      account_user.save!
+      membership.save!
     end
-    assert account_user.persisted?
+    assert membership.persisted?
   end
 
   # === Confirmation Token Handling Tests ===
@@ -274,67 +274,67 @@ class AccountUserTest < ActiveSupport::TestCase
     account = accounts(:team_account)
     user = User.create!(email_address: "tokentest@example.com")
 
-    account_user = AccountUser.create!(
+    membership = Membership.create!(
       account: account,
       user: user,
       role: "member"
       # skip_confirmation not set, so token should be generated
     )
 
-    assert account_user.confirmation_token.present?
-    assert account_user.confirmation_sent_at.present?
-    assert_not account_user.confirmed?
+    assert membership.confirmation_token.present?
+    assert membership.confirmation_sent_at.present?
+    assert_not membership.confirmed?
   end
 
   test "confirmation token is not generated when skip_confirmation is true" do
     account = accounts(:team_account)
     user = User.create!(email_address: "skiptoken@example.com")
 
-    account_user = AccountUser.create!(
+    membership = Membership.create!(
       account: account,
       user: user,
       role: "member",
       skip_confirmation: true
     )
 
-    assert_nil account_user.confirmation_token
-    assert_nil account_user.confirmation_sent_at
-    assert account_user.confirmed?
+    assert_nil membership.confirmation_token
+    assert_nil membership.confirmation_sent_at
+    assert membership.confirmed?
   end
 
   # === Validation Edge Cases ===
 
   test "validates required associations" do
     # Missing account
-    account_user = AccountUser.new(user: users(:user_1), role: "owner")
-    assert_not account_user.valid?
-    assert account_user.errors[:account].present?
+    membership = Membership.new(user: users(:user_1), role: "owner")
+    assert_not membership.valid?
+    assert membership.errors[:account].present?
 
     # Missing user
-    account_user = AccountUser.new(account: accounts(:team_account), role: "owner")
-    assert_not account_user.valid?
-    assert account_user.errors[:user].present?
+    membership = Membership.new(account: accounts(:team_account), role: "owner")
+    assert_not membership.valid?
+    assert membership.errors[:user].present?
   end
 
   test "role cannot be blank" do
-    account_user = AccountUser.new(
+    membership = Membership.new(
       account: accounts(:team_account),
       user: users(:confirmed_user),
       role: ""
     )
 
-    assert_not account_user.valid?
-    assert account_user.errors[:role].present?
+    assert_not membership.valid?
+    assert membership.errors[:role].present?
   end
 
   # === Business Logic Integration Tests ===
 
   test "confirmation workflow end-to-end" do
-    # Create unconfirmed AccountUser
+    # Create unconfirmed Membership
     account = accounts(:team_account)
     user = User.create!(email_address: "workflow@example.com")
 
-    account_user = AccountUser.create!(
+    membership = Membership.create!(
       account: account,
       user: user,
       role: "member",
@@ -342,14 +342,14 @@ class AccountUserTest < ActiveSupport::TestCase
     )
 
     # Should be unconfirmed with token
-    assert_not account_user.confirmed?
-    assert account_user.confirmation_token.present?
+    assert_not membership.confirmed?
+    assert membership.confirmation_token.present?
 
     # Confirm by token
-    token = account_user.confirmation_token
-    confirmed = AccountUser.confirm_by_token!(token)
+    token = membership.confirmation_token
+    confirmed = Membership.confirm_by_token!(token)
 
-    assert_equal account_user, confirmed
+    assert_equal membership, confirmed
     assert confirmed.confirmed?
     assert_nil confirmed.confirmation_token
   end
@@ -359,21 +359,21 @@ class AccountUserTest < ActiveSupport::TestCase
   test "destroys cleanly when account is destroyed" do
     account = Account.create!(name: "Temp Account", account_type: :team)
     user = User.create!(email_address: "tempdestroytest@example.com")
-    account_user = account.add_user!(user, role: "owner", skip_confirmation: true)
-    account_user_id = account_user.id
+    membership = account.add_user!(user, role: "owner", skip_confirmation: true)
+    membership_id = membership.id
 
     account.destroy
 
-    assert_not AccountUser.exists?(account_user_id)
+    assert_not Membership.exists?(membership_id)
   end
 
   test "destroys cleanly when user is destroyed" do
     user = User.create!(email_address: "temp-user@example.com")
-    account_user_id = user.account_users.first.id
+    membership_id = user.memberships.first.id
 
     user.destroy
 
-    assert_not AccountUser.exists?(account_user_id)
+    assert_not Membership.exists?(membership_id)
   end
 
   test "invited_by association works correctly" do
@@ -381,15 +381,15 @@ class AccountUserTest < ActiveSupport::TestCase
     account = accounts(:team_account)
     invitee = User.create!(email_address: "invitee@example.com")
 
-    account_user = AccountUser.create!(
+    membership = Membership.create!(
       account: account,
       user: invitee,
       role: "member",
       invited_by: inviter
     )
 
-    assert_equal inviter, account_user.invited_by
-    assert_equal inviter, account_user.reload.invited_by
+    assert_equal inviter, membership.invited_by
+    assert_equal inviter, membership.reload.invited_by
   end
 
   # === Role Method Comprehensive Tests ===
@@ -397,9 +397,9 @@ class AccountUserTest < ActiveSupport::TestCase
   test "role helper methods handle all valid roles" do
     account = accounts(:team_account)
 
-    AccountUser::ROLES.each_with_index do |role, index|
+    Membership::ROLES.each_with_index do |role, index|
       user = User.create!(email_address: "#{role}-#{Time.current.to_i}-#{index}@example.com")
-      account_user = AccountUser.create!(
+      membership = Membership.create!(
         account: account,
         user: user,
         role: role,
@@ -408,17 +408,17 @@ class AccountUserTest < ActiveSupport::TestCase
 
       case role
       when "owner"
-        assert account_user.owner?
-        assert account_user.admin?
-        assert account_user.can_manage?
+        assert membership.owner?
+        assert membership.admin?
+        assert membership.can_manage?
       when "admin"
-        assert_not account_user.owner?
-        assert account_user.admin?
-        assert account_user.can_manage?
+        assert_not membership.owner?
+        assert membership.admin?
+        assert membership.can_manage?
       when "member"
-        assert_not account_user.owner?
-        assert_not account_user.admin?
-        assert_not account_user.can_manage?
+        assert_not membership.owner?
+        assert_not membership.admin?
+        assert_not membership.can_manage?
       end
     end
   end
@@ -431,7 +431,7 @@ class AccountUserTest < ActiveSupport::TestCase
 
     # This should trigger email sending
     assert_enqueued_with(job: ActionMailer::MailDeliveryJob) do
-      AccountUser.create!(
+      Membership.create!(
         account: account,
         user: user,
         role: "member"
@@ -445,7 +445,7 @@ class AccountUserTest < ActiveSupport::TestCase
 
     # This should NOT trigger email sending
     assert_no_enqueued_jobs do
-      AccountUser.create!(
+      Membership.create!(
         account: account,
         user: user,
         role: "member",
@@ -459,9 +459,9 @@ class AccountUserTest < ActiveSupport::TestCase
   test "validates role inclusion for invitations" do
     account = accounts(:team)
     user = User.create!(email_address: "roletest@example.com")
-    account_user = AccountUser.new(account: account, user: user, role: "invalid")
-    assert_not account_user.valid?
-    assert_includes account_user.errors[:role], "is not included in the list"
+    membership = Membership.new(account: account, user: user, role: "invalid")
+    assert_not membership.valid?
+    assert_includes membership.errors[:role], "is not included in the list"
   end
 
   test "prevents duplicate memberships" do
@@ -470,7 +470,7 @@ class AccountUserTest < ActiveSupport::TestCase
 
     # Owner already has a membership through fixtures (team_owner)
     # Try to create duplicate
-    duplicate = AccountUser.new(
+    duplicate = Membership.new(
       account: account,
       user: user,
       role: "member"
@@ -484,7 +484,7 @@ class AccountUserTest < ActiveSupport::TestCase
     # Create account with single owner
     account = Account.create!(name: "Test Account", account_type: :team)
     user = User.create!(email_address: "lastowner@example.com")
-    owner_membership = AccountUser.create!(
+    owner_membership = Membership.create!(
       account: account,
       user: user,
       role: "owner",
@@ -503,7 +503,7 @@ class AccountUserTest < ActiveSupport::TestCase
     existing_user = users(:regular_user)
 
     assert_enqueued_emails 1 do
-      AccountUser.create!(
+      Membership.create!(
         account: account,
         user: existing_user,
         role: "member",
@@ -513,7 +513,7 @@ class AccountUserTest < ActiveSupport::TestCase
   end
 
   test "became_confirmed? detects confirmation changes" do
-    invitation = AccountUser.create!(
+    invitation = Membership.create!(
       account: accounts(:team),
       user: User.find_or_invite("becameconfirmed@example.com"),
       role: "member",
@@ -532,17 +532,17 @@ class AccountUserTest < ActiveSupport::TestCase
     member = users(:member)
 
     # Member already has a membership through fixtures (team_member_user)
-    member_account_user = account_users(:team_member_user)
+    member_membership = memberships(:team_member_user)
 
     # Admin can remove member
-    assert member_account_user.removable_by?(admin)
+    assert member_membership.removable_by?(admin)
 
     # Member cannot remove themselves
-    assert_not member_account_user.removable_by?(member)
+    assert_not member_membership.removable_by?(member)
 
     # Non-admin cannot remove
     other_member = users(:other_member)
-    assert_not member_account_user.removable_by?(other_member)
+    assert_not member_membership.removable_by?(other_member)
   end
 
   test "as_json includes can_remove when current_user provided" do
@@ -551,16 +551,16 @@ class AccountUserTest < ActiveSupport::TestCase
     admin = users(:admin)
 
     # Member already has a membership through fixtures (team_member_user)
-    member_account_user = account_users(:team_member_user)
+    member_membership = memberships(:team_member_user)
 
-    json = member_account_user.as_json(current_user: admin)
+    json = member_membership.as_json(current_user: admin)
 
     assert json.key?(:can_remove)
     assert json[:can_remove]
   end
 
   test "resend_invitation! updates token and timestamp" do
-    invitation = AccountUser.create!(
+    invitation = Membership.create!(
       account: accounts(:team),
       user: User.find_or_invite("pending@example.com"),
       role: "member",
@@ -578,15 +578,15 @@ class AccountUserTest < ActiveSupport::TestCase
   end
 
   test "invitation? returns true when invited_by is present" do
-    invitation = account_users(:pending_team_invitation)
-    regular = account_users(:team_owner)
+    invitation = memberships(:pending_team_invitation)
+    regular = memberships(:team_owner)
 
     assert invitation.invitation?
     assert_not regular.invitation?
   end
 
   test "invitation_pending? checks both invitation and confirmation" do
-    invitation = account_users(:pending_team_invitation)
+    invitation = memberships(:pending_team_invitation)
 
     assert invitation.invitation_pending?
 
@@ -596,7 +596,7 @@ class AccountUserTest < ActiveSupport::TestCase
   end
 
   test "pending_invitations scope works" do
-    pending = AccountUser.pending_invitations
+    pending = Membership.pending_invitations
     pending.each do |au|
       assert au.invitation?
       assert_not au.confirmed?
@@ -605,7 +605,7 @@ class AccountUserTest < ActiveSupport::TestCase
 
   test "accepted_invitations scope works" do
     # Create and confirm an invitation
-    invitation = AccountUser.create!(
+    invitation = Membership.create!(
       account: accounts(:team),
       user: User.find_or_invite("accepted@example.com"),
       role: "member",
@@ -613,7 +613,7 @@ class AccountUserTest < ActiveSupport::TestCase
     )
     invitation.confirm!
 
-    accepted = AccountUser.accepted_invitations
+    accepted = Membership.accepted_invitations
     assert_includes accepted, invitation
 
     accepted.each do |au|

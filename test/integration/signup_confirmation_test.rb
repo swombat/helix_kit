@@ -21,22 +21,22 @@ class SignupConfirmationTest < ActionDispatch::IntegrationTest
     assert_nil user.password_digest
     assert_not user.confirmed?
 
-    # Confirmation token is now on AccountUser
-    account_user = user.personal_account_user
-    assert_not_nil account_user.confirmation_token
-    assert_not_nil account_user.confirmation_sent_at
+    # Confirmation token is now on Membership
+    membership = user.personal_membership
+    assert_not_nil membership.confirmation_token
+    assert_not_nil membership.confirmation_sent_at
 
     # Visit confirmation link
-    get email_confirmation_path(token: account_user.confirmation_token)
+    get email_confirmation_path(token: membership.confirmation_token)
     assert_redirected_to set_password_path
     follow_redirect!
     assert_response :success
 
     # User should be confirmed
     user.reload
-    account_user.reload
+    membership.reload
     assert user.confirmed?
-    assert_nil account_user.confirmation_token
+    assert_nil membership.confirmation_token
 
     # Set password
     patch set_password_path, params: {
@@ -78,8 +78,8 @@ class SignupConfirmationTest < ActionDispatch::IntegrationTest
 
   test "resends confirmation email for existing unconfirmed user" do
     user = users(:unconfirmed_user)
-    account_user = user.personal_account_user
-    old_token = account_user.confirmation_token
+    membership = user.personal_membership
+    old_token = membership.confirmation_token
 
     # Try to signup again with same email
     assert_no_difference "User.count" do
@@ -88,8 +88,8 @@ class SignupConfirmationTest < ActionDispatch::IntegrationTest
     assert_redirected_to check_email_path
 
     # Token should be updated
-    account_user.reload
-    assert_not_equal old_token, account_user.confirmation_token
+    membership.reload
+    assert_not_equal old_token, membership.confirmation_token
   end
 
   test "prevents signup with confirmed email" do
@@ -99,7 +99,7 @@ class SignupConfirmationTest < ActionDispatch::IntegrationTest
       password: "password123"
     )
     # Confirm the user's account
-    user.personal_account_user.update!(confirmed_at: Time.current)
+    user.personal_membership.update!(confirmed_at: Time.current)
 
     # Try to signup with same email
     assert_no_difference "User.count" do

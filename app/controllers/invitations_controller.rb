@@ -57,7 +57,7 @@ class InvitationsController < ApplicationController
   end
 
   def find_account_member
-    @account.account_users.find(params[:id])
+    @account.memberships.find(params[:id])
   end
 
   def audit_invitation_resent

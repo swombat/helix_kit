@@ -3,11 +3,8 @@ user_1:
   id: 1
   email_address: test@example.com
   password_digest: <%= BCrypt::Password.create("password123") %>
-  first_name: Test
-  last_name: User
   created_at: <%= 1.day.ago %>
   updated_at: <%= 1.day.ago %>
-
 # Unconfirmed user (signed up but not confirmed)
 unconfirmed_user:
   id: 2
@@ -15,101 +12,71 @@ unconfirmed_user:
   # No password set yet for unconfirmed users
   created_at: <%= 1.hour.ago %>
   updated_at: <%= 1.hour.ago %>
-
 # Another confirmed user for duplicate email testing
 existing_user:
   id: 3
   email_address: existing@example.com
   password_digest: <%= BCrypt::Password.create("password123") %>
-  first_name: Existing
-  last_name: User
   created_at: <%= 2.days.ago %>
   updated_at: <%= 2.days.ago %>
-
 # User who needs password reset
 needsreset_user:
   id: 4
   email_address: needsreset@example.com
   password_digest: <%= BCrypt::Password.create("oldpassword123") %>
-  first_name: Needs
-  last_name: Reset
   created_at: <%= 1.day.ago %>
   updated_at: <%= 1.day.ago %>
-
 # User with no password set (OAuth-like)
 no_password_user:
   id: 5
   email_address: nopassword@example.com
-  first_name: No
-  last_name: Password
   created_at: <%= 1.day.ago %>
   updated_at: <%= 1.day.ago %>
-
 # Site admin user
 site_admin_user:
   id: 6
   email_address: admin@example.com
   password_digest: <%= BCrypt::Password.create("password123") %>
-  first_name: Site
-  last_name: Admin
   is_site_admin: true
   created_at: <%= 3.days.ago %>
   updated_at: <%= 3.days.ago %>
-
 # Regular non-admin user
 regular_user:
   id: 7
   email_address: regular@example.com
   password_digest: <%= BCrypt::Password.create("password123") %>
-  first_name: Regular
-  last_name: User
   is_site_admin: false
   created_at: <%= 2.days.ago %>
   updated_at: <%= 2.days.ago %>
-
 # Another confirmed user (referenced in tests)
 confirmed_user:
   id: 8
   email_address: confirmed@example.com
   password_digest: <%= BCrypt::Password.create("password123") %>
-  first_name: Confirmed
-  last_name: User
   created_at: <%= 3.days.ago %>
   updated_at: <%= 3.days.ago %>
-
 # Users for invitation system testing
 owner:
   id: 9
   email_address: teamowner@example.com
   password_digest: <%= BCrypt::Password.create("password123") %>
-  first_name: Team
-  last_name: Owner
   created_at: <%= 1.day.ago %>
   updated_at: <%= 1.day.ago %>
-
 admin:
   id: 10
   email_address: teamadmin@example.com
   password_digest: <%= BCrypt::Password.create("password123") %>
-  first_name: Team
-  last_name: Admin
   created_at: <%= 1.day.ago %>
   updated_at: <%= 1.day.ago %>
-
 member:
   id: 11
   email_address: teammember@example.com
   password_digest: <%= BCrypt::Password.create("password123") %>
-  first_name: Team
-  last_name: Member
   created_at: <%= 1.day.ago %>
   updated_at: <%= 1.day.ago %>
-
 other_member:
   id: 12
   email_address: othermember@example.com
   password_digest: <%= BCrypt::Password.create("password123") %>
-  first_name: Other
-  last_name: Member
   created_at: <%= 1.day.ago %>
   updated_at: <%= 1.day.ago %>

@@ -10,8 +10,8 @@ class InvitationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "create sends invitation" do
-    # Two AccountUser records: one for personal account, one for team invitation
-    assert_difference "AccountUser.count", 2 do
+    # Two Membership records: one for personal account, one for team invitation
+    assert_difference "Membership.count", 2 do
       # Two emails: one for the new user's personal account confirmation,
       # and one for the team invitation
       assert_enqueued_emails 2 do
@@ -30,7 +30,7 @@ class InvitationsControllerTest < ActionDispatch::IntegrationTest
     # Try to invite existing member
     existing = @account.users.first
 
-    assert_no_difference "AccountUser.count" do
+    assert_no_difference "Membership.count" do
       post account_invitations_path(@account), params: {
         email: existing.email_address,
         role: "member"
@@ -43,7 +43,7 @@ class InvitationsControllerTest < ActionDispatch::IntegrationTest
 
   test "resend updates invitation" do
     # Use existing pending invitation fixture
-    invitation = account_users(:pending_team_invitation)
+    invitation = memberships(:pending_team_invitation)
 
     assert_enqueued_emails 1 do
       post resend_account_invitation_path(@account, invitation)

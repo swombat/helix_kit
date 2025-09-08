@@ -1,11 +1,11 @@
 # app/mailers/account_mailer.rb
 class AccountMailer < ApplicationMailer
 
-  def confirmation(account_user)
-    @account_user = account_user
-    @user = account_user.user
-    @account = account_user.account
-    @confirmation_url = email_confirmation_url(token: account_user.confirmation_token)
+  def confirmation(membership)
+    @membership = membership
+    @user = membership.user
+    @account = membership.account
+    @confirmation_url = email_confirmation_url(token: membership.confirmation_token)
 
     mail(
       to: @user.email_address,
@@ -13,12 +13,12 @@ class AccountMailer < ApplicationMailer
     )
   end
 
-  def team_invitation(account_user)
-    @account_user = account_user
-    @user = account_user.user
-    @account = account_user.account
-    @inviter = account_user.invited_by
-    @confirmation_url = email_confirmation_url(token: account_user.confirmation_token)
+  def team_invitation(membership)
+    @membership = membership
+    @user = membership.user
+    @account = membership.account
+    @inviter = membership.invited_by
+    @confirmation_url = email_confirmation_url(token: membership.confirmation_token)
 
     mail(
       to: @user.email_address,

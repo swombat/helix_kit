@@ -133,20 +133,20 @@ class Admin::AccountsControllerTest < ActionDispatch::IntegrationTest
     assert selected_account.key?("created_at")
     assert selected_account.key?("updated_at")
     assert selected_account.key?("owner")
-    assert selected_account.key?("account_users")
+    assert selected_account.key?("memberships")
 
-    # Verify account_users array structure
-    account_users = selected_account["account_users"]
-    assert account_users.is_a?(Array)
+    # Verify memberships array structure
+    memberships = selected_account["memberships"]
+    assert memberships.is_a?(Array)
 
-    if account_users.any?
-      account_user = account_users.first
-      assert account_user.key?("id")
-      assert account_user.key?("user")
-      assert account_user.key?("role")
-      assert account_user.key?("created_at")
+    if memberships.any?
+      membership = memberships.first
+      assert membership.key?("id")
+      assert membership.key?("user")
+      assert membership.key?("role")
+      assert membership.key?("created_at")
       # User nested structure
-      user = account_user["user"]
+      user = membership["user"]
       assert user.key?("id")
       assert user.key?("email_address")
       assert user.key?("full_name")
@@ -237,7 +237,7 @@ class Admin::AccountsControllerTest < ActionDispatch::IntegrationTest
     assert selected_account.present?
     assert_equal empty_account.to_param, selected_account["id"]
     assert_nil selected_account["owner"]
-    assert_equal [], selected_account["account_users"]
+    assert_equal [], selected_account["memberships"]
   end
 
   # === Authorization Edge Cases ===
@@ -310,16 +310,16 @@ class Admin::AccountsControllerTest < ActionDispatch::IntegrationTest
     selected_account = inertia_shared_props["selected_account"]
     assert selected_account.present?
 
-    account_users = selected_account["account_users"]
-    assert account_users.is_a?(Array)
-    assert account_users.size >= 1
+    memberships = selected_account["memberships"]
+    assert memberships.is_a?(Array)
+    assert memberships.size >= 1
 
-    # Check account_user structure
-    account_user = account_users.first
-    assert account_user["user"]["email_address"].present?
-    assert account_user["user"]["full_name"].present?
-    assert %w[owner admin member].include?(account_user["role"])
-    assert account_user["created_at"].present?
+    # Check membership structure
+    membership = memberships.first
+    assert membership["user"]["email_address"].present?
+    assert membership["user"]["full_name"].present?
+    assert %w[owner admin member].include?(membership["role"])
+    assert membership["created_at"].present?
   end
 
   # === Performance and Data Loading Tests ===

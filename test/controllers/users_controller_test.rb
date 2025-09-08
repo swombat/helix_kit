@@ -212,7 +212,8 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
   test "PATCH update with oversized avatar shows error" do
     # This test would need a large file fixture in practice
     # For now, we'll test the validation exists by checking model validations
-    assert @user.class.validators_on(:avatar).any? { |v| v.is_a?(ActiveStorageValidations::SizeValidator) }
+    # Avatar validation is now on the Profile model
+    assert Profile.validators_on(:avatar).any? { |v| v.is_a?(ActiveStorageValidations::SizeValidator) }
   end
 
   test "DELETE destroy_avatar removes avatar with Inertia request" do

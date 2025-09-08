@@ -9,7 +9,7 @@ class AccountTypeSwitchingTest < ActionDispatch::IntegrationTest
     account = accounts(:personal_account)
 
     assert account.personal?
-    assert_equal 1, account.account_users.count
+    assert_equal 1, account.memberships.count
 
     # Login as the account owner
     post login_path, params: { email_address: user.email_address, password: "password123" }
@@ -27,13 +27,13 @@ class AccountTypeSwitchingTest < ActionDispatch::IntegrationTest
     account.reload
     assert account.team?
     assert_equal "My New Team", account.name
-    assert_equal "owner", account.account_users.first.role
+    assert_equal "owner", account.memberships.first.role
   end
 
   test "personal account conversion preserves user relationships" do
     user = users(:user_1)
     account = accounts(:personal_account)
-    original_account_user = account.account_users.first
+    original_membership = account.memberships.first
 
     post login_path, params: { email_address: user.email_address, password: "password123" }
 
@@ -45,13 +45,13 @@ class AccountTypeSwitchingTest < ActionDispatch::IntegrationTest
     assert_redirected_to account_path(account)
 
     account.reload
-    original_account_user.reload
+    original_membership.reload
 
-    # Same AccountUser record should exist with same ID
-    assert_equal original_account_user.id, account.account_users.first.id
-    assert_equal "owner", original_account_user.role
-    assert_equal user.id, original_account_user.user_id
-    assert original_account_user.confirmed?
+    # Same Membership record should exist with same ID
+    assert_equal original_membership.id, account.memberships.first.id
+    assert_equal "owner", original_membership.role
+    assert_equal user.id, original_membership.user_id
+    assert original_membership.confirmed?
   end
 
   # === Team to Personal Conversion Tests ===
@@ -61,7 +61,7 @@ class AccountTypeSwitchingTest < ActionDispatch::IntegrationTest
     account = accounts(:team_single_user)
 
     assert account.team?
-    assert_equal 1, account.account_users.count
+    assert_equal 1, account.memberships.count
     assert account.can_be_personal?
 
     post login_path, params: { email_address: user.email_address, password: "password123" }
@@ -74,7 +74,7 @@ class AccountTypeSwitchingTest < ActionDispatch::IntegrationTest
 
     account.reload
     assert account.personal?
-    assert_equal "owner", account.account_users.first.role
+    assert_equal "owner", account.memberships.first.role
   end
 
   test "team with multiple users cannot be converted to personal" do
@@ -82,7 +82,7 @@ class AccountTypeSwitchingTest < ActionDispatch::IntegrationTest
     account = accounts(:team_account)  # Has multiple users
 
     assert account.team?
-    assert account.account_users.count > 1
+    assert account.memberships.count > 1
     assert_not account.can_be_personal?
 
     post login_path, params: { email_address: user.email_address, password: "password123" }
@@ -102,8 +102,8 @@ class AccountTypeSwitchingTest < ActionDispatch::IntegrationTest
 
     # Verify test assumptions
     assert account.team?
-    assert_equal 3, account.account_users.count
-    assert account.account_users.where(confirmed_at: nil).exists?
+    assert_equal 3, account.memberships.count
+    assert account.memberships.where(confirmed_at: nil).exists?
     assert_not account.can_be_personal?
 
     post login_path, params: { email_address: user.email_address, password: "password123" }
@@ -125,11 +125,11 @@ class AccountTypeSwitchingTest < ActionDispatch::IntegrationTest
     assert_not account.can_be_personal?
 
     # Remove the pending invitation and one confirmed user
-    pending_invitation = account.account_users.find_by(confirmed_at: nil)
+    pending_invitation = account.memberships.find_by(confirmed_at: nil)
     pending_invitation.destroy!
 
     # Remove the admin (user_1), keep only the member (user_3)
-    admin_membership = account.account_users.find_by(user_id: 1)
+    admin_membership = account.memberships.find_by(user_id: 1)
     admin_membership.destroy!
 
     account.reload
@@ -237,7 +237,7 @@ class AccountTypeSwitchingTest < ActionDispatch::IntegrationTest
 
     # Verify the account cannot be converted due to pending invitations
     assert_not account.can_be_personal?
-    assert_equal 3, account.account_users.count
+    assert_equal 3, account.memberships.count
   end
 
   # === Complete Flow Tests ===
@@ -278,7 +278,7 @@ class AccountTypeSwitchingTest < ActionDispatch::IntegrationTest
     account = accounts(:team_account)
 
     # Verify this team has multiple confirmed users
-    assert account.account_users.where.not(confirmed_at: nil).count > 1
+    assert account.memberships.where.not(confirmed_at: nil).count > 1
 
     post login_path, params: { email_address: user.email_address, password: "password123" }
 
@@ -295,7 +295,7 @@ class AccountTypeSwitchingTest < ActionDispatch::IntegrationTest
   test "account conversion maintains referential integrity" do
     user = users(:user_1)
     account = accounts(:personal_account)
-    original_account_user = account.account_users.first
+    original_membership = account.memberships.first
     original_user_accounts_count = user.accounts.count
 
     post login_path, params: { email_address: user.email_address, password: "password123" }
@@ -310,14 +310,14 @@ class AccountTypeSwitchingTest < ActionDispatch::IntegrationTest
     # Reload all objects
     account.reload
     user.reload
-    original_account_user.reload
+    original_membership.reload
 
     # Verify relationships are maintained
     assert_equal original_user_accounts_count, user.accounts.count
     assert_includes user.accounts, account
-    assert_equal account.id, original_account_user.account_id
-    assert_equal user.id, original_account_user.user_id
-    assert_equal "owner", original_account_user.role
+    assert_equal account.id, original_membership.account_id
+    assert_equal user.id, original_membership.user_id
+    assert_equal "owner", original_membership.role
   end
 
 end

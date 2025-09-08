@@ -6,7 +6,7 @@ class Admin::AccountsController < ApplicationController
   before_action :require_site_admin
 
   def index
-    @accounts = Account.includes(:owner, account_users: :user)
+    @accounts = Account.includes(:owner, memberships: :user)
                        .order(created_at: :desc)
 
     # Admin can view any account, not just ones they belong to
@@ -20,7 +20,7 @@ class Admin::AccountsController < ApplicationController
         methods: [ :users_count, :members_count, :active ]
         ),
       selected_account: @selected_account ? @selected_account.as_json(
-        include: [ :owner, :account_users ],
+        include: [ :owner, :memberships ],
         methods: [ :users_count, :members_count, :active ]
       ) : nil
     }

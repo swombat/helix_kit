@@ -4,7 +4,7 @@ class AccountMembersController < ApplicationController
   before_action :set_account
 
   def destroy
-    @member = @account.account_users.find(params[:id])
+    @member = @account.memberships.find(params[:id])
     member_email = @member.user.email_address
     member_role = @member.role
 

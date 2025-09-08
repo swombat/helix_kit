@@ -5,10 +5,9 @@ class MessageTest < ActiveSupport::TestCase
   def setup
     @user = User.create!(
       email_address: "test#{SecureRandom.hex(4)}@example.com",
-      password: "password123",
-      first_name: "Test",
-      last_name: "User"
+      password: "password123"
     )
+    @user.profile.update!(first_name: "Test", last_name: "User")
     @account = @user.personal_account
     @chat = Chat.create!(account: @account)
   end

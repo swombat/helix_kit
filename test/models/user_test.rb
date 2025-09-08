@@ -5,13 +5,13 @@ class UserTest < ActiveSupport::TestCase
   # === Core User.register! Method Tests ===
 
   test "register! creates user, account, and membership for new email" do
-    assert_difference [ "User.count", "Account.count", "AccountUser.count" ] do
+    assert_difference [ "User.count", "Account.count", "Membership.count" ] do
       user = User.register!("new@example.com")
       assert user.persisted?
       assert user.personal_account.present?
-      assert user.personal_account_user.present?
+      assert user.personal_membership.present?
       assert_equal "personal", user.personal_account.account_type
-      assert_equal "owner", user.personal_account_user.role
+      assert_equal "owner", user.personal_membership.role
     end
   end
 
@@ -34,7 +34,7 @@ class UserTest < ActiveSupport::TestCase
     existing = users(:user_1)
     initial_account_count = existing.accounts.count
 
-    assert_no_difference [ "User.count", "Account.count", "AccountUser.count" ] do
+    assert_no_difference [ "User.count", "Account.count", "Membership.count" ] do
       user = User.register!(existing.email_address)
       assert_equal existing.id, user.id
     end
@@ -73,7 +73,7 @@ class UserTest < ActiveSupport::TestCase
 
   test "find_or_create_membership! returns existing membership" do
     user = users(:user_1)
-    existing_membership = user.personal_account_user
+    existing_membership = user.personal_membership
 
     result = user.find_or_create_membership!
     assert_equal existing_membership, result
@@ -82,12 +82,12 @@ class UserTest < ActiveSupport::TestCase
   test "find_or_create_membership! creates membership for user without account" do
     user = User.create!(email_address: "orphan@example.com")
     # Manually remove the account created by callback for this test
-    user.account_users.destroy_all
+    user.memberships.destroy_all
     user.accounts.destroy_all
     user.reload
 
     assert_nil user.personal_account
-    assert_difference [ "Account.count", "AccountUser.count" ] do
+    assert_difference [ "Account.count", "Membership.count" ] do
       membership = user.find_or_create_membership!
       assert membership.persisted?
       assert_equal "owner", membership.role
@@ -95,28 +95,28 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
-  # === ensure_account_user_exists Callback Tests ===
+  # === ensure_membership_exists Callback Tests ===
 
-  test "ensure_account_user_exists creates account and membership on user creation" do
-    assert_difference [ "Account.count", "AccountUser.count" ] do
+  test "ensure_membership_exists creates account and membership on user creation" do
+    assert_difference [ "Account.count", "Membership.count" ] do
       user = User.create!(email_address: "callback-test@example.com")
 
       user.reload
       assert user.personal_account.present?
-      assert user.personal_account_user.present?
+      assert user.personal_membership.present?
       assert user.default_account.present?
       assert_equal user.personal_account, user.default_account
     end
   end
 
-  test "ensure_account_user_exists skips if account_users already exist" do
+  test "ensure_membership_exists skips if memberships already exist" do
     user = User.create!(email_address: "existing-#{rand(10000)}@example.com")
-    initial_count = user.account_users.count
+    initial_count = user.memberships.count
 
     # Trigger callback again by updating - callback should skip
     user.update!(email_address: "updated-#{rand(10000)}@example.com", password: "newpassword", password_confirmation: "newpassword")
 
-    assert_equal initial_count, user.account_users.count
+    assert_equal initial_count, user.memberships.count
   end
 
   # === confirmed? and confirm! Methods ===
@@ -128,8 +128,8 @@ class UserTest < ActiveSupport::TestCase
 
   test "confirmed? returns true when any account membership is confirmed" do
     user = User.create!(email_address: "account-confirmed@example.com")
-    # AccountUser is created automatically and needs confirmation
-    user.account_users.first.update!(confirmed_at: Time.current)
+    # Membership is created automatically and needs confirmation
+    user.memberships.first.update!(confirmed_at: Time.current)
 
     assert user.confirmed?
   end
@@ -139,7 +139,7 @@ class UserTest < ActiveSupport::TestCase
       email_address: "unconfirmed-test@example.com"
     )
     # Ensure no confirmations exist
-    user.account_users.update_all(confirmed_at: nil)
+    user.memberships.update_all(confirmed_at: nil)
 
     assert_not user.confirmed?
   end
@@ -152,7 +152,7 @@ class UserTest < ActiveSupport::TestCase
     account = user.personal_account
 
     # Confirm the user for testing
-    user.account_users.first.confirm!
+    user.memberships.first.confirm!
 
     assert account.accessible_by?(user)
     assert account.manageable_by?(user)
@@ -170,14 +170,14 @@ class UserTest < ActiveSupport::TestCase
     account = Account.create!(name: "Test Account", account_type: :team)
 
     # Add unconfirmed membership
-    account_user = account.add_user!(user, role: "member")
-    assert_not account_user.confirmed?
+    membership = account.add_user!(user, role: "member")
+    assert_not membership.confirmed?
 
     # Should not be considered a member while unconfirmed
     assert_not account.accessible_by?(user)
 
     # Confirm and test again
-    account_user.confirm!
+    membership.confirm!
     assert account.accessible_by?(user)
   end
 
@@ -238,7 +238,9 @@ class UserTest < ActiveSupport::TestCase
       user.update!(
         email_address: "updated-via-update@example.com",
         password: "newpassword",
-        password_confirmation: "newpassword",
+        password_confirmation: "newpassword"
+      )
+      user.profile.update!(
         first_name: "Updated",
         last_name: "User"
       )
@@ -284,11 +286,8 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "validates password length when password present" do
-    user = User.new(
-      email_address: "test-#{rand(10000)}@example.com",
-      first_name: "Test",
-      last_name: "User"
-    )
+    user = User.create!(email_address: "test-#{rand(10000)}@example.com")
+    user.profile.update!(first_name: "Test", last_name: "User")
 
     # Too short
     user.password = "12345"
@@ -304,16 +303,16 @@ class UserTest < ActiveSupport::TestCase
 
   # === Association Tests ===
 
-  test "has_many account_users dependent destroy" do
+  test "has_many memberships dependent destroy" do
     user = User.create!(email_address: "destroy-test@example.com")
-    account_user_id = user.account_users.first.id
+    membership_id = user.memberships.first.id
 
     user.destroy
 
-    assert_not AccountUser.exists?(account_user_id)
+    assert_not Membership.exists?(membership_id)
   end
 
-  test "has_many accounts through account_users" do
+  test "has_many accounts through memberships" do
     user = users(:user_1)
 
     assert user.accounts.present?
@@ -330,14 +329,14 @@ class UserTest < ActiveSupport::TestCase
     assert_equal user, personal.owner
   end
 
-  test "personal_account_user association works correctly" do
+  test "personal_membership association works correctly" do
     user = users(:user_1)
-    personal_account_user = user.personal_account_user
+    personal_membership = user.personal_membership
 
-    assert personal_account_user.present?
-    assert_equal user, personal_account_user.user
-    assert_equal user.personal_account, personal_account_user.account
-    assert_equal "owner", personal_account_user.role
+    assert personal_membership.present?
+    assert_equal user, personal_membership.user
+    assert_equal user.personal_account, personal_membership.account
+    assert_equal "owner", personal_membership.role
   end
 
   test "default_account returns confirmed account or fallback" do
@@ -348,7 +347,7 @@ class UserTest < ActiveSupport::TestCase
 
     # Test with unconfirmed user
     unconfirmed = users(:unconfirmed_user)
-    unconfirmed.account_users.update_all(confirmed_at: nil)
+    unconfirmed.memberships.update_all(confirmed_at: nil)
 
     # Should still return an account even if unconfirmed
     assert unconfirmed.default_account.present?
@@ -508,7 +507,7 @@ class UserTest < ActiveSupport::TestCase
     user = users(:user_1)
 
     [ "light", "dark", "system" ].each do |theme|
-      user.theme = theme
+      user.profile.theme = theme
       assert user.valid?, "Theme '#{theme}' should be valid"
       assert_equal theme, user.theme
     end
@@ -518,32 +517,30 @@ class UserTest < ActiveSupport::TestCase
     user = users(:user_1)
 
     [ "invalid", "blue", "auto", "" ].each do |invalid_theme|
-      user.theme = invalid_theme
-      assert_not user.valid?, "Theme '#{invalid_theme}' should be invalid"
-      assert user.errors[:theme].present?
+      user.profile.theme = invalid_theme
+      assert_not user.profile.valid?, "Theme '#{invalid_theme}' should be invalid"
+      assert user.profile.errors[:theme].present?
     end
   end
 
   test "theme allows nil values" do
     user = users(:user_1)
-    user.theme = nil
+    user.profile.theme = nil
     assert user.valid?
   end
 
   test "preferences are stored as JSON" do
     user = users(:user_1)
-    user.theme = "dark"
-    user.save!
+    user.profile.update!(theme: "dark")
 
     user.reload
     assert_equal "dark", user.theme
-    assert_equal({ "theme" => "dark" }, user.preferences)
+    assert_equal({ "theme" => "dark" }, user.profile.preferences)
   end
 
   test "as_json includes preferences" do
     user = users(:user_1)
-    user.theme = "light"
-    user.save!
+    user.profile.update!(theme: "light")
 
     json = user.as_json
     assert json.key?("preferences")
@@ -559,15 +556,12 @@ class UserTest < ActiveSupport::TestCase
 
   test "full_name handles missing names gracefully" do
     user = User.new(email_address: "noname@example.com")
-    assert_nil user.full_name # Returns nil when no name
+    assert_nil user.full_name # Returns nil when no profile or name
   end
 
   test "full_name handles partial names" do
-    user = User.new(
-      email_address: "partial@example.com",
-      first_name: "John",
-      last_name: nil
-    )
+    user = User.create!(email_address: "partial@example.com")
+    user.profile.update!(first_name: "John", last_name: nil)
     assert_equal "John", user.full_name # Strip removes trailing space
   end
 
@@ -607,12 +601,12 @@ class UserTest < ActiveSupport::TestCase
     user = User.create!(email_address: "orphan@example.com")
 
     # Manually remove personal account for edge case testing
-    user.account_users.destroy_all
+    user.memberships.destroy_all
     user.accounts.destroy_all
     user.reload
 
     assert_nil user.personal_account
-    assert_nil user.personal_account_user
+    assert_nil user.personal_membership
     assert_nil user.default_account
     assert_not user.confirmed?
     assert_not user.can_login?
@@ -625,11 +619,11 @@ class UserTest < ActiveSupport::TestCase
     user = User.find_or_invite("invitedtest@example.com")
 
     # Remove the auto-created personal account
-    user.account_users.destroy_all
+    user.memberships.destroy_all
 
     account = accounts(:team)
 
-    AccountUser.create!(
+    Membership.create!(
       account: account,
       user: user,
       role: "member",
@@ -651,7 +645,7 @@ class UserTest < ActiveSupport::TestCase
     user = User.new(email_address: "invited@example.com")
 
     # Create invitation without password
-    AccountUser.create!(
+    Membership.create!(
       account: accounts(:team),
       user: user,
       role: "member",
@@ -688,11 +682,8 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "full_name returns nil when name is blank" do
-    user = User.new(
-      email_address: "nofullname@example.com",
-      first_name: "",
-      last_name: ""
-    )
+    user = User.create!(email_address: "nofullname@example.com")
+    user.profile.update!(first_name: "", last_name: "")
 
     assert_nil user.full_name
   end
@@ -738,39 +729,27 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "initials returns first letters of first and last name" do
-    user = User.new(
-      email_address: "test@example.com",
-      first_name: "John",
-      last_name: "Doe"
-    )
+    user = User.create!(email_address: "test-initials-#{SecureRandom.hex(4)}@example.com")
+    user.profile.update!(first_name: "John", last_name: "Doe")
     assert_equal "JD", user.initials
   end
 
   test "initials handles single name" do
-    user = User.new(
-      email_address: "test@example.com",
-      first_name: "John",
-      last_name: ""
-    )
+    user = User.create!(email_address: "test-single-#{SecureRandom.hex(4)}@example.com")
+    user.profile.update!(first_name: "John", last_name: "")
     assert_equal "J", user.initials
   end
 
   test "initials handles multiple names" do
-    user = User.new(
-      email_address: "test@example.com",
-      first_name: "Mary Jane",
-      last_name: "Watson Smith"
-    )
+    user = User.create!(email_address: "test-multiple-#{SecureRandom.hex(4)}@example.com")
+    user.profile.update!(first_name: "Mary Jane", last_name: "Watson Smith")
     # Should take first 2 initials only
     assert_equal "MJ", user.initials
   end
 
   test "initials are uppercase" do
-    user = User.new(
-      email_address: "test@example.com",
-      first_name: "john",
-      last_name: "doe"
-    )
+    user = User.create!(email_address: "test-uppercase-#{SecureRandom.hex(4)}@example.com")
+    user.profile.update!(first_name: "john", last_name: "doe")
     assert_equal "JD", user.initials
   end
 
@@ -811,8 +790,8 @@ class UserTest < ActiveSupport::TestCase
       filename: "test.txt",
       content_type: "text/plain"
     )
-    assert_not user.valid?
-    assert_includes user.errors[:avatar].first, "has an invalid content type"
+    assert_not user.profile.valid?
+    assert_includes user.profile.errors[:avatar].first, "has an invalid content type"
   end
 
   test "avatar has variants configured" do

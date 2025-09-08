@@ -34,9 +34,9 @@ class RegistrationsController < ApplicationController
 
   def register_user
     user = User.register!(normalized_email)
-    account_user = user.account_users.last
+    membership = user.memberships.last
 
-    return redirect_for_existing_user if account_user.confirmed?
+    return redirect_for_existing_user if membership.confirmed?
 
     redirect_with_confirmation_sent(user.was_new_record?)
     true
@@ -63,8 +63,8 @@ class RegistrationsController < ApplicationController
   end
 
   def confirm_account_and_redirect
-    account_user = AccountUser.confirm_by_token!(params[:token])
-    user = account_user.user
+    membership = Membership.confirm_by_token!(params[:token])
+    user = membership.user
 
     user.password_digest? ? redirect_confirmed_user : redirect_for_password_setup(user)
     true
@@ -94,7 +94,19 @@ class RegistrationsController < ApplicationController
   end
 
   def complete_registration
-    return false unless @user.update(password_params)
+    # Separate profile params from password params
+    all_params = password_params.dup
+    profile_data = all_params.extract!(:first_name, :last_name)
+
+    User.transaction do
+      # Update password
+      return false unless @user.update(all_params)
+
+      # Update profile if we have profile data
+      if profile_data.present?
+        @user.profile.update!(profile_data)
+      end
+    end
 
     session.delete(:pending_password_user_id)
     start_new_session_for @user

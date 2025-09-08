@@ -2,7 +2,7 @@ You've been invited to join <%= @account.name %>
 
 Hi <%= @user.email_address %>,
 
-<%= @inviter.email_address %> has invited you to join <%= @account.name %> as a <%= @account_user.role %>.
+<%= @inviter.email_address %> has invited you to join <%= @account.name %> as a <%= @membership.role %>.
 
 Accept this invitation by visiting:
 <%= @confirmation_url %>

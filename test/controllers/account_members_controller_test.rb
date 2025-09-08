@@ -11,9 +11,9 @@ class AccountMembersControllerTest < ActionDispatch::IntegrationTest
 
   test "destroy removes member" do
     # Use existing fixture member that can be removed
-    member = account_users(:team_member_user)
+    member = memberships(:team_member_user)
 
-    assert_difference "@account.account_users.count", -1 do
+    assert_difference "@account.memberships.count", -1 do
       delete account_member_path(@account, member)
     end
 
@@ -24,12 +24,12 @@ class AccountMembersControllerTest < ActionDispatch::IntegrationTest
   test "destroy handles last owner error" do
     # Use team_single_user fixture which has only one owner
     single_account = accounts(:team_single_user)
-    owner_membership = account_users(:team_single_user_member)
+    owner_membership = memberships(:team_single_user_member)
 
     # Give admin access to test the removal
     sign_in users(:user_1)  # This user owns team_single_user
 
-    assert_no_difference "single_account.account_users.count" do
+    assert_no_difference "single_account.memberships.count" do
       delete account_member_path(single_account, owner_membership)
     end
 
@@ -40,7 +40,7 @@ class AccountMembersControllerTest < ActionDispatch::IntegrationTest
   test "requires account membership for destroy" do
     # Try to delete a member from an account the user doesn't belong to
     other_account = accounts(:personal)  # Account that admin doesn't belong to
-    other_member = account_users(:daniel_personal)
+    other_member = memberships(:daniel_personal)
 
     delete account_member_path(other_account, other_member)
     assert_response :not_found

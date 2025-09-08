@@ -1,0 +1,3 @@
+# Profiles are created dynamically in tests when needed
+# Rails fixtures with foreign key constraints are complex to manage
+# Tests should use the User.create! methods which trigger profile creation callbacks
