@@ -4,27 +4,13 @@ class SessionsController < ApplicationController
   rate_limit to: 10, within: 3.minutes, only: :create, with: -> { redirect_to new_session_url, alert: "Try again later." }
 
   def new
-    if authenticated?
-      redirect_to root_path, notice: "You are already signed in."
-    else
-      render inertia: "sessions/new"
-    end
+    authenticated? ? redirect_to_authenticated : render_login_page
   end
 
   def create
-    user = User.find_by(email_address: session_params[:email_address]&.strip&.downcase)
+    return redirect_for_incomplete_user if incomplete_user?
 
-    if user && !user.can_login?
-      alert = user.confirmed? ? "Please complete your account setup first." : "Please confirm your email address first."
-      redirect_to signup_path, alert: alert
-    elsif user = User.authenticate_by(session_params)
-      start_new_session_for user
-      audit(:login, user)
-      redirect_to after_authentication_url, notice: "You have been signed in."
-    else
-      redirect_to login_path, alert: "Invalid email or password.",
-        inertia: { errors: { email_address: [ "Invalid email or password." ] } }
-    end
+    authenticate_and_login || redirect_with_authentication_error
   end
 
   def destroy
@@ -37,6 +23,43 @@ class SessionsController < ApplicationController
 
   def session_params
     params.permit(:email_address, :password)
+  end
+
+  def redirect_to_authenticated
+    redirect_to root_path, notice: "You are already signed in."
+  end
+
+  def render_login_page
+    render inertia: "sessions/new"
+  end
+
+  def find_user_by_email
+    email = session_params[:email_address]&.strip&.downcase
+    User.find_by(email_address: email)
+  end
+
+  def incomplete_user?
+    @user = find_user_by_email
+    @user && !@user.can_login?
+  end
+
+  def redirect_for_incomplete_user
+    message = @user.confirmed? ? "Please complete your account setup first." : "Please confirm your email address first."
+    redirect_to signup_path, alert: message
+  end
+
+  def authenticate_and_login
+    return false unless user = User.authenticate_by(session_params)
+
+    start_new_session_for user
+    audit(:login, user)
+    redirect_to after_authentication_url, notice: "You have been signed in."
+    true
+  end
+
+  def redirect_with_authentication_error
+    redirect_to login_path, alert: "Invalid email or password.",
+      inertia: { errors: { email_address: [ "Invalid email or password." ] } }
   end
 
 end

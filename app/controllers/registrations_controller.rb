@@ -9,24 +9,7 @@ class RegistrationsController < ApplicationController
   end
 
   def create
-    user = User.register!(normalized_email)
-    account_user = user.account_users.last
-
-    if account_user.confirmed?
-      redirect_to signup_path, inertia: {
-        errors: { email_address: [ "This email is already registered. Please log in." ] }
-      }
-    else
-      # Check if this is a resend (user already existed)
-      is_resend = !user.was_new_record?
-
-      notice = is_resend ?
-        "Confirmation email resent. Please check your inbox." :
-        "Please check your email to confirm your account."
-      redirect_to check_email_path, notice: notice
-    end
-  rescue ActiveRecord::RecordInvalid => e
-    redirect_to signup_path, inertia: { errors: e.record.errors.to_hash(true) }
+    register_user || redirect_with_registration_errors
   end
 
   def check_email
@@ -34,40 +17,97 @@ class RegistrationsController < ApplicationController
   end
 
   def confirm_email
-    # Only use AccountUser confirmation - no fallback to User tokens
-    account_user = AccountUser.confirm_by_token!(params[:token])
-    user = account_user.user
-
-    if user.password_digest?
-      redirect_to login_path, notice: "Email confirmed! Please log in."
-    else
-      session[:pending_password_user_id] = user.id
-      redirect_to set_password_path, notice: "Email confirmed! Please set your password."
-    end
-  rescue ActiveRecord::RecordNotFound, ActiveSupport::MessageVerifier::InvalidSignature
-    redirect_to signup_path, alert: "Invalid or expired confirmation link. Please sign up again."
+    confirm_account_and_redirect || redirect_with_invalid_token
   end
 
   def set_password
-    return redirect_to login_path, alert: "Invalid request. Please log in." if @user&.password_digest?
+    return redirect_with_invalid_password_request if user_already_has_password?
 
     render inertia: "registrations/set_password", props: { email: @user.email_address, user: @user.as_json }
   end
 
   def update_password
-    if @user.update(password_params)
-      session.delete(:pending_password_user_id)
-      start_new_session_for @user
-      audit(:complete_registration, @user)
-      redirect_to after_authentication_url, notice: "Account setup complete! Welcome!"
-    else
-      flash[:errors] = @user.errors.full_messages
-      debug "Errors: #{flash[:errors].inspect}"
-      redirect_to set_password_path
-    end
+    complete_registration || redirect_with_password_errors
   end
 
   private
+
+  def register_user
+    user = User.register!(normalized_email)
+    account_user = user.account_users.last
+
+    return redirect_for_existing_user if account_user.confirmed?
+
+    redirect_with_confirmation_sent(user.was_new_record?)
+    true
+  rescue ActiveRecord::RecordInvalid => e
+    @registration_errors = e.record.errors.to_hash(true)
+    false
+  end
+
+  def redirect_for_existing_user
+    redirect_to signup_path, inertia: {
+      errors: { email_address: [ "This email is already registered. Please log in." ] }
+    }
+  end
+
+  def redirect_with_confirmation_sent(was_new_user)
+    notice = was_new_user ?
+      "Please check your email to confirm your account." :
+      "Confirmation email resent. Please check your inbox."
+    redirect_to check_email_path, notice: notice
+  end
+
+  def redirect_with_registration_errors
+    redirect_to signup_path, inertia: { errors: @registration_errors }
+  end
+
+  def confirm_account_and_redirect
+    account_user = AccountUser.confirm_by_token!(params[:token])
+    user = account_user.user
+
+    user.password_digest? ? redirect_confirmed_user : redirect_for_password_setup(user)
+    true
+  rescue ActiveRecord::RecordNotFound, ActiveSupport::MessageVerifier::InvalidSignature
+    false
+  end
+
+  def redirect_confirmed_user
+    redirect_to login_path, notice: "Email confirmed! Please log in."
+  end
+
+  def redirect_for_password_setup(user)
+    session[:pending_password_user_id] = user.id
+    redirect_to set_password_path, notice: "Email confirmed! Please set your password."
+  end
+
+  def redirect_with_invalid_token
+    redirect_to signup_path, alert: "Invalid or expired confirmation link. Please sign up again."
+  end
+
+  def user_already_has_password?
+    @user&.password_digest?
+  end
+
+  def redirect_with_invalid_password_request
+    redirect_to login_path, alert: "Invalid request. Please log in."
+  end
+
+  def complete_registration
+    return false unless @user.update(password_params)
+
+    session.delete(:pending_password_user_id)
+    start_new_session_for @user
+    audit(:complete_registration, @user)
+    redirect_to after_authentication_url, notice: "Account setup complete! Welcome!"
+    true
+  end
+
+  def redirect_with_password_errors
+    flash[:errors] = @user.errors.full_messages
+    debug "Errors: #{flash[:errors].inspect}"
+    redirect_to set_password_path
+  end
 
   def normalized_email
     params[:email_address]&.strip&.downcase
