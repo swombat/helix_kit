@@ -14,6 +14,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Only run migrations that are additive or safely reversible
 - If you need to test something destructive, use the test database only
 
+### NEVER KILL THE DEVELOPMENT SERVER
+- **NEVER kill the Rails server process (pid in tmp/pids/server.pid)**
+- **NEVER kill background bash processes running `bin/dev`**
+- The development server runs on port 3100 (not 3000)
+- If you need to test something, use the existing running server
+
 ## Essential Information
 
 This is a Rails 8 + Svelte 5 application using Inertia.js. **Always check the `/docs/` folder for detailed documentation before making changes.**

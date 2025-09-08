@@ -26,6 +26,10 @@
     router.visit(editAccountPath(account.id));
   }
 
+  function goToConvertConfirmation() {
+    router.visit(editAccountPath(account.id) + '?convert=true');
+  }
+
   function removeMember(member) {
     if (confirm(`Remove ${member.display_name} from ${account.name}?`)) {
       router.delete(`/accounts/${account.id}/members/${member.id}`);
@@ -295,9 +299,9 @@
 
       <div class="flex gap-4">
         {#if account.personal}
-          <Button onclick={goToEdit} variant="outline">Convert to Team Account</Button>
+          <Button onclick={goToConvertConfirmation} variant="outline">Convert to Team Account</Button>
         {:else if can_be_personal}
-          <Button onclick={goToEdit} variant="outline">Convert to Personal Account</Button>
+          <Button onclick={goToConvertConfirmation} variant="outline">Convert to Personal Account</Button>
         {/if}
       </div>
 

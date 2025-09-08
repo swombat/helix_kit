@@ -7,7 +7,11 @@ class AccountsController < ApplicationController
   end
 
   def edit
-    render inertia: "accounts/edit", props: { account: @account }
+    if params[:convert].present?
+      render inertia: "accounts/convert_confirmation", props: edit_conversion_props
+    else
+      render inertia: "accounts/edit", props: { account: @account }
+    end
   end
 
   def update
@@ -25,6 +29,14 @@ class AccountsController < ApplicationController
       members: account_members_json,
       can_manage: @account.manageable_by?(Current.user),
       current_user_id: Current.user.id
+    }
+  end
+
+  def edit_conversion_props
+    {
+      account: @account,
+      can_be_personal: @account.can_be_personal?,
+      members_count: @account.personal? ? 1 : @account.memberships.count
     }
   end
 
