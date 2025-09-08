@@ -125,6 +125,28 @@ class Account < ApplicationRecord
 
   alias_method :active, :active?
 
+  # Authorization methods - following DHH's "fat models, skinny controllers" principle
+  def manageable_by?(user)
+    return false unless user
+    return true if user.site_admin
+    account_users.confirmed.admins.exists?(user: user)
+  end
+
+  def owned_by?(user)
+    return false unless user
+    return true if user.site_admin
+    account_users.confirmed.owners.exists?(user: user)
+  end
+
+  def accessible_by?(user)
+    return false unless user
+    return true if user.site_admin
+    account_users.confirmed.exists?(user: user)
+  end
+
+  # Custom error for authorization failures
+  class NotAuthorized < StandardError; end
+
   private
 
   def enforce_personal_account_limit

@@ -2,6 +2,7 @@
 class InvitationsController < ApplicationController
 
   before_action :set_account
+  before_action :authorize_management!
 
   def create
     @invitation = @account.invite_member(
@@ -43,12 +44,14 @@ class InvitationsController < ApplicationController
   def set_account
     # Use association-based authorization
     @account = Current.user.accounts.find(params[:account_id])
+  end
 
-    # Only check management permission in this controller
-    unless Current.user.can_manage?(@account)
-      redirect_to account_path(@account),
-        alert: "You don't have permission to manage members"
-    end
+  def authorize_management!
+    # Authorization logic now in the model (DHH's fat models principle)
+    raise Account::NotAuthorized unless @account.manageable_by?(Current.user)
+  rescue Account::NotAuthorized
+    redirect_to account_path(@account),
+      alert: "You don't have permission to manage members"
   end
 
   def invitation_params

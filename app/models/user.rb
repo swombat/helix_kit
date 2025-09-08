@@ -136,19 +136,6 @@ class User < ApplicationRecord
     confirmed? && password_digest?
   end
 
-  # Clean authorization methods
-  def can_manage?(account)
-    account_users.confirmed.admins.exists?(account: account)
-  end
-
-  def owns?(account)
-    account_users.confirmed.owners.exists?(account: account)
-  end
-
-  def member_of?(account)
-    account_users.confirmed.exists?(account: account)
-  end
-
   # Check if user was created via invitation and hasn't set up their account yet
   # These users don't require a password until they confirm their account
   def created_via_invitation?

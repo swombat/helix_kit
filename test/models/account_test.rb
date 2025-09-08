@@ -547,4 +547,104 @@ class AccountTest < ActiveSupport::TestCase
     end
   end
 
+  # === Site Admin Authorization Tests ===
+
+  test "site_admin users can manage any account" do
+    # Create a site admin user
+    site_admin = User.create!(
+      email_address: "siteadmin@example.com",
+      is_site_admin: true
+    )
+
+    # Test with various accounts
+    personal_account = accounts(:personal_account)
+    team_account = accounts(:team_account)
+
+    # Site admin should be able to manage all accounts
+    assert personal_account.manageable_by?(site_admin)
+    assert team_account.manageable_by?(site_admin)
+
+    # Even accounts they're not a member of
+    unrelated_account = Account.create!(name: "Unrelated", account_type: :team)
+    assert unrelated_account.manageable_by?(site_admin)
+  end
+
+  test "site_admin users can access any account" do
+    site_admin = User.create!(
+      email_address: "siteadmin-access@example.com",
+      is_site_admin: true
+    )
+
+    personal_account = accounts(:personal_account)
+    team_account = accounts(:team_account)
+
+    # Site admin should be able to access all accounts
+    assert personal_account.accessible_by?(site_admin)
+    assert team_account.accessible_by?(site_admin)
+  end
+
+  test "site_admin users are considered owners of any account" do
+    site_admin = User.create!(
+      email_address: "siteadmin-owner@example.com",
+      is_site_admin: true
+    )
+
+    personal_account = accounts(:personal_account)
+    team_account = accounts(:team_account)
+
+    # Site admin should be considered owner of all accounts
+    assert personal_account.owned_by?(site_admin)
+    assert team_account.owned_by?(site_admin)
+  end
+
+  test "users in site_admin accounts can manage any account" do
+    # Create a site admin account
+    admin_account = Account.create!(
+      name: "Admin Account",
+      account_type: :team,
+      is_site_admin: true
+    )
+
+    # Create a regular user who is a member of the admin account
+    regular_user = User.create!(email_address: "regular-in-admin@example.com")
+    admin_account.add_user!(regular_user, role: "member", skip_confirmation: true)
+
+    # This user should now have site_admin privileges
+    assert regular_user.site_admin
+
+    # And should be able to manage any account
+    personal_account = accounts(:personal_account)
+    team_account = accounts(:team_account)
+
+    assert personal_account.manageable_by?(regular_user)
+    assert team_account.manageable_by?(regular_user)
+    assert personal_account.accessible_by?(regular_user)
+    assert team_account.accessible_by?(regular_user)
+    assert personal_account.owned_by?(regular_user)
+    assert team_account.owned_by?(regular_user)
+  end
+
+  test "non-site_admin users cannot manage accounts they're not admins of" do
+    regular_user = User.create!(email_address: "regular-nonadmin@example.com")
+
+    # User is not a member of any account
+    personal_account = accounts(:personal_account)
+    team_account = accounts(:team_account)
+
+    assert_not personal_account.manageable_by?(regular_user)
+    assert_not team_account.manageable_by?(regular_user)
+    assert_not personal_account.accessible_by?(regular_user)
+    assert_not team_account.accessible_by?(regular_user)
+    assert_not personal_account.owned_by?(regular_user)
+    assert_not team_account.owned_by?(regular_user)
+  end
+
+  test "authorization methods handle nil user gracefully" do
+    account = accounts(:team_account)
+
+    assert_not account.manageable_by?(nil)
+    assert_not account.accessible_by?(nil)
+    assert_not account.owned_by?(nil)
+  end
+
 end

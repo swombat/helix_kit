@@ -34,7 +34,7 @@ module AccountScoping
   def authorize_account_resource(resource)
     return unless resource.respond_to?(:account) # Resources without account are not scoped to an account
 
-    unless resource && Current.user.member_of?(resource.account)
+    unless resource && resource.account.accessible_by?(Current.user)
       redirect_to unauthorized_path, alert: "You don't have access to this resource"
     end
   end

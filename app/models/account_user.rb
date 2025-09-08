@@ -130,7 +130,7 @@ class AccountUser < ApplicationRecord
   end
 
   def removable_by?(user)
-    return false unless user.can_manage?(account)
+    return false unless account.manageable_by?(user)
     return false if self.user_id == user.id # Can't remove yourself
     return false if owner? && account.last_owner? # Can't remove last owner
     true

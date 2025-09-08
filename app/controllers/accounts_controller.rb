@@ -9,7 +9,7 @@ class AccountsController < ApplicationController
       account: @account,
       can_be_personal: @account.can_be_personal?,
       members: @members ? @members.map { |m| m.as_json(current_user: Current.user) } : [],
-      can_manage: Current.user.can_manage?(@account),
+      can_manage: @account.manageable_by?(Current.user),
       current_user_id: Current.user.id
     }
   end

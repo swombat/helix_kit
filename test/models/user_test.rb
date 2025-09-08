@@ -154,18 +154,18 @@ class UserTest < ActiveSupport::TestCase
     # Confirm the user for testing
     user.account_users.first.confirm!
 
-    assert user.member_of?(account)
-    assert user.can_manage?(account)
-    assert user.owns?(account)
+    assert account.accessible_by?(user)
+    assert account.manageable_by?(user)
+    assert account.owned_by?(user)
 
     # Test with another account
     other_account = Account.create!(name: "Other", account_type: :team)
-    assert_not user.member_of?(other_account)
-    assert_not user.can_manage?(other_account)
-    assert_not user.owns?(other_account)
+    assert_not other_account.accessible_by?(user)
+    assert_not other_account.manageable_by?(user)
+    assert_not other_account.owned_by?(user)
   end
 
-  test "member_of? requires confirmed membership" do
+  test "accessible_by? requires confirmed membership" do
     user = User.create!(email_address: "member-test@example.com")
     account = Account.create!(name: "Test Account", account_type: :team)
 
@@ -174,44 +174,44 @@ class UserTest < ActiveSupport::TestCase
     assert_not account_user.confirmed?
 
     # Should not be considered a member while unconfirmed
-    assert_not user.member_of?(account)
+    assert_not account.accessible_by?(user)
 
     # Confirm and test again
     account_user.confirm!
-    assert user.member_of?(account)
+    assert account.accessible_by?(user)
   end
 
-  test "can_manage? returns true for owners and admins only" do
+  test "manageable_by? returns true for owners and admins only" do
     team_account = Account.create!(name: "Management Test", account_type: :team)
 
     # Test owner
     owner = User.create!(email_address: "owner-#{rand(10000)}@example.com")
     team_account.add_user!(owner, role: "owner", skip_confirmation: true)
-    assert owner.can_manage?(team_account)
+    assert team_account.manageable_by?(owner)
 
     # Test admin
     admin = User.create!(email_address: "admin-#{rand(10000)}@example.com")
     team_account.add_user!(admin, role: "admin", skip_confirmation: true)
-    assert admin.can_manage?(team_account)
+    assert team_account.manageable_by?(admin)
 
     # Test member
     member = User.create!(email_address: "member-#{rand(10000)}@example.com")
     team_account.add_user!(member, role: "member", skip_confirmation: true)
-    assert_not member.can_manage?(team_account)
+    assert_not team_account.manageable_by?(member)
   end
 
-  test "owns? returns true only for owners" do
+  test "owned_by? returns true only for owners" do
     team_account = Account.create!(name: "Ownership Test", account_type: :team)
 
     # Test owner
     owner = User.create!(email_address: "test-owner@example.com")
     team_account.add_user!(owner, role: "owner", skip_confirmation: true)
-    assert owner.owns?(team_account)
+    assert team_account.owned_by?(owner)
 
     # Test admin (should not own)
     admin = User.create!(email_address: "test-admin@example.com")
     team_account.add_user!(admin, role: "admin", skip_confirmation: true)
-    assert_not admin.owns?(team_account)
+    assert_not team_account.owned_by?(admin)
   end
 
   # === Critical Update Method Safety Tests (For the bug we fixed) ===
