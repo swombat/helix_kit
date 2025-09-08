@@ -20,7 +20,7 @@ class Admin::AccountsController < ApplicationController
         methods: [ :users_count, :members_count, :active ]
         ),
       selected_account: @selected_account ? @selected_account.as_json(
-        include: [ :owner, :memberships ],
+        include: [ :owner, :memberships, :users ],
         methods: [ :users_count, :members_count, :active ]
       ) : nil
     }

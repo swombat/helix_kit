@@ -26,6 +26,8 @@
 
     console.log('Dynamic subscriptions updated:', subs);
     updateSync(subs);
+
+    console.log('Selected account:', selected_account);
   });
 
   const filtered = $derived(
@@ -110,10 +112,6 @@
             <Badge variant="outline">
               {selected_account.account_type === 'personal' ? 'Personal Account' : 'Organization'}
             </Badge>
-            <span>Created {formatDate(selected_account.created_at)}</span>
-            {#if selected_account.updated_at}
-              <span>Updated {formatDate(selected_account.updated_at)}</span>
-            {/if}
           </div>
         </div>
 
@@ -169,7 +167,7 @@
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {#if selected_account.account_users && selected_account.account_users.length > 0}
+            {#if selected_account.users && selected_account.users.length > 0}
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -180,7 +178,7 @@
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {#each selected_account.account_users as user (user.id)}
+                  {#each selected_account.users as user (user.id)}
                     <TableRow class={user.confirmed ? '' : 'opacity-50'}>
                       <TableCell>{user.full_name || '-'}</TableCell>
                       <TableCell>
