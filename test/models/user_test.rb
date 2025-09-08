@@ -368,26 +368,60 @@ class UserTest < ActiveSupport::TestCase
 
   # === Token Generation Tests ===
 
-  test "generates password reset token" do
+  test "has_secure_token generates password reset token" do
     user = users(:user_1)
-    token = user.password_reset_token
+    assert_nil user.password_reset_token_for_url
 
-    assert token.present?
-    assert_kind_of String, token
+    user.regenerate_password_reset_token
+    assert user.password_reset_token_for_url.present?
+    assert_kind_of String, user.password_reset_token_for_url
+    assert_equal 24, user.password_reset_token_for_url.length # SecureRandom.urlsafe_base64 generates 24 char tokens
   end
 
-  test "find_by_password_reset_token! finds user with valid token" do
+  test "send_password_reset generates token and sets timestamp" do
     user = users(:user_1)
-    token = user.password_reset_token
+    assert_nil user.password_reset_token_for_url
+    assert_nil user.password_reset_sent_at
 
-    found_user = User.find_by_password_reset_token!(token)
-    assert_equal user, found_user
+    user.send_password_reset
+
+    user.reload
+    assert user.password_reset_token_for_url.present?
+    assert user.password_reset_sent_at.present?
+    assert user.password_reset_sent_at <= Time.current
   end
 
-  test "find_by_password_reset_token! raises error for invalid token" do
-    assert_raises(ActiveSupport::MessageVerifier::InvalidSignature) do
-      User.find_by_password_reset_token!("invalid-token")
-    end
+  test "password_reset_expired? returns true when token is old" do
+    user = users(:user_1)
+    user.send_password_reset
+
+    # Token is fresh
+    assert_not user.password_reset_expired?
+
+    # Simulate old token
+    user.update_column(:password_reset_sent_at, 3.hours.ago)
+    assert user.password_reset_expired?
+  end
+
+  test "password_reset_expired? returns true when no timestamp" do
+    user = users(:user_1)
+    user.regenerate_password_reset_token
+    # No timestamp set
+    assert user.password_reset_expired?
+  end
+
+  test "clear_password_reset_token! removes token and timestamp" do
+    user = users(:user_1)
+    user.send_password_reset
+
+    assert user.password_reset_token_for_url.present?
+    assert user.password_reset_sent_at.present?
+
+    user.clear_password_reset_token!
+    user.reload
+
+    assert_nil user.password_reset_token_for_url
+    assert_nil user.password_reset_sent_at
   end
 
   # === site_admin and is_site_admin? Tests ===

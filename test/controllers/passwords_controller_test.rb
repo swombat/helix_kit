@@ -28,7 +28,8 @@ class PasswordsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should get password reset edit page with valid token" do
-    token = @user.password_reset_token
+    @user.send_password_reset
+    token = @user.reload.password_reset_token_for_url
     get edit_password_path(token)
     assert_response :success
     assert_equal "passwords/edit", inertia_component
@@ -42,7 +43,8 @@ class PasswordsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should update password with valid token and matching passwords" do
-    token = @user.password_reset_token
+    @user.send_password_reset
+    token = @user.reload.password_reset_token_for_url
 
     patch password_path(token), params: {
       password: "newpassword123",
@@ -51,6 +53,11 @@ class PasswordsControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to login_path
     assert_equal "Password has been reset.", flash[:notice]
+
+    # Verify the token was cleared
+    @user.reload
+    assert_nil @user.password_reset_token_for_url
+    assert_nil @user.password_reset_sent_at
 
     # Verify the new password works
     post login_path, params: {
@@ -61,7 +68,8 @@ class PasswordsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should not update password with mismatched confirmation" do
-    token = @user.password_reset_token
+    @user.send_password_reset
+    token = @user.reload.password_reset_token_for_url
 
     patch password_path(token), params: {
       password: "newpassword123",
@@ -85,6 +93,18 @@ class PasswordsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Password reset link is invalid or has expired.", flash[:alert]
   end
 
+  test "should not update password with expired token" do
+    @user.send_password_reset
+    token = @user.reload.password_reset_token_for_url
+
+    # Simulate token expiration by setting sent_at to over 2 hours ago
+    @user.update_column(:password_reset_sent_at, 3.hours.ago)
+
+    get edit_password_path(token)
+    assert_redirected_to new_password_path
+    assert_equal "Password reset link is invalid or has expired.", flash[:alert]
+  end
+
   test "password reset pages do not require authentication" do
     get new_password_path
     assert_response :success
@@ -92,7 +112,8 @@ class PasswordsControllerTest < ActionDispatch::IntegrationTest
     post passwords_path, params: { email_address: @user.email_address }
     assert_redirected_to login_path
 
-    token = @user.password_reset_token
+    @user.send_password_reset
+    token = @user.reload.password_reset_token_for_url
     get edit_password_path(token)
     assert_response :success
   end

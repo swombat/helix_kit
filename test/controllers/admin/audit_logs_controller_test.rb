@@ -41,14 +41,6 @@ class Admin::AuditLogsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     props = inertia_shared_props
 
-    # Debug output to help diagnose issues
-    puts "\n=== DEBUG: Props structure ==="
-    puts "Props keys: #{props.keys.inspect}"
-    puts "Audit logs count: #{props['audit_logs']&.size || 'nil'}"
-    puts "Pagination: #{props['pagination']}"
-    puts "Current filters: #{props['current_filters']}"
-    puts "Expected vs Actual: DB(#{AuditLog.count}) vs Response(#{props['audit_logs']&.size || 0})"
-
     # Core structure tests
     assert props.key?("audit_logs"), "Props should include audit_logs key"
     assert props.key?("selected_log"), "Props should include selected_log key"
@@ -68,11 +60,6 @@ class Admin::AuditLogsControllerTest < ActionDispatch::IntegrationTest
       assert log.key?("display_action"), "Log should have display_action"
       assert log.key?("actor_name"), "Log should have actor_name"
       assert log.key?("target_name"), "Log should have target_name"
-
-      puts "=== Sample audit log structure ==="
-      puts log.inspect
-    else
-      puts "=== WARNING: No audit logs found in response ==="
     end
   end
 
@@ -81,12 +68,6 @@ class Admin::AuditLogsControllerTest < ActionDispatch::IntegrationTest
 
     # Check actual database count
     db_count = AuditLog.count
-    puts "\n=== Database audit log count: #{db_count} ==="
-
-    # List all audit logs in database for debugging
-    AuditLog.all.each_with_index do |log, index|
-      puts "#{index + 1}. #{log.action} - #{log.auditable_type} - User: #{log.user&.email_address || 'System'} - Account: #{log.account&.name || 'None'}"
-    end
 
     get admin_audit_logs_path
     assert_response :success
@@ -94,14 +75,6 @@ class Admin::AuditLogsControllerTest < ActionDispatch::IntegrationTest
     props = inertia_shared_props
     returned_count = props["audit_logs"]&.size || 0
     pagination = props["pagination"]
-
-    puts "=== Response audit log count: #{returned_count} ==="
-    puts "=== Pagination info: #{pagination.inspect} ==="
-
-    # If we have logs in DB but not in response, there's a filtering issue
-    if db_count > 0 && returned_count == 0
-      puts "=== ERROR: Logs exist in database but not returned in response! ==="
-    end
 
     assert db_count >= 0, "Should have audit logs in database"
   end
@@ -123,9 +96,6 @@ class Admin::AuditLogsControllerTest < ActionDispatch::IntegrationTest
     assert pagination.key?("page"), "Pagination should have page"
     assert pagination.key?("pages"), "Pagination should have pages"
     assert pagination.key?("items"), "Pagination should have items"
-
-    puts "\n=== Pagination structure ==="
-    puts pagination.inspect
 
     # Verify per_page parameter works
     assert_equal "5", pagination["items"], "Items per page should respect per_page param"
@@ -159,10 +129,6 @@ class Admin::AuditLogsControllerTest < ActionDispatch::IntegrationTest
     audit_logs = props["audit_logs"]
     current_filters = props["current_filters"]
 
-    puts "\n=== Filtering by user_id: #{user_id} ==="
-    puts "Current filters: #{current_filters.inspect}"
-    puts "Returned logs count: #{audit_logs.size}"
-
     assert_equal user_id.to_s, current_filters["user_id"], "Filter should be applied"
 
     # All returned logs should belong to the specified user
@@ -185,10 +151,6 @@ class Admin::AuditLogsControllerTest < ActionDispatch::IntegrationTest
     audit_logs = props["audit_logs"]
     current_filters = props["current_filters"]
 
-    puts "\n=== Filtering by account_id: #{account_id} ==="
-    puts "Current filters: #{current_filters.inspect}"
-    puts "Returned logs count: #{audit_logs.size}"
-
     assert_equal account_id.to_s, current_filters["filter_account_id"], "Filter should be applied"
   end
 
@@ -201,10 +163,6 @@ class Admin::AuditLogsControllerTest < ActionDispatch::IntegrationTest
     props = inertia_shared_props
     audit_logs = props["audit_logs"]
     current_filters = props["current_filters"]
-
-    puts "\n=== Filtering by action: create ==="
-    puts "Current filters: #{current_filters.inspect}"
-    puts "Returned logs count: #{audit_logs.size}"
 
     assert_equal "create", current_filters["audit_action"], "Filter should be applied"
 
@@ -224,10 +182,6 @@ class Admin::AuditLogsControllerTest < ActionDispatch::IntegrationTest
     audit_logs = props["audit_logs"]
     current_filters = props["current_filters"]
 
-    puts "\n=== Filtering by auditable_type: Account ==="
-    puts "Current filters: #{current_filters.inspect}"
-    puts "Returned logs count: #{audit_logs.size}"
-
     assert_equal "Account", current_filters["auditable_type"], "Filter should be applied"
   end
 
@@ -245,10 +199,6 @@ class Admin::AuditLogsControllerTest < ActionDispatch::IntegrationTest
     props = inertia_shared_props
     audit_logs = props["audit_logs"]
     current_filters = props["current_filters"]
-
-    puts "\n=== Filtering by comma-separated actions: login,logout ==="
-    puts "Current filters: #{current_filters.inspect}"
-    puts "Returned logs count: #{audit_logs.size}"
 
     # Check the filter was applied correctly
     assert_equal "login,logout", current_filters["audit_action"], "Filter should be applied"
@@ -276,10 +226,6 @@ class Admin::AuditLogsControllerTest < ActionDispatch::IntegrationTest
     audit_logs = props["audit_logs"]
     current_filters = props["current_filters"]
 
-    puts "\n=== Filtering by comma-separated types: User,Account ==="
-    puts "Current filters: #{current_filters.inspect}"
-    puts "Returned logs count: #{audit_logs.size}"
-
     # Check the filter was applied correctly
     assert_equal "User,Account", current_filters["auditable_type"], "Filter should be applied"
 
@@ -301,12 +247,6 @@ class Admin::AuditLogsControllerTest < ActionDispatch::IntegrationTest
 
     props = inertia_shared_props
     filters = props["filters"]
-
-    puts "\n=== Filter options ==="
-    puts "Users count: #{filters['users']&.size || 0}"
-    puts "Accounts count: #{filters['accounts']&.size || 0}"
-    puts "Actions: #{filters['actions']}"
-    puts "Types: #{filters['types']}"
 
     assert filters.is_a?(Hash), "Filters should be a hash"
     assert filters.key?("users"), "Filters should include users"
@@ -368,9 +308,6 @@ class Admin::AuditLogsControllerTest < ActionDispatch::IntegrationTest
     if audit_log.auditable
       assert selected_log.key?("auditable"), "Selected log should include auditable association"
     end
-
-    puts "\n=== Selected log structure ==="
-    puts selected_log.inspect
   end
 
   # === Model Method Tests ===
@@ -382,18 +319,12 @@ class Admin::AuditLogsControllerTest < ActionDispatch::IntegrationTest
     filters = { user_id: @user_1.id, audit_action: "create" }
     filtered_logs = AuditLog.filtered(filters)
 
-    puts "\n=== Testing AuditLog.filtered directly ==="
-    puts "Filters: #{filters.inspect}"
-    puts "Filtered count: #{filtered_logs.count}"
-
     # Test via controller
     get admin_audit_logs_path, params: filters
     assert_response :success
 
     props = inertia_shared_props
     controller_logs = props["audit_logs"]
-
-    puts "Controller returned count: #{controller_logs.size}"
 
     # Both should return the same results
     assert_equal filtered_logs.count, controller_logs.size, "Controller and model should return same count"
@@ -403,273 +334,11 @@ class Admin::AuditLogsControllerTest < ActionDispatch::IntegrationTest
     actions = AuditLog.available_actions
     types = AuditLog.available_types
 
-    puts "\n=== Available actions: #{actions.inspect} ==="
-    puts "=== Available types: #{types.inspect} ==="
-
     assert actions.is_a?(Array), "Available actions should be an array"
     assert types.is_a?(Array), "Available types should be an array"
   end
 
-  # === Debug Tests ===
-
-  test "should work with fixture audit logs" do
-    sign_in(@site_admin_user)
-
-    puts "\n=== Testing with Fixtures ==="
-    puts "Database count: #{AuditLog.count}"
-
-    # List all audit logs
-    AuditLog.all.each_with_index do |log, i|
-      puts "#{i+1}. #{log.action} - #{log.auditable_type} - User: #{log.user&.email_address || 'System'}"
-    end
-
-    get admin_audit_logs_path
-    assert_response :success
-
-    props = inertia_shared_props
-    puts "Response audit_logs count: #{props['audit_logs']&.size || 0}"
-    puts "Response pagination count: #{props['pagination']['count']}"
-
-    if props["audit_logs"]&.size == AuditLog.count && props["audit_logs"].size > 0
-      puts "\n*** SUCCESS: Audit logs now working! ***"
-    else
-      puts "\n*** STILL BROKEN: Issue not resolved ***"
-    end
-  end
-
-  test "should test pagy directly in controller context" do
-    sign_in(@site_admin_user)
-
-    puts "\n=== Direct Pagy Test ==="
-
-    # Make a request to get controller context
-    get admin_audit_logs_path
-    assert_response :success
-
-    # Now we can inspect what the controller actually computed
-    # We need to look at the exact query that was passed to Pagy
-
-    # Let's check if the issue is in the way as_json is called
-    puts "Database count: #{AuditLog.count}"
-
-    # Simulate what controller does
-    logs = AuditLog.filtered({})
-                   .includes(:user, :account)
-    puts "Query before pagy: #{logs.count} records"
-
-    # Check if the issue is in converting the paginated results to JSON
-    records_array = logs.to_a
-    puts "Records to_a size: #{records_array.size}"
-
-    # Try calling as_json on records to see if that's where the issue is
-    begin
-      json_records = records_array.map(&:as_json)
-      puts "JSON conversion successful: #{json_records.size} records"
-    rescue => e
-      puts "JSON conversion failed: #{e.message}"
-    end
-
-    assert true, "Debug test"
-  end
-
-  test "should debug ObfuscatesId concern interaction with Pagy" do
-    sign_in(@site_admin_user)
-
-    puts "\n=== ObfuscatesId + Pagy Debug ==="
-
-    # Test different query approaches
-    puts "1. AuditLog.count: #{AuditLog.count}"
-    puts "2. AuditLog.all.count: #{AuditLog.all.count}"
-    puts "3. AuditLog.all.size: #{AuditLog.all.size}"
-
-    # Test the filtered query specifically
-    filtered = AuditLog.filtered({})
-    puts "4. AuditLog.filtered({}).count: #{filtered.count}"
-
-    # Test with includes
-    with_includes = AuditLog.filtered({}).includes(:user, :account)
-    puts "5. With includes count: #{with_includes.count}"
-    puts "6. With includes size: #{with_includes.size}"
-
-    # Test if the relation is somehow broken
-    puts "7. With includes class: #{with_includes.class}"
-    puts "8. With includes respond_to?(:count): #{with_includes.respond_to?(:count)}"
-
-    # Test loading the records
-    begin
-      records = with_includes.to_a
-      puts "9. To array size: #{records.size}"
-      puts "10. First record present: #{records.first.present?}"
-    rescue => e
-      puts "9. ERROR loading records: #{e.message}"
-    end
-
-    assert true, "Debug test"
-  end
-
-  test "should isolate pagy pagination issue" do
-    sign_in(@site_admin_user)
-
-    # Verify data exists
-    puts "\n=== Pagy Isolation Test ==="
-    puts "Database count: #{AuditLog.count}"
-
-    # Test the exact controller call
-    get admin_audit_logs_path
-    assert_response :success
-
-    props = inertia_shared_props
-    puts "Response audit_logs count: #{props['audit_logs']&.size || 0}"
-    puts "Response pagination count: #{props['pagination']['count']}"
-
-    # This is the smoking gun - if these don't match, we've found the issue
-    if AuditLog.count != props["pagination"]["count"]
-      puts "\n*** PAGY ISSUE CONFIRMED ***"
-      puts "Database has #{AuditLog.count} logs but Pagy reports #{props['pagination']['count']}"
-    else
-      puts "\n*** PAGY WORKING CORRECTLY ***"
-    end
-  end
-
-  test "should show detailed debugging information" do
-    sign_in(@site_admin_user)
-
-    puts "\n=== COMPREHENSIVE DEBUG INFO ==="
-
-    # Database state
-    puts "=== Database Audit Logs Count: #{AuditLog.count} ==="
-    puts "=== Database Users Count: #{User.count} ==="
-    puts "=== Database Accounts Count: #{Account.count} ==="
-
-    # Show all audit logs in database
-    AuditLog.includes(:user, :account, :auditable).each_with_index do |log, index|
-      puts "#{index + 1}. ID: #{log.id} | Action: #{log.action} | Type: #{log.auditable_type} | " \
-           "User: #{log.user&.email_address || 'System'} | Account: #{log.account&.name || 'None'} | " \
-           "Created: #{log.created_at}"
-    end
-
-    # Test controller response
-    get admin_audit_logs_path
-    assert_response :success
-
-    props = inertia_shared_props
-
-    puts "\n=== Controller Response Debug ==="
-    puts "Response status: #{@response.status}"
-    puts "Response content type: #{@response.content_type}"
-    puts "Props keys: #{props.keys}"
-    puts "Audit logs in response: #{props['audit_logs']&.size || 'nil'}"
-    puts "Pagination: #{props['pagination']}"
-
-    # Test filtered method directly
-    logs_query = AuditLog.filtered({})
-    puts "\n=== AuditLog.filtered({}) Debug ==="
-    puts "Query count: #{logs_query.count}"
-    puts "Query SQL: #{logs_query.to_sql}"
-
-    # Test with includes
-    logs_with_includes = AuditLog.filtered({}).includes(:user, :account)
-    puts "\n=== With includes count: #{logs_with_includes.count} ==="
-
-    # Test what the controller is actually doing step by step
-    puts "\n=== Step-by-step Controller Debug ==="
-
-    # Simulate exact controller logic
-    filter_params_used = {}
-    puts "1. Filter params: #{filter_params_used.inspect}"
-
-    # Step 1: AuditLog.filtered call
-    logs_step1 = AuditLog.filtered(filter_params_used)
-    puts "2. After AuditLog.filtered: #{logs_step1.count} logs"
-
-    # Step 2: Add includes
-    logs_step2 = logs_step1.includes(:user, :account)
-    puts "3. After includes: #{logs_step2.count} logs"
-    puts "4. SQL query: #{logs_step2.to_sql}"
-
-    # Step 3: Check what logs look like
-    logs_step2.limit(3).each_with_index do |log, i|
-      puts "   Log #{i+1}: ID=#{log.id}, action=#{log.action}, user=#{log.user&.email_address || 'nil'}"
-    end
-
-    # Test Pagy directly - skip for now as it requires controller context
-    puts "\n=== Skipping Pagy direct test (requires controller context) ==="
-
-    # Now test the actual controller response params
-    puts "\n=== Filter params from controller ==="
-    puts "The key issue seems to be in the Pagy pagination step"
-    puts "CRITICAL: Pagy is returning count=0 despite 6 logs in DB"
-    puts "This suggests either:"
-    puts "1. Pagy configuration issue"
-    puts "2. Issue with the logs query when passed to Pagy"
-    puts "3. Pagy backend method not working in test environment"
-
-    # Always pass - this is just for debugging
-    assert true
-  end
-
   private
-
-  def create_test_audit_logs
-    # Create various types of audit logs for testing
-    # NOTE: These may not be visible to controller actions due to test transactions
-
-    # User creation audit log
-    AuditLog.create!(
-      user: @user_1,
-      account: @personal_account,
-      action: "create",
-      auditable: @user_1,
-      auditable_type: "User",
-      auditable_id: @user_1.id,
-      data: { description: "User created", changes: { name: "Test User" } }
-    )
-
-    # Account creation audit log
-    AuditLog.create!(
-      user: @user_1,
-      account: @team_account,
-      action: "create",
-      auditable: @team_account,
-      auditable_type: "Account",
-      auditable_id: @team_account.id,
-      data: { description: "Account created", account_type: "team" }
-    )
-
-    # Update audit log
-    AuditLog.create!(
-      user: @regular_user,
-      account: @personal_account,
-      action: "update",
-      auditable: @regular_user,
-      auditable_type: "User",
-      auditable_id: @regular_user.id,
-      data: { description: "User updated", changes: { email: "new@example.com" } }
-    )
-
-    # System action (no user)
-    AuditLog.create!(
-      user: nil,
-      account: nil,
-      action: "system_maintenance",
-      auditable: nil,
-      auditable_type: nil,
-      auditable_id: nil,
-      data: { description: "System maintenance performed", task: "cleanup" }
-    )
-
-    # Account deletion audit log
-    AuditLog.create!(
-      user: @site_admin_user,
-      account: @team_account,
-      action: "delete",
-      auditable_type: "Account",
-      auditable_id: 999, # Simulates deleted record
-      data: { description: "Account deleted", reason: "user_request" }
-    )
-
-    puts "=== Created #{AuditLog.count} test audit logs ==="
-  end
 
   def create_test_log_with_associations
     AuditLog.create!(

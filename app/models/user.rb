@@ -53,20 +53,29 @@ class User < ApplicationRecord
   after_create :ensure_account_user_exists
   after_initialize :set_default_theme, if: :new_record?
 
-  json_attributes :full_name, :site_admin, :avatar_url, :initials, except: [ :password_digest ]
+  json_attributes :full_name, :site_admin, :avatar_url, :initials, except: [ :password_digest, :password_reset_token, :password_reset_sent_at ]
 
-  generates_token_for :password_reset, expires_in: 2.hours do
-    password_salt&.last(10)
+  # Use Rails' built-in secure token for password resets
+  has_secure_token :password_reset_token
+
+  def send_password_reset
+    regenerate_password_reset_token
+    update_column(:password_reset_sent_at, Time.current)
+    PasswordsMailer.reset(self).deliver_later
   end
 
-  def self.find_by_password_reset_token!(token)
-    user = find_by_token_for(:password_reset, token)
-    raise(ActiveSupport::MessageVerifier::InvalidSignature) unless user
-    user
+  # Override to return the actual stored token, not Rails 8's virtual token
+  def password_reset_token_for_url
+    read_attribute(:password_reset_token)
   end
 
-  def password_reset_token
-    generate_token_for(:password_reset)
+  def password_reset_expired?
+    return true unless password_reset_sent_at
+    password_reset_sent_at < 2.hours.ago
+  end
+
+  def clear_password_reset_token!
+    update_columns(password_reset_token: nil, password_reset_sent_at: nil)
   end
 
   # Confirmation is now handled entirely by AccountUser
