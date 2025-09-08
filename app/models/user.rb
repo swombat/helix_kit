@@ -30,7 +30,7 @@ class User < ApplicationRecord
   after_create :ensure_membership_exists
   after_create :create_profile
 
-  json_attributes :full_name, :site_admin, :avatar_url, :initials, :preferences, except: [ :password_digest, :password_reset_token, :password_reset_sent_at ]
+  json_attributes :first_name, :last_name, :timezone, :full_name, :site_admin, :avatar_url, :initials, :preferences, except: [ :password_digest, :password_reset_token, :password_reset_sent_at ]
 
   # Confirmation is now handled entirely by Membership
   def confirmed?
