@@ -14,7 +14,7 @@ Unless the requirements are extremely clear upfront, you should always ask at le
 
 ### 2. Fetch documentation
 
-Once you are happy with the basic requirements, decide whether it requires documentation in addition to what is present in the /docs/ folder (consult /docs/overview.md for the documentation structure). If it does, use the Docs Fetcher sub-agent to fetch the relevant documentation and summarise it in a new /docs file. If it is a file about an external tool or library, store the new documentation under /docs/stack/.
+Once you are happy with the basic requirements, decide whether it requires documentation in addition to what is present in the /docs/ folder (consult /docs/overview.md for the documentation structure). If it does, use the Docs Fetcher sub-agent to fetch the relevant documentation and summarise it in a new /docs file. If it is a file about an external tool or library, store the new documentation under /docs/stack/. Don't fetch new documentation for parts of the stack that are already documented, just use what's there and let the other sub-agents fetch more if they need to.
 
 ### 3. First iteration of the spec
 

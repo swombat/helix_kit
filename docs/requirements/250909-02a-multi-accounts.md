@@ -17,3 +17,17 @@ First, I want you to design and implement any required backend changes. Ideally 
 
 Once the backend changes are implemented, please create/adjust the required views in Svelte. We want to keep this clear and minimal, there should not be a need for a lot of views here. Just a way to view what accounts you're in, create a personal account if it's missing, create more team accounts, switch between them. We already have a way to convert team<->personal when allowed.
 
+## Clarifications
+
+1. **Account ownership and permissions**: When a user creates a team account, they are automatically the owner. Ownership transfer is out of scope for this iteration.
+
+2. **Account creation flow**: Users signing up get a personal account by default, which they can convert to a team account using existing interface (don't rebuild or change this).
+
+3. **Account resource isolation**: All resources are scoped to accounts. Billing considerations are out of scope for now.
+
+4. **Account switching UX**: When switching accounts:
+   - If viewing an account-specific resource, redirect to home page
+   - If viewing a non-account-specific page, stay on the same page
+
+5. **Team account limits**: No limits on number of team accounts per user. No uniqueness requirements for names - the internal ID is the unique identifier.
+
