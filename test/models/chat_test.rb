@@ -72,4 +72,116 @@ class ChatTest < ActiveSupport::TestCase
     assert_equal [ :account ], Chat.broadcast_targets
   end
 
+  test "create_with_message! creates chat and message" do
+    assert_difference "Chat.count" do
+      assert_difference "Message.count" do
+        assert_enqueued_with(job: AiResponseJob) do
+          @chat = Chat.create_with_message!(
+            { model_id: "gpt-4o", account: @account },
+            message_content: "Hello AI",
+            user: @user
+          )
+        end
+      end
+    end
+
+    message = @chat.messages.last
+    assert_equal "Hello AI", message.content
+    assert_equal "user", message.role
+    assert_equal @user, message.user
+  end
+
+  test "create_with_message! creates chat without message when content is blank" do
+    assert_difference "Chat.count" do
+      assert_no_difference "Message.count" do
+        assert_no_enqueued_jobs(only: AiResponseJob) do
+          @chat = Chat.create_with_message!(
+            { model_id: "gpt-4o", account: @account },
+            message_content: nil,
+            user: @user
+          )
+        end
+      end
+    end
+  end
+
+  test "title_or_default returns title when present" do
+    chat = Chat.create!(account: @account, title: "My Chat")
+    assert_equal "My Chat", chat.title_or_default
+  end
+
+  test "title_or_default returns default when title is blank" do
+    chat = Chat.create!(account: @account)
+    assert_equal "New Conversation", chat.title_or_default
+  end
+
+  test "ai_model_name returns correct model name" do
+    chat = Chat.create!(account: @account, model_id: "openai/gpt-4o-mini")
+    assert_equal "GPT-4 Mini", chat.ai_model_name
+  end
+
+  test "ai_model_name returns nil for unknown model" do
+    chat = Chat.create!(account: @account, model_id: "unknown/model")
+    assert_nil chat.ai_model_name
+  end
+
+  test "updated_at_formatted returns formatted date" do
+    chat = Chat.create!(account: @account)
+    # Use a time that accounts for potential timezone differences
+    time = Time.parse("2024-01-15 14:30:00 UTC")
+    chat.update!(updated_at: time)
+    # Test the format without being specific about timezone
+    formatted = chat.updated_at_formatted
+    assert_includes formatted, "Jan 15 at"
+    assert_includes formatted, ":30"
+    assert_includes formatted, "M" # AM or PM
+  end
+
+  test "updated_at_short returns short date" do
+    chat = Chat.create!(account: @account)
+    chat.update!(updated_at: Time.new(2024, 1, 15, 14, 30, 0))
+    assert_equal "Jan 15", chat.updated_at_short
+  end
+
+  test "message_count returns correct count" do
+    chat = Chat.create!(account: @account)
+    assert_equal 0, chat.message_count
+
+    chat.messages.create!(content: "Test", role: "user", user: @user)
+    assert_equal 1, chat.reload.message_count
+
+    chat.messages.create!(content: "Response", role: "assistant")
+    assert_equal 2, chat.reload.message_count
+  end
+
+  test "as_json returns default format" do
+    chat = Chat.create!(account: @account, title: "Test Chat", model_id: "gpt-4o")
+    chat.messages.create!(content: "Test", role: "user", user: @user)
+
+    json = chat.as_json
+
+    assert_equal chat.to_param, json[:id]
+    assert_equal "Test Chat", json[:title_or_default]
+    assert_equal "gpt-4o", json[:model_id]
+    assert_nil json[:ai_model_name] # Unknown model
+    assert_equal 1, json[:message_count]
+    assert json[:updated_at_formatted].present?
+  end
+
+  test "as_json returns sidebar format" do
+    chat = Chat.create!(account: @account, title: "Sidebar Chat")
+
+    json = chat.as_json(as: :sidebar_json)
+
+    assert_equal chat.to_param, json[:id]
+    assert_equal "Sidebar Chat", json[:title_or_default]
+    assert json[:updated_at_short].present?
+
+    # Should not include other fields
+    assert_nil json[:model_id]
+    assert_nil json[:ai_model_name]
+    assert_nil json[:message_count]
+    assert_nil json[:updated_at_formatted]
+  end
+
 end

@@ -3,21 +3,36 @@ class ChatsController < ApplicationController
   before_action :set_chat, except: [ :index, :create ]
 
   def index
-    @chats = current_account.chats.includes(:messages).order(created_at: :desc)
-    render inertia: "Chats/Index", props: { chats: @chats }
+    @chats = current_account.chats.includes(:messages).latest
+
+    render inertia: "chats/index", props: {
+      chats: @chats.as_json,
+      models: Chat::MODELS,
+      account: current_account.as_json
+    }
   end
 
   def show
-    @messages = @chat.messages.includes(:user, files_attachments: :blob)
-    render inertia: "Chats/Show", props: {
-      chat: @chat,
-      messages: @messages
+    @chats = current_account.chats.latest
+    @messages = @chat.messages.includes(:user)
+
+    debug "---------- #{@messages.all.collect(&:as_json).inspect}"
+
+    render inertia: "chats/show", props: {
+      chat: @chat.as_json,
+      chats: @chats.as_json(as: :sidebar_json),
+      messages: @messages.all.collect(&:as_json),
+      account: current_account.as_json
     }
   end
 
   def create
-    @chat = current_account.chats.create!(chat_params)
-    redirect_to [ @chat.account, @chat ]
+    @chat = current_account.chats.create_with_message!(
+      chat_params,
+      message_content: params[:message],
+      user: Current.user
+    )
+    redirect_to account_chat_path(current_account, @chat)
   end
 
   def destroy
@@ -32,11 +47,9 @@ class ChatsController < ApplicationController
   end
 
   def chat_params
-    if params[:chat]
-      params.require(:chat).permit(:model_id).with_defaults(model_id: "openrouter/auto")
-    else
-      { model_id: "openrouter/auto" }
-    end
+    params.fetch(:chat, {})
+      .permit(:model_id)
+      .with_defaults(model_id: "openrouter/auto")
   end
 
 end

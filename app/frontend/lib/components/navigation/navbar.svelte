@@ -37,13 +37,14 @@
     router.delete(logoutPath());
   }
 
-  const links = [
-    { href: '/documentation', label: 'Documentation' },
-    { href: '#', label: 'About' },
-  ];
-
   const currentUser = $derived($page.props?.user);
   const currentAccount = $derived($page.props?.account);
+
+  const links = $derived([
+    { href: '/documentation', label: 'Documentation', show: true },
+    { href: currentAccount?.id ? `/accounts/${currentAccount.id}/chats` : '#', label: 'Chats', show: !!currentUser },
+    { href: '#', label: 'About', show: true },
+  ]);
 
   // Theme management
   const currentTheme = $derived(currentUser?.preferences?.theme || $page.props?.theme_preference || 'system');
@@ -94,8 +95,11 @@
       </Link>
       <div class="hidden md:flex items-center">
         {#each links as link}
-          <Link href={link.href} class={cn(buttonVariants({ variant: 'ghost' }), 'rounded-full text-muted-foreground')}
-            >{link.label}</Link>
+          {#if link.show}
+            <Link
+              href={link.href}
+              class={cn(buttonVariants({ variant: 'ghost' }), 'rounded-full text-muted-foreground')}>{link.label}</Link>
+          {/if}
         {/each}
       </div>
     </div>
@@ -234,7 +238,9 @@
             <DropdownMenu.Separator />
             <DropdownMenu.Group>
               {#each links as link}
-                <DropdownMenu.Item onclick={() => router.visit(link.href)}>{link.label}</DropdownMenu.Item>
+                {#if link.show}
+                  <DropdownMenu.Item onclick={() => router.visit(link.href)}>{link.label}</DropdownMenu.Item>
+                {/if}
               {/each}
             </DropdownMenu.Group>
           </div>

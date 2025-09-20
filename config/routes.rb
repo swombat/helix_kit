@@ -42,6 +42,12 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :messages, only: [] do
+    member do
+      post :retry
+    end
+  end
+
   namespace :admin do
     resources :accounts, only: [ :index ]
     resources :audit_logs, only: [ :index ]

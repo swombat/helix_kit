@@ -211,7 +211,7 @@
                           variant="ghost"
                           size="sm"
                           onclick={() => removeMember(member)}
-                          class="text-destructive hover:text-destructive">
+                          class="text-destructive hover:text-destructive opacity-30 hover:opacity-100">
                           <Trash class="h-4 w-4" />
                           Remove
                         </Button>
@@ -284,7 +284,7 @@
                             variant="ghost"
                             size="sm"
                             onclick={() => removeMember(member)}
-                            class="text-destructive hover:text-destructive">
+                            class="text-destructive hover:text-destructive opacity-30 hover:opacity-100">
                             <Trash class="h-4 w-4" />
                             Cancel
                           </Button>

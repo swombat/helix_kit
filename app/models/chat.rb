@@ -14,4 +14,70 @@ class Chat < ApplicationRecord
 
   after_create_commit -> { GenerateTitleJob.perform_later(self) }, unless: :title?
 
+  # Available AI models
+  MODELS = [
+    [ "openrouter/auto", "Auto (Recommended)" ],
+    [ "openai/gpt-4o-mini", "GPT-4 Mini" ],
+    [ "anthropic/claude-3.7-sonnet", "Claude 3.7 Sonnet" ],
+    [ "google/gemini-2.5-pro-preview-03-25", "Gemini 2.5 Pro" ]
+  ].freeze
+
+  scope :latest, -> { order(updated_at: :desc) }
+
+  # Create chat with optional initial message
+  def self.create_with_message!(attributes, message_content: nil, user: nil)
+    transaction do
+      chat = create!(attributes)
+      if message_content.present?
+        message = chat.messages.create!(
+          content: message_content,
+          role: "user",
+          user: user
+        )
+        AiResponseJob.perform_later(chat, message)
+      end
+      chat
+    end
+  end
+
+  def title_or_default
+    title.presence || "New Conversation"
+  end
+
+  def ai_model_name
+    MODELS.find { |m| m[0] == model_id }&.last
+  end
+
+  def updated_at_formatted
+    updated_at.strftime("%b %d at %l:%M %p")
+  end
+
+  def updated_at_short
+    updated_at.strftime("%b %d")
+  end
+
+  def message_count
+    messages.count
+  end
+
+  # Override as_json for proper serialization to frontend
+  def as_json(options = {})
+    if options[:as] == :sidebar_json
+      {
+        id: to_param,
+        title_or_default: title_or_default,
+        updated_at_short: updated_at_short
+      }
+    else
+      {
+        id: to_param,
+        title_or_default: title_or_default,
+        model_id: model_id,
+        ai_model_name: ai_model_name,
+        updated_at_formatted: updated_at_formatted,
+        message_count: message_count
+      }
+    end
+  end
+
 end

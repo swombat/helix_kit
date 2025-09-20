@@ -111,4 +111,140 @@ class MessageTest < ActiveSupport::TestCase
     assert_equal [ :chat ], Message.broadcast_targets
   end
 
+  test "completed? returns true for user messages" do
+    message = @chat.messages.create!(
+      user: @user,
+      role: "user",
+      content: "Test message"
+    )
+    assert message.completed?
+  end
+
+  test "completed? returns true for completed assistant messages" do
+    message = @chat.messages.create!(
+      role: "assistant",
+      content: "AI response"
+    )
+    assert message.completed?
+  end
+
+  test "completed? returns false for incomplete assistant messages" do
+    # Build message without saving (since content validation would fail)
+    message = @chat.messages.build(
+      role: "assistant",
+      content: ""
+    )
+    assert_not message.completed?
+  end
+
+  test "user_name returns user full name" do
+    message = @chat.messages.create!(
+      user: @user,
+      role: "user",
+      content: "Test message"
+    )
+    assert_equal "Test User", message.user_name
+  end
+
+  test "user_name returns nil when no user" do
+    message = @chat.messages.create!(
+      role: "assistant",
+      content: "AI response"
+    )
+    assert_nil message.user_name
+  end
+
+  test "user_avatar_url returns user avatar" do
+    message = @chat.messages.create!(
+      user: @user,
+      role: "user",
+      content: "Test message"
+    )
+    # User avatar_url returns nil in test environment
+    assert_nil message.user_avatar_url
+  end
+
+  test "created_at_formatted returns formatted time" do
+    message = @chat.messages.create!(
+      user: @user,
+      role: "user",
+      content: "Test message",
+      created_at: Time.parse("2024-01-15 14:30:00 UTC")
+    )
+    formatted = message.created_at_formatted
+    assert_includes formatted, ":30"
+    assert_includes formatted, "M" # AM or PM
+  end
+
+  test "content_html renders markdown" do
+    message = @chat.messages.create!(
+      role: "assistant",
+      content: "# Heading\n\nSome **bold** text and `code`"
+    )
+
+    html = message.content_html
+    assert_includes html, "<h1>Heading</h1>"
+    assert_includes html, "<strong>bold</strong>"
+    assert_includes html, "<code>code</code>"
+  end
+
+  test "content_html handles nil content" do
+    # Build message without saving (since content is required)
+    message = @chat.messages.build(
+      role: "assistant",
+      content: nil
+    )
+
+    # Should not raise error
+    html = message.content_html
+    assert_equal "", html
+  end
+
+  test "content_html filters dangerous HTML" do
+    message = @chat.messages.create!(
+      role: "assistant",
+      content: "<script>alert('xss')</script>Safe content"
+    )
+
+    html = message.content_html
+    assert_not_includes html, "<script>"
+    assert_includes html, "Safe content"
+  end
+
+  test "as_json returns complete message data" do
+    message = @chat.messages.create!(
+      user: @user,
+      role: "user",
+      content: "Test **markdown**"
+    )
+
+    json = message.as_json
+
+    assert_equal message.to_param, json[:id]
+    assert_equal "user", json[:role]
+    assert_includes json[:content_html], "<strong>markdown</strong>"
+    assert_equal "Test User", json[:user_name]
+    assert_nil json[:user_avatar_url]  # User avatar_url returns nil in test
+    assert json[:completed]
+    assert_nil json[:error]
+    assert json[:created_at_formatted].present?
+  end
+
+  test "as_json handles assistant message with error" do
+    message = @chat.messages.create!(
+      role: "assistant",
+      content: "Failed response"
+    )
+
+    json = message.as_json
+
+    assert_equal "assistant", json[:role]
+    assert_nil json[:user_name]
+    assert_nil json[:user_avatar_url]
+    # With content, assistant messages are complete
+    assert json[:completed]
+    # We don't track errors in database yet
+    assert_nil json[:error]
+  end
+
 end
