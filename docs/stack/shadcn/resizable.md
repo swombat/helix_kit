@@ -176,7 +176,7 @@ npx shadcn-svelte@latest add resizable
               <div class="text-sm">Terminal</div>
             </div>
             <div class="flex-1 p-4 font-mono text-sm">
-              <div>$ npm run dev</div>
+              <div>$ yarn dev</div>
               <div class="text-green-400">✓ Server running on localhost:5173</div>
             </div>
           </div>

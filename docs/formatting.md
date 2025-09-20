@@ -61,17 +61,17 @@ The formatting rules for JavaScript and Svelte are defined in `.prettierrc`:
 
 ### Format all files
 ```bash
-npm run format
+yarn format
 ```
 
 ### Check formatting without changing files
 ```bash
-npm run format:check
+yarn format:check
 ```
 
 ### Format a specific file
 ```bash
-npx prettier --write path/to/file.svelte
+yarn prettier --write path/to/file.svelte
 ```
 
 ## What This Fixes

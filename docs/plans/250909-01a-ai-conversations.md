@@ -592,10 +592,10 @@ This plan details the implementation of a fully-featured AI chat interface for H
 
 ### Phase 7: Dependencies and Configuration
 
-- [ ] Install required npm packages
+- [ ] Install required packages
   ```bash
-  npm install marked highlight.js date-fns
-  npm install --save-dev @types/marked
+  yarn add marked highlight.js date-fns
+  yarn add -D @types/marked
   ```
 
 - [ ] Add route for message retry in `/config/routes.rb`

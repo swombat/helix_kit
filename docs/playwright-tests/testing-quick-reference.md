@@ -9,7 +9,7 @@
 rails test
 
 # 2. Run Playwright component tests (REAL backend only, NO mocking!)
-npm test
+yarn test
 
 # Both test suites MUST pass before committing changes!
 ```
@@ -20,14 +20,14 @@ npm test
 
 ### Unit Tests (Vitest)
 - **Location**: `app/frontend/**/*.test.js`
-- **Run**: `npm test`
+- **Run**: `yarn test`
 - **What**: Component logic, utilities, isolated component behavior
 - **Environment**: jsdom (simulated browser)
 
 ### Component Tests (Playwright CT)
 - **Location**: `playwright/tests/pages/*.pw.js`
-- **Run**: `npm test` - Automatically starts Rails backend, runs tests, cleans up
-- **Run with UI**: `npm run test:ui` - Debug with Playwright UI
+- **Run**: `yarn test` - Automatically starts Rails backend, runs tests, cleans up
+- **Run with UI**: `yarn test:ui` - Debug with Playwright UI
 - **What**: Page components in real browsers, UI interactions, form submissions against REAL backend
 - **Environment**: Real browsers with REAL Rails API (NO mocking allowed!)
 
@@ -40,16 +40,16 @@ npm test
 
 ```bash
 # Run all Vitest unit tests
-npm test
+yarn test
 
 # Run Vitest with UI
-npm run test:ui
+yarn test:ui
 
 # Run all Playwright component tests (REAL backend required)
-npm test  # Automatically starts Rails, runs tests, and cleans up
+yarn test  # Automatically starts Rails, runs tests, and cleans up
 
 # Run Playwright with UI for debugging
-npm run test:ui
+yarn test:ui
 
 # Run specific Playwright test
 npx playwright test -c playwright-ct.config.js playwright/tests/pages/login-simple.pw.js

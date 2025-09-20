@@ -195,7 +195,7 @@ helix_kit/
 ├── Gemfile               # Ruby dependencies
 ├── Gemfile.lock          # Locked gem versions
 ├── package.json          # Node.js dependencies
-├── package-lock.json     # Locked npm versions
+├── yarn.lock             # Locked yarn dependencies
 ├── Procfile.dev          # Development process manager
 ├── Rakefile              # Rake task definitions
 ├── config.ru             # Rack configuration

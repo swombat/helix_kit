@@ -9,10 +9,10 @@
 rails test
 
 # 2. Run Playwright component tests (REAL backend - NO mocking!)
-npm test
+yarn test
 
 # 3. Run Vitest unit tests
-npm run test:unit
+yarn test:unit
 
 # All three test suites MUST pass before committing changes!
 ```
@@ -122,10 +122,10 @@ We use Playwright Component Testing to test Svelte components in real browsers. 
 
 ```bash
 # Run all component tests (REAL backend required)
-npm test  # Automatically starts Rails, runs tests, cleans up
+yarn test  # Automatically starts Rails, runs tests, cleans up
 
 # Debug tests with UI
-npm run test:ui
+yarn test:ui
 ```
 
 Test files are located in `playwright/tests/pages/`:
@@ -195,8 +195,8 @@ expect(mockSubmit).toHaveBeenCalledWith({ email: 'valid@email.com' });
 
 **Run tests:**
 ```bash
-npm run test:unit     # Run unit tests
-npm run test:unit:ui  # Open Vitest UI for debugging
+yarn test:unit     # Run unit tests
+yarn test:unit:ui  # Open Vitest UI for debugging
 ```
 
 ```javascript

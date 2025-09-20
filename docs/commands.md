@@ -35,7 +35,7 @@ rails db:schema:dump    # Export current schema
 ```bash
 # These MUST both pass before any commit:
 rails test  # Run Rails backend tests
-npm test    # Run Playwright tests (REAL backend - NO mocking!)
+yarn test    # Run Playwright tests (REAL backend - NO mocking!)
 ```
 
 #### Rails Tests
@@ -54,16 +54,16 @@ HEADLESS=true rails test:system  # Run headlessly
 
 #### Playwright Component Tests
 ```bash
-npm test        # Run all tests with REAL Rails backend (auto setup)
-npm run test:ui # Open Playwright UI for debugging
+yarn test        # Run all tests with REAL Rails backend (auto setup)
+yarn test:ui # Open Playwright UI for debugging
 
 # NEVER create mocked backend tests - the user will be VERY UNHAPPY!
 ```
 
 #### Vitest Unit Tests
 ```bash
-npm run test:unit     # Run unit tests with Vitest
-npm run test:unit:ui  # Open Vitest UI for debugging
+yarn test:unit     # Run unit tests with Vitest
+yarn test:unit:ui  # Open Vitest UI for debugging
 ```
 
 ### Code Quality
@@ -89,11 +89,11 @@ bundle update rails     # Update specific gem
 bundle outdated         # Show outdated gems
 bundle exec [command]   # Run command with bundle context
 
-# JavaScript dependencies  
-npm install             # Install from package.json
-npm update              # Update packages
-npm outdated            # Show outdated packages
-npm run [script]        # Run package.json script
+# JavaScript dependencies
+yarn install             # Install from package.json
+yarn upgrade             # Update packages
+yarn outdated            # Show outdated packages
+yarn [script]            # Run package.json script
 ```
 
 ## Rails Console Commands
@@ -264,5 +264,5 @@ rails db:seed
 rails tmp:clear
 rails assets:clobber
 bundle install
-npm install
+yarn install
 ```
