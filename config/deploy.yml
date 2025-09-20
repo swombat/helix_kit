@@ -16,6 +16,7 @@ env:
   clear:
     RAILS_SERVE_STATIC_FILES: true # Let Rails serve static files (since no external proxy in production)
     RAILS_LOG_TO_STDOUT: true # Log to STDOUT for Docker logging
+    RAILS_ENV: production
   secret:
     - RAILS_MASTER_KEY # Rails master key (provide in .kamal/secrets)
     - DATABASE_URL # Database connection string (provided per env in secrets)
