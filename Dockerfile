@@ -97,13 +97,11 @@ COPY Rakefile config.ru ./
 COPY config/ config/
 COPY bin/ bin/
 COPY *.config.js .
+COPY vite.config.ts .
 
 RUN mkdir -p log tmp && : > log/solid_services_production.log
 
-RUN --mount=type=cache,target=/root/.cache/yarn \
-    yarn build
-
-# 4) Compile assets (re-runs when the above change)
+# 4) Compile assets (this handles both Rails assets and Vite build)
 RUN SECRET_KEY_BASE_DUMMY=1 bundle exec rails assets:precompile
 
 # 5) Bring in the rest of the app; bootsnap app code

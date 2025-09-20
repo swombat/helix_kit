@@ -4,7 +4,7 @@
   import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/shadcn/card';
   import { Badge } from '$lib/components/shadcn/badge';
   import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '$lib/components/shadcn/table';
-  import Alert from '$lib/components/alert.svelte';
+  import Alert from '$lib/components/Alert.svelte';
   import { editAccountPath } from '@/routes';
   import { UserCircle, Users, Gear, UserPlus, Trash, Envelope } from 'phosphor-svelte';
   import InviteMemberForm from '$lib/components/forms/InviteMemberForm.svelte';
