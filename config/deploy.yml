@@ -1,7 +1,7 @@
 # config/deploy.yml
 
-service: helix_kit
-image: dtenner/helix_kit
+service: helix-kit
+image: dtenner/helix-kit
 
 registry:
   username: dtenner
