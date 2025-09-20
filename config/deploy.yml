@@ -36,10 +36,6 @@ builder:
   args:
     RAILS_ENV: production
 
-env:
-  clear:
-    RAILS_ENV: production
-
 accessories:
   postgres:
     image: postgres:16.2 # Use the correct version for your app
