@@ -1,6 +1,7 @@
 {
   "private": true,
   "type": "module",
+  "packageManager": "yarn@1.22.19",
   "scripts": {
     "format": "prettier --write \"app/frontend/**/*.{js,svelte,css}\"",
     "format:check": "prettier --check \"app/frontend/**/*.{js,svelte,css}\"",

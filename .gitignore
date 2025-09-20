@@ -52,3 +52,4 @@ node_modules
 
 /logs
 /config/credentials/*.key
+/config/credentials/deployment/*.key
