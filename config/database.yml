@@ -101,12 +101,15 @@ production:
   cache:
     <<: *primary_production
     database: helix_kit_production_cache
+    database_tasks: true
     migrations_paths: db/cache_migrate
   queue:
     <<: *primary_production
     database: helix_kit_production_queue
+    database_tasks: true
     migrations_paths: db/queue_migrate
   cable:
     <<: *primary_production
     database: helix_kit_production_cable
+    database_tasks: true
     migrations_paths: db/cable_migrate
