@@ -58,7 +58,7 @@ Rails.application.configure do
   # config.action_mailer.raise_delivery_errors = false
 
   # Set host to be used by links generated in mailer templates.
-  config.action_mailer.default_url_options = { host: "granttree.co.uk" }
+  config.action_mailer.default_url_options = { host: "helix-kit.granttree.co.uk" }
 
   if Rails.application.credentials.dig(:mailgun).present?
     config.action_mailer.delivery_method = :smtp
