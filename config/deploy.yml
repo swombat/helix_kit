@@ -28,7 +28,7 @@ servers:
   jobs:
     hosts:
       - 95.217.118.47
-    cmd: ["./bin/rails", "solid_queue:start"]
+    cmd: "./bin/rails solid_queue:start"
 
 proxy:
   ssl: true
