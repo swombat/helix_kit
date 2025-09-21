@@ -80,3 +80,5 @@ gem "pagy", "~> 9.3"
 gem "active_storage_validations"
 
 gem "redcarpet"
+
+gem "honeybadger", "~> 6.1"

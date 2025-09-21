@@ -147,6 +147,9 @@ GEM
       activesupport (>= 6.1)
     hashdiff (1.2.0)
     hashids (1.0.6)
+    honeybadger (6.1.0)
+      logger
+      ostruct
     i18n (1.14.7)
       concurrent-ruby (~> 1.0)
     image_processing (1.14.0)
@@ -451,6 +454,7 @@ DEPENDENCIES
   capybara
   debug
   hashids
+  honeybadger (~> 6.1)
   image_processing (~> 1.2)
   inertia_rails (~> 3.9)
   jbuilder
