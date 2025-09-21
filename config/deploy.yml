@@ -24,17 +24,11 @@ env:
 servers:
   web:
     hosts:
-      - 95.217.118.47 # The IP of the staging server from Hetzner
-    roles:
-      - web
-      - jobs
-
-services:
-  web:
-    cmd: ["./bin/rails", "server"]
+      - 95.217.118.47
   jobs:
+    hosts:
+      - 95.217.118.47
     cmd: ["./bin/rails", "solid_queue:start"]
-    replicas: 1
 
 proxy:
   ssl: true
