@@ -100,16 +100,16 @@ production:
     url: <%= ENV["DATABASE_URL"] %>
   cache:
     <<: *primary_production
-    database: helix_kit_production_cache
+    url: <%= URI.parse(ENV['DATABASE_URL']).tap { |u| u.path += '_cache' } if ENV['DATABASE_URL'] && Rails.env.production? %>
     database_tasks: true
     migrations_paths: db/cache_migrate
   queue:
     <<: *primary_production
-    database: helix_kit_production_queue
+    url: <%= URI.parse(ENV['DATABASE_URL']).tap { |u| u.path += '_queue' } if ENV['DATABASE_URL'] && Rails.env.production? %>
     database_tasks: true
     migrations_paths: db/queue_migrate
   cable:
     <<: *primary_production
-    database: helix_kit_production_cable
+    url: <%= URI.parse(ENV['DATABASE_URL']).tap { |u| u.path += '_cable' } if ENV['DATABASE_URL'] && Rails.env.production? %>
     database_tasks: true
     migrations_paths: db/cable_migrate
