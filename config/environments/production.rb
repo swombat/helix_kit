@@ -58,7 +58,21 @@ Rails.application.configure do
   # config.action_mailer.raise_delivery_errors = false
 
   # Set host to be used by links generated in mailer templates.
-  config.action_mailer.default_url_options = { host: "example.com" }
+  config.action_mailer.default_url_options = { host: "granttree.co.uk" }
+
+  if Rails.application.credentials.dig(:mailgun).present?
+    config.action_mailer.delivery_method = :smtp
+    config.action_mailer.default_options = { from: "helix-kit@#{Rails.application.credentials.dig(:mailgun, :domain) || "<MAILGUN_DOMAIN>"}" }
+    config.action_mailer.smtp_settings = {
+      address: Rails.application.credentials.dig(:mailgun, :smtp_server) || "<SMTP_SERVER>",
+      port: Rails.application.credentials.dig(:mailgun, :smtp_port) || "<SMTP_PORT>",
+      domain: Rails.application.credentials.dig(:mailgun, :domain) || "<MAILGUN_DOMAIN>",
+      user_name: Rails.application.credentials.dig(:mailgun, :smtp_login) || "<SMTP_LOGIN>",
+      password: Rails.application.credentials.dig(:mailgun, :smtp_password) || "<SMTP_PASSWORD>",
+      authentication: "plain",
+      enable_starttls_auto: true
+    }
+  end
 
   # Specify outgoing SMTP server. Remember to add smtp/* credentials via rails credentials:edit.
   # config.action_mailer.smtp_settings = {

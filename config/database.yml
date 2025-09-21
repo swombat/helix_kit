@@ -94,9 +94,6 @@ test:
 production:
   primary: &primary_production
     <<: *default
-    # database: helix_kit_production
-    # username: helix_kit
-    # password: <%= ENV["HELIX_KIT_DATABASE_PASSWORD"] %>
     url: <%= ENV["DATABASE_URL"] %>
   cache:
     <<: *primary_production
