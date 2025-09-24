@@ -14,7 +14,7 @@ class ChatsController < ApplicationController
 
   def show
     @chats = current_account.chats.latest
-    @messages = @chat.messages.includes(:user)
+    @messages = @chat.messages.sorted.includes(:user)
 
     render inertia: "chats/show", props: {
       chat: @chat.as_json,

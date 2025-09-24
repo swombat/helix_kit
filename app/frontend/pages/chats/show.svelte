@@ -175,38 +175,54 @@
     }
   }
 
-  // Group messages chronologically by calendar date
-  let groupedMessages = $derived(() => {
-    if (!Array.isArray(messages) || messages.length === 0) return [];
+  function shouldShowTimestamp(index) {
+    if (!Array.isArray(messages) || messages.length === 0) return false;
 
-    const sortedMessages = [...messages].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+    const message = messages[index];
+    if (!message) return false;
 
-    const groups = [];
-    const groupIndex = new Map();
+    const currentCreatedAt = new Date(message.created_at);
+    if (Number.isNaN(currentCreatedAt)) return false;
 
-    sortedMessages.forEach((message) => {
-      const createdAt = new Date(message.created_at);
-      if (Number.isNaN(createdAt)) return;
+    if (index === 0) return true;
 
-      const groupId = createdAt.toISOString().split('T')[0];
-      let group = groupIndex.get(groupId);
+    const previousMessage = messages[index - 1];
+    if (!previousMessage) return true;
 
-      if (!group) {
-        group = {
-          id: groupId,
-          date: createdAt,
-          dateLabel: formatDate(createdAt),
-          messages: [],
-        };
-        groupIndex.set(groupId, group);
-        groups.push(group);
-      }
+    const previousCreatedAt = new Date(previousMessage.created_at);
+    if (Number.isNaN(previousCreatedAt)) return true;
 
-      group.messages.push(message);
-    });
+    const sameDay = currentCreatedAt.toDateString() === previousCreatedAt.toDateString();
+    if (!sameDay) return true;
 
-    return groups;
-  });
+    const timeDifference = currentCreatedAt.getTime() - previousCreatedAt.getTime();
+    const hourInMs = 60 * 60 * 1000;
+
+    return timeDifference >= hourInMs;
+  }
+
+  function timestampLabel(index) {
+    const message = messages[index];
+    if (!message) return '';
+
+    const createdAt = new Date(message.created_at);
+    if (Number.isNaN(createdAt)) return '';
+
+    if (index === 0) return formatDate(createdAt);
+
+    const previousMessage = messages[index - 1];
+    const previousCreatedAt = previousMessage ? new Date(previousMessage.created_at) : null;
+
+    if (!previousCreatedAt || Number.isNaN(previousCreatedAt)) {
+      return formatDate(createdAt);
+    }
+
+    if (createdAt.toDateString() !== previousCreatedAt.toDateString()) {
+      return formatDate(createdAt);
+    }
+
+    return formatTime(createdAt);
+  }
 </script>
 
 <svelte:head>
@@ -231,72 +247,68 @@
 
     <!-- Messages container -->
     <div bind:this={messagesContainer} class="flex-1 overflow-y-auto px-6 py-4 space-y-4">
-      {#if groupedMessages().length === 0}
+      {#if !Array.isArray(messages) || messages.length === 0}
         <div class="flex items-center justify-center h-full">
           <div class="text-center text-muted-foreground">
             <p>Start the conversation by sending a message below.</p>
           </div>
         </div>
       {:else}
-        {#each groupedMessages() as group (group.id)}
-          <!-- Date separator -->
-          <div class="flex items-center gap-4 my-6">
-            <div class="flex-1 border-t border-border"></div>
-            <div class="px-3 py-1 bg-muted rounded-full text-xs font-medium text-muted-foreground">
-              {group.dateLabel}
+        {#each messages as message, index (message.id)}
+          {#if shouldShowTimestamp(index)}
+            <div class="flex items-center gap-4 my-6">
+              <div class="flex-1 border-t border-border"></div>
+              <div class="px-3 py-1 bg-muted rounded-full text-xs font-medium text-muted-foreground">
+                {timestampLabel(index)}
+              </div>
+              <div class="flex-1 border-t border-border"></div>
             </div>
-            <div class="flex-1 border-t border-border"></div>
-          </div>
+          {/if}
 
-          <!-- Messages for this date -->
-          {#each group.messages as {id, role, content, status, created_at, streaming}, index (id) }
-            <div class="space-y-1">
-              <!-- User message -->
-              {#if role === 'user'}
-                <div class="flex justify-end">
-                  <div class="max-w-[70%]">
-                    <Card.Root class="bg-primary text-primary-foreground">
-                      <Card.Content class="p-4">
-                        <div class="prose prose-sm max-w-none text-neutral-200">{@html marked(content || '')}</div>
-                      </Card.Content>
-                    </Card.Root>
-                    <div class="text-xs text-muted-foreground text-right mt-1">
-                      {formatTime(created_at)}
-                    </div>
+          <div class="space-y-1">
+            {#if message.role === 'user'}
+              <div class="flex justify-end">
+                <div class="max-w-[70%]">
+                  <Card.Root class="bg-primary text-primary-foreground">
+                    <Card.Content class="p-4">
+                      <div class="prose prose-sm max-w-none text-neutral-200">{@html marked(message.content || '')}</div>
+                    </Card.Content>
+                  </Card.Root>
+                  <div class="text-xs text-muted-foreground text-right mt-1">
+                    {formatTime(message.created_at)}
                   </div>
                 </div>
-              {:else}
-                <!-- Assistant message -->
-                <div class="flex justify-start">
-                  <div class="max-w-[70%]">
-                    <Card.Root>
-                      <Card.Content class="p-4">
-                        {#if status === 'failed'}
-                          <div class="text-red-600 mb-2 text-sm">Failed to generate response</div>
-                          <Button variant="outline" size="sm" on:click={() => retryMessage(id)} class="mb-3">
-                            <ArrowClockwise size={14} class="mr-2" />
-                            Retry
-                          </Button>
-                        {:else if status === 'pending'}
-                          <div class="text-muted-foreground text-sm">Thinking...</div>
-                        {:else}
-                          <div class="prose prose-sm max-w-none">{@html marked(content || '')}</div>
-                        {/if}
-                      </Card.Content>
-                    </Card.Root>
-                    <div class="text-xs text-muted-foreground mt-1">
-                      {formatTime(created_at)}
-                      {#if status === 'pending'}
-                        <span class="ml-2 text-blue-600">●</span>
-                      {:else if streaming}
-                        <span class="ml-2 text-green-600 animate-pulse">●</span>
+              </div>
+            {:else}
+              <div class="flex justify-start">
+                <div class="max-w-[70%]">
+                  <Card.Root>
+                    <Card.Content class="p-4">
+                      {#if message.status === 'failed'}
+                        <div class="text-red-600 mb-2 text-sm">Failed to generate response</div>
+                        <Button variant="outline" size="sm" on:click={() => retryMessage(message.id)} class="mb-3">
+                          <ArrowClockwise size={14} class="mr-2" />
+                          Retry
+                        </Button>
+                      {:else if message.status === 'pending'}
+                        <div class="text-muted-foreground text-sm">Thinking...</div>
+                      {:else}
+                        <div class="prose prose-sm max-w-none">{@html marked(message.content || '')}</div>
                       {/if}
-                    </div>
+                    </Card.Content>
+                  </Card.Root>
+                  <div class="text-xs text-muted-foreground mt-1">
+                    {formatTime(message.created_at)}
+                    {#if message.status === 'pending'}
+                      <span class="ml-2 text-blue-600">●</span>
+                    {:else if message.streaming}
+                      <span class="ml-2 text-green-600 animate-pulse">●</span>
+                    {/if}
                   </div>
                 </div>
-              {/if}
-            </div>
-          {/each}
+              </div>
+            {/if}
+          </div>
         {/each}
       {/if}
     </div>

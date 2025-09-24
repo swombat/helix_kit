@@ -18,6 +18,8 @@ class Message < ApplicationRecord
   validates :role, inclusion: { in: %w[user assistant system] }
   validates :content, presence: true, unless: -> { role == "assistant" }
 
+  scope :sorted, -> { order(created_at: :asc) }
+
   json_attributes :role, :content, :user_name, :user_avatar_url, :completed, :created_at_formatted, :created_at_hour, :streaming
 
   def completed?
