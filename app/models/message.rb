@@ -18,7 +18,7 @@ class Message < ApplicationRecord
   validates :role, inclusion: { in: %w[user assistant system] }
   validates :content, presence: true, unless: -> { role == "assistant" }
 
-  json_attributes :role, :content_html, :user_name, :user_avatar_url, :completed, :created_at_formatted, :created_at_hour, :streaming
+  json_attributes :role, :content, :user_name, :user_avatar_url, :completed, :created_at_formatted, :created_at_hour, :streaming
 
   def completed?
     # User messages are always completed
@@ -54,24 +54,30 @@ class Message < ApplicationRecord
     update_columns(streaming: true, content: (content.to_s + chunk))
 
     # Broadcast to the chat's messages channel (which we know works)
-    Rails.logger.debug "📡 Broadcasting streaming update to Chat:#{chat.obfuscated_id}:messages"
-    ActionCable.server.broadcast(
-      "Chat:#{chat.obfuscated_id}:messages",
+    Rails.logger.debug "📡 Broadcasting streaming update to Message:#{to_param}:stream (length: #{content.to_s.length}, chunk: #{chunk})"
+    broadcast_marker(
+      "Message:#{to_param}",
       {
         action: "streaming_update",
-        content: content,
-        content_html: content_html,
-        streaming: true,
-        obfuscated_id: obfuscated_id
+        chunk: chunk,
+        id: to_param
       }
     )
   end
 
   # Stop streaming and finalize the message
   def stop_streaming
-    Rails.logger.debug "🛑 Stopping streaming for Message:#{obfuscated_id}"
+    Rails.logger.debug "🛑 Stopping streaming for Message:#{to_param}"
     # Use update! to trigger callbacks and broadcast_refresh
     update!(streaming: false) if streaming?
+    broadcast_marker(
+      "Message:#{to_param}",
+      {
+        action: "streaming_end",
+        chunk: nil,
+        id: to_param
+      }
+    )
   end
 
   private

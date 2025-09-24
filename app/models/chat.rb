@@ -38,7 +38,7 @@ class Chat < ApplicationRecord
           role: "user",
           user: user
         )
-        AiResponseJob.perform_later(chat, message)
+        AiResponseJob.perform_later(chat)
       end
       chat
     end

@@ -10,18 +10,14 @@
   import * as Card from '$lib/components/shadcn/card/index.js';
   import ChatList from './ChatList.svelte';
   import { accountChatMessagesPath, retryMessagePath } from '@/routes';
+  import { marked } from 'marked';
 
   // Create ActionCable consumer
   const consumer = typeof window !== 'undefined' ? createConsumer() : null;
 
-  let { chat, chats = [], messages = [], account } = $props();
+  let { chat, chats = [], messages = [], account, latestChunk = null } = $props();
   let messageInput = $state('');
   let messagesContainer;
-
-  console.log('chat:', chat);
-  console.log('chats:', chats);
-  console.log('messages:', messages);
-  console.log('account:', account);
 
   // Create dynamic sync for real-time updates
   const updateSync = createDynamicSync();
@@ -33,12 +29,14 @@
 
     if (chat) {
       subs[`Chat:${chat.id}`] = 'chat'; // Current chat updates
-      subs[`Chat:${chat.id}:messages`] = 'messages'; // Messages updates (will handle streaming specially)
+      subs[`Chat:${chat.id}:messages`] = 'messages'; // Messages updates (not including streaming)
     }
 
     updateSync(subs);
+
+    // If the messages length does not match the chat messages count, reload the page
     if (messages.length !== chat.message_count) {
-      console.log('messages length vs chat messages count mismatch:', messages.length, chat.message_count);
+      console.log('Reloading: messages length vs chat messages count mismatch:', messages.length, chat.message_count);
       router.reload({
         only: ['messages'],
         preserveState: true,
@@ -59,30 +57,52 @@
 
   // Listen for streaming updates via custom event
   $effect(() => {
+    console.log('🔍 Setting up streaming event listeners');
     if (typeof window === 'undefined') return;
+
+    console.log('🔍 Messages:', messages);
 
     const handleStreamingUpdate = (event) => {
       const data = event.detail;
       console.log('📨 Received streaming update:', data);
 
-      if (data.obfuscated_id) {
-        const index = messages.findIndex((m) => m.obfuscated_id === data.obfuscated_id);
+      if (data.id) {
+        const index = messages.findIndex((m) => m.id === data.id);
         if (index !== -1) {
-          console.log('✏️ Updating message via streaming:', data.obfuscated_id);
-          messages[index] = {
-            ...messages[index],
-            content: data.content,
-            content_html: data.content_html,
-            streaming: data.streaming,
-          };
+          console.log('✏️ Updating message via streaming:', data.id, data.chunk);
+          latestChunk = data.chunk;
+          messages[index]['content'] += data.chunk;
+          messages[index]['streaming'] = true;
+          console.log("Message updated:", messages[index]);
+        } else {
+          console.log('🔍 No message found in streaming update:', data.id);
+          console.log('🔍 Messages:', messages);
+        }
+      } else {
+        console.log('🔍 No id found in streaming update:', data);
+      }
+    };
+
+    const handleStreamingEnd = (event) => {
+      const data = event.detail;
+      console.log('📨 Received streaming end:', data);
+      if (data.id) {
+        const index = messages.findIndex((m) => m.id === data.id);
+        if (index !== -1) {
+          console.log('✏️ Updating message via streaming end:', data.id);
+          messages[index]['streaming'] = false;
         }
       }
     };
 
     window.addEventListener('streaming-update', handleStreamingUpdate);
+    window.addEventListener('streaming-end', handleStreamingEnd);
+    console.log('🔍 Streaming event listeners set up');
 
     return () => {
+      console.log('🧹 Removing streaming event listeners');
       window.removeEventListener('streaming-update', handleStreamingUpdate);
+      window.removeEventListener('streaming-end', handleStreamingEnd);
     };
   });
 
@@ -102,8 +122,6 @@
       return;
     }
 
-    console.log('Preparing to send message');
-
     $messageForm.post(accountChatMessagesPath(account.id, chat.id), {
       onSuccess: () => {
         console.log('Message sent successfully');
@@ -120,9 +138,7 @@
   }
 
   function handleKeydown(event) {
-    console.log('Key pressed:', event.key, 'shiftKey:', event.shiftKey);
     if (event.key === 'Enter' && !event.shiftKey) {
-      console.log('Enter key pressed, preventing default and sending message');
       event.preventDefault();
       sendMessage();
     }
@@ -206,7 +222,7 @@
     <!-- Chat header -->
     <header class="border-b border-border bg-muted/30 px-6 py-4">
       <h1 class="text-lg font-semibold truncate">
-        {chat?.title || 'New Chat'}
+        {chat?.title || 'New Chat'}   chunk: {latestChunk}
       </h1>
       <div class="text-sm text-muted-foreground">
         {chat?.ai_model_name}
@@ -233,19 +249,19 @@
           </div>
 
           <!-- Messages for this date -->
-          {#each group.messages as message (message.id)}
+          {#each group.messages as {id, role, content, status, created_at, streaming}, index (id) }
             <div class="space-y-1">
               <!-- User message -->
-              {#if message.role === 'user'}
+              {#if role === 'user'}
                 <div class="flex justify-end">
                   <div class="max-w-[70%]">
                     <Card.Root class="bg-primary text-primary-foreground">
                       <Card.Content class="p-4">
-                        <div class="whitespace-pre-wrap break-words">{message.content}</div>
+                        <div class="prose prose-sm max-w-none text-neutral-200">{@html marked(content || '')}</div>
                       </Card.Content>
                     </Card.Root>
                     <div class="text-xs text-muted-foreground text-right mt-1">
-                      {formatTime(message.created_at)}
+                      {formatTime(created_at)}
                     </div>
                   </div>
                 </div>
@@ -255,29 +271,24 @@
                   <div class="max-w-[70%]">
                     <Card.Root>
                       <Card.Content class="p-4">
-                        {#if message.status === 'failed'}
+                        {#if status === 'failed'}
                           <div class="text-red-600 mb-2 text-sm">Failed to generate response</div>
-                          <Button variant="outline" size="sm" on:click={() => retryMessage(message.id)} class="mb-3">
+                          <Button variant="outline" size="sm" on:click={() => retryMessage(id)} class="mb-3">
                             <ArrowClockwise size={14} class="mr-2" />
                             Retry
                           </Button>
-                        {:else if message.status === 'pending'}
+                        {:else if status === 'pending'}
                           <div class="text-muted-foreground text-sm">Thinking...</div>
-                        {:else if message.content_html}
-                          <!-- Server-rendered HTML content -->
-                          <div class="prose prose-sm max-w-none">
-                            {@html message.content_html}
-                          </div>
                         {:else}
-                          <div class="whitespace-pre-wrap break-words">{message.content || ''}</div>
+                          <div class="prose prose-sm max-w-none">{@html marked(content || '')}</div>
                         {/if}
                       </Card.Content>
                     </Card.Root>
                     <div class="text-xs text-muted-foreground mt-1">
-                      {formatTime(message.created_at)}
-                      {#if message.status === 'pending'}
+                      {formatTime(created_at)}
+                      {#if status === 'pending'}
                         <span class="ml-2 text-blue-600">●</span>
-                      {:else if message.streaming}
+                      {:else if streaming}
                         <span class="ml-2 text-green-600 animate-pulse">●</span>
                       {/if}
                     </div>

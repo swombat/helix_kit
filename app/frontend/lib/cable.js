@@ -58,12 +58,8 @@ export function subscribeToModel(model, id, props) {
         console.log(`Sync received: ${model}:${id}`, data);
 
         // Handle streaming updates specially - don't reload, just update in place
-        if (data.action === 'streaming_update') {
-          // Dispatch a custom event that the chat component can listen to
-          if (browser) {
-            window.dispatchEvent(new CustomEvent('streaming-update', { detail: data }));
-          }
-          return; // Don't reload for streaming updates
+        if (handleStreamingUpdate(data)) {
+          return;
         }
 
         // Use explicit prop from server or fallback to provided props
@@ -78,4 +74,20 @@ export function subscribeToModel(model, id, props) {
   );
 
   return () => subscription.unsubscribe();
+}
+
+function handleStreamingUpdate(data) {
+  if (data.action === 'streaming_update') {
+    // Dispatch a custom event that the chat component can listen to
+    if (browser) {
+      window.dispatchEvent(new CustomEvent('streaming-update', { detail: data }));
+    }
+    return true;
+  } else if (data.action === 'streaming_end') {
+    // Dispatch a custom event that the chat component can listen to
+    if (browser) {
+      window.dispatchEvent(new CustomEvent('streaming-end', { detail: data }));
+    }
+    return true;
+  }
 }
