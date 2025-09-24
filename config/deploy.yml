@@ -40,6 +40,10 @@ builder:
   remote: ssh://swombat@95.217.118.47:12222
   args:
     RAILS_ENV: production
+  cache:
+    type: registry
+    options: mode=max
+    image: dtenner/helix-kit:production-build-cache
 
 accessories:
   postgres:

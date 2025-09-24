@@ -1044,11 +1044,3 @@ export const userPath = /*#__PURE__*/ __jsr.r({"format":{}}, [2,[7,"/"],[2,[6,"u
  */
 export const userAvatarPath = /*#__PURE__*/ __jsr.r({"format":{}}, [2,[7,"/"],[2,[6,"user"],[2,[7,"/"],[2,[6,"avatar"],[1,[2,[8,"."],[3,"format"]]]]]]]);
 
-/**
- * Generates rails route to
- * /verify(.:format)
- * @param {object | undefined} options
- * @returns {string} route path
- */
-export const verifyB26ec79bdb0f3dbdffb05d37163b49f1Path = /*#__PURE__*/ __jsr.r({"format":{}}, [2,[7,"/"],[2,[6,"verify"],[1,[2,[8,"."],[3,"format"]]]]]);
-

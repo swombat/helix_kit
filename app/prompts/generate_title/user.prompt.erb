@@ -1,0 +1,12 @@
+Summarize the following conversation with a short title:
+
+Conversation transcript:
+<% if messages.blank? %>
+- No messages available.
+<% else %>
+<% messages.each do |line| %>
+- <%= line %>
+<% end %>
+<% end %>
+
+Title:

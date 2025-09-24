@@ -1,112 +1,72 @@
 require "test_helper"
+require "support/vcr_setup"
+require "ostruct"
 
-class GenerateTitleJobTest < ActiveJob::TestCase
+class GenerateTitleJobTest < ActiveSupport::TestCase
 
   setup do
     @account = accounts(:personal_account)
-    @chat = @account.chats.create!(
-      model_id: "openrouter/auto"
-      # No title - this should be untitled
-    )
-    @titled_chat = @account.chats.create!(
-      model_id: "openrouter/auto",
-      title: "Existing Title"
-    )
   end
 
-  test "generates title for chat without title" do
-    # Create a user message for the chat so title generation can proceed
-    @chat.messages.create!(
-      content: "Hello, how are you?",
-      role: "user",
-      user: users(:user_1)
-    )
+  test "generates concise title for chat" do
+    chat = build_chat_with_conversation(model_id: "openai/gpt-5-mini")
 
-    # Mock the title generation method
-    @chat.define_singleton_method(:generate_title) do |content|
-      "Generated Title"
+    VCR.use_cassette("generate_title_job/creates_title") do
+      GenerateTitleJob.perform_now(chat)
     end
 
-    GenerateTitleJob.perform_now(@chat)
-
-    assert_equal "Generated Title", @chat.reload.title
+    assert_equal "Q4 marketing plan", chat.reload.title
   end
 
-  test "skips chat that already has title" do
-    original_title = @titled_chat.title
+  test "skips chat that already has a title" do
+    chat = @account.chats.create!(model_id: "openai/gpt-5-mini", title: "Existing Title")
 
-    # Mock should not be called since chat already has title
-    @titled_chat.define_singleton_method(:generate_title) do |content|
-      "Should Not Use This"
+    assert_no_changes -> { chat.reload.title } do
+      GenerateTitleJob.perform_now(chat)
     end
-
-    GenerateTitleJob.perform_now(@titled_chat)
-
-    assert_equal original_title, @titled_chat.reload.title
   end
 
   test "skips chat with no user messages" do
-    chat_without_messages = @account.chats.create!(
-      model_id: "openrouter/auto"
-    )
+    chat = @account.chats.create!(model_id: "openai/gpt-5-mini")
+    chat.messages.create!(role: "assistant", content: "Welcome! How can I help?")
 
-    # Mock should not be called since there are no user messages
-    chat_without_messages.define_singleton_method(:generate_title) do |content|
-      "Should Not Use This"
-    end
+    GenerateTitleJob.perform_now(chat)
 
-    GenerateTitleJob.perform_now(chat_without_messages)
-
-    assert_nil chat_without_messages.reload.title
+    assert_nil chat.reload.title
   end
 
-  test "job is enqueued after chat creation" do
+  test "does not update when prompt returns blank" do
+    chat = build_chat_with_conversation(model_id: "openai/gpt-5-mini")
+
+    GenerateTitlePrompt.stub(:new, ->(*) { OpenStruct.new(generate_title: nil) }) do
+      GenerateTitleJob.perform_now(chat)
+    end
+
+    assert_nil chat.reload.title
+  end
+
+  test "enqueues job after chat creation" do
     assert_enqueued_with(job: GenerateTitleJob) do
-      Chat.create!(account: accounts(:personal_account))
+      @account.chats.create!(model_id: "openai/gpt-5-mini")
     end
   end
 
-  test "job is not enqueued when title exists" do
+  test "does not enqueue job when title is preset" do
     assert_no_enqueued_jobs(only: GenerateTitleJob) do
-      Chat.create!(
-        account: accounts(:personal_account),
-        title: "Existing Title"
-      )
+      @account.chats.create!(model_id: "openai/gpt-5-mini", title: "Preset")
     end
   end
 
-  test "handles empty title response gracefully" do
-    # Create a user message for the chat
-    @chat.messages.create!(
-      content: "Hello, how are you?",
-      role: "user",
-      user: users(:user_1)
-    )
+  private
 
-    @chat.define_singleton_method(:generate_title) do |content|
-      ""
-    end
+  def build_chat_with_conversation(model_id:)
+    chat = @account.chats.create!(model_id: model_id)
 
-    GenerateTitleJob.perform_now(@chat)
+    chat.messages.create!(role: "user", content: "We need to plan our Q4 marketing campaign focused on the new product release and social media push.")
+    chat.messages.create!(role: "assistant", content: "Let's outline goals, timelines, and assign channel owners so we can launch smoothly.")
+    chat.messages.create!(role: "user", content: "Great, please coordinate with design for refreshed assets and confirm the Monday kickoff.")
 
-    assert_nil @chat.reload.title
-  end
-
-  test "handles nil title response gracefully" do
-    # Create a user message for the chat
-    @chat.messages.create!(
-      content: "Hello, how are you?",
-      role: "user",
-      user: users(:user_1)
-    )
-
-    @chat.define_singleton_method(:generate_title) do |content|
-      nil
-    end
-
-    GenerateTitleJob.perform_now(@chat)
-
-    assert_nil @chat.reload.title
+    chat
   end
 
 end

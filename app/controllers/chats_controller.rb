@@ -16,8 +16,6 @@ class ChatsController < ApplicationController
     @chats = current_account.chats.latest
     @messages = @chat.messages.includes(:user)
 
-    debug "---------- #{@messages.all.collect(&:as_json).inspect}"
-
     render inertia: "chats/show", props: {
       chat: @chat.as_json,
       chats: @chats.as_json(as: :sidebar_json),

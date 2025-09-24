@@ -22,7 +22,7 @@ def create
       AiResponseJob.perform_later(@chat, @message)
 
       respond_to do |format|
-        format.html { redirect_to account_chat_path(@chat.account, @chat), notice: "Message sent successfully." }
+        format.html { redirect_to account_chat_path(@chat.account, @chat) }
         format.json { render json: @message, status: :created }
         # For Inertia requests (which come as HTML but have X-Inertia header)
         format.any { redirect_to account_chat_path(@chat.account, @chat) }

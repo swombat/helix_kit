@@ -736,16 +736,6 @@ export const userAvatarPath: ((
   options?: {format?: OptionalRouteParameter} & RouteOptions
 ) => string) & RouteHelperExtras;
 
-/**
- * Generates rails route to
- * /verify(.:format)
- * @param {object | undefined} options
- * @returns {string} route path
- */
-export const verifyB26ec79bdb0f3dbdffb05d37163b49f1Path: ((
-  options?: {format?: OptionalRouteParameter} & RouteOptions
-) => string) & RouteHelperExtras;
-
 // By some reason this line prevents all types in a file
 // from being automatically exported
 export {};

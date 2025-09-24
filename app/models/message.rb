@@ -3,11 +3,13 @@ class Message < ApplicationRecord
   include Broadcastable
   include ObfuscatesId
   include JsonAttributes
+  include SyncAuthorizable
 
   acts_as_message
 
   belongs_to :chat, touch: true
   belongs_to :user, optional: true
+  has_one :account, through: :chat
 
   has_many_attached :files
 

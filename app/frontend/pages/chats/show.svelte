@@ -2,6 +2,7 @@
   import { page } from '@inertiajs/svelte';
   import { useForm } from '@inertiajs/svelte';
   import { createDynamicSync } from '$lib/use-sync';
+  import { router } from '@inertiajs/svelte';
   import { Button } from '$lib/components/shadcn/button/index.js';
   import { ArrowUp, ArrowClockwise } from 'phosphor-svelte';
   import * as Card from '$lib/components/shadcn/card/index.js';
@@ -22,9 +23,8 @@
 
   // Set up real-time subscriptions
   $effect(() => {
-    const subs = {
-      'Chat:all': 'chats', // Keep chat list updated
-    };
+    const subs = {}
+    subs[`Account:${account.id}:chats`] = 'chats';
 
     if (chat) {
       subs[`Chat:${chat.id}`] = 'chat'; // Current chat updates
@@ -32,6 +32,14 @@
     }
 
     updateSync(subs);
+    if (messages.length !== chat.message_count) {
+      console.log('messages length vs chat messages count mismatch:', messages.length, chat.message_count);
+      router.reload({
+        only: ['messages'],
+        preserveState: true,
+        preserveScroll: true,
+      });
+    }
   });
 
   // Auto-scroll to bottom when messages change
@@ -94,8 +102,12 @@
     });
   }
 
-  function formatDate(dateString) {
-    const date = new Date(dateString);
+  function formatDate(value) {
+    if (!value) return '';
+
+    const date = value instanceof Date ? value : new Date(value);
+    if (Number.isNaN(date)) return '';
+
     const today = new Date();
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
@@ -113,25 +125,36 @@
     }
   }
 
-  // Group messages by date
+  // Group messages chronologically by calendar date
   let groupedMessages = $derived(() => {
+    if (!Array.isArray(messages) || messages.length === 0) return [];
+
+    const sortedMessages = [...messages].sort(
+      (a, b) => new Date(a.created_at) - new Date(b.created_at)
+    );
+
     const groups = [];
-    let currentGroup = null;
+    const groupIndex = new Map();
 
-    messages.forEach((message) => {
-      let messageDate = message.created_at_hour;
+    sortedMessages.forEach((message) => {
+      const createdAt = new Date(message.created_at);
+      if (Number.isNaN(createdAt)) return;
 
-      if (!currentGroup || currentGroup.group_id !== messageDate) {
-        currentGroup = {
-          group_id: messageDate,
-          date: new Date(message.created_at),
-          dateLabel: new Date(messageDate).toLocaleTimeString('en-GB'),
+      const groupId = createdAt.toISOString().split('T')[0];
+      let group = groupIndex.get(groupId);
+
+      if (!group) {
+        group = {
+          id: groupId,
+          date: createdAt,
+          dateLabel: formatDate(createdAt),
           messages: [],
         };
-        groups.push(currentGroup);
+        groupIndex.set(groupId, group);
+        groups.push(group);
       }
 
-      currentGroup.messages.push(message);
+      group.messages.push(message);
     });
 
     return groups;
@@ -167,7 +190,7 @@
           </div>
         </div>
       {:else}
-        {#each groupedMessages() as group (group.date)}
+        {#each groupedMessages() as group (group.id)}
           <!-- Date separator -->
           <div class="flex items-center gap-4 my-6">
             <div class="flex-1 border-t border-border"></div>

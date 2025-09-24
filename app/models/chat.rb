@@ -2,11 +2,15 @@ class Chat < ApplicationRecord
 
   include Broadcastable
   include ObfuscatesId
+  include SyncAuthorizable
+  include JsonAttributes
 
   acts_as_chat
 
   belongs_to :account
   has_many :messages, dependent: :destroy
+
+  json_attributes :title, :model_id, :ai_model_name, :updated_at_formatted, :message_count
 
   broadcasts_to :account
 
@@ -58,26 +62,6 @@ class Chat < ApplicationRecord
 
   def message_count
     messages.count
-  end
-
-  # Override as_json for proper serialization to frontend
-  def as_json(options = {})
-    if options[:as] == :sidebar_json
-      {
-        id: to_param,
-        title_or_default: title_or_default,
-        updated_at_short: updated_at_short
-      }
-    else
-      {
-        id: to_param,
-        title_or_default: title_or_default,
-        model_id: model_id,
-        ai_model_name: ai_model_name,
-        updated_at_formatted: updated_at_formatted,
-        message_count: message_count
-      }
-    end
   end
 
 end

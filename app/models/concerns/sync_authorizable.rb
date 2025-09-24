@@ -2,6 +2,14 @@ module SyncAuthorizable
 
   extend ActiveSupport::Concern
 
+  included do
+    def accessible_by?(user)
+      return false unless user
+      return true if user.site_admin
+      self.account.accessible_by?(user)
+    end
+  end
+
   module ClassMethods
 
     def accessible_by(user)

@@ -3,10 +3,9 @@ class GenerateTitleJob < ApplicationJob
   def perform(chat)
     return if chat.title.present?
 
-    first_message = chat.messages.find_by(role: "user")
-    return unless first_message
+    return unless chat.messages.where(role: "user").exists?
 
-    title = chat.generate_title(first_message.content)
+    title = GenerateTitlePrompt.new(chat: chat).generate_title
     chat.update!(title: title) if title.present?
   end
 

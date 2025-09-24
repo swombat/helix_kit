@@ -1,0 +1,64 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://openrouter.ai/api/v1/chat/completions
+    body:
+      encoding: UTF-8
+      string: '{"model":"openai/gpt-5-mini","messages":[{"role":"system","content":"You are a helpful assistant that writes concise, descriptive conversation titles.\n\nGuidelines:\n- Limit the title to 3 to 5 words.\n- Use sentence case (capitalize only the first word and proper nouns).\n- Do not add quotation marks or ending punctuation.\n- Base the title on the key theme of the conversation provided.\n\nRespond with the title text only."},{"role":"user","content":"Summarize the following conversation with a short title:\n\nConversation transcript:\n- User: We need to plan our Q4 marketing campaign focused on the new product release and social media push.\n- Assistant: Let's outline goals, timelines, and assign channel owners so we can launch smoothly.\n- User: Great, please coordinate with design for refreshed assets and confirm the Monday kickoff.\n\nTitle:\n"}],"temperature":0.7,"stream":true}'
+    headers:
+      Content-Type:
+      - application/json
+      Authorization:
+      - Bearer <OPENROUTER_API_KEY>
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      date:
+      - Tue, 02 Sep 2025 09:22:36 GMT
+      content-type:
+      - text/event-stream
+      transfer-encoding:
+      - chunked
+      connection:
+      - keep-alive
+      cf-ray:
+      - 978bf11f3b45ecaa-MAD
+      access-control-allow-origin:
+      - "*"
+      cache-control:
+      - no-cache
+      vary:
+      - Accept-Encoding
+      permissions-policy:
+      - payment=(self "https://checkout.stripe.com" "https://connect-js.stripe.com" "https://js.stripe.com" "https://*.js.stripe.com" "https://hooks.stripe.com")
+      referrer-policy:
+      - no-referrer, strict-origin-when-cross-origin
+      x-content-type-options:
+      - nosniff
+      server:
+      - cloudflare
+    body:
+      encoding: UTF-8
+      string: |+
+        : OPENROUTER PROCESSING
+
+        data: {"id":"gen-1756804956-TitleExample","provider":"OpenAI","model":"openai/gpt-5-mini","object":"chat.completion.chunk","created":1756804956,"choices":[{"index":0,"delta":{"role":"assistant","content":""},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"system_fingerprint":"fp_1e3a2c4d"}
+
+        data: {"id":"gen-1756804956-TitleExample","provider":"OpenAI","model":"openai/gpt-5-mini","object":"chat.completion.chunk","created":1756804956,"choices":[{"index":0,"delta":{"role":"assistant","content":"Q4 "},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"system_fingerprint":"fp_1e3a2c4d"}
+
+        data: {"id":"gen-1756804956-TitleExample","provider":"OpenAI","model":"openai/gpt-5-mini","object":"chat.completion.chunk","created":1756804956,"choices":[{"index":0,"delta":{"role":"assistant","content":"marketing "},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"system_fingerprint":"fp_1e3a2c4d"}
+
+        data: {"id":"gen-1756804956-TitleExample","provider":"OpenAI","model":"openai/gpt-5-mini","object":"chat.completion.chunk","created":1756804956,"choices":[{"index":0,"delta":{"role":"assistant","content":"plan"},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"system_fingerprint":"fp_1e3a2c4d"}
+
+        data: {"id":"gen-1756804956-TitleExample","provider":"OpenAI","model":"openai/gpt-5-mini","object":"chat.completion.chunk","created":1756804956,"choices":[{"index":0,"delta":{"role":"assistant","content":""},"finish_reason":"stop","native_finish_reason":"stop","logprobs":null}],"system_fingerprint":"fp_1e3a2c4d"}
+
+        data: {"id":"gen-1756804956-TitleExample","provider":"OpenAI","model":"openai/gpt-5-mini","object":"chat.completion.chunk","created":1756804956,"choices":[{"index":0,"delta":{"role":"assistant","content":""},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"usage":{"prompt_tokens":112,"completion_tokens":3,"total_tokens":115,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":0}}}
+
+        data: [DONE]
+
+  recorded_at: Tue, 02 Sep 2025 09:22:36 GMT
+recorded_with: VCR 6.3.1
+...
