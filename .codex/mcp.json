@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@executeautomation/playwright-mcp-server"
+      ]
+    },
+    "snap-happy": {
+      "command": "npx",
+      "args": [
+        "@mariozechner/snap-happy"
+      ]
+    }
+  }
+}

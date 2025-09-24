@@ -3,11 +3,16 @@
   import { useForm } from '@inertiajs/svelte';
   import { createDynamicSync } from '$lib/use-sync';
   import { router } from '@inertiajs/svelte';
+  import { onDestroy } from 'svelte';
+  import { createConsumer } from '@rails/actioncable';
   import { Button } from '$lib/components/shadcn/button/index.js';
   import { ArrowUp, ArrowClockwise } from 'phosphor-svelte';
   import * as Card from '$lib/components/shadcn/card/index.js';
   import ChatList from './ChatList.svelte';
   import { accountChatMessagesPath, retryMessagePath } from '@/routes';
+
+  // Create ActionCable consumer
+  const consumer = typeof window !== 'undefined' ? createConsumer() : null;
 
   let { chat, chats = [], messages = [], account } = $props();
   let messageInput = $state('');
@@ -23,12 +28,12 @@
 
   // Set up real-time subscriptions
   $effect(() => {
-    const subs = {}
+    const subs = {};
     subs[`Account:${account.id}:chats`] = 'chats';
 
     if (chat) {
       subs[`Chat:${chat.id}`] = 'chat'; // Current chat updates
-      subs[`Chat:${chat.id}:messages`] = 'messages'; // Messages updates
+      subs[`Chat:${chat.id}:messages`] = 'messages'; // Messages updates (will handle streaming specially)
     }
 
     updateSync(subs);
@@ -50,6 +55,35 @@
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
       }, 100);
     }
+  });
+
+  // Listen for streaming updates via custom event
+  $effect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleStreamingUpdate = (event) => {
+      const data = event.detail;
+      console.log('📨 Received streaming update:', data);
+
+      if (data.obfuscated_id) {
+        const index = messages.findIndex((m) => m.obfuscated_id === data.obfuscated_id);
+        if (index !== -1) {
+          console.log('✏️ Updating message via streaming:', data.obfuscated_id);
+          messages[index] = {
+            ...messages[index],
+            content: data.content,
+            content_html: data.content_html,
+            streaming: data.streaming,
+          };
+        }
+      }
+    };
+
+    window.addEventListener('streaming-update', handleStreamingUpdate);
+
+    return () => {
+      window.removeEventListener('streaming-update', handleStreamingUpdate);
+    };
   });
 
   // Initialize the form with the structure the controller expects
@@ -129,9 +163,7 @@
   let groupedMessages = $derived(() => {
     if (!Array.isArray(messages) || messages.length === 0) return [];
 
-    const sortedMessages = [...messages].sort(
-      (a, b) => new Date(a.created_at) - new Date(b.created_at)
-    );
+    const sortedMessages = [...messages].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
 
     const groups = [];
     const groupIndex = new Map();
@@ -245,6 +277,8 @@
                       {formatTime(message.created_at)}
                       {#if message.status === 'pending'}
                         <span class="ml-2 text-blue-600">●</span>
+                      {:else if message.streaming}
+                        <span class="ml-2 text-green-600 animate-pulse">●</span>
                       {/if}
                     </div>
                   </div>

@@ -247,4 +247,68 @@ class MessageTest < ActiveSupport::TestCase
     assert_nil json[:error]
   end
 
+  test "stream_content updates content and sets streaming" do
+    message = @chat.messages.create!(
+      role: "assistant",
+      content: "Initial"
+    )
+
+    assert_not message.streaming?
+
+    # Test that stream_content works
+    message.stream_content(" chunk")
+
+    message.reload
+    assert_equal "Initial chunk", message.content
+    assert message.streaming?
+  end
+
+  test "stream_content only sets streaming true once" do
+    message = @chat.messages.create!(
+      role: "assistant",
+      content: "",
+      streaming: true
+    )
+
+    # Should already be streaming
+    assert message.streaming?
+
+    message.stream_content(" more content")
+
+    message.reload
+    assert_equal " more content", message.content
+    assert message.streaming?  # Should still be streaming
+  end
+
+  test "stop_streaming sets streaming to false" do
+    message = @chat.messages.create!(
+      role: "assistant",
+      content: "Final content",
+      streaming: true
+    )
+
+    assert message.streaming?
+
+    message.stop_streaming
+
+    message.reload
+    assert_not message.streaming?
+  end
+
+  test "stop_streaming does nothing if not streaming" do
+    message = @chat.messages.create!(
+      role: "assistant",
+      content: "Final content",
+      streaming: false
+    )
+
+    # Should not be streaming
+    assert_not message.streaming?
+
+    message.stop_streaming
+
+    message.reload
+    assert_not message.streaming?  # Should still not be streaming
+  end
+
 end

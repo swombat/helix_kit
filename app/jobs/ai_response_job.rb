@@ -20,9 +20,12 @@ class AiResponseJob < ApplicationJob
       ai_message ||= chat.messages.order(:created_at).last
       next unless ai_message
 
-      ai_message.update_column(:content, ai_message.content.to_s + chunk.content)
-      ai_message.broadcast_refresh if ai_message.respond_to?(:broadcast_refresh)
+      # Stream the content update
+      ai_message.stream_content(chunk.content)
     end
+  ensure
+    # Ensure streaming is stopped even if job fails
+    ai_message&.stop_streaming if ai_message&.streaming?
   end
 
   private
@@ -32,7 +35,8 @@ class AiResponseJob < ApplicationJob
       content: extract_message_content(ruby_llm_message.content),
       model_id: ruby_llm_message.model_id,
       input_tokens: ruby_llm_message.input_tokens,
-      output_tokens: ruby_llm_message.output_tokens
+      output_tokens: ruby_llm_message.output_tokens,
+      streaming: false
     }
 
     ai_message.update!(attributes.compact)

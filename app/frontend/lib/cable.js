@@ -57,6 +57,15 @@ export function subscribeToModel(model, id, props) {
       received(data) {
         console.log(`Sync received: ${model}:${id}`, data);
 
+        // Handle streaming updates specially - don't reload, just update in place
+        if (data.action === 'streaming_update') {
+          // Dispatch a custom event that the chat component can listen to
+          if (browser) {
+            window.dispatchEvent(new CustomEvent('streaming-update', { detail: data }));
+          }
+          return; // Don't reload for streaming updates
+        }
+
         // Use explicit prop from server or fallback to provided props
         // const propsToReload = data.prop ? [data.prop] : props;
         reloadProps(props);
