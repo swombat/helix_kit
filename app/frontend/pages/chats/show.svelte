@@ -3,7 +3,7 @@
   import { useForm } from '@inertiajs/svelte';
   import { createDynamicSync } from '$lib/use-sync';
   import { router } from '@inertiajs/svelte';
-  import { onDestroy } from 'svelte';
+  import { onMount } from 'svelte';
   import { createConsumer } from '@rails/actioncable';
   import { Button } from '$lib/components/shadcn/button/index.js';
   import { ArrowUp, ArrowClockwise } from 'phosphor-svelte';
@@ -15,12 +15,13 @@
   // Create ActionCable consumer
   const consumer = typeof window !== 'undefined' ? createConsumer() : null;
 
-  let { chat, chats = [], messages = [], account, latestChunk = null } = $props();
+  let { chat, chats = [], messages = [], account } = $props();
   let messageInput = $state('');
   let messagesContainer;
 
   // Create dynamic sync for real-time updates
   const updateSync = createDynamicSync();
+  let syncSignature = null;
 
   // Set up real-time subscriptions
   $effect(() => {
@@ -32,10 +33,16 @@
       subs[`Chat:${chat.id}:messages`] = 'messages'; // Messages updates (not including streaming)
     }
 
-    updateSync(subs);
+    const messageSignature = Array.isArray(messages) ? messages.map((message) => message.id).join(':') : '';
+    const nextSignature = `${account.id}|${chat?.id ?? 'none'}|${messageSignature}`;
+
+    if (nextSignature !== syncSignature) {
+      syncSignature = nextSignature;
+      updateSync(subs);
+    }
 
     // If the messages length does not match the chat messages count, reload the page
-    if (messages.length !== chat.message_count) {
+    if (chat && messages.length !== chat.message_count) {
       console.log('Reloading: messages length vs chat messages count mismatch:', messages.length, chat.message_count);
       router.reload({
         only: ['messages'],
@@ -56,7 +63,7 @@
   });
 
   // Listen for streaming updates via custom event
-  $effect(() => {
+  onMount(() => {
     console.log('🔍 Setting up streaming event listeners');
     if (typeof window === 'undefined') return;
 
@@ -70,10 +77,17 @@
         const index = messages.findIndex((m) => m.id === data.id);
         if (index !== -1) {
           console.log('✏️ Updating message via streaming:', data.id, data.chunk);
-          latestChunk = data.chunk;
-          messages[index]['content'] += data.chunk;
-          messages[index]['streaming'] = true;
-          console.log("Message updated:", messages[index]);
+          const currentMessage = messages[index] || {};
+          const updatedMessage = {
+            ...currentMessage,
+            content: `${currentMessage.content || ''}${data.chunk || ''}`,
+            streaming: true,
+          };
+
+          messages = messages.map((message, messageIndex) =>
+            messageIndex === index ? updatedMessage : message,
+          );
+          console.log('Message updated:', updatedMessage);
         } else {
           console.log('🔍 No message found in streaming update:', data.id);
           console.log('🔍 Messages:', messages);
@@ -90,7 +104,9 @@
         const index = messages.findIndex((m) => m.id === data.id);
         if (index !== -1) {
           console.log('✏️ Updating message via streaming end:', data.id);
-          messages[index]['streaming'] = false;
+          messages = messages.map((message, messageIndex) =>
+            messageIndex === index ? { ...message, streaming: false } : message,
+          );
         }
       }
     };
@@ -238,7 +254,7 @@
     <!-- Chat header -->
     <header class="border-b border-border bg-muted/30 px-6 py-4">
       <h1 class="text-lg font-semibold truncate">
-        {chat?.title || 'New Chat'}   chunk: {latestChunk}
+        {chat?.title || 'New Chat'}
       </h1>
       <div class="text-sm text-muted-foreground">
         {chat?.ai_model_name}

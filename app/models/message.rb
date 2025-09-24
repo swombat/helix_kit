@@ -52,6 +52,9 @@ class Message < ApplicationRecord
 
   # Stream content updates for real-time AI response display
   def stream_content(chunk)
+    chunk = chunk.to_s
+    return if chunk.empty?
+
     # Use update_columns (plural) to update both at once, still bypassing callbacks
     update_columns(streaming: true, content: (content.to_s + chunk))
 
