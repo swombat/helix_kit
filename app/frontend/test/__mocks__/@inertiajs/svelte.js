@@ -12,20 +12,20 @@ export const useForm = vi.fn((initialData) => {
     email_address: '',
     password: '',
     password_confirmation: '',
-    ...initialData
+    ...initialData,
   };
-  
+
   // Create errors as a nested object in the form with empty arrays
   formData.errors = {
     email_address: [],
     password: [],
     password_confirmation: [],
   };
-  
+
   const store = writable(formData);
   const processing = writable(false);
   const recentlySuccessful = writable(false);
-  
+
   // Create a form object that acts as both a store and has methods
   const formObject = {
     subscribe: (fn) => {
@@ -42,7 +42,7 @@ export const useForm = vi.fn((initialData) => {
         fn(enhancedValue);
       });
     },
-    set: store.set, 
+    set: store.set,
     update: store.update,
     processing,
     recentlySuccessful,
@@ -55,7 +55,7 @@ export const useForm = vi.fn((initialData) => {
     clearErrors: vi.fn(),
     transform: vi.fn(),
   };
-  
+
   return formObject;
 });
 
@@ -85,11 +85,11 @@ export const router = {
 // Mock Deferred component (stub)
 export const Deferred = {
   name: 'Deferred',
-  render: () => ({ 
-    html: '<div></div>', 
+  render: () => ({
+    html: '<div></div>',
     css: { code: '', map: null },
-    head: '' 
-  })
+    head: '',
+  }),
 };
 
 export default {

@@ -1,4 +1,4 @@
-import Root from "./input-error.svelte";
+import Root from './input-error.svelte';
 
 export {
   Root,

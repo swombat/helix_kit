@@ -41,7 +41,7 @@ const reloadProps = debounce((props) => {
  * @private
  */
 export function subscribeToModel(model, id, props) {
-  if (!browser || !consumer) return () => { };
+  if (!browser || !consumer) return () => {};
 
   const subscription = consumer.subscriptions.create(
     {

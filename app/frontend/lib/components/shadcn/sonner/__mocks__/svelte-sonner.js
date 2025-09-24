@@ -11,9 +11,9 @@ export const Toaster = {
         if (div.parentNode) {
           div.parentNode.removeChild(div);
         }
-      }
+      },
     };
-  }
+  },
 };
 
 export const toast = vi.fn();
