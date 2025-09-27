@@ -8,7 +8,6 @@ class Chat < ApplicationRecord
   acts_as_chat
 
   belongs_to :account
-  has_many :messages, dependent: :destroy
 
   json_attributes :title, :model_id, :ai_model_name, :updated_at_formatted, :message_count
 
