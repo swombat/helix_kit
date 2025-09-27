@@ -1,7 +1,7 @@
 <script>
   import { page } from '@inertiajs/svelte';
   import { useForm } from '@inertiajs/svelte';
-  import { createDynamicSync } from '$lib/use-sync';
+  import { createDynamicSync, streamingSync } from '$lib/use-sync';
   import { router } from '@inertiajs/svelte';
   import { onMount } from 'svelte';
   import { createConsumer } from '@rails/actioncable';
@@ -12,6 +12,8 @@
   import { accountChatMessagesPath, retryMessagePath } from '@/routes';
   import { marked } from 'marked';
   import * as logging from '$lib/logging';
+  import { formatTime, formatDate, formatDateTime } from '$lib/utils';
+  import { fade } from 'svelte/transition';
 
   // Create ActionCable consumer
   const consumer = typeof window !== 'undefined' ? createConsumer() : null;
@@ -63,64 +65,41 @@
     }
   });
 
-  // Listen for streaming updates via custom event
-  onMount(() => {
-    logging.debug('🔍 Setting up streaming event listeners');
-    if (typeof window === 'undefined') return;
+  streamingSync((data) => {
+    if (data.id) {
+      const index = messages.findIndex((m) => m.id === data.id);
+      if (index !== -1) {
+        logging.debug('✏️ Updating message via streaming:', data.id, data.chunk);
+        const currentMessage = messages[index] || {};
+        const updatedMessage = {
+          ...currentMessage,
+          content: `${currentMessage.content || ''}${data.chunk || ''}`,
+          streaming: true,
+        };
 
-    logging.debug('🔍 Messages:', messages);
-
-    const handleStreamingUpdate = (event) => {
-      const data = event.detail;
-      logging.debug('📨 Received streaming update:', data);
-
-      if (data.id) {
-        const index = messages.findIndex((m) => m.id === data.id);
-        if (index !== -1) {
-          logging.debug('✏️ Updating message via streaming:', data.id, data.chunk);
-          const currentMessage = messages[index] || {};
-          const updatedMessage = {
-            ...currentMessage,
-            content: `${currentMessage.content || ''}${data.chunk || ''}`,
-            streaming: true,
-          };
-
-          messages = messages.map((message, messageIndex) =>
-            messageIndex === index ? updatedMessage : message,
-          );
-          logging.debug('Message updated:', updatedMessage);
-        } else {
-          logging.debug('🔍 No message found in streaming update:', data.id);
-          logging.debug('🔍 Messages:', messages);
-        }
+        messages = messages.map((message, messageIndex) =>
+          messageIndex === index ? updatedMessage : message,
+        );
+        logging.debug('Message updated:', updatedMessage);
       } else {
-        logging.debug('🔍 No id found in streaming update:', data);
+        logging.debug('🔍 No message found in streaming update:', data.id);
+        logging.debug('🔍 Messages:', messages);
       }
-    };
-
-    const handleStreamingEnd = (event) => {
-      const data = event.detail;
-      logging.debug('📨 Received streaming end:', data);
-      if (data.id) {
-        const index = messages.findIndex((m) => m.id === data.id);
-        if (index !== -1) {
-          logging.debug('✏️ Updating message via streaming end:', data.id);
-          messages = messages.map((message, messageIndex) =>
-            messageIndex === index ? { ...message, streaming: false } : message,
-          );
-        }
-      }
-    };
-
-    window.addEventListener('streaming-update', handleStreamingUpdate);
-    window.addEventListener('streaming-end', handleStreamingEnd);
-    logging.debug('🔍 Streaming event listeners set up');
-
-    return () => {
-      logging.debug('🧹 Removing streaming event listeners');
-      window.removeEventListener('streaming-update', handleStreamingUpdate);
-      window.removeEventListener('streaming-end', handleStreamingEnd);
-    };
+    } else {
+      logging.warn('🔍 No id found in streaming update:', data);
+    }
+  }, (data) => {
+    if (data.id) {
+      const index = messages.findIndex((m) => m.id === data.id);
+      if (index !== -1) {
+        logging.debug('✏️ Updating message via streaming end:', data.id);
+        messages = messages.map((message, messageIndex) =>
+          messageIndex === index ? { ...message, streaming: false } : message,
+        );
+      } 
+    } else {
+      logging.warn('🔍 No id found in streaming end:', data);
+    }
   });
 
   // Initialize the form with the structure the controller expects
@@ -161,45 +140,17 @@
     }
   }
 
-  function formatTime(dateString) {
-    return new Date(dateString).toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true,
-    });
-  }
-
-  function formatDate(value) {
-    if (!value) return '';
-
-    const date = value instanceof Date ? value : new Date(value);
-    if (Number.isNaN(date)) return '';
-
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-
-    if (date.toDateString() === today.toDateString()) {
-      return 'Today';
-    } else if (date.toDateString() === yesterday.toDateString()) {
-      return 'Yesterday';
-    } else {
-      return date.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: date.getFullYear() !== today.getFullYear() ? 'numeric' : undefined,
-      });
-    }
-  }
-
   function shouldShowTimestamp(index) {
-    if (!Array.isArray(messages) || messages.length === 0) return false;
+    if (!Array.isArray(messages) ||
+          messages.length === 0 ||
+          messages[index] === undefined ||
+          Number.isNaN(new Date(messages[index].created_at))
+        ) {
+      return false;
+    }
 
     const message = messages[index];
-    if (!message) return false;
-
     const currentCreatedAt = new Date(message.created_at);
-    if (Number.isNaN(currentCreatedAt)) return false;
 
     if (index === 0) return true;
 
@@ -292,7 +243,9 @@
                     </Card.Content>
                   </Card.Root>
                   <div class="text-xs text-muted-foreground text-right mt-1">
-                    {formatTime(message.created_at)}
+                    <span class="group">
+                      <span class="hidden group-hover:inline-block">({formatDateTime(message.created_at, true)})</span> {formatTime(message.created_at)} 
+                    </span>
                   </div>
                 </div>
               </div>
@@ -310,12 +263,16 @@
                       {:else if message.status === 'pending'}
                         <div class="text-muted-foreground text-sm">Thinking...</div>
                       {:else}
-                        <div class="prose prose-sm max-w-none">{@html marked(message.content || '')}</div>
+                        <div class="prose prose-sm max-w-none">
+                          {message.content}
+                        </div>
                       {/if}
                     </Card.Content>
                   </Card.Root>
                   <div class="text-xs text-muted-foreground mt-1">
-                    {formatTime(message.created_at)}
+                    <span class="group">
+                      {formatTime(message.created_at)} <span class="hidden group-hover:inline-block">({formatDateTime(message.created_at, true)})</span>
+                    </span>
                     {#if message.status === 'pending'}
                       <span class="ml-2 text-blue-600">●</span>
                     {:else if message.streaming}
@@ -336,7 +293,7 @@
         <div class="flex-1">
           <textarea
             bind:value={$messageForm.message.content}
-            on:keydown={handleKeydown}
+            onkeydown={handleKeydown}
             placeholder="Type your message..."
             disabled={messageForm.processing}
             class="w-full resize-none border border-input rounded-md px-3 py-2 text-sm bg-background

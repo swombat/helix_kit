@@ -94,3 +94,33 @@ export function createDynamicSync() {
     });
   };
 }
+
+export function streamingSync(streamUpdate, streamEnd) {
+  onMount(() => {
+    logging.debug('🔍 Setting up streaming event listeners');
+    if (typeof window === 'undefined') return;
+
+    const handleStreamingUpdate = (event) => {
+      const data = event.detail;
+      logging.debug('📨 Received streaming update:', data);
+
+      streamUpdate(data);
+    };
+
+    const handleStreamingEnd = (event) => {
+      const data = event.detail;
+      logging.debug('📨 Received streaming end:', data);
+      streamEnd(data);
+    };
+
+    window.addEventListener('streaming-update', handleStreamingUpdate);
+    window.addEventListener('streaming-end', handleStreamingEnd);
+    logging.debug('🔍 Streaming event listeners set up');
+
+    return () => {
+      logging.debug('🧹 Removing streaming event listeners');
+      window.removeEventListener('streaming-update', handleStreamingUpdate);
+      window.removeEventListener('streaming-end', handleStreamingEnd);
+    };
+  });
+}
