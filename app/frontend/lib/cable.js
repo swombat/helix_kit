@@ -1,5 +1,6 @@
 import { createConsumer } from '@rails/actioncable';
 import { router } from '@inertiajs/svelte';
+import * as logging from '$lib/logging';
 
 // Check if we're in browser environment
 const browser = typeof window !== 'undefined';
@@ -28,7 +29,7 @@ function debounce(fn, delay) {
 
 // Global debounced reload (shared across all subscriptions)
 const reloadProps = debounce((props) => {
-  console.log('Reloading props:', props);
+  logging.debug('Reloading props:', props);
   router.reload({
     only: props,
     preserveState: true,
@@ -51,11 +52,11 @@ export function subscribeToModel(model, id, props) {
     },
     {
       connected() {
-        console.log(`Sync connected: ${model}:${id}`);
+        logging.debug(`Sync connected: ${model}:${id}`);
       },
 
       received(data) {
-        console.log(`Sync received: ${model}:${id}`, data);
+        logging.debug(`Sync received: ${model}:${id}`, data);
 
         // Handle streaming updates specially - don't reload, just update in place
         if (handleStreamingUpdate(data)) {
@@ -68,7 +69,7 @@ export function subscribeToModel(model, id, props) {
       },
 
       disconnected() {
-        console.log(`Sync disconnected: ${model}:${id}`);
+        logging.debug(`Sync disconnected: ${model}:${id}`);
       },
     }
   );

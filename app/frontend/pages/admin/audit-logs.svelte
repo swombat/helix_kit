@@ -23,6 +23,7 @@
   import json from 'svelte-highlight/languages/json';
   import 'svelte-highlight/styles/atom-one-dark.css';
   import Avatar from '$lib/components/Avatar.svelte';
+  import * as logging from '$lib/logging';
 
   let { audit_logs = [], selected_log = null, pagination = {}, filters = {}, current_filters = {} } = $props();
 
@@ -43,7 +44,7 @@
     typeof current_filters.auditable_type === 'string' ? current_filters.auditable_type.split(',') : undefined
   );
 
-  console.log('pagination', pagination, !pagination.prev);
+  logging.debug('pagination', pagination, !pagination.prev);
 
   // Date picker setup
   const df = new DateFormatter('en-US', { dateStyle: 'medium' });
@@ -146,7 +147,7 @@
         type="multiple"
         value={userFilter}
         onValueChange={(v) => {
-          console.log('User filter changed to:', v);
+          logging.debug('User filter changed to:', v);
           userFilter = v;
         }}>
         <Select.Trigger class="w-full">
@@ -174,7 +175,7 @@
         type="multiple"
         value={accountFilter}
         onValueChange={(v) => {
-          console.log('Account filter changed to:', v);
+          logging.debug('Account filter changed to:', v);
           accountFilter = v;
         }}>
         <Select.Trigger class="w-full">
@@ -201,7 +202,7 @@
         type="multiple"
         value={actionFilter}
         onValueChange={(v) => {
-          console.log('Action changed to:', v);
+          logging.debug('Action changed to:', v);
           actionFilter = v;
         }}>
         <Select.Trigger class="w-full">
@@ -228,7 +229,7 @@
         type="multiple"
         value={typeFilter}
         onValueChange={(v) => {
-          console.log('Type filter changed to:', v);
+          logging.debug('Type filter changed to:', v);
           typeFilter = v;
         }}>
         <Select.Trigger class="w-full">

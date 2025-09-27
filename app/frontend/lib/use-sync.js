@@ -1,5 +1,6 @@
 import { onMount, onDestroy } from 'svelte';
 import { subscribeToModel } from './cable';
+import * as logging from '$lib/logging';
 
 /**
  * Hook to synchronize Svelte components with Rails models via ActionCable
@@ -20,7 +21,7 @@ export function useSync(subscriptions) {
       // Parse the subscription key
       const match = key.match(/^([A-Z]\w+):([^\/]+)(\/.*)?$/);
       if (!match) {
-        console.warn(`Invalid subscription key: ${key}`);
+        logging.warn(`Invalid subscription key: ${key}`);
         return;
       }
 
@@ -28,7 +29,7 @@ export function useSync(subscriptions) {
       const props = Array.isArray(prop) ? prop : [prop];
 
       // Create subscription
-      console.log('Creating subscription for', model, id, props);
+      logging.debug('Creating subscription for', model, id, props);
       const unsubscribe = subscribeToModel(model, id, props);
       unsubscribers.push(unsubscribe);
 
@@ -79,7 +80,7 @@ export function createDynamicSync() {
       // Parse the subscription key
       const match = key.match(/^([A-Z]\w+):([^\/]+)(\/.*)?$/);
       if (!match) {
-        console.warn(`Invalid subscription key: ${key}`);
+        logging.warn(`Invalid subscription key: ${key}`);
         return;
       }
 
@@ -87,7 +88,7 @@ export function createDynamicSync() {
       const props = Array.isArray(prop) ? prop : [prop];
 
       // Create subscription
-      console.log('Creating dynamic subscription for', model, id, props);
+      logging.debug('Creating dynamic subscription for', model, id, props);
       const unsubscribe = subscribeToModel(model, id, props);
       currentUnsubscribers.push(unsubscribe);
     });

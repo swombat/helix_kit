@@ -31,6 +31,7 @@
   import { toggleMode, setMode, resetMode } from 'mode-watcher';
   import { ModeWatcher } from 'mode-watcher';
   import Avatar from '$lib/components/Avatar.svelte';
+  import * as logging from '$lib/logging';
 
   function handleLogout(event) {
     event.preventDefault();
@@ -75,10 +76,10 @@
         });
 
         if (!response.ok) {
-          console.error('Failed to save theme preference');
+          logging.error('Failed to save theme preference');
         }
       } catch (error) {
-        console.error('Error saving theme preference:', error);
+        logging.error('Error saving theme preference:', error);
       }
     }
 

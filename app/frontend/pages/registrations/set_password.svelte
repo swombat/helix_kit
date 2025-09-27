@@ -11,10 +11,11 @@
   import SetPasswordForm from '$lib/components/forms/SetPasswordForm.svelte';
 
   import { CheckCircle } from 'phosphor-svelte';
+  import * as logging from '$lib/logging';
 
   let { user = $bindable(), email } = $props();
 
-  console.log('User:', user);
+  logging.debug('User:', user);
 
   let processing = $state(false);
   let success = $state($page.props.flash.success);

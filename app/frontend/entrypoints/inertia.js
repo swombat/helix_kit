@@ -2,6 +2,7 @@ import { createInertiaApp } from '@inertiajs/svelte';
 import { router } from '@inertiajs/core';
 import { mount } from 'svelte';
 import Layout from '../layouts/Layout.svelte';
+import * as logging from '$lib/logging';
 
 // Configure CSRF token for all Inertia requests
 // This is the correct way to handle CSRF tokens with Inertia.js and Rails
@@ -31,7 +32,7 @@ createInertiaApp({
     });
     const page = pages[`../pages/${name}.svelte`];
     if (!page) {
-      console.error(`Missing Inertia page component: '${name}.svelte'`);
+      logging.error(`Missing Inertia page component: '${name}.svelte'`);
     }
 
     // To use a default layout, import the Layout component
@@ -45,7 +46,7 @@ createInertiaApp({
     if (el) {
       mount(App, { target: el, props });
     } else {
-      console.error(
+      logging.error(
         'Missing root element.\n\n' +
           'If you see this error, it probably means you load Inertia.js on non-Inertia pages.\n' +
           'Consider moving <%= vite_javascript_tag "inertia" %> to the Inertia-specific layout instead.'

@@ -11,6 +11,7 @@
   import InfoCard from '$lib/components/InfoCard.svelte';
   import { useSync } from '$lib/use-sync';
   import Avatar from '$lib/components/Avatar.svelte';
+  import * as logging from '$lib/logging';
 
   let { account, can_be_personal, members = [], can_manage = false, current_user_id } = $props();
 
@@ -55,7 +56,7 @@
 
   // Reactive derived values
   $effect(() => {
-    console.log('Props changed:', $page.props);
+    logging.debug('Props changed:', $page.props);
     // Close invite form on successful submission or error
     if ($page.props.flash?.success || $page.props.flash?.errors) {
       showInviteForm = false;

@@ -11,6 +11,7 @@
   import ChatList from './ChatList.svelte';
   import { accountChatMessagesPath, retryMessagePath } from '@/routes';
   import { marked } from 'marked';
+  import * as logging from '$lib/logging';
 
   // Create ActionCable consumer
   const consumer = typeof window !== 'undefined' ? createConsumer() : null;
@@ -43,7 +44,7 @@
 
     // If the messages length does not match the chat messages count, reload the page
     if (chat && messages.length !== chat.message_count) {
-      console.log('Reloading: messages length vs chat messages count mismatch:', messages.length, chat.message_count);
+      logging.debug('Reloading: messages length vs chat messages count mismatch:', messages.length, chat.message_count);
       router.reload({
         only: ['messages'],
         preserveState: true,
@@ -64,19 +65,19 @@
 
   // Listen for streaming updates via custom event
   onMount(() => {
-    console.log('🔍 Setting up streaming event listeners');
+    logging.debug('🔍 Setting up streaming event listeners');
     if (typeof window === 'undefined') return;
 
-    console.log('🔍 Messages:', messages);
+    logging.debug('🔍 Messages:', messages);
 
     const handleStreamingUpdate = (event) => {
       const data = event.detail;
-      console.log('📨 Received streaming update:', data);
+      logging.debug('📨 Received streaming update:', data);
 
       if (data.id) {
         const index = messages.findIndex((m) => m.id === data.id);
         if (index !== -1) {
-          console.log('✏️ Updating message via streaming:', data.id, data.chunk);
+          logging.debug('✏️ Updating message via streaming:', data.id, data.chunk);
           const currentMessage = messages[index] || {};
           const updatedMessage = {
             ...currentMessage,
@@ -87,23 +88,23 @@
           messages = messages.map((message, messageIndex) =>
             messageIndex === index ? updatedMessage : message,
           );
-          console.log('Message updated:', updatedMessage);
+          logging.debug('Message updated:', updatedMessage);
         } else {
-          console.log('🔍 No message found in streaming update:', data.id);
-          console.log('🔍 Messages:', messages);
+          logging.debug('🔍 No message found in streaming update:', data.id);
+          logging.debug('🔍 Messages:', messages);
         }
       } else {
-        console.log('🔍 No id found in streaming update:', data);
+        logging.debug('🔍 No id found in streaming update:', data);
       }
     };
 
     const handleStreamingEnd = (event) => {
       const data = event.detail;
-      console.log('📨 Received streaming end:', data);
+      logging.debug('📨 Received streaming end:', data);
       if (data.id) {
         const index = messages.findIndex((m) => m.id === data.id);
         if (index !== -1) {
-          console.log('✏️ Updating message via streaming end:', data.id);
+          logging.debug('✏️ Updating message via streaming end:', data.id);
           messages = messages.map((message, messageIndex) =>
             messageIndex === index ? { ...message, streaming: false } : message,
           );
@@ -113,10 +114,10 @@
 
     window.addEventListener('streaming-update', handleStreamingUpdate);
     window.addEventListener('streaming-end', handleStreamingEnd);
-    console.log('🔍 Streaming event listeners set up');
+    logging.debug('🔍 Streaming event listeners set up');
 
     return () => {
-      console.log('🧹 Removing streaming event listeners');
+      logging.debug('🧹 Removing streaming event listeners');
       window.removeEventListener('streaming-update', handleStreamingUpdate);
       window.removeEventListener('streaming-end', handleStreamingEnd);
     };
@@ -132,19 +133,19 @@
   const retryForm = useForm({});
 
   function sendMessage() {
-    console.log('messageForm:', $messageForm);
+    logging.debug('messageForm:', $messageForm);
     if (!$messageForm.message.content.trim()) {
-      console.log('Empty message, returning');
+      logging.debug('Empty message, returning');
       return;
     }
 
     $messageForm.post(accountChatMessagesPath(account.id, chat.id), {
       onSuccess: () => {
-        console.log('Message sent successfully');
+        logging.debug('Message sent successfully');
         $messageForm.message.content = '';
       },
       onError: (errors) => {
-        console.error('Message send failed:', errors);
+        logging.error('Message send failed:', errors);
       },
     });
   }

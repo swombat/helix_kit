@@ -7,6 +7,7 @@
   import InfoCard from '$lib/components/InfoCard.svelte';
   import { createDynamicSync } from '$lib/use-sync';
   import Avatar from '$lib/components/Avatar.svelte';
+  import * as logging from '$lib/logging';
 
   let { accounts = [], selected_account = null } = $props();
   let search = $state('');
@@ -25,10 +26,10 @@
       subs[`Account:${selected_account.id}`] = 'selected_account';
     }
 
-    console.log('Dynamic subscriptions updated:', subs);
+    logging.debug('Dynamic subscriptions updated:', subs);
     updateSync(subs);
 
-    console.log('Selected account:', selected_account);
+    logging.debug('Selected account:', selected_account);
   });
 
   const filtered = $derived(

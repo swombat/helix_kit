@@ -2,11 +2,11 @@
   // shadcn components
   import * as Alert from '$lib/components/shadcn/alert/index.js';
   import { CheckCircle, Warning, WarningOctagon, ArrowCircleRight } from 'phosphor-svelte';
+  import * as logging from '$lib/logging';
 
   let { type = $bindable(), title = $bindable(), description = $bindable(), children } = $props();
 
   function splitDescription(description) {
-    console.log('Description:', description);
     if (description instanceof Array) {
       return (
         "<ul class='list-disc list-inside'>" + description.map((line) => '<li>' + line + '</li>').join('') + '</ul>'
