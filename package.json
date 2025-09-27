@@ -50,6 +50,7 @@
     "svelte": "^5.35.6",
     "svelte-highlight": "^7.8.4",
     "svelte-radix": "^2.0.1",
+    "svelte-streamdown": "^2.4.5",
     "tailwindcss": "^4.1.11",
     "tw-animate-css": "^1.3.5"
   }

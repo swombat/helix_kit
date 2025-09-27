@@ -14,6 +14,7 @@
   import * as logging from '$lib/logging';
   import { formatTime, formatDate, formatDateTime } from '$lib/utils';
   import { fade } from 'svelte/transition';
+  import { Streamdown } from 'svelte-streamdown';
 
   // Create ActionCable consumer
   const consumer = typeof window !== 'undefined' ? createConsumer() : null;
@@ -263,9 +264,20 @@
                       {:else if message.status === 'pending'}
                         <div class="text-muted-foreground text-sm">Thinking...</div>
                       {:else}
-                        <div class="prose prose-sm max-w-none">
-                          {message.content}
-                        </div>
+                        <Streamdown
+                          content={message.content}
+                          parseIncompleteMarkdown
+                          baseTheme="shadcn"
+                          class="prose prose-invert max-w-none text-base leading-7"
+                          animation={{
+                            enabled: true,
+                            type: 'fade',
+                            tokenize: 'word',          // <- key for typewriter feel
+                            duration: 300,             // tune to taste
+                            timingFunction: 'ease-out',
+                            animateOnMount: true       // animate the first batch too
+                          }}
+                        />
                       {/if}
                     </Card.Content>
                   </Card.Root>

@@ -1,6 +1,6 @@
 class AiResponseJob < ApplicationJob
 
-  STREAM_DEBOUNCE_INTERVAL = 0.3.seconds
+  STREAM_DEBOUNCE_INTERVAL = 0.2.seconds
 
   def perform(chat)
     @chat = chat
