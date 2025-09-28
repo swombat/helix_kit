@@ -4,6 +4,7 @@ class ApplicationController < ActionController::Base
 
   include Authentication
   include AccountScoping
+  include FeatureToggleable
   allow_browser versions: :modern
 
   rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
@@ -14,11 +15,13 @@ class ApplicationController < ActionController::Base
       {
         user: Current.user.as_json,
         account: current_account&.as_json,
-        theme_preference: Current.user&.theme || cookies[:theme]
+        theme_preference: Current.user&.theme || cookies[:theme],
+        site_settings: shared_site_settings
       }
     else
       {
-        theme_preference: cookies[:theme]
+        theme_preference: cookies[:theme],
+        site_settings: shared_site_settings
       }
     end
   end
@@ -84,6 +87,16 @@ class ApplicationController < ActionController::Base
       ip_address: request.remote_ip,
       user_agent: request.user_agent
     )
+  end
+
+  def shared_site_settings
+    settings = Setting.instance
+    {
+      site_name: settings.site_name,
+      logo_url: settings.logo.attached? ? url_for(settings.logo) : nil,
+      allow_signups: settings.allow_signups,
+      allow_chats: settings.allow_chats
+    }
   end
 
 end

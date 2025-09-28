@@ -78,6 +78,15 @@ class ChatsControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
+  test "chats blocked when disabled" do
+    Setting.instance.update!(allow_chats: false)
+    sign_in @user
+
+    get account_chats_path(@account)
+    assert_redirected_to root_path
+    assert_match(/disabled/, flash[:alert])
+  end
+
   test "should require authentication" do
     delete logout_path
 

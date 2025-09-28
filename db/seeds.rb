@@ -8,6 +8,9 @@
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
 
+Setting.instance
+puts "✓ Site settings initialized"
+
 # Load environment-specific seeds
 if Rails.env.test? && File.exist?(Rails.root.join('db/seeds/test.rb'))
   load Rails.root.join('db/seeds/test.rb')

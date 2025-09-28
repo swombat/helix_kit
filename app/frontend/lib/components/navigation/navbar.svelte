@@ -40,10 +40,15 @@
 
   const currentUser = $derived($page.props?.user);
   const currentAccount = $derived($page.props?.account);
+  const siteSettings = $derived($page.props?.site_settings);
 
   const links = $derived([
     { href: '/documentation', label: 'Documentation', show: true },
-    { href: currentAccount?.id ? `/accounts/${currentAccount.id}/chats` : '#', label: 'Chats', show: !!currentUser },
+    {
+      href: currentAccount?.id ? `/accounts/${currentAccount.id}/chats` : '#',
+      label: 'Chats',
+      show: !!currentUser && siteSettings?.allow_chats,
+    },
     { href: '#', label: 'About', show: true },
   ]);
 
@@ -92,7 +97,7 @@
     <div class="flex items-center gap-8">
       <Link href="/" class="flex items-center gap-2">
         <Logo class="h-10 w-10" />
-        HelixKit
+        {siteSettings?.site_name || 'HelixKit'}
       </Link>
       <div class="hidden md:flex items-center">
         {#each links as link}
@@ -132,6 +137,10 @@
             <span class="text-xs font-normal text-muted-foreground text-red-500"> Site Admin </span>
           </DropdownMenu.Trigger>
           <DropdownMenu.Content align="end">
+            <DropdownMenu.Item onclick={() => router.visit('/admin/settings')}>
+              <Gear class="mr-2 size-4" />
+              <span>Site Settings</span>
+            </DropdownMenu.Item>
             <DropdownMenu.Item onclick={() => router.visit('/admin/accounts')}>
               <Buildings class="mr-2 size-4" />
               <span>Manage Accounts</span>
@@ -231,8 +240,10 @@
         </DropdownMenu.Trigger>
         <DropdownMenu.Content class="w-56" align="end">
           <DropdownMenu.Group>
-            <DropdownMenu.Item class="font-medium" onclick={() => router.visit(signupPath())}
-              >Sign up</DropdownMenu.Item>
+            {#if siteSettings?.allow_signups}
+              <DropdownMenu.Item class="font-medium" onclick={() => router.visit(signupPath())}
+                >Sign up</DropdownMenu.Item>
+            {/if}
             <DropdownMenu.Item onclick={() => router.visit(loginPath())}>Log in</DropdownMenu.Item>
           </DropdownMenu.Group>
           <div class="md:hidden">

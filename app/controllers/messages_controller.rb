@@ -1,5 +1,6 @@
 class MessagesController < ApplicationController
 
+  require_feature_enabled :chats
   before_action :set_chat, except: :retry
   before_action :set_chat_for_retry, only: :retry
 

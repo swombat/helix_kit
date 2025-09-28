@@ -2,7 +2,7 @@
 
 **Plan ID:** 250928-02c
 **Created:** 2025-09-28
-**Status:** Ready to Ship
+**Status:** Backend Complete - Frontend and Tests Pending
 **Revision:** Third iteration (applying DHH's final polish)
 
 ## Summary
@@ -495,16 +495,16 @@ end
 
 ## Implementation Checklist
 
-- [ ] Create and run migration
-- [ ] Create Setting model
-- [ ] Create FeatureToggleable concern
-- [ ] Create Admin::SettingsController
-- [ ] Add routes
-- [ ] Update ApplicationController inertia_share
+- [x] Create and run migration
+- [x] Create Setting model
+- [x] Create FeatureToggleable concern
+- [x] Create Admin::SettingsController
+- [x] Add routes
+- [x] Update ApplicationController inertia_share
 - [ ] Create admin/settings.svelte page
-- [ ] Add feature toggle enforcement to controllers
+- [x] Add feature toggle enforcement to controllers
 - [ ] Update UI to hide disabled features
-- [ ] Add seed data
+- [x] Add seed data
 - [ ] Write tests
 - [ ] Run `rails test`
 - [ ] Manual test as admin: change settings, upload/remove logo

@@ -1,5 +1,6 @@
 class ChatsController < ApplicationController
 
+  require_feature_enabled :chats
   before_action :set_chat, except: [ :index, :create, :new ]
 
   def index

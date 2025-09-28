@@ -112,6 +112,14 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "registrations/check_email", inertia_component
   end
 
+  test "signup blocked when disabled" do
+    Setting.instance.update!(allow_signups: false)
+
+    get signup_path
+    assert_redirected_to root_path
+    assert_match(/disabled/, flash[:alert])
+  end
+
   test "should confirm email with valid token" do
     user = User.create!(
       email_address: "toconfirm@example.com"

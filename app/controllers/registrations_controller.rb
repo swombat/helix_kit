@@ -1,5 +1,6 @@
 class RegistrationsController < ApplicationController
 
+  require_feature_enabled :signups, only: [ :new, :create ]
   allow_unauthenticated_access only: %i[ new create confirm_email set_password update_password check_email ]
   before_action :redirect_if_authenticated, only: [ :new ]
   before_action :load_pending_user, only: [ :set_password, :update_password ]
