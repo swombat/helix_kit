@@ -7,7 +7,7 @@ class ChatsController < ApplicationController
 
     render inertia: "chats/index", props: {
       chats: @chats.as_json,
-      models: Chat::MODELS,
+      models: available_models,
       account: current_account.as_json
     }
   end
@@ -18,9 +18,10 @@ class ChatsController < ApplicationController
 
     render inertia: "chats/show", props: {
       chat: @chat.as_json,
-      chats: @chats.as_json(as: :sidebar_json),
+      chats: @chats.as_json,
       messages: @messages.all.collect(&:as_json),
-      account: current_account.as_json
+      account: current_account.as_json,
+      models: available_models
     }
   end
 
@@ -47,7 +48,10 @@ class ChatsController < ApplicationController
   def chat_params
     params.fetch(:chat, {})
       .permit(:model_id)
-      .with_defaults(model_id: "openrouter/auto")
+  end
+
+  def available_models
+    @available_models ||= Chat::MODELS
   end
 
 end

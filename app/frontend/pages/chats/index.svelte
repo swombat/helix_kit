@@ -1,5 +1,4 @@
 <script>
-  import { page } from '@inertiajs/svelte';
   import { useForm } from '@inertiajs/svelte';
   import { Button } from '$lib/components/shadcn/button/index.js';
   import { ChatCircle, Plus, Sparkle } from 'phosphor-svelte';
@@ -8,13 +7,20 @@
   import ChatList from './ChatList.svelte';
   import { accountChatsPath } from '@/routes';
 
-  let { chats = [], account } = $props();
+  let { chats = [], account, models = [] } = $props();
+
+  let selectedModel = $state(models?.[0]?.value ?? models?.[0] ?? 'openrouter/auto');
 
   const createChatForm = useForm({
-    ai_model_name: 'gpt-4o-mini',
+    chat: {
+      model_id: selectedModel,
+    },
   });
 
   function createNewChat() {
+    if ($createChatForm?.data?.chat) {
+      $createChatForm.data.chat.model_id = selectedModel;
+    }
     $createChatForm.post(accountChatsPath(account.id));
   }
 </script>
@@ -25,7 +31,7 @@
 
 <div class="flex h-[calc(100vh-4rem)]">
   <!-- Left sidebar: Chat list -->
-  <ChatList {chats} activeChatId={null} accountId={account.id} />
+  <ChatList {chats} activeChatId={null} accountId={account.id} {selectedModel} />
 
   <!-- Right side: Welcome message -->
   <main class="flex-1 overflow-y-auto bg-background">
@@ -41,28 +47,37 @@
         </p>
 
         <Card.Root class="max-w-sm mx-auto">
-          <Card.Header class="pb-4">
-            <Card.Title class="text-lg flex items-center gap-2">
-              <Sparkle size={20} class="text-primary" />
-              New Chat
-            </Card.Title>
-          </Card.Header>
-          <Card.Content class="space-y-4">
-            <div>
-              <label for="model-select" class="block text-sm font-medium mb-2"> Select AI Model </label>
-              <Select.Root bind:value={$createChatForm.data.ai_model_name}>
-                <Select.Trigger class="w-full" id="model-select">
+          <Card.Header class="pb-4 space-y-4">
+            <div class="flex items-center justify-between gap-3">
+              <Card.Title class="text-lg flex items-center gap-2">
+                <Sparkle size={20} class="text-primary" />
+                New Chat
+              </Card.Title>
+              <Select.Root
+                value={selectedModel}
+                onValueChange={(value) => {
+                  selectedModel = value;
+                  if ($createChatForm?.data?.chat) {
+                    $createChatForm.data.chat.model_id = value;
+                  }
+                }}>
+                <Select.Trigger class="w-48" id="model-select">
                   <Select.Value placeholder="Select AI model" />
                 </Select.Trigger>
-                <Select.Content>
-                  <Select.Item value="gpt-4o-mini">GPT-4o Mini</Select.Item>
-                  <Select.Item value="gpt-4o">GPT-4o</Select.Item>
-                  <Select.Item value="claude-3-5-sonnet-20241022">Claude 3.5 Sonnet</Select.Item>
-                  <Select.Item value="claude-3-5-haiku-20241022">Claude 3.5 Haiku</Select.Item>
+                <Select.Content sideOffset={4}>
+                  {#each models as model (model?.value ?? model)}
+                    <Select.Item value={model?.value ?? model}>
+                      {model?.label ?? model?.value ?? model}
+                    </Select.Item>
+                  {/each}
                 </Select.Content>
               </Select.Root>
             </div>
-
+            <p class="text-sm text-muted-foreground text-left">
+              Choose which model to use when starting this conversation.
+            </p>
+          </Card.Header>
+          <Card.Content class="space-y-4">
             <Button onclick={createNewChat} disabled={$createChatForm.processing} class="w-full">
               {#if $createChatForm.processing}
                 Creating...

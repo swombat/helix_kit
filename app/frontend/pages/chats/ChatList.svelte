@@ -2,14 +2,14 @@
   import { Link } from '@inertiajs/svelte';
   import { useForm } from '@inertiajs/svelte';
   import { Button } from '$lib/components/shadcn/button/index.js';
-  import { Plus, ChatCircle } from 'phosphor-svelte';
-  import * as Select from '$lib/components/shadcn/select/index.js';
+  import { Plus, ChatCircle, ChatText } from 'phosphor-svelte';
   import { accountChatsPath, accountChatPath } from '@/routes';
 
   let { chats = [], activeChatId = null, accountId } = $props();
 
+  // No selectedModel: just use default model_id (let backend default if not set)
   const createChatForm = useForm({
-    ai_model_name: 'gpt-4o-mini',
+    chat: {},
   });
 
   function createNewChat() {
@@ -40,20 +40,6 @@
         <Plus size={16} />
       </Button>
     </div>
-
-    <Select.Root
-      value={$createChatForm.data.ai_model_name}
-      onValueChange={(value) => ($createChatForm.data.ai_model_name = value)}>
-      <Select.Trigger class="w-full h-8 text-sm">
-        <span>{$createChatForm.data.ai_model_name || 'Select AI model'}</span>
-      </Select.Trigger>
-      <Select.Content>
-        <Select.Item value="gpt-4o-mini">GPT-4o Mini</Select.Item>
-        <Select.Item value="gpt-4o">GPT-4o</Select.Item>
-        <Select.Item value="claude-3-5-sonnet-20241022">Claude 3.5 Sonnet</Select.Item>
-        <Select.Item value="claude-3-5-haiku-20241022">Claude 3.5 Haiku</Select.Item>
-      </Select.Content>
-    </Select.Root>
   </header>
 
   <div class="flex-1 overflow-y-auto">
@@ -72,8 +58,16 @@
             <div class="font-medium text-sm truncate">
               {chat.title_or_default || chat.title || 'New Chat'}
             </div>
-            <div class="text-xs text-muted-foreground mt-1">
-              {chat.updated_at_short || formatDate(chat.updated_at)}
+            <div class="flex items-center gap-2 w-full group">
+              <div class="text-xs text-muted-foreground flex-1/3 hidden group-hover:block">
+                {chat.model_id}
+              </div>
+              <div class="text-xs text-muted-foreground flex-1/3 flex items-end justify-end hidden group-hover:block">
+                {chat.updated_at_short || formatDate(chat.updated_at)}
+              </div>
+              <div class="text-xs text-muted-foreground flex-1/3 flex items-end justify-end gap-1">
+                <ChatText size={12} /> {chat.message_count}
+              </div>
             </div>
           </Link>
         {/each}

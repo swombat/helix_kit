@@ -8,6 +8,7 @@
   import { Button } from '$lib/components/shadcn/button/index.js';
   import { ArrowUp, ArrowClockwise } from 'phosphor-svelte';
   import * as Card from '$lib/components/shadcn/card/index.js';
+  import * as Select from '$lib/components/shadcn/select/index.js';
   import ChatList from './ChatList.svelte';
   import { accountChatMessagesPath, retryMessagePath } from '@/routes';
   import { marked } from 'marked';
@@ -19,7 +20,9 @@
   // Create ActionCable consumer
   const consumer = typeof window !== 'undefined' ? createConsumer() : null;
 
-  let { chat, chats = [], messages = [], account } = $props();
+  let { chat, chats = [], messages = [], account, models = [] } = $props();
+
+  let selectedModel = $state(models?.[0]?.model_id ?? "");
   let messageInput = $state('');
   let messagesContainer;
 
@@ -107,6 +110,7 @@
   let messageForm = useForm({
     message: {
       content: '',
+      model_id: selectedModel,
     },
   });
 
@@ -114,6 +118,7 @@
 
   function sendMessage() {
     logging.debug('messageForm:', $messageForm);
+    $messageForm.message.model_id = selectedModel;
     if (!$messageForm.message.content.trim()) {
       logging.debug('Empty message, returning');
       return;
@@ -192,6 +197,7 @@
 
     return formatTime(createdAt);
   }
+
 </script>
 
 <svelte:head>
@@ -200,7 +206,7 @@
 
 <div class="flex h-[calc(100vh-4rem)]">
   <!-- Left sidebar: Chat list -->
-  <ChatList {chats} activeChatId={chat?.id} accountId={account.id} />
+  <ChatList {chats} activeChatId={chat?.id} accountId={account.id} {selectedModel} />
 
   <!-- Right side: Chat messages -->
   <main class="flex-1 flex flex-col bg-background">
@@ -209,8 +215,29 @@
       <h1 class="text-lg font-semibold truncate">
         {chat?.title || 'New Chat'}
       </h1>
-      <div class="text-sm text-muted-foreground">
-        {chat?.ai_model_name}
+      <div class="mt-2">
+        {#if Array.isArray(models) && models.length > 0}
+          <Select.Root
+            type="single"
+            onValueChange={(value) => {
+              selectedModel = value;
+            }}>
+            <Select.Trigger class="w-56">
+              {models.find(model => model.model_id === selectedModel)?.label || 'Select AI model'}
+            </Select.Trigger>
+            <Select.Content sideOffset={4}>
+              {#each models as model (model.model_id)}
+                <Select.Item value={model.model_id} label={model.label}>
+                  {model.label}
+                </Select.Item>
+              {/each}
+            </Select.Content>
+          </Select.Root>
+        {:else}
+          <div class="text-sm text-muted-foreground">
+            {chat?.ai_model_name || chat?.model_id || 'Auto'} {selectedModel}
+          </div>
+        {/if}
       </div>
     </header>
 

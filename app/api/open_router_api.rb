@@ -14,7 +14,6 @@ class OpenRouterApi
 
   def models
     [
-      "openai/o1",
       "openai/gpt-5",
       "openai/gpt-5-mini",
       "openai/gpt-5-nano",
@@ -23,16 +22,21 @@ class OpenRouterApi
       "anthropic/claude-3.7-sonnet:thinking",
       "anthropic/claude-opus-4",
       "anthropic/claude-sonnet-4",
-      "google/gemini-2.5-pro-preview-03-25",
-      "x-ai/grok-3-beta",
-      "x-ai/grok-3-mini-beta",
+      "google/gemini-2.5-flash-preview-09-2025",
+      "google/gemini-2.5-pro",
+      "x-ai/grok-4-fast",
+      "x-ai/grok-code-fast-1",
+      "x-ai/grok-4",
+      "openai/o1",
       "openai/o3",
       "openai/o4-mini",
       "openai/o4-mini-high",
       "openai/gpt-4o-mini",
       "openai/gpt-4.1",
       "openai/gpt-4.1-mini",
-      "openai/chatgpt-4o-latest"
+      "openai/chatgpt-4o-latest",
+      "qwen/qwen3-max",
+      "moonshotai/kimi-k2-0905"
     ]
   end
 
