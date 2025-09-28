@@ -1,6 +1,6 @@
 class ChatsController < ApplicationController
 
-  before_action :set_chat, except: [ :index, :create ]
+  before_action :set_chat, except: [ :index, :create, :new ]
 
   def index
     @chats = current_account.chats.includes(:messages).latest
@@ -9,6 +9,16 @@ class ChatsController < ApplicationController
       chats: @chats.as_json,
       models: available_models,
       account: current_account.as_json
+    }
+  end
+
+  def new
+    @chats = current_account.chats.latest
+
+    render inertia: "chats/new", props: {
+      chats: @chats.as_json,
+      account: current_account.as_json,
+      models: available_models
     }
   end
 
@@ -31,10 +41,12 @@ class ChatsController < ApplicationController
       message_content: params[:message],
       user: Current.user
     )
+    audit("create_chat", @chat, **chat_params.to_h)
     redirect_to account_chat_path(current_account, @chat)
   end
 
   def destroy
+    audit("destroy_chat", @chat)
     @chat.destroy!
     redirect_to account_chats_path(current_account)
   end

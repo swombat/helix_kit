@@ -1,19 +1,13 @@
 <script>
-  import { Link } from '@inertiajs/svelte';
-  import { useForm } from '@inertiajs/svelte';
+  import { Link, router } from '@inertiajs/svelte';
   import { Button } from '$lib/components/shadcn/button/index.js';
   import { Plus, ChatCircle, ChatText } from 'phosphor-svelte';
-  import { accountChatsPath, accountChatPath } from '@/routes';
+  import { accountChatsPath, accountChatPath, newAccountChatPath } from '@/routes';
 
   let { chats = [], activeChatId = null, accountId } = $props();
 
-  // No selectedModel: just use default model_id (let backend default if not set)
-  const createChatForm = useForm({
-    chat: {},
-  });
-
   function createNewChat() {
-    $createChatForm.post(accountChatsPath(accountId));
+    router.visit(newAccountChatPath(accountId));
   }
 
   function formatDate(dateString) {
@@ -31,12 +25,7 @@
   <header class="p-4 border-b border-border bg-muted/30">
     <div class="flex items-center justify-between mb-3">
       <h2 class="text-lg font-semibold">Chats</h2>
-      <Button
-        variant="outline"
-        size="sm"
-        onclick={createNewChat}
-        disabled={$createChatForm.processing}
-        class="h-8 w-8 p-0">
+      <Button variant="outline" size="sm" onclick={createNewChat} class="h-8 w-8 p-0">
         <Plus size={16} />
       </Button>
     </div>
@@ -60,13 +49,14 @@
             </div>
             <div class="flex items-center gap-2 w-full group">
               <div class="text-xs text-muted-foreground flex-1/3 hidden group-hover:block">
-                {chat.model_id}
+                {chat.model_name}
               </div>
               <div class="text-xs text-muted-foreground flex-1/3 flex items-end justify-end hidden group-hover:block">
                 {chat.updated_at_short || formatDate(chat.updated_at)}
               </div>
               <div class="text-xs text-muted-foreground flex-1/3 flex items-end justify-end gap-1">
-                <ChatText size={12} /> {chat.message_count}
+                <ChatText size={12} />
+                {chat.message_count}
               </div>
             </div>
           </Link>

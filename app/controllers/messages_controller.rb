@@ -9,6 +9,7 @@ def create
     )
 
     if @message.save
+      audit("create_message", @message, message_params.to_h)
       @message.files.attach(params[:files]) if params[:files]
       AiResponseJob.perform_later(@chat)
 

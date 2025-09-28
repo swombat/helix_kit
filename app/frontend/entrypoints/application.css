@@ -4,6 +4,8 @@
 @plugin "@tailwindcss/forms"; */
 
 @import 'tailwindcss';
+@plugin "@tailwindcss/typography";
+@plugin "@tailwindcss/forms";
 @import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));

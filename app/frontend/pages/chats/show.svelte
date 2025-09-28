@@ -216,28 +216,9 @@
         {chat?.title || 'New Chat'}
       </h1>
       <div class="mt-2">
-        {#if Array.isArray(models) && models.length > 0}
-          <Select.Root
-            type="single"
-            onValueChange={(value) => {
-              selectedModel = value;
-            }}>
-            <Select.Trigger class="w-56">
-              {models.find(model => model.model_id === selectedModel)?.label || 'Select AI model'}
-            </Select.Trigger>
-            <Select.Content sideOffset={4}>
-              {#each models as model (model.model_id)}
-                <Select.Item value={model.model_id} label={model.label}>
-                  {model.label}
-                </Select.Item>
-              {/each}
-            </Select.Content>
-          </Select.Root>
-        {:else}
           <div class="text-sm text-muted-foreground">
-            {chat?.ai_model_name || chat?.model_id || 'Auto'} {selectedModel}
+            {chat?.model_name || chat?.model_id || 'Auto'}
           </div>
-        {/if}
       </div>
     </header>
 
@@ -265,9 +246,21 @@
             {#if message.role === 'user'}
               <div class="flex justify-end">
                 <div class="max-w-[70%]">
-                  <Card.Root class="bg-primary text-primary-foreground">
+                  <Card.Root class="bg-indigo-200">
                     <Card.Content class="p-4">
-                      <div class="prose prose-sm max-w-none text-neutral-200">{@html marked(message.content || '')}</div>
+                      <Streamdown
+                        content={message.content}
+                        parseIncompleteMarkdown
+                        baseTheme="shadcn"
+                        animation={{
+                          enabled: true,
+                          type: 'fade',
+                          tokenize: 'word',
+                          duration: 300,
+                          timingFunction: 'ease-out',
+                          animateOnMount: false
+                        }}
+                      />  
                     </Card.Content>
                   </Card.Root>
                   <div class="text-xs text-muted-foreground text-right mt-1">
@@ -295,7 +288,6 @@
                           content={message.content}
                           parseIncompleteMarkdown
                           baseTheme="shadcn"
-                          class="prose prose-invert max-w-none text-base leading-7"
                           animation={{
                             enabled: true,
                             type: 'fade',

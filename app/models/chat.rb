@@ -9,7 +9,7 @@ class Chat < ApplicationRecord
 
   belongs_to :account
 
-  json_attributes :title, :model_id, :ai_model_name, :updated_at_formatted, :message_count
+  json_attributes :title, :model_id, :model_name, :updated_at_formatted, :message_count
 
   broadcasts_to :account
 
@@ -66,14 +66,9 @@ class Chat < ApplicationRecord
     title.presence || "New Conversation"
   end
 
-  def ai_model_name
-    MODELS.find { |m| m[0] == model_id }&.last ||
-      case model_id
-      when "openrouter/auto"
-        "Auto (Recommended)"
-      else
-        model_id
-      end
+  def model_name
+    model = MODELS.find { |m| m[:model_id] == self.model_id }
+    model ? model[:label] : model_id
   end
 
   def updated_at_formatted
