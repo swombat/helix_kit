@@ -18,3 +18,20 @@ It doesn't need to be extraordinarily complicated... just have a section for the
 - Site logo (uploadable)
 - Allow new user signups
 - Allow chats
+
+## Clarifications
+
+**1. Admin Authorization:**
+Use the existing admin system with `Current.user&.is_site_admin?` pattern and `require_site_admin` before_action. Settings controller will go in the `Admin::` namespace following the existing pattern.
+
+**2. Settings Access Pattern:**
+Implement as a singleton model with `Settings.current` class method that returns the cached singleton record. Pass relevant settings (like site_name) as Inertia shared props when needed. For feature toggles, check in controllers before allowing actions.
+
+**3. Feature Toggle Enforcement:**
+When "Allow new user signups" is disabled, hide signup UI elements and return 403/redirect on signup controller attempts. When "Allow chats" is disabled, hide chat UI and refuse chat-related actions in controllers.
+
+**4. Settings Storage:**
+Use a singleton pattern - one Settings record that always exists (seeded on first setup), accessed via `Settings.current`.
+
+**5. Logo Handling:**
+Use Active Storage with S3 storage. The app already has a default logo that will be used when no custom logo is uploaded.
