@@ -252,6 +252,7 @@
                         content={message.content}
                         parseIncompleteMarkdown
                         baseTheme="shadcn"
+                        class="prose"
                         animation={{
                           enabled: true,
                           type: 'fade',
@@ -288,6 +289,7 @@
                           content={message.content}
                           parseIncompleteMarkdown
                           baseTheme="shadcn"
+                          class="prose"
                           animation={{
                             enabled: true,
                             type: 'fade',

@@ -21,6 +21,11 @@ class AiResponseJob < ApplicationJob
 
       enqueue_stream_chunk(chunk.content)
     end
+  rescue RubyLLM::ModelNotFoundError => e
+    @model_not_found_error = true
+    error "Model not found: #{e.message}, trying again..."
+    RubyLLM.models.refresh!
+    self.retry_job unless @model_not_found_error
   ensure
     flush_stream_buffer(force: true)
     # Ensure streaming is stopped even if job fails
