@@ -45,10 +45,10 @@ class ChatFileUploadTest < ActionDispatch::IntegrationTest
     assert_equal @chat, message.chat
 
     # Verify file attachment
-    assert message.files.attached?
-    assert_equal 1, message.files.count
-    assert_equal "test_image.png", message.files.first.filename.to_s
-    assert_equal "image/png", message.files.first.content_type
+    assert message.attachments.attached?
+    assert_equal 1, message.attachments.count
+    assert_equal "test_image.png", message.attachments.first.filename.to_s
+    assert_equal "image/png", message.attachments.first.content_type
 
     # Verify redirect back to chat
     assert_redirected_to account_chat_path(@account, @chat)
@@ -72,17 +72,17 @@ class ChatFileUploadTest < ActionDispatch::IntegrationTest
     end
 
     message = Message.last
-    assert_equal 2, message.files.count
+    assert_equal 2, message.attachments.count
 
-    filenames = message.files.map { |f| f.filename.to_s }
+    filenames = message.attachments.map { |f| f.filename.to_s }
     assert_includes filenames, "test_image.png"
     assert_includes filenames, "test_document.pdf"
 
     # Files are properly attached
-    assert_equal 2, message.files.count
+    assert_equal 2, message.attachments.count
 
     # Test metadata is accessible via attached files directly
-    message.files.each do |attached_file|
+    message.attachments.each do |attached_file|
       assert attached_file.id.present?
       assert attached_file.filename.present?
       assert attached_file.content_type.present?
@@ -102,11 +102,11 @@ class ChatFileUploadTest < ActionDispatch::IntegrationTest
 
     # Test that file persists after reload
     message.reload
-    assert message.files.attached?
-    assert_equal 1, message.files.count
+    assert message.attachments.attached?
+    assert_equal 1, message.attachments.count
 
     # Test that file data is accessible via attached files
-    attached_file = message.files.first
+    attached_file = message.attachments.first
     assert_equal "test_document.pdf", attached_file.filename.to_s
     assert_equal "application/pdf", attached_file.content_type
   end
@@ -179,8 +179,8 @@ class ChatFileUploadTest < ActionDispatch::IntegrationTest
     end
 
     message = Message.last
-    assert_not message.files.attached?
-    assert_equal 0, message.files.count
+    assert_not message.attachments.attached?
+    assert_equal 0, message.attachments.count
     assert_equal [], message.files_json
     assert_equal [], message.file_paths_for_llm
   end
@@ -199,9 +199,9 @@ class ChatFileUploadTest < ActionDispatch::IntegrationTest
     end
 
     message = Message.last
-    assert_equal 5, message.files.count
+    assert_equal 5, message.attachments.count
     # All files properly attached
-    assert_equal 5, message.files.count
+    assert_equal 5, message.attachments.count
     assert_equal 5, message.file_paths_for_llm.length
   end
 

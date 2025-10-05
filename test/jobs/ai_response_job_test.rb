@@ -197,9 +197,9 @@ class AiResponseJobTest < ActiveJob::TestCase
       Rails.root.join("test/fixtures/files/test_image.png"),
       "image/png"
     )
-    message_with_files.files.attach(file)
+    message_with_files.attachments.attach(file)
 
-    assert message_with_files.files.attached?, "File should be attached"
+    assert message_with_files.attachments.attached?, "File should be attached"
 
     # Test that file_paths_for_llm works
     file_paths = message_with_files.file_paths_for_llm
