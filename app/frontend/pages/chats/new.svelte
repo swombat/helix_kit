@@ -4,11 +4,13 @@
   import { ArrowUp } from 'phosphor-svelte';
   import * as Select from '$lib/components/shadcn/select/index.js';
   import ChatList from './ChatList.svelte';
+  import FileUploadInput from '$lib/components/chat/FileUploadInput.svelte';
   import { accountChatsPath } from '@/routes';
 
-  let { chats = [], account, models = [] } = $props();
+  let { chats = [], account, models = [], file_upload_config = null } = $props();
 
   let selectedModel = $state(models?.[0]?.model_id ?? '');
+  let selectedFiles = $state([]);
 
   let createForm = useForm({
     chat: {
@@ -25,10 +27,24 @@
   }
 
   function startChat() {
-    if (!$createForm.message.trim()) return;
+    if (!$createForm.message.trim() && selectedFiles.length === 0) return;
 
     $createForm.chat.model_id = selectedModel;
-    $createForm.post(accountChatsPath(account.id));
+
+    // Use FormData to include files
+    const formData = new FormData();
+    formData.append('chat[model_id]', selectedModel);
+    formData.append('message', $createForm.message);
+
+    // Append each file
+    selectedFiles.forEach((file) => {
+      formData.append('files[]', file);
+    });
+
+    $createForm.post(accountChatsPath(account.id), {
+      data: formData,
+      forceFormData: true,
+    });
   }
 </script>
 
@@ -79,6 +95,12 @@
     <!-- Message input -->
     <div class="border-t border-border bg-muted/30 p-4">
       <div class="flex gap-3 items-end">
+        <FileUploadInput
+          bind:files={selectedFiles}
+          disabled={$createForm.processing}
+          allowedTypes={file_upload_config?.acceptable_types || []}
+          maxSize={file_upload_config?.max_size || 52428800} />
+
         <div class="flex-1">
           <textarea
             bind:value={$createForm.message}
@@ -92,7 +114,7 @@
         </div>
         <Button
           on:click={startChat}
-          disabled={!$createForm.message.trim() || $createForm.processing}
+          disabled={(!$createForm.message.trim() && selectedFiles.length === 0) || $createForm.processing}
           size="sm"
           class="h-10 w-10 p-0">
           <ArrowUp size={16} />

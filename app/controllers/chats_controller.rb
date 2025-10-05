@@ -19,7 +19,11 @@ class ChatsController < ApplicationController
     render inertia: "chats/new", props: {
       chats: @chats.as_json,
       account: current_account.as_json,
-      models: available_models
+      models: available_models,
+      file_upload_config: {
+        acceptable_types: Message::ACCEPTABLE_FILE_TYPES.values.flatten,
+        max_size: Message::MAX_FILE_SIZE
+      }
     }
   end
 
