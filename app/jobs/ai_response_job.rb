@@ -15,7 +15,7 @@ class AiResponseJob < ApplicationJob
 
     chat.on_new_message do
       @ai_message = chat.messages.order(:created_at).last
-      # Immediately set streaming to true when the message is created
+      # Set streaming to true so "Generating response..." shows
       @ai_message.update!(streaming: true) if @ai_message
     end
 

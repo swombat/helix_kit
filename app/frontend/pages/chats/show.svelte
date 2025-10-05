@@ -3,7 +3,7 @@
   import { useForm } from '@inertiajs/svelte';
   import { createDynamicSync, streamingSync } from '$lib/use-sync';
   import { router } from '@inertiajs/svelte';
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
   import { createConsumer } from '@rails/actioncable';
   import { Button } from '$lib/components/shadcn/button/index.js';
   import { ArrowUp, ArrowClockwise, Spinner } from 'phosphor-svelte';
@@ -28,10 +28,69 @@
   let messageInput = $state('');
   let selectedFiles = $state([]);
   let messagesContainer;
+  let waitingForResponse = $state(false);
+  let messageSentAt = $state(null);
+  let currentTime = $state(Date.now());
+  let timeoutCheckInterval;
+
+  // Check if the last message is a user message without a response
+  const lastMessageIsUserWithoutResponse = $derived(() => {
+    if (!messages || messages.length === 0) return false;
+    const lastMessage = messages[messages.length - 1];
+    return lastMessage && lastMessage.role === 'user';
+  });
+
+  // Auto-detect waiting state based on messages
+  const shouldShowSendingPlaceholder = $derived(waitingForResponse || lastMessageIsUserWithoutResponse());
+
+  // Get the timestamp of when the last user message was sent
+  const lastUserMessageTime = $derived(() => {
+    if (!messages || messages.length === 0) return null;
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage && lastMessage.role === 'user') {
+      return new Date(lastMessage.created_at).getTime();
+    }
+    return null;
+  });
+
+  // Check if we've been waiting too long (over 1 minute)
+  const isTimedOut = $derived(() => {
+    const messageTime = messageSentAt || lastUserMessageTime();
+    return shouldShowSendingPlaceholder && messageTime && currentTime - messageTime > 60000;
+  });
+
+  // Check if last message needs resend option
+  const lastUserMessageNeedsResend = $derived(() => {
+    if (!messages || messages.length === 0) return false;
+    const lastMessage = messages[messages.length - 1];
+    if (!lastMessage || lastMessage.role !== 'user') return false;
+
+    // Check if there's been more than 1 minute since message was created
+    const createdAt = new Date(lastMessage.created_at).getTime();
+    return currentTime - createdAt > 60000;
+  });
 
   // Create dynamic sync for real-time updates
   const updateSync = createDynamicSync();
   let syncSignature = null;
+
+  // Set up timer to check for timeouts
+  onMount(() => {
+    if (messagesContainer) {
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    // Set up interval to check for timeouts
+    timeoutCheckInterval = setInterval(() => {
+      currentTime = Date.now();
+    }, 5000); // Check every 5 seconds
+  });
+
+  onDestroy(() => {
+    if (timeoutCheckInterval) {
+      clearInterval(timeoutCheckInterval);
+    }
+  });
 
   // Set up real-time subscriptions
   $effect(() => {
@@ -65,6 +124,16 @@
   // Auto-scroll to bottom when messages change
   $effect(() => {
     messages; // Subscribe to messages changes
+
+    // Clear waiting state if an assistant message appeared
+    if (waitingForResponse && messages.length > 0) {
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage.role === 'assistant') {
+        waitingForResponse = false;
+        messageSentAt = null;
+      }
+    }
+
     if (messagesContainer) {
       setTimeout(() => {
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
@@ -134,6 +203,10 @@
     formData.append('message[model_id]', selectedModel);
     selectedFiles.forEach((file) => formData.append('files[]', file));
 
+    // Track that we're waiting for response
+    waitingForResponse = true;
+    messageSentAt = Date.now();
+
     router.post(accountChatMessagesPath(account.id, chat.id), formData, {
       onSuccess: () => {
         logging.debug('Message sent successfully');
@@ -142,12 +215,42 @@
       },
       onError: (errors) => {
         logging.error('Message send failed:', errors);
+        waitingForResponse = false;
+        messageSentAt = null;
       },
     });
   }
 
   function retryMessage(messageId) {
     $retryForm.post(retryMessagePath(messageId));
+  }
+
+  function resendLastMessage() {
+    // Find the last user message and resend it
+    if (messages && messages.length > 0) {
+      const lastUserMessage = messages[messages.length - 1];
+      if (lastUserMessage.role === 'user') {
+        // Resend the message
+        waitingForResponse = true;
+        messageSentAt = Date.now();
+
+        const formData = new FormData();
+        formData.append('message[content]', lastUserMessage.content);
+        formData.append('message[model_id]', selectedModel);
+        // Note: We can't resend files from here as we don't have them
+
+        router.post(accountChatMessagesPath(account.id, chat.id), formData, {
+          onSuccess: () => {
+            logging.debug('Message resent successfully');
+          },
+          onError: (errors) => {
+            logging.error('Message resend failed:', errors);
+            waitingForResponse = false;
+            messageSentAt = null;
+          },
+        });
+      }
+    }
   }
 
   function handleKeydown(event) {
@@ -286,6 +389,11 @@
                       <span class="hidden group-hover:inline-block">({formatDateTime(message.created_at, true)})</span>
                       {formatTime(message.created_at)}
                     </span>
+                    {#if index === messages.length - 1 && lastUserMessageNeedsResend() && !waitingForResponse}
+                      <button onclick={resendLastMessage} class="ml-2 text-blue-600 hover:text-blue-700 underline">
+                        Resend
+                      </button>
+                    {/if}
                   </div>
                 </div>
               </div>
@@ -340,6 +448,32 @@
             {/if}
           </div>
         {/each}
+
+        <!-- Sending message placeholder (show while waiting for assistant response) -->
+        {#if shouldShowSendingPlaceholder}
+          <div class="flex justify-start">
+            <div class="max-w-[70%]">
+              <Card.Root>
+                <Card.Content class="p-4">
+                  {#if isTimedOut()}
+                    <div class="text-red-600 text-sm mb-2">
+                      It appears there might have been an error while sending the message.
+                    </div>
+                    <Button variant="outline" size="sm" on:click={resendLastMessage}>
+                      <ArrowClockwise size={14} class="mr-2" />
+                      Try again
+                    </Button>
+                  {:else}
+                    <div class="flex items-center gap-2 text-muted-foreground">
+                      <Spinner size={16} class="animate-spin" />
+                      <span class="text-sm">Sending message...</span>
+                    </div>
+                  {/if}
+                </Card.Content>
+              </Card.Root>
+            </div>
+          </div>
+        {/if}
       {/if}
     </div>
 
