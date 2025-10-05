@@ -57,7 +57,7 @@ class Chat < ApplicationRecord
           user: user,
           skip_content_validation: message_content.blank? && files.present? && files.any? # Skip content validation if we have files but no content
         })
-        message.files.attach(files) if files.present? && files.any?
+        message.attachments.attach(files) if files.present? && files.any?
         AiResponseJob.perform_later(chat)
       end
       chat

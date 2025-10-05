@@ -47,7 +47,7 @@ class MessageTest < ActiveSupport::TestCase
       role: "user",
       content: "Test message"
     )
-    assert message.respond_to?(:files)
+    assert message.respond_to?(:attachments)
   end
 
   test "validates role inclusion" do
@@ -345,9 +345,9 @@ class MessageTest < ActiveSupport::TestCase
       byte_size: 51.megabytes
     )
 
-    # Mock the files.attached? and files.each for validation
-    message.files.define_singleton_method(:attached?) { true }
-    message.files.define_singleton_method(:each) { |&block| block.call(large_blob) }
+    # Mock the attachments.attached? and attachments.each for validation
+    message.attachments.define_singleton_method(:attached?) { true }
+    message.attachments.define_singleton_method(:each) { |&block| block.call(large_blob) }
 
     assert_not message.valid?
     assert_includes message.errors.full_messages.join, "50MB"
@@ -367,9 +367,9 @@ class MessageTest < ActiveSupport::TestCase
       byte_size: 1024
     )
 
-    # Mock the files.attached? and files.each for validation
-    message.files.define_singleton_method(:attached?) { true }
-    message.files.define_singleton_method(:each) { |&block| block.call(invalid_blob) }
+    # Mock the attachments.attached? and attachments.each for validation
+    message.attachments.define_singleton_method(:attached?) { true }
+    message.attachments.define_singleton_method(:each) { |&block| block.call(invalid_blob) }
 
     assert_not message.valid?
     assert_includes message.errors.full_messages.join, "file type not supported"
@@ -388,9 +388,9 @@ class MessageTest < ActiveSupport::TestCase
       byte_size: 1024
     )
 
-    # Mock the files.attached? and files.each for validation
-    message.files.define_singleton_method(:attached?) { true }
-    message.files.define_singleton_method(:each) { |&block| block.call(valid_blob) }
+    # Mock the attachments.attached? and attachments.each for validation
+    message.attachments.define_singleton_method(:attached?) { true }
+    message.attachments.define_singleton_method(:each) { |&block| block.call(valid_blob) }
 
     # Should pass validation since the file is valid
     assert message.valid?

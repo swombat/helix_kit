@@ -58,10 +58,10 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
     end
 
     message = Message.last
-    assert message.files.attached?
-    assert_equal 1, message.files.count
-    assert_equal "test_image.png", message.files.first.filename.to_s
-    assert_equal "image/png", message.files.first.content_type
+    assert message.attachments.attached?
+    assert_equal 1, message.attachments.count
+    assert_equal "test_image.png", message.attachments.first.filename.to_s
+    assert_equal "image/png", message.attachments.first.content_type
     assert_redirected_to account_chat_path(@account, @chat)
   end
 
@@ -78,10 +78,10 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
     end
 
     message = Message.last
-    assert message.files.attached?
-    assert_equal 3, message.files.count
+    assert message.attachments.attached?
+    assert_equal 3, message.attachments.count
 
-    filenames = message.files.map { |f| f.filename.to_s }
+    filenames = message.attachments.map { |f| f.filename.to_s }
     assert_includes filenames, "test_image.png"
     assert_includes filenames, "test_document.pdf"
     assert_includes filenames, "test_audio.mp3"
@@ -96,8 +96,8 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
     end
 
     message = Message.last
-    assert_not message.files.attached?
-    assert_equal 0, message.files.count
+    assert_not message.attachments.attached?
+    assert_equal 0, message.attachments.count
     assert_equal "Message without files", message.content
     assert_redirected_to account_chat_path(@account, @chat)
   end
@@ -146,9 +146,9 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
     message = Message.last
 
     # Test basic file attachment properties
-    assert message.files.attached?
-    assert_equal 1, message.files.count
-    attached_file = message.files.first
+    assert message.attachments.attached?
+    assert_equal 1, message.attachments.count
+    attached_file = message.attachments.first
     assert_equal "test_image.png", attached_file.filename.to_s
     assert_equal "image/png", attached_file.content_type
     assert attached_file.byte_size > 0

@@ -11,7 +11,7 @@ class Message < ApplicationRecord
   belongs_to :user, optional: true
   has_one :account, through: :chat
 
-  has_many_attached :files
+  has_many_attached :attachments
 
   attr_accessor :skip_content_validation
 
@@ -69,9 +69,9 @@ class Message < ApplicationRecord
   end
 
   def files_json
-    return [] unless files.attached?
+    return [] unless attachments.attached?
 
-    files.map do |file|
+    attachments.map do |file|
       file_data = {
         id: file.id,
         filename: file.filename.to_s,
@@ -92,9 +92,9 @@ class Message < ApplicationRecord
   end
 
   def file_paths_for_llm
-    return [] unless files.attached?
+    return [] unless attachments.attached?
 
-    files.map do |file|
+    attachments.map do |file|
       if ActiveStorage::Blob.service.respond_to?(:path_for)
         ActiveStorage::Blob.service.path_for(file.key)
       else
@@ -141,15 +141,15 @@ class Message < ApplicationRecord
   private
 
   def acceptable_files
-    return unless files.attached?
+    return unless attachments.attached?
 
-    files.each do |file|
+    attachments.each do |file|
       unless acceptable_file_type?(file)
-        errors.add(:files, "#{file.filename}: file type not supported")
+        errors.add(:attachments, "#{file.filename}: file type not supported")
       end
 
       if file.byte_size > MAX_FILE_SIZE
-        errors.add(:files, "#{file.filename}: must be less than #{MAX_FILE_SIZE / 1.megabyte}MB")
+        errors.add(:attachments, "#{file.filename}: must be less than #{MAX_FILE_SIZE / 1.megabyte}MB")
       end
     end
   end
@@ -173,34 +173,5 @@ class Message < ApplicationRecord
     renderer.render(content || "").html_safe
   end
 
-  # Override RubyLLM's extract_content method to work with our 'files' attachment
-  # instead of the expected 'attachments'
-  def extract_content
-    return content unless files.attached?
-
-    RubyLLM::Content.new(content).tap do |content_obj|
-      @_tempfiles = []
-
-      files.each do |file|
-        tempfile = download_file_attachment(file)
-        content_obj.add_attachment(tempfile, filename: file.filename.to_s)
-      end
-    end
-  end
-
-  private
-
-  def download_file_attachment(file)
-    ext = File.extname(file.filename.to_s)
-    basename = File.basename(file.filename.to_s, ext)
-    tempfile = Tempfile.new([ basename, ext ])
-    tempfile.binmode
-
-    file.download { |chunk| tempfile.write(chunk) }
-    tempfile.flush
-    tempfile.rewind
-    @_tempfiles << tempfile
-    tempfile
-  end
 
 end

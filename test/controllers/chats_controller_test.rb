@@ -141,9 +141,9 @@ class ChatsControllerTest < ActionDispatch::IntegrationTest
     assert_equal @user, message.user
 
     # Verify file attachment
-    assert message.files.attached?
-    assert_equal 1, message.files.count
-    assert_equal "test_image.png", message.files.first.filename.to_s
+    assert message.attachments.attached?
+    assert_equal 1, message.attachments.count
+    assert_equal "test_image.png", message.attachments.first.filename.to_s
 
     assert_redirected_to account_chat_path(@account, chat)
   end
@@ -170,9 +170,9 @@ class ChatsControllerTest < ActionDispatch::IntegrationTest
     assert_equal @user, message.user
 
     # Verify file attachment works even without content
-    assert message.files.attached?
-    assert_equal 1, message.files.count
-    assert_equal "test_image.png", message.files.first.filename.to_s
+    assert message.attachments.attached?
+    assert_equal 1, message.attachments.count
+    assert_equal "test_image.png", message.attachments.first.filename.to_s
 
     assert_redirected_to account_chat_path(@account, chat)
   end
@@ -243,7 +243,7 @@ class ChatsControllerTest < ActionDispatch::IntegrationTest
     chat = Chat.last
     message = chat.messages.last
     assert_equal "Hello with file", message.content
-    assert_equal 1, message.files.count
+    assert_equal 1, message.attachments.count
     assert_redirected_to account_chat_path(@account, chat)
   end
 

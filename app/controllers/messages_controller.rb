@@ -8,7 +8,7 @@ def create
     @message = @chat.messages.build(
       message_params.merge(user: Current.user, role: "user")
     )
-    @message.files.attach(params[:files]) if params[:files].present?
+    @message.attachments.attach(params[:files]) if params[:files].present?
 
     if @message.save
       audit("create_message", @message, **message_params.to_h)

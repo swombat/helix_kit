@@ -131,9 +131,9 @@ class ChatTest < ActiveSupport::TestCase
     assert_equal @user, message.user
 
     # This should pass but might currently fail
-    assert message.files.attached?, "Files should be attached to the message"
-    assert_equal 1, message.files.count
-    assert_equal "test_image.png", message.files.first.filename.to_s
+    assert message.attachments.attached?, "Files should be attached to the message"
+    assert_equal 1, message.attachments.count
+    assert_equal "test_image.png", message.attachments.first.filename.to_s
   end
 
   test "create_with_message! creates chat with only files (no content)" do
@@ -158,7 +158,7 @@ class ChatTest < ActiveSupport::TestCase
     message = @chat.messages.last
     assert_equal "", message.content
     assert_equal "user", message.role
-    assert message.files.attached?
+    assert message.attachments.attached?
   end
 
   test "title_or_default returns title when present" do
