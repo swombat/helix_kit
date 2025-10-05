@@ -8,47 +8,28 @@ def create
     @message = @chat.messages.build(
       message_params.merge(user: Current.user, role: "user")
     )
+    @message.files.attach(params[:files]) if params[:files].present?
 
     if @message.save
-      audit("create_message", @message, message_params.to_h)
-      @message.files.attach(params[:files]) if params[:files]
+      audit("create_message", @message, **message_params.to_h)
       AiResponseJob.perform_later(@chat)
 
       respond_to do |format|
         format.html { redirect_to account_chat_path(@chat.account, @chat) }
         format.json { render json: @message, status: :created }
-        # For Inertia requests (which come as HTML but have X-Inertia header)
-        format.any { redirect_to account_chat_path(@chat.account, @chat) }
       end
     else
-      # Handle validation errors
       respond_to do |format|
         format.html { redirect_back_or_to account_chat_path(@chat.account, @chat), alert: "Failed to send message: #{@message.errors.full_messages.join(', ')}" }
         format.json { render json: { errors: @message.errors.full_messages }, status: :unprocessable_entity }
-        # For Inertia requests - still redirect but with error
-        format.any do
-          if request.headers["X-Inertia"]
-            redirect_back_or_to account_chat_path(@chat.account, @chat), alert: "Failed to send message: #{@message.errors.full_messages.join(', ')}"
-          else
-            render json: { errors: @message.errors.full_messages }, status: :unprocessable_entity
-          end
-        end
       end
     end
   rescue StandardError => e
     error "Message creation failed: #{e.message}"
     error e.backtrace.join("\n")
-
     respond_to do |format|
       format.html { redirect_back_or_to account_chat_path(@chat.account, @chat), alert: "Failed to send message: #{e.message}" }
       format.json { render json: { errors: [ e.message ] }, status: :unprocessable_entity }
-      format.any do
-        if request.headers["X-Inertia"]
-          redirect_back_or_to account_chat_path(@chat.account, @chat), alert: "Failed to send message: #{e.message}"
-        else
-          render json: { errors: [ e.message ] }, status: :unprocessable_entity
-        end
-      end
     end
   end
 
@@ -71,7 +52,7 @@ def create
   end
 
 def message_params
-    params.require(:message).permit(:content)
+    params.require(:message).permit(:content, :model_id)
   end
 
 end

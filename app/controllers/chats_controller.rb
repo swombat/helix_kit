@@ -25,14 +25,18 @@ class ChatsController < ApplicationController
 
   def show
     @chats = current_account.chats.latest
-    @messages = @chat.messages.sorted.includes(:user)
+    @messages = @chat.messages.includes(files_attachments: :blob).sorted
 
     render inertia: "chats/show", props: {
       chat: @chat.as_json,
       chats: @chats.as_json,
       messages: @messages.all.collect(&:as_json),
       account: current_account.as_json,
-      models: available_models
+      models: available_models,
+      file_upload_config: {
+        acceptable_types: Message::ACCEPTABLE_FILE_TYPES.values.flatten,
+        max_size: Message::MAX_FILE_SIZE
+      }
     }
   end
 
@@ -40,7 +44,8 @@ class ChatsController < ApplicationController
     @chat = current_account.chats.create_with_message!(
       chat_params,
       message_content: params[:message],
-      user: Current.user
+      user: Current.user,
+      files: params[:files]
     )
     audit("create_chat", @chat, **chat_params.to_h)
     redirect_to account_chat_path(current_account, @chat)

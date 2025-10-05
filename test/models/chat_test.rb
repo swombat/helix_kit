@@ -105,6 +105,62 @@ class ChatTest < ActiveSupport::TestCase
     end
   end
 
+  test "create_with_message! creates chat and message with file attachments" do
+    # Create test file
+    file = Rack::Test::UploadedFile.new(
+      Rails.root.join("test/fixtures/files/test_image.png"),
+      "image/png"
+    )
+
+    assert_difference "Chat.count" do
+      assert_difference "Message.count" do
+        assert_enqueued_with(job: AiResponseJob) do
+          @chat = Chat.create_with_message!(
+            { model_id: "gpt-4o", account: @account },
+            message_content: "Here's an image",
+            user: @user,
+            files: [ file ]
+          )
+        end
+      end
+    end
+
+    message = @chat.messages.last
+    assert_equal "Here's an image", message.content
+    assert_equal "user", message.role
+    assert_equal @user, message.user
+
+    # This should pass but might currently fail
+    assert message.files.attached?, "Files should be attached to the message"
+    assert_equal 1, message.files.count
+    assert_equal "test_image.png", message.files.first.filename.to_s
+  end
+
+  test "create_with_message! creates chat with only files (no content)" do
+    file = Rack::Test::UploadedFile.new(
+      Rails.root.join("test/fixtures/files/test_image.png"),
+      "image/png"
+    )
+
+    assert_difference "Chat.count" do
+      assert_difference "Message.count" do
+        assert_enqueued_with(job: AiResponseJob) do
+          @chat = Chat.create_with_message!(
+            { model_id: "gpt-4o", account: @account },
+            message_content: nil,
+            user: @user,
+            files: [ file ]
+          )
+        end
+      end
+    end
+
+    message = @chat.messages.last
+    assert_equal "", message.content
+    assert_equal "user", message.role
+    assert message.files.attached?
+  end
+
   test "title_or_default returns title when present" do
     chat = Chat.create!(account: @account, title: "My Chat")
     assert_equal "My Chat", chat.title_or_default

@@ -3,6 +3,11 @@ class AiResponseJob < ApplicationJob
   STREAM_DEBOUNCE_INTERVAL = 0.2.seconds
 
   def perform(chat)
+    # Ensure we got a single chat object, not a relation
+    unless chat.is_a?(Chat)
+      raise ArgumentError, "Expected a Chat object, got #{chat.class}: #{chat.inspect}"
+    end
+
     @chat = chat
     @ai_message = nil
     @stream_buffer = +""
@@ -18,7 +23,6 @@ class AiResponseJob < ApplicationJob
 
     chat.complete do |chunk|
       next unless chunk.content && @ai_message
-
       enqueue_stream_chunk(chunk.content)
     end
   rescue RubyLLM::ModelNotFoundError => e

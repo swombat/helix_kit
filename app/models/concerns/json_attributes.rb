@@ -72,7 +72,7 @@ module JsonAttributes
           instance_exec(hash, runtime_options, &enhancer)
         end
 
-        hash[:id] = to_param
+        hash["id"] = to_param
 
         # Clean up boolean keys
         self.class.clean_boolean_keys(hash)

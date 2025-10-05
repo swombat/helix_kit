@@ -10,6 +10,8 @@
   import * as Card from '$lib/components/shadcn/card/index.js';
   import * as Select from '$lib/components/shadcn/select/index.js';
   import ChatList from './ChatList.svelte';
+  import FileUploadInput from '$lib/components/chat/FileUploadInput.svelte';
+  import FileAttachment from '$lib/components/chat/FileAttachment.svelte';
   import { accountChatMessagesPath, retryMessagePath } from '@/routes';
   import { marked } from 'marked';
   import * as logging from '$lib/logging';
@@ -20,10 +22,11 @@
   // Create ActionCable consumer
   const consumer = typeof window !== 'undefined' ? createConsumer() : null;
 
-  let { chat, chats = [], messages = [], account, models = [] } = $props();
+  let { chat, chats = [], messages = [], account, models = [], file_upload_config = {} } = $props();
 
-  let selectedModel = $state(models?.[0]?.model_id ?? "");
+  let selectedModel = $state(models?.[0]?.model_id ?? '');
   let messageInput = $state('');
+  let selectedFiles = $state([]);
   let messagesContainer;
 
   // Create dynamic sync for real-time updates
@@ -69,42 +72,43 @@
     }
   });
 
-  streamingSync((data) => {
-    if (data.id) {
-      const index = messages.findIndex((m) => m.id === data.id);
-      if (index !== -1) {
-        logging.debug('✏️ Updating message via streaming:', data.id, data.chunk);
-        const currentMessage = messages[index] || {};
-        const updatedMessage = {
-          ...currentMessage,
-          content: `${currentMessage.content || ''}${data.chunk || ''}`,
-          streaming: true,
-        };
+  streamingSync(
+    (data) => {
+      if (data.id) {
+        const index = messages.findIndex((m) => m.id === data.id);
+        if (index !== -1) {
+          logging.debug('✏️ Updating message via streaming:', data.id, data.chunk);
+          const currentMessage = messages[index] || {};
+          const updatedMessage = {
+            ...currentMessage,
+            content: `${currentMessage.content || ''}${data.chunk || ''}`,
+            streaming: true,
+          };
 
-        messages = messages.map((message, messageIndex) =>
-          messageIndex === index ? updatedMessage : message,
-        );
-        logging.debug('Message updated:', updatedMessage);
+          messages = messages.map((message, messageIndex) => (messageIndex === index ? updatedMessage : message));
+          logging.debug('Message updated:', updatedMessage);
+        } else {
+          logging.debug('🔍 No message found in streaming update:', data.id);
+          logging.debug('🔍 Messages:', messages);
+        }
       } else {
-        logging.debug('🔍 No message found in streaming update:', data.id);
-        logging.debug('🔍 Messages:', messages);
+        logging.warn('🔍 No id found in streaming update:', data);
       }
-    } else {
-      logging.warn('🔍 No id found in streaming update:', data);
+    },
+    (data) => {
+      if (data.id) {
+        const index = messages.findIndex((m) => m.id === data.id);
+        if (index !== -1) {
+          logging.debug('✏️ Updating message via streaming end:', data.id);
+          messages = messages.map((message, messageIndex) =>
+            messageIndex === index ? { ...message, streaming: false } : message
+          );
+        }
+      } else {
+        logging.warn('🔍 No id found in streaming end:', data);
+      }
     }
-  }, (data) => {
-    if (data.id) {
-      const index = messages.findIndex((m) => m.id === data.id);
-      if (index !== -1) {
-        logging.debug('✏️ Updating message via streaming end:', data.id);
-        messages = messages.map((message, messageIndex) =>
-          messageIndex === index ? { ...message, streaming: false } : message,
-        );
-      } 
-    } else {
-      logging.warn('🔍 No id found in streaming end:', data);
-    }
-  });
+  );
 
   // Initialize the form with the structure the controller expects
   let messageForm = useForm({
@@ -119,15 +123,22 @@
   function sendMessage() {
     logging.debug('messageForm:', $messageForm);
     $messageForm.message.model_id = selectedModel;
-    if (!$messageForm.message.content.trim()) {
-      logging.debug('Empty message, returning');
+
+    if (!$messageForm.message.content.trim() && selectedFiles.length === 0) {
+      logging.debug('Empty message and no files, returning');
       return;
     }
 
-    $messageForm.post(accountChatMessagesPath(account.id, chat.id), {
+    const formData = new FormData();
+    formData.append('message[content]', $messageForm.message.content);
+    formData.append('message[model_id]', selectedModel);
+    selectedFiles.forEach((file) => formData.append('files[]', file));
+
+    router.post(accountChatMessagesPath(account.id, chat.id), formData, {
       onSuccess: () => {
         logging.debug('Message sent successfully');
         $messageForm.message.content = '';
+        selectedFiles = [];
       },
       onError: (errors) => {
         logging.error('Message send failed:', errors);
@@ -147,11 +158,12 @@
   }
 
   function shouldShowTimestamp(index) {
-    if (!Array.isArray(messages) ||
-          messages.length === 0 ||
-          messages[index] === undefined ||
-          Number.isNaN(new Date(messages[index].created_at))
-        ) {
+    if (
+      !Array.isArray(messages) ||
+      messages.length === 0 ||
+      messages[index] === undefined ||
+      Number.isNaN(new Date(messages[index].created_at))
+    ) {
       return false;
     }
 
@@ -197,7 +209,6 @@
 
     return formatTime(createdAt);
   }
-
 </script>
 
 <svelte:head>
@@ -216,9 +227,9 @@
         {chat?.title || 'New Chat'}
       </h1>
       <div class="mt-2">
-          <div class="text-sm text-muted-foreground">
-            {chat?.model_name || chat?.model_id || 'Auto'}
-          </div>
+        <div class="text-sm text-muted-foreground">
+          {chat?.model_name || chat?.model_id || 'Auto'}
+        </div>
       </div>
     </header>
 
@@ -248,6 +259,13 @@
                 <div class="max-w-[70%]">
                   <Card.Root class="bg-indigo-200">
                     <Card.Content class="p-4">
+                      {#if message.files_json && message.files_json.length > 0}
+                        <div class="space-y-2 mb-3">
+                          {#each message.files_json as file}
+                            <FileAttachment {file} />
+                          {/each}
+                        </div>
+                      {/if}
                       <Streamdown
                         content={message.content}
                         parseIncompleteMarkdown
@@ -259,14 +277,14 @@
                           tokenize: 'word',
                           duration: 300,
                           timingFunction: 'ease-out',
-                          animateOnMount: false
-                        }}
-                      />  
+                          animateOnMount: false,
+                        }} />
                     </Card.Content>
                   </Card.Root>
                   <div class="text-xs text-muted-foreground text-right mt-1">
                     <span class="group">
-                      <span class="hidden group-hover:inline-block">({formatDateTime(message.created_at, true)})</span> {formatTime(message.created_at)} 
+                      <span class="hidden group-hover:inline-block">({formatDateTime(message.created_at, true)})</span>
+                      {formatTime(message.created_at)}
                     </span>
                   </div>
                 </div>
@@ -293,18 +311,18 @@
                           animation={{
                             enabled: true,
                             type: 'fade',
-                            tokenize: 'word',          // <- key for typewriter feel
-                            duration: 300,             // tune to taste
+                            tokenize: 'word', // <- key for typewriter feel
+                            duration: 300, // tune to taste
                             timingFunction: 'ease-out',
-                            animateOnMount: true       // animate the first batch too
-                          }}
-                        />
+                            animateOnMount: true, // animate the first batch too
+                          }} />
                       {/if}
                     </Card.Content>
                   </Card.Root>
                   <div class="text-xs text-muted-foreground mt-1">
                     <span class="group">
-                      {formatTime(message.created_at)} <span class="hidden group-hover:inline-block">({formatDateTime(message.created_at, true)})</span>
+                      {formatTime(message.created_at)}
+                      <span class="hidden group-hover:inline-block">({formatDateTime(message.created_at, true)})</span>
                     </span>
                     {#if message.status === 'pending'}
                       <span class="ml-2 text-blue-600">●</span>
@@ -323,6 +341,12 @@
     <!-- Message input -->
     <div class="border-t border-border bg-muted/30 p-4">
       <div class="flex gap-3 items-end">
+        <FileUploadInput
+          bind:files={selectedFiles}
+          disabled={messageForm.processing}
+          allowedTypes={file_upload_config.acceptable_types || []}
+          maxSize={file_upload_config.max_size || 50 * 1024 * 1024} />
+
         <div class="flex-1">
           <textarea
             bind:value={$messageForm.message.content}
@@ -335,8 +359,8 @@
             rows="1"></textarea>
         </div>
         <Button
-          on:click={sendMessage}
-          disabled={!messageInput.trim() || messageForm.processing}
+          onclick={sendMessage}
+          disabled={(!$messageForm.message.content.trim() && selectedFiles.length === 0) || messageForm.processing}
           size="sm"
           class="h-10 w-10 p-0">
           <ArrowUp size={16} />

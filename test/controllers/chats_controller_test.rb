@@ -23,6 +23,11 @@ class ChatsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "should get new" do
+    get new_account_chat_path(@account)
+    assert_response :success
+  end
+
   test "should show chat" do
     get account_chat_path(@account, @chat)
     assert_response :success
@@ -114,6 +119,64 @@ class ChatsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to account_chat_path(@account, chat)
   end
 
+  test "should create chat with file attachments" do
+    file = fixture_file_upload("test_image.png", "image/png")
+
+    assert_difference "Chat.count" do
+      assert_difference "Message.count" do
+        assert_enqueued_with(job: AiResponseJob) do
+          post account_chats_path(@account), params: {
+            chat: { model_id: "gpt-4o" },
+            message: "Please analyze this image",
+            files: [ file ]
+          }
+        end
+      end
+    end
+
+    chat = Chat.last
+    message = chat.messages.last
+    assert_equal "Please analyze this image", message.content
+    assert_equal "user", message.role
+    assert_equal @user, message.user
+
+    # Verify file attachment
+    assert message.files.attached?
+    assert_equal 1, message.files.count
+    assert_equal "test_image.png", message.files.first.filename.to_s
+
+    assert_redirected_to account_chat_path(@account, chat)
+  end
+
+  test "should create chat with only files and no message content" do
+    file = fixture_file_upload("test_image.png", "image/png")
+
+    assert_difference "Chat.count" do
+      assert_difference "Message.count" do
+        assert_enqueued_with(job: AiResponseJob) do
+          post account_chats_path(@account), params: {
+            chat: { model_id: "gpt-4o" },
+            message: "", # Empty message content
+            files: [ file ]
+          }
+        end
+      end
+    end
+
+    chat = Chat.last
+    message = chat.messages.last
+    assert_equal "", message.content
+    assert_equal "user", message.role
+    assert_equal @user, message.user
+
+    # Verify file attachment works even without content
+    assert message.files.attached?
+    assert_equal 1, message.files.count
+    assert_equal "test_image.png", message.files.first.filename.to_s
+
+    assert_redirected_to account_chat_path(@account, chat)
+  end
+
   test "index should return correct Inertia props" do
     get account_chats_path(@account)
 
@@ -161,6 +224,27 @@ class ChatsControllerTest < ActionDispatch::IntegrationTest
     assert_includes chat_ids, old_chat.id
     # Latest scope should order by updated_at desc
     assert chats.first.updated_at >= chats.second.updated_at
+  end
+
+  test "should create chat with file uploads" do
+    # Create a test file
+    file = fixture_file_upload("test.txt", "text/plain")
+
+    assert_difference "Chat.count" do
+      assert_difference "Message.count" do
+        post account_chats_path(@account), params: {
+          chat: { model_id: "gpt-4o" },
+          message: "Hello with file",
+          files: [ file ]
+        }
+      end
+    end
+
+    chat = Chat.last
+    message = chat.messages.last
+    assert_equal "Hello with file", message.content
+    assert_equal 1, message.files.count
+    assert_redirected_to account_chat_path(@account, chat)
   end
 
 end

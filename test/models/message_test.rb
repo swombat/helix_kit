@@ -220,14 +220,14 @@ class MessageTest < ActiveSupport::TestCase
 
     json = message.as_json
 
-    assert_equal message.to_param, json[:id]
-    assert_equal "user", json[:role]
-    assert_includes json[:content_html], "<strong>markdown</strong>"
-    assert_equal "Test User", json[:user_name]
-    assert_nil json[:user_avatar_url]  # User avatar_url returns nil in test
-    assert json[:completed]
-    assert_nil json[:error]
-    assert json[:created_at_formatted].present?
+    assert_equal message.to_param, json["id"]
+    assert_equal "user", json["role"]
+    assert_includes json["content_html"], "<strong>markdown</strong>"
+    assert_equal "Test User", json["user_name"]
+    assert_nil json["user_avatar_url"]  # User avatar_url returns nil in test
+    assert json["completed"]
+    assert_nil json["error"]
+    assert json["created_at_formatted"].present?
   end
 
   test "as_json handles assistant message with error" do
@@ -238,13 +238,13 @@ class MessageTest < ActiveSupport::TestCase
 
     json = message.as_json
 
-    assert_equal "assistant", json[:role]
-    assert_nil json[:user_name]
-    assert_nil json[:user_avatar_url]
+    assert_equal "assistant", json["role"]
+    assert_nil json["user_name"]
+    assert_nil json["user_avatar_url"]
     # With content, assistant messages are complete
-    assert json[:completed]
+    assert json["completed"]
     # We don't track errors in database yet
-    assert_nil json[:error]
+    assert_nil json["error"]
   end
 
   test "stream_content updates content and sets streaming" do
@@ -309,6 +309,91 @@ class MessageTest < ActiveSupport::TestCase
 
     message.reload
     assert_not message.streaming?  # Should still not be streaming
+  end
+
+  test "files_json returns empty array when no files attached" do
+    message = @chat.messages.create!(
+      user: @user,
+      role: "user",
+      content: "Test message"
+    )
+
+    assert_equal [], message.files_json
+  end
+
+  test "file_paths_for_llm returns empty array when no files attached" do
+    message = @chat.messages.create!(
+      user: @user,
+      role: "user",
+      content: "Test message"
+    )
+
+    assert_equal [], message.file_paths_for_llm
+  end
+
+  test "validates file size limit" do
+    message = @chat.messages.build(
+      user: @user,
+      role: "user",
+      content: "Test with large file"
+    )
+
+    # Create a mock large blob
+    large_blob = ActiveStorage::Blob.new(
+      filename: "large.png",
+      content_type: "image/png",
+      byte_size: 51.megabytes
+    )
+
+    # Mock the files.attached? and files.each for validation
+    message.files.define_singleton_method(:attached?) { true }
+    message.files.define_singleton_method(:each) { |&block| block.call(large_blob) }
+
+    assert_not message.valid?
+    assert_includes message.errors.full_messages.join, "50MB"
+  end
+
+  test "validates file type" do
+    message = @chat.messages.build(
+      user: @user,
+      role: "user",
+      content: "Test with invalid file"
+    )
+
+    # Create a mock invalid file blob
+    invalid_blob = ActiveStorage::Blob.new(
+      filename: "malicious.exe",
+      content_type: "application/x-msdownload",
+      byte_size: 1024
+    )
+
+    # Mock the files.attached? and files.each for validation
+    message.files.define_singleton_method(:attached?) { true }
+    message.files.define_singleton_method(:each) { |&block| block.call(invalid_blob) }
+
+    assert_not message.valid?
+    assert_includes message.errors.full_messages.join, "file type not supported"
+  end
+
+  test "accepts valid file types" do
+    message = @chat.messages.build(
+      user: @user,
+      role: "user",
+      content: "Test with valid file"
+    )
+
+    valid_blob = ActiveStorage::Blob.new(
+      filename: "image.png",
+      content_type: "image/png",
+      byte_size: 1024
+    )
+
+    # Mock the files.attached? and files.each for validation
+    message.files.define_singleton_method(:attached?) { true }
+    message.files.define_singleton_method(:each) { |&block| block.call(valid_blob) }
+
+    # Should pass validation since the file is valid
+    assert message.valid?
   end
 
 end

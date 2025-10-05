@@ -47,15 +47,17 @@ class Chat < ApplicationRecord
   scope :latest, -> { order(updated_at: :desc) }
 
   # Create chat with optional initial message
-  def self.create_with_message!(attributes, message_content: nil, user: nil)
+  def self.create_with_message!(attributes, message_content: nil, user: nil, files: nil)
     transaction do
       chat = create!(attributes)
-      if message_content.present?
-        message = chat.messages.create!(
-          content: message_content,
+      if message_content.present? || (files.present? && files.any?)
+        message = chat.messages.create!({
+          content: message_content || "",
           role: "user",
-          user: user
-        )
+          user: user,
+          skip_content_validation: message_content.blank? && files.present? && files.any? # Skip content validation if we have files but no content
+        })
+        message.files.attach(files) if files.present? && files.any?
         AiResponseJob.perform_later(chat)
       end
       chat

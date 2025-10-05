@@ -13,14 +13,32 @@ class Message < ApplicationRecord
 
   has_many_attached :files
 
+  attr_accessor :skip_content_validation
+
   broadcasts_to :chat
 
+  ACCEPTABLE_FILE_TYPES = {
+    images: %w[image/png image/jpeg image/jpg image/gif image/webp image/bmp],
+    audio: %w[audio/mpeg audio/wav audio/m4a audio/ogg audio/flac],
+    video: %w[video/mp4 video/quicktime video/x-msvideo video/webm],
+    documents: %w[
+      application/pdf
+      application/msword
+      application/vnd.openxmlformats-officedocument.wordprocessingml.document
+      text/plain text/markdown text/csv
+    ]
+  }.freeze
+
+  MAX_FILE_SIZE = 50.megabytes
+
   validates :role, inclusion: { in: %w[user assistant system] }
-  validates :content, presence: true, unless: -> { role == "assistant" }
+  validates :content, presence: true, unless: -> { role == "assistant" || skip_content_validation }
+  validate :acceptable_files
 
   scope :sorted, -> { order(created_at: :asc) }
 
-  json_attributes :role, :content, :user_name, :user_avatar_url, :completed, :created_at_formatted, :created_at_hour, :streaming
+  json_attributes :role, :content, :user_name, :user_avatar_url, :completed,
+                  :created_at_formatted, :created_at_hour, :streaming, :files_json, :content_html
 
   def completed?
     # User messages are always completed
@@ -48,6 +66,41 @@ class Message < ApplicationRecord
 
   def content_html
     render_markdown
+  end
+
+  def files_json
+    return [] unless files.attached?
+
+    files.map do |file|
+      file_data = {
+        id: file.id,
+        filename: file.filename.to_s,
+        content_type: file.content_type,
+        byte_size: file.byte_size
+      }
+
+      # Generate URL safely, handling test environment
+      begin
+        file_data[:url] = Rails.application.routes.url_helpers.url_for(file)
+      rescue ArgumentError => e
+        # In test environment, URL generation might fail due to missing host
+        file_data[:url] = "/files/#{file.id}"
+      end
+
+      file_data
+    end
+  end
+
+  def file_paths_for_llm
+    return [] unless files.attached?
+
+    files.map do |file|
+      if ActiveStorage::Blob.service.respond_to?(:path_for)
+        ActiveStorage::Blob.service.path_for(file.key)
+      else
+        file.open { |f| f.path }
+      end
+    end
   end
 
   # Stream content updates for real-time AI response display
@@ -87,6 +140,24 @@ class Message < ApplicationRecord
 
   private
 
+  def acceptable_files
+    return unless files.attached?
+
+    files.each do |file|
+      unless acceptable_file_type?(file)
+        errors.add(:files, "#{file.filename}: file type not supported")
+      end
+
+      if file.byte_size > MAX_FILE_SIZE
+        errors.add(:files, "#{file.filename}: must be less than #{MAX_FILE_SIZE / 1.megabyte}MB")
+      end
+    end
+  end
+
+  def acceptable_file_type?(file)
+    ACCEPTABLE_FILE_TYPES.values.flatten.include?(file.content_type)
+  end
+
   def render_markdown
     renderer = Redcarpet::Markdown.new(
       Redcarpet::Render::HTML.new(
@@ -100,6 +171,36 @@ class Message < ApplicationRecord
       strikethrough: true
     )
     renderer.render(content || "").html_safe
+  end
+
+  # Override RubyLLM's extract_content method to work with our 'files' attachment
+  # instead of the expected 'attachments'
+  def extract_content
+    return content unless files.attached?
+
+    RubyLLM::Content.new(content).tap do |content_obj|
+      @_tempfiles = []
+
+      files.each do |file|
+        tempfile = download_file_attachment(file)
+        content_obj.add_attachment(tempfile, filename: file.filename.to_s)
+      end
+    end
+  end
+
+  private
+
+  def download_file_attachment(file)
+    ext = File.extname(file.filename.to_s)
+    basename = File.basename(file.filename.to_s, ext)
+    tempfile = Tempfile.new([ basename, ext ])
+    tempfile.binmode
+
+    file.download { |chunk| tempfile.write(chunk) }
+    tempfile.flush
+    tempfile.rewind
+    @_tempfiles << tempfile
+    tempfile
   end
 
 end

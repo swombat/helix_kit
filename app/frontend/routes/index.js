@@ -636,6 +636,14 @@ export const checkEmailPath = /*#__PURE__*/ __jsr.r({"format":{}}, [2,[7,"/"],[2
 
 /**
  * Generates rails route to
+ * /.well-known/appspecific/com.chrome.devtools.json(.:format)
+ * @param {object | undefined} options
+ * @returns {string} route path
+ */
+export const chromeDevtoolsJsonPath = /*#__PURE__*/ __jsr.r({"format":{}}, [2,[7,"/"],[2,[8,"."],[2,[6,"well-known"],[2,[7,"/"],[2,[6,"appspecific"],[2,[7,"/"],[2,[6,"com"],[2,[8,"."],[2,[6,"chrome"],[2,[8,"."],[2,[6,"devtools"],[2,[8,"."],[2,[6,"json"],[1,[2,[8,"."],[3,"format"]]]]]]]]]]]]]]]]);
+
+/**
+ * Generates rails route to
  * /create_flash(.:format)
  * @param {object | undefined} options
  * @returns {string} route path
