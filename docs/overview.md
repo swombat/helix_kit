@@ -20,7 +20,9 @@ This directory contains detailed documentation for the Helix Kit Rails applicati
 ### Feature Documentation
 
 - **[Authentication](./authentication.md)** - User authentication system details
-- **[Chat with RubyLLM](./chat_with_rubyllm.md)** - AI chat functionality API usage guide and frontend integration
+- **[RubyLLM Documentation](./ruby-llm/ruby-llm-overview.md)** - Comprehensive RubyLLM AI framework documentation
+  - [Agentic Workflows](./ruby-llm/agentic-workflows.md) - Building advanced AI agent systems
+  - [Model Registry](./ruby-llm/model-registry.md) - Model discovery and management across 500+ AI models
 - **[Frontend](./frontend.md)** - Svelte, Inertia.js, and component organization
 - **[Database](./database.md)** - PostgreSQL setup and Solid adapters configuration
 - **[Icons](./icons.md)** - Comprehensive Phosphor Icons reference with 1500+ searchable icons
@@ -30,10 +32,21 @@ This directory contains detailed documentation for the Helix Kit Rails applicati
 
 ### Tech Stack Documentation
 
-Important: those are summarise of the documentation with reference to a URL. When details of a specific feature are needed, use the fetcher sub-agent to fetch the entire documentation, 
+Important: those are summarise of the documentation with reference to a URL. When details of a specific feature are needed, use the fetcher sub-agent to fetch the entire documentation,
 
 - **[Inertia Rails](./stack/inertia-rails.md)** - Summary of Inertia.js Rails adapter capabilities and features
 - **[Svelte 5](./stack/svelte-5.md)** - Summary of Svelte 5 capabilities and features
+- **[Pay Gem](./stack/pay-overview.md)** - Payment processing with Stripe, Paddle, and other processors
+  - [Installation](./stack/pay/installation.md) - Setup and configuration
+  - [Configuration](./stack/pay/configuration.md) - Credentials and settings
+  - [Customers](./stack/pay/customers.md) - Customer management
+  - [Payment Methods](./stack/pay/payment-methods.md) - Payment method handling
+  - [Charges](./stack/pay/charges.md) - One-time payments
+  - [Subscriptions](./stack/pay/subscriptions.md) - Recurring billing
+  - [Webhooks](./stack/pay/webhooks.md) - Event handling
+  - [Testing](./stack/pay/testing.md) - Testing with fake processor
+  - [Stripe Integration](./stack/pay/stripe.md) - Stripe-specific features
+  - [Paddle Billing](./stack/pay/paddle-billing.md) - Paddle Billing integration
 
 ## Project Overview
 
