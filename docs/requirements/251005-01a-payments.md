@@ -30,4 +30,24 @@ Ideally, this can be done in the admin panel rather than requiring code changes.
 
 This means that e.g. the chat functionality controller will need to be able to import something like a concern that gates the methods so they refuse to do more AI processing if the account is out of tokens.
 
-I want this done in an elegant, rails-like way. Don't over-engineer it, but do support the above use cases, as they are required to be able to discover a viable business model when developing a new AI app.
+I want this done in an elegant, rails-like way. Don't over-engineering it, but do support the above use cases, as they are required to be able to discover a viable business model when developing a new AI app.
+
+## Clarifications
+
+1. **Token tracking granularity**: Use RubyLLM's documented methods for token tracking.
+
+2. **Account limits enforcement**: Complete any requests currently in progress. Refuse new chat requests (messages or new chats) with an error that token limits have been reached. No warnings for now. Token limits are account-based, so multiple users on a team account share the same limit.
+
+3. **Plan switching behavior**: Users continue on their existing plan. When upgrading, they only see active plans. Admin defines plans with three statuses:
+   - **Active**: Can be selected for new subscriptions or upgrades
+   - **Legacy**: Continue to function for existing accounts but can't be selected for new subscriptions
+   - **Inactive**: Accounts on inactive plans are not allowed any token usage
+
+4. **Initial implementation scope**: Start without admin UI (build later). Use database table with appropriate columns, not config files.
+
+5. **Pay-as-you-go auto-recharge**: Per-account setting. User chooses:
+   - Manual recharge vs auto-recharge
+   - How much to add when auto-recharge triggers
+   - Maximum auto-recharge limit
+
+6. **Model-specific pricing**: All models available at all tiers but consume tokens at different rates based on their actual costs.
