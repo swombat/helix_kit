@@ -94,7 +94,7 @@
 
     <!-- Message input -->
     <div class="border-t border-border bg-muted/30 p-4">
-      <div class="flex gap-3 items-end">
+      <div class="flex gap-3 items-start">
         <FileUploadInput
           bind:files={selectedFiles}
           disabled={$createForm.processing}

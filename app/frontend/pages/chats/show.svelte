@@ -6,7 +6,7 @@
   import { onMount } from 'svelte';
   import { createConsumer } from '@rails/actioncable';
   import { Button } from '$lib/components/shadcn/button/index.js';
-  import { ArrowUp, ArrowClockwise } from 'phosphor-svelte';
+  import { ArrowUp, ArrowClockwise, Spinner } from 'phosphor-svelte';
   import * as Card from '$lib/components/shadcn/card/index.js';
   import * as Select from '$lib/components/shadcn/select/index.js';
   import ChatList from './ChatList.svelte';
@@ -302,6 +302,11 @@
                         </Button>
                       {:else if message.status === 'pending'}
                         <div class="text-muted-foreground text-sm">Thinking...</div>
+                      {:else if message.streaming && (!message.content || message.content.trim() === '')}
+                        <div class="flex items-center gap-2 text-muted-foreground">
+                          <Spinner size={16} class="animate-spin" />
+                          <span class="text-sm">Generating response...</span>
+                        </div>
                       {:else}
                         <Streamdown
                           content={message.content}
@@ -340,7 +345,7 @@
 
     <!-- Message input -->
     <div class="border-t border-border bg-muted/30 p-4">
-      <div class="flex gap-3 items-end">
+      <div class="flex gap-3 items-start">
         <FileUploadInput
           bind:files={selectedFiles}
           disabled={messageForm.processing}
