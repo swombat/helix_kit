@@ -1,7 +1,7 @@
 <script>
   import { useForm } from '@inertiajs/svelte';
   import { Button } from '$lib/components/shadcn/button/index.js';
-  import { ArrowUp } from 'phosphor-svelte';
+  import { ArrowUp, Globe } from 'phosphor-svelte';
   import * as Select from '$lib/components/shadcn/select/index.js';
   import ChatList from './ChatList.svelte';
   import FileUploadInput from '$lib/components/chat/FileUploadInput.svelte';
@@ -11,10 +11,12 @@
 
   let selectedModel = $state(models?.[0]?.model_id ?? '');
   let selectedFiles = $state([]);
+  let canFetchUrls = $state(false);
 
   let createForm = useForm({
     chat: {
       model_id: selectedModel,
+      can_fetch_urls: canFetchUrls,
     },
     message: '',
   });
@@ -30,10 +32,12 @@
     if (!$createForm.message.trim() && selectedFiles.length === 0) return;
 
     $createForm.chat.model_id = selectedModel;
+    $createForm.chat.can_fetch_urls = canFetchUrls;
 
     // Use FormData to include files
     const formData = new FormData();
     formData.append('chat[model_id]', selectedModel);
+    formData.append('chat[can_fetch_urls]', canFetchUrls.toString());
     formData.append('message', $createForm.message);
 
     // Append each file
@@ -83,6 +87,18 @@
         {/if}
       </div>
     </header>
+
+    <!-- Settings bar with web access toggle -->
+    <div class="border-b border-border px-6 py-2 bg-muted/10">
+      <label class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity w-fit">
+        <input
+          type="checkbox"
+          bind:checked={canFetchUrls}
+          class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary focus:ring-offset-0 focus:ring-2 transition-colors cursor-pointer" />
+        <Globe size={16} class="text-muted-foreground" weight="duotone" />
+        <span class="text-sm text-muted-foreground">Allow web access</span>
+      </label>
+    </div>
 
     <!-- Empty state -->
     <div class="flex-1 flex items-center justify-center px-6 py-4">

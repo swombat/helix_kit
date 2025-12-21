@@ -55,6 +55,16 @@ class ChatsController < ApplicationController
     redirect_to account_chat_path(current_account, @chat)
   end
 
+  def update
+    @chat = current_account.chats.find(params[:id])
+
+    if @chat.update(chat_params)
+      head :ok
+    else
+      render json: { errors: @chat.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
   def destroy
     audit("destroy_chat", @chat)
     @chat.destroy!
@@ -69,7 +79,7 @@ class ChatsController < ApplicationController
 
   def chat_params
     params.fetch(:chat, {})
-      .permit(:model_id)
+      .permit(:model_id, :can_fetch_urls)
   end
 
   def available_models

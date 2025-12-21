@@ -9,7 +9,7 @@ class Chat < ApplicationRecord
 
   belongs_to :account
 
-  json_attributes :title, :model_id, :model_name, :updated_at_formatted, :message_count
+  json_attributes :title, :model_id, :model_name, :updated_at_formatted, :message_count, :can_fetch_urls
 
   broadcasts_to :account
 
@@ -83,6 +83,12 @@ class Chat < ApplicationRecord
 
   def message_count
     messages.count
+  end
+
+  # Configure tools for RubyLLM based on settings
+  def available_tools
+    return [] unless can_fetch_urls?
+    [ WebFetchTool ]
   end
 
 end

@@ -396,4 +396,66 @@ class MessageTest < ActiveSupport::TestCase
     assert message.valid?
   end
 
+  test "tools_used defaults to empty array" do
+    message = @chat.messages.create!(
+      user: @user,
+      role: "user",
+      content: "Test message"
+    )
+
+    assert_equal [], message.tools_used
+  end
+
+  test "tools_used can store tool names" do
+    message = @chat.messages.create!(
+      role: "assistant",
+      content: "AI response",
+      tools_used: [ "Web fetch", "Calculator" ]
+    )
+
+    assert_equal [ "Web fetch", "Calculator" ], message.tools_used
+  end
+
+  test "used_tools? returns false when no tools used" do
+    message = @chat.messages.create!(
+      user: @user,
+      role: "user",
+      content: "Test message"
+    )
+
+    assert_not message.used_tools?
+  end
+
+  test "used_tools? returns false when tools_used is empty" do
+    message = @chat.messages.create!(
+      role: "assistant",
+      content: "AI response",
+      tools_used: []
+    )
+
+    assert_not message.used_tools?
+  end
+
+  test "used_tools? returns true when tools were used" do
+    message = @chat.messages.create!(
+      role: "assistant",
+      content: "AI response",
+      tools_used: [ "Web fetch" ]
+    )
+
+    assert message.used_tools?
+  end
+
+  test "as_json includes tools_used" do
+    message = @chat.messages.create!(
+      role: "assistant",
+      content: "AI response",
+      tools_used: [ "Web fetch", "Calculator" ]
+    )
+
+    json = message.as_json
+
+    assert_equal [ "Web fetch", "Calculator" ], json["tools_used"]
+  end
+
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_05_070822) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_05_135648) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -79,8 +79,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_05_070822) do
     t.string "model_id", default: "openrouter/auto", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "can_fetch_urls", default: false, null: false
     t.index ["account_id", "created_at"], name: "index_chats_on_account_id_and_created_at"
     t.index ["account_id"], name: "index_chats_on_account_id"
+    t.index ["can_fetch_urls"], name: "index_chats_on_can_fetch_urls"
   end
 
   create_table "memberships", force: :cascade do |t|
@@ -116,10 +118,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_05_070822) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "streaming", default: false, null: false
+    t.text "tools_used", default: [], array: true
     t.index ["chat_id", "created_at"], name: "index_messages_on_chat_id_and_created_at"
     t.index ["chat_id"], name: "index_messages_on_chat_id"
     t.index ["streaming"], name: "index_messages_on_streaming"
     t.index ["tool_call_id"], name: "index_messages_on_tool_call_id"
+    t.index ["tools_used"], name: "index_messages_on_tools_used", using: :gin
     t.index ["user_id"], name: "index_messages_on_user_id"
   end
 

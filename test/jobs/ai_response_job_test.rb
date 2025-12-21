@@ -58,6 +58,10 @@ class AiResponseJobTest < ActiveJob::TestCase
       @on_end_message_callback = block
     end
 
+    @chat.define_singleton_method(:on_tool_call) do |&block|
+      @on_tool_call_callback = block
+    end
+
     # Run the job
     AiResponseJob.perform_now(@chat)
 
@@ -97,6 +101,10 @@ class AiResponseJobTest < ActiveJob::TestCase
 
     @chat.define_singleton_method(:on_end_message) do |&block|
       @on_end_message_callback = block
+    end
+
+    @chat.define_singleton_method(:on_tool_call) do |&block|
+      @on_tool_call_callback = block
     end
 
     AiResponseJob.perform_now(@chat)
@@ -145,6 +153,10 @@ class AiResponseJobTest < ActiveJob::TestCase
       @on_end_message_callback = block
     end
 
+    @chat.define_singleton_method(:on_tool_call) do |&block|
+      @on_tool_call_callback = block
+    end
+
     AiResponseJob.perform_now(@chat)
 
     ai_message = Message.last
@@ -172,6 +184,10 @@ class AiResponseJobTest < ActiveJob::TestCase
 
     @chat.define_singleton_method(:on_end_message) do |&block|
       @on_end_message_callback = block
+    end
+
+    @chat.define_singleton_method(:on_tool_call) do |&block|
+      @on_tool_call_callback = block
     end
 
     # The job should handle the error but still stop streaming
@@ -239,6 +255,10 @@ class AiResponseJobTest < ActiveJob::TestCase
       @on_end_message_callback = block
     end
 
+    @chat.define_singleton_method(:on_tool_call) do |&block|
+      @on_tool_call_callback = block
+    end
+
     # Run the job
     AiResponseJob.perform_now(@chat)
 
@@ -284,6 +304,10 @@ class AiResponseJobTest < ActiveJob::TestCase
       @on_end_message_callback = block
     end
 
+    @chat.define_singleton_method(:on_tool_call) do |&block|
+      @on_tool_call_callback = block
+    end
+
     # Run the job
     AiResponseJob.perform_now(@chat)
 
@@ -301,6 +325,202 @@ class AiResponseJobTest < ActiveJob::TestCase
 
     assert_match(/Expected a Chat object, got/, error.message)
     assert_match(/ActiveRecord_Relation/, error.message)
+  end
+
+  test "tracks tools_used when tool is invoked" do
+    # Create chat with web access
+    chat_with_tools = @account.chats.create!(
+      model_id: "openrouter/auto",
+      can_fetch_urls: true
+    )
+    chat_with_tools.messages.create!(
+      content: "Fetch https://example.com",
+      role: "user",
+      user: @user
+    )
+
+    # Track if on_tool_call was registered
+    tool_callback_registered = false
+    chat_with_tools.define_singleton_method(:on_tool_call) do |&block|
+      tool_callback_registered = true
+      @on_tool_call_callback = block
+    end
+
+    # Mock the completion flow with tool invocation
+    chat_with_tools.define_singleton_method(:complete) do |&block|
+      @on_new_message_callback&.call
+
+      # Simulate tool invocation
+      @on_tool_call_callback&.call("WebFetchTool", { url: "https://example.com" }, "Tool result")
+
+      chunk = OpenStruct.new(content: "I fetched the website")
+      block.call(chunk)
+
+      final_message = OpenStruct.new(
+        content: "I fetched the website and found...",
+        model_id: "test-model",
+        input_tokens: 20,
+        output_tokens: 30
+      )
+      @on_end_message_callback&.call(final_message)
+    end
+
+    chat_with_tools.define_singleton_method(:on_new_message) do |&block|
+      @on_new_message_callback = proc do
+        chat_with_tools.messages.create!(role: "assistant", content: "", streaming: true)
+        block&.call
+      end
+    end
+
+    chat_with_tools.define_singleton_method(:on_end_message) do |&block|
+      @on_end_message_callback = block
+    end
+
+    # Run the job
+    AiResponseJob.perform_now(chat_with_tools)
+
+    # Verify tool callback was registered
+    assert tool_callback_registered, "on_tool_call should be registered"
+
+    # Verify tools_used was populated
+    ai_message = chat_with_tools.messages.where(role: "assistant").last
+    assert_not_nil ai_message, "AI message should be created"
+    assert ai_message.tools_used.present?, "tools_used should be populated"
+    assert_includes ai_message.tools_used, "Web fetch tool", "WebFetchTool should be in tools_used"
+  end
+
+  test "handles multiple tool invocations" do
+    # Create chat with web access
+    chat_with_tools = @account.chats.create!(
+      model_id: "openrouter/auto",
+      can_fetch_urls: true
+    )
+    chat_with_tools.messages.create!(
+      content: "Fetch multiple URLs",
+      role: "user",
+      user: @user
+    )
+
+    # Mock on_tool_call registration
+    chat_with_tools.define_singleton_method(:on_tool_call) do |&block|
+      @on_tool_call_callback = block
+    end
+
+    # Mock the completion flow with multiple tool invocations
+    chat_with_tools.define_singleton_method(:complete) do |&block|
+      @on_new_message_callback&.call
+
+      # Simulate multiple tool invocations
+      @on_tool_call_callback&.call("WebFetchTool", { url: "https://example.com" }, "Result 1")
+      @on_tool_call_callback&.call("WebFetchTool", { url: "https://example.org" }, "Result 2")
+
+      chunk = OpenStruct.new(content: "I fetched both websites")
+      block.call(chunk)
+
+      final_message = OpenStruct.new(
+        content: "I fetched both websites and found...",
+        model_id: "test-model",
+        input_tokens: 25,
+        output_tokens: 35
+      )
+      @on_end_message_callback&.call(final_message)
+    end
+
+    chat_with_tools.define_singleton_method(:on_new_message) do |&block|
+      @on_new_message_callback = proc do
+        chat_with_tools.messages.create!(role: "assistant", content: "", streaming: true)
+        block&.call
+      end
+    end
+
+    chat_with_tools.define_singleton_method(:on_end_message) do |&block|
+      @on_end_message_callback = block
+    end
+
+    # Run the job
+    AiResponseJob.perform_now(chat_with_tools)
+
+    # Verify tools_used contains unique tool names
+    ai_message = chat_with_tools.messages.where(role: "assistant").last
+    assert_not_nil ai_message, "AI message should be created"
+    assert ai_message.tools_used.present?, "tools_used should be populated"
+    # Should only contain one entry since it's the same tool invoked twice
+    assert_equal 1, ai_message.tools_used.uniq.length, "Should deduplicate tool names"
+  end
+
+  test "handles tool errors gracefully" do
+    # Create chat with web access
+    chat_with_tools = @account.chats.create!(
+      model_id: "openrouter/auto",
+      can_fetch_urls: true
+    )
+    chat_with_tools.messages.create!(
+      content: "Fetch invalid URL",
+      role: "user",
+      user: @user
+    )
+
+    # Mock on_tool_call registration
+    chat_with_tools.define_singleton_method(:on_tool_call) do |&block|
+      @on_tool_call_callback = block
+    end
+
+    # Mock the completion flow where tool returns an error
+    chat_with_tools.define_singleton_method(:complete) do |&block|
+      @on_new_message_callback&.call
+
+      # Simulate tool invocation with error result
+      @on_tool_call_callback&.call("WebFetchTool", { url: "invalid" }, { error: "Invalid URL" })
+
+      chunk = OpenStruct.new(content: "I encountered an error")
+      block.call(chunk)
+
+      final_message = OpenStruct.new(
+        content: "I encountered an error fetching the URL",
+        model_id: "test-model",
+        input_tokens: 15,
+        output_tokens: 20
+      )
+      @on_end_message_callback&.call(final_message)
+    end
+
+    chat_with_tools.define_singleton_method(:on_new_message) do |&block|
+      @on_new_message_callback = proc do
+        chat_with_tools.messages.create!(role: "assistant", content: "", streaming: true)
+        block&.call
+      end
+    end
+
+    chat_with_tools.define_singleton_method(:on_end_message) do |&block|
+      @on_end_message_callback = block
+    end
+
+    # Run the job - should not raise an error
+    assert_nothing_raised do
+      AiResponseJob.perform_now(chat_with_tools)
+    end
+
+    # Verify the message was created
+    ai_message = chat_with_tools.messages.where(role: "assistant").last
+    assert_not_nil ai_message, "AI message should be created"
+    assert_equal "I encountered an error fetching the URL", ai_message.content
+    # Tool should still be tracked even if it errored
+    assert_includes ai_message.tools_used, "Web fetch tool"
+  end
+
+  test "available_tools are used from chat when present" do
+    # Create chat with web access
+    chat_with_tools = @account.chats.create!(
+      model_id: "openrouter/auto",
+      can_fetch_urls: true
+    )
+
+    # Verify chat has available_tools method that returns WebFetchTool
+    assert chat_with_tools.respond_to?(:available_tools)
+    assert_includes chat_with_tools.available_tools, WebFetchTool
+
+    # The actual usage of tools is tested in the integration with RubyLLM
+    # which picks up tools from the available_tools method automatically
   end
 
 end

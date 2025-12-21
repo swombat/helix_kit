@@ -12,11 +12,21 @@ class AiResponseJob < ApplicationJob
     @ai_message = nil
     @stream_buffer = +""
     @last_stream_flush_at = nil
+    @tools_used = []
+
+    # Configure tools from chat settings
+    chat.available_tools.each { |tool| chat = chat.with_tool(tool) }
 
     chat.on_new_message do
       @ai_message = chat.messages.order(:created_at).last
       # Set streaming to true so "Generating response..." shows
       @ai_message.update!(streaming: true) if @ai_message
+    end
+
+    # Track tool invocations
+    chat.on_tool_call do |tool_name, params, result|
+      @tools_used << tool_name.to_s.underscore.humanize
+      Rails.logger.info "Tool invoked: #{tool_name} with params: #{params}"
     end
 
     chat.on_end_message do |ruby_llm_message|
@@ -52,6 +62,7 @@ class AiResponseJob < ApplicationJob
       model_id: ruby_llm_message.model_id,
       input_tokens: ruby_llm_message.input_tokens,
       output_tokens: ruby_llm_message.output_tokens,
+      tools_used: @tools_used.uniq,
       streaming: false
     })
   end

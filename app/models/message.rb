@@ -31,14 +31,14 @@ class Message < ApplicationRecord
 
   MAX_FILE_SIZE = 50.megabytes
 
-  validates :role, inclusion: { in: %w[user assistant system] }
-  validates :content, presence: true, unless: -> { role == "assistant" || skip_content_validation }
+  validates :role, inclusion: { in: %w[user assistant system tool] }
+  validates :content, presence: true, unless: -> { role.in?(%w[assistant tool]) || skip_content_validation }
   validate :acceptable_files
 
   scope :sorted, -> { order(created_at: :asc) }
 
   json_attributes :role, :content, :user_name, :user_avatar_url, :completed,
-                  :created_at_formatted, :created_at_hour, :streaming, :files_json, :content_html
+                  :created_at_formatted, :created_at_hour, :streaming, :files_json, :content_html, :tools_used
 
   def completed?
     # User messages are always completed
@@ -136,6 +136,11 @@ class Message < ApplicationRecord
         id: to_param
       }
     )
+  end
+
+  # Simple helper for checking tool usage
+  def used_tools?
+    tools_used.present? && tools_used.any?
   end
 
   private

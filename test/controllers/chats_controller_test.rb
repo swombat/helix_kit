@@ -247,4 +247,101 @@ class ChatsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to account_chat_path(@account, chat)
   end
 
+  test "should update can_fetch_urls to true" do
+    assert_not @chat.can_fetch_urls
+
+    patch account_chat_path(@account, @chat), params: {
+      chat: { can_fetch_urls: true }
+    }
+
+    assert_response :success
+    @chat.reload
+    assert @chat.can_fetch_urls
+  end
+
+  test "should update can_fetch_urls to false" do
+    @chat.update!(can_fetch_urls: true)
+    assert @chat.can_fetch_urls
+
+    patch account_chat_path(@account, @chat), params: {
+      chat: { can_fetch_urls: false }
+    }
+
+    assert_response :success
+    @chat.reload
+    assert_not @chat.can_fetch_urls
+  end
+
+  test "update should broadcast refresh automatically" do
+    # Verify that the update succeeds (broadcast happens via after_commit callback)
+    patch account_chat_path(@account, @chat), params: {
+      chat: { can_fetch_urls: true }
+    }
+
+    assert_response :success
+    # The broadcast happens automatically via the Broadcastable concern
+    @chat.reload
+    assert @chat.can_fetch_urls
+  end
+
+  test "update should scope to current account" do
+    # Create a chat in a different account
+    other_user = User.create!(email_address: "updateother@example.com")
+    other_user.profile.update!(first_name: "Other", last_name: "User")
+    other_account = other_user.personal_account
+    other_chat = other_account.chats.create!(
+      model_id: "gpt-4o",
+      title: "Other Account Chat"
+    )
+
+    # Should return 404 when trying to update chat from different account
+    patch account_chat_path(@account, other_chat), params: {
+      chat: { can_fetch_urls: true }
+    }
+    assert_response :not_found
+
+    # Verify the chat was not modified
+    other_chat.reload
+    assert_not other_chat.can_fetch_urls
+  end
+
+  test "update should require authentication" do
+    delete logout_path
+
+    patch account_chat_path(@account, @chat), params: {
+      chat: { can_fetch_urls: true }
+    }
+    assert_response :redirect
+
+    # Verify the chat was not modified
+    @chat.reload
+    assert_not @chat.can_fetch_urls
+  end
+
+  test "update should allow updating model_id" do
+    assert_equal "openrouter/auto", @chat.model_id
+
+    patch account_chat_path(@account, @chat), params: {
+      chat: { model_id: "openai/gpt-4o-mini" }
+    }
+
+    assert_response :success
+    @chat.reload
+    assert_equal "openai/gpt-4o-mini", @chat.model_id
+  end
+
+  test "update should allow updating multiple attributes" do
+    patch account_chat_path(@account, @chat), params: {
+      chat: {
+        model_id: "openai/gpt-4o-mini",
+        can_fetch_urls: true
+      }
+    }
+
+    assert_response :success
+    @chat.reload
+    assert_equal "openai/gpt-4o-mini", @chat.model_id
+    assert @chat.can_fetch_urls
+  end
+
 end

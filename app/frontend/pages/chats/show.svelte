@@ -6,7 +6,8 @@
   import { onMount, onDestroy } from 'svelte';
   import { createConsumer } from '@rails/actioncable';
   import { Button } from '$lib/components/shadcn/button/index.js';
-  import { ArrowUp, ArrowClockwise, Spinner } from 'phosphor-svelte';
+  import { Badge } from '$lib/components/shadcn/badge/index.js';
+  import { ArrowUp, ArrowClockwise, Spinner, Globe } from 'phosphor-svelte';
   import * as Card from '$lib/components/shadcn/card/index.js';
   import * as Select from '$lib/components/shadcn/select/index.js';
   import ChatList from './ChatList.svelte';
@@ -253,6 +254,27 @@
     }
   }
 
+  function toggleWebAccess() {
+    if (!chat) return;
+
+    router.patch(
+      `/accounts/${account.id}/chats/${chat.id}`,
+      {
+        chat: { can_fetch_urls: !chat.can_fetch_urls },
+      },
+      {
+        preserveScroll: true,
+        preserveState: true,
+        onSuccess: () => {
+          logging.debug('Web access toggled successfully');
+        },
+        onError: (errors) => {
+          logging.error('Failed to toggle web access:', errors);
+        },
+      }
+    );
+  }
+
   function handleKeydown(event) {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
@@ -335,6 +357,21 @@
         </div>
       </div>
     </header>
+
+    <!-- Settings bar with web access toggle -->
+    {#if chat}
+      <div class="border-b border-border px-6 py-2 bg-muted/10">
+        <label class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity w-fit">
+          <input
+            type="checkbox"
+            checked={chat.can_fetch_urls}
+            onchange={toggleWebAccess}
+            class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary focus:ring-offset-0 focus:ring-2 transition-colors cursor-pointer" />
+          <Globe size={16} class="text-muted-foreground" weight="duotone" />
+          <span class="text-sm text-muted-foreground">Allow web access</span>
+        </label>
+      </div>
+    {/if}
 
     <!-- Messages container -->
     <div bind:this={messagesContainer} class="flex-1 overflow-y-auto px-6 py-4 space-y-4">
@@ -429,6 +466,19 @@
                             timingFunction: 'ease-out',
                             animateOnMount: true, // animate the first batch too
                           }} />
+                      {/if}
+
+                      {#if message.tools_used && message.tools_used.length > 0}
+                        <div class="flex items-center gap-2 mt-3 pt-3 border-t border-border/50">
+                          <Globe size={14} class="text-muted-foreground" weight="duotone" />
+                          <div class="flex flex-wrap gap-1">
+                            {#each message.tools_used as tool}
+                              <Badge variant="secondary" class="text-xs">
+                                {tool}
+                              </Badge>
+                            {/each}
+                          </div>
+                        </div>
                       {/if}
                     </Card.Content>
                   </Card.Root>
