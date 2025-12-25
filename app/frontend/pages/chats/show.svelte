@@ -54,6 +54,40 @@
   let messageSentAt = $state(null);
   let currentTime = $state(Date.now());
   let timeoutCheckInterval;
+  let showToolCalls = $state(false);
+
+  // Check if current user is a site admin
+  const isSiteAdmin = $derived($page.props.user?.site_admin ?? false);
+
+  // Filter out tool messages and empty assistant messages unless showToolCalls is enabled
+  const visibleMessages = $derived(
+    showToolCalls
+      ? messages
+      : messages.filter((m) => {
+          // Hide tool messages
+          if (m.role === 'tool') return false;
+          // Hide empty assistant messages (these appear before tool calls)
+          if (m.role === 'assistant' && (!m.content || m.content.trim() === '') && !m.streaming) return false;
+          return true;
+        })
+  );
+
+  // Check if the last actual message is hidden (tool call or empty assistant) - model is still thinking
+  const lastMessageIsHiddenThinking = $derived(() => {
+    if (!messages || messages.length === 0) return false;
+    const lastMessage = messages[messages.length - 1];
+    if (!lastMessage) return false;
+    // Tool message means model is processing tool results
+    if (lastMessage.role === 'tool') return true;
+    // Empty assistant message (not streaming) means waiting for tool call
+    if (
+      lastMessage.role === 'assistant' &&
+      (!lastMessage.content || lastMessage.content.trim() === '') &&
+      !lastMessage.streaming
+    )
+      return true;
+    return false;
+  });
 
   // Check if the last message is a user message without a response
   const lastMessageIsUserWithoutResponse = $derived(() => {
@@ -305,20 +339,20 @@
 
   function shouldShowTimestamp(index) {
     if (
-      !Array.isArray(messages) ||
-      messages.length === 0 ||
-      messages[index] === undefined ||
-      Number.isNaN(new Date(messages[index].created_at))
+      !Array.isArray(visibleMessages) ||
+      visibleMessages.length === 0 ||
+      visibleMessages[index] === undefined ||
+      Number.isNaN(new Date(visibleMessages[index].created_at))
     ) {
       return false;
     }
 
-    const message = messages[index];
+    const message = visibleMessages[index];
     const currentCreatedAt = new Date(message.created_at);
 
     if (index === 0) return true;
 
-    const previousMessage = messages[index - 1];
+    const previousMessage = visibleMessages[index - 1];
     if (!previousMessage) return true;
 
     const previousCreatedAt = new Date(previousMessage.created_at);
@@ -334,7 +368,7 @@
   }
 
   function timestampLabel(index) {
-    const message = messages[index];
+    const message = visibleMessages[index];
     if (!message) return '';
 
     const createdAt = new Date(message.created_at);
@@ -342,7 +376,7 @@
 
     if (index === 0) return formatDate(createdAt);
 
-    const previousMessage = messages[index - 1];
+    const previousMessage = visibleMessages[index - 1];
     const previousCreatedAt = previousMessage ? new Date(previousMessage.created_at) : null;
 
     if (!previousCreatedAt || Number.isNaN(previousCreatedAt)) {
@@ -381,7 +415,7 @@
 
     <!-- Settings bar with web access toggle -->
     {#if chat}
-      <div class="border-b border-border px-6 py-2 bg-muted/10">
+      <div class="border-b border-border px-6 py-2 bg-muted/10 flex items-center gap-6">
         <label class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity w-fit">
           <input
             type="checkbox"
@@ -391,19 +425,29 @@
           <Globe size={16} class="text-muted-foreground" weight="duotone" />
           <span class="text-sm text-muted-foreground">Allow web access</span>
         </label>
+
+        {#if isSiteAdmin}
+          <label class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity w-fit">
+            <input
+              type="checkbox"
+              bind:checked={showToolCalls}
+              class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary focus:ring-offset-0 focus:ring-2 transition-colors cursor-pointer" />
+            <span class="text-sm text-muted-foreground">Show tool calls</span>
+          </label>
+        {/if}
       </div>
     {/if}
 
     <!-- Messages container -->
     <div bind:this={messagesContainer} class="flex-1 overflow-y-auto px-6 py-4 space-y-4">
-      {#if !Array.isArray(messages) || messages.length === 0}
+      {#if !Array.isArray(visibleMessages) || visibleMessages.length === 0}
         <div class="flex items-center justify-center h-full">
           <div class="text-center text-muted-foreground">
             <p>Start the conversation by sending a message below.</p>
           </div>
         </div>
       {:else}
-        {#each messages as message, index (message.id)}
+        {#each visibleMessages as message, index (message.id)}
           {#if shouldShowTimestamp(index)}
             <div class="flex items-center gap-4 my-6">
               <div class="flex-1 border-t border-border"></div>
@@ -447,7 +491,7 @@
                       <span class="hidden group-hover:inline-block">({formatDateTime(message.created_at, true)})</span>
                       {formatTime(message.created_at)}
                     </span>
-                    {#if index === messages.length - 1 && lastUserMessageNeedsResend() && !waitingForResponse}
+                    {#if index === visibleMessages.length - 1 && lastUserMessageNeedsResend() && !waitingForResponse}
                       <button onclick={resendLastMessage} class="ml-2 text-blue-600 hover:text-blue-700 underline">
                         Resend
                       </button>
@@ -519,6 +563,22 @@
             {/if}
           </div>
         {/each}
+
+        <!-- Thinking bubble when last message is hidden (tool call or empty assistant) -->
+        {#if !showToolCalls && lastMessageIsHiddenThinking()}
+          <div class="flex justify-start">
+            <div class="max-w-[70%]">
+              <Card.Root>
+                <Card.Content class="p-4">
+                  <div class="flex items-center gap-2 text-muted-foreground">
+                    <Spinner size={16} class="animate-spin" />
+                    <span class="text-sm">Thinking...</span>
+                  </div>
+                </Card.Content>
+              </Card.Root>
+            </div>
+          </div>
+        {/if}
 
         <!-- Sending message placeholder (show while waiting for assistant response) -->
         {#if shouldShowSendingPlaceholder}
