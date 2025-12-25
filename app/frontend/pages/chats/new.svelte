@@ -26,12 +26,12 @@
     return { groups, groupOrder };
   });
   let selectedFiles = $state([]);
-  let canFetchUrls = $state(false);
+  let webAccess = $state(false);
 
   let createForm = useForm({
     chat: {
       model_id: selectedModel,
-      can_fetch_urls: canFetchUrls,
+      web_access: webAccess,
     },
     message: '',
   });
@@ -47,12 +47,12 @@
     if (!$createForm.message.trim() && selectedFiles.length === 0) return;
 
     $createForm.chat.model_id = selectedModel;
-    $createForm.chat.can_fetch_urls = canFetchUrls;
+    $createForm.chat.web_access = webAccess;
 
     // Use FormData to include files
     const formData = new FormData();
     formData.append('chat[model_id]', selectedModel);
-    formData.append('chat[can_fetch_urls]', canFetchUrls.toString());
+    formData.append('chat[web_access]', webAccess.toString());
     formData.append('message', $createForm.message);
 
     // Append each file
@@ -115,7 +115,7 @@
       <label class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity w-fit">
         <input
           type="checkbox"
-          bind:checked={canFetchUrls}
+          bind:checked={webAccess}
           class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary focus:ring-offset-0 focus:ring-2 transition-colors cursor-pointer" />
         <Globe size={16} class="text-muted-foreground" weight="duotone" />
         <span class="text-sm text-muted-foreground">Allow web access</span>

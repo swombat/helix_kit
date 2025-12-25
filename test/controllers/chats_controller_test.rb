@@ -247,41 +247,41 @@ class ChatsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to account_chat_path(@account, chat)
   end
 
-  test "should update can_fetch_urls to true" do
-    assert_not @chat.can_fetch_urls
+  test "should update web_access to true" do
+    assert_not @chat.web_access
 
     patch account_chat_path(@account, @chat), params: {
-      chat: { can_fetch_urls: true }
+      chat: { web_access: true }
     }
 
     assert_response :success
     @chat.reload
-    assert @chat.can_fetch_urls
+    assert @chat.web_access
   end
 
-  test "should update can_fetch_urls to false" do
-    @chat.update!(can_fetch_urls: true)
-    assert @chat.can_fetch_urls
+  test "should update web_access to false" do
+    @chat.update!(web_access: true)
+    assert @chat.web_access
 
     patch account_chat_path(@account, @chat), params: {
-      chat: { can_fetch_urls: false }
+      chat: { web_access: false }
     }
 
     assert_response :success
     @chat.reload
-    assert_not @chat.can_fetch_urls
+    assert_not @chat.web_access
   end
 
   test "update should broadcast refresh automatically" do
     # Verify that the update succeeds (broadcast happens via after_commit callback)
     patch account_chat_path(@account, @chat), params: {
-      chat: { can_fetch_urls: true }
+      chat: { web_access: true }
     }
 
     assert_response :success
     # The broadcast happens automatically via the Broadcastable concern
     @chat.reload
-    assert @chat.can_fetch_urls
+    assert @chat.web_access
   end
 
   test "update should scope to current account" do
@@ -296,26 +296,26 @@ class ChatsControllerTest < ActionDispatch::IntegrationTest
 
     # Should return 404 when trying to update chat from different account
     patch account_chat_path(@account, other_chat), params: {
-      chat: { can_fetch_urls: true }
+      chat: { web_access: true }
     }
     assert_response :not_found
 
     # Verify the chat was not modified
     other_chat.reload
-    assert_not other_chat.can_fetch_urls
+    assert_not other_chat.web_access
   end
 
   test "update should require authentication" do
     delete logout_path
 
     patch account_chat_path(@account, @chat), params: {
-      chat: { can_fetch_urls: true }
+      chat: { web_access: true }
     }
     assert_response :redirect
 
     # Verify the chat was not modified
     @chat.reload
-    assert_not @chat.can_fetch_urls
+    assert_not @chat.web_access
   end
 
   test "update should allow updating model_id" do
@@ -334,14 +334,14 @@ class ChatsControllerTest < ActionDispatch::IntegrationTest
     patch account_chat_path(@account, @chat), params: {
       chat: {
         model_id: "openai/gpt-4o-mini",
-        can_fetch_urls: true
+        web_access: true
       }
     }
 
     assert_response :success
     @chat.reload
     assert_equal "openai/gpt-4o-mini", @chat.model_id
-    assert @chat.can_fetch_urls
+    assert @chat.web_access
   end
 
 end

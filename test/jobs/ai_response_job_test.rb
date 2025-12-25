@@ -331,7 +331,7 @@ class AiResponseJobTest < ActiveJob::TestCase
     # Create chat with web access
     chat_with_tools = @account.chats.create!(
       model_id: "openrouter/auto",
-      can_fetch_urls: true
+      web_access: true
     )
     chat_with_tools.messages.create!(
       content: "Fetch https://example.com",
@@ -394,7 +394,7 @@ class AiResponseJobTest < ActiveJob::TestCase
     # Create chat with web access
     chat_with_tools = @account.chats.create!(
       model_id: "openrouter/auto",
-      can_fetch_urls: true
+      web_access: true
     )
     chat_with_tools.messages.create!(
       content: "Fetch multiple URLs",
@@ -456,7 +456,7 @@ class AiResponseJobTest < ActiveJob::TestCase
     # Create chat with web access
     chat_with_tools = @account.chats.create!(
       model_id: "openrouter/auto",
-      can_fetch_urls: true
+      web_access: true
     )
     chat_with_tools.messages.create!(
       content: "Fetch invalid URL",
@@ -517,7 +517,7 @@ class AiResponseJobTest < ActiveJob::TestCase
     # Create chat with web access
     chat_with_tools = @account.chats.create!(
       model_id: "openrouter/auto",
-      can_fetch_urls: true
+      web_access: true
     )
 
     # Verify chat has available_tools method that returns WebFetchTool

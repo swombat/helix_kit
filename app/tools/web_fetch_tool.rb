@@ -1,3 +1,6 @@
+require "net/http"
+require "uri"
+
 class WebFetchTool < RubyLLM::Tool
 
   description "Fetch and read content from a web page"
@@ -5,9 +8,6 @@ class WebFetchTool < RubyLLM::Tool
   param :url, type: :string, desc: "The URL to fetch", required: true
 
   def execute(url:)
-    require "net/http"
-    require "uri"
-
     uri = URI.parse(url)
 
     # Basic validation

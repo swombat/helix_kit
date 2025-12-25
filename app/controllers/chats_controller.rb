@@ -83,7 +83,7 @@ class ChatsController < ApplicationController
 
   def chat_params
     params.fetch(:chat, {})
-      .permit(:model_id, :can_fetch_urls)
+      .permit(:model_id, :web_access)
   end
 
   def available_models

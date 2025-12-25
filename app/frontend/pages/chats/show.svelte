@@ -317,7 +317,7 @@
     router.patch(
       `/accounts/${account.id}/chats/${chat.id}`,
       {
-        chat: { can_fetch_urls: !chat.can_fetch_urls },
+        chat: { web_access: !chat.web_access },
       },
       {
         preserveScroll: true,
@@ -421,7 +421,7 @@
         <label class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity w-fit">
           <input
             type="checkbox"
-            checked={chat.can_fetch_urls}
+            checked={chat.web_access}
             onchange={toggleWebAccess}
             class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary focus:ring-offset-0 focus:ring-2 transition-colors cursor-pointer" />
           <Globe size={16} class="text-muted-foreground" weight="duotone" />

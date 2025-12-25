@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_25_135757) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_25_170359) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -98,15 +98,15 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_25_135757) do
   create_table "chats", force: :cascade do |t|
     t.bigint "account_id", null: false
     t.bigint "ai_model_id"
-    t.boolean "can_fetch_urls", default: false, null: false
     t.datetime "created_at", null: false
     t.string "model_id_string", default: "openrouter/auto", null: false
     t.string "title"
     t.datetime "updated_at", null: false
+    t.boolean "web_access", default: false, null: false
     t.index ["account_id", "created_at"], name: "index_chats_on_account_id_and_created_at"
     t.index ["account_id"], name: "index_chats_on_account_id"
     t.index ["ai_model_id"], name: "index_chats_on_ai_model_id"
-    t.index ["can_fetch_urls"], name: "index_chats_on_can_fetch_urls"
+    t.index ["web_access"], name: "index_chats_on_web_access"
   end
 
   create_table "memberships", force: :cascade do |t|

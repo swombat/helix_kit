@@ -18,13 +18,14 @@ class ChatToolsFlowTest < ActionDispatch::IntegrationTest
     # Create a chat with web access enabled
     assert_difference "Chat.count" do
       post account_chats_path(@account), params: {
-        chat: { model_id: "openai/gpt-4o-mini", can_fetch_urls: true }
+        chat: { model_id: "openai/gpt-4o-mini", web_access: true }
       }
     end
 
     chat = Chat.last
-    assert chat.can_fetch_urls, "Chat should have web access enabled"
+    assert chat.web_access, "Chat should have web access enabled"
     assert_includes chat.available_tools, WebFetchTool, "WebFetchTool should be available"
+    assert_includes chat.available_tools, WebSearchTool, "WebSearchTool should be available"
 
     # Navigate to the chat
     get account_chat_path(@account, chat)
@@ -46,7 +47,7 @@ class ChatToolsFlowTest < ActionDispatch::IntegrationTest
   end
 
   test "create chat with web access disabled by default" do
-    # Create chat without specifying can_fetch_urls
+    # Create chat without specifying web_access
     assert_difference "Chat.count" do
       post account_chats_path(@account), params: {
         chat: { model_id: "openai/gpt-4o-mini" }
@@ -54,7 +55,7 @@ class ChatToolsFlowTest < ActionDispatch::IntegrationTest
     end
 
     chat = Chat.last
-    assert_not chat.can_fetch_urls, "Chat should not have web access by default"
+    assert_not chat.web_access, "Chat should not have web access by default"
     assert_empty chat.available_tools, "No tools should be available by default"
   end
 
@@ -62,29 +63,30 @@ class ChatToolsFlowTest < ActionDispatch::IntegrationTest
     # Create chat with web access disabled
     chat = @account.chats.create!(
       model_id: "openai/gpt-4o-mini",
-      can_fetch_urls: false
+      web_access: false
     )
-    assert_not chat.can_fetch_urls
+    assert_not chat.web_access
     assert_empty chat.available_tools
 
     # Enable web access
     patch account_chat_path(@account, chat), params: {
-      chat: { can_fetch_urls: true }
+      chat: { web_access: true }
     }
     assert_response :success
 
     chat.reload
-    assert chat.can_fetch_urls, "Web access should now be enabled"
+    assert chat.web_access, "Web access should now be enabled"
     assert_includes chat.available_tools, WebFetchTool, "WebFetchTool should now be available"
+    assert_includes chat.available_tools, WebSearchTool, "WebSearchTool should now be available"
 
     # Disable web access again
     patch account_chat_path(@account, chat), params: {
-      chat: { can_fetch_urls: false }
+      chat: { web_access: false }
     }
     assert_response :success
 
     chat.reload
-    assert_not chat.can_fetch_urls, "Web access should be disabled again"
+    assert_not chat.web_access, "Web access should be disabled again"
     assert_empty chat.available_tools, "Tools should no longer be available"
   end
 
@@ -92,7 +94,7 @@ class ChatToolsFlowTest < ActionDispatch::IntegrationTest
     # Create chat with web access
     chat = @account.chats.create!(
       model_id: "openai/gpt-4o-mini",
-      can_fetch_urls: true
+      web_access: true
     )
 
     # Create a user message
@@ -104,7 +106,7 @@ class ChatToolsFlowTest < ActionDispatch::IntegrationTest
 
     # The job configuration is tested in ai_response_job_test.rb
     # Here we just verify that the chat has the right tools configured
-    assert chat.can_fetch_urls
+    assert chat.web_access
     assert_includes chat.available_tools, WebFetchTool
   end
 
@@ -114,7 +116,7 @@ class ChatToolsFlowTest < ActionDispatch::IntegrationTest
 
     chat = @account.chats.create!(
       model_id: "openai/gpt-4o-mini",
-      can_fetch_urls: true
+      web_access: true
     )
 
     # Create an AI message with tools_used populated
@@ -138,7 +140,7 @@ class ChatToolsFlowTest < ActionDispatch::IntegrationTest
       assert_difference "Message.count" do
         assert_enqueued_with(job: AiResponseJob) do
           post account_chats_path(@account), params: {
-            chat: { model_id: "openai/gpt-4o-mini", can_fetch_urls: true },
+            chat: { model_id: "openai/gpt-4o-mini", web_access: true },
             message: "Search for information about Ruby 3.4"
           }
         end
@@ -149,7 +151,7 @@ class ChatToolsFlowTest < ActionDispatch::IntegrationTest
     user_message = chat.messages.last
 
     # Verify chat has web access enabled
-    assert chat.can_fetch_urls
+    assert chat.web_access
     assert_includes chat.available_tools, WebFetchTool
 
     # Verify user message was created correctly
@@ -172,7 +174,7 @@ class ChatToolsFlowTest < ActionDispatch::IntegrationTest
 
     # Verify the chat still has web access for subsequent messages
     chat.reload
-    assert chat.can_fetch_urls
+    assert chat.web_access
     assert_includes chat.available_tools, WebFetchTool
   end
 
@@ -180,7 +182,7 @@ class ChatToolsFlowTest < ActionDispatch::IntegrationTest
     # Create chat with web access enabled
     chat = @account.chats.create!(
       model_id: "openai/gpt-4o-mini",
-      can_fetch_urls: true
+      web_access: true
     )
 
     # View the chat
@@ -189,7 +191,7 @@ class ChatToolsFlowTest < ActionDispatch::IntegrationTest
 
     # Reload and verify setting persists
     chat.reload
-    assert chat.can_fetch_urls
+    assert chat.web_access
     assert_includes chat.available_tools, WebFetchTool
 
     # View the chat list
@@ -198,7 +200,7 @@ class ChatToolsFlowTest < ActionDispatch::IntegrationTest
 
     # Reload and verify setting still persists
     chat.reload
-    assert chat.can_fetch_urls
+    assert chat.web_access
     assert_includes chat.available_tools, WebFetchTool
   end
 
@@ -206,22 +208,22 @@ class ChatToolsFlowTest < ActionDispatch::IntegrationTest
     # Create chat with web access enabled
     chat_with_web = @account.chats.create!(
       model_id: "openai/gpt-4o-mini",
-      can_fetch_urls: true,
+      web_access: true,
       title: "Chat with Web Access"
     )
 
     # Create chat with web access disabled
     chat_without_web = @account.chats.create!(
       model_id: "openai/gpt-4o-mini",
-      can_fetch_urls: false,
+      web_access: false,
       title: "Chat without Web Access"
     )
 
     # Verify each chat has correct settings
-    assert chat_with_web.can_fetch_urls
+    assert chat_with_web.web_access
     assert_includes chat_with_web.available_tools, WebFetchTool
 
-    assert_not chat_without_web.can_fetch_urls
+    assert_not chat_without_web.web_access
     assert_empty chat_without_web.available_tools
 
     # View both chats and verify settings persist
@@ -235,15 +237,15 @@ class ChatToolsFlowTest < ActionDispatch::IntegrationTest
     chat_with_web.reload
     chat_without_web.reload
 
-    assert chat_with_web.can_fetch_urls
-    assert_not chat_without_web.can_fetch_urls
+    assert chat_with_web.web_access
+    assert_not chat_without_web.web_access
   end
 
   test "web access can be toggled mid-conversation" do
     # Create chat and add some messages
     chat = @account.chats.create!(
       model_id: "openai/gpt-4o-mini",
-      can_fetch_urls: false
+      web_access: false
     )
 
     # Add initial message without web access
@@ -255,12 +257,12 @@ class ChatToolsFlowTest < ActionDispatch::IntegrationTest
 
     # Enable web access
     patch account_chat_path(@account, chat), params: {
-      chat: { can_fetch_urls: true }
+      chat: { web_access: true }
     }
     assert_response :success
 
     chat.reload
-    assert chat.can_fetch_urls
+    assert chat.web_access
 
     # Add another message with web access enabled
     message2 = chat.messages.create!(
@@ -275,19 +277,19 @@ class ChatToolsFlowTest < ActionDispatch::IntegrationTest
 
     # Disable web access again
     patch account_chat_path(@account, chat), params: {
-      chat: { can_fetch_urls: false }
+      chat: { web_access: false }
     }
     assert_response :success
 
     chat.reload
-    assert_not chat.can_fetch_urls
+    assert_not chat.web_access
     assert_empty chat.available_tools
   end
 
   test "unauthenticated users cannot toggle web access" do
     chat = @account.chats.create!(
       model_id: "openai/gpt-4o-mini",
-      can_fetch_urls: false
+      web_access: false
     )
 
     # Logout
@@ -295,13 +297,13 @@ class ChatToolsFlowTest < ActionDispatch::IntegrationTest
 
     # Try to enable web access
     patch account_chat_path(@account, chat), params: {
-      chat: { can_fetch_urls: true }
+      chat: { web_access: true }
     }
     assert_response :redirect
 
     # Verify web access was not enabled
     chat.reload
-    assert_not chat.can_fetch_urls
+    assert_not chat.web_access
   end
 
   test "user cannot modify web access for chats in other accounts" do
@@ -311,18 +313,18 @@ class ChatToolsFlowTest < ActionDispatch::IntegrationTest
     other_account = other_user.personal_account
     other_chat = other_account.chats.create!(
       model_id: "openai/gpt-4o-mini",
-      can_fetch_urls: false
+      web_access: false
     )
 
     # Try to enable web access on other account's chat
     patch account_chat_path(@account, other_chat), params: {
-      chat: { can_fetch_urls: true }
+      chat: { web_access: true }
     }
     assert_response :not_found
 
     # Verify web access was not enabled
     other_chat.reload
-    assert_not other_chat.can_fetch_urls
+    assert_not other_chat.web_access
   end
 
 end

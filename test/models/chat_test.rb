@@ -241,33 +241,34 @@ class ChatTest < ActiveSupport::TestCase
     assert_nil json["updated_at_formatted"]
   end
 
-  test "can_fetch_urls defaults to false" do
+  test "web_access defaults to false" do
     chat = Chat.create!(account: @account)
-    assert_equal false, chat.can_fetch_urls
+    assert_equal false, chat.web_access
   end
 
   test "available_tools returns empty array when web fetch disabled" do
-    chat = Chat.create!(account: @account, can_fetch_urls: false)
+    chat = Chat.create!(account: @account, web_access: false)
     assert_empty chat.available_tools
   end
 
-  test "available_tools includes WebFetchTool when enabled" do
-    chat = Chat.create!(account: @account, can_fetch_urls: true)
+  test "available_tools includes both tools when web access enabled" do
+    chat = Chat.create!(account: @account, web_access: true)
     assert_includes chat.available_tools, WebFetchTool
-    assert_equal 1, chat.available_tools.length
+    assert_includes chat.available_tools, WebSearchTool
+    assert_equal 2, chat.available_tools.length
   end
 
-  test "can_fetch_urls can be set on create" do
-    chat = Chat.create!(account: @account, can_fetch_urls: true)
-    assert chat.can_fetch_urls
+  test "web_access can be set on create" do
+    chat = Chat.create!(account: @account, web_access: true)
+    assert chat.web_access
   end
 
-  test "can_fetch_urls can be updated" do
-    chat = Chat.create!(account: @account, can_fetch_urls: false)
-    assert_not chat.can_fetch_urls
+  test "web_access can be updated" do
+    chat = Chat.create!(account: @account, web_access: false)
+    assert_not chat.web_access
 
-    chat.update!(can_fetch_urls: true)
-    assert chat.can_fetch_urls
+    chat.update!(web_access: true)
+    assert chat.web_access
   end
 
 end
