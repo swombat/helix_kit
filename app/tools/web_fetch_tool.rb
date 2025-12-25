@@ -28,7 +28,7 @@ class WebFetchTool < RubyLLM::Tool
     if response.is_a?(Net::HTTPSuccess)
       # Strip HTML tags and truncate for LLM context limits
       content = ActionView::Base.full_sanitizer.sanitize(response.body)
-      content = content.strip.first(5000)
+      content = content.strip.first(40000)  # ~10k tokens
 
       {
         content: content,
