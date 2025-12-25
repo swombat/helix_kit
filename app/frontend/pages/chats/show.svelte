@@ -20,6 +20,27 @@
   import { fade } from 'svelte/transition';
   import { Streamdown } from 'svelte-streamdown';
 
+  // Format tools_used for display - extracts domain from URLs or cleans up legacy format
+  function formatToolsUsed(toolsUsed) {
+    if (!toolsUsed || toolsUsed.length === 0) return [];
+
+    return toolsUsed.map((tool) => {
+      // Handle legacy Ruby object strings like "#<RubyLLM/tool call:0x...>"
+      if (tool.startsWith('#<')) {
+        return 'Web access';
+      }
+
+      // Try to extract domain from URL
+      try {
+        const url = new URL(tool);
+        return url.hostname;
+      } catch {
+        // Not a valid URL, return as-is
+        return tool;
+      }
+    });
+  }
+
   // Create ActionCable consumer
   const consumer = typeof window !== 'undefined' ? createConsumer() : null;
 
@@ -472,7 +493,7 @@
                         <div class="flex items-center gap-2 mt-3 pt-3 border-t border-border/50">
                           <Globe size={14} class="text-muted-foreground" weight="duotone" />
                           <div class="flex flex-wrap gap-1">
-                            {#each message.tools_used as tool}
+                            {#each formatToolsUsed(message.tools_used) as tool}
                               <Badge variant="secondary" class="text-xs">
                                 {tool}
                               </Badge>

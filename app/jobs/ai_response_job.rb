@@ -24,9 +24,11 @@ class AiResponseJob < ApplicationJob
     end
 
     # Track tool invocations
-    chat.on_tool_call do |tool_name, params, result|
-      @tools_used << tool_name.to_s.underscore.humanize
-      Rails.logger.info "Tool invoked: #{tool_name} with params: #{params}"
+    chat.on_tool_call do |tool_call|
+      # Extract URL for web fetches, otherwise use tool name
+      url = tool_call.arguments[:url] || tool_call.arguments["url"]
+      @tools_used << (url || tool_call.name.to_s)
+      Rails.logger.info "Tool invoked: #{tool_call.name} with args: #{tool_call.arguments}"
     end
 
     chat.on_end_message do |ruby_llm_message|

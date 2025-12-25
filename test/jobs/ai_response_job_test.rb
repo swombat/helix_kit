@@ -350,8 +350,9 @@ class AiResponseJobTest < ActiveJob::TestCase
     chat_with_tools.define_singleton_method(:complete) do |&block|
       @on_new_message_callback&.call
 
-      # Simulate tool invocation
-      @on_tool_call_callback&.call("WebFetchTool", { url: "https://example.com" }, "Tool result")
+      # Simulate tool invocation with tool_call object
+      tool_call = OpenStruct.new(name: "WebFetchTool", arguments: { url: "https://example.com" })
+      @on_tool_call_callback&.call(tool_call)
 
       chunk = OpenStruct.new(content: "I fetched the website")
       block.call(chunk)
@@ -386,7 +387,7 @@ class AiResponseJobTest < ActiveJob::TestCase
     ai_message = chat_with_tools.messages.where(role: "assistant").last
     assert_not_nil ai_message, "AI message should be created"
     assert ai_message.tools_used.present?, "tools_used should be populated"
-    assert_includes ai_message.tools_used, "Web fetch tool", "WebFetchTool should be in tools_used"
+    assert_includes ai_message.tools_used, "https://example.com", "URL should be in tools_used"
   end
 
   test "handles multiple tool invocations" do
@@ -411,8 +412,10 @@ class AiResponseJobTest < ActiveJob::TestCase
       @on_new_message_callback&.call
 
       # Simulate multiple tool invocations
-      @on_tool_call_callback&.call("WebFetchTool", { url: "https://example.com" }, "Result 1")
-      @on_tool_call_callback&.call("WebFetchTool", { url: "https://example.org" }, "Result 2")
+      tool_call1 = OpenStruct.new(name: "WebFetchTool", arguments: { url: "https://example.com" })
+      tool_call2 = OpenStruct.new(name: "WebFetchTool", arguments: { url: "https://example.org" })
+      @on_tool_call_callback&.call(tool_call1)
+      @on_tool_call_callback&.call(tool_call2)
 
       chunk = OpenStruct.new(content: "I fetched both websites")
       block.call(chunk)
@@ -440,12 +443,13 @@ class AiResponseJobTest < ActiveJob::TestCase
     # Run the job
     AiResponseJob.perform_now(chat_with_tools)
 
-    # Verify tools_used contains unique tool names
+    # Verify tools_used contains the URLs
     ai_message = chat_with_tools.messages.where(role: "assistant").last
     assert_not_nil ai_message, "AI message should be created"
     assert ai_message.tools_used.present?, "tools_used should be populated"
-    # Should only contain one entry since it's the same tool invoked twice
-    assert_equal 1, ai_message.tools_used.uniq.length, "Should deduplicate tool names"
+    # Should contain both URLs since they're different
+    assert_includes ai_message.tools_used, "https://example.com"
+    assert_includes ai_message.tools_used, "https://example.org"
   end
 
   test "handles tool errors gracefully" do
@@ -470,7 +474,8 @@ class AiResponseJobTest < ActiveJob::TestCase
       @on_new_message_callback&.call
 
       # Simulate tool invocation with error result
-      @on_tool_call_callback&.call("WebFetchTool", { url: "invalid" }, { error: "Invalid URL" })
+      tool_call = OpenStruct.new(name: "WebFetchTool", arguments: { url: "invalid" })
+      @on_tool_call_callback&.call(tool_call)
 
       chunk = OpenStruct.new(content: "I encountered an error")
       block.call(chunk)
@@ -505,7 +510,7 @@ class AiResponseJobTest < ActiveJob::TestCase
     assert_not_nil ai_message, "AI message should be created"
     assert_equal "I encountered an error fetching the URL", ai_message.content
     # Tool should still be tracked even if it errored
-    assert_includes ai_message.tools_used, "Web fetch tool"
+    assert_includes ai_message.tools_used, "invalid"
   end
 
   test "available_tools are used from chat when present" do
