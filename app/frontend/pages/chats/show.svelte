@@ -517,7 +517,7 @@
                       {:else if message.streaming && (!message.content || message.content.trim() === '')}
                         <div class="flex items-center gap-2 text-muted-foreground">
                           <Spinner size={16} class="animate-spin" />
-                          <span class="text-sm">Generating response...</span>
+                          <span class="text-sm">{message.tool_status || 'Generating response...'}</span>
                         </div>
                       {:else}
                         <Streamdown
@@ -568,13 +568,14 @@
 
         <!-- Thinking bubble when last message is hidden (tool call or empty assistant) -->
         {#if !showToolCalls && lastMessageIsHiddenThinking()}
+          {@const lastMessage = messages[messages.length - 1]}
           <div class="flex justify-start">
             <div class="max-w-[70%]">
               <Card.Root>
                 <Card.Content class="p-4">
                   <div class="flex items-center gap-2 text-muted-foreground">
                     <Spinner size={16} class="animate-spin" />
-                    <span class="text-sm">Thinking...</span>
+                    <span class="text-sm">{lastMessage?.tool_status || 'Thinking...'}</span>
                   </div>
                 </Card.Content>
               </Card.Root>

@@ -4,14 +4,26 @@ require "json"
 class WebSearchTool < RubyLLM::Tool
 
   RESULT_LIMIT = 10
+  MAX_SEARCHES_PER_SESSION = 10
   OPEN_TIMEOUT = 10
   READ_TIMEOUT = 15
 
-  description "Search the web for information. Returns URLs with titles and snippets. Use web_fetch to read full content from promising results."
+  description "Search the web for information. Returns URLs with titles and snippets. Use web_fetch to read full content from promising results. Limited to #{MAX_SEARCHES_PER_SESSION} searches per response."
 
   param :query, type: :string, desc: "The search query", required: true
 
+  def initialize
+    super
+    @search_count = 0
+  end
+
   def execute(query:)
+    @search_count += 1
+
+    if @search_count > MAX_SEARCHES_PER_SESSION
+      return error_response("Search limit reached (#{MAX_SEARCHES_PER_SESSION} searches per response). Please provide your answer based on the searches already performed.", query)
+    end
+
     response = fetch_results(query)
 
     return error_response("HTTP #{response.code}: #{response.message}", query) unless response.is_a?(Net::HTTPSuccess)

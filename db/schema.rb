@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_25_170359) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_25_172756) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -141,6 +141,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_25_170359) do
     t.string "role", null: false
     t.boolean "streaming", default: false, null: false
     t.bigint "tool_call_id"
+    t.string "tool_status"
     t.text "tools_used", default: [], array: true
     t.datetime "updated_at", null: false
     t.bigint "user_id"

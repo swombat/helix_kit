@@ -38,7 +38,7 @@ class Message < ApplicationRecord
   scope :sorted, -> { order(created_at: :asc) }
 
   json_attributes :role, :content, :user_name, :user_avatar_url, :completed,
-                  :created_at_formatted, :created_at_hour, :streaming, :files_json, :content_html, :tools_used
+                  :created_at_formatted, :created_at_hour, :streaming, :files_json, :content_html, :tools_used, :tool_status
 
   def completed?
     # User messages are always completed
@@ -127,7 +127,8 @@ class Message < ApplicationRecord
   def stop_streaming
     Rails.logger.debug "🛑 Stopping streaming for Message:#{to_param}"
     # Use update! to trigger callbacks and broadcast_refresh
-    update!(streaming: false) if streaming?
+    # Also clear tool_status since streaming is complete
+    update!(streaming: false, tool_status: nil) if streaming?
     broadcast_marker(
       "Message:#{to_param}",
       {
@@ -138,12 +139,37 @@ class Message < ApplicationRecord
     )
   end
 
+  # Update tool call status for real-time UI display
+  def broadcast_tool_call(tool_name:, tool_args:)
+    status = format_tool_status(tool_name, tool_args)
+    Rails.logger.debug "🔧 Updating tool status: #{status}"
+    update!(tool_status: status)
+  end
+
   # Simple helper for checking tool usage
   def used_tools?
     tools_used.present? && tools_used.any?
   end
 
   private
+
+  def format_tool_status(tool_name, tool_args)
+    case tool_name
+    when "WebFetchTool", "web_fetch"
+      url = tool_args[:url] || tool_args["url"]
+      "Fetching #{truncate_url(url)}"
+    when "WebSearchTool", "web_search"
+      query = tool_args[:query] || tool_args["query"]
+      "Searching for \"#{query}\""
+    else
+      "Using #{tool_name.to_s.underscore.humanize.downcase}"
+    end
+  end
+
+  def truncate_url(url)
+    return url if url.nil? || url.length <= 50
+    "#{url[0..47]}..."
+  end
 
   def acceptable_files
     return unless attachments.attached?

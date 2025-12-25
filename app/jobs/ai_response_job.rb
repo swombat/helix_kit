@@ -23,12 +23,18 @@ class AiResponseJob < ApplicationJob
       @ai_message.update!(streaming: true) if @ai_message
     end
 
-    # Track tool invocations
+    # Track tool invocations and broadcast status to frontend
     chat.on_tool_call do |tool_call|
       # Extract URL for web fetches, otherwise use tool name
       url = tool_call.arguments[:url] || tool_call.arguments["url"]
       @tools_used << (url || tool_call.name.to_s)
       Rails.logger.info "Tool invoked: #{tool_call.name} with args: #{tool_call.arguments}"
+
+      # Broadcast tool call status to frontend for real-time display
+      @ai_message&.broadcast_tool_call(
+        tool_name: tool_call.name.to_s,
+        tool_args: tool_call.arguments
+      )
     end
 
     chat.on_end_message do |ruby_llm_message|

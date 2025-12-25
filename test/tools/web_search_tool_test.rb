@@ -87,6 +87,21 @@ class WebSearchToolTest < ActiveSupport::TestCase
     assert_equal "test", result[:query]
   end
 
+  test "limits searches to MAX_SEARCHES_PER_SESSION" do
+    stub_searxng_success
+
+    # Execute up to the limit
+    WebSearchTool::MAX_SEARCHES_PER_SESSION.times do |i|
+      result = @tool.execute(query: "query #{i}")
+      assert_nil result[:error], "Search #{i + 1} should succeed"
+    end
+
+    # Next search should fail
+    result = @tool.execute(query: "one too many")
+    assert_match(/Search limit reached/, result[:error])
+    assert_equal "one too many", result[:query]
+  end
+
   private
 
   def stub_searxng_success
