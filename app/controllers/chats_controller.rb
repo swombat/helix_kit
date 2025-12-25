@@ -6,10 +6,14 @@ class ChatsController < ApplicationController
   def index
     @chats = current_account.chats.includes(:messages).latest
 
-    render inertia: "chats/index", props: {
+    render inertia: "chats/new", props: {
       chats: @chats.as_json,
       models: available_models,
-      account: current_account.as_json
+      account: current_account.as_json,
+      file_upload_config: {
+        acceptable_types: Message::ACCEPTABLE_FILE_TYPES.values.flatten,
+        max_size: Message::MAX_FILE_SIZE
+      }
     }
   end
 

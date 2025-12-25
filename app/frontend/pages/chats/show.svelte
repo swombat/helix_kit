@@ -247,7 +247,6 @@
 
   function sendMessage() {
     logging.debug('messageForm:', $messageForm);
-    $messageForm.message.model_id = selectedModel;
 
     if (!$messageForm.message.content.trim() && selectedFiles.length === 0) {
       logging.debug('Empty message and no files, returning');
@@ -256,7 +255,6 @@
 
     const formData = new FormData();
     formData.append('message[content]', $messageForm.message.content);
-    formData.append('message[model_id]', selectedModel);
     selectedFiles.forEach((file) => formData.append('files[]', file));
 
     // Track that we're waiting for response
@@ -282,30 +280,34 @@
   }
 
   function resendLastMessage() {
-    // Find the last user message and resend it
+    // Find the last user message and retry the AI response
+    logging.debug('resendLastMessage called, messages:', messages?.length);
     if (messages && messages.length > 0) {
-      const lastUserMessage = messages[messages.length - 1];
-      if (lastUserMessage.role === 'user') {
-        // Resend the message
+      // Find the actual last user message (may not be the very last message if AI started responding)
+      const lastUserMessage = [...messages].reverse().find((m) => m.role === 'user');
+      logging.debug('lastUserMessage:', lastUserMessage);
+      if (lastUserMessage) {
+        // Retry the AI response for this message
+        const retryPath = retryMessagePath(lastUserMessage.id);
+        logging.debug('Posting to retry path:', retryPath);
         waitingForResponse = true;
         messageSentAt = Date.now();
 
-        const formData = new FormData();
-        formData.append('message[content]', lastUserMessage.content);
-        formData.append('message[model_id]', selectedModel);
-        // Note: We can't resend files from here as we don't have them
-
-        router.post(accountChatMessagesPath(account.id, chat.id), formData, {
+        $retryForm.post(retryPath, {
           onSuccess: () => {
-            logging.debug('Message resent successfully');
+            logging.debug('Retry triggered successfully');
           },
           onError: (errors) => {
-            logging.error('Message resend failed:', errors);
+            logging.error('Retry failed:', errors);
             waitingForResponse = false;
             messageSentAt = null;
           },
         });
+      } else {
+        logging.error('No user message found to retry');
       }
+    } else {
+      logging.error('No messages available for retry');
     }
   }
 
@@ -506,7 +508,7 @@
                     <Card.Content class="p-4">
                       {#if message.status === 'failed'}
                         <div class="text-red-600 mb-2 text-sm">Failed to generate response</div>
-                        <Button variant="outline" size="sm" on:click={() => retryMessage(message.id)} class="mb-3">
+                        <Button variant="outline" size="sm" onclick={() => retryMessage(message.id)} class="mb-3">
                           <ArrowClockwise size={14} class="mr-2" />
                           Retry
                         </Button>
@@ -590,7 +592,7 @@
                     <div class="text-red-600 text-sm mb-2">
                       It appears there might have been an error while sending the message.
                     </div>
-                    <Button variant="outline" size="sm" on:click={resendLastMessage}>
+                    <Button variant="outline" size="sm" onclick={resendLastMessage}>
                       <ArrowClockwise size={14} class="mr-2" />
                       Try again
                     </Button>

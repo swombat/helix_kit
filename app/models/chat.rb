@@ -9,7 +9,7 @@ class Chat < ApplicationRecord
 
   belongs_to :account
 
-  json_attributes :title_or_default, :model_id, :ai_model_name, :updated_at_formatted, :updated_at_short, :message_count, :can_fetch_urls do |hash, options|
+  json_attributes :title_or_default, :model_id, :model_name, :ai_model_name, :updated_at_formatted, :updated_at_short, :message_count, :can_fetch_urls do |hash, options|
     # For sidebar format, only include minimal attributes
     if options&.dig(:as) == :sidebar_json
       hash.slice!("id", "title_or_default", "updated_at_short")

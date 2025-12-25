@@ -34,10 +34,21 @@ def create
   end
 
   def retry
-    # Find the last user message to retry from
+    Rails.logger.info "🔄 Retry called for message #{params[:id]}, chat #{@chat.id}"
     AiResponseJob.perform_later(@chat)
+    Rails.logger.info "🔄 AiResponseJob enqueued for chat #{@chat.id}"
 
-    head :ok
+    respond_to do |format|
+      format.html { redirect_to account_chat_path(@chat.account, @chat) }
+      format.json { head :ok }
+    end
+  rescue => e
+    Rails.logger.error "🔄 Retry failed: #{e.message}"
+    Rails.logger.error e.backtrace.join("\n")
+    respond_to do |format|
+      format.html { redirect_back_or_to account_chat_path(@chat.account, @chat), alert: "Retry failed: #{e.message}" }
+      format.json { head :internal_server_error }
+    end
   end
 
   private
@@ -47,12 +58,19 @@ def create
   end
 
   def set_chat_for_retry
+    Rails.logger.info "🔄 set_chat_for_retry: Looking for message #{params[:id]}"
     @message = Message.find(params[:id])
+    Rails.logger.info "🔄 set_chat_for_retry: Found message #{@message.id}, chat_id=#{@message.chat_id}"
     @chat = current_account.chats.find(@message.chat_id)
+    Rails.logger.info "🔄 set_chat_for_retry: Found chat #{@chat.id}"
+  rescue => e
+    Rails.logger.error "🔄 set_chat_for_retry failed: #{e.message}"
+    Rails.logger.error e.backtrace.first(5).join("\n")
+    raise
   end
 
 def message_params
-    params.require(:message).permit(:content, :model_id)
+    params.require(:message).permit(:content)
   end
 
 end
