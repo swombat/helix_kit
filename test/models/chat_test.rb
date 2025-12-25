@@ -30,12 +30,13 @@ class ChatTest < ActiveSupport::TestCase
     assert_not Message.exists?(message_id)
   end
 
-  test "validates model_id presence" do
+  test "model_id always has a value due to database default" do
+    # With the database default on model_id_string column and after_initialize callback,
+    # a chat always has a model_id. This is the expected behavior for RubyLLM 1.9+
     chat = Chat.new(account: @account)
-    chat.model_id = nil
 
-    assert_not chat.valid?
-    assert_includes chat.errors[:model_id], "can't be blank"
+    assert chat.valid?
+    assert_equal "openrouter/auto", chat.model_id
   end
 
   test "defaults model_id to openrouter/auto" do
@@ -173,7 +174,7 @@ class ChatTest < ActiveSupport::TestCase
 
   test "ai_model_name returns correct model name" do
     chat = Chat.create!(account: @account, model_id: "openai/gpt-4o-mini")
-    assert_equal "GPT-4 Mini", chat.ai_model_name
+    assert_equal "GPT-4o Mini", chat.ai_model_name
   end
 
   test "ai_model_name returns nil for unknown model" do
@@ -216,12 +217,12 @@ class ChatTest < ActiveSupport::TestCase
 
     json = chat.as_json
 
-    assert_equal chat.to_param, json[:id]
-    assert_equal "Test Chat", json[:title_or_default]
-    assert_equal "gpt-4o", json[:model_id]
-    assert_nil json[:ai_model_name] # Unknown model
-    assert_equal 1, json[:message_count]
-    assert json[:updated_at_formatted].present?
+    assert_equal chat.to_param, json["id"]
+    assert_equal "Test Chat", json["title_or_default"]
+    assert_equal "gpt-4o", json["model_id"]
+    assert_nil json["ai_model_name"] # Unknown model
+    assert_equal 1, json["message_count"]
+    assert json["updated_at_formatted"].present?
   end
 
   test "as_json returns sidebar format" do
@@ -229,15 +230,15 @@ class ChatTest < ActiveSupport::TestCase
 
     json = chat.as_json(as: :sidebar_json)
 
-    assert_equal chat.to_param, json[:id]
-    assert_equal "Sidebar Chat", json[:title_or_default]
-    assert json[:updated_at_short].present?
+    assert_equal chat.to_param, json["id"]
+    assert_equal "Sidebar Chat", json["title_or_default"]
+    assert json["updated_at_short"].present?
 
     # Should not include other fields
-    assert_nil json[:model_id]
-    assert_nil json[:ai_model_name]
-    assert_nil json[:message_count]
-    assert_nil json[:updated_at_formatted]
+    assert_nil json["model_id"]
+    assert_nil json["ai_model_name"]
+    assert_nil json["message_count"]
+    assert_nil json["updated_at_formatted"]
   end
 
   test "can_fetch_urls defaults to false" do

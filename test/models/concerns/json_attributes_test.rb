@@ -92,18 +92,14 @@ class JsonAttributesTest < ActiveSupport::TestCase
 
   # === ID Obfuscation Tests ===
 
-  test "serializable_hash attempts to use to_param for id obfuscation" do
+  test "serializable_hash uses to_param for id obfuscation" do
     account = accounts(:personal_account)
 
     json = account.as_json
 
-    # Currently returns integer ID due to bug in JsonAttributes (uses symbol key)
-    # The concern sets hash[:id] = to_param but Rails uses string keys
-    assert_equal account.id, json["id"]
-    assert_kind_of Integer, json["id"]
-
-    # The obfuscated ID would be available under symbol key (documenting bug)
-    # This test documents current behavior for potential bug fix
+    # ID should be obfuscated via to_param
+    assert_equal account.to_param, json["id"]
+    assert_kind_of String, json["id"]
   end
 
   test "as_json and serializable_hash both have same id behavior" do
@@ -112,10 +108,11 @@ class JsonAttributesTest < ActiveSupport::TestCase
     json_as_json = user.as_json
     json_serializable = user.serializable_hash
 
-    # Both should have the same ID behavior (currently integer due to bug)
+    # Both should have the same ID behavior (obfuscated via to_param)
     assert_equal json_as_json["id"], json_serializable["id"]
-    assert_kind_of Integer, json_as_json["id"]
-    assert_kind_of Integer, json_serializable["id"]
+    assert_equal user.to_param, json_as_json["id"]
+    assert_kind_of String, json_as_json["id"]
+    assert_kind_of String, json_serializable["id"]
   end
 
   # === Enhancement Block Tests ===
@@ -414,9 +411,9 @@ class JsonAttributesTest < ActiveSupport::TestCase
     assert json.key?("name")
     assert json.key?("is_site_admin")
 
-    # Test ID - JsonAttributes has a bug where it sets symbol :id instead of string "id"
-    assert_equal account.id, json["id"]  # String key still has integer
-    assert_equal account.to_param, json[:id]  # Symbol key has obfuscated ID
+    # Test ID is obfuscated via to_param
+    assert_equal account.to_param, json["id"]
+    assert_kind_of String, json["id"]
   end
 
   test "User model json_attributes work correctly" do
@@ -433,9 +430,9 @@ class JsonAttributesTest < ActiveSupport::TestCase
     # Test exclusions
     assert_not json.key?("password_digest")
 
-    # Test ID - JsonAttributes has a bug where it sets symbol :id instead of string "id"
-    assert_equal user.id, json["id"]  # String key still has integer
-    assert_equal user.to_param, json[:id]  # Symbol key has obfuscated ID
+    # Test ID is obfuscated via to_param
+    assert_equal user.to_param, json["id"]
+    assert_kind_of String, json["id"]
   end
 
   test "Membership model json_attributes with enhancement block" do

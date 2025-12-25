@@ -5,7 +5,7 @@ class Message < ApplicationRecord
   include JsonAttributes
   include SyncAuthorizable
 
-  acts_as_message
+  acts_as_message model: :ai_model, model_class: "AiModel", model_foreign_key: :ai_model_id
 
   belongs_to :chat, touch: true
   belongs_to :user, optional: true

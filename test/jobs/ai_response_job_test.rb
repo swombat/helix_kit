@@ -69,7 +69,7 @@ class AiResponseJobTest < ActiveJob::TestCase
     ai_message.reload
     assert_equal "Hello, how can I help?", ai_message.content
     assert_not ai_message.streaming?  # Should be false after finalization
-    assert_equal "test-model", ai_message.model_id
+    assert_equal "test-model", ai_message.model_id_string
     assert_equal 10, ai_message.input_tokens
     assert_equal 15, ai_message.output_tokens
   end

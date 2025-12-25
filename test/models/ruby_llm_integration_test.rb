@@ -49,14 +49,15 @@ class RubyLlmIntegrationTest < ActiveSupport::TestCase
     assert Message.included_modules.include?(ObfuscatesId)
   end
 
-  test "Chat validation" do
+  test "Chat default model" do
     email = "validation-test-#{SecureRandom.hex(4)}@example.com"
     user = User.register!(email)
     account = user.personal_account
 
-    chat = Chat.new(account: account, model_id: nil)
-    assert_not chat.valid?
-    assert_includes chat.errors[:model_id], "can't be blank"
+    # New behavior: chats default to openrouter/auto if no model specified
+    chat = Chat.new(account: account)
+    assert chat.valid?
+    assert_equal "openrouter/auto", chat.model_id_string_value
   end
 
   test "Message validation" do

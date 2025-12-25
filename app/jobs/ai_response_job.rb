@@ -59,9 +59,10 @@ class AiResponseJob < ApplicationJob
 
     flush_stream_buffer(force: true)
 
+    # Note: model_id is now handled via ai_model association by RubyLLM's persist_message_completion
     @ai_message.update!({
       content: extract_message_content(ruby_llm_message.content),
-      model_id: ruby_llm_message.model_id,
+      model_id_string: ruby_llm_message.model_id,
       input_tokens: ruby_llm_message.input_tokens,
       output_tokens: ruby_llm_message.output_tokens,
       tools_used: @tools_used.uniq,

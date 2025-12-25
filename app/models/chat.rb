@@ -5,15 +5,25 @@ class Chat < ApplicationRecord
   include SyncAuthorizable
   include JsonAttributes
 
-  acts_as_chat
+  acts_as_chat model: :ai_model, model_class: "AiModel", model_foreign_key: :ai_model_id
 
   belongs_to :account
 
-  json_attributes :title, :model_id, :model_name, :updated_at_formatted, :message_count, :can_fetch_urls
+  json_attributes :title_or_default, :model_id, :ai_model_name, :updated_at_formatted, :updated_at_short, :message_count, :can_fetch_urls do |hash, options|
+    # For sidebar format, only include minimal attributes
+    if options&.dig(:as) == :sidebar_json
+      hash.slice!("id", "title_or_default", "updated_at_short")
+    end
+    hash
+  end
 
   broadcasts_to :account
 
-  validates :model_id, presence: true
+  # Custom validation since model_id is resolved in before_save
+  validate :model_must_be_present
+
+  # All models go through OpenRouter
+  after_initialize :configure_for_openrouter
 
   after_create_commit -> { GenerateTitleJob.perform_later(self) }, unless: :title?
 
@@ -89,9 +99,26 @@ class Chat < ApplicationRecord
     title.presence || "New Conversation"
   end
 
+  # Override RubyLLM's model_id getter to return the string value
+  # (RubyLLM's version returns ai_model&.model_id which is nil before save)
+  def model_id
+    model_id_string_value
+  end
+
   def model_name
-    model = MODELS.find { |m| m[:model_id] == self.model_id }
-    model ? model[:label] : model_id
+    model = MODELS.find { |m| m[:model_id] == model_id_string_value }
+    model ? model[:label] : model_id_string_value
+  end
+
+  # Returns the friendly model name, or nil if not found in MODELS list
+  def ai_model_name
+    model = MODELS.find { |m| m[:model_id] == model_id_string_value }
+    model&.dig(:label)
+  end
+
+  # Get the model_id string from either the pending value, association, or legacy column
+  def model_id_string_value
+    @model_string || ai_model&.model_id || model_id_string
   end
 
   def updated_at_formatted
@@ -110,6 +137,26 @@ class Chat < ApplicationRecord
   def available_tools
     return [] unless can_fetch_urls?
     [ WebFetchTool ]
+  end
+
+  private
+
+  def configure_for_openrouter
+    # All models go through OpenRouter, so we always use that provider
+    # and assume the model exists (since our MODELS list is curated for OpenRouter)
+    self.provider = :openrouter
+    self.assume_model_exists = true
+
+    # Set default model if none specified (check all possible sources)
+    unless @model_string.present? || ai_model.present? || model_id_string.present?
+      self.model_id = "openrouter/auto"
+    end
+  end
+
+  def model_must_be_present
+    if @model_string.blank? && ai_model.blank? && model_id_string.blank?
+      errors.add(:model_id, "can't be blank")
+    end
   end
 
 end

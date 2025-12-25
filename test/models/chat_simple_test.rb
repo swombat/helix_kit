@@ -13,10 +13,11 @@ class ChatSimpleTest < ActiveSupport::TestCase
     assert_equal @account, chat.account
   end
 
-  test "validates model_id presence" do
-    chat = Chat.new(account: @account, model_id: nil)
-    assert_not chat.valid?
-    assert_includes chat.errors[:model_id], "can't be blank"
+  test "defaults to openrouter/auto model" do
+    # New behavior: chats default to openrouter/auto if no model specified
+    chat = Chat.new(account: @account)
+    assert chat.valid?
+    assert_equal "openrouter/auto", chat.model_id_string_value
   end
 
   test "creates message with valid attributes" do
