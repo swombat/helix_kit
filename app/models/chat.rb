@@ -17,31 +17,52 @@ class Chat < ApplicationRecord
 
   after_create_commit -> { GenerateTitleJob.perform_later(self) }, unless: :title?
 
-  # Available AI models
+  # Available AI models grouped by category
   MODELS = [
-    { model_id: "openai/gpt-5", label: "GPT-5 (Recommended)" },
-    { model_id: "openai/gpt-5-mini", label: "GPT-5 Mini" },
-    { model_id: "openai/gpt-5-nano", label: "GPT-5 Nano" },
-    { model_id: "openai/gpt-5-chat", label: "GPT-5 Chat" },
-    { model_id: "anthropic/claude-sonnet-4", label: "Claude Sonnet 4" },
-    { model_id: "anthropic/claude-opus-4", label: "Claude Opus 4" },
-    { model_id: "anthropic/claude-3.7-sonnet", label: "Claude 3.7 Sonnet" },
-    { model_id: "anthropic/claude-3.7-sonnet:thinking", label: "Claude 3.7 Sonnet (Thinking)" },
-    { model_id: "google/gemini-2.5-flash-preview-09-2025", label: "Gemini 2.5 Flash" },
-    { model_id: "google/gemini-2.5-pro", label: "Gemini 2.5 Pro" },
-    { model_id: "x-ai/grok-4-fast", label: "Grok 4 Fast" },
-    { model_id: "x-ai/grok-code-fast-1", label: "Grok Code Fast 1" },
-    { model_id: "x-ai/grok-4", label: "Grok 4" },
-    { model_id: "qwen/qwen3-max", label: "Qwen 3 Max" },
-    { model_id: "moonshotai/kimi-k2-0905", label: "Kimi K2 0905" },
-    { model_id: "openai/o1", label: "OpenAI O1" },
-    { model_id: "openai/o3", label: "OpenAI O3" },
-    { model_id: "openai/o4-mini", label: "OpenAI O4 Mini" },
-    { model_id: "openai/o4-mini-high", label: "OpenAI O4 Mini High" },
-    { model_id: "openai/gpt-4o-mini", label: "GPT-4 Mini" },
-    { model_id: "openai/gpt-4.1", label: "GPT-4.1" },
-    { model_id: "openai/gpt-4.1-mini", label: "GPT-4.1 Mini" },
-    { model_id: "openai/chatgpt-4o-latest", label: "ChatGPT-4o Latest" }
+    # Top Models - Flagship from each major provider
+    { model_id: "openai/gpt-5.2-20251211", label: "GPT-5.2", group: "Top Models" },
+    { model_id: "anthropic/claude-4.5-opus-20251124", label: "Claude Opus 4.5", group: "Top Models" },
+    { model_id: "google/gemini-3-pro-preview-20251117", label: "Gemini 3 Pro", group: "Top Models" },
+    { model_id: "x-ai/grok-4.1-fast", label: "Grok 4.1", group: "Top Models" },
+    { model_id: "deepseek/deepseek-v3.2-20251201", label: "DeepSeek V3.2", group: "Top Models" },
+
+    # OpenAI
+    { model_id: "openai/gpt-5.1-20251113", label: "GPT-5.1", group: "OpenAI" },
+    { model_id: "openai/gpt-5", label: "GPT-5", group: "OpenAI" },
+    { model_id: "openai/gpt-5-mini", label: "GPT-5 Mini", group: "OpenAI" },
+    { model_id: "openai/gpt-5-nano", label: "GPT-5 Nano", group: "OpenAI" },
+    { model_id: "openai/gpt-5-chat", label: "GPT-5 Chat", group: "OpenAI" },
+    { model_id: "openai/o3", label: "O3", group: "OpenAI" },
+    { model_id: "openai/o4-mini-high", label: "O4 Mini High", group: "OpenAI" },
+    { model_id: "openai/o4-mini", label: "O4 Mini", group: "OpenAI" },
+    { model_id: "openai/o1", label: "O1", group: "OpenAI" },
+    { model_id: "openai/gpt-4.1", label: "GPT-4.1", group: "OpenAI" },
+    { model_id: "openai/gpt-4.1-mini", label: "GPT-4.1 Mini", group: "OpenAI" },
+    { model_id: "openai/gpt-4o-mini", label: "GPT-4o Mini", group: "OpenAI" },
+    { model_id: "openai/chatgpt-4o-latest", label: "ChatGPT-4o Latest", group: "OpenAI" },
+
+    # Anthropic
+    { model_id: "anthropic/claude-4.5-sonnet-20250929", label: "Claude Sonnet 4.5", group: "Anthropic" },
+    { model_id: "anthropic/claude-4.5-haiku-20251001", label: "Claude Haiku 4.5", group: "Anthropic" },
+    { model_id: "anthropic/claude-opus-4", label: "Claude Opus 4", group: "Anthropic" },
+    { model_id: "anthropic/claude-sonnet-4", label: "Claude Sonnet 4", group: "Anthropic" },
+    { model_id: "anthropic/claude-3.7-sonnet", label: "Claude 3.7 Sonnet", group: "Anthropic" },
+    { model_id: "anthropic/claude-3.7-sonnet:thinking", label: "Claude 3.7 Sonnet (Thinking)", group: "Anthropic" },
+    { model_id: "anthropic/claude-3-opus", label: "Claude Opus 3", group: "Anthropic" },
+
+    # Google
+    { model_id: "google/gemini-3-flash-preview-20251217", label: "Gemini 3 Flash", group: "Google" },
+    { model_id: "google/gemini-2.5-pro", label: "Gemini 2.5 Pro", group: "Google" },
+    { model_id: "google/gemini-2.5-flash-preview-09-2025", label: "Gemini 2.5 Flash", group: "Google" },
+
+    # xAI
+    { model_id: "x-ai/grok-4-fast", label: "Grok 4 Fast", group: "xAI" },
+    { model_id: "x-ai/grok-4", label: "Grok 4", group: "xAI" },
+    { model_id: "x-ai/grok-code-fast-1", label: "Grok Code Fast 1", group: "xAI" },
+
+    # Other
+    { model_id: "qwen/qwen3-max", label: "Qwen 3 Max", group: "Other" },
+    { model_id: "moonshotai/kimi-k2-0905", label: "Kimi K2", group: "Other" }
   ].freeze
 
   scope :latest, -> { order(updated_at: :desc) }

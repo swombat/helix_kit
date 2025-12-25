@@ -10,6 +10,21 @@
   let { chats = [], account, models = [], file_upload_config = null } = $props();
 
   let selectedModel = $state(models?.[0]?.model_id ?? '');
+
+  // Group models by their group property
+  const groupedModels = $derived(() => {
+    const groups = {};
+    const groupOrder = [];
+    for (const model of models) {
+      const group = model.group || 'Other';
+      if (!groups[group]) {
+        groups[group] = [];
+        groupOrder.push(group);
+      }
+      groups[group].push(model);
+    }
+    return { groups, groupOrder };
+  });
   let selectedFiles = $state([]);
   let canFetchUrls = $state(false);
 
@@ -76,11 +91,18 @@
             <Select.Trigger class="w-56">
               {models.find((model) => model.model_id === selectedModel)?.label || 'Select AI model'}
             </Select.Trigger>
-            <Select.Content sideOffset={4}>
-              {#each models as model (model.model_id)}
-                <Select.Item value={model.model_id} label={model.label}>
-                  {model.label}
-                </Select.Item>
+            <Select.Content sideOffset={4} class="max-h-80">
+              {#each groupedModels().groupOrder as groupName}
+                <Select.Group>
+                  <Select.GroupHeading class="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
+                    {groupName}
+                  </Select.GroupHeading>
+                  {#each groupedModels().groups[groupName] as model (model.model_id)}
+                    <Select.Item value={model.model_id} label={model.label}>
+                      {model.label}
+                    </Select.Item>
+                  {/each}
+                </Select.Group>
               {/each}
             </Select.Content>
           </Select.Root>
