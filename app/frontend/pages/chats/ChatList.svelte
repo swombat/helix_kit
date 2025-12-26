@@ -49,7 +49,7 @@
             </div>
             <div class="flex items-center gap-2 w-full group">
               <div class="text-xs text-muted-foreground flex-1/3 hidden group-hover:block">
-                {chat.model_name}
+                {chat.model_label}
               </div>
               <div class="text-xs text-muted-foreground flex-1/3 flex items-end justify-end hidden group-hover:block">
                 {chat.updated_at_short || formatDate(chat.updated_at)}

@@ -9,11 +9,9 @@ class ChatsController < ApplicationController
     render inertia: "chats/new", props: {
       chats: @chats.as_json,
       models: available_models,
+      agents: available_agents,
       account: current_account.as_json,
-      file_upload_config: {
-        acceptable_types: Message::ACCEPTABLE_FILE_TYPES.values.flatten,
-        max_size: Message::MAX_FILE_SIZE
-      }
+      file_upload_config: file_upload_config
     }
   end
 
@@ -24,16 +22,14 @@ class ChatsController < ApplicationController
       chats: @chats.as_json,
       account: current_account.as_json,
       models: available_models,
-      file_upload_config: {
-        acceptable_types: Message::ACCEPTABLE_FILE_TYPES.values.flatten,
-        max_size: Message::MAX_FILE_SIZE
-      }
+      agents: available_agents,
+      file_upload_config: file_upload_config
     }
   end
 
   def show
     @chats = current_account.chats.latest
-    @messages = @chat.messages.with_attached_attachments.sorted
+    @messages = @chat.messages.includes(:user, :agent).with_attached_attachments.sorted
 
     render inertia: "chats/show", props: {
       chat: @chat.as_json,
@@ -41,22 +37,42 @@ class ChatsController < ApplicationController
       messages: @messages.all.collect(&:as_json),
       account: current_account.as_json,
       models: available_models,
-      file_upload_config: {
-        acceptable_types: Message::ACCEPTABLE_FILE_TYPES.values.flatten,
-        max_size: Message::MAX_FILE_SIZE
-      }
+      agents: @chat.group_chat? ? @chat.agents.as_json : [],
+      file_upload_config: file_upload_config
     }
   end
 
   def create
+    chat_attrs = chat_params
+    chat_attrs[:manual_responses] = true if params[:agent_ids].present?
+
+    # Decode obfuscated agent IDs
+    decoded_agent_ids = params[:agent_ids].present? ? Agent.decode_id(params[:agent_ids]) : nil
+
     @chat = current_account.chats.create_with_message!(
-      chat_params,
+      chat_attrs,
       message_content: params[:message],
       user: Current.user,
-      files: params[:files]
+      files: params[:files],
+      agent_ids: decoded_agent_ids
     )
     audit("create_chat", @chat, **chat_params.to_h)
     redirect_to account_chat_path(current_account, @chat)
+  end
+
+  def trigger_agent
+    @agent = @chat.agents.find(params[:agent_id])
+    @chat.trigger_agent_response!(@agent)
+
+    respond_to do |format|
+      format.html { redirect_to account_chat_path(current_account, @chat) }
+      format.json { head :ok }
+    end
+  rescue ArgumentError => e
+    respond_to do |format|
+      format.html { redirect_back_or_to account_chat_path(current_account, @chat), alert: e.message }
+      format.json { render json: { error: e.message }, status: :unprocessable_entity }
+    end
   end
 
   def update
@@ -83,11 +99,22 @@ class ChatsController < ApplicationController
 
   def chat_params
     params.fetch(:chat, {})
-      .permit(:model_id, :web_access)
+      .permit(:model_id, :web_access, :manual_responses)
   end
 
   def available_models
     @available_models ||= Chat::MODELS
+  end
+
+  def file_upload_config
+    {
+      acceptable_types: Message::ACCEPTABLE_FILE_TYPES.values.flatten,
+      max_size: Message::MAX_FILE_SIZE
+    }
+  end
+
+  def available_agents
+    current_account.agents.active.as_json
   end
 
 end

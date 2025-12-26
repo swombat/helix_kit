@@ -9,6 +9,7 @@ class Message < ApplicationRecord
 
   belongs_to :chat, touch: true
   belongs_to :user, optional: true
+  belongs_to :agent, optional: true
   has_one :account, through: :chat
 
   has_many_attached :attachments
@@ -38,7 +39,8 @@ class Message < ApplicationRecord
   scope :sorted, -> { order(created_at: :asc) }
 
   json_attributes :role, :content, :user_name, :user_avatar_url, :completed,
-                  :created_at_formatted, :created_at_hour, :streaming, :files_json, :content_html, :tools_used, :tool_status
+                  :created_at_formatted, :created_at_hour, :streaming, :files_json, :content_html,
+                  :tools_used, :tool_status, :author_name, :author_type
 
   def completed?
     # User messages are always completed
@@ -54,6 +56,26 @@ class Message < ApplicationRecord
 
   def user_avatar_url
     user&.avatar_url
+  end
+
+  def author_name
+    if agent.present?
+      agent.name
+    elsif user.present?
+      user.full_name.presence || user.email_address.split("@").first
+    else
+      "System"
+    end
+  end
+
+  def author_type
+    if agent.present?
+      "agent"
+    elsif user.present?
+      "human"
+    else
+      "system"
+    end
   end
 
   def created_at_formatted

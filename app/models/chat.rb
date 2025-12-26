@@ -9,7 +9,12 @@ class Chat < ApplicationRecord
 
   belongs_to :account
 
-  json_attributes :title_or_default, :model_id, :model_name, :ai_model_name, :updated_at_formatted, :updated_at_short, :message_count, :web_access do |hash, options|
+  has_many :chat_agents, dependent: :destroy
+  has_many :agents, through: :chat_agents
+
+  validates :agents, length: { minimum: 1, message: "must include at least one agent" }, if: :manual_responses?
+
+  json_attributes :title_or_default, :model_id, :model_label, :ai_model_name, :updated_at_formatted, :updated_at_short, :message_count, :web_access, :manual_responses do |hash, options|
     # For sidebar format, only include minimal attributes
     if options&.dig(:as) == :sidebar_json
       hash.slice!("id", "title_or_default", "updated_at_short")
@@ -79,9 +84,12 @@ class Chat < ApplicationRecord
   scope :latest, -> { order(updated_at: :desc) }
 
   # Create chat with optional initial message
-  def self.create_with_message!(attributes, message_content: nil, user: nil, files: nil)
+  def self.create_with_message!(attributes, message_content: nil, user: nil, files: nil, agent_ids: nil)
     transaction do
-      chat = create!(attributes)
+      chat = new(attributes)
+      chat.agent_ids = agent_ids if agent_ids.present?
+      chat.save!
+
       if message_content.present? || (files.present? && files.any?)
         message = chat.messages.create!({
           content: message_content || "",
@@ -90,7 +98,8 @@ class Chat < ApplicationRecord
           skip_content_validation: message_content.blank? && files.present? && files.any? # Skip content validation if we have files but no content
         })
         message.attachments.attach(files) if files.present? && files.any?
-        AiResponseJob.perform_later(chat)
+
+        AiResponseJob.perform_later(chat) unless chat.manual_responses?
       end
       chat
     end
@@ -106,7 +115,7 @@ class Chat < ApplicationRecord
     model_id_string_value
   end
 
-  def model_name
+  def model_label
     model = MODELS.find { |m| m[:model_id] == model_id_string_value }
     model ? model[:label] : model_id_string_value
   end
@@ -140,6 +149,22 @@ class Chat < ApplicationRecord
     [ WebFetchTool, WebSearchTool ]
   end
 
+  # Group chat functionality
+  def group_chat?
+    manual_responses?
+  end
+
+  def trigger_agent_response!(agent)
+    raise ArgumentError, "Agent not in this conversation" unless agents.include?(agent)
+    raise ArgumentError, "This chat does not support manual responses" unless manual_responses?
+
+    ManualAgentResponseJob.perform_later(self, agent)
+  end
+
+  def build_context_for_agent(agent)
+    [ system_message_for(agent) ] + messages_context_for(agent)
+  end
+
   private
 
   def configure_for_openrouter
@@ -157,6 +182,43 @@ class Chat < ApplicationRecord
   def model_must_be_present
     if @model_string.blank? && ai_model.blank? && model_id_string.blank?
       errors.add(:model_id, "can't be blank")
+    end
+  end
+
+  # Group chat context building helpers
+  def system_message_for(agent)
+    content = agent.system_prompt.presence || "You are #{agent.name}."
+    content += "\n\nYou are participating in a group conversation."
+    content += " Other participants: #{participant_description(agent)}."
+    { role: "system", content: content }
+  end
+
+  def messages_context_for(agent)
+    messages.includes(:user, :agent).order(:created_at).map do |msg|
+      format_message_for_context(msg, agent)
+    end
+  end
+
+  def participant_description(current_agent)
+    humans = messages.unscope(:order).where.not(user_id: nil).joins(:user)
+                     .distinct.pluck("users.email_address")
+                     .map { |email| email.split("@").first }
+    other_agents = agents.where.not(id: current_agent.id).pluck(:name)
+
+    parts = []
+    parts << "Humans: #{humans.join(', ')}" if humans.any?
+    parts << "AI Agents: #{other_agents.join(', ')}" if other_agents.any?
+    parts.join(". ")
+  end
+
+  def format_message_for_context(message, current_agent)
+    if message.agent_id == current_agent.id
+      { role: "assistant", content: message.content }
+    elsif message.agent_id.present?
+      { role: "user", content: "[#{message.agent.name}]: #{message.content}" }
+    else
+      name = message.user&.full_name.presence || message.user&.email_address&.split("@")&.first || "User"
+      { role: "user", content: "[#{name}]: #{message.content}" }
     end
   end
 

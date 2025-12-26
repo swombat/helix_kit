@@ -1,15 +1,17 @@
 <script>
-  import { useForm } from '@inertiajs/svelte';
+  import { router } from '@inertiajs/svelte';
   import { Button } from '$lib/components/shadcn/button/index.js';
-  import { ArrowUp, Globe } from 'phosphor-svelte';
+  import { ArrowUp, Globe, Robot, UsersThree } from 'phosphor-svelte';
   import * as Select from '$lib/components/shadcn/select/index.js';
   import ChatList from './ChatList.svelte';
   import FileUploadInput from '$lib/components/chat/FileUploadInput.svelte';
   import { accountChatsPath } from '@/routes';
 
-  let { chats = [], account, models = [], file_upload_config = null } = $props();
+  let { chats = [], account, models = [], agents = [], file_upload_config = null } = $props();
 
   let selectedModel = $state(models?.[0]?.model_id ?? '');
+  let isGroupChat = $state(false);
+  let selectedAgentIds = $state([]);
 
   // Group models by their group property
   const groupedModels = $derived(() => {
@@ -27,14 +29,16 @@
   });
   let selectedFiles = $state([]);
   let webAccess = $state(false);
+  let message = $state('');
+  let processing = $state(false);
 
-  let createForm = useForm({
-    chat: {
-      model_id: selectedModel,
-      web_access: webAccess,
-    },
-    message: '',
-  });
+  function toggleAgent(agentId) {
+    if (selectedAgentIds.includes(agentId)) {
+      selectedAgentIds = selectedAgentIds.filter((id) => id !== agentId);
+    } else {
+      selectedAgentIds = [...selectedAgentIds, agentId];
+    }
+  }
 
   function handleKeydown(event) {
     if (event.key === 'Enter' && !event.shiftKey) {
@@ -44,25 +48,40 @@
   }
 
   function startChat() {
-    if (!$createForm.message.trim() && selectedFiles.length === 0) return;
+    if (!message.trim() && selectedFiles.length === 0) return;
+    if (isGroupChat && selectedAgentIds.length === 0) return;
+    if (processing) return;
 
-    $createForm.chat.model_id = selectedModel;
-    $createForm.chat.web_access = webAccess;
+    processing = true;
 
     // Use FormData to include files
     const formData = new FormData();
     formData.append('chat[model_id]', selectedModel);
     formData.append('chat[web_access]', webAccess.toString());
-    formData.append('message', $createForm.message);
+    formData.append('message', message);
 
     // Append each file
     selectedFiles.forEach((file) => {
       formData.append('files[]', file);
     });
 
-    $createForm.post(accountChatsPath(account.id), {
-      data: formData,
-      forceFormData: true,
+    // Append agent IDs for group chat
+    if (isGroupChat) {
+      selectedAgentIds.forEach((agentId) => {
+        formData.append('agent_ids[]', agentId);
+      });
+    }
+
+    router.post(accountChatsPath(account.id), formData, {
+      onSuccess: () => {
+        message = '';
+        selectedFiles = [];
+        processing = false;
+      },
+      onError: (errors) => {
+        console.error('Chat creation failed:', errors);
+        processing = false;
+      },
     });
   }
 </script>
@@ -110,8 +129,8 @@
       </div>
     </header>
 
-    <!-- Settings bar with web access toggle -->
-    <div class="border-b border-border px-6 py-2 bg-muted/10">
+    <!-- Settings bar with web access toggle and group chat option -->
+    <div class="border-b border-border px-6 py-2 bg-muted/10 flex items-center gap-6">
       <label class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity w-fit">
         <input
           type="checkbox"
@@ -120,7 +139,42 @@
         <Globe size={16} class="text-muted-foreground" weight="duotone" />
         <span class="text-sm text-muted-foreground">Allow web access</span>
       </label>
+
+      {#if agents.length > 0}
+        <label class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity w-fit">
+          <input
+            type="checkbox"
+            bind:checked={isGroupChat}
+            class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary focus:ring-offset-0 focus:ring-2 transition-colors cursor-pointer" />
+          <UsersThree size={16} class="text-muted-foreground" weight="duotone" />
+          <span class="text-sm text-muted-foreground">Group chat with agents</span>
+        </label>
+      {/if}
     </div>
+
+    <!-- Agent selection for group chat -->
+    {#if isGroupChat && agents.length > 0}
+      <div class="border-b border-border px-6 py-3 bg-muted/5">
+        <div class="text-sm font-medium mb-2">Select agents to participate:</div>
+        <div class="flex flex-wrap gap-2">
+          {#each agents as agent (agent.id)}
+            <button
+              type="button"
+              onclick={() => toggleAgent(agent.id)}
+              class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm transition-colors
+                     {selectedAgentIds.includes(agent.id)
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-muted hover:bg-muted/80 text-muted-foreground'}">
+              <Robot size={14} weight="duotone" />
+              {agent.name}
+            </button>
+          {/each}
+        </div>
+        {#if selectedAgentIds.length === 0}
+          <p class="text-xs text-amber-600 mt-2">Select at least one agent to start a group chat</p>
+        {/if}
+      </div>
+    {/if}
 
     <!-- Empty state -->
     <div class="flex-1 flex items-center justify-center px-6 py-4">
@@ -135,28 +189,29 @@
       <div class="flex gap-3 items-start">
         <FileUploadInput
           bind:files={selectedFiles}
-          disabled={$createForm.processing}
+          disabled={processing}
           allowedTypes={file_upload_config?.acceptable_types || []}
           maxSize={file_upload_config?.max_size || 52428800} />
 
         <div class="flex-1">
           <textarea
-            bind:value={$createForm.message}
+            bind:value={message}
             onkeydown={handleKeydown}
             placeholder="Type your message to start the chat..."
-            disabled={$createForm.processing}
+            disabled={processing}
             class="w-full resize-none border border-input rounded-md px-3 py-2 text-sm bg-background
                    focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent
                    min-h-[40px] max-h-[120px]"
             rows="1"></textarea>
         </div>
-        <Button
-          on:click={startChat}
-          disabled={(!$createForm.message.trim() && selectedFiles.length === 0) || $createForm.processing}
-          size="sm"
-          class="h-10 w-10 p-0">
+        <button
+          onclick={startChat}
+          disabled={(!message.trim() && selectedFiles.length === 0) ||
+            processing ||
+            (isGroupChat && selectedAgentIds.length === 0)}
+          class="h-10 w-10 p-0 inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground hover:bg-primary/90">
           <ArrowUp size={16} />
-        </Button>
+        </button>
       </div>
     </div>
   </main>

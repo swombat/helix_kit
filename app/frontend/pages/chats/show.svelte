@@ -13,6 +13,7 @@
   import ChatList from './ChatList.svelte';
   import FileUploadInput from '$lib/components/chat/FileUploadInput.svelte';
   import FileAttachment from '$lib/components/chat/FileAttachment.svelte';
+  import AgentTriggerBar from '$lib/components/chat/AgentTriggerBar.svelte';
   import { accountChatMessagesPath, retryMessagePath } from '@/routes';
   import { marked } from 'marked';
   import * as logging from '$lib/logging';
@@ -44,7 +45,7 @@
   // Create ActionCable consumer
   const consumer = typeof window !== 'undefined' ? createConsumer() : null;
 
-  let { chat, chats = [], messages = [], account, models = [], file_upload_config = {} } = $props();
+  let { chat, chats = [], messages = [], account, models = [], agents = [], file_upload_config = {} } = $props();
 
   let selectedModel = $state(models?.[0]?.model_id ?? '');
   let messageInput = $state('');
@@ -97,7 +98,10 @@
   });
 
   // Auto-detect waiting state based on messages
-  const shouldShowSendingPlaceholder = $derived(waitingForResponse || lastMessageIsUserWithoutResponse());
+  // Don't show for manual_responses chats (group chats) since they don't auto-respond
+  const shouldShowSendingPlaceholder = $derived(
+    waitingForResponse || (lastMessageIsUserWithoutResponse() && !chat?.manual_responses)
+  );
 
   // Get the timestamp of when the last user message was sent
   const lastUserMessageTime = $derived(() => {
@@ -410,7 +414,7 @@
       </h1>
       <div class="mt-2">
         <div class="text-sm text-muted-foreground">
-          {chat?.model_name || chat?.model_id || 'Auto'}
+          {chat?.model_label || chat?.model_id || 'Auto'}
         </div>
       </div>
     </header>
@@ -610,6 +614,11 @@
         {/if}
       {/if}
     </div>
+
+    <!-- Agent trigger bar for group chats -->
+    {#if chat?.manual_responses && agents?.length > 0}
+      <AgentTriggerBar {agents} accountId={account.id} chatId={chat.id} />
+    {/if}
 
     <!-- Message input -->
     <div class="border-t border-border bg-muted/30 p-4">

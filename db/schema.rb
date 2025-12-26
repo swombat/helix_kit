@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_25_181322) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_26_163750) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -109,10 +109,20 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_25_181322) do
     t.index ["user_id"], name: "index_audit_logs_on_user_id"
   end
 
+  create_table "chat_agents", force: :cascade do |t|
+    t.bigint "agent_id", null: false
+    t.bigint "chat_id", null: false
+    t.datetime "created_at", null: false
+    t.index ["agent_id"], name: "index_chat_agents_on_agent_id"
+    t.index ["chat_id", "agent_id"], name: "index_chat_agents_on_chat_id_and_agent_id", unique: true
+    t.index ["chat_id"], name: "index_chat_agents_on_chat_id"
+  end
+
   create_table "chats", force: :cascade do |t|
     t.bigint "account_id", null: false
     t.bigint "ai_model_id"
     t.datetime "created_at", null: false
+    t.boolean "manual_responses", default: false, null: false
     t.string "model_id_string", default: "openrouter/auto", null: false
     t.string "title"
     t.datetime "updated_at", null: false
@@ -120,6 +130,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_25_181322) do
     t.index ["account_id", "created_at"], name: "index_chats_on_account_id_and_created_at"
     t.index ["account_id"], name: "index_chats_on_account_id"
     t.index ["ai_model_id"], name: "index_chats_on_ai_model_id"
+    t.index ["manual_responses"], name: "index_chats_on_manual_responses"
     t.index ["web_access"], name: "index_chats_on_web_access"
   end
 
@@ -145,6 +156,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_25_181322) do
   end
 
   create_table "messages", force: :cascade do |t|
+    t.bigint "agent_id"
     t.bigint "ai_model_id"
     t.bigint "chat_id", null: false
     t.text "content"
@@ -159,6 +171,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_25_181322) do
     t.text "tools_used", default: [], array: true
     t.datetime "updated_at", null: false
     t.bigint "user_id"
+    t.index ["agent_id"], name: "index_messages_on_agent_id"
     t.index ["ai_model_id"], name: "index_messages_on_ai_model_id"
     t.index ["chat_id", "created_at"], name: "index_messages_on_chat_id_and_created_at"
     t.index ["chat_id"], name: "index_messages_on_chat_id"
@@ -239,11 +252,14 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_25_181322) do
   add_foreign_key "agents", "accounts"
   add_foreign_key "audit_logs", "accounts"
   add_foreign_key "audit_logs", "users"
+  add_foreign_key "chat_agents", "agents"
+  add_foreign_key "chat_agents", "chats"
   add_foreign_key "chats", "accounts"
   add_foreign_key "chats", "ai_models"
   add_foreign_key "memberships", "accounts"
   add_foreign_key "memberships", "users"
   add_foreign_key "memberships", "users", column: "invited_by_id"
+  add_foreign_key "messages", "agents"
   add_foreign_key "messages", "ai_models"
   add_foreign_key "messages", "chats"
   add_foreign_key "messages", "users"
