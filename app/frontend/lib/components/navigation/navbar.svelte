@@ -49,6 +49,11 @@
       label: 'Chats',
       show: !!currentUser && siteSettings?.allow_chats,
     },
+    {
+      href: currentAccount?.id ? `/accounts/${currentAccount.id}/agents` : '#',
+      label: 'Agents',
+      show: !!currentUser && siteSettings?.allow_agents,
+    },
     { href: '#', label: 'About', show: true },
   ]);
 

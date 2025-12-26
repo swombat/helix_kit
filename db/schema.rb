@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_25_172756) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_25_181322) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -52,6 +52,20 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_25_172756) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "agents", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.boolean "active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.jsonb "enabled_tools", default: [], null: false
+    t.string "model_id", default: "openrouter/auto", null: false
+    t.string "name", null: false
+    t.text "system_prompt"
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "active"], name: "index_agents_on_account_id_and_active"
+    t.index ["account_id", "name"], name: "index_agents_on_account_id_and_name", unique: true
+    t.index ["account_id"], name: "index_agents_on_account_id"
   end
 
   create_table "ai_models", force: :cascade do |t|
@@ -188,6 +202,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_25_172756) do
   end
 
   create_table "settings", force: :cascade do |t|
+    t.boolean "allow_agents", default: false, null: false
     t.boolean "allow_chats", default: true, null: false
     t.boolean "allow_signups", default: true, null: false
     t.datetime "created_at", null: false
@@ -221,6 +236,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_25_172756) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "agents", "accounts"
   add_foreign_key "audit_logs", "accounts"
   add_foreign_key "audit_logs", "users"
   add_foreign_key "chats", "accounts"

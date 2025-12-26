@@ -1,0 +1,31 @@
+research_assistant:
+  account_id: 1
+  name: Research Assistant
+  system_prompt: You are a helpful research assistant that finds and synthesizes information.
+  model_id: openrouter/auto
+  enabled_tools: []
+  active: true
+
+code_reviewer:
+  account_id: 1
+  name: Code Reviewer
+  system_prompt: You review code for best practices and potential issues.
+  model_id: anthropic/claude-opus-4
+  enabled_tools: []
+  active: true
+
+inactive_agent:
+  account_id: 1
+  name: Inactive Agent
+  system_prompt: This agent is inactive.
+  model_id: openrouter/auto
+  enabled_tools: []
+  active: false
+
+other_account_agent:
+  account_id: 2
+  name: Team Agent
+  system_prompt: Agent for the team account.
+  model_id: openrouter/auto
+  enabled_tools: []
+  active: true

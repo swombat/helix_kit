@@ -27,6 +27,7 @@
     formData.append('setting[site_name]', form.site_name);
     formData.append('setting[allow_signups]', form.allow_signups);
     formData.append('setting[allow_chats]', form.allow_chats);
+    formData.append('setting[allow_agents]', form.allow_agents);
 
     if (logoFile) {
       formData.append('setting[logo]', logoFile);
@@ -132,6 +133,17 @@
               id="allow_chats"
               checked={form.allow_chats}
               onCheckedChange={(checked) => (form.allow_chats = checked)} />
+          </div>
+
+          <div class="flex items-center justify-between">
+            <div class="space-y-1">
+              <Label for="allow_agents">Allow Agents</Label>
+              <p class="text-sm text-muted-foreground">When disabled, agent management is hidden</p>
+            </div>
+            <Switch
+              id="allow_agents"
+              checked={form.allow_agents}
+              onCheckedChange={(checked) => (form.allow_agents = checked)} />
           </div>
         </CardContent>
       </Card>

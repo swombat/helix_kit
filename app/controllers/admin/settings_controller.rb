@@ -27,7 +27,7 @@ class Admin::SettingsController < ApplicationController
   private
 
   def setting_params
-    params.require(:setting).permit(:site_name, :allow_signups, :allow_chats, :logo)
+    params.require(:setting).permit(:site_name, :allow_signups, :allow_chats, :allow_agents, :logo)
   end
 
   def require_site_admin

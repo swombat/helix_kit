@@ -1,0 +1,78 @@
+class AgentsController < ApplicationController
+
+  require_feature_enabled :agents
+  before_action :set_agent, only: [ :edit, :update, :destroy ]
+
+  def index
+    @agents = current_account.agents.by_name
+
+    render inertia: "agents/index", props: {
+      agents: @agents.as_json,
+      grouped_models: grouped_models,
+      available_tools: tools_for_frontend,
+      account: current_account.as_json
+    }
+  end
+
+  def create
+    @agent = current_account.agents.new(agent_params)
+
+    if @agent.save
+      audit("create_agent", @agent, **agent_params.to_h)
+      redirect_to account_agents_path(current_account), notice: "Agent created"
+    else
+      redirect_to account_agents_path(current_account),
+                  inertia: { errors: @agent.errors.to_hash }
+    end
+  end
+
+  def edit
+    render inertia: "agents/edit", props: {
+      agent: @agent.as_json,
+      grouped_models: grouped_models,
+      available_tools: tools_for_frontend,
+      account: current_account.as_json
+    }
+  end
+
+  def update
+    if @agent.update(agent_params)
+      audit("update_agent", @agent, **agent_params.to_h)
+      redirect_to account_agents_path(current_account), notice: "Agent updated"
+    else
+      redirect_to edit_account_agent_path(current_account, @agent),
+                  inertia: { errors: @agent.errors.to_hash }
+    end
+  end
+
+  def destroy
+    audit("destroy_agent", @agent)
+    @agent.destroy!
+    redirect_to account_agents_path(current_account), notice: "Agent deleted"
+  end
+
+  private
+
+  def set_agent
+    @agent = current_account.agents.find(params[:id])
+  end
+
+  def agent_params
+    params.require(:agent).permit(:name, :system_prompt, :model_id, :active, enabled_tools: [])
+  end
+
+  def grouped_models
+    Chat::MODELS.group_by { |m| m[:group] || "Other" }
+  end
+
+  def tools_for_frontend
+    Agent.available_tools.map do |tool|
+      {
+        class_name: tool.name,
+        name: tool.name.underscore.humanize.sub(/ tool$/i, ""),
+        description: tool.try(:description)
+      }
+    end
+  end
+
+end

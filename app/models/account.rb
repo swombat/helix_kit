@@ -18,6 +18,7 @@ class Account < ApplicationRecord
           class_name: "Membership"
   has_one :owner, through: :owner_membership, source: :user
   has_many :chats, dependent: :destroy
+  has_many :agents, dependent: :destroy
 
   # Validations (Rails-only, no SQL constraints!)
   validates :name, presence: true

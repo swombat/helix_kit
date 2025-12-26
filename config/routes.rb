@@ -40,6 +40,7 @@ Rails.application.routes.draw do
     resources :chats do
       resources :messages, only: :create
     end
+    resources :agents, except: [ :show, :new ]
   end
 
   resources :messages, only: [] do
