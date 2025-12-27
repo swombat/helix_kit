@@ -10,6 +10,7 @@
   import { accountAgentsPath, accountAgentPath } from '@/routes';
   import ColourPicker from '$lib/components/ColourPicker.svelte';
   import IconPicker from '$lib/components/IconPicker.svelte';
+  import { useSync } from '$lib/use-sync';
 
   let {
     agent,
@@ -20,6 +21,11 @@
     icon_options = [],
     account,
   } = $props();
+
+  // Sync agent and memories when AgentMemory changes broadcast to agent
+  useSync({
+    [`Agent:${agent.id}`]: ['agent', 'memories'],
+  });
 
   let selectedModel = $state(agent.model_id);
 

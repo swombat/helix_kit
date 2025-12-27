@@ -1,8 +1,12 @@
 class AgentMemory < ApplicationRecord
 
+  include Broadcastable
+
   JOURNAL_WINDOW = 1.week
 
   belongs_to :agent
+
+  broadcasts_to :agent
 
   enum :memory_type, { journal: 0, core: 1 }
 
