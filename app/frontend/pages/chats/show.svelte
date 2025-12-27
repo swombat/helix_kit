@@ -77,6 +77,13 @@
         })
   );
 
+  // Count unique human participants in group chats
+  const uniqueHumanCount = $derived(() => {
+    if (!messages || messages.length === 0) return 0;
+    const humanNames = new Set(messages.filter((m) => m.role === 'user' && m.author_name).map((m) => m.author_name));
+    return humanNames.size;
+  });
+
   // Check if the last actual message is hidden (tool call or empty assistant) - model is still thinking
   const lastMessageIsHiddenThinking = $derived(() => {
     if (!messages || messages.length === 0) return false;
@@ -438,7 +445,14 @@
             {chat?.title || 'New Chat'}
           </h1>
           <div class="text-sm text-muted-foreground">
-            {chat?.model_label || chat?.model_id || 'Auto'}
+            {#if chat?.manual_responses}
+              {agents?.length || 0} AI{agents?.length === 1 ? '' : 's'}, {uniqueHumanCount()} human{uniqueHumanCount() ===
+              1
+                ? ''
+                : 's'}
+            {:else}
+              {chat?.model_label || chat?.model_id || 'Auto'}
+            {/if}
           </div>
         </div>
       </div>
@@ -522,6 +536,9 @@
                       <span class="hidden group-hover:inline-block">({formatDateTime(message.created_at, true)})</span>
                       {formatTime(message.created_at)}
                     </span>
+                    {#if chat?.manual_responses && message.author_name}
+                      <span class="ml-1">· {message.author_name}</span>
+                    {/if}
                     {#if index === visibleMessages.length - 1 && lastUserMessageNeedsResend() && !waitingForResponse}
                       <button onclick={resendLastMessage} class="ml-2 text-blue-600 hover:text-blue-700 underline">
                         Resend
@@ -579,6 +596,9 @@
                     </Card.Content>
                   </Card.Root>
                   <div class="text-xs text-muted-foreground mt-1">
+                    {#if chat?.manual_responses && message.author_name}
+                      <span class="mr-1">{message.author_name} ·</span>
+                    {/if}
                     <span class="group">
                       {formatTime(message.created_at)}
                       <span class="hidden group-hover:inline-block">({formatDateTime(message.created_at, true)})</span>
