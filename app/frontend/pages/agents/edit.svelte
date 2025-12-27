@@ -1,17 +1,25 @@
 <script>
-  import { useForm } from '@inertiajs/svelte';
+  import { useForm, router } from '@inertiajs/svelte';
   import { Button } from '$lib/components/shadcn/button/index.js';
   import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '$lib/components/shadcn/card';
   import { Input } from '$lib/components/shadcn/input';
   import { Label } from '$lib/components/shadcn/label';
   import { Switch } from '$lib/components/shadcn/switch';
   import * as Select from '$lib/components/shadcn/select/index.js';
-  import { ArrowLeft } from 'phosphor-svelte';
+  import { ArrowLeft, Brain, BookOpen, Warning, Trash } from 'phosphor-svelte';
   import { accountAgentsPath, accountAgentPath } from '@/routes';
   import ColourPicker from '$lib/components/ColourPicker.svelte';
   import IconPicker from '$lib/components/IconPicker.svelte';
 
-  let { agent, grouped_models = {}, available_tools = [], colour_options = [], icon_options = [], account } = $props();
+  let {
+    agent,
+    memories = [],
+    grouped_models = {},
+    available_tools = [],
+    colour_options = [],
+    icon_options = [],
+    account,
+  } = $props();
 
   let selectedModel = $state(agent.model_id);
 
@@ -49,6 +57,12 @@
   function updateAgent() {
     $form.agent.model_id = selectedModel;
     $form.patch(accountAgentPath(account.id, agent.id));
+  }
+
+  function deleteMemory(memoryId) {
+    if (confirm('Delete this memory permanently?')) {
+      router.delete(`/accounts/${account.id}/agents/${agent.id}/memories/${memoryId}`);
+    }
   }
 </script>
 
@@ -194,6 +208,63 @@
                     {/if}
                   </div>
                 </label>
+              {/each}
+            </div>
+          {/if}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Agent Memory</CardTitle>
+          <CardDescription>
+            Review and manage this agent's memories. Core memories are permanent; journal entries fade after a week.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {#if memories.length === 0}
+            <p class="text-sm text-muted-foreground py-4">
+              This agent has no memories yet. Memories will appear here as the agent creates them using the save_memory
+              tool.
+            </p>
+          {:else}
+            <div class="space-y-3 max-h-96 overflow-y-auto">
+              {#each memories as memory (memory.id)}
+                <div
+                  class="flex items-start gap-3 p-3 rounded-lg border {memory.expired
+                    ? 'opacity-50 border-dashed'
+                    : 'border-border'}">
+                  <div class="flex-shrink-0 mt-0.5">
+                    {#if memory.memory_type === 'core'}
+                      <Brain size={18} class="text-primary" weight="duotone" />
+                    {:else}
+                      <BookOpen size={18} class="text-muted-foreground" weight="duotone" />
+                    {/if}
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2 mb-1">
+                      <span
+                        class="text-xs font-medium uppercase {memory.memory_type === 'core'
+                          ? 'text-primary'
+                          : 'text-muted-foreground'}">
+                        {memory.memory_type}
+                      </span>
+                      <span class="text-xs text-muted-foreground">{memory.created_at}</span>
+                      {#if memory.expired}
+                        <span class="text-xs text-warning flex items-center gap-1">
+                          <Warning size={12} /> expired
+                        </span>
+                      {/if}
+                    </div>
+                    <p class="text-sm whitespace-pre-wrap break-words">{memory.content}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onclick={() => deleteMemory(memory.id)}
+                    class="flex-shrink-0 p-1 text-muted-foreground hover:text-destructive transition-colors">
+                    <Trash size={16} />
+                  </button>
+                </div>
               {/each}
             </div>
           {/if}

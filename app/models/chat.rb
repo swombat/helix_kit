@@ -198,10 +198,18 @@ class Chat < ApplicationRecord
 
   # Group chat context building helpers
   def system_message_for(agent)
-    content = agent.system_prompt.presence || "You are #{agent.name}."
-    content += "\n\nYou are participating in a group conversation."
-    content += " Other participants: #{participant_description(agent)}."
-    { role: "system", content: content }
+    parts = []
+
+    parts << (agent.system_prompt.presence || "You are #{agent.name}.")
+
+    if (memory_context = agent.memory_context)
+      parts << memory_context
+    end
+
+    parts << "You are participating in a group conversation."
+    parts << "Other participants: #{participant_description(agent)}."
+
+    { role: "system", content: parts.join("\n\n") }
   end
 
   def messages_context_for(agent)

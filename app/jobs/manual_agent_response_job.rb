@@ -2,6 +2,13 @@ class ManualAgentResponseJob < ApplicationJob
 
   include StreamsAiResponse
 
+  # Retry on provider errors with exponential backoff (5s, 25s, 125s)
+  retry_on RubyLLM::ModelNotFoundError, wait: 5.seconds, attempts: 2
+  retry_on RubyLLM::BadRequestError, wait: :polynomially_longer, attempts: 3
+  retry_on RubyLLM::ServerError, wait: :polynomially_longer, attempts: 3
+  retry_on RubyLLM::RateLimitError, wait: :polynomially_longer, attempts: 5
+  retry_on Faraday::Error, wait: :polynomially_longer, attempts: 3
+
   def perform(chat, agent)
     @chat = chat
     @agent = agent
@@ -43,9 +50,21 @@ class ManualAgentResponseJob < ApplicationJob
   rescue RubyLLM::ModelNotFoundError => e
     Rails.logger.error "Model not found: #{e.message}"
     RubyLLM.models.refresh!
-    retry_job
+    raise # Let retry_on handle it
+  rescue RubyLLM::BadRequestError, RubyLLM::ServerError, RubyLLM::RateLimitError, Faraday::Error => e
+    Rails.logger.error "LLM provider error for agent #{@agent&.name}: #{e.message}"
+    cleanup_partial_message
+    raise # Let retry_on handle it
   ensure
     cleanup_streaming
+  end
+
+  private
+
+  def cleanup_partial_message
+    return unless @ai_message&.persisted?
+    # Delete empty streaming messages that were created before the error
+    @ai_message.destroy if @ai_message.content.blank? && @ai_message.streaming?
   end
 
 end

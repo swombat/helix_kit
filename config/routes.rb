@@ -44,7 +44,11 @@ Rails.application.routes.draw do
       end
       resources :messages, only: :create
     end
-    resources :agents, except: [ :show, :new ]
+    resources :agents, except: [ :show, :new ] do
+      member do
+        delete "memories/:memory_id", action: :destroy_memory, as: :destroy_memory
+      end
+    end
   end
 
   resources :messages, only: [] do

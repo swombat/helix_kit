@@ -172,4 +172,17 @@ class AgentsControllerTest < ActionDispatch::IntegrationTest
     assert_equal @user, audit.user
   end
 
+  # Memory tests
+
+  test "destroy_memory deletes a memory and redirects" do
+    memory = @agent.memories.create!(content: "Test memory", memory_type: :journal)
+
+    assert_difference "@agent.memories.count", -1 do
+      delete destroy_memory_account_agent_path(@account, @agent, memory_id: memory.id)
+    end
+
+    assert_redirected_to edit_account_agent_path(@account, @agent)
+    assert_match(/deleted/, flash[:notice])
+  end
+
 end

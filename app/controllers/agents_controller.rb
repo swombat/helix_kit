@@ -1,7 +1,7 @@
 class AgentsController < ApplicationController
 
   require_feature_enabled :agents
-  before_action :set_agent, only: [ :edit, :update, :destroy ]
+  before_action :set_agent, only: [ :edit, :update, :destroy, :destroy_memory ]
 
   def index
     @agents = current_account.agents.by_name
@@ -31,6 +31,7 @@ class AgentsController < ApplicationController
   def edit
     render inertia: "agents/edit", props: {
       agent: @agent.as_json,
+      memories: memories_for_display,
       grouped_models: grouped_models,
       available_tools: tools_for_frontend,
       colour_options: Agent::VALID_COLOURS,
@@ -55,6 +56,12 @@ class AgentsController < ApplicationController
     redirect_to account_agents_path(current_account), notice: "Agent deleted"
   end
 
+  def destroy_memory
+    memory = @agent.memories.find(params[:memory_id])
+    memory.destroy!
+    redirect_to edit_account_agent_path(current_account, @agent), notice: "Memory deleted"
+  end
+
   private
 
   def set_agent
@@ -75,6 +82,18 @@ class AgentsController < ApplicationController
         class_name: tool.name,
         name: tool.name.underscore.humanize.sub(/ tool$/i, ""),
         description: tool.try(:description)
+      }
+    end
+  end
+
+  def memories_for_display
+    @agent.memories.recent_first.limit(100).map do |m|
+      {
+        id: m.id,
+        content: m.content,
+        memory_type: m.memory_type,
+        created_at: m.created_at.strftime("%Y-%m-%d %H:%M"),
+        expired: m.expired?
       }
     end
   end

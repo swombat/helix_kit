@@ -6,6 +6,7 @@ class Agent < ApplicationRecord
   include SyncAuthorizable
 
   belongs_to :account
+  has_many :memories, class_name: "AgentMemory", dependent: :destroy
 
   before_validation :clean_enabled_tools
 
@@ -37,7 +38,7 @@ class Agent < ApplicationRecord
   scope :by_name, -> { order(:name) }
 
   json_attributes :name, :system_prompt, :model_id, :model_label,
-                  :enabled_tools, :active?, :colour, :icon
+                  :enabled_tools, :active?, :colour, :icon, :memories_count
 
   def self.available_tools
     Dir[Rails.root.join("app/tools/*_tool.rb")].filter_map do |file|
@@ -63,6 +64,21 @@ class Agent < ApplicationRecord
     Chat::MODELS.find { |m| m[:model_id] == model_id }&.dig(:label) || model_id
   end
 
+  def memory_context
+    active = memories.for_prompt.to_a
+    return nil if active.empty?
+
+    [
+      core_memory_section(active),
+      journal_memory_section(active)
+    ].compact.join("\n\n").then { |s| "# Your Private Memory\n\n#{s}" }
+  end
+
+  def memories_count
+    raw = memories.group(:memory_type).count
+    { core: raw.fetch("core", 0), journal: raw.fetch("journal", 0) }
+  end
+
   private
 
   def clean_enabled_tools
@@ -74,6 +90,20 @@ class Agent < ApplicationRecord
     available = self.class.available_tools.map(&:name)
     invalid = enabled_tools - available
     errors.add(:enabled_tools, "contains invalid tools: #{invalid.join(', ')}") if invalid.any?
+  end
+
+  def core_memory_section(memories)
+    core = memories.select(&:core?)
+    return unless core.any?
+
+    "## Core Memories (permanent)\n" + core.map { |m| "- #{m.content}" }.join("\n")
+  end
+
+  def journal_memory_section(memories)
+    journal = memories.select(&:journal?)
+    return unless journal.any?
+
+    "## Recent Journal Entries\n" + journal.map { |m| "- [#{m.created_at.strftime('%Y-%m-%d')}] #{m.content}" }.join("\n")
   end
 
 end
