@@ -42,6 +42,12 @@
     });
   }
 
+  // Generate bubble background class based on author colour
+  function getBubbleClass(colour) {
+    if (!colour) return '';
+    return `bg-${colour}-100 dark:bg-${colour}-900`;
+  }
+
   // Create ActionCable consumer
   const consumer = typeof window !== 'undefined' ? createConsumer() : null;
 
@@ -507,7 +513,7 @@
             {#if message.role === 'user'}
               <div class="flex justify-end">
                 <div class="max-w-[85%] md:max-w-[70%]">
-                  <Card.Root class="bg-indigo-200">
+                  <Card.Root class={getBubbleClass(message.author_colour)}>
                     <Card.Content class="p-4">
                       {#if message.files_json && message.files_json.length > 0}
                         <div class="space-y-2 mb-3">
@@ -550,7 +556,7 @@
             {:else}
               <div class="flex justify-start">
                 <div class="max-w-[85%] md:max-w-[70%]">
-                  <Card.Root>
+                  <Card.Root class={getBubbleClass(message.author_colour)}>
                     <Card.Content class="p-4">
                       {#if message.status === 'failed'}
                         <div class="text-red-600 mb-2 text-sm">Failed to generate response</div>

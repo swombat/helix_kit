@@ -1,7 +1,7 @@
 <script>
   import UserSettingsForm from '$lib/components/forms/UserSettingsForm.svelte';
 
-  let { user, timezones } = $props();
+  let { user, timezones, colour_options = [] } = $props();
 </script>
 
 <div class="container mx-auto p-8 max-w-6xl">
@@ -14,5 +14,5 @@
     </div>
   </div>
 
-  <UserSettingsForm {user} {timezones} />
+  <UserSettingsForm {user} {timezones} {colour_options} />
 </div>

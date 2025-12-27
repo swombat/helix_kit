@@ -8,11 +8,94 @@
   import { Switch } from '$lib/components/shadcn/switch';
   import * as Dialog from '$lib/components/shadcn/dialog/index.js';
   import * as Select from '$lib/components/shadcn/select/index.js';
-  import { Plus, Robot, PencilSimple, Trash } from 'phosphor-svelte';
+  import {
+    Plus,
+    Robot,
+    PencilSimple,
+    Trash,
+    Brain,
+    Sparkle,
+    Lightning,
+    Star,
+    Heart,
+    Sun,
+    Moon,
+    Eye,
+    Globe,
+    Compass,
+    Rocket,
+    Atom,
+    Lightbulb,
+    Crown,
+    Shield,
+    Fire,
+    Target,
+    Trophy,
+    Flask,
+    Code,
+    Cube,
+    PuzzlePiece,
+    Cat,
+    Dog,
+    Bird,
+    Alien,
+    Ghost,
+    Detective,
+    Butterfly,
+    Flower,
+    Tree,
+    Leaf,
+  } from 'phosphor-svelte';
   import { useSync } from '$lib/use-sync';
   import { accountAgentsPath, editAccountAgentPath, accountAgentPath } from '@/routes';
+  import ColourPicker from '$lib/components/ColourPicker.svelte';
+  import IconPicker from '$lib/components/IconPicker.svelte';
 
-  let { agents = [], grouped_models = {}, available_tools = [], account } = $props();
+  let {
+    agents = [],
+    grouped_models = {},
+    available_tools = [],
+    colour_options = [],
+    icon_options = [],
+    account,
+  } = $props();
+
+  // Map icon names to components for dynamic rendering
+  const iconComponents = {
+    Robot,
+    Brain,
+    Sparkle,
+    Lightning,
+    Star,
+    Heart,
+    Sun,
+    Moon,
+    Eye,
+    Globe,
+    Compass,
+    Rocket,
+    Atom,
+    Lightbulb,
+    Crown,
+    Shield,
+    Fire,
+    Target,
+    Trophy,
+    Flask,
+    Code,
+    Cube,
+    PuzzlePiece,
+    Cat,
+    Dog,
+    Bird,
+    Alien,
+    Ghost,
+    Detective,
+    Butterfly,
+    Flower,
+    Tree,
+    Leaf,
+  };
 
   useSync({ [`Account:${account.id}:agents`]: 'agents' });
 
@@ -29,6 +112,8 @@
       model_id: selectedModel,
       active: true,
       enabled_tools: [],
+      colour: null,
+      icon: null,
     },
   });
 
@@ -67,6 +152,8 @@
     $form.agent.model_id = Object.values(grouped_models).flat()[0]?.model_id ?? 'openrouter/auto';
     $form.agent.active = true;
     $form.agent.enabled_tools = [];
+    $form.agent.colour = null;
+    $form.agent.icon = null;
     selectedModel = $form.agent.model_id;
   }
 
@@ -109,12 +196,20 @@
   {:else}
     <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       {#each agents as agent (agent.id)}
+        {@const IconComponent = iconComponents[agent.icon] || Robot}
         <Card class="hover:border-primary/50 transition-colors">
           <CardHeader class="pb-3">
             <div class="flex items-start justify-between">
               <div class="flex items-center gap-3">
-                <div class="p-2 bg-primary/10 rounded-lg">
-                  <Robot class="size-5 text-primary" weight="duotone" />
+                <div
+                  class="p-2 rounded-lg {agent.colour
+                    ? `bg-${agent.colour}-100 dark:bg-${agent.colour}-900`
+                    : 'bg-primary/10'}">
+                  <IconComponent
+                    class="size-5 {agent.colour
+                      ? `text-${agent.colour}-700 dark:text-${agent.colour}-300`
+                      : 'text-primary'}"
+                    weight="duotone" />
                 </div>
                 <div>
                   <CardTitle class="text-lg">{agent.name}</CardTitle>
@@ -243,6 +338,10 @@
           checked={$form.agent.active}
           onCheckedChange={(checked) => ($form.agent.active = checked)} />
       </div>
+
+      <ColourPicker bind:value={$form.agent.colour} options={colour_options} label="Chat Bubble Colour" />
+
+      <IconPicker bind:value={$form.agent.icon} options={icon_options} colour={$form.agent.colour} label="Agent Icon" />
 
       {#if available_tools.length > 0}
         <div class="space-y-3">

@@ -8,8 +8,10 @@
   import * as Select from '$lib/components/shadcn/select/index.js';
   import { ArrowLeft } from 'phosphor-svelte';
   import { accountAgentsPath, accountAgentPath } from '@/routes';
+  import ColourPicker from '$lib/components/ColourPicker.svelte';
+  import IconPicker from '$lib/components/IconPicker.svelte';
 
-  let { agent, grouped_models = {}, available_tools = [], account } = $props();
+  let { agent, grouped_models = {}, available_tools = [], colour_options = [], icon_options = [], account } = $props();
 
   let selectedModel = $state(agent.model_id);
 
@@ -20,6 +22,8 @@
       model_id: agent.model_id,
       active: agent.active,
       enabled_tools: agent.enabled_tools || [],
+      colour: agent.colour || null,
+      icon: agent.icon || null,
     },
   });
 
@@ -114,6 +118,21 @@
               checked={$form.agent.active}
               onCheckedChange={(checked) => ($form.agent.active = checked)} />
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Chat Appearance</CardTitle>
+          <CardDescription>Customise how this agent appears in group chats</CardDescription>
+        </CardHeader>
+        <CardContent class="space-y-6">
+          <ColourPicker bind:value={$form.agent.colour} options={colour_options} label="Chat Bubble Colour" />
+          <IconPicker
+            bind:value={$form.agent.icon}
+            options={icon_options}
+            colour={$form.agent.colour}
+            label="Agent Icon" />
         </CardContent>
       </Card>
 

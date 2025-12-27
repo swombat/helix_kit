@@ -14,9 +14,17 @@ class Profile < ApplicationRecord
   normalizes :first_name, with: ->(name) { name&.strip }
   normalizes :last_name, with: ->(name) { name&.strip }
 
+  VALID_CHAT_COLOURS = %w[
+    slate gray zinc neutral stone
+    red orange amber yellow lime green
+    emerald teal cyan sky blue indigo
+    violet purple fuchsia pink rose
+  ].freeze
+
   # Validations
   validates :theme, inclusion: { in: %w[light dark system] }, allow_nil: true
   validates :timezone, inclusion: { in: ActiveSupport::TimeZone.all.map(&:name) }, allow_blank: true
+  validates :chat_colour, inclusion: { in: VALID_CHAT_COLOURS }, allow_nil: true
   validates_presence_of :first_name, :last_name, if: -> { user&.confirmed? }
 
   # Avatar validations

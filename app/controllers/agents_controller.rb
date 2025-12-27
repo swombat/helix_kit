@@ -10,6 +10,8 @@ class AgentsController < ApplicationController
       agents: @agents.as_json,
       grouped_models: grouped_models,
       available_tools: tools_for_frontend,
+      colour_options: Agent::VALID_COLOURS,
+      icon_options: Agent::VALID_ICONS,
       account: current_account.as_json
     }
   end
@@ -31,6 +33,8 @@ class AgentsController < ApplicationController
       agent: @agent.as_json,
       grouped_models: grouped_models,
       available_tools: tools_for_frontend,
+      colour_options: Agent::VALID_COLOURS,
+      icon_options: Agent::VALID_ICONS,
       account: current_account.as_json
     }
   end
@@ -58,7 +62,7 @@ class AgentsController < ApplicationController
   end
 
   def agent_params
-    params.require(:agent).permit(:name, :system_prompt, :model_id, :active, enabled_tools: [])
+    params.require(:agent).permit(:name, :system_prompt, :model_id, :active, :colour, :icon, enabled_tools: [])
   end
 
   def grouped_models

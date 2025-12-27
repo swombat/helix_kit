@@ -8,6 +8,19 @@
 @plugin "@tailwindcss/forms";
 @import 'tw-animate-css';
 
+/* Safelist chat bubble colours for dynamic class names */
+@source inline("bg-slate-100 bg-slate-900 bg-gray-100 bg-gray-900 bg-zinc-100 bg-zinc-900 bg-neutral-100 bg-neutral-900 bg-stone-100 bg-stone-900 bg-red-100 bg-red-900 bg-orange-100 bg-orange-900 bg-amber-100 bg-amber-900 bg-yellow-100 bg-yellow-900 bg-lime-100 bg-lime-900 bg-green-100 bg-green-900 bg-emerald-100 bg-emerald-900 bg-teal-100 bg-teal-900 bg-cyan-100 bg-cyan-900 bg-sky-100 bg-sky-900 bg-blue-100 bg-blue-900 bg-indigo-100 bg-indigo-900 bg-violet-100 bg-violet-900 bg-purple-100 bg-purple-900 bg-fuchsia-100 bg-fuchsia-900 bg-pink-100 bg-pink-900 bg-rose-100 bg-rose-900");
+
+/* Safelist icon text colours for dynamic class names */
+@source inline("text-slate-700 text-slate-300 text-gray-700 text-gray-300 text-zinc-700 text-zinc-300 text-neutral-700 text-neutral-300 text-stone-700 text-stone-300 text-red-700 text-red-300 text-orange-700 text-orange-300 text-amber-700 text-amber-300 text-yellow-700 text-yellow-300 text-lime-700 text-lime-300 text-green-700 text-green-300 text-emerald-700 text-emerald-300 text-teal-700 text-teal-300 text-cyan-700 text-cyan-300 text-sky-700 text-sky-300 text-blue-700 text-blue-300 text-indigo-700 text-indigo-300 text-violet-700 text-violet-300 text-purple-700 text-purple-300 text-fuchsia-700 text-fuchsia-300 text-pink-700 text-pink-300 text-rose-700 text-rose-300");
+
+/* Safelist agent trigger bar button colours */
+@source inline("border-slate-300 border-slate-700 border-gray-300 border-gray-700 border-zinc-300 border-zinc-700 border-neutral-300 border-neutral-700 border-stone-300 border-stone-700 border-red-300 border-red-700 border-orange-300 border-orange-700 border-amber-300 border-amber-700 border-yellow-300 border-yellow-700 border-lime-300 border-lime-700 border-green-300 border-green-700 border-emerald-300 border-emerald-700 border-teal-300 border-teal-700 border-cyan-300 border-cyan-700 border-sky-300 border-sky-700 border-blue-300 border-blue-700 border-indigo-300 border-indigo-700 border-violet-300 border-violet-700 border-purple-300 border-purple-700 border-fuchsia-300 border-fuchsia-700 border-pink-300 border-pink-700 border-rose-300 border-rose-700");
+
+@source inline("hover:bg-slate-50 hover:bg-slate-950 hover:bg-gray-50 hover:bg-gray-950 hover:bg-zinc-50 hover:bg-zinc-950 hover:bg-neutral-50 hover:bg-neutral-950 hover:bg-stone-50 hover:bg-stone-950 hover:bg-red-50 hover:bg-red-950 hover:bg-orange-50 hover:bg-orange-950 hover:bg-amber-50 hover:bg-amber-950 hover:bg-yellow-50 hover:bg-yellow-950 hover:bg-lime-50 hover:bg-lime-950 hover:bg-green-50 hover:bg-green-950 hover:bg-emerald-50 hover:bg-emerald-950 hover:bg-teal-50 hover:bg-teal-950 hover:bg-cyan-50 hover:bg-cyan-950 hover:bg-sky-50 hover:bg-sky-950 hover:bg-blue-50 hover:bg-blue-950 hover:bg-indigo-50 hover:bg-indigo-950 hover:bg-violet-50 hover:bg-violet-950 hover:bg-purple-50 hover:bg-purple-950 hover:bg-fuchsia-50 hover:bg-fuchsia-950 hover:bg-pink-50 hover:bg-pink-950 hover:bg-rose-50 hover:bg-rose-950");
+
+@source inline("text-slate-600 text-slate-400 text-gray-600 text-gray-400 text-zinc-600 text-zinc-400 text-neutral-600 text-neutral-400 text-stone-600 text-stone-400 text-red-600 text-red-400 text-orange-600 text-orange-400 text-amber-600 text-amber-400 text-yellow-600 text-yellow-400 text-lime-600 text-lime-400 text-green-600 text-green-400 text-emerald-600 text-emerald-400 text-teal-600 text-teal-400 text-cyan-600 text-cyan-400 text-sky-600 text-sky-400 text-blue-600 text-blue-400 text-indigo-600 text-indigo-400 text-violet-600 text-violet-400 text-purple-600 text-purple-400 text-fuchsia-600 text-fuchsia-400 text-pink-600 text-pink-400 text-rose-600 text-rose-400");
+
 @custom-variant dark (&:is(.dark *));
 
 @plugin "@tailwindcss/typography";

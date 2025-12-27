@@ -1,7 +1,10 @@
 class UsersController < ApplicationController
 
   def edit
-    render inertia: "user/edit", props: { timezones: timezone_options }
+    render inertia: "user/edit", props: {
+      timezones: timezone_options,
+      colour_options: Profile::VALID_CHAT_COLOURS
+    }
   end
 
   def update
@@ -125,12 +128,12 @@ class UsersController < ApplicationController
   end
 
   def user_params
-    params.require(:user).permit(:first_name, :last_name, :timezone, :avatar, :theme, preferences: [ :theme ], profile_attributes: [ :first_name, :last_name, :timezone, :avatar, :theme ])
+    params.require(:user).permit(:first_name, :last_name, :timezone, :avatar, :theme, :chat_colour, preferences: [ :theme ], profile_attributes: [ :first_name, :last_name, :timezone, :avatar, :theme, :chat_colour ])
   end
 
   def separate_user_and_profile_params
     all_params = user_params.dup
-    profile_attributes = [ :first_name, :last_name, :timezone, :avatar, :theme ]
+    profile_attributes = [ :first_name, :last_name, :timezone, :avatar, :theme, :chat_colour ]
 
     # Extract profile attributes directly sent
     profile_params = all_params.extract!(*profile_attributes)

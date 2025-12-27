@@ -40,7 +40,7 @@ class Message < ApplicationRecord
 
   json_attributes :role, :content, :user_name, :user_avatar_url, :completed,
                   :created_at_formatted, :created_at_hour, :streaming, :files_json, :content_html,
-                  :tools_used, :tool_status, :author_name, :author_type
+                  :tools_used, :tool_status, :author_name, :author_type, :author_colour
 
   def completed?
     # User messages are always completed
@@ -75,6 +75,14 @@ class Message < ApplicationRecord
       "human"
     else
       "system"
+    end
+  end
+
+  def author_colour
+    if agent.present?
+      agent.colour
+    elsif user.present?
+      user.chat_colour
     end
   end
 

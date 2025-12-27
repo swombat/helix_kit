@@ -7,8 +7,9 @@
   import * as Select from '$lib/components/shadcn/select/index.js';
   import AvatarUpload from '$lib/components/AvatarUpload.svelte';
   import Avatar from '$lib/components/Avatar.svelte';
+  import ColourPicker from '$lib/components/ColourPicker.svelte';
 
-  let { user, timezones, onCancel, onSuccess } = $props();
+  let { user, timezones, colour_options = [], onCancel, onSuccess } = $props();
 
   let user_form = $state({ ...user });
 
@@ -82,5 +83,14 @@
       </Select.Content>
     </Select.Root>
     <p class="text-sm text-gray-500 mt-1">Type to search for your timezone (e.g., "London")</p>
+  </div>
+
+  <!-- Separator line -->
+  <div class="border-t my-6"></div>
+
+  <div>
+    <h3 class="text-lg font-semibold mb-2">Chat Appearance</h3>
+    <p class="text-sm text-muted-foreground mb-4">Customise how your messages appear in group chats</p>
+    <ColourPicker bind:value={user_form.chat_colour} options={colour_options} label="Chat Bubble Colour" />
   </div>
 </Form>
