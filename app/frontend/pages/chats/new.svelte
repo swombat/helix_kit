@@ -203,6 +203,7 @@
           bind:files={selectedFiles}
           disabled={processing}
           allowedTypes={file_upload_config?.acceptable_types || []}
+          allowedExtensions={file_upload_config?.acceptable_extensions || []}
           maxSize={file_upload_config?.max_size || 52428800} />
 
         <div class="flex-1">

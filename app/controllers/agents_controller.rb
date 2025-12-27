@@ -1,7 +1,7 @@
 class AgentsController < ApplicationController
 
   require_feature_enabled :agents
-  before_action :set_agent, only: [ :edit, :update, :destroy, :destroy_memory ]
+  before_action :set_agent, only: [ :edit, :update, :destroy, :create_memory, :destroy_memory ]
 
   def index
     @agents = current_account.agents.by_name
@@ -62,6 +62,17 @@ class AgentsController < ApplicationController
     redirect_to edit_account_agent_path(current_account, @agent), notice: "Memory deleted"
   end
 
+  def create_memory
+    memory = @agent.memories.new(memory_params)
+
+    if memory.save
+      redirect_to edit_account_agent_path(current_account, @agent), notice: "Memory created"
+    else
+      redirect_to edit_account_agent_path(current_account, @agent),
+                  inertia: { errors: memory.errors.to_hash }
+    end
+  end
+
   private
 
   def set_agent
@@ -70,6 +81,10 @@ class AgentsController < ApplicationController
 
   def agent_params
     params.require(:agent).permit(:name, :system_prompt, :model_id, :active, :colour, :icon, enabled_tools: [])
+  end
+
+  def memory_params
+    params.require(:memory).permit(:content, :memory_type)
   end
 
   def grouped_models

@@ -26,9 +26,21 @@ class Message < ApplicationRecord
       application/pdf
       application/msword
       application/vnd.openxmlformats-officedocument.wordprocessingml.document
-      text/plain text/markdown text/csv
+      text/plain text/markdown text/csv text/html text/css text/xml
+      application/json application/xml
+      text/x-python application/x-python
+      text/x-ruby application/x-ruby
+      application/javascript text/javascript
+      application/x-yaml text/yaml text/x-yaml
     ]
   }.freeze
+
+  # Extensions to accept even if browser sends wrong/empty MIME type
+  ACCEPTABLE_EXTENSIONS = %w[
+    .md .markdown .txt .csv .json .xml .html .htm .css .js .ts .jsx .tsx
+    .py .rb .yaml .yml .toml .ini .log .rst .tex .sh .bash .zsh
+    .c .h .cpp .hpp .java .go .rs .swift .kt .scala .r .sql
+  ].freeze
 
   MAX_FILE_SIZE = 50.megabytes
 
@@ -217,7 +229,11 @@ class Message < ApplicationRecord
   end
 
   def acceptable_file_type?(file)
-    ACCEPTABLE_FILE_TYPES.values.flatten.include?(file.content_type)
+    return true if ACCEPTABLE_FILE_TYPES.values.flatten.include?(file.content_type)
+
+    # Also accept files by extension (browsers often send wrong MIME types for text files)
+    extension = File.extname(file.filename.to_s).downcase
+    ACCEPTABLE_EXTENSIONS.include?(extension)
   end
 
   def render_markdown

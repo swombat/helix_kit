@@ -46,6 +46,7 @@ Rails.application.routes.draw do
     end
     resources :agents, except: [ :show, :new ] do
       member do
+        post "memories", action: :create_memory, as: :create_memory
         delete "memories/:memory_id", action: :destroy_memory, as: :destroy_memory
       end
     end

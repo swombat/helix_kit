@@ -6,7 +6,7 @@
   import { Label } from '$lib/components/shadcn/label';
   import { Switch } from '$lib/components/shadcn/switch';
   import * as Select from '$lib/components/shadcn/select/index.js';
-  import { ArrowLeft, Brain, BookOpen, Warning, Trash } from 'phosphor-svelte';
+  import { ArrowLeft, Brain, BookOpen, Warning, Trash, Plus } from 'phosphor-svelte';
   import { accountAgentsPath, accountAgentPath } from '@/routes';
   import ColourPicker from '$lib/components/ColourPicker.svelte';
   import IconPicker from '$lib/components/IconPicker.svelte';
@@ -63,6 +63,26 @@
     if (confirm('Delete this memory permanently?')) {
       router.delete(`/accounts/${account.id}/agents/${agent.id}/memories/${memoryId}`);
     }
+  }
+
+  let showNewMemoryForm = $state(false);
+  let newMemoryContent = $state('');
+  let newMemoryType = $state('core');
+
+  function createMemory() {
+    if (!newMemoryContent.trim()) return;
+
+    router.post(`/accounts/${account.id}/agents/${agent.id}/memories`, {
+      memory: {
+        content: newMemoryContent,
+        memory_type: newMemoryType,
+      },
+    });
+
+    // Reset form
+    newMemoryContent = '';
+    newMemoryType = 'core';
+    showNewMemoryForm = false;
   }
 </script>
 
@@ -216,18 +236,74 @@
 
       <Card>
         <CardHeader>
-          <CardTitle>Agent Memory</CardTitle>
-          <CardDescription>
-            Review and manage this agent's memories. Core memories are permanent; journal entries fade after a week.
-          </CardDescription>
+          <div class="flex items-start justify-between">
+            <div>
+              <CardTitle>Agent Memory</CardTitle>
+              <CardDescription>
+                Review and manage this agent's memories. Core memories are permanent; journal entries fade after a week.
+              </CardDescription>
+            </div>
+            {#if !showNewMemoryForm}
+              <Button type="button" variant="outline" size="sm" onclick={() => (showNewMemoryForm = true)}>
+                <Plus class="size-4 mr-1" />
+                Add Memory
+              </Button>
+            {/if}
+          </div>
         </CardHeader>
         <CardContent>
-          {#if memories.length === 0}
+          {#if showNewMemoryForm}
+            <div class="mb-4 p-4 border rounded-lg bg-muted/30 space-y-4">
+              <div class="space-y-2">
+                <Label for="new_memory_content">Memory Content</Label>
+                <textarea
+                  id="new_memory_content"
+                  bind:value={newMemoryContent}
+                  placeholder="Enter the memory content..."
+                  rows="3"
+                  class="w-full resize-none border border-input rounded-md px-3 py-2 text-sm bg-background
+                         focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"></textarea>
+              </div>
+              <div class="space-y-2">
+                <Label>Memory Type</Label>
+                <div class="flex gap-4">
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="memory_type" value="core" bind:group={newMemoryType} class="w-4 h-4" />
+                    <Brain size={16} class="text-primary" weight="duotone" />
+                    <span class="text-sm">Core (permanent)</span>
+                  </label>
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="memory_type" value="journal" bind:group={newMemoryType} class="w-4 h-4" />
+                    <BookOpen size={16} class="text-muted-foreground" weight="duotone" />
+                    <span class="text-sm">Journal (expires in 1 week)</span>
+                  </label>
+                </div>
+              </div>
+              <div class="flex gap-2 justify-end">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onclick={() => {
+                    showNewMemoryForm = false;
+                    newMemoryContent = '';
+                    newMemoryType = 'core';
+                  }}>
+                  Cancel
+                </Button>
+                <Button type="button" size="sm" onclick={createMemory} disabled={!newMemoryContent.trim()}>
+                  Save Memory
+                </Button>
+              </div>
+            </div>
+          {/if}
+
+          {#if memories.length === 0 && !showNewMemoryForm}
             <p class="text-sm text-muted-foreground py-4">
-              This agent has no memories yet. Memories will appear here as the agent creates them using the save_memory
-              tool.
+              This agent has no memories yet. Click "Add Memory" to create one manually, or memories will appear here as
+              the agent creates them using the save_memory tool.
             </p>
-          {:else}
+          {:else if memories.length > 0}
             <div class="space-y-3 max-h-96 overflow-y-auto">
               {#each memories as memory (memory.id)}
                 <div

@@ -731,6 +731,7 @@
           bind:files={selectedFiles}
           disabled={$messageForm.processing}
           allowedTypes={file_upload_config.acceptable_types || []}
+          allowedExtensions={file_upload_config.acceptable_extensions || []}
           maxSize={file_upload_config.max_size || 50 * 1024 * 1024} />
 
         <div class="flex-1">

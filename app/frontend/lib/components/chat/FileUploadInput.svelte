@@ -8,6 +8,7 @@
     maxFiles = 5,
     maxSize = 50 * 1024 * 1024,
     allowedTypes = [],
+    allowedExtensions = [],
   } = $props();
 
   let fileInput;
@@ -38,17 +39,24 @@
     'text/csv': '.csv',
   };
 
-  const acceptAttribute = $derived(
-    allowedTypes.length > 0
-      ? allowedTypes
-          .map((type) => mimeToExtension[type] || '')
-          .filter(Boolean)
-          .join(',')
-      : ''
-  );
+  const acceptAttribute = $derived(() => {
+    const fromMimeTypes = allowedTypes.map((type) => mimeToExtension[type] || '').filter(Boolean);
+    const allExtensions = [...new Set([...fromMimeTypes, ...allowedExtensions])];
+    return allExtensions.join(',');
+  });
+
+  function getFileExtension(filename) {
+    const lastDot = filename.lastIndexOf('.');
+    return lastDot !== -1 ? filename.slice(lastDot).toLowerCase() : '';
+  }
 
   function validateFile(file) {
-    if (!allowedTypes.includes(file.type)) {
+    const extension = getFileExtension(file.name);
+    const typeAllowed = allowedTypes.includes(file.type);
+    const extensionAllowed = allowedExtensions.includes(extension);
+
+    // Accept if either MIME type or extension matches
+    if (!typeAllowed && !extensionAllowed) {
       return 'File type not supported. Please upload images, audio, video, or documents.';
     }
 

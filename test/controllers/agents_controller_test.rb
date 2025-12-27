@@ -185,4 +185,40 @@ class AgentsControllerTest < ActionDispatch::IntegrationTest
     assert_match(/deleted/, flash[:notice])
   end
 
+  test "create_memory creates a core memory and redirects" do
+    assert_difference "@agent.memories.count", 1 do
+      post create_memory_account_agent_path(@account, @agent), params: {
+        memory: { content: "Test core memory", memory_type: "core" }
+      }
+    end
+
+    assert_redirected_to edit_account_agent_path(@account, @agent)
+    assert_match(/created/, flash[:notice])
+
+    memory = @agent.memories.last
+    assert_equal "Test core memory", memory.content
+    assert_equal "core", memory.memory_type
+  end
+
+  test "create_memory creates a journal memory" do
+    assert_difference "@agent.memories.count", 1 do
+      post create_memory_account_agent_path(@account, @agent), params: {
+        memory: { content: "Test journal entry", memory_type: "journal" }
+      }
+    end
+
+    memory = @agent.memories.last
+    assert_equal "journal", memory.memory_type
+  end
+
+  test "create_memory fails with blank content" do
+    assert_no_difference "@agent.memories.count" do
+      post create_memory_account_agent_path(@account, @agent), params: {
+        memory: { content: "", memory_type: "core" }
+      }
+    end
+
+    assert_redirected_to edit_account_agent_path(@account, @agent)
+  end
+
 end
