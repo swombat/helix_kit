@@ -1,10 +1,10 @@
 <script>
   import { Link, router } from '@inertiajs/svelte';
   import { Button } from '$lib/components/shadcn/button/index.js';
-  import { Plus, ChatCircle, ChatText } from 'phosphor-svelte';
+  import { Plus, ChatCircle, ChatText, X } from 'phosphor-svelte';
   import { accountChatsPath, accountChatPath, newAccountChatPath } from '@/routes';
 
-  let { chats = [], activeChatId = null, accountId } = $props();
+  let { chats = [], activeChatId = null, accountId, isOpen = false, onClose = () => {} } = $props();
 
   function createNewChat() {
     router.visit(newAccountChatPath(accountId));
@@ -21,13 +21,27 @@
   }
 </script>
 
-<aside class="w-80 border-r border-border bg-card flex flex-col">
+<!-- Mobile overlay -->
+{#if isOpen}
+  <button class="fixed inset-0 bg-black/50 z-40 md:hidden" onclick={onClose} aria-label="Close sidebar"></button>
+{/if}
+
+<aside
+  class="w-80 border-r border-border bg-card flex flex-col
+              fixed inset-y-0 left-0 z-50 transform transition-transform duration-200 ease-in-out
+              md:relative md:translate-x-0 md:z-auto
+              {isOpen ? 'translate-x-0' : '-translate-x-full'}">
   <header class="p-4 border-b border-border bg-muted/30">
     <div class="flex items-center justify-between mb-3">
       <h2 class="text-lg font-semibold">Chats</h2>
-      <Button variant="outline" size="sm" onclick={createNewChat} class="h-8 w-8 p-0">
-        <Plus size={16} />
-      </Button>
+      <div class="flex items-center gap-2">
+        <Button variant="outline" size="sm" onclick={createNewChat} class="h-8 w-8 p-0">
+          <Plus size={16} />
+        </Button>
+        <Button variant="ghost" size="sm" onclick={onClose} class="h-8 w-8 p-0 md:hidden">
+          <X size={16} />
+        </Button>
+      </div>
     </div>
   </header>
 

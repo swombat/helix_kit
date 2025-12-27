@@ -1,7 +1,7 @@
 <script>
   import { router } from '@inertiajs/svelte';
   import { Button } from '$lib/components/shadcn/button/index.js';
-  import { ArrowUp, Globe, Robot, UsersThree } from 'phosphor-svelte';
+  import { ArrowUp, Globe, Robot, UsersThree, List } from 'phosphor-svelte';
   import * as Select from '$lib/components/shadcn/select/index.js';
   import ChatList from './ChatList.svelte';
   import FileUploadInput from '$lib/components/chat/FileUploadInput.svelte';
@@ -12,6 +12,7 @@
   let selectedModel = $state(models?.[0]?.model_id ?? '');
   let isGroupChat = $state(false);
   let selectedAgentIds = $state([]);
+  let sidebarOpen = $state(false);
 
   // Group models by their group property
   const groupedModels = $derived(() => {
@@ -92,14 +93,25 @@
 
 <div class="flex h-[calc(100vh-4rem)]">
   <!-- Left sidebar: Chat list -->
-  <ChatList {chats} activeChatId={null} accountId={account.id} {selectedModel} />
+  <ChatList
+    {chats}
+    activeChatId={null}
+    accountId={account.id}
+    {selectedModel}
+    isOpen={sidebarOpen}
+    onClose={() => (sidebarOpen = false)} />
 
   <!-- Right side: New chat form -->
   <main class="flex-1 flex flex-col bg-background">
     <!-- Header -->
-    <header class="border-b border-border bg-muted/30 px-6 py-4">
-      <h1 class="text-lg font-semibold">New Chat</h1>
-      <div class="mt-2">
+    <header class="border-b border-border bg-muted/30 px-4 md:px-6 py-3 md:py-4">
+      <div class="flex items-center gap-3">
+        <Button variant="ghost" size="sm" onclick={() => (sidebarOpen = true)} class="h-8 w-8 p-0 md:hidden">
+          <List size={20} />
+        </Button>
+        <h1 class="text-lg font-semibold">New Chat</h1>
+      </div>
+      <div class="mt-2 ml-0 md:ml-0">
         {#if Array.isArray(models) && models.length > 0}
           <Select.Root
             type="single"
@@ -130,7 +142,7 @@
     </header>
 
     <!-- Settings bar with web access toggle and group chat option -->
-    <div class="border-b border-border px-6 py-2 bg-muted/10 flex items-center gap-6">
+    <div class="border-b border-border px-4 md:px-6 py-2 bg-muted/10 flex flex-wrap items-center gap-3 md:gap-6">
       <label class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity w-fit">
         <input
           type="checkbox"
@@ -154,7 +166,7 @@
 
     <!-- Agent selection for group chat -->
     {#if isGroupChat && agents.length > 0}
-      <div class="border-b border-border px-6 py-3 bg-muted/5">
+      <div class="border-b border-border px-4 md:px-6 py-3 bg-muted/5">
         <div class="text-sm font-medium mb-2">Select agents to participate:</div>
         <div class="flex flex-wrap gap-2">
           {#each agents as agent (agent.id)}
@@ -177,7 +189,7 @@
     {/if}
 
     <!-- Empty state -->
-    <div class="flex-1 flex items-center justify-center px-6 py-4">
+    <div class="flex-1 flex items-center justify-center px-4 md:px-6 py-4">
       <div class="text-center text-muted-foreground max-w-md">
         <h2 class="text-xl font-semibold mb-2">Start a new conversation</h2>
         <p>Select a model above and type your first message below to begin.</p>
@@ -185,8 +197,8 @@
     </div>
 
     <!-- Message input -->
-    <div class="border-t border-border bg-muted/30 p-4">
-      <div class="flex gap-3 items-start">
+    <div class="border-t border-border bg-muted/30 p-3 md:p-4">
+      <div class="flex gap-2 md:gap-3 items-start">
         <FileUploadInput
           bind:files={selectedFiles}
           disabled={processing}

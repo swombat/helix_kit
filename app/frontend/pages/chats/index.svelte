@@ -1,7 +1,7 @@
 <script>
   import { useForm } from '@inertiajs/svelte';
   import { Button } from '$lib/components/shadcn/button/index.js';
-  import { ChatCircle, Plus, Sparkle } from 'phosphor-svelte';
+  import { ChatCircle, Plus, Sparkle, List } from 'phosphor-svelte';
   import * as Select from '$lib/components/shadcn/select/index.js';
   import * as Card from '$lib/components/shadcn/card/index.js';
   import ChatList from './ChatList.svelte';
@@ -10,6 +10,7 @@
   let { chats = [], account, models = [] } = $props();
 
   let selectedModel = $state(models?.[0]?.value ?? models?.[0] ?? 'openrouter/auto');
+  let sidebarOpen = $state(false);
 
   const createChatForm = useForm({
     chat: {
@@ -31,17 +32,32 @@
 
 <div class="flex h-[calc(100vh-4rem)]">
   <!-- Left sidebar: Chat list -->
-  <ChatList {chats} activeChatId={null} accountId={account.id} {selectedModel} />
+  <ChatList
+    {chats}
+    activeChatId={null}
+    accountId={account.id}
+    {selectedModel}
+    isOpen={sidebarOpen}
+    onClose={() => (sidebarOpen = false)} />
 
   <!-- Right side: Welcome message -->
   <main class="flex-1 overflow-y-auto bg-background">
+    <!-- Mobile header with toggle -->
+    <div class="md:hidden border-b border-border bg-muted/30 px-4 py-3">
+      <Button variant="ghost" size="sm" onclick={() => (sidebarOpen = true)} class="h-8 w-8 p-0">
+        <List size={20} />
+      </Button>
+    </div>
+
     <div class="flex items-center justify-center h-full">
       <div class="text-center max-w-md mx-auto px-4">
-        <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-primary/10 flex items-center justify-center">
-          <ChatCircle size={40} class="text-primary" />
+        <div
+          class="w-16 h-16 md:w-20 md:h-20 mx-auto mb-4 md:mb-6 rounded-full bg-primary/10 flex items-center justify-center">
+          <ChatCircle size={32} class="text-primary md:hidden" />
+          <ChatCircle size={40} class="text-primary hidden md:block" />
         </div>
 
-        <h1 class="text-2xl font-semibold mb-3">Start a conversation</h1>
+        <h1 class="text-xl md:text-2xl font-semibold mb-3">Start a conversation</h1>
         <p class="text-muted-foreground mb-8">
           Choose an AI model and begin chatting. Your conversations will appear in the sidebar.
         </p>

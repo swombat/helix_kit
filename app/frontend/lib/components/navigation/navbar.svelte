@@ -98,11 +98,11 @@
 </script>
 
 <nav>
-  <div class="flex items-center justify-between p-4 px-10 border-b gap-4">
-    <div class="flex items-center gap-8">
+  <div class="flex items-center justify-between p-4 px-4 md:px-10 border-b gap-2 md:gap-4">
+    <div class="flex items-center gap-4 md:gap-8">
       <Link href="/" class="flex items-center gap-2">
-        <Logo class="h-10 w-10" />
-        {siteSettings?.site_name || 'HelixKit'}
+        <Logo class="h-8 w-8 md:h-10 md:w-10" />
+        <span class="hidden sm:inline">{siteSettings?.site_name || 'HelixKit'}</span>
       </Link>
       <div class="hidden md:flex items-center">
         {#each links as link}
@@ -135,11 +135,26 @@
     {/if}
 
     {#if currentUser}
+      <!-- Mobile hamburger menu -->
+      <DropdownMenu.Root>
+        <DropdownMenu.Trigger class={cn(buttonVariants({ variant: 'outline', size: 'icon' }), 'md:hidden')}>
+          <List size={20} />
+          <span class="sr-only">Menu</span>
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content align="end">
+          {#each links as link}
+            {#if link.show}
+              <DropdownMenu.Item onclick={() => router.visit(link.href)}>{link.label}</DropdownMenu.Item>
+            {/if}
+          {/each}
+        </DropdownMenu.Content>
+      </DropdownMenu.Root>
+
       {#if currentUser?.site_admin}
         <DropdownMenu.Root>
           <DropdownMenu.Trigger class={cn(buttonVariants({ variant: 'outline' }), 'rounded-full px-2.5 gap-1')}>
             <ShieldWarning class="text-red-500" />
-            <span class="text-xs font-normal text-muted-foreground text-red-500"> Site Admin </span>
+            <span class="text-xs font-normal text-muted-foreground text-red-500 hidden md:inline"> Site Admin </span>
           </DropdownMenu.Trigger>
           <DropdownMenu.Content align="end">
             <DropdownMenu.Item onclick={() => router.visit('/admin/settings')}>
@@ -159,14 +174,14 @@
       {/if}
       <DropdownMenu.Root>
         <DropdownMenu.Trigger
-          class={cn(buttonVariants({ variant: 'outline' }), 'rounded-full pl-0.5 pr-2.5 gap-1 h-9')}>
+          class={cn(buttonVariants({ variant: 'outline' }), 'rounded-full pl-0.5 pr-0.5 md:pr-2.5 gap-1 h-9')}>
           <Avatar user={currentUser} size="small" class="!size-8" />
           {#if currentUser?.full_name}
-            <span class="text-xs font-normal text-muted-foreground">
+            <span class="text-xs font-normal text-muted-foreground hidden md:inline">
               {currentUser?.full_name}
             </span>
           {:else}
-            <span class="text-xs font-normal text-muted-foreground"> Account </span>
+            <span class="text-xs font-normal text-muted-foreground hidden md:inline"> Account </span>
           {/if}
         </DropdownMenu.Trigger>
         <DropdownMenu.Content class="w-56" align="end">

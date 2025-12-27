@@ -7,7 +7,7 @@
   import { createConsumer } from '@rails/actioncable';
   import { Button } from '$lib/components/shadcn/button/index.js';
   import { Badge } from '$lib/components/shadcn/badge/index.js';
-  import { ArrowUp, ArrowClockwise, Spinner, Globe } from 'phosphor-svelte';
+  import { ArrowUp, ArrowClockwise, Spinner, Globe, List } from 'phosphor-svelte';
   import * as Card from '$lib/components/shadcn/card/index.js';
   import * as Select from '$lib/components/shadcn/select/index.js';
   import ChatList from './ChatList.svelte';
@@ -58,6 +58,8 @@
   let showToolCalls = $state(false);
   // Brief "select an agent" prompt for group chats after sending a message
   let showAgentPrompt = $state(false);
+  // Mobile sidebar state
+  let sidebarOpen = $state(false);
 
   // Check if current user is a site admin
   const isSiteAdmin = $derived($page.props.user?.site_admin ?? false);
@@ -415,25 +417,36 @@
 
 <div class="flex h-[calc(100vh-4rem)]">
   <!-- Left sidebar: Chat list -->
-  <ChatList {chats} activeChatId={chat?.id} accountId={account.id} {selectedModel} />
+  <ChatList
+    {chats}
+    activeChatId={chat?.id}
+    accountId={account.id}
+    {selectedModel}
+    isOpen={sidebarOpen}
+    onClose={() => (sidebarOpen = false)} />
 
   <!-- Right side: Chat messages -->
   <main class="flex-1 flex flex-col bg-background">
     <!-- Chat header -->
-    <header class="border-b border-border bg-muted/30 px-6 py-4">
-      <h1 class="text-lg font-semibold truncate">
-        {chat?.title || 'New Chat'}
-      </h1>
-      <div class="mt-2">
-        <div class="text-sm text-muted-foreground">
-          {chat?.model_label || chat?.model_id || 'Auto'}
+    <header class="border-b border-border bg-muted/30 px-4 md:px-6 py-3 md:py-4">
+      <div class="flex items-center gap-3">
+        <Button variant="ghost" size="sm" onclick={() => (sidebarOpen = true)} class="h-8 w-8 p-0 md:hidden">
+          <List size={20} />
+        </Button>
+        <div class="flex-1 min-w-0">
+          <h1 class="text-lg font-semibold truncate">
+            {chat?.title || 'New Chat'}
+          </h1>
+          <div class="text-sm text-muted-foreground">
+            {chat?.model_label || chat?.model_id || 'Auto'}
+          </div>
         </div>
       </div>
     </header>
 
     <!-- Settings bar with web access toggle -->
     {#if chat}
-      <div class="border-b border-border px-6 py-2 bg-muted/10 flex items-center gap-6">
+      <div class="border-b border-border px-4 md:px-6 py-2 bg-muted/10 flex flex-wrap items-center gap-3 md:gap-6">
         <label class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity w-fit">
           <input
             type="checkbox"
@@ -457,7 +470,7 @@
     {/if}
 
     <!-- Messages container -->
-    <div bind:this={messagesContainer} class="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+    <div bind:this={messagesContainer} class="flex-1 overflow-y-auto px-3 md:px-6 py-4 space-y-4">
       {#if !Array.isArray(visibleMessages) || visibleMessages.length === 0}
         <div class="flex items-center justify-center h-full">
           <div class="text-center text-muted-foreground">
@@ -479,7 +492,7 @@
           <div class="space-y-1">
             {#if message.role === 'user'}
               <div class="flex justify-end">
-                <div class="max-w-[70%]">
+                <div class="max-w-[85%] md:max-w-[70%]">
                   <Card.Root class="bg-indigo-200">
                     <Card.Content class="p-4">
                       {#if message.files_json && message.files_json.length > 0}
@@ -519,7 +532,7 @@
               </div>
             {:else}
               <div class="flex justify-start">
-                <div class="max-w-[70%]">
+                <div class="max-w-[85%] md:max-w-[70%]">
                   <Card.Root>
                     <Card.Content class="p-4">
                       {#if message.status === 'failed'}
@@ -586,7 +599,7 @@
         {#if !showToolCalls && lastMessageIsHiddenThinking()}
           {@const lastMessage = messages[messages.length - 1]}
           <div class="flex justify-start">
-            <div class="max-w-[70%]">
+            <div class="max-w-[85%] md:max-w-[70%]">
               <Card.Root>
                 <Card.Content class="p-4">
                   <div class="flex items-center gap-2 text-muted-foreground">
@@ -602,7 +615,7 @@
         <!-- Sending message placeholder (show while waiting for assistant response) -->
         {#if shouldShowSendingPlaceholder}
           <div class="flex justify-start">
-            <div class="max-w-[70%]">
+            <div class="max-w-[85%] md:max-w-[70%]">
               <Card.Root>
                 <Card.Content class="p-4">
                   {#if isTimedOut()}
@@ -628,7 +641,7 @@
         <!-- Agent prompt for group chats after sending a message -->
         {#if showAgentPrompt && chat?.manual_responses}
           <div class="flex justify-start" transition:fade={{ duration: 200 }}>
-            <div class="max-w-[70%]">
+            <div class="max-w-[85%] md:max-w-[70%]">
               <Card.Root class="border-dashed border-2 border-muted-foreground/30 bg-muted/20">
                 <Card.Content class="p-4">
                   <div class="text-muted-foreground text-sm">Please select an agent to respond</div>
@@ -646,8 +659,8 @@
     {/if}
 
     <!-- Message input -->
-    <div class="border-t border-border bg-muted/30 p-4">
-      <div class="flex gap-3 items-start">
+    <div class="border-t border-border bg-muted/30 p-3 md:p-4">
+      <div class="flex gap-2 md:gap-3 items-start">
         <FileUploadInput
           bind:files={selectedFiles}
           disabled={$messageForm.processing}
