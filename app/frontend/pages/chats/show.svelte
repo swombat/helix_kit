@@ -125,6 +125,12 @@
     return lastMessage && lastMessage.role === 'user';
   });
 
+  // Check if chat is initializing (no title yet but has messages)
+  const chatIsInitializing = $derived(chat && !chat.title && messages?.length > 0);
+
+  // Check if any agent is currently responding (streaming)
+  const agentIsResponding = $derived(messages?.some((m) => m.streaming) ?? false);
+
   // Auto-detect waiting state based on messages
   // Don't show for manual_responses chats (group chats) since they don't auto-respond
   const shouldShowSendingPlaceholder = $derived(
@@ -697,7 +703,11 @@
 
     <!-- Agent trigger bar for group chats -->
     {#if chat?.manual_responses && agents?.length > 0}
-      <AgentTriggerBar {agents} accountId={account.id} chatId={chat.id} />
+      <AgentTriggerBar
+        {agents}
+        accountId={account.id}
+        chatId={chat.id}
+        disabled={chatIsInitializing || agentIsResponding} />
     {/if}
 
     <!-- Message input -->
