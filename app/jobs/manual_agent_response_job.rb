@@ -30,7 +30,10 @@ class ManualAgentResponseJob < ApplicationJob
     llm.on_tool_call { |tc| handle_tool_call(tc) }
     llm.on_end_message { |msg| finalize_message!(msg) }
 
-    llm.ask(context) do |chunk|
+    # Add context messages individually, then complete
+    # This ensures the tool call loop continues until a final text response
+    context.each { |msg| llm.add_message(msg) }
+    llm.complete do |chunk|
       next unless chunk.content && @ai_message
       enqueue_stream_chunk(chunk.content)
     end
