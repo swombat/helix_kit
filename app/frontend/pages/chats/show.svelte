@@ -56,6 +56,8 @@
   let currentTime = $state(Date.now());
   let timeoutCheckInterval;
   let showToolCalls = $state(false);
+  // Brief "select an agent" prompt for group chats after sending a message
+  let showAgentPrompt = $state(false);
 
   // Check if current user is a site admin
   const isSiteAdmin = $derived($page.props.user?.site_admin ?? false);
@@ -100,7 +102,7 @@
   // Auto-detect waiting state based on messages
   // Don't show for manual_responses chats (group chats) since they don't auto-respond
   const shouldShowSendingPlaceholder = $derived(
-    waitingForResponse || (lastMessageIsUserWithoutResponse() && !chat?.manual_responses)
+    !chat?.manual_responses && (waitingForResponse || lastMessageIsUserWithoutResponse())
   );
 
   // Get the timestamp of when the last user message was sent
@@ -261,15 +263,25 @@
     formData.append('message[content]', $messageForm.message.content);
     selectedFiles.forEach((file) => formData.append('files[]', file));
 
-    // Track that we're waiting for response
-    waitingForResponse = true;
-    messageSentAt = Date.now();
+    // Track that we're waiting for response (only for non-manual_responses chats)
+    if (!chat?.manual_responses) {
+      waitingForResponse = true;
+      messageSentAt = Date.now();
+    }
 
     router.post(accountChatMessagesPath(account.id, chat.id), formData, {
       onSuccess: () => {
         logging.debug('Message sent successfully');
         $messageForm.message.content = '';
         selectedFiles = [];
+
+        // For group chats, show the agent prompt briefly
+        if (chat?.manual_responses) {
+          showAgentPrompt = true;
+          setTimeout(() => {
+            showAgentPrompt = false;
+          }, 3000); // Hide after 3 seconds
+        }
       },
       onError: (errors) => {
         logging.error('Message send failed:', errors);
@@ -612,6 +624,19 @@
             </div>
           </div>
         {/if}
+
+        <!-- Agent prompt for group chats after sending a message -->
+        {#if showAgentPrompt && chat?.manual_responses}
+          <div class="flex justify-start" transition:fade={{ duration: 200 }}>
+            <div class="max-w-[70%]">
+              <Card.Root class="border-dashed border-2 border-muted-foreground/30 bg-muted/20">
+                <Card.Content class="p-4">
+                  <div class="text-muted-foreground text-sm">Please select an agent to respond</div>
+                </Card.Content>
+              </Card.Root>
+            </div>
+          </div>
+        {/if}
       {/if}
     </div>
 
@@ -625,7 +650,7 @@
       <div class="flex gap-3 items-start">
         <FileUploadInput
           bind:files={selectedFiles}
-          disabled={messageForm.processing}
+          disabled={$messageForm.processing}
           allowedTypes={file_upload_config.acceptable_types || []}
           maxSize={file_upload_config.max_size || 50 * 1024 * 1024} />
 
@@ -634,19 +659,18 @@
             bind:value={$messageForm.message.content}
             onkeydown={handleKeydown}
             placeholder="Type your message..."
-            disabled={messageForm.processing}
+            disabled={$messageForm.processing}
             class="w-full resize-none border border-input rounded-md px-3 py-2 text-sm bg-background
                    focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent
                    min-h-[40px] max-h-[120px]"
             rows="1"></textarea>
         </div>
-        <Button
+        <button
           onclick={sendMessage}
-          disabled={(!$messageForm.message.content.trim() && selectedFiles.length === 0) || messageForm.processing}
-          size="sm"
-          class="h-10 w-10 p-0">
+          disabled={(!$messageForm.message.content.trim() && selectedFiles.length === 0) || $messageForm.processing}
+          class="h-10 w-10 p-0 inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:pointer-events-none disabled:opacity-50">
           <ArrowUp size={16} />
-        </Button>
+        </button>
       </div>
     </div>
   </main>

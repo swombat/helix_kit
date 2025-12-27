@@ -161,6 +161,17 @@ class Chat < ApplicationRecord
     ManualAgentResponseJob.perform_later(self, agent)
   end
 
+  def trigger_all_agents_response!
+    raise ArgumentError, "This chat does not support manual responses" unless manual_responses?
+    raise ArgumentError, "No agents in this conversation" if agents.empty?
+
+    # Get agent IDs in a consistent order
+    agent_ids = agents.order(:id).pluck(:id)
+
+    # Queue the job that will process all agents in sequence
+    AllAgentsResponseJob.perform_later(self, agent_ids)
+  end
+
   def build_context_for_agent(agent)
     [ system_message_for(agent) ] + messages_context_for(agent)
   end

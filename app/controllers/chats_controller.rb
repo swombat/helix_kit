@@ -75,6 +75,20 @@ class ChatsController < ApplicationController
     end
   end
 
+  def trigger_all_agents
+    @chat.trigger_all_agents_response!
+
+    respond_to do |format|
+      format.html { redirect_to account_chat_path(current_account, @chat) }
+      format.json { head :ok }
+    end
+  rescue ArgumentError => e
+    respond_to do |format|
+      format.html { redirect_back_or_to account_chat_path(current_account, @chat), alert: e.message }
+      format.json { render json: { error: e.message }, status: :unprocessable_entity }
+    end
+  end
+
   def update
     @chat = current_account.chats.find(params[:id])
 

@@ -40,6 +40,7 @@ Rails.application.routes.draw do
     resources :chats do
       member do
         post "trigger_agent/:agent_id", action: :trigger_agent, as: :trigger_agent
+        post :trigger_all_agents
       end
       resources :messages, only: :create
     end
