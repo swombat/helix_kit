@@ -59,13 +59,25 @@ module StreamsAiResponse
     Time.current - @last_stream_flush_at >= STREAM_DEBOUNCE_INTERVAL
   end
 
+  # Tools that shouldn't show status updates (e.g., "Using view system prompt tool...")
+  # They still appear in tools_used badges
+  QUIET_TOOLS = %w[
+    ViewSystemPromptTool view_system_prompt
+    UpdateSystemPromptTool update_system_prompt
+  ].freeze
+
   def handle_tool_call(tool_call)
+    tool_name = tool_call.name.to_s
+    Rails.logger.info "Tool invoked: #{tool_name} with args: #{tool_call.arguments}"
+
     url = tool_call.arguments[:url] || tool_call.arguments["url"]
-    @tools_used << (url || tool_call.name.to_s)
-    Rails.logger.info "Tool invoked: #{tool_call.name} with args: #{tool_call.arguments}"
+    @tools_used << (url || tool_name)
+
+    # Skip status broadcast for quiet tools (but they still get badges)
+    return if QUIET_TOOLS.include?(tool_name)
 
     @ai_message&.broadcast_tool_call(
-      tool_name: tool_call.name.to_s,
+      tool_name: tool_name,
       tool_args: tool_call.arguments
     )
   end

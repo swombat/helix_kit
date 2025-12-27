@@ -79,6 +79,9 @@
           if (m.role === 'tool') return false;
           // Hide empty assistant messages (these appear before tool calls)
           if (m.role === 'assistant' && (!m.content || m.content.trim() === '') && !m.streaming) return false;
+          // Hide assistant messages that are raw tool results (JSON objects)
+          // These are stored as assistant role but contain tool call output
+          if (m.role === 'assistant' && m.content && m.content.trim().startsWith('{') && !m.streaming) return false;
           return true;
         })
   );
@@ -101,6 +104,14 @@
     if (
       lastMessage.role === 'assistant' &&
       (!lastMessage.content || lastMessage.content.trim() === '') &&
+      !lastMessage.streaming
+    )
+      return true;
+    // JSON tool result message (not streaming) means tool just completed
+    if (
+      lastMessage.role === 'assistant' &&
+      lastMessage.content &&
+      lastMessage.content.trim().startsWith('{') &&
       !lastMessage.streaming
     )
       return true;
@@ -465,17 +476,19 @@
     </header>
 
     <!-- Settings bar with web access toggle -->
-    {#if chat}
+    {#if chat && (!chat.manual_responses || isSiteAdmin)}
       <div class="border-b border-border px-4 md:px-6 py-2 bg-muted/10 flex flex-wrap items-center gap-3 md:gap-6">
-        <label class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity w-fit">
-          <input
-            type="checkbox"
-            checked={chat.web_access}
-            onchange={toggleWebAccess}
-            class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary focus:ring-offset-0 focus:ring-2 transition-colors cursor-pointer" />
-          <Globe size={16} class="text-muted-foreground" weight="duotone" />
-          <span class="text-sm text-muted-foreground">Allow web access</span>
-        </label>
+        {#if !chat.manual_responses}
+          <label class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity w-fit">
+            <input
+              type="checkbox"
+              checked={chat.web_access}
+              onchange={toggleWebAccess}
+              class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary focus:ring-offset-0 focus:ring-2 transition-colors cursor-pointer" />
+            <Globe size={16} class="text-muted-foreground" weight="duotone" />
+            <span class="text-sm text-muted-foreground">Allow web access</span>
+          </label>
+        {/if}
 
         {#if isSiteAdmin}
           <label class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity w-fit">
