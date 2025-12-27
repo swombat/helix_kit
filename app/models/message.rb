@@ -40,7 +40,8 @@ class Message < ApplicationRecord
 
   json_attributes :role, :content, :user_name, :user_avatar_url, :completed,
                   :created_at_formatted, :created_at_hour, :streaming, :files_json, :content_html,
-                  :tools_used, :tool_status, :author_name, :author_type, :author_colour
+                  :tools_used, :tool_status, :author_name, :author_type, :author_colour,
+                  :input_tokens, :output_tokens
 
   def completed?
     # User messages are always completed

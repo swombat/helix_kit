@@ -93,6 +93,20 @@
     return humanNames.size;
   });
 
+  // Calculate total tokens used in the conversation
+  const totalTokens = $derived(() => {
+    if (!messages || messages.length === 0) return 0;
+    return messages.reduce((sum, m) => sum + (m.input_tokens || 0) + (m.output_tokens || 0), 0);
+  });
+
+  // Format token count for display (e.g., 1.2k, 15.3k)
+  function formatTokenCount(count) {
+    if (count >= 1000) {
+      return (count / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+    }
+    return count.toString();
+  }
+
   // Check if the last actual message is hidden (tool call or empty assistant) - model is still thinking
   const lastMessageIsHiddenThinking = $derived(() => {
     if (!messages || messages.length === 0) return false;
@@ -475,7 +489,7 @@
               {agents?.length || 0} AI{agents?.length === 1 ? '' : 's'}, {uniqueHumanCount()} human{uniqueHumanCount() ===
               1
                 ? ''
-                : 's'}
+                : 's'}, {formatTokenCount(totalTokens())} tokens
             {:else}
               {chat?.model_label || chat?.model_id || 'Auto'}
             {/if}
