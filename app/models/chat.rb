@@ -223,14 +223,26 @@ class Chat < ApplicationRecord
   end
 
   def format_message_for_context(message, current_agent)
-    if message.agent_id == current_agent.id
-      { role: "assistant", content: message.content }
+    text_content = if message.agent_id == current_agent.id
+      message.content
     elsif message.agent_id.present?
-      { role: "user", content: "[#{message.agent.name}]: #{message.content}" }
+      "[#{message.agent.name}]: #{message.content}"
     else
       name = message.user&.full_name.presence || message.user&.email_address&.split("@")&.first || "User"
-      { role: "user", content: "[#{name}]: #{message.content}" }
+      "[#{name}]: #{message.content}"
     end
+
+    role = message.agent_id == current_agent.id ? "assistant" : "user"
+
+    # Include file attachments if present using RubyLLM::Content
+    file_paths = message.file_paths_for_llm
+    content = if file_paths.present?
+      RubyLLM::Content.new(text_content, file_paths)
+    else
+      text_content
+    end
+
+    { role: role, content: content }
   end
 
 end
