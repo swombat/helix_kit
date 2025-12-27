@@ -461,8 +461,11 @@
           <h1 class="text-lg font-semibold truncate">
             {chat?.title || 'New Chat'}
           </h1>
-          <div class="text-sm text-muted-foreground">
-            {#if chat?.manual_responses}
+          <div class="text-sm text-muted-foreground flex items-center gap-2">
+            {#if chat && !chat.title && messages?.length > 0}
+              <Spinner size={12} class="animate-spin" />
+              <span>Setting up...</span>
+            {:else if chat?.manual_responses}
               {agents?.length || 0} AI{agents?.length === 1 ? '' : 's'}, {uniqueHumanCount()} human{uniqueHumanCount() ===
               1
                 ? ''

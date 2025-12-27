@@ -1,7 +1,7 @@
 <script>
   import { Link, router } from '@inertiajs/svelte';
   import { Button } from '$lib/components/shadcn/button/index.js';
-  import { Plus, ChatCircle, ChatText, X } from 'phosphor-svelte';
+  import { Plus, ChatCircle, ChatText, X, Spinner } from 'phosphor-svelte';
   import { accountChatsPath, accountChatPath, newAccountChatPath } from '@/routes';
 
   let { chats = [], activeChatId = null, accountId, isOpen = false, onClose = () => {} } = $props();
@@ -58,8 +58,11 @@
             href={accountChatPath(accountId, chat.id)}
             class="block p-3 hover:bg-muted/50 transition-colors border-b border-border
                    {activeChatId === chat.id ? 'bg-primary/10 border-l-4 border-l-primary' : ''}">
-            <div class="font-medium text-sm truncate">
+            <div class="font-medium text-sm truncate flex items-center gap-2">
               {chat.title_or_default || chat.title || 'New Chat'}
+              {#if !chat.title && chat.message_count > 0}
+                <Spinner size={12} class="animate-spin text-muted-foreground flex-shrink-0" />
+              {/if}
             </div>
             <div class="flex items-center gap-2 w-full group">
               <div class="text-xs text-muted-foreground flex-1/3 hidden group-hover:block">
