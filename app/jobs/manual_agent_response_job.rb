@@ -16,7 +16,10 @@ class ManualAgentResponseJob < ApplicationJob
       assume_model_exists: true
     )
 
-    agent.tools.each { |tool| llm = llm.with_tool(tool) }
+    agent.tools.each do |tool_class|
+      tool = tool_class.new(chat: chat, current_agent: agent)
+      llm = llm.with_tool(tool)
+    end
 
     llm.on_new_message do
       @ai_message = chat.messages.create!(

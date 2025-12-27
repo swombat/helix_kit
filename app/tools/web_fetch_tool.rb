@@ -7,6 +7,12 @@ class WebFetchTool < RubyLLM::Tool
 
   param :url, type: :string, desc: "The URL to fetch", required: true
 
+  def initialize(chat: nil, current_agent: nil)
+    super()
+    @chat = chat
+    @current_agent = current_agent
+  end
+
   def execute(url:)
     uri = URI.parse(url)
 

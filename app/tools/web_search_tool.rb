@@ -12,8 +12,10 @@ class WebSearchTool < RubyLLM::Tool
 
   param :query, type: :string, desc: "The search query", required: true
 
-  def initialize
-    super
+  def initialize(chat: nil, current_agent: nil)
+    super()
+    @chat = chat
+    @current_agent = current_agent
     @search_count = 0
   end
 
