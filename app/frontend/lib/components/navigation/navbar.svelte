@@ -15,6 +15,8 @@
     Palette,
     Gear,
     ClockClockwise,
+    CaretRight,
+    Check,
   } from 'phosphor-svelte';
   import * as DropdownMenu from '$lib/components/shadcn/dropdown-menu/index.js';
   import { Button, buttonVariants } from '$lib/components/shadcn/button/index.js';
@@ -40,6 +42,7 @@
 
   const currentUser = $derived($page.props?.user);
   const currentAccount = $derived($page.props?.account);
+  const accounts = $derived($page.props?.accounts || []);
   const siteSettings = $derived($page.props?.site_settings);
 
   const links = $derived([
@@ -186,12 +189,35 @@
         </DropdownMenu.Trigger>
         <DropdownMenu.Content class="w-56" align="end">
           <DropdownMenu.Group>
-            <DropdownMenu.GroupHeading>
-              <div class="text-xs font-normal text-muted-foreground">Account</div>
-              <div class="text-sm font-semibold truncate">
-                {currentAccount?.personal ? 'Personal' : currentAccount?.name}
-              </div>
-            </DropdownMenu.GroupHeading>
+            {#if accounts.length > 1}
+              <DropdownMenu.Sub>
+                <DropdownMenu.SubTrigger>
+                  <div class="flex flex-col items-start">
+                    <div class="text-xs font-normal text-muted-foreground">Account</div>
+                    <div class="text-sm font-semibold truncate">
+                      {currentAccount?.personal ? 'Personal' : currentAccount?.name}
+                    </div>
+                  </div>
+                </DropdownMenu.SubTrigger>
+                <DropdownMenu.SubContent>
+                  {#each accounts as account}
+                    <DropdownMenu.Item
+                      onclick={() => router.visit(`/accounts/${account.id}/chats`)}
+                      class={account.id === currentAccount?.id ? 'bg-accent' : ''}>
+                      <Check class="mr-2 size-4 {account.id === currentAccount?.id ? 'opacity-100' : 'opacity-0'}" />
+                      <span class="truncate">{account.personal ? 'Personal' : account.name}</span>
+                    </DropdownMenu.Item>
+                  {/each}
+                </DropdownMenu.SubContent>
+              </DropdownMenu.Sub>
+            {:else}
+              <DropdownMenu.GroupHeading>
+                <div class="text-xs font-normal text-muted-foreground">Account</div>
+                <div class="text-sm font-semibold truncate">
+                  {currentAccount?.personal ? 'Personal' : currentAccount?.name}
+                </div>
+              </DropdownMenu.GroupHeading>
+            {/if}
             <DropdownMenu.Separator />
             <DropdownMenu.GroupHeading>
               <div class="text-xs font-normal text-muted-foreground">Logged in as</div>

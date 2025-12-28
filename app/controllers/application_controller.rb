@@ -15,6 +15,7 @@ class ApplicationController < ActionController::Base
       {
         user: Current.user.as_json,
         account: current_account&.as_json,
+        accounts: Current.user.accounts.map(&:as_json),
         theme_preference: Current.user&.theme || cookies[:theme],
         site_settings: shared_site_settings
       }
