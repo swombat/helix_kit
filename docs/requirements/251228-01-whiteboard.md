@@ -40,3 +40,15 @@ We need some tools to manage the boards:
 - `set_active_board`: set the active board for a conversation (can be set to nil)
 
 All those tools need to be part of the spec. Maybe they can be grouped in a clever way. Please have a think about it.
+
+## Clarifications
+
+1. **Scope**: Boards are account-scoped (each account has its own set of boards, isolated from other accounts).
+
+2. **Content format**: Markdown format for board content.
+
+3. **Conversation model**: The conversation is represented by the `Chat` model, specifically those that are multi-agent (group chats with `manual_responses?` = true).
+
+4. **Injection pattern**: Follow the existing memory injection pattern used in `Agent#memory_context` and `Chat#system_message_for`.
+
+5. **Soft delete behavior**: When a board is soft-deleted, it should be automatically unset as the active board for any conversations that had it active.

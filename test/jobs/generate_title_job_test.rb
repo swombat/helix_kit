@@ -15,7 +15,7 @@ class GenerateTitleJobTest < ActiveSupport::TestCase
       GenerateTitleJob.perform_now(chat)
     end
 
-    assert_equal "Q4 marketing plan", chat.reload.title
+    assert_equal "Q4 product launch plan", chat.reload.title
   end
 
   test "skips chat that already has a title" do

@@ -13,6 +13,7 @@ class SyncChannel < ApplicationCable::Channel
     if params[:id] == "all"
       return reject_for_reason("current_user.site_admin is false") unless current_user.site_admin
       stream_from "#{params[:model]}:all"
+      return
     end
 
     @model = model_class.find_by_obfuscated_id(params[:id].split(":")[0])

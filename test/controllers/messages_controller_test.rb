@@ -273,8 +273,8 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
       content: "Partial response"
     )
 
-    # Test that the retry endpoint works
-    post retry_message_path(failed_message)
+    # Test that the retry endpoint works - use JSON format to get a success response
+    post retry_message_path(failed_message), as: :json
     assert_response :success
 
     # Verify that the AiResponseJob gets enqueued

@@ -6,7 +6,7 @@ class Account < ApplicationRecord
 
   # Broadcasting configuration
   broadcasts_to :all # Admin collection
-  skip_broadcasts_on_destroy :memberships
+  skip_broadcasts_on_destroy :memberships, :agents, :chats
 
   # Enums
   enum :account_type, { personal: 0, team: 1 }
