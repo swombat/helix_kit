@@ -97,7 +97,13 @@
     Leaf,
   };
 
-  useSync({ [`Account:${account.id}:agents`]: 'agents' });
+  // Subscribe to both:
+  // - Account:${id}:agents - individual agent updates (via collection subscription)
+  // - Account:${id} - new agent creation (via broadcasts_to :account)
+  useSync({
+    [`Account:${account.id}:agents`]: 'agents',
+    [`Account:${account.id}`]: 'agents',
+  });
 
   let showCreateModal = $state(false);
   let selectedModel = $state(Object.values(grouped_models).flat()[0]?.model_id ?? 'openrouter/auto');
