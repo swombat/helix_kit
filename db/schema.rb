@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_27_165132) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_28_115249) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -74,6 +74,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_27_165132) do
     t.string "icon"
     t.string "model_id", default: "openrouter/auto", null: false
     t.string "name", null: false
+    t.text "reflection_prompt"
     t.text "system_prompt"
     t.datetime "updated_at", null: false
     t.index ["account_id", "active"], name: "index_agents_on_account_id_and_active"
@@ -135,6 +136,8 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_27_165132) do
     t.bigint "account_id", null: false
     t.bigint "ai_model_id"
     t.datetime "created_at", null: false
+    t.datetime "last_consolidated_at"
+    t.bigint "last_consolidated_message_id"
     t.boolean "manual_responses", default: false, null: false
     t.string "model_id_string", default: "openrouter/auto", null: false
     t.string "title"
@@ -143,6 +146,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_27_165132) do
     t.index ["account_id", "created_at"], name: "index_chats_on_account_id_and_created_at"
     t.index ["account_id"], name: "index_chats_on_account_id"
     t.index ["ai_model_id"], name: "index_chats_on_ai_model_id"
+    t.index ["last_consolidated_at"], name: "index_chats_on_last_consolidated_at"
     t.index ["manual_responses"], name: "index_chats_on_manual_responses"
     t.index ["web_access"], name: "index_chats_on_web_access"
   end

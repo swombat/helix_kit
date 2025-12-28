@@ -96,6 +96,44 @@ class AgentTest < ActiveSupport::TestCase
     assert_includes agent.errors[:name].first, "too long"
   end
 
+  # Reflection prompt tests
+
+  test "accepts valid reflection_prompt" do
+    agent = @account.agents.create!(
+      name: "Test Agent",
+      reflection_prompt: "Custom reflection prompt with %{system_prompt} and %{existing_memories}"
+    )
+    assert agent.persisted?
+    assert_equal "Custom reflection prompt with %{system_prompt} and %{existing_memories}", agent.reflection_prompt
+  end
+
+  test "validates reflection_prompt length" do
+    agent = @account.agents.build(
+      name: "Test",
+      reflection_prompt: "x" * 10_001
+    )
+    assert_not agent.valid?
+    assert_includes agent.errors[:reflection_prompt].first, "too long"
+  end
+
+  test "allows empty reflection_prompt" do
+    agent = @account.agents.create!(
+      name: "Test Agent",
+      reflection_prompt: nil
+    )
+    assert agent.persisted?
+    assert_nil agent.reflection_prompt
+  end
+
+  test "includes reflection_prompt in json_attributes" do
+    agent = @account.agents.create!(
+      name: "Test Agent",
+      reflection_prompt: "Custom prompt"
+    )
+    json = agent.as_json
+    assert_equal "Custom prompt", json["reflection_prompt"]
+  end
+
   # Memory context tests
 
   test "memory_context returns nil when no memories" do

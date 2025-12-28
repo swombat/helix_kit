@@ -33,6 +33,7 @@
     agent: {
       name: agent.name,
       system_prompt: agent.system_prompt || '',
+      reflection_prompt: agent.reflection_prompt || '',
       model_id: agent.model_id,
       active: agent.active,
       enabled_tools: agent.enabled_tools || [],
@@ -145,6 +146,21 @@
                      focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"></textarea>
             <p class="text-xs text-muted-foreground">
               Define the agent's personality, expertise, and behavior guidelines.
+            </p>
+          </div>
+
+          <div class="space-y-2">
+            <Label for="reflection_prompt">Reflection Prompt</Label>
+            <textarea
+              id="reflection_prompt"
+              bind:value={$form.agent.reflection_prompt}
+              placeholder="Leave empty to use default reflection prompt"
+              rows="8"
+              class="w-full resize-none border border-input rounded-md px-3 py-2 text-sm bg-background font-mono
+                     focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"></textarea>
+            <p class="text-xs text-muted-foreground">
+              Customize how the agent reflects on conversations to extract memories. Leave empty to use the default
+              prompt. The prompt can use %{'{'}system_prompt{'}'} and %{'{'}existing_memories{'}'} placeholders.
             </p>
           </div>
 
