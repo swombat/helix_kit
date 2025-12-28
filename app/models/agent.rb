@@ -29,6 +29,7 @@ class Agent < ApplicationRecord
                    uniqueness: { scope: :account_id }
   validates :system_prompt, length: { maximum: 50_000 }
   validates :reflection_prompt, length: { maximum: 10_000 }
+  validates :memory_reflection_prompt, length: { maximum: 10_000 }
   validates :colour, inclusion: { in: VALID_COLOURS }, allow_nil: true
   validates :icon, inclusion: { in: VALID_ICONS }, allow_nil: true
   validate :enabled_tools_must_be_valid
@@ -38,7 +39,7 @@ class Agent < ApplicationRecord
   scope :active, -> { where(active: true) }
   scope :by_name, -> { order(:name) }
 
-  json_attributes :name, :system_prompt, :reflection_prompt, :model_id, :model_label,
+  json_attributes :name, :system_prompt, :reflection_prompt, :memory_reflection_prompt, :model_id, :model_label,
                   :enabled_tools, :active?, :colour, :icon, :memories_count
 
   def self.available_tools

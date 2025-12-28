@@ -29,10 +29,7 @@ class MemoryReflectionJob < ApplicationJob
 
     return if journal_entries.empty?
 
-    prompt = format(REFLECTION_PROMPT,
-      core_memories: format_core_memories(core_memories),
-      journal_entries: format_journal_entries(journal_entries)
-    )
+    prompt = build_prompt(agent, core_memories, journal_entries)
 
     llm = RubyLLM.chat(
       model: agent.model_id,
@@ -44,6 +41,17 @@ class MemoryReflectionJob < ApplicationJob
     indices_to_promote = parse_response(response)
 
     promote_memories(journal_entries, indices_to_promote)
+  end
+
+  def build_prompt(agent, core_memories, journal_entries)
+    base_prompt = agent.memory_reflection_prompt.presence || REFLECTION_PROMPT
+
+    formatted_prompt = format(base_prompt,
+      core_memories: format_core_memories(core_memories),
+      journal_entries: format_journal_entries(journal_entries)
+    )
+
+    "#{formatted_prompt}\n\n#{JSON_FORMAT_INSTRUCTION}"
   end
 
   def format_core_memories(memories)
@@ -82,6 +90,15 @@ class MemoryReflectionJob < ApplicationJob
     end
   end
 
+  JSON_FORMAT_INSTRUCTION = <<~INSTRUCTION.strip
+    Respond ONLY with valid JSON. List the numbers of journal entries to promote:
+
+    {"promote": [1, 3]}
+
+    If nothing should be promoted (most common case):
+    {"promote": []}
+  INSTRUCTION
+
   REFLECTION_PROMPT = <<~PROMPT
     You are reflecting on your recent experiences and observations.
 
@@ -105,15 +122,6 @@ class MemoryReflectionJob < ApplicationJob
 
     ## Recent Journal Entries (will fade after 1 week)
     %{journal_entries}
-
-    ---
-
-    Respond ONLY with valid JSON. List the numbers of journal entries to promote:
-
-    {"promote": [1, 3]}
-
-    If nothing should be promoted (most common case):
-    {"promote": []}
   PROMPT
 
 end

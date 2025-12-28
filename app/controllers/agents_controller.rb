@@ -80,7 +80,7 @@ class AgentsController < ApplicationController
   end
 
   def agent_params
-    params.require(:agent).permit(:name, :system_prompt, :reflection_prompt, :model_id, :active, :colour, :icon, enabled_tools: [])
+    params.require(:agent).permit(:name, :system_prompt, :reflection_prompt, :memory_reflection_prompt, :model_id, :active, :colour, :icon, enabled_tools: [])
   end
 
   def memory_params
