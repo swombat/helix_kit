@@ -243,9 +243,9 @@ class Chat < ApplicationRecord
   end
 
   def messages_context_for(agent)
-    messages.includes(:user, :agent).order(:created_at).map do |msg|
-      format_message_for_context(msg, agent)
-    end
+    messages.includes(:user, :agent).order(:created_at)
+      .reject { |msg| msg.content.blank? }  # Filter out empty messages (e.g., before tool calls)
+      .map { |msg| format_message_for_context(msg, agent) }
   end
 
   def participant_description(current_agent)
