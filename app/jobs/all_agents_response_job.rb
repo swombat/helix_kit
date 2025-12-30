@@ -54,6 +54,9 @@ class AllAgentsResponseJob < ApplicationJob
     debug_info "Added #{tools_added.length} tools: #{tools_added.join(', ')}" if tools_added.any?
 
     llm.on_new_message do
+      # Ensure previous message is no longer streaming before creating a new one
+      @ai_message&.stop_streaming if @ai_message&.streaming?
+
       debug_info "Creating new assistant message"
       @ai_message = chat.messages.create!(
         role: "assistant",
