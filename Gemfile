@@ -86,3 +86,5 @@ gem "active_storage_validations"
 gem "redcarpet"
 
 gem "honeybadger", "~> 6.1"
+
+gem "mission_control-jobs"

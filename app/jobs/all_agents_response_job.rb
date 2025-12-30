@@ -31,6 +31,10 @@ class AllAgentsResponseJob < ApplicationJob
 
     context = chat.build_context_for_agent(agent)
     debug_info "Built context with #{context.length} messages"
+    context.each_with_index do |msg, i|
+      content_preview = msg[:content].is_a?(String) ? msg[:content].truncate(100) : msg[:content].class.name
+      debug_info "  [#{i}] #{msg[:role]}: #{content_preview}"
+    end
 
     provider_config = llm_provider_for(agent.model_id)
     debug_info "Using provider: #{provider_config[:provider]}, model: #{provider_config[:model_id]}"
