@@ -651,10 +651,10 @@
                           animation={{
                             enabled: true,
                             type: 'fade',
-                            tokenize: 'word', // <- key for typewriter feel
-                            duration: 300, // tune to taste
+                            tokenize: 'word',
+                            duration: 300,
                             timingFunction: 'ease-out',
-                            animateOnMount: true, // animate the first batch too
+                            animateOnMount: true,
                           }} />
                       {/if}
 

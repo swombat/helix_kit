@@ -102,7 +102,8 @@ COPY vite.config.ts .
 RUN mkdir -p log tmp && : > log/solid_services_production.log
 
 # 4) Compile assets (this handles both Rails assets and Vite build)
-RUN SECRET_KEY_BASE_DUMMY=1 bundle exec rails assets:precompile
+RUN --mount=type=cache,target=/rails/node_modules/.vite \
+    SECRET_KEY_BASE_DUMMY=1 bundle exec rails assets:precompile
 
 # 5) Bring in the rest of the app; bootsnap app code
 RUN bundle exec bootsnap precompile app/ lib/
