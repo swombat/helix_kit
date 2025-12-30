@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_28_122013) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_30_113050) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -246,6 +246,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_28_122013) do
     t.jsonb "arguments", default: {}
     t.datetime "created_at", null: false
     t.bigint "message_id", null: false
+    t.jsonb "metadata", default: {}
     t.string "name", null: false
     t.string "tool_call_id", null: false
     t.datetime "updated_at", null: false

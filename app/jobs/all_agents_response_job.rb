@@ -1,6 +1,7 @@
 class AllAgentsResponseJob < ApplicationJob
 
   include StreamsAiResponse
+  include SelectsLlmProvider
 
   # Retry on provider errors with exponential backoff (5s, 25s, 125s)
   retry_on RubyLLM::ModelNotFoundError, wait: 5.seconds, attempts: 2
@@ -27,9 +28,10 @@ class AllAgentsResponseJob < ApplicationJob
 
     context = chat.build_context_for_agent(agent)
 
+    provider_config = llm_provider_for(agent.model_id)
     llm = RubyLLM.chat(
-      model: agent.model_id,
-      provider: :openrouter,
+      model: provider_config[:model_id],
+      provider: provider_config[:provider],
       assume_model_exists: true
     )
 
