@@ -13,6 +13,12 @@
   let isGroupChat = $state(false);
   let selectedAgentIds = $state([]);
   let sidebarOpen = $state(false);
+  let textareaRef = $state(null);
+  // Random placeholder (10% chance for the tip)
+  const placeholder =
+    Math.random() < 0.1
+      ? 'Did you know? Press shift-enter for a new line...'
+      : 'Type your message to start the chat...';
 
   // Group models by their group property
   const groupedModels = $derived(() => {
@@ -48,6 +54,12 @@
     }
   }
 
+  function autoResize() {
+    if (!textareaRef) return;
+    textareaRef.style.height = 'auto';
+    textareaRef.style.height = `${Math.min(textareaRef.scrollHeight, 240)}px`;
+  }
+
   function startChat() {
     if (!message.trim() && selectedFiles.length === 0) return;
     if (isGroupChat && selectedAgentIds.length === 0) return;
@@ -78,6 +90,7 @@
         message = '';
         selectedFiles = [];
         processing = false;
+        if (textareaRef) textareaRef.style.height = 'auto';
       },
       onError: (errors) => {
         console.error('Chat creation failed:', errors);
@@ -208,13 +221,15 @@
 
         <div class="flex-1">
           <textarea
+            bind:this={textareaRef}
             bind:value={message}
             onkeydown={handleKeydown}
-            placeholder="Type your message to start the chat..."
+            oninput={autoResize}
+            {placeholder}
             disabled={processing}
             class="w-full resize-none border border-input rounded-md px-3 py-2 text-sm bg-background
                    focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent
-                   min-h-[40px] max-h-[120px]"
+                   min-h-[40px] max-h-[240px] overflow-y-auto"
             rows="1"></textarea>
         </div>
         <button

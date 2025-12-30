@@ -66,9 +66,31 @@
   let showAgentPrompt = $state(false);
   // Mobile sidebar state
   let sidebarOpen = $state(false);
+  // Textarea auto-resize
+  let textareaRef = $state(null);
+  // Random placeholder (10% chance for the tip)
+  const placeholder =
+    Math.random() < 0.1 ? 'Did you know? Press shift-enter for a new line...' : 'Type your message...';
 
   // Check if current user is a site admin
   const isSiteAdmin = $derived($page.props.user?.site_admin ?? false);
+
+  // Check if user is near the bottom of the messages container (within 50px)
+  function isNearBottom() {
+    if (!messagesContainer) return true;
+    const { scrollTop, scrollHeight, clientHeight } = messagesContainer;
+    return scrollTop + clientHeight >= scrollHeight - 100;
+  }
+
+  // Scroll to bottom smoothly if user is near the bottom
+  function scrollToBottomIfNeeded() {
+    if (messagesContainer && isNearBottom()) {
+      messagesContainer.scrollTo({
+        top: messagesContainer.scrollHeight,
+        behavior: 'smooth',
+      });
+    }
+  }
 
   // Filter out tool messages and empty assistant messages unless showToolCalls is enabled
   const visibleMessages = $derived(
@@ -229,7 +251,7 @@
     }
   });
 
-  // Auto-scroll to bottom when messages change
+  // Auto-scroll to bottom when messages change (only if user is near bottom)
   $effect(() => {
     messages; // Subscribe to messages changes
 
@@ -244,7 +266,7 @@
 
     if (messagesContainer) {
       setTimeout(() => {
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        scrollToBottomIfNeeded();
       }, 100);
     }
   });
@@ -254,7 +276,7 @@
       if (data.id) {
         const index = messages.findIndex((m) => m.id === data.id);
         if (index !== -1) {
-          logging.debug('✏️ Updating message via streaming:', data.id, data.chunk);
+          logging.debug('Updating message via streaming:', data.id, data.chunk);
           const currentMessage = messages[index] || {};
           const updatedMessage = {
             ...currentMessage,
@@ -264,25 +286,30 @@
 
           messages = messages.map((message, messageIndex) => (messageIndex === index ? updatedMessage : message));
           logging.debug('Message updated:', updatedMessage);
+
+          // Scroll to bottom if user is near the bottom during streaming
+          setTimeout(() => {
+            scrollToBottomIfNeeded();
+          }, 0);
         } else {
-          logging.debug('🔍 No message found in streaming update:', data.id);
-          logging.debug('🔍 Messages:', messages);
+          logging.debug('No message found in streaming update:', data.id);
+          logging.debug('Messages:', messages);
         }
       } else {
-        logging.warn('🔍 No id found in streaming update:', data);
+        logging.warn('No id found in streaming update:', data);
       }
     },
     (data) => {
       if (data.id) {
         const index = messages.findIndex((m) => m.id === data.id);
         if (index !== -1) {
-          logging.debug('✏️ Updating message via streaming end:', data.id);
+          logging.debug('Updating message via streaming end:', data.id);
           messages = messages.map((message, messageIndex) =>
             messageIndex === index ? { ...message, streaming: false } : message
           );
         }
       } else {
-        logging.warn('🔍 No id found in streaming end:', data);
+        logging.warn('No id found in streaming end:', data);
       }
     }
   );
@@ -320,6 +347,8 @@
         logging.debug('Message sent successfully');
         $messageForm.message.content = '';
         selectedFiles = [];
+        // Reset textarea height
+        if (textareaRef) textareaRef.style.height = 'auto';
 
         // For group chats, show the agent prompt briefly
         if (chat?.manual_responses) {
@@ -399,6 +428,12 @@
       event.preventDefault();
       sendMessage();
     }
+  }
+
+  function autoResize() {
+    if (!textareaRef) return;
+    textareaRef.style.height = 'auto';
+    textareaRef.style.height = `${Math.min(textareaRef.scrollHeight, 240)}px`;
   }
 
   function shouldShowTimestamp(index) {
@@ -736,13 +771,15 @@
 
         <div class="flex-1">
           <textarea
+            bind:this={textareaRef}
             bind:value={$messageForm.message.content}
             onkeydown={handleKeydown}
-            placeholder="Type your message..."
+            oninput={autoResize}
+            {placeholder}
             disabled={$messageForm.processing}
             class="w-full resize-none border border-input rounded-md px-3 py-2 text-sm bg-background
                    focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent
-                   min-h-[40px] max-h-[120px]"
+                   min-h-[40px] max-h-[240px] overflow-y-auto"
             rows="1"></textarea>
         </div>
         <button
