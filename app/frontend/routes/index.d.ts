@@ -816,6 +816,36 @@ export const triggerAllAgentsAccountChatPath: ((
 
 /**
  * Generates rails route to
+ * /recede_historical_location(.:format)
+ * @param {object | undefined} options
+ * @returns {string} route path
+ */
+export const turboRecedeHistoricalLocationPath: ((
+  options?: {format?: OptionalRouteParameter} & RouteOptions
+) => string) & RouteHelperExtras;
+
+/**
+ * Generates rails route to
+ * /refresh_historical_location(.:format)
+ * @param {object | undefined} options
+ * @returns {string} route path
+ */
+export const turboRefreshHistoricalLocationPath: ((
+  options?: {format?: OptionalRouteParameter} & RouteOptions
+) => string) & RouteHelperExtras;
+
+/**
+ * Generates rails route to
+ * /resume_historical_location(.:format)
+ * @param {object | undefined} options
+ * @returns {string} route path
+ */
+export const turboResumeHistoricalLocationPath: ((
+  options?: {format?: OptionalRouteParameter} & RouteOptions
+) => string) & RouteHelperExtras;
+
+/**
+ * Generates rails route to
  * /user/update_password(.:format)
  * @param {object | undefined} options
  * @returns {string} route path

@@ -1100,6 +1100,30 @@ export const triggerAllAgentsAccountChatPath = /*#__PURE__*/ __jsr.r({"account_i
 
 /**
  * Generates rails route to
+ * /recede_historical_location(.:format)
+ * @param {object | undefined} options
+ * @returns {string} route path
+ */
+export const turboRecedeHistoricalLocationPath = /*#__PURE__*/ __jsr.r({"format":{}}, [2,[7,"/"],[2,[6,"recede_historical_location"],[1,[2,[8,"."],[3,"format"]]]]]);
+
+/**
+ * Generates rails route to
+ * /refresh_historical_location(.:format)
+ * @param {object | undefined} options
+ * @returns {string} route path
+ */
+export const turboRefreshHistoricalLocationPath = /*#__PURE__*/ __jsr.r({"format":{}}, [2,[7,"/"],[2,[6,"refresh_historical_location"],[1,[2,[8,"."],[3,"format"]]]]]);
+
+/**
+ * Generates rails route to
+ * /resume_historical_location(.:format)
+ * @param {object | undefined} options
+ * @returns {string} route path
+ */
+export const turboResumeHistoricalLocationPath = /*#__PURE__*/ __jsr.r({"format":{}}, [2,[7,"/"],[2,[6,"resume_historical_location"],[1,[2,[8,"."],[3,"format"]]]]]);
+
+/**
+ * Generates rails route to
  * /user/update_password(.:format)
  * @param {object | undefined} options
  * @returns {string} route path
