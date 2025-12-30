@@ -49,10 +49,12 @@ if defined?(RubyLLM) && defined?(RubyLLM::Providers::Gemini)
 
       Rails.logger.info "[ThoughtSignature] Extracting from response: signature=#{signature ? 'present' : 'nil'}, tool_calls=#{tool_calls.keys}"
 
-      # Attach signature to the first tool call (Gemini typically returns one at a time)
-      if signature && tool_calls.values.first
-        tool_calls.values.first.thought_signature = signature
-        Rails.logger.info "[ThoughtSignature] Attached signature to tool call: #{tool_calls.keys.first}"
+      # Attach signature to each tool call
+      if signature
+        tool_calls.each do |id, tool_call|
+          tool_call.thought_signature = signature
+          Rails.logger.info "[ThoughtSignature] Attached signature to tool call: id=#{id}, name=#{tool_call.name}, object_id=#{tool_call.object_id}"
+        end
       end
 
       tool_calls
@@ -68,7 +70,7 @@ if defined?(RubyLLM) && defined?(RubyLLM::Providers::Gemini)
       parts = []
 
       if msg.content && !(msg.content.respond_to?(:empty?) && msg.content.empty?)
-        formatted_content = Media.format_content(msg.content)
+        formatted_content = RubyLLM::Providers::Gemini::Media.format_content(msg.content)
         parts.concat(formatted_content.is_a?(Array) ? formatted_content : [ formatted_content ])
       end
 
@@ -81,11 +83,13 @@ if defined?(RubyLLM) && defined?(RubyLLM::Providers::Gemini)
         }
 
         # Add thought signature if present on the tool call
-        if tool_call.respond_to?(:thought_signature) && tool_call.thought_signature
-          function_call_part[:thoughtSignature] = tool_call.thought_signature
+        has_accessor = tool_call.respond_to?(:thought_signature)
+        signature = has_accessor ? tool_call.thought_signature : nil
+        Rails.logger.info "[ThoughtSignature] format_tool_call: name=#{tool_call.name}, id=#{tool_call.id}, has_accessor=#{has_accessor}, signature=#{signature ? 'present' : 'nil'}, object_id=#{tool_call.object_id}"
+
+        if signature
+          function_call_part[:thoughtSignature] = signature
           Rails.logger.info "[ThoughtSignature] Added signature to functionCall for: #{tool_call.name}"
-        else
-          Rails.logger.info "[ThoughtSignature] No signature for tool call: #{tool_call.name}"
         end
 
         parts << function_call_part
