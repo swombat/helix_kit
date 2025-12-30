@@ -1,7 +1,81 @@
 <script>
   import { router } from '@inertiajs/svelte';
   import { Button } from '$lib/components/shadcn/button/index.js';
-  import { ArrowUp, Globe, Robot, UsersThree, List } from 'phosphor-svelte';
+  import {
+    ArrowUp,
+    Globe,
+    Robot,
+    UsersThree,
+    List,
+    Brain,
+    Sparkle,
+    Lightning,
+    Star,
+    Heart,
+    Sun,
+    Moon,
+    Eye,
+    Compass,
+    Rocket,
+    Atom,
+    Lightbulb,
+    Crown,
+    Shield,
+    Fire,
+    Target,
+    Trophy,
+    Flask,
+    Code,
+    Cube,
+    PuzzlePiece,
+    Cat,
+    Dog,
+    Bird,
+    Alien,
+    Ghost,
+    Detective,
+    Butterfly,
+    Flower,
+    Tree,
+    Leaf,
+  } from 'phosphor-svelte';
+
+  // Map icon names to components
+  const iconComponents = {
+    Robot,
+    Brain,
+    Sparkle,
+    Lightning,
+    Star,
+    Heart,
+    Sun,
+    Moon,
+    Eye,
+    Globe,
+    Compass,
+    Rocket,
+    Atom,
+    Lightbulb,
+    Crown,
+    Shield,
+    Fire,
+    Target,
+    Trophy,
+    Flask,
+    Code,
+    Cube,
+    PuzzlePiece,
+    Cat,
+    Dog,
+    Bird,
+    Alien,
+    Ghost,
+    Detective,
+    Butterfly,
+    Flower,
+    Tree,
+    Leaf,
+  };
   import * as Select from '$lib/components/shadcn/select/index.js';
   import ChatList from './ChatList.svelte';
   import FileUploadInput from '$lib/components/chat/FileUploadInput.svelte';
@@ -183,14 +257,23 @@
         <div class="text-sm font-medium mb-2">Select agents to participate:</div>
         <div class="flex flex-wrap gap-2">
           {#each agents as agent (agent.id)}
+            {@const IconComponent = iconComponents[agent.icon] || Robot}
+            {@const isSelected = selectedAgentIds.includes(agent.id)}
             <button
               type="button"
               onclick={() => toggleAgent(agent.id)}
-              class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm transition-colors
-                     {selectedAgentIds.includes(agent.id)
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-muted hover:bg-muted/80 text-muted-foreground'}">
-              <Robot size={14} weight="duotone" />
+              class="inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-sm border transition-colors
+                     {isSelected
+                ? agent.colour
+                  ? `bg-${agent.colour}-100 dark:bg-${agent.colour}-900 border-${agent.colour}-400 dark:border-${agent.colour}-600 text-${agent.colour}-700 dark:text-${agent.colour}-300`
+                  : 'bg-primary text-primary-foreground border-primary'
+                : agent.colour
+                  ? `bg-transparent border-${agent.colour}-300 dark:border-${agent.colour}-700 hover:bg-${agent.colour}-50 dark:hover:bg-${agent.colour}-950 text-${agent.colour}-600 dark:text-${agent.colour}-400`
+                  : 'bg-muted hover:bg-muted/80 text-muted-foreground border-border'}">
+              <IconComponent
+                size={14}
+                weight="duotone"
+                class={agent.colour && !isSelected ? `text-${agent.colour}-600 dark:text-${agent.colour}-400` : ''} />
               {agent.name}
             </button>
           {/each}
