@@ -14,6 +14,7 @@
   import FileUploadInput from '$lib/components/chat/FileUploadInput.svelte';
   import FileAttachment from '$lib/components/chat/FileAttachment.svelte';
   import AgentTriggerBar from '$lib/components/chat/AgentTriggerBar.svelte';
+  import ParticipantAvatars from '$lib/components/chat/ParticipantAvatars.svelte';
   import { accountChatMessagesPath, retryMessagePath } from '@/routes';
   import { marked } from 'marked';
   import * as logging from '$lib/logging';
@@ -521,10 +522,8 @@
               <Spinner size={12} class="animate-spin" />
               <span>Setting up...</span>
             {:else if chat?.manual_responses}
-              {agents?.length || 0} AI{agents?.length === 1 ? '' : 's'}, {uniqueHumanCount()} human{uniqueHumanCount() ===
-              1
-                ? ''
-                : 's'}, {formatTokenCount(totalTokens())} tokens
+              <ParticipantAvatars {agents} {messages} />
+              <span class="ml-2">{formatTokenCount(totalTokens())} tokens</span>
             {:else}
               {chat?.model_label || chat?.model_id || 'Auto'}
             {/if}
