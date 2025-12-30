@@ -30,9 +30,33 @@
 # Only apply patch if RubyLLM is loaded and Gemini provider exists
 if defined?(RubyLLM) && defined?(RubyLLM::Providers::Gemini)
 
-  # Step 1: Add thought_signature accessor to ToolCall
-  RubyLLM::ToolCall.class_eval do
-    attr_accessor :thought_signature
+  # Step 1: Thread-safe cache for thought signatures, keyed by tool call ID
+  # This is needed because RubyLLM recreates ToolCall objects internally
+  class ThoughtSignatureCache
+
+    class << self
+
+      def store(tool_call_id, signature)
+        cache[tool_call_id] = signature
+        Rails.logger.info "[ThoughtSignature] Cached signature for tool_call_id=#{tool_call_id}"
+      end
+
+      def fetch(tool_call_id)
+        cache[tool_call_id]
+      end
+
+      def clear(tool_call_id)
+        cache.delete(tool_call_id)
+      end
+
+      private
+
+      def cache
+        @cache ||= {}
+      end
+
+    end
+
   end
 
   # Step 2: Patch Gemini provider to READ thought_signature from API responses
@@ -49,11 +73,11 @@ if defined?(RubyLLM) && defined?(RubyLLM::Providers::Gemini)
 
       Rails.logger.info "[ThoughtSignature] Extracting from response: signature=#{signature ? 'present' : 'nil'}, tool_calls=#{tool_calls.keys}"
 
-      # Attach signature to each tool call
+      # Store signature in cache for each tool call ID
       if signature
         tool_calls.each do |id, tool_call|
-          tool_call.thought_signature = signature
-          Rails.logger.info "[ThoughtSignature] Attached signature to tool call: id=#{id}, name=#{tool_call.name}, object_id=#{tool_call.object_id}"
+          ThoughtSignatureCache.store(id, signature)
+          Rails.logger.info "[ThoughtSignature] Stored signature for: id=#{id}, name=#{tool_call.name}"
         end
       end
 
@@ -82,14 +106,15 @@ if defined?(RubyLLM) && defined?(RubyLLM::Providers::Gemini)
           }
         }
 
-        # Add thought signature if present on the tool call
-        has_accessor = tool_call.respond_to?(:thought_signature)
-        signature = has_accessor ? tool_call.thought_signature : nil
-        Rails.logger.info "[ThoughtSignature] format_tool_call: name=#{tool_call.name}, id=#{tool_call.id}, has_accessor=#{has_accessor}, signature=#{signature ? 'present' : 'nil'}, object_id=#{tool_call.object_id}"
+        # Look up thought signature from cache by tool call ID
+        signature = ThoughtSignatureCache.fetch(tool_call.id)
+        Rails.logger.info "[ThoughtSignature] format_tool_call: name=#{tool_call.name}, id=#{tool_call.id}, signature=#{signature ? 'present' : 'nil'}"
 
         if signature
           function_call_part[:thoughtSignature] = signature
           Rails.logger.info "[ThoughtSignature] Added signature to functionCall for: #{tool_call.name}"
+          # Clear from cache after use to prevent memory buildup
+          ThoughtSignatureCache.clear(tool_call.id)
         end
 
         parts << function_call_part
