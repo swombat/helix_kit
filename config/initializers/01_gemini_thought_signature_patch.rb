@@ -47,9 +47,12 @@ if defined?(RubyLLM) && defined?(RubyLLM::Providers::Gemini)
         &.find { |p| p["functionCall"] }
       signature = function_call_part&.[]("thoughtSignature")
 
+      Rails.logger.info "[ThoughtSignature] Extracting from response: signature=#{signature ? 'present' : 'nil'}, tool_calls=#{tool_calls.keys}"
+
       # Attach signature to the first tool call (Gemini typically returns one at a time)
       if signature && tool_calls.values.first
         tool_calls.values.first.thought_signature = signature
+        Rails.logger.info "[ThoughtSignature] Attached signature to tool call: #{tool_calls.keys.first}"
       end
 
       tool_calls
@@ -63,15 +66,20 @@ if defined?(RubyLLM) && defined?(RubyLLM::Providers::Gemini)
     def render_payload(messages, **options)
       payload = super
 
+      Rails.logger.info "[ThoughtSignature] render_payload called with #{messages.length} messages"
+
       payload[:contents]&.each_with_index do |content_part, index|
         message = messages[index]
+        Rails.logger.info "[ThoughtSignature] Message #{index}: role=#{message&.role}, tool_call?=#{message&.tool_call?}"
         next unless message&.role == :assistant && message.tool_call?
 
         tool_call = message.tool_calls&.values&.first
+        Rails.logger.info "[ThoughtSignature] Tool call found: #{tool_call&.id}, has_signature=#{tool_call&.thought_signature ? 'yes' : 'no'}"
         if tool_call&.thought_signature
           function_call_part = content_part[:parts]&.find { |p| p.key?(:functionCall) }
           if function_call_part
             function_call_part[:thoughtSignature] = tool_call.thought_signature
+            Rails.logger.info "[ThoughtSignature] Added signature to payload for tool: #{tool_call.id}"
           end
         end
       end
