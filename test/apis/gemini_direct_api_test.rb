@@ -80,8 +80,10 @@ class GeminiDirectApiTest < ActiveSupport::TestCase
   end
 
   test "gemini-2.5-pro with tool calling" do
-    VCR.use_cassette("gemini_25_pro_tool_calling") do
-      llm = RubyLLM.chat(
+    # Freeze time to match the recorded VCR cassette timestamp
+    travel_to Time.zone.parse("2025-12-30T12:01:48Z") do
+      VCR.use_cassette("gemini_25_pro_tool_calling") do
+        llm = RubyLLM.chat(
         model: "gemini-2.5-pro",
         provider: :gemini,
         assume_model_exists: true
@@ -98,6 +100,7 @@ class GeminiDirectApiTest < ActiveSupport::TestCase
       assert tool_called, "Expected tool to be called"
       assert_includes tool_call_name, "echo", "Expected tool name to include 'echo'"
       assert response.content.present?
+      end
     end
   end
 
