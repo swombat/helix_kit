@@ -47,7 +47,8 @@ VCR.configure do |config|
   # Filter sensitive API keys
   config.filter_sensitive_data("<OPENAI_API_KEY>") { Rails.application.credentials.dig(:ai, :open_ai, :api_token) }
   config.filter_sensitive_data("<CLAUDE_API_KEY>") { Rails.application.credentials.dig(:ai, :claude, :api_token) if Rails.application.credentials.dig(:ai, :claude).present? }
-  config.filter_sensitive_data("<OPENROUTER_API_KEY>") { Rails.application.credentials.dig(:ai, :openrouter, :api_token) if Rails.application.credentials.dig(:ai, :claude).present? }
+  config.filter_sensitive_data("<OPENROUTER_API_KEY>") { Rails.application.credentials.dig(:ai, :openrouter, :api_token) if Rails.application.credentials.dig(:ai, :openrouter).present? }
+  config.filter_sensitive_data("<GEMINI_API_KEY>") { Rails.application.credentials.dig(:ai, :gemini, :api_token) if Rails.application.credentials.dig(:ai, :gemini).present? }
   config.filter_sensitive_data("<AWS_ACCESS_KEY_ID>") { Rails.application.credentials.dig(:aws, :access_key_id) }
   config.filter_sensitive_data("<AWS_SECRET_ACCESS_KEY>") { Rails.application.credentials.dig(:aws, :secret_access_key) }
   config.filter_sensitive_data("<HONEYBADGER_API_KEY>") { Rails.application.credentials.dig(:honeybadger, :api_key) }
