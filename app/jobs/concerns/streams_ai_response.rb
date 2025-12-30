@@ -17,13 +17,13 @@ module StreamsAiResponse
 
     flush_stream_buffer(force: true)
 
+    # Update message content and metadata (streaming state is handled by stop_streaming in cleanup)
     @ai_message.update!({
       content: extract_message_content(ruby_llm_message.content),
       model_id_string: ruby_llm_message.model_id,
       input_tokens: ruby_llm_message.input_tokens,
       output_tokens: ruby_llm_message.output_tokens,
-      tools_used: @tools_used.uniq,
-      streaming: false
+      tools_used: @tools_used.uniq
     })
   end
 

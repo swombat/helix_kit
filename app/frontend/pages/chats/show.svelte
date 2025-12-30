@@ -248,8 +248,8 @@
     subs[`Account:${account.id}:chats`] = 'chats';
 
     if (chat) {
-      subs[`Chat:${chat.id}`] = 'chat'; // Current chat updates
-      subs[`Chat:${chat.id}:messages`] = 'messages'; // Messages updates (not including streaming)
+      subs[`Chat:${chat.id}`] = ['chat', 'messages']; // Both chat and messages when chat broadcasts
+      subs[`Chat:${chat.id}:messages`] = 'messages'; // Individual message updates
     }
 
     const messageSignature = Array.isArray(messages) ? messages.map((message) => message.id).join(':') : '';

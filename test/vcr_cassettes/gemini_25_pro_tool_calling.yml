@@ -310,4 +310,80 @@ http_interactions:
           "responseId": "-O9TaaibOP7tkdUPgcSUwQg"
         }
   recorded_at: Tue, 30 Dec 2025 15:30:00 GMT
+- request:
+    method: post
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent
+    body:
+      encoding: UTF-8
+      string: '{"contents":[{"role":"user","parts":[{"text":"Please echo the message
+        ''Hello from Gemini test''"}]},{"role":"model","parts":[{"functionCall":{"name":"gemini_direct_api_test--echo","args":{"message":"Hello
+        from Gemini test"}},"thoughtSignature":"CugDAXLI2nyHezFOONPtPJIY6Kkp4EKWnHRBersHBK9Vq8uYCIu59i7vW/eV3FcUgkNtaGpIut1+Z95rlWNlulXYbdGiH6ZMp61ac48NsJ//n4sHgX34av4Tsaotjha4jzpPBWLrA2xx8NH1vUOmcHR3S7PfWRX0SveyrmtFowIh+nqZSM4OJ25/X6j96waDLtmkssWhkun5DzFfHjxQbEcZrBZb2HbPAiiE1xc0/octgFnxLYtNS0FJa4bkRNqeG6KuiQeX4zG1oTkKuEeFXc1sDqREnn1a8uDQA0luIFxtryhOGIeMBAScSqc1S1aMf28ocYa52siE/cych7Vb75XXtoyCraZzl5cjOW+Eoylng/zVoTXbA/Ys6O7Jmnh5uZPL5xKr/rNbPAnnRNYzEfNO1xpE7Ja6mSX9ZFCqEWdYgDQ0WZydyY3dxJvtMT+79wxMj3lfbr3/eDoruyE/ha6aIcAjCRt0Mr9+Or6ujfUdGlDpW3xbxKCBH92dSUTF5WrM/uGY3FDz8ej6xkQfp665AnubKYYEl7/1rxxFT+ygMttgB3bqGigucK3z4lfq/9tigZpVYSAeJJ3d7Jg8tJeJMiRnvIRwh326vMLd0irwJy37Jw82JkyVDwgGXO90RyySIJb0U07q7Ds="}]},{"role":"function","parts":[{"functionResponse":{"name":"gemini_direct_api_test--echo","response":{"name":"gemini_direct_api_test--echo","content":[{"text":"{echoed:
+        \"Hello from Gemini test\", timestamp: \"2025-12-30T19:30:58Z\"}"}]}}}]}],"generationConfig":{},"tools":[{"functionDeclarations":[{"name":"gemini_direct_api_test--echo","description":"Echoes
+        back the provided message","parameters":{"type":"OBJECT","properties":{"message":{"type":"STRING","description":"The
+        message to echo back"}},"required":["message"]}}]}]}'
+    headers:
+      User-Agent:
+      - Faraday v2.14.0
+      x-goog-api-key:
+      - "<GEMINI_API_KEY>"
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      content-type:
+      - application/json; charset=UTF-8
+      vary:
+      - Origin, X-Origin, Referer
+      date:
+      - Tue, 30 Dec 2025 19:30:59 GMT
+      server:
+      - scaffolding on HTTPServer2
+      x-xss-protection:
+      - '0'
+      x-frame-options:
+      - SAMEORIGIN
+      x-content-type-options:
+      - nosniff
+      server-timing:
+      - gfet4t7; dur=1685
+      alt-svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      transfer-encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: |
+        {
+          "candidates": [
+            {
+              "content": {
+                "parts": [
+                  {
+                    "text": "Hello from Gemini test\n"
+                  }
+                ],
+                "role": "model"
+              },
+              "finishReason": "STOP",
+              "index": 0
+            }
+          ],
+          "usageMetadata": {
+            "promptTokenCount": 158,
+            "candidatesTokenCount": 4,
+            "totalTokenCount": 162,
+            "promptTokensDetails": [
+              {
+                "modality": "TEXT",
+                "tokenCount": 158
+              }
+            ]
+          },
+          "modelVersion": "gemini-2.5-pro",
+          "responseId": "cyhUaZTKNNLskdUPiMna4QI"
+        }
+  recorded_at: Tue, 30 Dec 2025 19:30:59 GMT
 recorded_with: VCR 6.3.1
