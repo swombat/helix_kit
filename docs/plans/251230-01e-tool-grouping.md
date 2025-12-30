@@ -4,7 +4,7 @@
 
 This plan establishes domain-based tool consolidation as the architectural pattern for scaling to 50+ agent capabilities. Two consolidated tools replace four individual tools:
 
-1. **AgentConfigTool** - Manages all agent configuration (prompts, name, future: model, settings)
+1. **SelfAuthoringTool** - Manages all agent configuration (prompts, name, future: model, settings)
 2. **WebTool** - Handles all web operations (search, fetch, future: extract)
 
 Each domain tool accepts `action` + domain-specific parameters, routes to focused private methods, and returns structured responses with type discrimination. Self-correcting errors include valid options so LLMs can retry without additional context.
@@ -58,18 +58,18 @@ end
 
 ---
 
-## Part 1: AgentConfigTool
+## Part 1: SelfAuthoringTool
 
 ### Why This Name
 
-- `AgentConfigTool` accurately describes scope: agent configuration
+- `SelfAuthoringTool` accurately describes scope: agent configuration
 - Manages prompts, name, and will extend to model selection, enabled tools, etc.
-- Matches the domain pattern: `WebTool`, `MemoryTool`, `AgentConfigTool`
+- Matches the domain pattern: `WebTool`, `MemoryTool`, `SelfAuthoringTool`
 
 ### Implementation
 
 ```ruby
-class AgentConfigTool < RubyLLM::Tool
+class SelfAuthoringTool < RubyLLM::Tool
 
   ACTIONS = %w[view update].freeze
 
@@ -424,8 +424,8 @@ At 50 capabilities, this yields approximately 10 domain tools instead of 50 indi
     desc "Migrate to consolidated tools"
     task consolidate: :environment do
       migrations = {
-        "ViewSystemPromptTool" => "AgentConfigTool",
-        "UpdateSystemPromptTool" => "AgentConfigTool",
+        "ViewSystemPromptTool" => "SelfAuthoringTool",
+        "UpdateSystemPromptTool" => "SelfAuthoringTool",
         "WebSearchTool" => "WebTool",
         "WebFetchTool" => "WebTool"
       }
@@ -473,12 +473,12 @@ At 50 capabilities, this yields approximately 10 domain tools instead of 50 indi
 
 ## Test Plan
 
-### AgentConfigTool Tests
+### SelfAuthoringTool Tests
 
 ```ruby
 require "test_helper"
 
-class AgentConfigToolTest < ActiveSupport::TestCase
+class SelfAuthoringToolTest < ActiveSupport::TestCase
   setup do
     @agent = agents(:one)
     @agent.update!(
@@ -487,7 +487,7 @@ class AgentConfigToolTest < ActiveSupport::TestCase
       memory_reflection_prompt: "Original memory"
     )
     @chat = chats(:group_chat)
-    @tool = AgentConfigTool.new(chat: @chat, current_agent: @agent)
+    @tool = SelfAuthoringTool.new(chat: @chat, current_agent: @agent)
   end
 
   test "view returns field value with type" do
@@ -509,7 +509,7 @@ class AgentConfigToolTest < ActiveSupport::TestCase
   end
 
   test "view works for all fields" do
-    AgentConfigTool::FIELDS.each do |field|
+    SelfAuthoringTool::FIELDS.each do |field|
       result = @tool.execute(action: "view", field: field)
       assert_equal "config", result[:type]
       assert_equal field, result[:field]
@@ -549,7 +549,7 @@ class AgentConfigToolTest < ActiveSupport::TestCase
     assert_equal "error", result[:type]
     assert_match(/Invalid action/, result[:error])
     assert_equal %w[view update], result[:allowed_actions]
-    assert_equal AgentConfigTool::FIELDS, result[:allowed_fields]
+    assert_equal SelfAuthoringTool::FIELDS, result[:allowed_fields]
   end
 
   test "invalid field returns self-correcting error" do
@@ -557,11 +557,11 @@ class AgentConfigToolTest < ActiveSupport::TestCase
 
     assert_equal "error", result[:type]
     assert_match(/Invalid field/, result[:error])
-    assert_equal AgentConfigTool::FIELDS, result[:allowed_fields]
+    assert_equal SelfAuthoringTool::FIELDS, result[:allowed_fields]
   end
 
   test "returns error without group chat context" do
-    tool = AgentConfigTool.new(chat: nil, current_agent: @agent)
+    tool = SelfAuthoringTool.new(chat: nil, current_agent: @agent)
 
     result = tool.execute(action: "view", field: "name")
 
@@ -570,7 +570,7 @@ class AgentConfigToolTest < ActiveSupport::TestCase
   end
 
   test "returns error without agent context" do
-    tool = AgentConfigTool.new(chat: @chat, current_agent: nil)
+    tool = SelfAuthoringTool.new(chat: @chat, current_agent: nil)
 
     result = tool.execute(action: "view", field: "name")
 
@@ -698,7 +698,7 @@ If issues arise post-deployment:
 
          expanded = agent.enabled_tools.flat_map do |tool|
            case tool
-           when "AgentConfigTool"
+           when "SelfAuthoringTool"
              %w[ViewSystemPromptTool UpdateSystemPromptTool]
            when "WebTool"
              %w[WebSearchTool WebFetchTool]
