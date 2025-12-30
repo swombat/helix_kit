@@ -61,30 +61,37 @@ if defined?(RubyLLM) && defined?(RubyLLM::Providers::Gemini)
   end
 
   # Step 3: Patch Gemini provider to WRITE thought_signature into API requests
-  module GeminiChatThoughtSignaturePatch
+  # This patches format_tool_call which creates the functionCall parts
+  module GeminiToolsFormatPatch
 
-    def render_payload(messages, **options)
-      payload = super
+    def format_tool_call(msg)
+      parts = []
 
-      Rails.logger.info "[ThoughtSignature] render_payload called with #{messages.length} messages"
-
-      payload[:contents]&.each_with_index do |content_part, index|
-        message = messages[index]
-        Rails.logger.info "[ThoughtSignature] Message #{index}: role=#{message&.role}, tool_call?=#{message&.tool_call?}"
-        next unless message&.role == :assistant && message.tool_call?
-
-        tool_call = message.tool_calls&.values&.first
-        Rails.logger.info "[ThoughtSignature] Tool call found: #{tool_call&.id}, has_signature=#{tool_call&.thought_signature ? 'yes' : 'no'}"
-        if tool_call&.thought_signature
-          function_call_part = content_part[:parts]&.find { |p| p.key?(:functionCall) }
-          if function_call_part
-            function_call_part[:thoughtSignature] = tool_call.thought_signature
-            Rails.logger.info "[ThoughtSignature] Added signature to payload for tool: #{tool_call.id}"
-          end
-        end
+      if msg.content && !(msg.content.respond_to?(:empty?) && msg.content.empty?)
+        formatted_content = Media.format_content(msg.content)
+        parts.concat(formatted_content.is_a?(Array) ? formatted_content : [ formatted_content ])
       end
 
-      payload
+      msg.tool_calls.each_value do |tool_call|
+        function_call_part = {
+          functionCall: {
+            name: tool_call.name,
+            args: tool_call.arguments
+          }
+        }
+
+        # Add thought signature if present on the tool call
+        if tool_call.respond_to?(:thought_signature) && tool_call.thought_signature
+          function_call_part[:thoughtSignature] = tool_call.thought_signature
+          Rails.logger.info "[ThoughtSignature] Added signature to functionCall for: #{tool_call.name}"
+        else
+          Rails.logger.info "[ThoughtSignature] No signature for tool call: #{tool_call.name}"
+        end
+
+        parts << function_call_part
+      end
+
+      parts
     end
 
   end
@@ -131,10 +138,18 @@ if defined?(RubyLLM) && defined?(RubyLLM::Providers::Gemini)
   end
 
   # Apply all patches
+  # Note: Both patches go to Tools module - one for reading signatures, one for writing them
   RubyLLM::Providers::Gemini::Tools.prepend(GeminiToolsThoughtSignaturePatch)
-  RubyLLM::Providers::Gemini::Chat.prepend(GeminiChatThoughtSignaturePatch)
-  RubyLLM::ActiveRecord::ChatMethods.prepend(ActiveRecordThoughtSignaturePersistencePatch)
-  RubyLLM::ActiveRecord::MessageMethods.prepend(ActiveRecordThoughtSignatureRehydrationPatch)
+  RubyLLM::Providers::Gemini::Tools.prepend(GeminiToolsFormatPatch)
+
+  # ActiveRecord patches only needed if using RubyLLM's ActiveRecord integration
+  # (not used in this app, but kept for completeness)
+  if defined?(RubyLLM::ActiveRecord::ChatMethods)
+    RubyLLM::ActiveRecord::ChatMethods.prepend(ActiveRecordThoughtSignaturePersistencePatch)
+  end
+  if defined?(RubyLLM::ActiveRecord::MessageMethods)
+    RubyLLM::ActiveRecord::MessageMethods.prepend(ActiveRecordThoughtSignatureRehydrationPatch)
+  end
 
   Rails.logger.info "[RubyLLM] Gemini thought_signature patch applied"
 end
