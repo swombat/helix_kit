@@ -14,7 +14,7 @@ class Chat < ApplicationRecord
 
   validates :agents, length: { minimum: 1, message: "must include at least one agent" }, if: :manual_responses?
 
-  json_attributes :title_or_default, :model_id, :model_label, :ai_model_name, :updated_at_formatted, :updated_at_short, :message_count, :web_access, :manual_responses do |hash, options|
+  json_attributes :title_or_default, :model_id, :model_label, :ai_model_name, :updated_at_formatted, :updated_at_short, :message_count, :web_access, :manual_responses, :participants_json do |hash, options|
     # For sidebar format, only include minimal attributes
     if options&.dig(:as) == :sidebar_json
       hash.slice!("id", "title_or_default", "updated_at_short")
@@ -141,6 +141,36 @@ class Chat < ApplicationRecord
 
   def message_count
     messages.count
+  end
+
+  # Returns participants info for group chats (agents + unique humans)
+  def participants_json
+    return [] unless manual_responses?
+
+    participants = []
+
+    # Add agents with their icons and colours
+    agents.each do |agent|
+      participants << {
+        type: "agent",
+        name: agent.name,
+        icon: agent.icon,
+        colour: agent.colour
+      }
+    end
+
+    # Add unique human participants from messages
+    messages.unscope(:order).where.not(user_id: nil).distinct.pluck(:user_id).each do |user_id|
+      user = User.find(user_id)
+      participants << {
+        type: "human",
+        name: user.full_name.presence || user.email_address.split("@").first,
+        avatar_url: user.avatar_url,
+        colour: user.chat_colour
+      }
+    end
+
+    participants
   end
 
   # Configure tools for RubyLLM based on settings

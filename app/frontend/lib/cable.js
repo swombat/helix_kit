@@ -90,5 +90,11 @@ function handleStreamingUpdate(data) {
       window.dispatchEvent(new CustomEvent('streaming-end', { detail: data }));
     }
     return true;
+  } else if (data.action === 'debug_log') {
+    // Dispatch debug log event for site admins
+    if (browser) {
+      window.dispatchEvent(new CustomEvent('debug-log', { detail: data }));
+    }
+    return true;
   }
 }

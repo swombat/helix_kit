@@ -1,8 +1,93 @@
 <script>
   import { Link, router } from '@inertiajs/svelte';
   import { Button } from '$lib/components/shadcn/button/index.js';
-  import { Plus, ChatCircle, ChatText, X, Spinner } from 'phosphor-svelte';
+  import {
+    Plus,
+    ChatCircle,
+    ChatText,
+    X,
+    Spinner,
+    Robot,
+    Brain,
+    Sparkle,
+    Lightning,
+    Star,
+    Heart,
+    Sun,
+    Moon,
+    Eye,
+    Globe,
+    Compass,
+    Rocket,
+    Atom,
+    Lightbulb,
+    Crown,
+    Shield,
+    Fire,
+    Target,
+    Trophy,
+    Flask,
+    Code,
+    Cube,
+    PuzzlePiece,
+    Cat,
+    Dog,
+    Bird,
+    Alien,
+    Ghost,
+    Detective,
+    Butterfly,
+    Flower,
+    Tree,
+    Leaf,
+  } from 'phosphor-svelte';
   import { accountChatsPath, accountChatPath, newAccountChatPath } from '@/routes';
+
+  const iconComponents = {
+    Robot,
+    Brain,
+    Sparkle,
+    Lightning,
+    Star,
+    Heart,
+    Sun,
+    Moon,
+    Eye,
+    Globe,
+    Compass,
+    Rocket,
+    Atom,
+    Lightbulb,
+    Crown,
+    Shield,
+    Fire,
+    Target,
+    Trophy,
+    Flask,
+    Code,
+    Cube,
+    PuzzlePiece,
+    Cat,
+    Dog,
+    Bird,
+    Alien,
+    Ghost,
+    Detective,
+    Butterfly,
+    Flower,
+    Tree,
+    Leaf,
+  };
+
+  function getInitials(name) {
+    if (!name) return '?';
+    return name
+      .split(' ')
+      .map((part) => part.charAt(0))
+      .slice(0, 2)
+      .join('')
+      .toUpperCase();
+  }
 
   let { chats = [], activeChatId = null, accountId, isOpen = false, onClose = () => {} } = $props();
 
@@ -65,9 +150,54 @@
               {/if}
             </div>
             <div class="flex items-center gap-2 w-full group">
-              <div class="text-xs text-muted-foreground flex-1/3 hidden group-hover:block">
-                {chat.model_label}
-              </div>
+              {#if chat.manual_responses && chat.participants_json?.length > 0}
+                <!-- Group chat: show participant avatars -->
+                <div class="flex items-center -space-x-1 opacity-20 group-hover:opacity-100 transition-opacity">
+                  {#each chat.participants_json.slice(0, 7) as participant, i (participant.name + i)}
+                    {#if participant.type === 'agent'}
+                      {@const IconComponent = iconComponents[participant.icon] || Robot}
+                      <div
+                        class="w-5 h-5 rounded-full flex items-center justify-center border border-background {participant.colour
+                          ? `bg-${participant.colour}-100 dark:bg-${participant.colour}-900`
+                          : 'bg-muted'}"
+                        title={participant.name}>
+                        <IconComponent
+                          size={10}
+                          weight="duotone"
+                          class={participant.colour
+                            ? `text-${participant.colour}-600 dark:text-${participant.colour}-400`
+                            : 'text-muted-foreground'} />
+                      </div>
+                    {:else if participant.avatar_url}
+                      <img
+                        src={participant.avatar_url}
+                        alt={participant.name}
+                        title={participant.name}
+                        class="w-5 h-5 rounded-full border border-background object-cover" />
+                    {:else}
+                      <div
+                        class="w-5 h-5 rounded-full flex items-center justify-center border border-background text-[8px] font-medium {participant.colour
+                          ? `bg-${participant.colour}-100 dark:bg-${participant.colour}-900 text-${participant.colour}-700 dark:text-${participant.colour}-300`
+                          : 'bg-muted text-muted-foreground'}"
+                        title={participant.name}>
+                        {getInitials(participant.name)}
+                      </div>
+                    {/if}
+                  {/each}
+                  {#if chat.participants_json.length > 7}
+                    <div
+                      class="w-5 h-5 rounded-full flex items-center justify-center border border-background bg-muted text-[8px] font-medium text-muted-foreground"
+                      title="{chat.participants_json.length - 7} more participants">
+                      ...
+                    </div>
+                  {/if}
+                </div>
+              {:else}
+                <!-- Regular chat: show model label on hover -->
+                <div class="text-xs text-muted-foreground flex-1/3 hidden group-hover:block">
+                  {chat.model_label}
+                </div>
+              {/if}
               <div class="text-xs text-muted-foreground flex-1/3 flex items-end justify-end hidden group-hover:block">
                 {chat.updated_at_short || formatDate(chat.updated_at)}
               </div>
