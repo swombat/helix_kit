@@ -202,6 +202,46 @@ class Chat < ApplicationRecord
     AllAgentsResponseJob.perform_later(self, agent_ids)
   end
 
+  def fork_with_title!(new_title)
+    transaction do
+      forked = account.chats.new(
+        title: new_title,
+        model_id: model_id,
+        web_access: web_access,
+        manual_responses: manual_responses
+      )
+
+      # Copy agents for group chats (must be set before save for validation)
+      forked.agent_ids = agent_ids if manual_responses?
+      forked.save!
+
+      # Copy all messages with attachments
+      messages.includes(:user, :agent, attachments_attachments: :blob).order(:created_at).each do |msg|
+        new_msg = forked.messages.create!(
+          content: msg.content,
+          role: msg.role,
+          user_id: msg.user_id,
+          agent_id: msg.agent_id,
+          input_tokens: msg.input_tokens,
+          output_tokens: msg.output_tokens,
+          tools_used: msg.tools_used,
+          skip_content_validation: msg.content.blank?
+        )
+
+        # Duplicate attachments
+        msg.attachments.each do |attachment|
+          new_msg.attachments.attach(
+            io: StringIO.new(attachment.download),
+            filename: attachment.filename.to_s,
+            content_type: attachment.content_type
+          )
+        end
+      end
+
+      forked
+    end
+  end
+
   def build_context_for_agent(agent)
     [ system_message_for(agent) ] + messages_context_for(agent)
   end

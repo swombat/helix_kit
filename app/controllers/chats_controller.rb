@@ -89,6 +89,13 @@ class ChatsController < ApplicationController
     end
   end
 
+  def fork
+    new_title = params[:title].presence || "#{@chat.title_or_default} (Fork)"
+    forked_chat = @chat.fork_with_title!(new_title)
+    audit("fork_chat", forked_chat, source_chat_id: @chat.id)
+    redirect_to account_chat_path(current_account, forked_chat)
+  end
+
   def update
     @chat = current_account.chats.find(params[:id])
 

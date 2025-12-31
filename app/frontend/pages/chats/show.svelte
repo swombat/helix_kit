@@ -6,7 +6,7 @@
   import { onMount, onDestroy } from 'svelte';
   import { Button } from '$lib/components/shadcn/button/index.js';
   import { Badge } from '$lib/components/shadcn/badge/index.js';
-  import { ArrowUp, ArrowClockwise, Spinner, Globe, List } from 'phosphor-svelte';
+  import { ArrowUp, ArrowClockwise, Spinner, Globe, List, GitFork } from 'phosphor-svelte';
   import * as Card from '$lib/components/shadcn/card/index.js';
   import * as Select from '$lib/components/shadcn/select/index.js';
   import ChatList from './ChatList.svelte';
@@ -14,7 +14,7 @@
   import FileAttachment from '$lib/components/chat/FileAttachment.svelte';
   import AgentTriggerBar from '$lib/components/chat/AgentTriggerBar.svelte';
   import ParticipantAvatars from '$lib/components/chat/ParticipantAvatars.svelte';
-  import { accountChatMessagesPath, retryMessagePath } from '@/routes';
+  import { accountChatMessagesPath, retryMessagePath, forkAccountChatPath } from '@/routes';
   import { marked } from 'marked';
   import * as logging from '$lib/logging';
   import { formatTime, formatDate, formatDateTime } from '$lib/utils';
@@ -443,6 +443,16 @@
     );
   }
 
+  function forkConversation() {
+    if (!chat) return;
+
+    const defaultTitle = `${chat.title_or_default} (Fork)`;
+    const newTitle = prompt('Enter a name for the forked conversation:', defaultTitle);
+    if (newTitle === null) return; // User cancelled
+
+    router.post(forkAccountChatPath(account.id, chat.id), { title: newTitle });
+  }
+
   function handleKeydown(event) {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
@@ -552,7 +562,7 @@
     </header>
 
     <!-- Settings bar with web access toggle -->
-    {#if chat && (!chat.manual_responses || isSiteAdmin)}
+    {#if chat}
       <div class="border-b border-border px-4 md:px-6 py-2 bg-muted/10 flex flex-wrap items-center gap-3 md:gap-6">
         {#if !chat.manual_responses}
           <label class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity w-fit">
@@ -565,6 +575,13 @@
             <span class="text-sm text-muted-foreground">Allow web access</span>
           </label>
         {/if}
+
+        <button
+          onclick={forkConversation}
+          class="flex items-center gap-2 hover:opacity-80 transition-opacity text-sm text-muted-foreground">
+          <GitFork size={16} weight="duotone" />
+          <span>Fork</span>
+        </button>
 
         {#if isSiteAdmin}
           <label class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity w-fit">
