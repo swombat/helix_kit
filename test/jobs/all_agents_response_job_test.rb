@@ -94,8 +94,8 @@ class AllAgentsResponseJobTest < ActiveJob::TestCase
       on_tool_call_invoked: -> { tool_call_count += 1 }
     )
 
-    # Enable web fetch for the agent (use the actual class name)
-    @agent1.update!(enabled_tools: [ "WebFetchTool" ])
+    # Enable web tool for the agent (use the actual class name)
+    @agent1.update!(enabled_tools: [ "WebTool" ])
 
     RubyLLM.stub(:chat, ->(*args, **kwargs) { mock_llm }) do
       AllAgentsResponseJob.perform_now(@chat, agent_ids)
@@ -198,8 +198,8 @@ class AllAgentsResponseJobTest < ActiveJob::TestCase
       # Simulate tool call if configured
       if @simulate_tool_call
         tool_call = OpenStruct.new(
-          name: "WebFetchTool",
-          arguments: { url: "https://example.com" }
+          name: "WebTool",
+          arguments: { action: "fetch", url: "https://example.com" }
         )
         @on_callbacks[:tool_call]&.call(tool_call)
         @on_tool_call_invoked&.call

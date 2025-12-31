@@ -24,6 +24,7 @@ This directory contains detailed documentation for the Helix Kit Rails applicati
 - **[RubyLLM Documentation](./ruby-llm/ruby-llm-overview.md)** - Comprehensive RubyLLM AI framework documentation
   - [Agentic Workflows](./ruby-llm/agentic-workflows.md) - Building advanced AI agent systems
   - [Model Registry](./ruby-llm/model-registry.md) - Model discovery and management across 500+ AI models
+  - [Polymorphic Tools](./polymorphic-tools.md) - Domain-based tool consolidation pattern for scaling to 50+ capabilities
 - **[Frontend](./frontend.md)** - Svelte, Inertia.js, and component organization
 - **[Database](./database.md)** - PostgreSQL setup and Solid adapters configuration
 - **[Icons](./icons.md)** - Comprehensive Phosphor Icons reference with 1500+ searchable icons

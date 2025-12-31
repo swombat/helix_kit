@@ -48,9 +48,9 @@ class AgentTest < ActiveSupport::TestCase
 
   test "returns enabled tool classes" do
     available_tool_names = Agent.available_tools.map(&:name)
-    if available_tool_names.include?("WebFetchTool")
-      agent = @account.agents.create!(name: "Test", enabled_tools: [ "WebFetchTool" ])
-      assert_includes agent.tools.map(&:name), "WebFetchTool"
+    if available_tool_names.include?("WebTool")
+      agent = @account.agents.create!(name: "Test", enabled_tools: [ "WebTool" ])
+      assert_includes agent.tools.map(&:name), "WebTool"
     end
   end
 

@@ -176,7 +176,7 @@ class Chat < ApplicationRecord
   # Configure tools for RubyLLM based on settings
   def available_tools
     return [] unless web_access?
-    [ WebFetchTool, WebSearchTool ]
+    [ WebTool ]
   end
 
   # Group chat functionality

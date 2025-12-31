@@ -351,7 +351,7 @@ class AiResponseJobTest < ActiveJob::TestCase
       @on_new_message_callback&.call
 
       # Simulate tool invocation with tool_call object
-      tool_call = OpenStruct.new(name: "WebFetchTool", arguments: { url: "https://example.com" })
+      tool_call = OpenStruct.new(name: "WebTool", arguments: { action: "fetch", url: "https://example.com" })
       @on_tool_call_callback&.call(tool_call)
 
       chunk = OpenStruct.new(content: "I fetched the website")
@@ -412,8 +412,8 @@ class AiResponseJobTest < ActiveJob::TestCase
       @on_new_message_callback&.call
 
       # Simulate multiple tool invocations
-      tool_call1 = OpenStruct.new(name: "WebFetchTool", arguments: { url: "https://example.com" })
-      tool_call2 = OpenStruct.new(name: "WebFetchTool", arguments: { url: "https://example.org" })
+      tool_call1 = OpenStruct.new(name: "WebTool", arguments: { action: "fetch", url: "https://example.com" })
+      tool_call2 = OpenStruct.new(name: "WebTool", arguments: { action: "fetch", url: "https://example.org" })
       @on_tool_call_callback&.call(tool_call1)
       @on_tool_call_callback&.call(tool_call2)
 
@@ -474,7 +474,7 @@ class AiResponseJobTest < ActiveJob::TestCase
       @on_new_message_callback&.call
 
       # Simulate tool invocation with error result
-      tool_call = OpenStruct.new(name: "WebFetchTool", arguments: { url: "invalid" })
+      tool_call = OpenStruct.new(name: "WebTool", arguments: { action: "fetch", url: "invalid" })
       @on_tool_call_callback&.call(tool_call)
 
       chunk = OpenStruct.new(content: "I encountered an error")
@@ -520,9 +520,9 @@ class AiResponseJobTest < ActiveJob::TestCase
       web_access: true
     )
 
-    # Verify chat has available_tools method that returns WebFetchTool
+    # Verify chat has available_tools method that returns WebTool
     assert chat_with_tools.respond_to?(:available_tools)
-    assert_includes chat_with_tools.available_tools, WebFetchTool
+    assert_includes chat_with_tools.available_tools, WebTool
 
     # The actual usage of tools is tested in the integration with RubyLLM
     # which picks up tools from the available_tools method automatically

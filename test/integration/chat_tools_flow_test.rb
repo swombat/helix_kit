@@ -24,8 +24,7 @@ class ChatToolsFlowTest < ActionDispatch::IntegrationTest
 
     chat = Chat.last
     assert chat.web_access, "Chat should have web access enabled"
-    assert_includes chat.available_tools, WebFetchTool, "WebFetchTool should be available"
-    assert_includes chat.available_tools, WebSearchTool, "WebSearchTool should be available"
+    assert_includes chat.available_tools, WebTool, "WebTool should be available"
 
     # Navigate to the chat
     get account_chat_path(@account, chat)
@@ -76,8 +75,7 @@ class ChatToolsFlowTest < ActionDispatch::IntegrationTest
 
     chat.reload
     assert chat.web_access, "Web access should now be enabled"
-    assert_includes chat.available_tools, WebFetchTool, "WebFetchTool should now be available"
-    assert_includes chat.available_tools, WebSearchTool, "WebSearchTool should now be available"
+    assert_includes chat.available_tools, WebTool, "WebTool should now be available"
 
     # Disable web access again
     patch account_chat_path(@account, chat), params: {
@@ -107,7 +105,7 @@ class ChatToolsFlowTest < ActionDispatch::IntegrationTest
     # The job configuration is tested in ai_response_job_test.rb
     # Here we just verify that the chat has the right tools configured
     assert chat.web_access
-    assert_includes chat.available_tools, WebFetchTool
+    assert_includes chat.available_tools, WebTool
   end
 
   test "tools_used tracked in message after AI response" do
@@ -152,7 +150,7 @@ class ChatToolsFlowTest < ActionDispatch::IntegrationTest
 
     # Verify chat has web access enabled
     assert chat.web_access
-    assert_includes chat.available_tools, WebFetchTool
+    assert_includes chat.available_tools, WebTool
 
     # Verify user message was created correctly
     assert_equal "Search for information about Ruby 3.4", user_message.content
@@ -175,7 +173,7 @@ class ChatToolsFlowTest < ActionDispatch::IntegrationTest
     # Verify the chat still has web access for subsequent messages
     chat.reload
     assert chat.web_access
-    assert_includes chat.available_tools, WebFetchTool
+    assert_includes chat.available_tools, WebTool
   end
 
   test "web access setting persists across page views" do
@@ -192,7 +190,7 @@ class ChatToolsFlowTest < ActionDispatch::IntegrationTest
     # Reload and verify setting persists
     chat.reload
     assert chat.web_access
-    assert_includes chat.available_tools, WebFetchTool
+    assert_includes chat.available_tools, WebTool
 
     # View the chat list
     get account_chats_path(@account)
@@ -201,7 +199,7 @@ class ChatToolsFlowTest < ActionDispatch::IntegrationTest
     # Reload and verify setting still persists
     chat.reload
     assert chat.web_access
-    assert_includes chat.available_tools, WebFetchTool
+    assert_includes chat.available_tools, WebTool
   end
 
   test "different chats can have different web access settings" do
@@ -221,7 +219,7 @@ class ChatToolsFlowTest < ActionDispatch::IntegrationTest
 
     # Verify each chat has correct settings
     assert chat_with_web.web_access
-    assert_includes chat_with_web.available_tools, WebFetchTool
+    assert_includes chat_with_web.available_tools, WebTool
 
     assert_not chat_without_web.web_access
     assert_empty chat_without_web.available_tools
