@@ -69,7 +69,9 @@
 
   function deleteMemory(memoryId) {
     if (confirm('Delete this memory permanently?')) {
-      router.delete(`/accounts/${account.id}/agents/${agent.id}/memories/${memoryId}`);
+      router.delete(`/accounts/${account.id}/agents/${agent.id}/memories/${memoryId}`, {
+        preserveScroll: true,
+      });
     }
   }
 
@@ -80,12 +82,18 @@
   function createMemory() {
     if (!newMemoryContent.trim()) return;
 
-    router.post(`/accounts/${account.id}/agents/${agent.id}/memories`, {
-      memory: {
-        content: newMemoryContent,
-        memory_type: newMemoryType,
+    router.post(
+      `/accounts/${account.id}/agents/${agent.id}/memories`,
+      {
+        memory: {
+          content: newMemoryContent,
+          memory_type: newMemoryType,
+        },
       },
-    });
+      {
+        preserveScroll: true,
+      }
+    );
 
     // Reset form
     newMemoryContent = '';

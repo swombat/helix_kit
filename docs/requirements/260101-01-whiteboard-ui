@@ -1,0 +1,11 @@
+We just recently built the whiteboard feature, but it's not very human-user-friendly...
+
+What I'd like is a button (likely before the Fork button), visible if there is an active whiteboard, that opens a kind of modal (probably a pane sliding from below) that shows the active whiteboard's content as rendered markdown. Use the use-sync framework to make sure that it updates live if the agents change it in the background.
+
+This should also have an edit button that opens an editor. The edit button should be disabled if there is an agent active right now (to avoid editing conflicts). If the edit button is clicked, the markdown view shoul be replaced by a text area with the current content, and a "Save" button. When the "Save" button is clicked, the content should be saved and the modal should close.
+
+Obviously the pane needs to also have some kind of close button.
+
+Finally, we also need some kind of way to view all the whiteboards for the account. Make "Agents" in the navbar a dropdown menu, with "Identities" as the first item (leading to the current agents screen) and "Whiteboards" as the second item.
+
+"Whiteboards" should lead to a screen that lists all the whiteboards, their names, length, and how many conversations they're active in. Clicking on a whiteboard should open a non-modal view of the whiteboard that behaves just like the modal view, including the edit button. I suspect this is a reusable component (whiteboard viewer/editor) that should be used in both the modal and non-modal views.
