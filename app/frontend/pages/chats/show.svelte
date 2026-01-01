@@ -6,9 +6,22 @@
   import { onMount, onDestroy } from 'svelte';
   import { Button } from '$lib/components/shadcn/button/index.js';
   import { Badge } from '$lib/components/shadcn/badge/index.js';
-  import { ArrowUp, ArrowClockwise, Spinner, Globe, List, GitFork } from 'phosphor-svelte';
+  import {
+    ArrowUp,
+    ArrowClockwise,
+    Spinner,
+    Globe,
+    List,
+    GitFork,
+    Notepad,
+    FloppyDisk,
+    PencilSimple,
+    X,
+    WarningCircle,
+  } from 'phosphor-svelte';
   import * as Card from '$lib/components/shadcn/card/index.js';
   import * as Select from '$lib/components/shadcn/select/index.js';
+  import * as Drawer from '$lib/components/shadcn/drawer/index.js';
   import ChatList from './ChatList.svelte';
   import FileUploadInput from '$lib/components/chat/FileUploadInput.svelte';
   import FileAttachment from '$lib/components/chat/FileAttachment.svelte';
@@ -73,6 +86,13 @@
   // Random placeholder (10% chance for the tip)
   const placeholder =
     Math.random() < 0.1 ? 'Did you know? Press shift-enter for a new line...' : 'Type your message...';
+
+  // Whiteboard state
+  let whiteboardOpen = $state(false);
+  let whiteboardEditing = $state(false);
+  let whiteboardEditContent = $state('');
+  let whiteboardConflict = $state(null);
+  let whiteboardSaving = $state(false);
 
   // Check if current user is a site admin
   const isSiteAdmin = $derived($page.props.user?.site_admin ?? false);
@@ -250,6 +270,10 @@
     if (chat) {
       subs[`Chat:${chat.id}`] = ['chat', 'messages']; // Both chat and messages when chat broadcasts
       subs[`Chat:${chat.id}:messages`] = 'messages'; // Individual message updates
+
+      if (chat.active_whiteboard) {
+        subs[`Whiteboard:${chat.active_whiteboard.id}`] = ['chat', 'messages'];
+      }
     }
 
     const messageSignature = Array.isArray(messages) ? messages.map((message) => message.id).join(':') : '';
@@ -453,6 +477,73 @@
     router.post(forkAccountChatPath(account.id, chat.id), { title: newTitle });
   }
 
+  async function saveWhiteboard() {
+    if (!chat?.active_whiteboard) return;
+
+    whiteboardSaving = true;
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+    try {
+      const response = await fetch(`/accounts/${account.id}/whiteboards/${chat.active_whiteboard.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken || '',
+        },
+        body: JSON.stringify({
+          whiteboard: { content: whiteboardEditContent },
+          expected_revision: chat.active_whiteboard.revision,
+        }),
+      });
+
+      if (response.ok) {
+        whiteboardEditing = false;
+        whiteboardOpen = false;
+        whiteboardConflict = null;
+        whiteboardSaving = false;
+        // Reload page data to get updated whiteboard
+        router.reload({ only: ['chat', 'messages'], preserveScroll: true });
+      } else {
+        const data = await response.json();
+        whiteboardSaving = false;
+        if (data.error === 'conflict') {
+          whiteboardConflict = {
+            serverContent: data.current_content,
+            serverRevision: data.current_revision,
+            myContent: whiteboardEditContent,
+          };
+        } else {
+          alert('Failed to save. Please try again.');
+        }
+      }
+    } catch (error) {
+      whiteboardSaving = false;
+      alert('Failed to save. Please try again.');
+    }
+  }
+
+  function useServerVersion() {
+    if (!whiteboardConflict) return;
+    whiteboardEditContent = whiteboardConflict.serverContent;
+    whiteboardConflict = null;
+  }
+
+  function keepMyVersion() {
+    whiteboardConflict = null;
+    saveWhiteboard();
+  }
+
+  function startEditingWhiteboard() {
+    whiteboardEditContent = chat?.active_whiteboard?.content || '';
+    whiteboardEditing = true;
+  }
+
+  function cancelEditingWhiteboard() {
+    whiteboardEditing = false;
+    whiteboardEditContent = '';
+    whiteboardConflict = null;
+  }
+
   function handleKeydown(event) {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
@@ -582,6 +673,15 @@
           <GitFork size={16} weight="duotone" />
           <span>Fork</span>
         </button>
+
+        {#if chat?.active_whiteboard}
+          <button
+            onclick={() => (whiteboardOpen = true)}
+            class="flex items-center gap-2 hover:opacity-80 transition-opacity text-sm text-muted-foreground">
+            <Notepad size={16} weight="duotone" />
+            <span>Whiteboard</span>
+          </button>
+        {/if}
 
         {#if isSiteAdmin}
           <label class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity w-fit">
@@ -869,3 +969,94 @@
     </div>
   </main>
 </div>
+
+{#if chat?.active_whiteboard}
+  <Drawer.Root bind:open={whiteboardOpen} direction="bottom">
+    <Drawer.Content class="max-h-[85vh]">
+      <Drawer.Header class="sr-only">
+        <Drawer.Title>Whiteboard</Drawer.Title>
+        <Drawer.Description>View and edit the active whiteboard</Drawer.Description>
+      </Drawer.Header>
+
+      <div class="flex flex-col h-full max-h-[80vh]">
+        <div class="flex items-center justify-between px-4 py-3 border-b border-border">
+          <div>
+            <h3 class="font-semibold text-lg">{chat.active_whiteboard.name}</h3>
+            {#if chat.active_whiteboard.last_edited_at}
+              <p class="text-xs text-muted-foreground">
+                Last edited {chat.active_whiteboard.last_edited_at}
+                {#if chat.active_whiteboard.editor_name}
+                  by {chat.active_whiteboard.editor_name}
+                {/if}
+              </p>
+            {/if}
+          </div>
+
+          <div class="flex items-center gap-2">
+            {#if whiteboardEditing}
+              <Button variant="outline" size="sm" onclick={cancelEditingWhiteboard} disabled={whiteboardSaving}>
+                <X class="mr-1 size-4" />
+                Cancel
+              </Button>
+              <Button size="sm" onclick={saveWhiteboard} disabled={whiteboardSaving}>
+                {#if whiteboardSaving}
+                  <Spinner class="mr-1 size-4 animate-spin" />
+                {:else}
+                  <FloppyDisk class="mr-1 size-4" />
+                {/if}
+                Save
+              </Button>
+            {:else}
+              <Button
+                variant="outline"
+                size="sm"
+                onclick={startEditingWhiteboard}
+                disabled={agentIsResponding}
+                title={agentIsResponding ? 'Agent is updating whiteboard...' : undefined}>
+                <PencilSimple class="mr-1 size-4" />
+                Edit
+              </Button>
+            {/if}
+          </div>
+        </div>
+
+        {#if whiteboardConflict}
+          <div class="px-4 py-3 bg-amber-50 dark:bg-amber-950/30 border-b border-amber-200 dark:border-amber-800">
+            <p class="font-semibold text-amber-800 dark:text-amber-200 mb-1">Someone else edited this whiteboard</p>
+            <p class="text-sm text-amber-700 dark:text-amber-300 mb-3">
+              Your changes have been preserved. Choose which version to keep:
+            </p>
+            <div class="flex gap-2">
+              <Button variant="outline" size="sm" onclick={useServerVersion}>Use their version</Button>
+              <Button size="sm" onclick={keepMyVersion}>Keep mine and save</Button>
+            </div>
+          </div>
+        {/if}
+
+        {#if agentIsResponding && !whiteboardEditing}
+          <div
+            class="px-4 py-2 bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 text-sm flex items-center gap-2">
+            <WarningCircle class="size-4" weight="fill" />
+            Agent is updating whiteboard...
+          </div>
+        {/if}
+
+        <div class="flex-1 overflow-y-auto p-4">
+          {#if whiteboardEditing}
+            <textarea
+              bind:value={whiteboardEditContent}
+              class="w-full h-full min-h-[300px] resize-none border border-input rounded-md px-3 py-2 text-sm bg-background font-mono
+                     focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+              placeholder="Write your whiteboard content here..."></textarea>
+          {:else if chat.active_whiteboard.content?.trim()}
+            <div class="prose dark:prose-invert max-w-none">
+              <Streamdown content={chat.active_whiteboard.content} parseIncompleteMarkdown={false} baseTheme="shadcn" />
+            </div>
+          {:else}
+            <p class="text-muted-foreground text-center py-8">No content yet. Click Edit to add content.</p>
+          {/if}
+        </div>
+      </div>
+    </Drawer.Content>
+  </Drawer.Root>
+{/if}

@@ -113,14 +113,14 @@ class WhiteboardTool < RubyLLM::Tool
 
   def set_active_action(board_id: nil, **)
     if board_id.blank? || board_id.to_s.downcase == "none"
-      @chat.update!(active_whiteboard: nil)
+      @chat.update!(active_whiteboard_id: nil)
       return { type: "active_board_cleared" }
     end
 
     board = find_board(board_id) or return validation_error("Board not found")
     return validation_error("Cannot set deleted board as active") if board.deleted?
 
-    @chat.update!(active_whiteboard: board)
+    @chat.update!(active_whiteboard_id: board.id)
     { type: "active_board_set", board_id: board.obfuscated_id, name: board.name }
   end
 

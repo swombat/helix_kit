@@ -52,13 +52,10 @@
       label: 'Chats',
       show: !!currentUser && siteSettings?.allow_chats,
     },
-    {
-      href: currentAccount?.id ? `/accounts/${currentAccount.id}/agents` : '#',
-      label: 'Agents',
-      show: !!currentUser && siteSettings?.allow_agents,
-    },
     { href: '#', label: 'About', show: true },
   ]);
+
+  const showAgentsDropdown = $derived(!!currentUser && siteSettings?.allow_agents && currentAccount?.id);
 
   // Theme management
   const currentTheme = $derived(currentUser?.preferences?.theme || $page.props?.theme_preference || 'system');
@@ -115,6 +112,22 @@
               class={cn(buttonVariants({ variant: 'ghost' }), 'rounded-full text-muted-foreground')}>{link.label}</Link>
           {/if}
         {/each}
+        {#if showAgentsDropdown}
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger
+              class={cn(buttonVariants({ variant: 'ghost' }), 'rounded-full text-muted-foreground')}>
+              Agents
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content align="start">
+              <DropdownMenu.Item onclick={() => router.visit(`/accounts/${currentAccount.id}/agents`)}>
+                Identities
+              </DropdownMenu.Item>
+              <DropdownMenu.Item onclick={() => router.visit(`/accounts/${currentAccount.id}/whiteboards`)}>
+                Whiteboards
+              </DropdownMenu.Item>
+            </DropdownMenu.Content>
+          </DropdownMenu.Root>
+        {/if}
       </div>
     </div>
 
@@ -150,6 +163,14 @@
               <DropdownMenu.Item onclick={() => router.visit(link.href)}>{link.label}</DropdownMenu.Item>
             {/if}
           {/each}
+          {#if siteSettings?.allow_agents && currentAccount?.id}
+            <DropdownMenu.Item onclick={() => router.visit(`/accounts/${currentAccount.id}/agents`)}>
+              Identities
+            </DropdownMenu.Item>
+            <DropdownMenu.Item onclick={() => router.visit(`/accounts/${currentAccount.id}/whiteboards`)}>
+              Whiteboards
+            </DropdownMenu.Item>
+          {/if}
         </DropdownMenu.Content>
       </DropdownMenu.Root>
 

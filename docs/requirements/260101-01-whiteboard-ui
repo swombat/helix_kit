@@ -9,3 +9,14 @@ Obviously the pane needs to also have some kind of close button.
 Finally, we also need some kind of way to view all the whiteboards for the account. Make "Agents" in the navbar a dropdown menu, with "Identities" as the first item (leading to the current agents screen) and "Whiteboards" as the second item.
 
 "Whiteboards" should lead to a screen that lists all the whiteboards, their names, length, and how many conversations they're active in. Clicking on a whiteboard should open a non-modal view of the whiteboard that behaves just like the modal view, including the edit button. I suspect this is a reusable component (whiteboard viewer/editor) that should be used in both the modal and non-modal views.
+
+## Clarifications
+
+1. **Whiteboard button visibility in chat**: Only show the whiteboard button if there is an active whiteboard set on the chat (`chat.active_whiteboard`). Don't show it just because whiteboards exist for the account.
+
+2. **Edit conflict handling**:
+   - Disable the edit button when any agent is currently streaming/responding in *this* chat
+   - When disabled, display a message like "Agent is updating whiteboard..."
+   - If the whiteboard content changes in the background (via useSync) while the user has the editor open, show a red warning: "⚠️ Content was modified externally. Your changes may overwrite recent updates."
+
+3. **Whiteboards list page**: Just show the count of active conversations, no links to those conversations. No deactivate functionality needed at this point.

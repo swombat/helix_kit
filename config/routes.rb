@@ -51,6 +51,7 @@ Rails.application.routes.draw do
         delete "memories/:memory_id", action: :destroy_memory, as: :destroy_memory
       end
     end
+    resources :whiteboards, only: [ :index, :update ]
   end
 
   resources :messages, only: [] do

@@ -32,7 +32,7 @@ class ChatsController < ApplicationController
     @messages = @chat.messages.includes(:user, :agent).with_attached_attachments.sorted
 
     render inertia: "chats/show", props: {
-      chat: @chat.as_json,
+      chat: chat_json_with_whiteboard,
       chats: @chats.as_json,
       messages: @messages.all.collect(&:as_json),
       account: current_account.as_json,
@@ -137,6 +137,21 @@ class ChatsController < ApplicationController
 
   def available_agents
     current_account.agents.active.as_json
+  end
+
+  def chat_json_with_whiteboard
+    json = @chat.as_json
+    if @chat.active_whiteboard && !@chat.active_whiteboard.deleted?
+      json[:active_whiteboard] = {
+        id: @chat.active_whiteboard.id,
+        name: @chat.active_whiteboard.name,
+        content: @chat.active_whiteboard.content,
+        revision: @chat.active_whiteboard.revision,
+        last_edited_at: @chat.active_whiteboard.last_edited_at&.strftime("%b %d at %l:%M %p"),
+        editor_name: @chat.active_whiteboard.editor_name
+      }
+    end
+    json
   end
 
 end
