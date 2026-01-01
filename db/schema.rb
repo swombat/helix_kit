@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_30_234838) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_31_003149) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -135,6 +135,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_30_234838) do
 
   create_table "chats", force: :cascade do |t|
     t.bigint "account_id", null: false
+    t.bigint "active_whiteboard_id"
     t.bigint "ai_model_id"
     t.datetime "created_at", null: false
     t.datetime "last_consolidated_at"
@@ -146,6 +147,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_30_234838) do
     t.boolean "web_access", default: false, null: false
     t.index ["account_id", "created_at"], name: "index_chats_on_account_id_and_created_at"
     t.index ["account_id"], name: "index_chats_on_account_id"
+    t.index ["active_whiteboard_id"], name: "index_chats_on_active_whiteboard_id"
     t.index ["ai_model_id"], name: "index_chats_on_ai_model_id"
     t.index ["last_consolidated_at"], name: "index_chats_on_last_consolidated_at"
     t.index ["manual_responses"], name: "index_chats_on_manual_responses"
@@ -267,6 +269,24 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_30_234838) do
     t.index ["password_reset_token"], name: "index_users_on_password_reset_token", unique: true
   end
 
+  create_table "whiteboards", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.text "content"
+    t.datetime "created_at", null: false
+    t.datetime "deleted_at"
+    t.datetime "last_edited_at"
+    t.bigint "last_edited_by_id"
+    t.string "last_edited_by_type"
+    t.string "name", null: false
+    t.integer "revision", default: 1, null: false
+    t.string "summary", limit: 250
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "deleted_at"], name: "index_whiteboards_on_account_id_and_deleted_at"
+    t.index ["account_id", "name"], name: "index_whiteboards_on_account_id_and_name", unique: true, where: "(deleted_at IS NULL)"
+    t.index ["account_id"], name: "index_whiteboards_on_account_id"
+    t.index ["last_edited_by_type", "last_edited_by_id"], name: "index_whiteboards_on_last_edited_by"
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "agent_memories", "agents"
@@ -277,6 +297,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_30_234838) do
   add_foreign_key "chat_agents", "chats"
   add_foreign_key "chats", "accounts"
   add_foreign_key "chats", "ai_models"
+  add_foreign_key "chats", "whiteboards", column: "active_whiteboard_id"
   add_foreign_key "memberships", "accounts"
   add_foreign_key "memberships", "users"
   add_foreign_key "memberships", "users", column: "invited_by_id"
@@ -288,4 +309,5 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_30_234838) do
   add_foreign_key "prompt_outputs", "accounts"
   add_foreign_key "sessions", "users"
   add_foreign_key "tool_calls", "messages"
+  add_foreign_key "whiteboards", "accounts"
 end

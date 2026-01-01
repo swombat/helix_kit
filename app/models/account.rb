@@ -6,7 +6,7 @@ class Account < ApplicationRecord
 
   # Broadcasting configuration
   broadcasts_to :all # Admin collection
-  skip_broadcasts_on_destroy :memberships, :agents, :chats
+  skip_broadcasts_on_destroy :memberships, :agents, :chats, :whiteboards
 
   # Enums
   enum :account_type, { personal: 0, team: 1 }
@@ -19,6 +19,7 @@ class Account < ApplicationRecord
   has_one :owner, through: :owner_membership, source: :user
   has_many :chats, dependent: :destroy
   has_many :agents, dependent: :destroy
+  has_many :whiteboards, dependent: :destroy
 
   # Validations (Rails-only, no SQL constraints!)
   validates :name, presence: true

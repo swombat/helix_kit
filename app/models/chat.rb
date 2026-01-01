@@ -8,6 +8,7 @@ class Chat < ApplicationRecord
   acts_as_chat model: :ai_model, model_class: "AiModel", model_foreign_key: :ai_model_id
 
   belongs_to :account
+  belongs_to :active_whiteboard, class_name: "Whiteboard", optional: true
 
   has_many :chat_agents, dependent: :destroy
   has_many :agents, through: :chat_agents
@@ -276,10 +277,40 @@ class Chat < ApplicationRecord
       parts << memory_context
     end
 
+    if (whiteboard_index = whiteboard_index_context)
+      parts << whiteboard_index
+    end
+
+    if (active_board = active_whiteboard_context)
+      parts << active_board
+    end
+
     parts << "You are participating in a group conversation."
     parts << "Other participants: #{participant_description(agent)}."
 
     { role: "system", content: parts.join("\n\n") }
+  end
+
+  def whiteboard_index_context
+    boards = account.whiteboards.active.by_name
+    return if boards.empty?
+
+    lines = boards.map do |b|
+      warning = b.over_recommended_length? ? " [OVER LIMIT - needs summarizing]" : ""
+      "- #{b.name} (#{b.content.to_s.length} chars, rev #{b.revision})#{warning}: #{b.summary}"
+    end
+
+    "# Shared Whiteboards\n\n" \
+    "Available boards for collaborative notes:\n\n" \
+    "#{lines.join("\n")}\n\n" \
+    "Use the whiteboard tool to view, create, update, or set an active board."
+  end
+
+  def active_whiteboard_context
+    return unless active_whiteboard && !active_whiteboard.deleted?
+
+    "# Active Whiteboard: #{active_whiteboard.name}\n\n" \
+    "#{active_whiteboard.content}"
   end
 
   def messages_context_for(agent)

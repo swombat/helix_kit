@@ -1,0 +1,36 @@
+project_notes:
+  account_id: 1
+  name: "Project Notes"
+  summary: "General project notes and documentation"
+  content: "# Project Notes\n\nThis is our shared project documentation."
+  revision: 1
+  last_edited_by_type: Agent
+  last_edited_by_id: 1
+  last_edited_at: <%= 1.day.ago %>
+
+meeting_notes:
+  account_id: 1
+  name: "Meeting Notes"
+  summary: "Notes from team meetings"
+  content: "# Meeting Notes\n\n## 2024-12-28\n\n- Discussed whiteboard feature"
+  revision: 3
+  last_edited_by_type: User
+  last_edited_by_id: 1
+  last_edited_at: <%= 1.hour.ago %>
+
+deleted_whiteboard:
+  account_id: 1
+  name: "Archived Board"
+  summary: "An old board that was deleted"
+  content: "Old content that is preserved for potential restore"
+  revision: 5
+  last_edited_at: <%= 1.week.ago %>
+  deleted_at: <%= 2.days.ago %>
+
+other_account_whiteboard:
+  account_id: 2
+  name: "Team Board"
+  summary: "Board belonging to another account"
+  content: "Team content"
+  revision: 1
+  last_edited_at: <%= 1.day.ago %>

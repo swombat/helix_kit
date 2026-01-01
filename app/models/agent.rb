@@ -6,6 +6,8 @@ class Agent < ApplicationRecord
   include SyncAuthorizable
 
   belongs_to :account
+  has_many :chat_agents, dependent: :destroy
+  has_many :chats, through: :chat_agents
   has_many :memories, class_name: "AgentMemory", dependent: :destroy
 
   before_validation :clean_enabled_tools
