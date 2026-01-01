@@ -45,6 +45,7 @@ class Profile < ApplicationRecord
 
   def avatar_url
     return nil unless avatar.attached?
+    return nil unless avatar_file_exists?
 
     if avatar.variable?
       Rails.application.routes.url_helpers.rails_representation_url(
@@ -54,6 +55,13 @@ class Profile < ApplicationRecord
     else
       Rails.application.routes.url_helpers.rails_blob_url(avatar, only_path: true)
     end
+  end
+
+  def avatar_file_exists?
+    return false unless avatar.attached?
+    avatar.blob.service.exist?(avatar.blob.key)
+  rescue StandardError
+    false
   end
 
   def initials
