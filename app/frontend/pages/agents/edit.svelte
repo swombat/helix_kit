@@ -79,6 +79,12 @@
   let newMemoryContent = $state('');
   let newMemoryType = $state('core');
 
+  function getJournalOpacity(memory) {
+    if (memory.memory_type !== 'journal') return 1;
+    if (memory.expired) return 0.3;
+    return Math.max(0.3, 1 - memory.age_in_days * 0.1);
+  }
+
   function createMemory() {
     if (!newMemoryContent.trim()) return;
 
@@ -353,9 +359,9 @@
             <div class="space-y-3 max-h-96 overflow-y-auto">
               {#each memories as memory (memory.id)}
                 <div
-                  class="flex items-start gap-3 p-3 rounded-lg border {memory.expired
-                    ? 'opacity-50 border-dashed'
-                    : 'border-border'}">
+                  class="memory-card flex items-start gap-3 p-3 rounded-lg border
+                    {memory.expired ? 'border-dashed' : 'border-border'}"
+                  style="--memory-opacity: {getJournalOpacity(memory)}">
                   <div class="flex-shrink-0 mt-0.5">
                     {#if memory.memory_type === 'core'}
                       <Brain size={18} class="text-primary" weight="duotone" />
@@ -404,3 +410,14 @@
     </div>
   </form>
 </div>
+
+<style>
+  .memory-card {
+    opacity: var(--memory-opacity, 1);
+    transition: opacity 150ms ease-in-out;
+  }
+
+  .memory-card:hover {
+    opacity: 1;
+  }
+</style>

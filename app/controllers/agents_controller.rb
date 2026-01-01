@@ -108,7 +108,8 @@ class AgentsController < ApplicationController
         content: m.content,
         memory_type: m.memory_type,
         created_at: m.created_at.strftime("%Y-%m-%d %H:%M"),
-        expired: m.expired?
+        expired: m.expired?,
+        age_in_days: ((Time.current - m.created_at) / 1.day).floor
       }
     end
   end
