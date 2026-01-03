@@ -42,6 +42,10 @@ Rails.application.routes.draw do
         post "trigger_agent/:agent_id", action: :trigger_agent, as: :trigger_agent
         post :trigger_all_agents
         post :fork
+        post :archive
+        post :unarchive
+        post :discard
+        post :restore
       end
       resources :messages, only: :create
     end

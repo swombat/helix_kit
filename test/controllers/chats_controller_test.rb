@@ -254,7 +254,8 @@ class ChatsControllerTest < ActionDispatch::IntegrationTest
       chat: { web_access: true }
     }
 
-    assert_response :success
+    # Update redirects to the chat page on success
+    assert_redirected_to account_chat_path(@account, @chat)
     @chat.reload
     assert @chat.web_access
   end
@@ -267,7 +268,8 @@ class ChatsControllerTest < ActionDispatch::IntegrationTest
       chat: { web_access: false }
     }
 
-    assert_response :success
+    # Update redirects to the chat page on success
+    assert_redirected_to account_chat_path(@account, @chat)
     @chat.reload
     assert_not @chat.web_access
   end
@@ -278,7 +280,8 @@ class ChatsControllerTest < ActionDispatch::IntegrationTest
       chat: { web_access: true }
     }
 
-    assert_response :success
+    # Update redirects to the chat page on success
+    assert_redirected_to account_chat_path(@account, @chat)
     # The broadcast happens automatically via the Broadcastable concern
     @chat.reload
     assert @chat.web_access
@@ -325,7 +328,8 @@ class ChatsControllerTest < ActionDispatch::IntegrationTest
       chat: { model_id: "openai/gpt-4o-mini" }
     }
 
-    assert_response :success
+    # Update redirects to the chat page on success
+    assert_redirected_to account_chat_path(@account, @chat)
     @chat.reload
     assert_equal "openai/gpt-4o-mini", @chat.model_id
   end
@@ -338,10 +342,242 @@ class ChatsControllerTest < ActionDispatch::IntegrationTest
       }
     }
 
-    assert_response :success
+    # Update redirects to the chat page on success
+    assert_redirected_to account_chat_path(@account, @chat)
     @chat.reload
     assert_equal "openai/gpt-4o-mini", @chat.model_id
     assert @chat.web_access
+  end
+
+  # Archive functionality tests
+
+  test "archive action archives the chat" do
+    assert_not @chat.archived?
+
+    post archive_account_chat_path(@account, @chat)
+
+    assert_redirected_to account_chats_path(@account)
+    @chat.reload
+    assert @chat.archived?
+  end
+
+  test "archive action creates audit log" do
+    assert_difference "AuditLog.count" do
+      post archive_account_chat_path(@account, @chat)
+    end
+
+    audit = AuditLog.last
+    assert_equal "archive_chat", audit.action
+    assert_equal @chat.id, audit.auditable_id
+  end
+
+  test "unarchive action unarchives the chat" do
+    @chat.archive!
+    assert @chat.archived?
+
+    post unarchive_account_chat_path(@account, @chat)
+
+    assert_redirected_to account_chats_path(@account)
+    @chat.reload
+    assert_not @chat.archived?
+  end
+
+  test "unarchive action creates audit log" do
+    @chat.archive!
+
+    assert_difference "AuditLog.count" do
+      post unarchive_account_chat_path(@account, @chat)
+    end
+
+    audit = AuditLog.last
+    assert_equal "unarchive_chat", audit.action
+    assert_equal @chat.id, audit.auditable_id
+  end
+
+  # Discard (soft delete) functionality tests
+
+  test "discard action soft deletes the chat for admin" do
+    # User is owner of personal account, so they are an admin
+    assert @account.manageable_by?(@user)
+    assert_not @chat.discarded?
+
+    post discard_account_chat_path(@account, @chat)
+
+    assert_redirected_to account_chats_path(@account)
+    @chat.reload
+    assert @chat.discarded?
+  end
+
+  test "discard action creates audit log" do
+    assert_difference "AuditLog.count" do
+      post discard_account_chat_path(@account, @chat)
+    end
+
+    audit = AuditLog.last
+    assert_equal "discard_chat", audit.action
+    assert_equal @chat.id, audit.auditable_id
+  end
+
+  test "discard action is forbidden for non-admin" do
+    # team_account has user_1 as owner, and existing_user (user_id: 3) as member via team_member membership
+    team_account = accounts(:team_account)
+    member_user = users(:existing_user)  # This user is member via team_member membership
+    team_chat = team_account.chats.create!(model_id: "openrouter/auto", title: "Team Chat")
+
+    # Sign in as member (not admin)
+    delete logout_path
+    post login_path, params: {
+      email_address: member_user.email_address,
+      password: "password123"
+    }
+
+    # Member should not be able to discard
+    assert_not team_account.manageable_by?(member_user)
+
+    post discard_account_chat_path(team_account, team_chat)
+
+    assert_redirected_to account_chats_path(team_account)
+    assert_match(/permission/, flash[:alert])
+    team_chat.reload
+    assert_not team_chat.discarded?
+  end
+
+  test "restore action restores a discarded chat for admin" do
+    @chat.discard!
+    assert @chat.discarded?
+
+    post restore_account_chat_path(@account, @chat)
+
+    assert_redirected_to account_chats_path(@account)
+    @chat.reload
+    assert_not @chat.discarded?
+  end
+
+  test "restore action creates audit log" do
+    @chat.discard!
+
+    assert_difference "AuditLog.count" do
+      post restore_account_chat_path(@account, @chat)
+    end
+
+    audit = AuditLog.last
+    assert_equal "restore_chat", audit.action
+    assert_equal @chat.id, audit.auditable_id
+  end
+
+  test "restore action is forbidden for non-admin" do
+    # team_account has user_1 as owner, and existing_user (user_id: 3) as member via team_member membership
+    team_account = accounts(:team_account)
+    member_user = users(:existing_user)  # This user is member via team_member membership
+    team_chat = team_account.chats.create!(model_id: "openrouter/auto", title: "Team Chat")
+    team_chat.discard!
+
+    # Sign in as member (not admin)
+    delete logout_path
+    post login_path, params: {
+      email_address: member_user.email_address,
+      password: "password123"
+    }
+
+    # Member should not be able to restore
+    assert_not team_account.manageable_by?(member_user)
+
+    post restore_account_chat_path(team_account, team_chat)
+
+    assert_redirected_to account_chats_path(team_account)
+    assert_match(/permission/, flash[:alert])
+    team_chat.reload
+    assert team_chat.discarded?
+  end
+
+  # Index ordering tests
+
+  test "index shows active chats before archived chats" do
+    # Create chats with specific states
+    archived_chat = @account.chats.create!(
+      model_id: "gpt-4o",
+      title: "Archived Chat",
+      updated_at: 1.minute.ago # Most recent update
+    )
+    archived_chat.archive!
+
+    active_chat = @account.chats.create!(
+      model_id: "gpt-4o",
+      title: "Active Chat",
+      updated_at: 1.hour.ago # Older update
+    )
+
+    get account_chats_path(@account)
+    assert_response :success
+
+    # Verify ordering: active chats first, then archived
+    active_chats = @account.chats.kept.active.latest
+    archived_chats = @account.chats.kept.archived.latest
+
+    # Active chat should be in active list, archived should be in archived list
+    assert_includes active_chats.map(&:id), active_chat.id
+    assert_includes archived_chats.map(&:id), archived_chat.id
+  end
+
+  test "index excludes discarded chats by default" do
+    discarded_chat = @account.chats.create!(
+      model_id: "gpt-4o",
+      title: "Discarded Chat"
+    )
+    discarded_chat.discard!
+
+    get account_chats_path(@account)
+    assert_response :success
+
+    # Discarded chat should not be in the default view
+    kept_chats = @account.chats.kept
+    assert_not_includes kept_chats.map(&:id), discarded_chat.id
+  end
+
+  test "index shows discarded chats when admin requests show_deleted" do
+    discarded_chat = @account.chats.create!(
+      model_id: "gpt-4o",
+      title: "Discarded Chat"
+    )
+    discarded_chat.discard!
+
+    # User is admin of their personal account
+    assert @account.manageable_by?(@user)
+
+    get account_chats_path(@account, show_deleted: true)
+    assert_response :success
+
+    # With show_deleted, discarded chat should be findable
+    all_chats = @account.chats.with_discarded
+    assert_includes all_chats.map(&:id), discarded_chat.id
+  end
+
+  test "show_deleted param is ignored for non-admin" do
+    # team_account has user_1 as owner, and existing_user (user_id: 3) as member via team_member membership
+    team_account = accounts(:team_account)
+    member_user = users(:existing_user)  # This user is member via team_member membership
+
+    discarded_chat = team_account.chats.create!(
+      model_id: "gpt-4o",
+      title: "Discarded Chat"
+    )
+    discarded_chat.discard!
+
+    # Sign in as member (not admin)
+    delete logout_path
+    post login_path, params: {
+      email_address: member_user.email_address,
+      password: "password123"
+    }
+
+    assert_not team_account.manageable_by?(member_user)
+
+    get account_chats_path(team_account, show_deleted: true)
+    assert_response :success
+
+    # show_deleted should be ignored, discarded chat should not appear
+    kept_chats = team_account.chats.kept
+    assert_not_includes kept_chats.map(&:id), discarded_chat.id
   end
 
 end

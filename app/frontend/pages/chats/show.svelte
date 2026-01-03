@@ -18,6 +18,9 @@
     PencilSimple,
     X,
     WarningCircle,
+    Archive,
+    Trash,
+    ArrowCounterClockwise,
   } from 'phosphor-svelte';
   import * as Card from '$lib/components/shadcn/card/index.js';
   import * as Select from '$lib/components/shadcn/select/index.js';
@@ -109,6 +112,12 @@
 
   // Check if current user is a site admin
   const isSiteAdmin = $derived($page.props.user?.site_admin ?? false);
+
+  // Check if current user is an account admin
+  const isAccountAdmin = $derived($page.props.is_account_admin ?? false);
+
+  // Check if user can delete chats (account admin or site admin)
+  const canDeleteChat = $derived(isAccountAdmin || isSiteAdmin);
 
   // Check if user is near the bottom of the messages container (within 50px)
   function isNearBottom() {
@@ -514,6 +523,23 @@
     router.post(forkAccountChatPath(account.id, chat.id), { title: newTitle });
   }
 
+  function archiveChat() {
+    if (!chat) return;
+    const endpoint = chat.archived
+      ? `/accounts/${account.id}/chats/${chat.id}/unarchive`
+      : `/accounts/${account.id}/chats/${chat.id}/archive`;
+    router.post(endpoint, {}, { preserveScroll: true });
+  }
+
+  function deleteChat() {
+    if (!chat) return;
+    if (!chat.discarded && !confirm('Are you sure you want to delete this conversation?')) return;
+    const endpoint = chat.discarded
+      ? `/accounts/${account.id}/chats/${chat.id}/restore`
+      : `/accounts/${account.id}/chats/${chat.id}/discard`;
+    router.post(endpoint, {}, { preserveScroll: true });
+  }
+
   function startEditingTitle() {
     if (!chat) return;
     originalTitle = chat.title || 'New Chat';
@@ -809,6 +835,29 @@
           </button>
         {/if}
 
+        <button
+          onclick={archiveChat}
+          class="flex items-center gap-2 hover:opacity-80 transition-opacity text-sm text-muted-foreground">
+          <Archive size={16} weight="duotone" />
+          <span>{chat.archived ? 'Unarchive' : 'Archive'}</span>
+        </button>
+
+        {#if canDeleteChat}
+          <button
+            onclick={deleteChat}
+            class="flex items-center gap-2 hover:opacity-80 transition-opacity text-sm {chat.discarded
+              ? 'text-muted-foreground'
+              : 'text-red-600 dark:text-red-400'}">
+            {#if chat.discarded}
+              <ArrowCounterClockwise size={16} weight="duotone" />
+              <span>Restore</span>
+            {:else}
+              <Trash size={16} weight="duotone" />
+              <span>Delete</span>
+            {/if}
+          </button>
+        {/if}
+
         {#if isSiteAdmin}
           <label class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity w-fit">
             <input
@@ -1063,7 +1112,23 @@
 
     <!-- Agent trigger bar for group chats -->
     {#if chat?.manual_responses && agents?.length > 0}
-      <AgentTriggerBar {agents} accountId={account.id} chatId={chat.id} disabled={agentIsResponding} />
+      <AgentTriggerBar
+        {agents}
+        accountId={account.id}
+        chatId={chat.id}
+        disabled={agentIsResponding || !chat?.respondable} />
+    {/if}
+
+    <!-- Not respondable banner -->
+    {#if chat && !chat.respondable}
+      <div
+        class="border-t border-amber-500 bg-amber-50 dark:bg-amber-950/30 px-4 py-2 text-center text-amber-700 dark:text-amber-400 text-sm">
+        {#if chat.discarded}
+          This conversation has been deleted.
+        {:else}
+          This conversation has been archived.
+        {/if}
+      </div>
     {/if}
 
     <!-- Message input -->
@@ -1071,7 +1136,7 @@
       <div class="flex gap-2 md:gap-3 items-start">
         <FileUploadInput
           bind:files={selectedFiles}
-          disabled={$messageForm.processing}
+          disabled={$messageForm.processing || !chat?.respondable}
           allowedTypes={file_upload_config.acceptable_types || []}
           allowedExtensions={file_upload_config.acceptable_extensions || []}
           maxSize={file_upload_config.max_size || 50 * 1024 * 1024} />
@@ -1083,15 +1148,17 @@
             onkeydown={handleKeydown}
             oninput={autoResize}
             {placeholder}
-            disabled={$messageForm.processing}
+            disabled={$messageForm.processing || !chat?.respondable}
             class="w-full resize-none border border-input rounded-md px-3 py-2 text-sm bg-background
                    focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent
-                   min-h-[40px] max-h-[240px] overflow-y-auto"
+                   min-h-[40px] max-h-[240px] overflow-y-auto disabled:opacity-50 disabled:cursor-not-allowed"
             rows="1"></textarea>
         </div>
         <button
           onclick={sendMessage}
-          disabled={(!$messageForm.message.content.trim() && selectedFiles.length === 0) || $messageForm.processing}
+          disabled={(!$messageForm.message.content.trim() && selectedFiles.length === 0) ||
+            $messageForm.processing ||
+            !chat?.respondable}
           class="h-10 w-10 p-0 inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:pointer-events-none disabled:opacity-50">
           <ArrowUp size={16} />
         </button>

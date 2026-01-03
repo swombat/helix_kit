@@ -88,3 +88,6 @@ gem "active_storage_validations"
 gem "redcarpet"
 
 gem "honeybadger", "~> 6.1"
+
+# Soft delete support
+gem "discard", "~> 1.3"

@@ -2,12 +2,25 @@ class ChatsController < ApplicationController
 
   require_feature_enabled :chats
   before_action :set_chat, except: [ :index, :create, :new ]
+  before_action :require_admin, only: [ :discard, :restore ]
 
   def index
-    @chats = current_account.chats.includes(:messages).latest
+    # Show active chats first (kept and not archived), then archived chats at the bottom
+    # Optionally include discarded chats if admin requests them
+    base_scope = current_account.chats.includes(:messages)
+
+    if params[:show_deleted].present? && can_manage_account?
+      # Admin view: show all including discarded
+      @chats = base_scope.with_discarded.latest
+    else
+      # Normal view: kept chats, active first then archived
+      active_chats = base_scope.kept.active.latest
+      archived_chats = base_scope.kept.archived.latest
+      @chats = active_chats + archived_chats
+    end
 
     render inertia: "chats/new", props: {
-      chats: @chats.as_json,
+      chats: Array(@chats).map(&:as_json),
       models: available_models,
       agents: available_agents,
       account: current_account.as_json,
@@ -16,10 +29,14 @@ class ChatsController < ApplicationController
   end
 
   def new
-    @chats = current_account.chats.latest
+    # Same ordering as index: active first, then archived
+    base_scope = current_account.chats
+    active_chats = base_scope.kept.active.latest
+    archived_chats = base_scope.kept.archived.latest
+    @chats = active_chats + archived_chats
 
     render inertia: "chats/new", props: {
-      chats: @chats.as_json,
+      chats: @chats.map(&:as_json),
       account: current_account.as_json,
       models: available_models,
       agents: available_agents,
@@ -28,12 +45,16 @@ class ChatsController < ApplicationController
   end
 
   def show
-    @chats = current_account.chats.latest
+    # Same ordering as index: active first, then archived
+    base_scope = current_account.chats
+    active_chats = base_scope.kept.active.latest
+    archived_chats = base_scope.kept.archived.latest
+    @chats = active_chats + archived_chats
     @messages = @chat.messages.includes(:user, :agent).with_attached_attachments.sorted
 
     render inertia: "chats/show", props: {
       chat: chat_json_with_whiteboard,
-      chats: @chats.as_json,
+      chats: @chats.map(&:as_json),
       messages: @messages.all.collect(&:as_json),
       account: current_account.as_json,
       models: available_models,
@@ -106,6 +127,34 @@ class ChatsController < ApplicationController
     end
   end
 
+  # Archive a chat - any account member can do this
+  def archive
+    @chat.archive!
+    audit("archive_chat", @chat)
+    redirect_back_or_to account_chats_path(current_account), notice: "Chat archived"
+  end
+
+  # Unarchive a chat - any account member can do this
+  def unarchive
+    @chat.unarchive!
+    audit("unarchive_chat", @chat)
+    redirect_back_or_to account_chats_path(current_account), notice: "Chat restored from archive"
+  end
+
+  # Soft delete a chat - only admins can do this
+  def discard
+    @chat.discard!
+    audit("discard_chat", @chat)
+    redirect_to account_chats_path(current_account), notice: "Chat deleted"
+  end
+
+  # Restore a soft-deleted chat - only admins can do this
+  def restore
+    @chat.undiscard!
+    audit("restore_chat", @chat)
+    redirect_back_or_to account_chats_path(current_account), notice: "Chat restored"
+  end
+
   def destroy
     audit("destroy_chat", @chat)
     @chat.destroy!
@@ -115,7 +164,8 @@ class ChatsController < ApplicationController
   private
 
   def set_chat
-    @chat = current_account.chats.find(params[:id])
+    # Use with_discarded to allow admins to find discarded chats for restore
+    @chat = current_account.chats.with_discarded.find(params[:id])
   end
 
   def chat_params
@@ -152,6 +202,16 @@ class ChatsController < ApplicationController
       }
     end
     json
+  end
+
+  def can_manage_account?
+    current_account.manageable_by?(Current.user)
+  end
+
+  def require_admin
+    unless can_manage_account?
+      redirect_back_or_to account_chats_path(current_account), alert: "You don't have permission to perform this action"
+    end
   end
 
 end

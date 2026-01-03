@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_03_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_03_141838) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -139,7 +139,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_03_120000) do
     t.bigint "account_id", null: false
     t.bigint "active_whiteboard_id"
     t.bigint "ai_model_id"
+    t.datetime "archived_at"
     t.datetime "created_at", null: false
+    t.datetime "discarded_at"
     t.datetime "last_consolidated_at"
     t.bigint "last_consolidated_message_id"
     t.boolean "manual_responses", default: false, null: false
@@ -151,6 +153,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_03_120000) do
     t.index ["account_id"], name: "index_chats_on_account_id"
     t.index ["active_whiteboard_id"], name: "index_chats_on_active_whiteboard_id"
     t.index ["ai_model_id"], name: "index_chats_on_ai_model_id"
+    t.index ["archived_at"], name: "index_chats_on_archived_at"
+    t.index ["discarded_at"], name: "index_chats_on_discarded_at"
     t.index ["last_consolidated_at"], name: "index_chats_on_last_consolidated_at"
     t.index ["manual_responses"], name: "index_chats_on_manual_responses"
     t.index ["web_access"], name: "index_chats_on_web_access"

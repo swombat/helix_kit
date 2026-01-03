@@ -3,8 +3,9 @@ class MessagesController < ApplicationController
   require_feature_enabled :chats
   before_action :set_chat, except: :retry
   before_action :set_chat_for_retry, only: :retry
+  before_action :require_respondable_chat, only: [ :create, :retry ]
 
-def create
+  def create
     @message = @chat.messages.build(
       message_params.merge(user: Current.user, role: "user")
     )
@@ -71,6 +72,15 @@ def create
 
 def message_params
     params.require(:message).permit(:content)
+  end
+
+  def require_respondable_chat
+    return if @chat.respondable?
+
+    respond_to do |format|
+      format.html { redirect_back_or_to account_chat_path(@chat.account, @chat), alert: "This conversation is archived or deleted and cannot receive new messages" }
+      format.json { render json: { error: "This conversation is archived or deleted" }, status: :unprocessable_entity }
+    end
   end
 
 end

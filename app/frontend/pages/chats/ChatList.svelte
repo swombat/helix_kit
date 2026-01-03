@@ -1,5 +1,5 @@
 <script>
-  import { Link, router } from '@inertiajs/svelte';
+  import { Link, router, page } from '@inertiajs/svelte';
   import { Button } from '$lib/components/shadcn/button/index.js';
   import {
     Plus,
@@ -40,6 +40,8 @@
     Flower,
     Tree,
     Leaf,
+    Archive,
+    Trash,
   } from 'phosphor-svelte';
   import { accountChatsPath, accountChatPath, newAccountChatPath } from '@/routes';
 
@@ -91,6 +93,25 @@
 
   let { chats = [], activeChatId = null, accountId, isOpen = false, onClose = () => {} } = $props();
 
+  // Check if user can see deleted chats
+  const canSeeDeleted = $derived($page.props.is_account_admin || $page.props.user?.site_admin);
+
+  // Show deleted toggle state
+  let showDeleted = $state(
+    typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('show_deleted') === 'true' : false
+  );
+
+  function toggleShowDeleted() {
+    showDeleted = !showDeleted;
+    const url = new URL(window.location.href);
+    if (showDeleted) {
+      url.searchParams.set('show_deleted', 'true');
+    } else {
+      url.searchParams.delete('show_deleted');
+    }
+    router.visit(url.toString(), { preserveState: true });
+  }
+
   function createNewChat() {
     router.visit(newAccountChatPath(accountId));
   }
@@ -128,6 +149,18 @@
         </Button>
       </div>
     </div>
+    {#if canSeeDeleted}
+      <label
+        class="flex items-center gap-1.5 text-xs text-muted-foreground cursor-pointer hover:opacity-80 transition-opacity">
+        <input
+          type="checkbox"
+          checked={showDeleted}
+          onchange={toggleShowDeleted}
+          class="w-3 h-3 rounded border-gray-300 text-primary focus:ring-primary focus:ring-offset-0 focus:ring-1 transition-colors cursor-pointer" />
+        <Trash size={12} />
+        <span>Deleted</span>
+      </label>
+    {/if}
   </header>
 
   <div class="flex-1 overflow-y-auto">
@@ -142,9 +175,20 @@
           <Link
             href={accountChatPath(accountId, chat.id)}
             class="block p-3 hover:bg-muted/50 transition-colors border-b border-border
-                   {activeChatId === chat.id ? 'bg-primary/10 border-l-4 border-l-primary' : ''}">
-            <div class="font-medium text-sm truncate flex items-center gap-2">
-              {chat.title_or_default || chat.title || 'New Chat'}
+                   {activeChatId === chat.id ? 'bg-primary/10 border-l-4 border-l-primary' : ''}
+                   {chat.archived ? 'opacity-50' : ''}
+                   {chat.discarded ? 'opacity-40' : ''}">
+            <div
+              class="font-medium text-sm truncate flex items-center gap-2 {chat.discarded
+                ? 'line-through text-red-600 dark:text-red-400'
+                : ''}">
+              {#if chat.archived && !chat.discarded}
+                <Archive size={12} class="text-muted-foreground flex-shrink-0" />
+              {/if}
+              {#if chat.discarded}
+                <Trash size={12} class="text-red-500 flex-shrink-0" />
+              {/if}
+              <span class="truncate">{chat.title_or_default || chat.title || 'New Chat'}</span>
               {#if !chat.title && chat.message_count > 0}
                 <Spinner size={12} class="animate-spin text-muted-foreground flex-shrink-0" />
               {/if}

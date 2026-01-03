@@ -1,5 +1,6 @@
 class Chat < ApplicationRecord
 
+  include Discard::Model
   include Broadcastable
   include ObfuscatesId
   include SyncAuthorizable
@@ -15,7 +16,9 @@ class Chat < ApplicationRecord
 
   validates :agents, length: { minimum: 1, message: "must include at least one agent" }, if: :manual_responses?
 
-  json_attributes :title_or_default, :model_id, :model_label, :ai_model_name, :updated_at_formatted, :updated_at_short, :message_count, :web_access, :manual_responses, :participants_json do |hash, options|
+  json_attributes :title_or_default, :model_id, :model_label, :ai_model_name, :updated_at_formatted,
+                  :updated_at_short, :message_count, :web_access, :manual_responses, :participants_json,
+                  :archived_at, :discarded_at, :archived, :discarded, :respondable do |hash, options|
     # For sidebar format, only include minimal attributes
     if options&.dig(:as) == :sidebar_json
       hash.slice!("id", "title_or_default", "updated_at_short")
@@ -32,6 +35,11 @@ class Chat < ApplicationRecord
   after_initialize :configure_for_openrouter
 
   after_create_commit -> { GenerateTitleJob.perform_later(self) }, unless: :title?
+
+  # Scopes for archive and discard functionality
+  scope :kept, -> { undiscarded }
+  scope :archived, -> { where.not(archived_at: nil) }
+  scope :active, -> { where(archived_at: nil) }
 
   # Available AI models grouped by category
   # Model IDs from OpenRouter API: https://openrouter.ai/api/v1/models
@@ -195,6 +203,39 @@ class Chat < ApplicationRecord
     messages.count
   end
 
+  # Archive/unarchive methods
+  def archive!
+    update!(archived_at: Time.current)
+  end
+
+  def unarchive!
+    update!(archived_at: nil)
+  end
+
+  def archived?
+    archived_at.present?
+  end
+
+  # Alias for json_attributes
+  def archived
+    archived?
+  end
+
+  # Alias for json_attributes (provided by Discard)
+  def discarded
+    discarded?
+  end
+
+  # Returns false if the chat is archived or discarded, meaning it cannot receive new messages
+  def respondable?
+    !archived? && !discarded?
+  end
+
+  # Alias for json_attributes
+  def respondable
+    respondable?
+  end
+
   # Returns participants info for group chats (agents + unique humans)
   def participants_json
     return [] unless manual_responses?
@@ -239,6 +280,7 @@ class Chat < ApplicationRecord
   def trigger_agent_response!(agent)
     raise ArgumentError, "Agent not in this conversation" unless agents.include?(agent)
     raise ArgumentError, "This chat does not support manual responses" unless manual_responses?
+    raise ArgumentError, "This conversation is archived or deleted" unless respondable?
 
     ManualAgentResponseJob.perform_later(self, agent)
   end
@@ -246,6 +288,7 @@ class Chat < ApplicationRecord
   def trigger_all_agents_response!
     raise ArgumentError, "This chat does not support manual responses" unless manual_responses?
     raise ArgumentError, "No agents in this conversation" if agents.empty?
+    raise ArgumentError, "This conversation is archived or deleted" unless respondable?
 
     # Get agent IDs in a consistent order
     agent_ids = agents.order(:id).pluck(:id)

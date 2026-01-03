@@ -59,6 +59,7 @@ class ChatTest < ActiveSupport::TestCase
   test "includes required concerns" do
     assert Chat.included_modules.include?(Broadcastable)
     assert Chat.included_modules.include?(ObfuscatesId)
+    assert Chat.included_modules.include?(Discard::Model)
   end
 
   test "acts as chat" do
@@ -268,6 +269,174 @@ class ChatTest < ActiveSupport::TestCase
 
     chat.update!(web_access: true)
     assert chat.web_access
+  end
+
+  # Archive functionality tests
+
+  test "archive! sets archived_at to current time" do
+    chat = Chat.create!(account: @account)
+    assert_nil chat.archived_at
+
+    freeze_time do
+      chat.archive!
+      assert_equal Time.current, chat.archived_at
+    end
+  end
+
+  test "unarchive! sets archived_at to nil" do
+    chat = Chat.create!(account: @account)
+    chat.archive!
+    assert chat.archived?
+
+    chat.unarchive!
+    assert_nil chat.archived_at
+    assert_not chat.archived?
+  end
+
+  test "archived? returns true when archived_at is present" do
+    chat = Chat.create!(account: @account)
+    assert_not chat.archived?
+
+    chat.archive!
+    assert chat.archived?
+  end
+
+  test "archived? returns false when archived_at is nil" do
+    chat = Chat.create!(account: @account)
+    assert_not chat.archived?
+  end
+
+  # Discard functionality tests (soft delete)
+
+  test "discard! sets discarded_at" do
+    chat = Chat.create!(account: @account)
+    assert_nil chat.discarded_at
+
+    chat.discard!
+    assert chat.discarded_at.present?
+    assert chat.discarded?
+  end
+
+  test "undiscard! clears discarded_at" do
+    chat = Chat.create!(account: @account)
+    chat.discard!
+    assert chat.discarded?
+
+    chat.undiscard!
+    assert_nil chat.discarded_at
+    assert_not chat.discarded?
+  end
+
+  test "kept scope excludes discarded chats" do
+    chat1 = Chat.create!(account: @account, title: "Active Chat")
+    chat2 = Chat.create!(account: @account, title: "Discarded Chat")
+    chat2.discard!
+
+    kept_chats = @account.chats.kept
+    assert_includes kept_chats, chat1
+    assert_not_includes kept_chats, chat2
+  end
+
+  test "with_discarded scope includes discarded chats" do
+    chat1 = Chat.create!(account: @account, title: "Active Chat")
+    chat2 = Chat.create!(account: @account, title: "Discarded Chat")
+    chat2.discard!
+
+    all_chats = @account.chats.with_discarded
+    assert_includes all_chats, chat1
+    assert_includes all_chats, chat2
+  end
+
+  # Archive scopes tests
+
+  test "archived scope returns only archived chats" do
+    active_chat = Chat.create!(account: @account, title: "Active Chat")
+    archived_chat = Chat.create!(account: @account, title: "Archived Chat")
+    archived_chat.archive!
+
+    archived_chats = @account.chats.archived
+    assert_includes archived_chats, archived_chat
+    assert_not_includes archived_chats, active_chat
+  end
+
+  test "active scope returns only non-archived chats" do
+    active_chat = Chat.create!(account: @account, title: "Active Chat")
+    archived_chat = Chat.create!(account: @account, title: "Archived Chat")
+    archived_chat.archive!
+
+    active_chats = @account.chats.active
+    assert_includes active_chats, active_chat
+    assert_not_includes active_chats, archived_chat
+  end
+
+  # Respondable tests
+
+  test "respondable? returns true for active non-discarded chat" do
+    chat = Chat.create!(account: @account)
+    assert chat.respondable?
+  end
+
+  test "respondable? returns false for archived chat" do
+    chat = Chat.create!(account: @account)
+    chat.archive!
+    assert_not chat.respondable?
+  end
+
+  test "respondable? returns false for discarded chat" do
+    chat = Chat.create!(account: @account)
+    chat.discard!
+    assert_not chat.respondable?
+  end
+
+  test "respondable? returns false for archived and discarded chat" do
+    chat = Chat.create!(account: @account)
+    chat.archive!
+    chat.discard!
+    assert_not chat.respondable?
+  end
+
+  # JSON attributes include archive/discard fields
+
+  test "as_json includes archive and discard fields" do
+    chat = Chat.create!(account: @account, title: "Test Chat")
+
+    json = chat.as_json
+
+    assert_includes json.keys, "archived_at"
+    assert_includes json.keys, "discarded_at"
+    assert_includes json.keys, "archived"
+    assert_includes json.keys, "discarded"
+    assert_includes json.keys, "respondable"
+
+    assert_nil json["archived_at"]
+    assert_nil json["discarded_at"]
+    assert_equal false, json["archived"]
+    assert_equal false, json["discarded"]
+    assert_equal true, json["respondable"]
+  end
+
+  test "as_json reflects archived state correctly" do
+    chat = Chat.create!(account: @account, title: "Test Chat")
+    chat.archive!
+
+    json = chat.as_json
+
+    assert json["archived_at"].present?
+    assert_equal true, json["archived"]
+    assert_equal false, json["respondable"]
+  end
+
+  test "as_json reflects discarded state correctly" do
+    chat = Chat.create!(account: @account, title: "Test Chat")
+    chat.discard!
+
+    # Need to reload from with_discarded since default scope excludes discarded
+    chat = @account.chats.with_discarded.find(chat.id)
+    json = chat.as_json
+
+    assert json["discarded_at"].present?
+    assert_equal true, json["discarded"]
+    assert_equal false, json["respondable"]
   end
 
 end

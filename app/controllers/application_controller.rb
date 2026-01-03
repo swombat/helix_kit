@@ -17,7 +17,8 @@ class ApplicationController < ActionController::Base
         account: current_account&.as_json,
         accounts: Current.user.accounts.map(&:as_json),
         theme_preference: Current.user&.theme || cookies[:theme],
-        site_settings: shared_site_settings
+        site_settings: shared_site_settings,
+        is_account_admin: current_account&.manageable_by?(Current.user) || false
       }
     else
       {
