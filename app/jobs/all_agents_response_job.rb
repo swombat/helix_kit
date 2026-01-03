@@ -146,8 +146,24 @@ class AllAgentsResponseJob < ApplicationJob
         thinking: { type: "enabled", budget_tokens: budget },
         max_tokens: max_tokens
       )
+    when :openrouter, :openai
+      # OpenAI uses reasoning effort levels and provides summaries (not raw tokens)
+      effort = budget_to_effort(budget)
+      llm.with_params(
+        reasoning: { effort: effort, summary: "auto" },
+        max_completion_tokens: budget + 8000
+      )
     else
       raise # Re-raise for truly unsupported models
+    end
+  end
+
+  # Converts token budget to OpenAI reasoning effort level
+  def budget_to_effort(budget)
+    case budget
+    when 0..2000 then "low"
+    when 2001..15000 then "medium"
+    else "high"
     end
   end
 
