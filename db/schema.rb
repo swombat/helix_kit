@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_31_003149) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_03_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -77,6 +77,8 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_31_003149) do
     t.string "name", null: false
     t.text "reflection_prompt"
     t.text "system_prompt"
+    t.integer "thinking_budget", default: 10000
+    t.boolean "thinking_enabled", default: false, null: false
     t.datetime "updated_at", null: false
     t.index ["account_id", "active"], name: "index_agents_on_account_id_and_active"
     t.index ["account_id", "name"], name: "index_agents_on_account_id_and_name", unique: true
@@ -186,6 +188,8 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_31_003149) do
     t.integer "output_tokens"
     t.string "role", null: false
     t.boolean "streaming", default: false, null: false
+    t.text "thinking"
+    t.text "thinking_signature"
     t.bigint "tool_call_id"
     t.string "tool_status"
     t.text "tools_used", default: [], array: true

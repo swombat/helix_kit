@@ -34,6 +34,9 @@ class Agent < ApplicationRecord
   validates :memory_reflection_prompt, length: { maximum: 10_000 }
   validates :colour, inclusion: { in: VALID_COLOURS }, allow_nil: true
   validates :icon, inclusion: { in: VALID_ICONS }, allow_nil: true
+  validates :thinking_budget,
+            numericality: { greater_than_or_equal_to: 1000, less_than_or_equal_to: 50000 },
+            allow_nil: true
   validate :enabled_tools_must_be_valid
 
   broadcasts_to :account
@@ -41,8 +44,9 @@ class Agent < ApplicationRecord
   scope :active, -> { where(active: true) }
   scope :by_name, -> { order(:name) }
 
-  json_attributes :name, :system_prompt, :reflection_prompt, :memory_reflection_prompt, :model_id, :model_label,
-                  :enabled_tools, :active?, :colour, :icon, :memories_count
+  json_attributes :name, :system_prompt, :reflection_prompt, :memory_reflection_prompt,
+                  :model_id, :model_label, :enabled_tools, :active?, :colour, :icon,
+                  :memories_count, :thinking_enabled, :thinking_budget
 
   def self.available_tools
     Dir[Rails.root.join("app/tools/*_tool.rb")].filter_map do |file|
@@ -66,6 +70,10 @@ class Agent < ApplicationRecord
 
   def model_label
     Chat::MODELS.find { |m| m[:model_id] == model_id }&.dig(:label) || model_id
+  end
+
+  def uses_thinking?
+    thinking_enabled? && Chat.supports_thinking?(model_id)
   end
 
   def memory_context

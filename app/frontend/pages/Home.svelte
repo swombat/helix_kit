@@ -27,6 +27,8 @@
     CreditCard,
     Plugs,
     Trash,
+    Chats,
+    Lightbulb,
   } from 'phosphor-svelte';
   import * as Card from '$lib/components/shadcn/card/index.js';
 
@@ -143,10 +145,17 @@
       icon: FileText,
     },
     {
-      title: 'Basic AI Integration',
-      description: 'OpenRouter integration, Prompt system',
+      title: 'AI Integration',
+      description:
+        'OpenRouter integration, Prompt system, Basic Conversation System, and Agentic Conversation System with Tools.',
       icon: Brain,
       link: 'https://openrouter.ai/',
+    },
+    {
+      title: 'Group Chat System',
+      description:
+        'Multiple agents in single chat with memory management (Journal/Core), conversation consolidation, and shared whiteboard.',
+      icon: Chats,
     },
   ];
 
@@ -159,9 +168,9 @@
       icon: Trash,
     },
     {
-      title: 'Agentic AI Integration',
-      description: 'Basic Conversation System, Agentic Conversation System.',
-      icon: Brain,
+      title: 'Thinking Mode',
+      description: 'Extended thinking support for AI models with streaming thought blocks.',
+      icon: Lightbulb,
     },
     {
       title: 'MultiAttachment System',
@@ -198,6 +207,9 @@
     <p class="opacity-80 mt-4">
       A start app kit template analogous to Jumpstart Pro or BulletTrain, but using Svelte and Inertia.js for the
       frontend, with Ruby on Rails as the backend, and including a number of other useful libraries and tools.
+    </p>
+    <p class="opacity-80 mt-4">
+      Unlike typical app-kits, this one begins with the assumption that all apps worth building at this point will have heavy AI integration, including at the very least chat/conversation features, agentic set ups, tools, and group chat features.
     </p>
     <div class="mt-8">
       <a href={githubUrl} class={buttonVariants({ variant: 'default' })} target="_blank" rel="noopener noreferrer">

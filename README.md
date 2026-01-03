@@ -6,6 +6,8 @@
 
 This is a start app kit template analogous to Jumpstart Pro or BulletTrain, but using Svelte and Inertia.js for the frontend, with Ruby on Rails as the backend, and including a number of other useful libraries and tools.
 
+Unlike typical app-kits, this one begins with the assumption that all apps worth building at this point will have heavy AI integration, including at the very least chat/conversation features, agentic set ups, tools, and group chat features.
+
 ## Features
 
 - **[Svelte 5](https://svelte.dev/)** - A modern JavaScript framework for building user interfaces.
@@ -32,15 +34,22 @@ This is a start app kit template analogous to Jumpstart Pro or BulletTrain, but 
     - [x] Roles
 - **Svelte Object Synchronization** - Using ActionCable and Inertia's partial reload and a custom Regitry to keep Svelte $props up to date in real-time.
 - Audit Logging with audit log viewer (required in many business applications).
+- AI Integration features:
+    - [x] OpenRouter integration
+    - [x] Prompt system
+    - [x] Basic Conversation System
+    - [x] Agentic Conversation System (Tools)
+- **Group Chat System** - Multiple agents in single chat:
+    - [x] Memory management (Journal - mid term, Core - long term)
+    - [x] Consolidation of idle conversations (hourly job)
+    - [x] Shared whiteboard for collaborative editing
 
 ## Target features (TODO)
 
 - **[Discard gem](https://github.com/jhawthorn/discard): Never delete anything important (e.g. accounts, users, etc), only discard it.
+
 - AI Integration features:
-    - [x] OpenRouter integration
-    - [x] Prompt system
-    - [ ] Basic Conversation System
-    - [ ] Agentic Conversation System
+    - [ ] Thinking Mode
 - MultiAttachment system supporting:
     - Direct uploads to S3
     - PDF/Document parsing

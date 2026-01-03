@@ -1,25 +1,37 @@
+# frozen_string_literal: true
+
 module StreamsAiResponse
 
   extend ActiveSupport::Concern
 
-  STREAM_DEBOUNCE_INTERVAL = 0.2.seconds
+  CONTENT_DEBOUNCE = 0.2.seconds
+  THINKING_DEBOUNCE = 0.1.seconds
 
   private
 
   def setup_streaming_state
-    @stream_buffer = +""
-    @last_stream_flush_at = nil
+    @content_buffer = +""
+    @content_accumulated = +""
+    @content_last_flush_at = nil
+
+    @thinking_buffer = +""
+    @thinking_accumulated = +""
+    @thinking_last_flush_at = nil
+
     @tools_used = []
   end
 
   def finalize_message!(ruby_llm_message)
     return unless @ai_message
 
-    flush_stream_buffer(force: true)
+    flush_all_buffers
 
-    # Update message content and metadata (streaming state is handled by stop_streaming in cleanup)
+    # Use RubyLLM's thinking attribute (authoritative source) with buffer fallback
+    thinking_content = ruby_llm_message.thinking.presence || @thinking_accumulated.presence
+
     @ai_message.update!({
       content: extract_message_content(ruby_llm_message.content),
+      thinking: thinking_content,
       model_id_string: ruby_llm_message.model_id,
       input_tokens: ruby_llm_message.input_tokens,
       output_tokens: ruby_llm_message.output_tokens,
@@ -38,29 +50,52 @@ module StreamsAiResponse
     end
   end
 
-  def enqueue_stream_chunk(chunk_content)
-    @stream_buffer << chunk_content.to_s
-    flush_stream_buffer if stream_flush_due?
+  def enqueue_stream_chunk(chunk)
+    @content_buffer << chunk.to_s
+    @content_accumulated << chunk.to_s
+
+    if content_flush_due?
+      chunk_to_send = @content_buffer
+      @content_buffer = +""
+      @content_last_flush_at = Time.current
+      @ai_message&.stream_content(chunk_to_send)
+    end
   end
 
-  def flush_stream_buffer(force: false)
-    return if @stream_buffer.blank?
-    return unless @ai_message
-    return unless force || stream_flush_due?
+  def enqueue_thinking_chunk(chunk)
+    @thinking_buffer << chunk.to_s
+    @thinking_accumulated << chunk.to_s
 
-    chunk = @stream_buffer
-    @stream_buffer = +""
-    @last_stream_flush_at = Time.current
-    @ai_message.stream_content(chunk)
+    if thinking_flush_due?
+      chunk_to_send = @thinking_buffer
+      @thinking_buffer = +""
+      @thinking_last_flush_at = Time.current
+      @ai_message&.stream_thinking(chunk_to_send)
+    end
   end
 
-  def stream_flush_due?
-    return true unless @last_stream_flush_at
-    Time.current - @last_stream_flush_at >= STREAM_DEBOUNCE_INTERVAL
+  def content_flush_due?
+    @content_buffer.present? &&
+      (@content_last_flush_at.nil? || Time.current - @content_last_flush_at >= CONTENT_DEBOUNCE)
   end
 
-  # Tools that shouldn't show status updates (e.g., "Using view system prompt tool...")
-  # They still appear in tools_used badges
+  def thinking_flush_due?
+    @thinking_buffer.present? &&
+      (@thinking_last_flush_at.nil? || Time.current - @thinking_last_flush_at >= THINKING_DEBOUNCE)
+  end
+
+  def flush_all_buffers
+    if @content_buffer.present?
+      @ai_message&.stream_content(@content_buffer)
+      @content_buffer = +""
+    end
+
+    if @thinking_buffer.present?
+      @ai_message&.stream_thinking(@thinking_buffer)
+      @thinking_buffer = +""
+    end
+  end
+
   QUIET_TOOLS = %w[
     ViewSystemPromptTool view_system_prompt
     UpdateSystemPromptTool update_system_prompt
@@ -73,7 +108,6 @@ module StreamsAiResponse
     url = tool_call.arguments[:url] || tool_call.arguments["url"]
     @tools_used << (url || tool_name)
 
-    # Skip status broadcast for quiet tools (but they still get badges)
     return if QUIET_TOOLS.include?(tool_name)
 
     @ai_message&.broadcast_tool_call(
@@ -83,7 +117,7 @@ module StreamsAiResponse
   end
 
   def cleanup_streaming
-    flush_stream_buffer(force: true)
+    flush_all_buffers
     @ai_message&.stop_streaming if @ai_message&.streaming?
   end
 

@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-# Determines the correct LLM provider based on model ID.
+# Determines the correct LLM provider based on model ID and configuration.
 #
-# Gemini models (google/*) need direct API access for tool calling to work
-# due to thought_signature requirements. All other models go through OpenRouter.
-#
-# See: config/initializers/01_gemini_thought_signature_patch.rb
+# Routes to appropriate providers:
+# - Anthropic direct: for Claude 4+ models with thinking enabled
+# - Gemini direct: for Google models (due to thought_signature requirements)
+# - OpenRouter: fallback for all other models
 module SelectsLlmProvider
 
   extend ActiveSupport::Concern
@@ -14,10 +14,16 @@ module SelectsLlmProvider
 
   # Returns the provider and normalized model ID for a given model
   #
-  # @param model_id [String] The model ID (e.g., "google/gemini-2.5-pro" or "anthropic/claude-3.5-sonnet")
+  # @param model_id [String] The model ID (e.g., "anthropic/claude-opus-4.5")
+  # @param thinking_enabled [Boolean] Whether thinking is enabled for this request
   # @return [Hash] { provider: Symbol, model_id: String }
-  def llm_provider_for(model_id)
-    if gemini_model?(model_id) && gemini_direct_access_enabled?
+  def llm_provider_for(model_id, thinking_enabled: false)
+    if thinking_enabled && Chat.requires_direct_api_for_thinking?(model_id) && anthropic_api_available?
+      {
+        provider: :anthropic,
+        model_id: Chat.provider_model_id(model_id)
+      }
+    elsif gemini_model?(model_id) && gemini_direct_access_enabled?
       {
         provider: :gemini,
         model_id: normalize_gemini_model_id(model_id)
@@ -30,21 +36,28 @@ module SelectsLlmProvider
     end
   end
 
-  # Check if this is a Gemini model that needs direct API access
+  def anthropic_api_available?
+    return @anthropic_available if defined?(@anthropic_available)
+
+    api_key = RubyLLM.config.anthropic_api_key
+    @anthropic_available = api_key.present? && !api_key.start_with?("<")
+
+    unless @anthropic_available
+      Rails.logger.warn "[SelectsLlmProvider] Anthropic API key not configured"
+    end
+
+    @anthropic_available
+  end
+
   def gemini_model?(model_id)
     model_id.to_s.start_with?("google/")
   end
 
-  # Check if direct Gemini access is properly configured
-  # Falls back to OpenRouter if not configured
   def gemini_direct_access_enabled?
     return @gemini_enabled if defined?(@gemini_enabled)
 
-    # Check if Gemini API key is configured
     gemini_key = RubyLLM.config.gemini_api_key
     key_configured = gemini_key.present? && !gemini_key.start_with?("<")
-
-    # Check if metadata column exists on ToolCall (required for thought_signature)
     column_exists = ToolCall.column_names.include?("metadata")
 
     @gemini_enabled = key_configured && column_exists
@@ -59,8 +72,6 @@ module SelectsLlmProvider
     @gemini_enabled
   end
 
-  # Convert OpenRouter model ID to direct Gemini model ID
-  # "google/gemini-2.5-pro" -> "gemini-2.5-pro"
   def normalize_gemini_model_id(model_id)
     model_id.to_s.sub(/^google\//, "")
   end

@@ -27,6 +27,7 @@
   import FileAttachment from '$lib/components/chat/FileAttachment.svelte';
   import AgentTriggerBar from '$lib/components/chat/AgentTriggerBar.svelte';
   import ParticipantAvatars from '$lib/components/chat/ParticipantAvatars.svelte';
+  import ThinkingBlock from '$lib/components/chat/ThinkingBlock.svelte';
   import { accountChatMessagesPath, retryMessagePath, forkAccountChatPath } from '@/routes';
   import { marked } from 'marked';
   import * as logging from '$lib/logging';
@@ -93,6 +94,12 @@
   let whiteboardEditContent = $state('');
   let whiteboardConflict = $state(null);
   let whiteboardSaving = $state(false);
+
+  // Thinking streaming state
+  let streamingThinking = $state({});
+
+  // Error handling state
+  let errorMessage = $state(null);
 
   // Check if current user is a site admin
   const isSiteAdmin = $derived($page.props.user?.site_admin ?? false);
@@ -320,31 +327,47 @@
       if (data.id) {
         const index = messages.findIndex((m) => m.id === data.id);
         if (index !== -1) {
-          logging.debug('Updating message via streaming:', data.id, data.chunk);
-          const currentMessage = messages[index] || {};
-          const updatedMessage = {
-            ...currentMessage,
-            content: `${currentMessage.content || ''}${data.chunk || ''}`,
-            streaming: true,
-          };
+          if (data.action === 'thinking_update') {
+            // Handle thinking updates
+            streamingThinking[data.id] = (streamingThinking[data.id] || '') + (data.chunk || '');
+          } else if (data.action === 'streaming_update') {
+            // Handle content streaming
+            logging.debug('Updating message via streaming:', data.id, data.chunk);
+            const currentMessage = messages[index] || {};
+            const updatedMessage = {
+              ...currentMessage,
+              content: `${currentMessage.content || ''}${data.chunk || ''}`,
+              streaming: true,
+            };
 
-          messages = messages.map((message, messageIndex) => (messageIndex === index ? updatedMessage : message));
-          logging.debug('Message updated:', updatedMessage);
+            messages = messages.map((message, messageIndex) => (messageIndex === index ? updatedMessage : message));
+            logging.debug('Message updated:', updatedMessage);
 
-          // Scroll to bottom if user is near the bottom during streaming
-          setTimeout(() => {
-            scrollToBottomIfNeeded();
-          }, 0);
+            // Scroll to bottom if user is near the bottom during streaming
+            setTimeout(() => {
+              scrollToBottomIfNeeded();
+            }, 0);
+          }
         } else {
           logging.debug('No message found in streaming update:', data.id);
           logging.debug('Messages:', messages);
         }
+      } else if (data.action === 'error') {
+        // Handle transient errors
+        errorMessage = data.message;
+        setTimeout(() => (errorMessage = null), 5000);
       } else {
         logging.warn('No id found in streaming update:', data);
       }
     },
     (data) => {
       if (data.id) {
+        // Clear streaming thinking on stream end
+        if (streamingThinking[data.id]) {
+          delete streamingThinking[data.id];
+          streamingThinking = { ...streamingThinking };
+        }
+
         const index = messages.findIndex((m) => m.id === data.id);
         if (index !== -1) {
           logging.debug('Updating message via streaming end:', data.id);
@@ -820,6 +843,14 @@
                           <span class="text-sm">{message.tool_status || 'Generating response...'}</span>
                         </div>
                       {:else}
+                        <!-- Show thinking block if thinking content exists -->
+                        {#if message.thinking || streamingThinking[message.id]}
+                          <ThinkingBlock
+                            content={message.thinking || streamingThinking[message.id] || ''}
+                            isStreaming={message.streaming && !message.thinking}
+                            preview={message.thinking_preview} />
+                        {/if}
+
                         <Streamdown
                           content={message.content}
                           parseIncompleteMarkdown
@@ -1059,4 +1090,13 @@
       </div>
     </Drawer.Content>
   </Drawer.Root>
+{/if}
+
+<!-- Error toast -->
+{#if errorMessage}
+  <div
+    class="fixed bottom-4 right-4 bg-destructive text-destructive-foreground px-4 py-2 rounded-lg shadow-lg z-50"
+    transition:fade>
+    {errorMessage}
+  </div>
 {/if}

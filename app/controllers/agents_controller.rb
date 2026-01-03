@@ -80,7 +80,12 @@ class AgentsController < ApplicationController
   end
 
   def agent_params
-    params.require(:agent).permit(:name, :system_prompt, :reflection_prompt, :memory_reflection_prompt, :model_id, :active, :colour, :icon, enabled_tools: [])
+    params.require(:agent).permit(
+      :name, :system_prompt, :reflection_prompt, :memory_reflection_prompt,
+      :model_id, :active, :colour, :icon,
+      :thinking_enabled, :thinking_budget,
+      enabled_tools: []
+    )
   end
 
   def memory_params
@@ -88,7 +93,15 @@ class AgentsController < ApplicationController
   end
 
   def grouped_models
-    Chat::MODELS.group_by { |m| m[:group] || "Other" }
+    Chat::MODELS.group_by { |m| m[:group] || "Other" }.transform_values do |models|
+      models.map do |m|
+        {
+          model_id: m[:model_id],
+          label: m[:label],
+          supports_thinking: m.dig(:thinking, :supported) == true
+        }
+      end
+    end
   end
 
   def tools_for_frontend

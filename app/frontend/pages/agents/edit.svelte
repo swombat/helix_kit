@@ -29,6 +29,15 @@
 
   let selectedModel = $state(agent.model_id);
 
+  // Helper function to check if model supports thinking
+  function modelSupportsThinking(modelId) {
+    for (const models of Object.values(grouped_models)) {
+      const found = models.find((m) => m.model_id === modelId);
+      if (found) return found.supports_thinking === true;
+    }
+    return false;
+  }
+
   let form = useForm({
     agent: {
       name: agent.name,
@@ -40,6 +49,8 @@
       enabled_tools: agent.enabled_tools || [],
       colour: agent.colour || null,
       icon: agent.icon || null,
+      thinking_enabled: agent.thinking_enabled || false,
+      thinking_budget: agent.thinking_budget || 10000,
     },
   });
 
@@ -250,6 +261,47 @@
               {/each}
             </Select.Content>
           </Select.Root>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Extended Thinking</CardTitle>
+          <CardDescription>Allow the model to show its reasoning process before responding</CardDescription>
+        </CardHeader>
+        <CardContent class="space-y-4">
+          {#if modelSupportsThinking(selectedModel)}
+            <div class="flex items-center justify-between">
+              <div class="space-y-1">
+                <Label for="thinking_enabled">Enable Thinking</Label>
+                <p class="text-sm text-muted-foreground">Show the model's reasoning process in responses</p>
+              </div>
+              <Switch
+                id="thinking_enabled"
+                checked={$form.agent.thinking_enabled}
+                onCheckedChange={(checked) => ($form.agent.thinking_enabled = checked)} />
+            </div>
+
+            {#if $form.agent.thinking_enabled}
+              <div class="space-y-2">
+                <Label for="thinking_budget">Thinking Budget (tokens)</Label>
+                <Input
+                  id="thinking_budget"
+                  type="number"
+                  min={1000}
+                  max={50000}
+                  step={1000}
+                  bind:value={$form.agent.thinking_budget}
+                  class="max-w-xs" />
+                <p class="text-xs text-muted-foreground">Maximum tokens for reasoning (1,000 - 50,000)</p>
+              </div>
+            {/if}
+          {:else}
+            <p class="text-sm text-muted-foreground py-4">
+              The selected model does not support extended thinking. Choose Claude 4+, GPT-5, or Gemini 3 Pro to enable
+              this feature.
+            </p>
+          {/if}
         </CardContent>
       </Card>
 

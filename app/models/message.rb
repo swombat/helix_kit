@@ -50,10 +50,10 @@ class Message < ApplicationRecord
 
   scope :sorted, -> { order(created_at: :asc) }
 
-  json_attributes :role, :content, :user_name, :user_avatar_url, :completed,
-                  :created_at_formatted, :created_at_hour, :streaming, :files_json, :content_html,
-                  :tools_used, :tool_status, :author_name, :author_type, :author_colour,
-                  :input_tokens, :output_tokens
+  json_attributes :role, :content, :thinking, :thinking_preview, :user_name, :user_avatar_url,
+                  :completed, :created_at_formatted, :created_at_hour, :streaming,
+                  :files_json, :content_html, :tools_used, :tool_status,
+                  :author_name, :author_type, :author_colour, :input_tokens, :output_tokens
 
   def completed?
     # User messages are always completed
@@ -111,6 +111,11 @@ class Message < ApplicationRecord
     render_markdown
   end
 
+  def thinking_preview
+    return nil if thinking.blank?
+    thinking.truncate(80, separator: " ")
+  end
+
   def files_json
     return [] unless attachments.attached?
 
@@ -160,6 +165,23 @@ class Message < ApplicationRecord
       "Message:#{to_param}",
       {
         action: "streaming_update",
+        chunk: chunk,
+        id: to_param
+      }
+    )
+  end
+
+  # Stream thinking updates for real-time display
+  def stream_thinking(chunk)
+    chunk = chunk.to_s
+    return if chunk.empty?
+
+    update_columns(thinking: (thinking.to_s + chunk))
+
+    broadcast_marker(
+      "Message:#{to_param}",
+      {
+        action: "thinking_update",
         chunk: chunk,
         id: to_param
       }

@@ -37,15 +37,30 @@ class Chat < ApplicationRecord
   # Model IDs from OpenRouter API: https://openrouter.ai/api/v1/models
   MODELS = [
     # Top Models - Flagship from each major provider
-    { model_id: "openai/gpt-5.2", label: "GPT-5.2", group: "Top Models" },
-    { model_id: "anthropic/claude-opus-4.5", label: "Claude Opus 4.5", group: "Top Models" },
-    { model_id: "google/gemini-3-pro-preview", label: "Gemini 3 Pro", group: "Top Models" },
+    {
+      model_id: "openai/gpt-5.2",
+      label: "GPT-5.2",
+      group: "Top Models",
+      thinking: { supported: true }
+    },
+    {
+      model_id: "anthropic/claude-opus-4.5",
+      label: "Claude Opus 4.5",
+      group: "Top Models",
+      thinking: { supported: true, requires_direct_api: true, provider_model_id: "claude-opus-4-5-20251101" }
+    },
+    {
+      model_id: "google/gemini-3-pro-preview",
+      label: "Gemini 3 Pro",
+      group: "Top Models",
+      thinking: { supported: true }
+    },
     { model_id: "x-ai/grok-4.1-fast", label: "Grok 4.1 Fast", group: "Top Models" },
     { model_id: "deepseek/deepseek-v3.2", label: "DeepSeek V3.2", group: "Top Models" },
 
     # OpenAI
-    { model_id: "openai/gpt-5.1", label: "GPT-5.1", group: "OpenAI" },
-    { model_id: "openai/gpt-5", label: "GPT-5", group: "OpenAI" },
+    { model_id: "openai/gpt-5.1", label: "GPT-5.1", group: "OpenAI", thinking: { supported: true } },
+    { model_id: "openai/gpt-5", label: "GPT-5", group: "OpenAI", thinking: { supported: true } },
     { model_id: "openai/gpt-5-mini", label: "GPT-5 Mini", group: "OpenAI" },
     { model_id: "openai/gpt-5-nano", label: "GPT-5 Nano", group: "OpenAI" },
     { model_id: "openai/o3", label: "O3", group: "OpenAI" },
@@ -59,11 +74,31 @@ class Chat < ApplicationRecord
     { model_id: "openai/gpt-4o-mini", label: "GPT-4o Mini", group: "OpenAI" },
 
     # Anthropic
-    { model_id: "anthropic/claude-sonnet-4.5", label: "Claude Sonnet 4.5", group: "Anthropic" },
+    {
+      model_id: "anthropic/claude-sonnet-4.5",
+      label: "Claude Sonnet 4.5",
+      group: "Anthropic",
+      thinking: { supported: true, requires_direct_api: true, provider_model_id: "claude-sonnet-4-5-20251201" }
+    },
     { model_id: "anthropic/claude-haiku-4.5", label: "Claude Haiku 4.5", group: "Anthropic" },
-    { model_id: "anthropic/claude-opus-4", label: "Claude Opus 4", group: "Anthropic" },
-    { model_id: "anthropic/claude-sonnet-4", label: "Claude Sonnet 4", group: "Anthropic" },
-    { model_id: "anthropic/claude-3.7-sonnet", label: "Claude 3.7 Sonnet", group: "Anthropic" },
+    {
+      model_id: "anthropic/claude-opus-4",
+      label: "Claude Opus 4",
+      group: "Anthropic",
+      thinking: { supported: true, requires_direct_api: true, provider_model_id: "claude-opus-4-20250514" }
+    },
+    {
+      model_id: "anthropic/claude-sonnet-4",
+      label: "Claude Sonnet 4",
+      group: "Anthropic",
+      thinking: { supported: true, requires_direct_api: true, provider_model_id: "claude-sonnet-4-20250514" }
+    },
+    {
+      model_id: "anthropic/claude-3.7-sonnet",
+      label: "Claude 3.7 Sonnet",
+      group: "Anthropic",
+      thinking: { supported: true }
+    },
     { model_id: "anthropic/claude-3.5-sonnet", label: "Claude 3.5 Sonnet", group: "Anthropic" },
     { model_id: "anthropic/claude-3-opus", label: "Claude 3 Opus", group: "Anthropic" },
 
@@ -81,6 +116,22 @@ class Chat < ApplicationRecord
     { model_id: "deepseek/deepseek-r1", label: "DeepSeek R1", group: "DeepSeek" },
     { model_id: "deepseek/deepseek-v3", label: "DeepSeek V3", group: "DeepSeek" }
   ].freeze
+
+  def self.model_config(model_id)
+    MODELS.find { |m| m[:model_id] == model_id }
+  end
+
+  def self.supports_thinking?(model_id)
+    model_config(model_id)&.dig(:thinking, :supported) == true
+  end
+
+  def self.requires_direct_api_for_thinking?(model_id)
+    model_config(model_id)&.dig(:thinking, :requires_direct_api) == true
+  end
+
+  def self.provider_model_id(model_id)
+    model_config(model_id)&.dig(:thinking, :provider_model_id) || model_id.to_s.sub(%r{^.+/}, "")
+  end
 
   scope :latest, -> { order(updated_at: :desc) }
 

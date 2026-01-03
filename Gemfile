@@ -77,10 +77,9 @@ gem "hashids"
 
 gem "ruby-openai"
 
-# UPGRADE NOTE: When upgrading ruby_llm, check if PR #542 (Gemini thought_signature support)
-# has been merged. If so, remove config/initializers/01_gemini_thought_signature_patch.rb
-# See: https://github.com/crmne/ruby_llm/pull/542
-gem "ruby_llm", "~> 1.9"
+# Using swombat fork with extended thinking support
+# PR: https://github.com/crmne/ruby_llm/pull/552
+gem "ruby_llm", github: "swombat/ruby_llm", branch: "main"
 
 gem "pagy", "~> 9.3"
 

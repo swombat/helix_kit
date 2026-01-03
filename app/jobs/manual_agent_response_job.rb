@@ -1,10 +1,11 @@
+# frozen_string_literal: true
+
 class ManualAgentResponseJob < ApplicationJob
 
   include StreamsAiResponse
   include SelectsLlmProvider
   include BroadcastsDebug
 
-  # Retry on provider errors with exponential backoff (5s, 25s, 125s)
   retry_on RubyLLM::ModelNotFoundError, wait: 5.seconds, attempts: 2
   retry_on RubyLLM::BadRequestError, wait: :polynomially_longer, attempts: 3
   retry_on RubyLLM::ServerError, wait: :polynomially_longer, attempts: 3
@@ -18,15 +19,18 @@ class ManualAgentResponseJob < ApplicationJob
     setup_streaming_state
 
     debug_info "Starting response for agent '#{agent.name}' (model: #{agent.model_id})"
+    debug_info "Thinking: #{agent.uses_thinking? ? 'enabled' : 'disabled'}"
+
+    # Check for missing API key upfront for thinking-enabled agents
+    if agent.uses_thinking? && Chat.requires_direct_api_for_thinking?(agent.model_id) && !anthropic_api_available?
+      broadcast_error("Extended thinking requires Anthropic API access, but the API key is not configured.")
+      return
+    end
 
     context = chat.build_context_for_agent(agent)
     debug_info "Built context with #{context.length} messages"
-    context.each_with_index do |msg, i|
-      content_preview = msg[:content].is_a?(String) ? msg[:content].truncate(100) : msg[:content].class.name
-      debug_info "  [#{i}] #{msg[:role]}: #{content_preview}"
-    end
 
-    provider_config = llm_provider_for(agent.model_id)
+    provider_config = llm_provider_for(agent.model_id, thinking_enabled: agent.uses_thinking?)
     debug_info "Using provider: #{provider_config[:provider]}, model: #{provider_config[:model_id]}"
 
     llm = RubyLLM.chat(
@@ -35,6 +39,14 @@ class ManualAgentResponseJob < ApplicationJob
       assume_model_exists: true
     )
 
+    # Configure thinking if enabled for this agent
+    if agent.uses_thinking?
+      budget = agent.thinking_budget || 10000
+      llm = configure_thinking(llm, budget, provider_config[:provider])
+      debug_info "Configured thinking with budget: #{budget}"
+    end
+
+    # Tool setup
     tools_added = []
     agent.tools.each do |tool_class|
       tool = tool_class.new(chat: chat, current_agent: agent)
@@ -44,7 +56,6 @@ class ManualAgentResponseJob < ApplicationJob
     debug_info "Added #{tools_added.length} tools: #{tools_added.join(', ')}" if tools_added.any?
 
     llm.on_new_message do
-      # Ensure previous message is no longer streaming before creating a new one
       @ai_message&.stop_streaming if @ai_message&.streaming?
 
       debug_info "Creating new assistant message"
@@ -52,6 +63,7 @@ class ManualAgentResponseJob < ApplicationJob
         role: "assistant",
         agent: agent,
         content: "",
+        thinking: "",
         streaming: true
       )
       debug_info "Message created with ID: #{@ai_message.obfuscated_id}"
@@ -63,41 +75,40 @@ class ManualAgentResponseJob < ApplicationJob
     end
 
     llm.on_end_message do |msg|
-      debug_info "Response complete - #{msg.content&.length || 0} chars, #{msg.input_tokens || 0} input / #{msg.output_tokens || 0} output tokens"
+      debug_info "Response complete - #{msg.content&.length || 0} chars"
       finalize_message!(msg)
     end
 
-    # Add context messages individually, then complete
-    # This ensures the tool call loop continues until a final text response
     debug_info "Sending request to LLM..."
     start_time = Time.current
     context.each { |msg| llm.add_message(msg) }
+
     llm.complete do |chunk|
-      next unless chunk.content && @ai_message
-      enqueue_stream_chunk(chunk.content)
+      next unless @ai_message
+
+      # Handle thinking chunks (RubyLLM now provides unified chunk.thinking)
+      enqueue_thinking_chunk(chunk.thinking) if chunk.thinking.present?
+
+      # Handle content chunks
+      enqueue_stream_chunk(chunk.content) if chunk.content.present?
     end
+
     elapsed = ((Time.current - start_time) * 1000).round
     debug_info "LLM request completed in #{elapsed}ms"
   rescue RubyLLM::ModelNotFoundError => e
     debug_error "Model not found: #{e.message}"
     RubyLLM.models.refresh!
-    raise # Let retry_on handle it
-  rescue RubyLLM::BadRequestError => e
-    debug_error "Bad request error: #{e.message}"
+    raise
+  rescue RubyLLM::BadRequestError, RubyLLM::ServerError, RubyLLM::RateLimitError => e
+    debug_error "API error: #{e.message}"
+    broadcast_error("AI service error: #{e.message}")
     cleanup_partial_message
-    raise # Let retry_on handle it
-  rescue RubyLLM::ServerError => e
-    debug_error "Server error: #{e.message}"
-    cleanup_partial_message
-    raise # Let retry_on handle it
-  rescue RubyLLM::RateLimitError => e
-    debug_error "Rate limit error: #{e.message}"
-    cleanup_partial_message
-    raise # Let retry_on handle it
+    raise
   rescue Faraday::Error => e
     debug_error "Network error: #{e.class.name} - #{e.message}"
+    broadcast_error("Network error - please try again")
     cleanup_partial_message
-    raise # Let retry_on handle it
+    raise
   rescue StandardError => e
     debug_error "Unexpected error: #{e.class.name} - #{e.message}"
     raise
@@ -107,9 +118,32 @@ class ManualAgentResponseJob < ApplicationJob
 
   private
 
+  # Configures thinking on the LLM chat, with fallback for outdated model registry
+  def configure_thinking(llm, budget, provider)
+    llm.with_thinking(budget: budget)
+  rescue RubyLLM::UnsupportedFeatureError
+    # Model registry may be outdated - fall back to direct params for known providers
+    case provider
+    when :anthropic
+      max_tokens = budget + 8000
+      llm.with_params(
+        thinking: { type: "enabled", budget_tokens: budget },
+        max_tokens: max_tokens
+      )
+    else
+      raise # Re-raise for truly unsupported models
+    end
+  end
+
+  def broadcast_error(message)
+    @chat.broadcast_marker(
+      "Chat:#{@chat.to_param}",
+      { action: "error", message: message }
+    )
+  end
+
   def cleanup_partial_message
     return unless @ai_message&.persisted?
-    # Delete empty streaming messages that were created before the error
     @ai_message.destroy if @ai_message.content.blank? && @ai_message.streaming?
   end
 
