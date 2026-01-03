@@ -2,6 +2,7 @@ class Whiteboard < ApplicationRecord
 
   include Broadcastable
   include ObfuscatesId
+  include SyncAuthorizable
 
   MAX_RECOMMENDED_LENGTH = 10_000
 
