@@ -101,6 +101,12 @@
   // Error handling state
   let errorMessage = $state(null);
 
+  // Title editing state
+  let titleEditing = $state(false);
+  let titleEditValue = $state('');
+  let titleInputRef = $state(null);
+  let originalTitle = $state('');
+
   // Check if current user is a site admin
   const isSiteAdmin = $derived($page.props.user?.site_admin ?? false);
 
@@ -190,8 +196,8 @@
     return lastMessage && lastMessage.role === 'user';
   });
 
-  // Check if chat is initializing (no title yet but has messages)
-  const chatIsInitializing = $derived(chat && !chat.title && messages?.length > 0);
+  // Check if title is loading (no title yet but has messages) - cosmetic only, doesn't block functionality
+  const titleIsLoading = $derived(chat && !chat.title && messages?.length > 0);
 
   // Check if any agent is currently responding (streaming)
   const agentIsResponding = $derived(messages?.some((m) => m.streaming) ?? false);
@@ -319,6 +325,14 @@
       setTimeout(() => {
         scrollToBottomIfNeeded();
       }, 100);
+    }
+  });
+
+  // Focus title input when editing starts
+  $effect(() => {
+    if (titleEditing && titleInputRef) {
+      titleInputRef.focus();
+      titleInputRef.select();
     }
   });
 
@@ -500,6 +514,81 @@
     router.post(forkAccountChatPath(account.id, chat.id), { title: newTitle });
   }
 
+  function startEditingTitle() {
+    if (!chat) return;
+    originalTitle = chat.title || 'New Chat';
+    titleEditValue = originalTitle;
+    titleEditing = true;
+  }
+
+  function cancelEditingTitle() {
+    titleEditing = false;
+    titleEditValue = '';
+  }
+
+  function saveTitle() {
+    if (!chat || !titleEditValue.trim()) {
+      cancelEditingTitle();
+      return;
+    }
+
+    const newTitle = titleEditValue.trim();
+
+    // Optimistically update the UI
+    const previousTitle = chat.title;
+    chat.title = newTitle;
+    titleEditing = false;
+
+    router.patch(
+      `/accounts/${account.id}/chats/${chat.id}`,
+      {
+        chat: { title: newTitle },
+      },
+      {
+        preserveScroll: true,
+        preserveState: true,
+        onSuccess: () => {
+          logging.debug('Title updated successfully');
+        },
+        onError: (errors) => {
+          logging.error('Failed to update title:', errors);
+          // Revert to original title on error
+          chat.title = previousTitle;
+          errorMessage = 'Failed to update title';
+          setTimeout(() => (errorMessage = null), 3000);
+        },
+      }
+    );
+  }
+
+  function handleTitleKeydown(event) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      saveTitle();
+    } else if (event.key === 'Escape') {
+      event.preventDefault();
+      cancelEditingTitle();
+    }
+  }
+
+  function handleTitleBlur() {
+    saveTitle();
+  }
+
+  function handleTitleClick(event) {
+    // Single tap on mobile
+    if ('ontouchstart' in window) {
+      startEditingTitle();
+    }
+  }
+
+  function handleTitleDoubleClick(event) {
+    // Double-click on desktop
+    if (!('ontouchstart' in window)) {
+      startEditingTitle();
+    }
+  }
+
   async function saveWhiteboard() {
     if (!chat?.active_whiteboard) return;
 
@@ -657,14 +746,28 @@
           <List size={20} />
         </Button>
         <div class="flex-1 min-w-0">
-          <h1 class="text-lg font-semibold truncate">
-            {chat?.title || 'New Chat'}
-          </h1>
+          {#if titleEditing}
+            <input
+              bind:this={titleInputRef}
+              bind:value={titleEditValue}
+              onkeydown={handleTitleKeydown}
+              onblur={handleTitleBlur}
+              type="text"
+              class="text-lg font-semibold bg-background border border-primary rounded px-2 py-1 w-full focus:outline-none focus:ring-2 focus:ring-ring" />
+          {:else}
+            <h1
+              class="text-lg font-semibold truncate cursor-pointer hover:opacity-70 transition-opacity flex items-center gap-2"
+              onclick={handleTitleClick}
+              ondblclick={handleTitleDoubleClick}
+              title="Click to edit (double-click on desktop, single tap on mobile)">
+              {chat?.title || 'New Chat'}
+              {#if titleIsLoading}
+                <Spinner size={14} class="animate-spin text-muted-foreground flex-shrink-0" />
+              {/if}
+            </h1>
+          {/if}
           <div class="text-sm text-muted-foreground flex items-center gap-2">
-            {#if chat && !chat.title && messages?.length > 0}
-              <Spinner size={12} class="animate-spin" />
-              <span>Setting up...</span>
-            {:else if chat?.manual_responses}
+            {#if chat?.manual_responses}
               <ParticipantAvatars {agents} {messages} />
               <span class="ml-2">{formatTokenCount(totalTokens())} tokens</span>
             {:else}
@@ -960,11 +1063,7 @@
 
     <!-- Agent trigger bar for group chats -->
     {#if chat?.manual_responses && agents?.length > 0}
-      <AgentTriggerBar
-        {agents}
-        accountId={account.id}
-        chatId={chat.id}
-        disabled={chatIsInitializing || agentIsResponding} />
+      <AgentTriggerBar {agents} accountId={account.id} chatId={chat.id} disabled={agentIsResponding} />
     {/if}
 
     <!-- Message input -->

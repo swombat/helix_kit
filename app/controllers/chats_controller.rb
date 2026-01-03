@@ -100,9 +100,9 @@ class ChatsController < ApplicationController
     @chat = current_account.chats.find(params[:id])
 
     if @chat.update(chat_params)
-      head :ok
+      redirect_to account_chat_path(current_account, @chat)
     else
-      render json: { errors: @chat.errors.full_messages }, status: :unprocessable_entity
+      redirect_back_or_to account_chat_path(current_account, @chat), alert: @chat.errors.full_messages.to_sentence
     end
   end
 
@@ -120,7 +120,7 @@ class ChatsController < ApplicationController
 
   def chat_params
     params.fetch(:chat, {})
-      .permit(:model_id, :web_access, :manual_responses)
+      .permit(:model_id, :web_access, :manual_responses, :title)
   end
 
   def available_models
