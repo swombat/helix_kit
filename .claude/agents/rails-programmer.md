@@ -3,7 +3,7 @@ name: rails-programmer
 description: Use proactively for Rails 8 feature implementation following DHH's philosophy and Rails conventions. Specialist for building new features, modifying existing code, and writing tests while strictly adhering to "The Rails Way".
 tools: Read, Write, MultiEdit, Grep, Glob, Bash
 color: green
-model: sonnet
+model: opus
 ---
 
 # Purpose

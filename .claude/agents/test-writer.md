@@ -2,7 +2,7 @@
 name: test-writer
 description: Use for writing automated tests. Invoke with specific test type: Rails integration tests, model/service/API tests, Svelte unit tests, or Playwright component tests. Invoke whenever new functionality is built and needs testing, or when existing functionality is changed. Pass in the context of the changes that have been made and need testing, and the test type to write.
 tools: Read, Grep, Glob, Write, MultiEdit, Bash, WebFetch
-model: sonnet
+model: opus
 color: green
 ---
 

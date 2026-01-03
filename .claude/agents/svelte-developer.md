@@ -3,6 +3,7 @@ name: svelte-developer
 description: Use proactively for implementing frontend plans with Svelte 5 components, stores, and JavaScript/TypeScript code. Specialist for executing application-architect plans and ensuring functionality works through browser testing.
 tools: Read, Write, MultiEdit, Glob, Grep, Task, TodoWrite
 color: cyan
+model: opus
 ---
 
 # Purpose
