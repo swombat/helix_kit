@@ -47,6 +47,7 @@ class Message < ApplicationRecord
   validates :role, inclusion: { in: %w[user assistant system tool] }
   validates :content, presence: true, unless: -> { role.in?(%w[assistant tool]) || skip_content_validation }
   validate :acceptable_files
+  validate :not_duplicate_of_last_message, on: :create
 
   scope :sorted, -> { order(created_at: :asc) }
 
@@ -256,6 +257,19 @@ class Message < ApplicationRecord
     # Also accept files by extension (browsers often send wrong MIME types for text files)
     extension = File.extname(file.filename.to_s).downcase
     ACCEPTABLE_EXTENSIONS.include?(extension)
+  end
+
+  def not_duplicate_of_last_message
+    return if content.blank? || chat.nil?
+
+    # Only check against persisted messages (exclude any unsaved records in the association)
+    # Use reorder to override any default scope ordering
+    last_message = chat.messages.where.not(id: nil).reorder(created_at: :desc).first
+    return if last_message.nil?
+
+    if last_message.content == content
+      errors.add(:base, :duplicate_message, message: "This message was already sent")
+    end
   end
 
   def render_markdown

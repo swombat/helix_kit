@@ -30,7 +30,7 @@
   <title>Chats</title>
 </svelte:head>
 
-<div class="flex h-[calc(100vh-4rem)]">
+<div class="flex h-[calc(100dvh-4rem)]">
   <!-- Left sidebar: Chat list -->
   <ChatList
     {chats}

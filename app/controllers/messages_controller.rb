@@ -19,6 +19,12 @@ class MessagesController < ApplicationController
         format.html { redirect_to account_chat_path(@chat.account, @chat) }
         format.json { render json: @message, status: :created }
       end
+    elsif @message.errors.added?(:base, :duplicate_message)
+      # Duplicate message - just refresh the page silently
+      respond_to do |format|
+        format.html { redirect_to account_chat_path(@chat.account, @chat) }
+        format.json { render json: { duplicate: true }, status: :ok }
+      end
     else
       respond_to do |format|
         format.html { redirect_back_or_to account_chat_path(@chat.account, @chat), alert: "Failed to send message: #{@message.errors.full_messages.join(', ')}" }
