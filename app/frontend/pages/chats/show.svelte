@@ -913,7 +913,7 @@
     {/if}
 
     <!-- Messages container -->
-    <div bind:this={messagesContainer} class="flex-1 overflow-y-auto px-3 md:px-6 py-4 space-y-4">
+    <div bind:this={messagesContainer} class="flex-1 overflow-y-auto overflow-x-hidden px-3 md:px-6 py-4 space-y-4">
       {#if !Array.isArray(visibleMessages) || visibleMessages.length === 0}
         <div class="flex items-center justify-center h-full">
           <div class="text-center text-muted-foreground">
@@ -936,8 +936,8 @@
             {#if message.role === 'user'}
               <div class="flex justify-end">
                 <div class="max-w-[85%] md:max-w-[70%]">
-                  <Card.Root class={getBubbleClass(message.author_colour)}>
-                    <Card.Content class="p-4">
+                  <Card.Root class="{getBubbleClass(message.author_colour)} overflow-hidden">
+                    <Card.Content class="p-4 overflow-hidden">
                       {#if message.files_json && message.files_json.length > 0}
                         <div class="space-y-2 mb-3">
                           {#each message.files_json as file}
@@ -979,8 +979,8 @@
             {:else}
               <div class="flex justify-start">
                 <div class="max-w-[85%] md:max-w-[70%]">
-                  <Card.Root class={getBubbleClass(message.author_colour)}>
-                    <Card.Content class="p-4">
+                  <Card.Root class="{getBubbleClass(message.author_colour)} overflow-hidden">
+                    <Card.Content class="p-4 overflow-hidden">
                       {#if message.status === 'failed'}
                         <div class="text-red-600 mb-2 text-sm">Failed to generate response</div>
                         <Button variant="outline" size="sm" onclick={() => retryMessage(message.id)} class="mb-3">
