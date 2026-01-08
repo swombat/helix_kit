@@ -445,7 +445,15 @@ class Chat < ApplicationRecord
       text_content
     end
 
-    { role: role, content: content }
+    result = { role: role, content: content }
+
+    # Include thinking for assistant messages (required for extended thinking mode)
+    if role == "assistant" && message.thinking.present?
+      result[:thinking] = message.thinking
+      result[:thinking_signature] = message.thinking_signature if message.thinking_signature.present?
+    end
+
+    result
   end
 
 end
