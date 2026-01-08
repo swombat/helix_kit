@@ -25,7 +25,7 @@
   {#if expanded}
     <div
       transition:slide={{ duration: 200 }}
-      class="mt-2 pl-6 text-sm text-muted-foreground whitespace-pre-wrap font-mono bg-muted/30 rounded p-3 max-h-64 overflow-auto break-words">
+      class="mt-2 pl-6 text-sm text-muted-foreground whitespace-pre-wrap font-mono bg-muted/30 rounded p-3 max-h-64 overflow-y-auto">
       {content}
       {#if isStreaming}
         <span class="animate-pulse">|</span>

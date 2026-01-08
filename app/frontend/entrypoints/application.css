@@ -143,24 +143,3 @@
     @apply bg-background text-foreground;
   }
 }
-
-/* Prevent prose content from overflowing containers */
-.prose {
-  overflow-wrap: break-word;
-  word-wrap: break-word;
-  word-break: break-word;
-}
-
-.prose pre {
-  overflow-x: auto;
-  max-width: 100%;
-}
-
-.prose code {
-  overflow-wrap: break-word;
-  word-break: break-all;
-}
-
-.prose pre code {
-  word-break: normal;
-}
