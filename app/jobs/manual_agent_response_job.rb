@@ -20,8 +20,15 @@ class ManualAgentResponseJob < ApplicationJob
 
     debug_info "Starting response for agent '#{agent.name}' (model: #{agent.model_id})"
 
-    @use_thinking = agent.uses_thinking?
-    debug_info "Thinking: #{@use_thinking ? 'enabled' : 'disabled'}"
+    # Check if thinking is enabled AND compatible with this conversation.
+    # Anthropic requires all assistant messages to have valid thinking blocks with
+    # cryptographic signatures. If any historical messages lack these, we disable thinking.
+    @use_thinking = agent.uses_thinking? && chat.thinking_compatible_for?(agent)
+    if agent.uses_thinking? && !@use_thinking
+      debug_info "Thinking: disabled (conversation has messages without valid thinking blocks)"
+    else
+      debug_info "Thinking: #{@use_thinking ? 'enabled' : 'disabled'}"
+    end
 
     # Check for missing API key upfront for thinking-enabled agents
     if @use_thinking && Chat.requires_direct_api_for_thinking?(agent.model_id) && !anthropic_api_available?

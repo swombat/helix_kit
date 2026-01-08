@@ -122,10 +122,10 @@ class MultiModelThinkingToolTest < ActiveSupport::TestCase
     assert grok_memories.any?, "Grok should have saved a memory"
   end
 
-  test "placeholder thinking is added for historical messages without thinking" do
-    # This tests that when a thinking-enabled agent processes a conversation
-    # that has its own old assistant messages without thinking blocks,
-    # placeholder thinking is added to satisfy the API requirements.
+  test "thinking compatibility detects messages without thinking blocks" do
+    # This tests that when a thinking-enabled agent has old assistant messages
+    # without thinking blocks, thinking_compatible_for? returns false to prevent
+    # API errors (Anthropic requires valid cryptographic signatures on thinking blocks).
 
     # Create a thinking-enabled agent
     opus_agent = @account.agents.create!(
@@ -140,13 +140,19 @@ class MultiModelThinkingToolTest < ActiveSupport::TestCase
     chat = @account.chats.new(
       model_id: "openai/gpt-4o",
       manual_responses: true,
-      title: "Thinking Placeholder Test"
+      title: "Thinking Compatibility Test"
     )
     chat.agents = [ opus_agent ]
     chat.save!
 
+    # Initially, with no messages, thinking should be compatible
+    assert chat.thinking_compatible_for?(opus_agent), "Should be compatible with no messages"
+
     # Add user message
     chat.messages.create!(role: "user", user: @user, content: "Hello!")
+
+    # Still compatible (no assistant messages yet)
+    assert chat.thinking_compatible_for?(opus_agent), "Should be compatible with only user messages"
 
     # Add Opus's OLD response (created before thinking was enabled - no thinking block)
     chat.messages.create!(
@@ -156,20 +162,15 @@ class MultiModelThinkingToolTest < ActiveSupport::TestCase
       thinking: nil # No thinking - this simulates a message from before thinking was enabled
     )
 
-    # Add another user message
-    chat.messages.create!(role: "user", user: @user, content: "Tell me more.")
+    # Now NOT compatible - assistant message lacks thinking/signature
+    refute chat.thinking_compatible_for?(opus_agent),
+      "Should NOT be compatible when assistant message lacks thinking and signature"
 
-    # Build context for Opus (with thinking enabled now)
+    # Build context - thinking should NOT be included for the old message
     context = chat.build_context_for_agent(opus_agent, thinking_enabled: true)
-
-    # Find Opus's old message in the context (it should appear as "assistant" role since it's Opus's own message)
     opus_old_context_msg = context.find { |m| m[:role] == "assistant" && m[:content]&.include?("from the past") }
-    assert_not_nil opus_old_context_msg, "Opus's old message should be in context as assistant"
-
-    # Verify placeholder thinking was added
-    assert opus_old_context_msg[:thinking].present?, "Placeholder thinking should be added"
-    assert_includes opus_old_context_msg[:thinking], "Thinking not recorded",
-      "Placeholder should indicate thinking wasn't recorded"
+    assert_not_nil opus_old_context_msg, "Opus's old message should be in context"
+    assert_nil opus_old_context_msg[:thinking], "No thinking should be added (would cause API error)"
   end
 
   test "thinking messages preserve original thinking content" do
@@ -214,10 +215,11 @@ class MultiModelThinkingToolTest < ActiveSupport::TestCase
     assert_equal "sig123", opus_context_msg[:thinking_signature]
   end
 
-  test "continuation of conversation with thinking agent joining" do
-    # This tests the placeholder thinking feature:
-    # When an agent with thinking joins a conversation that already has
-    # messages without thinking, the placeholder should allow it to work.
+  test "thinking agent can join conversation with non-thinking agent messages" do
+    # This tests that a thinking-enabled agent can join a conversation where
+    # other agents (without thinking) have already responded. Since other agents'
+    # messages appear as "user" role in the thinking agent's context, they don't
+    # need thinking blocks.
 
     # Create a non-thinking agent first
     grok_agent = @account.agents.create!(
@@ -262,6 +264,10 @@ class MultiModelThinkingToolTest < ActiveSupport::TestCase
       assert_not_nil grok_msg
       assert grok_msg.thinking.blank?, "Grok should not have thinking"
 
+      # Verify Opus is still thinking-compatible (Grok's messages don't affect it)
+      assert chat.thinking_compatible_for?(opus_agent),
+        "Opus should be thinking-compatible (other agents' messages don't affect compatibility)"
+
       # User asks Opus to remember something
       chat.messages.create!(
         role: "user",
@@ -270,7 +276,7 @@ class MultiModelThinkingToolTest < ActiveSupport::TestCase
       )
 
       # Opus responds (with thinking enabled)
-      # This should work because placeholder thinking is added for Grok's message
+      # This works because Grok's messages appear as "user" role in Opus's context
       ManualAgentResponseJob.perform_now(chat, opus_agent)
 
       opus_msg = chat.messages.where(role: "assistant", agent: opus_agent).last

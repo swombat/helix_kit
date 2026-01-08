@@ -341,6 +341,17 @@ class Chat < ApplicationRecord
     [ system_message_for(agent) ] + messages_context_for(agent, thinking_enabled: thinking_enabled)
   end
 
+  # Checks if extended thinking can be used for this agent in this conversation.
+  # Returns false if any of the agent's historical assistant messages lack
+  # thinking content AND signature (Anthropic requires valid signed thinking blocks).
+  def thinking_compatible_for?(agent)
+    agent_messages = messages.where(role: "assistant", agent_id: agent.id)
+    agent_messages.all? do |msg|
+      # Message is compatible if it has both thinking content and signature
+      msg.thinking.present? && msg.thinking_signature.present?
+    end
+  end
+
   private
 
   def configure_for_openrouter
@@ -459,15 +470,11 @@ class Chat < ApplicationRecord
     result = { role: role, content: content }
 
     # Include thinking for assistant messages when thinking mode is enabled.
-    # The Anthropic API requires ALL assistant messages to have thinking blocks when thinking is enabled.
-    if role == "assistant" && thinking_enabled
-      if message.thinking.present?
-        result[:thinking] = message.thinking
-        result[:thinking_signature] = message.thinking_signature if message.thinking_signature.present?
-      else
-        # Placeholder for messages created before thinking was enabled
-        result[:thinking] = "[Thinking not recorded for this historical message]"
-      end
+    # Only include if both thinking content AND signature are present (Anthropic
+    # requires valid cryptographic signatures on thinking blocks).
+    if role == "assistant" && thinking_enabled && message.thinking.present?
+      result[:thinking] = message.thinking
+      result[:thinking_signature] = message.thinking_signature if message.thinking_signature.present?
     end
 
     result
