@@ -764,7 +764,7 @@
     onClose={() => (sidebarOpen = false)} />
 
   <!-- Right side: Chat messages -->
-  <main class="flex-1 flex flex-col bg-background">
+  <main class="flex-1 flex flex-col bg-background min-w-0">
     <!-- Chat header -->
     <header class="border-b border-border bg-muted/30 px-4 md:px-6 py-3 md:py-4">
       <div class="flex items-center gap-3">
@@ -782,11 +782,11 @@
               class="text-lg font-semibold bg-background border border-primary rounded px-2 py-1 w-full focus:outline-none focus:ring-2 focus:ring-ring" />
           {:else}
             <h1
-              class="text-lg font-semibold truncate cursor-pointer hover:opacity-70 transition-opacity flex items-center gap-2"
+              class="text-lg font-semibold cursor-pointer hover:opacity-70 transition-opacity flex items-center gap-2 min-w-0"
               onclick={handleTitleClick}
               ondblclick={handleTitleDoubleClick}
               title="Click to edit (double-click on desktop, single tap on mobile)">
-              {chat?.title || 'New Chat'}
+              <span class="truncate">{chat?.title || 'New Chat'}</span>
               {#if titleIsLoading}
                 <Spinner size={14} class="animate-spin text-muted-foreground flex-shrink-0" />
               {/if}
