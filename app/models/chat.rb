@@ -337,8 +337,8 @@ class Chat < ApplicationRecord
     end
   end
 
-  def build_context_for_agent(agent)
-    [ system_message_for(agent) ] + messages_context_for(agent)
+  def build_context_for_agent(agent, thinking_enabled: false)
+    [ system_message_for(agent) ] + messages_context_for(agent, thinking_enabled: thinking_enabled)
   end
 
   private
@@ -375,6 +375,10 @@ class Chat < ApplicationRecord
       parts << whiteboard_index
     end
 
+    if (topic = conversation_topic_context)
+      parts << topic
+    end
+
     if (active_board = active_whiteboard_context)
       parts << active_board
     end
@@ -407,10 +411,17 @@ class Chat < ApplicationRecord
     "#{active_whiteboard.content}"
   end
 
-  def messages_context_for(agent)
+  def conversation_topic_context
+    return unless title.present?
+
+    "# Conversation Topic\n\n" \
+    "This conversation is titled: \"#{title}\""
+  end
+
+  def messages_context_for(agent, thinking_enabled: false)
     messages.includes(:user, :agent).order(:created_at)
       .reject { |msg| msg.content.blank? }  # Filter out empty messages (e.g., before tool calls)
-      .map { |msg| format_message_for_context(msg, agent) }
+      .map { |msg| format_message_for_context(msg, agent, thinking_enabled: thinking_enabled) }
   end
 
   def participant_description(current_agent)
@@ -425,7 +436,7 @@ class Chat < ApplicationRecord
     parts.join(". ")
   end
 
-  def format_message_for_context(message, current_agent)
+  def format_message_for_context(message, current_agent, thinking_enabled: false)
     text_content = if message.agent_id == current_agent.id
       message.content
     elsif message.agent_id.present?
@@ -447,10 +458,16 @@ class Chat < ApplicationRecord
 
     result = { role: role, content: content }
 
-    # Include thinking for assistant messages (required for extended thinking mode)
-    if role == "assistant" && message.thinking.present?
-      result[:thinking] = message.thinking
-      result[:thinking_signature] = message.thinking_signature if message.thinking_signature.present?
+    # Include thinking for assistant messages when thinking mode is enabled.
+    # The Anthropic API requires ALL assistant messages to have thinking blocks when thinking is enabled.
+    if role == "assistant" && thinking_enabled
+      if message.thinking.present?
+        result[:thinking] = message.thinking
+        result[:thinking_signature] = message.thinking_signature if message.thinking_signature.present?
+      else
+        # Placeholder for messages created before thinking was enabled
+        result[:thinking] = "[Thinking not recorded for this historical message]"
+      end
     end
 
     result

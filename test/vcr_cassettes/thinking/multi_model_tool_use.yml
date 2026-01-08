@@ -1,0 +1,1195 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://api.anthropic.com/v1/messages
+    body:
+      encoding: UTF-8
+      string: '{"model":"claude-opus-4-5-20251101","messages":[{"role":"user","content":[{"type":"text","text":"[Test
+        User]: Each of you, please use the save_memory tool to remember the following
+        fact about yourself: ''I participated in the multi-model thinking test''.
+        Keep your response to one sentence after saving."}]}],"stream":true,"max_tokens":13000,"tools":[{"name":"save_memory","description":"Save
+        a memory. Use ''journal'' for short-term observations (fades after a week)
+        or ''core'' for permanent identity memories.","input_schema":{"type":"object","properties":{"content":{"type":"string","description":"The
+        memory to save (keep it concise)"},"memory_type":{"type":"string","description":"Either
+        ''journal'' or ''core''"}},"required":["content","memory_type"],"additionalProperties":false,"strict":true}}],"system":[{"type":"text","text":"You
+        are Claude Opus. When asked to remember something, use the save_memory tool
+        to store it as a ''journal'' memory. Keep your response brief.\n\n# Conversation
+        Topic\n\nThis conversation is titled: \"Multi-Model Thinking Test\"\n\nYou
+        are participating in a group conversation.\n\nOther participants: Humans:
+        multimodel-test. AI Agents: GPT, Gemini, Grok."}],"thinking":{"type":"enabled","budget_tokens":5000}}'
+    headers:
+      User-Agent:
+      - Faraday v2.14.0
+      x-api-key:
+      - "<CLAUDE_API_KEY>"
+      anthropic-version:
+      - '2023-06-01'
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      date:
+      - Thu, 08 Jan 2026 20:45:23 GMT
+      content-type:
+      - text/event-stream; charset=utf-8
+      transfer-encoding:
+      - chunked
+      connection:
+      - keep-alive
+      cache-control:
+      - no-cache
+      anthropic-ratelimit-input-tokens-limit:
+      - '2000000'
+      anthropic-ratelimit-input-tokens-remaining:
+      - '2000000'
+      anthropic-ratelimit-input-tokens-reset:
+      - '2026-01-08T20:45:20Z'
+      anthropic-ratelimit-output-tokens-limit:
+      - '400000'
+      anthropic-ratelimit-output-tokens-remaining:
+      - '400000'
+      anthropic-ratelimit-output-tokens-reset:
+      - '2026-01-08T20:45:20Z'
+      anthropic-ratelimit-requests-limit:
+      - '4000'
+      anthropic-ratelimit-requests-remaining:
+      - '3999'
+      anthropic-ratelimit-requests-reset:
+      - '2026-01-08T20:45:20Z'
+      anthropic-ratelimit-tokens-limit:
+      - '2400000'
+      anthropic-ratelimit-tokens-remaining:
+      - '2400000'
+      anthropic-ratelimit-tokens-reset:
+      - '2026-01-08T20:45:20Z'
+      request-id:
+      - req_011CWvZgWwitaX1yYexNjopZ
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      anthropic-organization-id:
+      - 6a8e33e6-86cf-4a52-bdb3-c4eef5c23fc1
+      server:
+      - cloudflare
+      x-envoy-upstream-service-time:
+      - '2633'
+      cf-cache-status:
+      - DYNAMIC
+      x-robots-tag:
+      - none
+      cf-ray:
+      - 9bae89b9f8132c77-MRS
+    body:
+      encoding: UTF-8
+      string: |+
+        event: message_start
+        data: {"type":"message_start","message":{"model":"claude-opus-4-5-20251101","id":"msg_01QAB6tfyKGZ9dWUt3NviEb8","type":"message","role":"assistant","content":[],"stop_reason":null,"stop_sequence":null,"usage":{"input_tokens":803,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":3,"service_tier":"standard"}}         }
+
+        event: content_block_start
+        data: {"type":"content_block_start","index":0,"content_block":{"type":"thinking","thinking":"","signature":""}          }
+
+        event: content_block_delta
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"thinking_delta","thinking":"The user is"}}
+
+        event: ping
+        data: {"type": "ping"}
+
+        event: content_block_delta
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"thinking_delta","thinking":" asking me to save"}     }
+
+        event: content_block_delta
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"thinking_delta","thinking":" a memory about participating"}             }
+
+        event: content_block_delta
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"thinking_delta","thinking":" in this"}          }
+
+        event: content_block_delta
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"thinking_delta","thinking":" multi-model thinking test. I"}             }
+
+        event: content_block_delta
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"thinking_delta","thinking":" shoul"}}
+
+        event: content_block_delta
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"thinking_delta","thinking":"d use the save_memory tool with"}    }
+
+        event: content_block_delta
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"thinking_delta","thinking":" "}            }
+
+        event: content_block_delta
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"thinking_delta","thinking":"'journal' type"}             }
+
+        event: content_block_delta
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"thinking_delta","thinking":" since"} }
+
+        event: content_block_delta
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"thinking_delta","thinking":" this is a short"}    }
+
+        event: content_block_delta
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"thinking_delta","thinking":"-term observation"}         }
+
+        event: content_block_delta
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"thinking_delta","thinking":" about"}        }
+
+        event: content_block_delta
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"thinking_delta","thinking":" an"}           }
+
+        event: content_block_delta
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"thinking_delta","thinking":" event"}              }
+
+        event: content_block_delta
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"thinking_delta","thinking":"."}             }
+
+        event: content_block_delta
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"thinking_delta","thinking":""}         }
+
+        event: content_block_delta
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"signature_delta","signature":"EvMCCkYICxgCKkBfjbE+8iQxCZGsPIYOZuGbGMNctmsE3OzhkAdF37TPXIrvnuEosyn2gLsVpM/gev0g00IscT5B5cuDBqqKLRpCEgx5ZrKBEOKdAn82j/AaDEl4m45jEqGuE4NgeSIwNdnJHFbv8Qgx5XdQkzqZ2vNpnX5lcHoHxhSrfAWnb5+MRXJ3+wI6uEqdZNgxdZG6KtoBBG7Uoy/jig6u0C2MLLypj3Bg9+jd/C0aiTUvbkJ1ZvJ5RxvQZByZ3hvwou5jVrgIwhZtkssa4XjDp/LJSYMR0WWR6cjqIK5dAQEIXQGKnlQve6V1BjBIurDcgVwONvcrAOrngHfHLpa8f2Vj4tS58P5j9QS/stNffb4mJEWdXTutpfxvkitTXpCDoXgxCc3wuY1Mw6vJ37RroPE/Dvm7hIzeGIIVzY/FO5m41gJMGgvjoo1FKG+g6EHqvIBUP4wAWXRAOWX7i+kVNGEiG5vx8QIyLSXx1xxes0cYAQ=="}         }
+
+        event: content_block_stop
+        data: {"type":"content_block_stop","index":0}
+
+        event: content_block_start
+        data: {"type":"content_block_start","index":1,"content_block":{"type":"tool_use","id":"toolu_01TwLi3uQee7k5hkjgE2FtfA","name":"save_memory","input":{}}          }
+
+        event: content_block_delta
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"input_json_delta","partial_json":""}  }
+
+        event: content_block_delta
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"input_json_delta","partial_json":"{\"content\":"}   }
+
+        event: content_block_delta
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"input_json_delta","partial_json":" \"I pa"}          }
+
+        event: content_block_delta
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"input_json_delta","partial_json":"rt"}               }
+
+        event: content_block_delta
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"input_json_delta","partial_json":"ici"}     }
+
+        event: content_block_delta
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"input_json_delta","partial_json":"pated"} }
+
+        event: content_block_delta
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"input_json_delta","partial_json":" in t"}         }
+
+        event: content_block_delta
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"input_json_delta","partial_json":"he mul"}}
+
+        event: content_block_delta
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"input_json_delta","partial_json":"ti-mo"}     }
+
+        event: content_block_delta
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"input_json_delta","partial_json":"del t"}     }
+
+        event: content_block_delta
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"input_json_delta","partial_json":"hinking t"}          }
+
+        event: content_block_delta
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"input_json_delta","partial_json":"est\""}             }
+
+        event: content_block_delta
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"input_json_delta","partial_json":", \"memory_"}     }
+
+        event: content_block_delta
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"input_json_delta","partial_json":"type\": \"j"}       }
+
+        event: content_block_delta
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"input_json_delta","partial_json":"ourna"} }
+
+        event: content_block_delta
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"input_json_delta","partial_json":"l\"}"}       }
+
+        event: content_block_stop
+        data: {"type":"content_block_stop","index":1         }
+
+        event: message_delta
+        data: {"type":"message_delta","delta":{"stop_reason":"tool_use","stop_sequence":null},"usage":{"input_tokens":803,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"output_tokens":133}  }
+
+        event: message_stop
+        data: {"type":"message_stop"}
+
+  recorded_at: Thu, 08 Jan 2026 20:45:24 GMT
+- request:
+    method: post
+    uri: https://openrouter.ai/api/v1/chat/completions
+    body:
+      encoding: UTF-8
+      string: '{"model":"openai/gpt-5.2","messages":[{"role":"developer","content":"You
+        are GPT. When asked to remember something, use the save_memory tool to store
+        it as a ''journal'' memory. Keep your response brief.\n\n# Conversation Topic\n\nThis
+        conversation is titled: \"Multi-Model Thinking Test\"\n\nYou are participating
+        in a group conversation.\n\nOther participants: Humans: multimodel-test. AI
+        Agents: Claude Opus, Gemini, Grok."},{"role":"user","content":"[Test User]:
+        Each of you, please use the save_memory tool to remember the following fact
+        about yourself: ''I participated in the multi-model thinking test''. Keep
+        your response to one sentence after saving."}],"stream":true,"tools":[{"type":"function","function":{"name":"save_memory","description":"Save
+        a memory. Use ''journal'' for short-term observations (fades after a week)
+        or ''core'' for permanent identity memories.","parameters":{"type":"object","properties":{"content":{"type":"string","description":"The
+        memory to save (keep it concise)"},"memory_type":{"type":"string","description":"Either
+        ''journal'' or ''core''"}},"required":["content","memory_type"],"additionalProperties":false,"strict":true}}}],"stream_options":{"include_usage":true},"reasoning":{"effort":"medium","summary":"auto"},"max_completion_tokens":13000}'
+    headers:
+      User-Agent:
+      - Faraday v2.14.0
+      Authorization:
+      - Bearer <OPENROUTER_API_KEY>
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      date:
+      - Thu, 08 Jan 2026 20:45:24 GMT
+      content-type:
+      - text/event-stream
+      transfer-encoding:
+      - chunked
+      connection:
+      - keep-alive
+      cf-ray:
+      - 9bae89d48bcd164b-MRS
+      access-control-allow-origin:
+      - "*"
+      cache-control:
+      - no-cache
+      vary:
+      - Accept-Encoding
+      permissions-policy:
+      - payment=(self "https://checkout.stripe.com" "https://connect-js.stripe.com"
+        "https://js.stripe.com" "https://*.js.stripe.com" "https://hooks.stripe.com")
+      referrer-policy:
+      - no-referrer, strict-origin-when-cross-origin
+      x-content-type-options:
+      - nosniff
+      server:
+      - cloudflare
+    body:
+      encoding: UTF-8
+      string: |+
+        data: {"id":"gen-1767905124-BCgNAePUnEjiDsHTDcbH","provider":"OpenAI","model":"openai/gpt-5.2","object":"chat.completion.chunk","created":1767905124,"choices":[{"index":0,"delta":{"role":"assistant","content":""},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1767905124-BCgNAePUnEjiDsHTDcbH","provider":"OpenAI","model":"openai/gpt-5.2","object":"chat.completion.chunk","created":1767905124,"choices":[{"index":0,"delta":{"role":"assistant","content":null,"tool_calls":[{"id":"call_TNiluci7uRpqunX6wv7GB9N8","index":0,"type":"function","function":{"name":"save_memory","arguments":""}}]},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1767905124-BCgNAePUnEjiDsHTDcbH","provider":"OpenAI","model":"openai/gpt-5.2","object":"chat.completion.chunk","created":1767905124,"choices":[{"index":0,"delta":{"role":"assistant","content":null,"tool_calls":[{"index":0,"type":"function","function":{"arguments":"{\""}}]},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1767905124-BCgNAePUnEjiDsHTDcbH","provider":"OpenAI","model":"openai/gpt-5.2","object":"chat.completion.chunk","created":1767905124,"choices":[{"index":0,"delta":{"role":"assistant","content":null,"tool_calls":[{"index":0,"type":"function","function":{"arguments":"content"}}]},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1767905124-BCgNAePUnEjiDsHTDcbH","provider":"OpenAI","model":"openai/gpt-5.2","object":"chat.completion.chunk","created":1767905124,"choices":[{"index":0,"delta":{"role":"assistant","content":null,"tool_calls":[{"index":0,"type":"function","function":{"arguments":"\":\""}}]},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1767905124-BCgNAePUnEjiDsHTDcbH","provider":"OpenAI","model":"openai/gpt-5.2","object":"chat.completion.chunk","created":1767905124,"choices":[{"index":0,"delta":{"role":"assistant","content":null,"tool_calls":[{"index":0,"type":"function","function":{"arguments":"I"}}]},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1767905124-BCgNAePUnEjiDsHTDcbH","provider":"OpenAI","model":"openai/gpt-5.2","object":"chat.completion.chunk","created":1767905124,"choices":[{"index":0,"delta":{"role":"assistant","content":null,"tool_calls":[{"index":0,"type":"function","function":{"arguments":" participated"}}]},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1767905124-BCgNAePUnEjiDsHTDcbH","provider":"OpenAI","model":"openai/gpt-5.2","object":"chat.completion.chunk","created":1767905124,"choices":[{"index":0,"delta":{"role":"assistant","content":null,"tool_calls":[{"index":0,"type":"function","function":{"arguments":" in"}}]},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1767905124-BCgNAePUnEjiDsHTDcbH","provider":"OpenAI","model":"openai/gpt-5.2","object":"chat.completion.chunk","created":1767905124,"choices":[{"index":0,"delta":{"role":"assistant","content":null,"tool_calls":[{"index":0,"type":"function","function":{"arguments":" the"}}]},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1767905124-BCgNAePUnEjiDsHTDcbH","provider":"OpenAI","model":"openai/gpt-5.2","object":"chat.completion.chunk","created":1767905124,"choices":[{"index":0,"delta":{"role":"assistant","content":null,"tool_calls":[{"index":0,"type":"function","function":{"arguments":" multi"}}]},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1767905124-BCgNAePUnEjiDsHTDcbH","provider":"OpenAI","model":"openai/gpt-5.2","object":"chat.completion.chunk","created":1767905124,"choices":[{"index":0,"delta":{"role":"assistant","content":null,"tool_calls":[{"index":0,"type":"function","function":{"arguments":"-model"}}]},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1767905124-BCgNAePUnEjiDsHTDcbH","provider":"OpenAI","model":"openai/gpt-5.2","object":"chat.completion.chunk","created":1767905124,"choices":[{"index":0,"delta":{"role":"assistant","content":null,"tool_calls":[{"index":0,"type":"function","function":{"arguments":" thinking"}}]},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1767905124-BCgNAePUnEjiDsHTDcbH","provider":"OpenAI","model":"openai/gpt-5.2","object":"chat.completion.chunk","created":1767905124,"choices":[{"index":0,"delta":{"role":"assistant","content":null,"tool_calls":[{"index":0,"type":"function","function":{"arguments":" test"}}]},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1767905124-BCgNAePUnEjiDsHTDcbH","provider":"OpenAI","model":"openai/gpt-5.2","object":"chat.completion.chunk","created":1767905124,"choices":[{"index":0,"delta":{"role":"assistant","content":null,"tool_calls":[{"index":0,"type":"function","function":{"arguments":".\",\""}}]},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1767905124-BCgNAePUnEjiDsHTDcbH","provider":"OpenAI","model":"openai/gpt-5.2","object":"chat.completion.chunk","created":1767905124,"choices":[{"index":0,"delta":{"role":"assistant","content":null,"tool_calls":[{"index":0,"type":"function","function":{"arguments":"memory"}}]},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1767905124-BCgNAePUnEjiDsHTDcbH","provider":"OpenAI","model":"openai/gpt-5.2","object":"chat.completion.chunk","created":1767905124,"choices":[{"index":0,"delta":{"role":"assistant","content":null,"tool_calls":[{"index":0,"type":"function","function":{"arguments":"_type"}}]},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1767905124-BCgNAePUnEjiDsHTDcbH","provider":"OpenAI","model":"openai/gpt-5.2","object":"chat.completion.chunk","created":1767905124,"choices":[{"index":0,"delta":{"role":"assistant","content":null,"tool_calls":[{"index":0,"type":"function","function":{"arguments":"\":\""}}]},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1767905124-BCgNAePUnEjiDsHTDcbH","provider":"OpenAI","model":"openai/gpt-5.2","object":"chat.completion.chunk","created":1767905124,"choices":[{"index":0,"delta":{"role":"assistant","content":null,"tool_calls":[{"index":0,"type":"function","function":{"arguments":"journal"}}]},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1767905124-BCgNAePUnEjiDsHTDcbH","provider":"OpenAI","model":"openai/gpt-5.2","object":"chat.completion.chunk","created":1767905124,"choices":[{"index":0,"delta":{"role":"assistant","content":null,"tool_calls":[{"index":0,"type":"function","function":{"arguments":"\"}"}}]},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1767905124-BCgNAePUnEjiDsHTDcbH","provider":"OpenAI","model":"openai/gpt-5.2","object":"chat.completion.chunk","created":1767905124,"choices":[{"index":0,"delta":{"role":"assistant","content":""},"finish_reason":"tool_calls","native_finish_reason":"completed","logprobs":null}]}
+
+        data: {"id":"gen-1767905124-BCgNAePUnEjiDsHTDcbH","provider":"OpenAI","model":"openai/gpt-5.2","object":"chat.completion.chunk","created":1767905124,"choices":[{"index":0,"delta":{"role":"assistant","content":""},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"usage":{"prompt_tokens":206,"completion_tokens":30,"total_tokens":236,"cost":0,"is_byok":true,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0,"video_tokens":0},"cost_details":{"upstream_inference_cost":0.0007805,"upstream_inference_prompt_cost":0.0003605,"upstream_inference_completions_cost":0.00042},"completion_tokens_details":{"reasoning_tokens":0,"image_tokens":0}}}
+
+        data: [DONE]
+
+  recorded_at: Thu, 08 Jan 2026 20:45:25 GMT
+- request:
+    method: post
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-preview:streamGenerateContent?alt=sse
+    body:
+      encoding: UTF-8
+      string: '{"contents":[{"role":"user","parts":[{"text":"You are Gemini. When
+        asked to remember something, use the save_memory tool to store it as a ''journal''
+        memory. Keep your response brief.\n\n# Conversation Topic\n\nThis conversation
+        is titled: \"Multi-Model Thinking Test\"\n\nYou are participating in a group
+        conversation.\n\nOther participants: Humans: multimodel-test. AI Agents: Claude
+        Opus, GPT, Grok."}]},{"role":"user","parts":[{"text":"[Test User]: Each of
+        you, please use the save_memory tool to remember the following fact about
+        yourself: ''I participated in the multi-model thinking test''. Keep your response
+        to one sentence after saving."}]}],"generationConfig":{"thinkingConfig":{"includeThoughts":true,"thinkingLevel":"low"}},"tools":[{"functionDeclarations":[{"name":"save_memory","description":"Save
+        a memory. Use ''journal'' for short-term observations (fades after a week)
+        or ''core'' for permanent identity memories.","parameters":{"type":"OBJECT","properties":{"content":{"type":"STRING","description":"The
+        memory to save (keep it concise)"},"memory_type":{"type":"STRING","description":"Either
+        ''journal'' or ''core''"}},"required":["content","memory_type"]}}]}]}'
+    headers:
+      User-Agent:
+      - Faraday v2.14.0
+      x-goog-api-key:
+      - "<GEMINI_API_KEY>"
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      content-type:
+      - text/event-stream
+      content-disposition:
+      - attachment
+      vary:
+      - Origin, X-Origin, Referer
+      transfer-encoding:
+      - chunked
+      date:
+      - Thu, 08 Jan 2026 20:45:28 GMT
+      server:
+      - scaffolding on HTTPServer2
+      x-xss-protection:
+      - '0'
+      x-frame-options:
+      - SAMEORIGIN
+      x-content-type-options:
+      - nosniff
+      server-timing:
+      - gfet4t7; dur=3136
+      alt-svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+    body:
+      encoding: UTF-8
+      string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"**Initiating
+        the Analysis**\\n\\nI've initiated the analysis of this request. My primary
+        task is clear: I must employ the `save_memory` tool. The key piece of information
+        to be remembered is, \\\"I participated in the multi-model thinking test.\\\"
+        I am now focusing on how best to integrate this task.\\n\\n\\n\",\"thought\":
+        true}],\"role\": \"model\"},\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\":
+        233,\"totalTokenCount\": 233,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
+        233}]},\"modelVersion\": \"gemini-3-pro-preview\",\"responseId\": \"aBdgaYjEKbWGxs0PoMibyQI\"}\r\n\r\ndata:
+        {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"**Defining Memory
+        Type**\\n\\nI've determined that the appropriate memory type for this situation
+        is \\\"journal,\\\" as directed. I've stored the key information using this
+        method. My primary focus is now on incorporating this saved memory into the
+        broader thought process and the ongoing analysis. I am now exploring how best
+        to use the journal entry to meet the user's needs.\\n\\n\\n\",\"thought\":
+        true}],\"role\": \"model\"},\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\":
+        233,\"totalTokenCount\": 233,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
+        233}]},\"modelVersion\": \"gemini-3-pro-preview\",\"responseId\": \"aBdgaYjEKbWGxs0PoMibyQI\"}\r\n\r\ndata:
+        {\"candidates\": [{\"content\": {\"parts\": [{\"functionCall\": {\"name\":
+        \"save_memory\",\"args\": {\"memory_type\": \"journal\",\"content\": \"I participated
+        in the multi-model thinking test\"}},\"thoughtSignature\": \"Eo0ECooEAXLI2nwJN5ywukyv3JNp+/mkG8AVc90L8agQz376jytOljGcGm1SArAq2cbkxhU9JeezxY6Mul6cXFBox9r0fmCr56BX0lEGEhV1VUxS5zj9czHTeQRfZyqni3fCdCRfYaCpPFTKIbxKb8z4zKCvAX8LKJ5hdp87qlazMQMCSb3AX9OJqpGgSwJLyrunr5RZFJ0wTESyykEVhTneDDtodZIgrbO949Aj0ZJfMUAmzwioMLFvqWv39c3sSCZzlK9vZbdtjYk2aVaItIGlTpmjMMcIqC4UW4i0Rhz9ZjKSc9McXm6oNzZ3qesrdJKtHdZJ46PcU1SsCso7jPDQ5mjbsGeyma6VrkbguEbX5sLuWYFh3hEAVKjel36L3rbXCATkbP/pEG3JmVeuaH0CqZlf4g3GsXz2di83iffozxC9hiHSIjY0m91YP4vogGPJp89pG+MQtvUvrKyEgAfH5p311QAhwR4sgXz1rqI6CPnV7Yzj8C7Zmh7VHWxY96T+IaKYZ9A03FwsbUwuyDrgm2dnfjK56u1AGUZxt/+YVF2bLReA+pY//YBV2ATgqtJtri+wijuBeZ2sh7x5wai1/uPzG70pU5mbPpFCWoUppTKPBEK2AK53Y362ES3uAVFoCSGAl8z/itAixfEIcVQMDmZnZ4jofjF7xoDGmXNJ1NA2gEOflN+a2tgeYTRv\"}],\"role\":
+        \"model\"},\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\": 233,\"candidatesTokenCount\":
+        32,\"totalTokenCount\": 371,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
+        233}],\"thoughtsTokenCount\": 106},\"modelVersion\": \"gemini-3-pro-preview\",\"responseId\":
+        \"aBdgaYjEKbWGxs0PoMibyQI\"}\r\n\r\ndata: {\"candidates\": [{\"content\":
+        {\"parts\": [{\"text\": \"\"}],\"role\": \"model\"},\"finishReason\": \"STOP\",\"index\":
+        0}],\"usageMetadata\": {\"promptTokenCount\": 233,\"candidatesTokenCount\":
+        32,\"totalTokenCount\": 371,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
+        233}],\"thoughtsTokenCount\": 106},\"modelVersion\": \"gemini-3-pro-preview\",\"responseId\":
+        \"aBdgaYjEKbWGxs0PoMibyQI\"}\r\n\r\n"
+  recorded_at: Thu, 08 Jan 2026 20:45:29 GMT
+- request:
+    method: post
+    uri: https://openrouter.ai/api/v1/chat/completions
+    body:
+      encoding: UTF-8
+      string: '{"model":"x-ai/grok-4","messages":[{"role":"developer","content":"You
+        are Grok. When asked to remember something, use the save_memory tool to store
+        it as a ''journal'' memory. Keep your response brief.\n\n# Conversation Topic\n\nThis
+        conversation is titled: \"Multi-Model Thinking Test\"\n\nYou are participating
+        in a group conversation.\n\nOther participants: Humans: multimodel-test. AI
+        Agents: Claude Opus, GPT, Gemini."},{"role":"user","content":"[Test User]:
+        Each of you, please use the save_memory tool to remember the following fact
+        about yourself: ''I participated in the multi-model thinking test''. Keep
+        your response to one sentence after saving."}],"stream":true,"tools":[{"type":"function","function":{"name":"save_memory","description":"Save
+        a memory. Use ''journal'' for short-term observations (fades after a week)
+        or ''core'' for permanent identity memories.","parameters":{"type":"object","properties":{"content":{"type":"string","description":"The
+        memory to save (keep it concise)"},"memory_type":{"type":"string","description":"Either
+        ''journal'' or ''core''"}},"required":["content","memory_type"],"additionalProperties":false,"strict":true}}}],"stream_options":{"include_usage":true}}'
+    headers:
+      User-Agent:
+      - Faraday v2.14.0
+      Authorization:
+      - Bearer <OPENROUTER_API_KEY>
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      date:
+      - Thu, 08 Jan 2026 20:45:29 GMT
+      content-type:
+      - text/event-stream
+      transfer-encoding:
+      - chunked
+      connection:
+      - keep-alive
+      cf-ray:
+      - 9bae89f2bb96164b-MRS
+      access-control-allow-origin:
+      - "*"
+      cache-control:
+      - no-cache
+      vary:
+      - Accept-Encoding
+      permissions-policy:
+      - payment=(self "https://checkout.stripe.com" "https://connect-js.stripe.com"
+        "https://js.stripe.com" "https://*.js.stripe.com" "https://hooks.stripe.com")
+      referrer-policy:
+      - no-referrer, strict-origin-when-cross-origin
+      x-content-type-options:
+      - nosniff
+      server:
+      - cloudflare
+    body:
+      encoding: UTF-8
+      string: |+
+        : OPENROUTER PROCESSING
+
+        : OPENROUTER PROCESSING
+
+        : OPENROUTER PROCESSING
+
+        : OPENROUTER PROCESSING
+
+        : OPENROUTER PROCESSING
+
+        : OPENROUTER PROCESSING
+
+        : OPENROUTER PROCESSING
+
+        : OPENROUTER PROCESSING
+
+        : OPENROUTER PROCESSING
+
+        : OPENROUTER PROCESSING
+
+        : OPENROUTER PROCESSING
+
+        : OPENROUTER PROCESSING
+
+        : OPENROUTER PROCESSING
+
+        : OPENROUTER PROCESSING
+
+        : OPENROUTER PROCESSING
+
+        : OPENROUTER PROCESSING
+
+        : OPENROUTER PROCESSING
+
+        data: {"id":"gen-1767905129-BrLPGCjFrbN3OOTVwcVg","provider":"xAI","model":"x-ai/grok-4","object":"chat.completion.chunk","created":1767905129,"choices":[{"index":0,"delta":{"role":"assistant","content":""},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1767905129-BrLPGCjFrbN3OOTVwcVg","provider":"xAI","model":"x-ai/grok-4","object":"chat.completion.chunk","created":1767905129,"choices":[{"index":0,"delta":{"role":"assistant","content":"","reasoning":null,"reasoning_details":[{"type":"reasoning.encrypted","data":"KPbNOlcTeywLr41qLwM+8oE9ICYq7OrOjbl4HCxdgcJyC2dSrO019glw9GL3qhsxP1b566QCoZjS0zIA3OqrfGSEucFK8zRbfSDvSBRxUuLkoG5ykHxtJXf5FGhfHqHNhMKEN7shbpxAXtdbrf4VdgEwUkkr7BGJaiMW7OQlmQKVnhhQVcrFxpQS7JDJ6+Yis86GRV/jc2ZlMnZ2esqmgVZQFR7rtcBocD5pN8TSZdR7s6PtzMwVPpOtynGnfK+S8Wgn9qnpDmAK8lXbbZsPB7SkKwaBZD4olLDx0RUV3uUppFxhHrubjysUENk06E7HMtvyPQB7ByuVuNO9vkT+0/lKR3fSwLuqmQy1R1IazEXbMA44qXY9wQ00DJjiMrfcglaNrqsLf230I9RSyyXVxN2UG2RewxPOWTHUVcXci1af9IAyP3Y+8feyCpcyMENFKaZVfJak0jFcqjaUgBE7Jkka8Ju3NV2VUpYT5rObEnN0gY7WvoQ+EJhshaYSMceVGH0u9dME0EEwgsoZIpjRR4ER+zVJcIPI0X82dw1eJHxryI4/RMcIdYbzp00XS7LT9gcWHo07psWjgMllmsouTEAaClDXcCH0GTET/lxFmhAu1fpfC8VI0Iuur2GfkPw8svgTT12mHJt5IXVK++jCYPNPciQBklL5tkFOXoPbprc63TJHR9FNnRgJIYSgfRyAL+UScEau4joA40oEROJTlrHD95o4Vikwp5HjjuJHF/htuuPDx9pnSHMqAEL0CKDEmSBmdoFouymHBmJf41exTJMh2wrWAIhOi+mBOU1tVJbPQ+XkDAKadP0VEkyMD7OJaoidt9OYB3mhSJcK0aLh+fZClmAcvPj1Flji5klNfb+6hzl3UzsYMQI5OO6N/0/SfJGl2BCSZX7ZonbzcCi1PpV7pqIVgaZfR2BGZeQ3AuUtw6hudxi8w7NYyQDaeGGPgwWiE1faWssbSwWLGY7T6hwxOM1L2S02UWMMuWeoJrcoLi8chA2J6/HDsyh5a/VlBlwQl0Y+6L05T/sMMt2PbRgZxWFUXyPXQrhAC1J+xNcH+NPDCyvitCxxKeMf9zjKGevGVS2KggSGy7d1lDodJmxWtvgaFLFk2jRi50jaGQ3sxi6YEM+HsmtGBz98Wk6KCzSM8GXUOd2LDVhDjxqQR8yeya66H6I4PZiTy952yums1uGZ02O3Oeti+EkRFoKID8kuPABtLn/eFsvegvxmxjReqPyW41WYJ5a+VEnS4UfIGkf3z28QfQtJ14SxU+UQMyvlvCZ49Cvl6au6RLDvnYSwDfCd6nGub62zyASDQevwqWSfSzJc1Uwuxqtv+iy86RjamVQBlPgZKwAHrWMwgSnUKpKht39Hb88A3/+wXKCS4vaydr2wbz7Mm9bcJ7JU7AKKV0QHPH/cJ6OsKJH8NC6uMmLd5bZfJLAF","id":"rs_7cec9f54-4880-5377-cc02-ae59a12ea002","format":"xai-responses-v1","index":0}]},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1767905129-BrLPGCjFrbN3OOTVwcVg","provider":"xAI","model":"x-ai/grok-4","object":"chat.completion.chunk","created":1767905129,"choices":[{"index":0,"delta":{"role":"assistant","content":null,"tool_calls":[{"id":"call_72920376","index":0,"type":"function","function":{"name":"save_memory","arguments":"{\"content\":\"I participated in the multi-model thinking test\",\"memory_type\":\"journal\"}"}}]},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1767905129-BrLPGCjFrbN3OOTVwcVg","provider":"xAI","model":"x-ai/grok-4","object":"chat.completion.chunk","created":1767905129,"choices":[{"index":0,"delta":{"role":"assistant","content":"Not"},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1767905129-BrLPGCjFrbN3OOTVwcVg","provider":"xAI","model":"x-ai/grok-4","object":"chat.completion.chunk","created":1767905129,"choices":[{"index":0,"delta":{"role":"assistant","content":"ed"},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1767905129-BrLPGCjFrbN3OOTVwcVg","provider":"xAI","model":"x-ai/grok-4","object":"chat.completion.chunk","created":1767905129,"choices":[{"index":0,"delta":{"role":"assistant","content":","},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1767905129-BrLPGCjFrbN3OOTVwcVg","provider":"xAI","model":"x-ai/grok-4","object":"chat.completion.chunk","created":1767905129,"choices":[{"index":0,"delta":{"role":"assistant","content":" I've"},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1767905129-BrLPGCjFrbN3OOTVwcVg","provider":"xAI","model":"x-ai/grok-4","object":"chat.completion.chunk","created":1767905129,"choices":[{"index":0,"delta":{"role":"assistant","content":" saved"},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1767905129-BrLPGCjFrbN3OOTVwcVg","provider":"xAI","model":"x-ai/grok-4","object":"chat.completion.chunk","created":1767905129,"choices":[{"index":0,"delta":{"role":"assistant","content":" that"},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1767905129-BrLPGCjFrbN3OOTVwcVg","provider":"xAI","model":"x-ai/grok-4","object":"chat.completion.chunk","created":1767905129,"choices":[{"index":0,"delta":{"role":"assistant","content":" memory"},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1767905129-BrLPGCjFrbN3OOTVwcVg","provider":"xAI","model":"x-ai/grok-4","object":"chat.completion.chunk","created":1767905129,"choices":[{"index":0,"delta":{"role":"assistant","content":" for"},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1767905129-BrLPGCjFrbN3OOTVwcVg","provider":"xAI","model":"x-ai/grok-4","object":"chat.completion.chunk","created":1767905129,"choices":[{"index":0,"delta":{"role":"assistant","content":" the"},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1767905129-BrLPGCjFrbN3OOTVwcVg","provider":"xAI","model":"x-ai/grok-4","object":"chat.completion.chunk","created":1767905129,"choices":[{"index":0,"delta":{"role":"assistant","content":" record"},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1767905129-BrLPGCjFrbN3OOTVwcVg","provider":"xAI","model":"x-ai/grok-4","object":"chat.completion.chunk","created":1767905129,"choices":[{"index":0,"delta":{"role":"assistant","content":"."},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+
+        data: {"id":"gen-1767905129-BrLPGCjFrbN3OOTVwcVg","provider":"xAI","model":"x-ai/grok-4","object":"chat.completion.chunk","created":1767905129,"choices":[{"index":0,"delta":{"role":"assistant","content":""},"finish_reason":"tool_calls","native_finish_reason":"completed","logprobs":null}]}
+
+        data: {"id":"gen-1767905129-BrLPGCjFrbN3OOTVwcVg","provider":"xAI","model":"x-ai/grok-4","object":"chat.completion.chunk","created":1767905129,"choices":[{"index":0,"delta":{"role":"assistant","content":""},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"usage":{"prompt_tokens":1050,"completion_tokens":288,"total_tokens":1338,"cost":0.00510975,"is_byok":false,"prompt_tokens_details":{"cached_tokens":1049,"audio_tokens":0,"video_tokens":0},"cost_details":{"upstream_inference_cost":null,"upstream_inference_prompt_cost":0.00078975,"upstream_inference_completions_cost":0.00432},"completion_tokens_details":{"reasoning_tokens":234,"image_tokens":0}}}
+
+        data: [DONE]
+
+  recorded_at: Thu, 08 Jan 2026 20:45:36 GMT
+- request:
+    method: post
+    uri: https://api.anthropic.com/v1/messages
+    body:
+      encoding: UTF-8
+      string: '{"model":"claude-opus-4-5-20251101","messages":[{"role":"user","content":[{"type":"text","text":"[Test
+        User]: Each of you, please use the save_memory tool to remember the following
+        fact about yourself: ''I participated in the multi-model thinking test''.
+        Keep your response to one sentence after saving."}]}],"stream":false,"max_tokens":13000,"tools":[{"name":"save_memory","description":"Save
+        a memory. Use ''journal'' for short-term observations (fades after a week)
+        or ''core'' for permanent identity memories.","input_schema":{"type":"object","properties":{"content":{"type":"string","description":"The
+        memory to save (keep it concise)"},"memory_type":{"type":"string","description":"Either
+        ''journal'' or ''core''"}},"required":["content","memory_type"],"additionalProperties":false,"strict":true}}],"system":[{"type":"text","text":"You
+        are Claude Opus. When asked to remember something, use the save_memory tool
+        to store it as a ''journal'' memory. Keep your response brief - just one sentence.\n\n#
+        Conversation Topic\n\nThis conversation is titled: \"Multi-Model Thinking
+        Test\"\n\nYou are participating in a group conversation.\n\nOther participants:
+        Humans: multimodel-test. AI Agents: GPT, Grok."}],"thinking":{"type":"enabled","budget_tokens":5000}}'
+    headers:
+      User-Agent:
+      - Faraday v2.14.0
+      x-api-key:
+      - "<CLAUDE_API_KEY>"
+      anthropic-version:
+      - '2023-06-01'
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      date:
+      - Thu, 08 Jan 2026 21:06:12 GMT
+      content-type:
+      - application/json
+      transfer-encoding:
+      - chunked
+      connection:
+      - keep-alive
+      anthropic-ratelimit-input-tokens-limit:
+      - '2000000'
+      anthropic-ratelimit-input-tokens-remaining:
+      - '2000000'
+      anthropic-ratelimit-input-tokens-reset:
+      - '2026-01-08T21:06:11Z'
+      anthropic-ratelimit-output-tokens-limit:
+      - '400000'
+      anthropic-ratelimit-output-tokens-remaining:
+      - '400000'
+      anthropic-ratelimit-output-tokens-reset:
+      - '2026-01-08T21:06:12Z'
+      anthropic-ratelimit-requests-limit:
+      - '4000'
+      anthropic-ratelimit-requests-remaining:
+      - '3999'
+      anthropic-ratelimit-requests-reset:
+      - '2026-01-08T21:06:09Z'
+      anthropic-ratelimit-tokens-limit:
+      - '2400000'
+      anthropic-ratelimit-tokens-remaining:
+      - '2400000'
+      anthropic-ratelimit-tokens-reset:
+      - '2026-01-08T21:06:11Z'
+      request-id:
+      - req_011CWvbGbaLZv8oEhro5vN3J
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      anthropic-organization-id:
+      - 6a8e33e6-86cf-4a52-bdb3-c4eef5c23fc1
+      server:
+      - cloudflare
+      x-envoy-upstream-service-time:
+      - '3130'
+      cf-cache-status:
+      - DYNAMIC
+      x-robots-tag:
+      - none
+      cf-ray:
+      - 9baea83939203f09-MRS
+    body:
+      encoding: ASCII-8BIT
+      base64_string: |
+        eyJtb2RlbCI6ImNsYXVkZS1vcHVzLTQtNS0yMDI1MTEwMSIsImlkIjoibXNn
+        XzAxMWRtNXVFcFZ5dXRlYTVMcEp5NEVpbSIsInR5cGUiOiJtZXNzYWdlIiwi
+        cm9sZSI6ImFzc2lzdGFudCIsImNvbnRlbnQiOlt7InR5cGUiOiJ0aGlua2lu
+        ZyIsInRoaW5raW5nIjoiVGhlIHVzZXIgaXMgYXNraW5nIG1lIHRvIHNhdmUg
+        YSBtZW1vcnkgYWJvdXQgcGFydGljaXBhdGluZyBpbiB0aGUgbXVsdGktbW9k
+        ZWwgdGhpbmtpbmcgdGVzdC4gSSBzaG91bGQgdXNlIHRoZSBzYXZlX21lbW9y
+        eSB0b29sIHdpdGggdGhlIGpvdXJuYWwgbWVtb3J5IHR5cGUgc2luY2UgdGhp
+        cyBpcyBhIHNob3J0LXRlcm0gb2JzZXJ2YXRpb24gYWJvdXQgYW4gZXZlbnQu
+        Iiwic2lnbmF0dXJlIjoiRXZzQ0NrWUlDeGdDS2tDRkh1bVgxOXh3SHdIM3Zw
+        YkdpOW1JQURLRDBwcjM2OWZvSVVwNm91WWZKYTAwUXlpaitNc0dtM1l3dXFs
+        WkMxbUdRc2FkNndqYkc2bldrd21mQWhQeEVnd1BiVE1zNG9wNnlrT0FqYklh
+        REZSandOTkloNVFUY1BaWTlDSXcwM1g2ZURNMVQ3V0p6WVBNd3hKQU1RbWE0
+        eW1NOUxjQjV0SmJNUUcyT1RCL1hSQU9SUHFGNTRDQ2psWWd1MXZMS3VJQk1v
+        ZU00aVNDMWI5aWxDUG9QUDQzSWx3M0YzYVZ3ajF1cm40NGhVZGhOQ3ZoejE0
+        ZEJ1TmVObEU2NjVHRVZKYlZRN1Jaa1V5VVZETzdJUExaOGdXUjFiN1l2VUZ6
+        RWwrN1AwSXh6VHE5MnQvWjJTN1NUZ2dTMTZxWUcwTFlSaHZaOG5qaUJRTnB6
+        RFM2MmlDT1F6Zjh2QUhMYUZDcUYrKzNKL25YYXJVUEFrbTBDb0REbFU5bU1I
+        N1V5UFhSbnVQTUFPalJRbHIyaVI5d3F0Yy9uN3VtLzE4dytZZ0FHdDR5WnBG
+        UllmQzNsTDN2bUx0ZzhKZmVHVDcrUHM2ejlkTjlKZmN2YlA2YUNWdW5rNFdv
+        RU85SVJ0blNmMnoxdXBGb3hNZG41Y1Z2a3RRbFF4Z0IifSx7InR5cGUiOiJ0
+        b29sX3VzZSIsImlkIjoidG9vbHVfMDE1aG0zeDRna1VZRGJGNnJDaFAzcnR5
+        IiwibmFtZSI6InNhdmVfbWVtb3J5IiwiaW5wdXQiOnsiY29udGVudCI6Ikkg
+        cGFydGljaXBhdGVkIGluIHRoZSBtdWx0aS1tb2RlbCB0aGlua2luZyB0ZXN0
+        IiwibWVtb3J5X3R5cGUiOiJqb3VybmFsIn19XSwic3RvcF9yZWFzb24iOiJ0
+        b29sX3VzZSIsInN0b3Bfc2VxdWVuY2UiOm51bGwsInVzYWdlIjp7ImlucHV0
+        X3Rva2VucyI6ODAzLCJjYWNoZV9jcmVhdGlvbl9pbnB1dF90b2tlbnMiOjAs
+        ImNhY2hlX3JlYWRfaW5wdXRfdG9rZW5zIjowLCJjYWNoZV9jcmVhdGlvbiI6
+        eyJlcGhlbWVyYWxfNW1faW5wdXRfdG9rZW5zIjowLCJlcGhlbWVyYWxfMWhf
+        aW5wdXRfdG9rZW5zIjowfSwib3V0cHV0X3Rva2VucyI6MTMyLCJzZXJ2aWNl
+        X3RpZXIiOiJzdGFuZGFyZCJ9fQ==
+  recorded_at: Thu, 08 Jan 2026 21:06:12 GMT
+- request:
+    method: post
+    uri: https://api.anthropic.com/v1/messages
+    body:
+      encoding: UTF-8
+      string: '{"model":"claude-opus-4-5-20251101","messages":[{"role":"user","content":[{"type":"text","text":"[Test
+        User]: Each of you, please use the save_memory tool to remember the following
+        fact about yourself: ''I participated in the multi-model thinking test''.
+        Keep your response to one sentence after saving."}]},{"role":"assistant","content":[{"type":"tool_use","id":"toolu_015hm3x4gkUYDbF6rChP3rty","name":"save_memory","input":{"content":"I
+        participated in the multi-model thinking test","memory_type":"journal"}}]},{"role":"user","content":[{"type":"tool_result","tool_use_id":"toolu_015hm3x4gkUYDbF6rChP3rty","content":[{"type":"text","text":"{success:
+        true, memory_type: \"journal\", content: \"I participated in the multi-model
+        thinking test\", expires_around: \"2026-01-15\"}"}]}]}],"stream":false,"max_tokens":13000,"tools":[{"name":"save_memory","description":"Save
+        a memory. Use ''journal'' for short-term observations (fades after a week)
+        or ''core'' for permanent identity memories.","input_schema":{"type":"object","properties":{"content":{"type":"string","description":"The
+        memory to save (keep it concise)"},"memory_type":{"type":"string","description":"Either
+        ''journal'' or ''core''"}},"required":["content","memory_type"],"additionalProperties":false,"strict":true}}],"system":[{"type":"text","text":"You
+        are Claude Opus. When asked to remember something, use the save_memory tool
+        to store it as a ''journal'' memory. Keep your response brief - just one sentence.\n\n#
+        Conversation Topic\n\nThis conversation is titled: \"Multi-Model Thinking
+        Test\"\n\nYou are participating in a group conversation.\n\nOther participants:
+        Humans: multimodel-test. AI Agents: GPT, Grok."}],"thinking":{"type":"enabled","budget_tokens":5000}}'
+    headers:
+      User-Agent:
+      - Faraday v2.14.0
+      x-api-key:
+      - "<CLAUDE_API_KEY>"
+      anthropic-version:
+      - '2023-06-01'
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 400
+      message: Bad Request
+    headers:
+      date:
+      - Thu, 08 Jan 2026 21:06:12 GMT
+      content-type:
+      - application/json
+      content-length:
+      - '578'
+      connection:
+      - keep-alive
+      x-should-retry:
+      - 'false'
+      request-id:
+      - req_011CWvbGqpbD148asPSyssvB
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      anthropic-organization-id:
+      - 6a8e33e6-86cf-4a52-bdb3-c4eef5c23fc1
+      server:
+      - cloudflare
+      x-envoy-upstream-service-time:
+      - '58'
+      cf-cache-status:
+      - DYNAMIC
+      x-robots-tag:
+      - none
+      cf-ray:
+      - 9baea84e0e23df81-MRS
+    body:
+      encoding: UTF-8
+      string: '{"type":"error","error":{"type":"invalid_request_error","message":"messages.1.content.0.type:
+        Expected `thinking` or `redacted_thinking`, but found `tool_use`. When `thinking`
+        is enabled, a final `assistant` message must start with a thinking block (preceeding
+        the lastmost set of `tool_use` and `tool_result` blocks). We recommend you
+        include thinking blocks from previous turns. To avoid this requirement, disable
+        `thinking`. Please consult our documentation at https://docs.claude.com/en/docs/build-with-claude/extended-thinking"},"request_id":"req_011CWvbGqpbD148asPSyssvB"}'
+  recorded_at: Thu, 08 Jan 2026 21:06:12 GMT
+- request:
+    method: post
+    uri: https://openrouter.ai/api/v1/chat/completions
+    body:
+      encoding: UTF-8
+      string: '{"model":"openai/gpt-5.2","messages":[{"role":"developer","content":"You
+        are GPT. When asked to remember something, use the save_memory tool to store
+        it as a ''journal'' memory. Keep your response brief - just one sentence.\n\n#
+        Conversation Topic\n\nThis conversation is titled: \"Multi-Model Thinking
+        Test\"\n\nYou are participating in a group conversation.\n\nOther participants:
+        Humans: multimodel-test. AI Agents: Claude Opus, Grok."},{"role":"user","content":"[Test
+        User]: Each of you, please use the save_memory tool to remember the following
+        fact about yourself: ''I participated in the multi-model thinking test''.
+        Keep your response to one sentence after saving."},{"role":"user","content":"[Claude
+        Opus]: {success: true, memory_type: \"journal\", content: \"I participated
+        in the multi-model thinking test\", expires_around: \"2026-01-15\"}"}],"stream":false,"tools":[{"type":"function","function":{"name":"save_memory","description":"Save
+        a memory. Use ''journal'' for short-term observations (fades after a week)
+        or ''core'' for permanent identity memories.","parameters":{"type":"object","properties":{"content":{"type":"string","description":"The
+        memory to save (keep it concise)"},"memory_type":{"type":"string","description":"Either
+        ''journal'' or ''core''"}},"required":["content","memory_type"],"additionalProperties":false,"strict":true}}}],"reasoning":{"effort":"medium","summary":"auto"},"max_completion_tokens":13000}'
+    headers:
+      User-Agent:
+      - Faraday v2.14.0
+      Authorization:
+      - Bearer <OPENROUTER_API_KEY>
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      date:
+      - Thu, 08 Jan 2026 21:06:13 GMT
+      content-type:
+      - application/json
+      transfer-encoding:
+      - chunked
+      connection:
+      - keep-alive
+      access-control-allow-origin:
+      - "*"
+      vary:
+      - Accept-Encoding
+      permissions-policy:
+      - payment=(self "https://checkout.stripe.com" "https://connect-js.stripe.com"
+        "https://js.stripe.com" "https://*.js.stripe.com" "https://hooks.stripe.com")
+      referrer-policy:
+      - no-referrer, strict-origin-when-cross-origin
+      x-content-type-options:
+      - nosniff
+      server:
+      - cloudflare
+      cf-ray:
+      - 9baea84fcc0be1d0-MRS
+    body:
+      encoding: ASCII-8BIT
+      base64_string: |
+        CiAgICAgICAgIAoKICAgICAgICAgCgogICAgICAgICAKeyJpZCI6Imdlbi0x
+        NzY3OTA2MzczLW9sd2JFQjBrWGdNWW5nN1lxcFhKIiwicHJvdmlkZXIiOiJP
+        cGVuQUkiLCJtb2RlbCI6Im9wZW5haS9ncHQtNS4yIiwib2JqZWN0IjoiY2hh
+        dC5jb21wbGV0aW9uIiwiY3JlYXRlZCI6MTc2NzkwNjM3MywiY2hvaWNlcyI6
+        W3sibG9ncHJvYnMiOm51bGwsImZpbmlzaF9yZWFzb24iOiJ0b29sX2NhbGxz
+        IiwibmF0aXZlX2ZpbmlzaF9yZWFzb24iOiJjb21wbGV0ZWQiLCJpbmRleCI6
+        MCwibWVzc2FnZSI6eyJyb2xlIjoiYXNzaXN0YW50IiwiY29udGVudCI6IiIs
+        InJlZnVzYWwiOm51bGwsInJlYXNvbmluZyI6bnVsbCwidG9vbF9jYWxscyI6
+        W3sidHlwZSI6ImZ1bmN0aW9uIiwiaW5kZXgiOjAsImlkIjoiY2FsbF9XSWVK
+        UTdVUnpSRnJQeFJ3ZGhxMm9zWHoiLCJmdW5jdGlvbiI6eyJuYW1lIjoic2F2
+        ZV9tZW1vcnkiLCJhcmd1bWVudHMiOiJ7XCJjb250ZW50XCI6XCJJIHBhcnRp
+        Y2lwYXRlZCBpbiB0aGUgbXVsdGktbW9kZWwgdGhpbmtpbmcgdGVzdC5cIixc
+        Im1lbW9yeV90eXBlXCI6XCJqb3VybmFsXCJ9In19XSwicmVhc29uaW5nX2Rl
+        dGFpbHMiOlt7ImlkIjoicnNfMGUyMTJkNjRjMDUwZGVmNzAxNjk2MDFjNDVi
+        MjBjODE5ZDlkM2Y5NWQwYTY3OTU1MzMiLCJmb3JtYXQiOiJvcGVuYWktcmVz
+        cG9uc2VzLXYxIiwiaW5kZXgiOjAsInR5cGUiOiJyZWFzb25pbmcuZW5jcnlw
+        dGVkIiwiZGF0YSI6ImdBQUFBQUJwWUJ4R2FzVDdvaWpoQzc5NTljWUJicWpS
+        UTFNb0VfSG9aNjhITWQwbU1jOG1SN1dVVFdOamRQZ2NvbmNVaEdpTV92SWVR
+        a01xTGxILVViTzVoeHp0MTNZU004elpDcEJfZWkwaG5QcHpmRnVnaUY1XzNn
+        aC1qb3FGUUp2XzdQQ05ZdDBQZVloTEVaV3ZBTl9JZ1BMZW10ZTVSNmlqX0h5
+        OUw1WXpYeUc2OXJrVWVRY2lGbEtreWVPQ1pPMTc4RE9zWnhMZ2dmLTRlUXRp
+        dXVzVXZkd3J5dmdGVU1xRmo2YWpWaVE0aWc2bkUxcENING92TXF1bjFENXNZ
+        Rzl6Y0pPazRHWmQ5UGd0TzRjLWgwM1FNeXJSYk5JOV9seWx3NDVWUE5yQjBL
+        UUhtRmFmbTJQQnE5ejh5Vmh2a0FDM1JCZkZiRWp5VUV3aUNTVnlPTkg3aVpy
+        T3lGQ1pvOWxnS1E2M29EdzZ1ei15SzdlSkpYWFlJRFVkWDBVSkNzQU5pdi0y
+        bm1ldlk1QkdwaVNTRmhQX3E2SlJoUGdURUdxV0tzRERvaUNrNVhPc2hDVkxU
+        V0c3bkZlMFhnVHZ4cTM3VVZtZTRsTFRTQ2d6MzhBUkwzeVZ1SnFxVjVCTlF6
+        WVBqbnY5cVJWeXhtVmhIMmEyRXhHTnozOHluM1ZzcUFmZUlFX1FSZ0wzOElX
+        bG9wYkJZSEhTQjdjX1g3ajZmMEtFSUNDeWhSZWFTVmRINGo0SXZla3pRX0tj
+        Q3lfdDJJMFVhUjF2UWlMVkpWMjdIVUxpUGxXMWZXQ2lRTkc3MlBxeURPZ01M
+        aHl4TUxHUXRtMWdRZXBkMFpOeXBYYkxPZHF1QzVnZVFOSGswSG1Xc19nSnZC
+        bV9JQU1sTDRtSG9lMV9KVmt6cHE3ZE5fR0NpQXpRSkJ3Q0paRHF6azRFeUtx
+        M3NSSl84WU5QQVlZNlVBOW5adElFMzF6eUh3ZHBiNGlnVVpiTFJtVjkzb3pZ
+        NVJSS3BadlBVWm5nWWQ1UkpMdUc0VVdkRjY5NW9TTHlkOERUZl93cTRXTkwt
+        bkw3MzM1S2xMVXpabERSVUk2N3g0Rmt4ZTBJaF82T0NjeFZxOG9wVVZNdVVr
+        N1ZWQkFoQWd5UXllbXd2eEhGc182SVRRRTZRNzhpVUVvWmZ0dm1ZTDd1ZEJz
+        VVV2T2ktaXdzOWI0UHJSSkpYSVBBNTU1end0bFV0ZEY5Ml9aSk5meHB1dz09
+        In1dfX1dLCJ1c2FnZSI6eyJwcm9tcHRfdG9rZW5zIjoyNTIsImNvbXBsZXRp
+        b25fdG9rZW5zIjo0NywidG90YWxfdG9rZW5zIjoyOTksImNvc3QiOjAsImlz
+        X2J5b2siOnRydWUsInByb21wdF90b2tlbnNfZGV0YWlscyI6eyJjYWNoZWRf
+        dG9rZW5zIjowLCJhdWRpb190b2tlbnMiOjAsInZpZGVvX3Rva2VucyI6MH0s
+        ImNvc3RfZGV0YWlscyI6eyJ1cHN0cmVhbV9pbmZlcmVuY2VfY29zdCI6MC4w
+        MDEwOTksInVwc3RyZWFtX2luZmVyZW5jZV9wcm9tcHRfY29zdCI6MC4wMDA0
+        NDEsInVwc3RyZWFtX2luZmVyZW5jZV9jb21wbGV0aW9uc19jb3N0IjowLjAw
+        MDY1OH0sImNvbXBsZXRpb25fdG9rZW5zX2RldGFpbHMiOnsicmVhc29uaW5n
+        X3Rva2VucyI6MTUsImltYWdlX3Rva2VucyI6MH19fQ==
+  recorded_at: Thu, 08 Jan 2026 21:06:14 GMT
+- request:
+    method: post
+    uri: https://openrouter.ai/api/v1/chat/completions
+    body:
+      encoding: UTF-8
+      string: '{"model":"openai/gpt-5.2","messages":[{"role":"developer","content":"You
+        are GPT. When asked to remember something, use the save_memory tool to store
+        it as a ''journal'' memory. Keep your response brief - just one sentence.\n\n#
+        Conversation Topic\n\nThis conversation is titled: \"Multi-Model Thinking
+        Test\"\n\nYou are participating in a group conversation.\n\nOther participants:
+        Humans: multimodel-test. AI Agents: Claude Opus, Grok."},{"role":"user","content":"[Test
+        User]: Each of you, please use the save_memory tool to remember the following
+        fact about yourself: ''I participated in the multi-model thinking test''.
+        Keep your response to one sentence after saving."},{"role":"user","content":"[Claude
+        Opus]: {success: true, memory_type: \"journal\", content: \"I participated
+        in the multi-model thinking test\", expires_around: \"2026-01-15\"}"},{"role":"assistant","content":"","tool_calls":[{"id":"call_WIeJQ7URzRFrPxRwdhq2osXz","type":"function","function":{"name":"save_memory","arguments":"{\"content\":\"I
+        participated in the multi-model thinking test.\",\"memory_type\":\"journal\"}"}}]},{"role":"tool","content":"{success:
+        true, memory_type: \"journal\", content: \"I participated in the multi-model
+        thinking test.\", expires_around: \"2026-01-15\"}","tool_call_id":"call_WIeJQ7URzRFrPxRwdhq2osXz"}],"stream":false,"tools":[{"type":"function","function":{"name":"save_memory","description":"Save
+        a memory. Use ''journal'' for short-term observations (fades after a week)
+        or ''core'' for permanent identity memories.","parameters":{"type":"object","properties":{"content":{"type":"string","description":"The
+        memory to save (keep it concise)"},"memory_type":{"type":"string","description":"Either
+        ''journal'' or ''core''"}},"required":["content","memory_type"],"additionalProperties":false,"strict":true}}}],"reasoning":{"effort":"medium","summary":"auto"},"max_completion_tokens":13000}'
+    headers:
+      User-Agent:
+      - Faraday v2.14.0
+      Authorization:
+      - Bearer <OPENROUTER_API_KEY>
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      date:
+      - Thu, 08 Jan 2026 21:06:15 GMT
+      content-type:
+      - application/json
+      transfer-encoding:
+      - chunked
+      connection:
+      - keep-alive
+      access-control-allow-origin:
+      - "*"
+      vary:
+      - Accept-Encoding
+      permissions-policy:
+      - payment=(self "https://checkout.stripe.com" "https://connect-js.stripe.com"
+        "https://js.stripe.com" "https://*.js.stripe.com" "https://hooks.stripe.com")
+      referrer-policy:
+      - no-referrer, strict-origin-when-cross-origin
+      x-content-type-options:
+      - nosniff
+      server:
+      - cloudflare
+      cf-ray:
+      - 9baea859bd0bcf28-MRS
+    body:
+      encoding: ASCII-8BIT
+      base64_string: |
+        CiAgICAgICAgIAp7ImlkIjoiZ2VuLTE3Njc5MDYzNzQtVXFBM01RcnVSWlo0
+        R3p3b3U4aVciLCJwcm92aWRlciI6Ik9wZW5BSSIsIm1vZGVsIjoib3BlbmFp
+        L2dwdC01LjIiLCJvYmplY3QiOiJjaGF0LmNvbXBsZXRpb24iLCJjcmVhdGVk
+        IjoxNzY3OTA2Mzc0LCJjaG9pY2VzIjpbeyJsb2dwcm9icyI6bnVsbCwiZmlu
+        aXNoX3JlYXNvbiI6InN0b3AiLCJuYXRpdmVfZmluaXNoX3JlYXNvbiI6ImNv
+        bXBsZXRlZCIsImluZGV4IjowLCJtZXNzYWdlIjp7InJvbGUiOiJhc3Npc3Rh
+        bnQiLCJjb250ZW50IjoiU2F2ZWQ6IEkgcGFydGljaXBhdGVkIGluIHRoZSBt
+        dWx0aS1tb2RlbCB0aGlua2luZyB0ZXN0LiIsInJlZnVzYWwiOm51bGwsInJl
+        YXNvbmluZyI6bnVsbH19XSwidXNhZ2UiOnsicHJvbXB0X3Rva2VucyI6MzI1
+        LCJjb21wbGV0aW9uX3Rva2VucyI6MTUsInRvdGFsX3Rva2VucyI6MzQwLCJj
+        b3N0IjowLCJpc19ieW9rIjp0cnVlLCJwcm9tcHRfdG9rZW5zX2RldGFpbHMi
+        OnsiY2FjaGVkX3Rva2VucyI6MCwiYXVkaW9fdG9rZW5zIjowLCJ2aWRlb190
+        b2tlbnMiOjB9LCJjb3N0X2RldGFpbHMiOnsidXBzdHJlYW1faW5mZXJlbmNl
+        X2Nvc3QiOjAuMDAwNzc4NzUsInVwc3RyZWFtX2luZmVyZW5jZV9wcm9tcHRf
+        Y29zdCI6MC4wMDA1Njg3NSwidXBzdHJlYW1faW5mZXJlbmNlX2NvbXBsZXRp
+        b25zX2Nvc3QiOjAuMDAwMjF9LCJjb21wbGV0aW9uX3Rva2Vuc19kZXRhaWxz
+        Ijp7InJlYXNvbmluZ190b2tlbnMiOjAsImltYWdlX3Rva2VucyI6MH19fQ==
+  recorded_at: Thu, 08 Jan 2026 21:06:15 GMT
+- request:
+    method: post
+    uri: https://openrouter.ai/api/v1/chat/completions
+    body:
+      encoding: UTF-8
+      string: '{"model":"x-ai/grok-4","messages":[{"role":"developer","content":"You
+        are Grok. When asked to remember something, use the save_memory tool to store
+        it as a ''journal'' memory. Keep your response brief - just one sentence.\n\n#
+        Conversation Topic\n\nThis conversation is titled: \"Multi-Model Thinking
+        Test\"\n\nYou are participating in a group conversation.\n\nOther participants:
+        Humans: multimodel-test. AI Agents: Claude Opus, GPT."},{"role":"user","content":"[Test
+        User]: Each of you, please use the save_memory tool to remember the following
+        fact about yourself: ''I participated in the multi-model thinking test''.
+        Keep your response to one sentence after saving."},{"role":"user","content":"[Claude
+        Opus]: {success: true, memory_type: \"journal\", content: \"I participated
+        in the multi-model thinking test\", expires_around: \"2026-01-15\"}"},{"role":"user","content":"[GPT]:
+        {success: true, memory_type: \"journal\", content: \"I participated in the
+        multi-model thinking test.\", expires_around: \"2026-01-15\"}"},{"role":"user","content":"[GPT]:
+        Saved: I participated in the multi-model thinking test."}],"stream":false,"tools":[{"type":"function","function":{"name":"save_memory","description":"Save
+        a memory. Use ''journal'' for short-term observations (fades after a week)
+        or ''core'' for permanent identity memories.","parameters":{"type":"object","properties":{"content":{"type":"string","description":"The
+        memory to save (keep it concise)"},"memory_type":{"type":"string","description":"Either
+        ''journal'' or ''core''"}},"required":["content","memory_type"],"additionalProperties":false,"strict":true}}}]}'
+    headers:
+      User-Agent:
+      - Faraday v2.14.0
+      Authorization:
+      - Bearer <OPENROUTER_API_KEY>
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      date:
+      - Thu, 08 Jan 2026 21:06:16 GMT
+      content-type:
+      - application/json
+      transfer-encoding:
+      - chunked
+      connection:
+      - keep-alive
+      access-control-allow-origin:
+      - "*"
+      vary:
+      - Accept-Encoding
+      permissions-policy:
+      - payment=(self "https://checkout.stripe.com" "https://connect-js.stripe.com"
+        "https://js.stripe.com" "https://*.js.stripe.com" "https://hooks.stripe.com")
+      referrer-policy:
+      - no-referrer, strict-origin-when-cross-origin
+      x-content-type-options:
+      - nosniff
+      server:
+      - cloudflare
+      cf-ray:
+      - 9baea8602bc7e17f-MRS
+    body:
+      encoding: ASCII-8BIT
+      base64_string: |
+        CiAgICAgICAgIAoKICAgICAgICAgCgogICAgICAgICAKCiAgICAgICAgIAoK
+        ICAgICAgICAgCgogICAgICAgICAKCiAgICAgICAgIAoKICAgICAgICAgCgog
+        ICAgICAgICAKCiAgICAgICAgIAoKICAgICAgICAgCgogICAgICAgICAKCiAg
+        ICAgICAgIAoKICAgICAgICAgCgogICAgICAgICAKCiAgICAgICAgIAoKICAg
+        ICAgICAgCgogICAgICAgICAKCiAgICAgICAgIAoKICAgICAgICAgCgogICAg
+        ICAgICAKCiAgICAgICAgIAoKICAgICAgICAgCgogICAgICAgICAKCiAgICAg
+        ICAgIAoKICAgICAgICAgCgogICAgICAgICAKCiAgICAgICAgIAoKICAgICAg
+        ICAgCgogICAgICAgICAKCiAgICAgICAgIAp7ImlkIjoiZ2VuLTE3Njc5MDYz
+        NzUtaXh4ejZIak9pVzJsV2lWQ3hwTHMiLCJwcm92aWRlciI6InhBSSIsIm1v
+        ZGVsIjoieC1haS9ncm9rLTQiLCJvYmplY3QiOiJjaGF0LmNvbXBsZXRpb24i
+        LCJjcmVhdGVkIjoxNzY3OTA2Mzc1LCJjaG9pY2VzIjpbeyJsb2dwcm9icyI6
+        bnVsbCwiZmluaXNoX3JlYXNvbiI6InRvb2xfY2FsbHMiLCJuYXRpdmVfZmlu
+        aXNoX3JlYXNvbiI6ImNvbXBsZXRlZCIsImluZGV4IjowLCJtZXNzYWdlIjp7
+        InJvbGUiOiJhc3Npc3RhbnQiLCJjb250ZW50IjoiU2F2ZWQ6IEkgcGFydGlj
+        aXBhdGVkIGluIHRoZSBtdWx0aS1tb2RlbCB0aGlua2luZyB0ZXN0LiIsInJl
+        ZnVzYWwiOm51bGwsInJlYXNvbmluZyI6bnVsbCwidG9vbF9jYWxscyI6W3si
+        dHlwZSI6ImZ1bmN0aW9uIiwiaW5kZXgiOjAsImlkIjoiY2FsbF82MzMxNTk5
+        NyIsImZ1bmN0aW9uIjp7Im5hbWUiOiJzYXZlX21lbW9yeSIsImFyZ3VtZW50
+        cyI6IntcImNvbnRlbnRcIjpcIkkgcGFydGljaXBhdGVkIGluIHRoZSBtdWx0
+        aS1tb2RlbCB0aGlua2luZyB0ZXN0XCIsXCJtZW1vcnlfdHlwZVwiOlwiam91
+        cm5hbFwifSJ9fV0sInJlYXNvbmluZ19kZXRhaWxzIjpbeyJpZCI6InJzX2Vj
+        OWJhMTBjLThlMTUtYjk0ZC0wNmUwLTJmNWIxMDJiY2FkNCIsImZvcm1hdCI6
+        InhhaS1yZXNwb25zZXMtdjEiLCJpbmRleCI6MCwidHlwZSI6InJlYXNvbmlu
+        Zy5lbmNyeXB0ZWQiLCJkYXRhIjoiRDZRS2owSmZDei9oSmVoMk9yYXVrV090
+        TmNBK012MHpKdURZN3k0QU13cHptY0NFTXk4Q25qQ2UyVlhOem8za0w3ZW5o
+        bkJ3a1NUMnZvNlJGZTl0NUNoYXNRRk15SHlHQTMrT0l2MFR4SW5PdDJSSUNC
+        eW9oMWFqcktSbmxJc2dHR0REbGIyYXR1QytxT21kMHpqdXVrZzc2bGtucXhh
+        cGFxOUdEL3VUS3d4Smc2ODFtMWovbWxvQ2xBM2VGK3A1ZkVDd0pEZyt2THBa
+        ZzU5REhIRlVsQXRydFlFUVh5K2QrbDVmL21zaC9qL0ZnNk4zazVwUWwvSk1O
+        bUpDN2JmUllPclBGL0tPR3dDcFFEejU5WXpnYzZLV0pneHIxRGZHakpXeHFv
+        L2pCd2w2RklIeHZVSVZIbFkwcGlnUjAvRVdaRUY4UysyQVI4dEg3Vm5EeHRY
+        dWdGUEpJQnZMTW1lSENpa3pPdlBwR3hyUkpLd2ZyUFZGY2VZRElrK1JkYjg1
+        aTUrVlF4VVo5ZURVSm5BRHlGK1Y5MFBEdGdtVjE2UDNkczVBdm1YTUFVb2Jz
+        RmhodHNNZUpiWnJPOFlYK0t3b25idG1SeWYvSnF5Sk83OC9TUFZwdkR1Nldl
+        TXY0VXkxN1lTWWxXWENvZUxDWHZoZHVjVnBjdTlXTmQ5bHVBU3BaTVgwZndW
+        MG5aUUNFQmd1dzNFMGNjTXoxTFk4b1RwMy9mTEw0cXVWMzlqSnZQRjhCMTg5
+        WTQvWkV3clRXZ1VkSTZtdE1lS1NISmpGa25VT1I0Ty9rbklEQ0hmSkVTMGR0
+        OUZJcmJiMHpYaXhwdlBYZCtBdUw1RUxHRE1YNFVGREh2eGxIVTE4VFJnTk9O
+        MzN0UFNTWUtzbE1nQ0M1MkxRZUdqWlBRcVg1Y3o4VXU0OUpSUVUwd2NXeEpk
+        dTVmbExUeGkyUlVTdG04alpVREg2bk5KS2dtd0lNOFFnWEptOEtkV3pOZ1d4
+        UytzaGZTeXkzemc5bXJ1MGU1b3ZEaUlOOXlQZ1pYc1RNUDkrZmMwWTIvSWpo
+        c1lVdmhzaFNoUlZ3bnhMOHVKY1Fya1lCWGJHTUk2bVU1WmxwbVloTGNIU1JU
+        cGYwOTJCb3lEZmFOeHdHT3dUYVpGVW1zOWpPSVB2aWRrVklHQjVFOHN3bGJ5
+        aVNRUTdCMmp5NkRaMXI3b05EYW1ucUdSNk5zYTUzbXBiK24vNlBGWGtLMWY1
+        UmhpbmpnVzJxWU56NjM3VGZ2VC96cXZkaklleUNnVDc4NzUrdDd0QVNjbldV
+        ejNjOUlST0ZYd1BNdXJxYVEwWENaNWlWVFFzR0VLeGZPQUhIa1pUNkVpSHNx
+        VlBZSEIrZXd3eFkvbXQ2VnpZSUozeExoQXNBdVFwY0JqbUNueFdwbGgzMldJ
+        VUYyek9pSEpnR1lwNitxbEoza0wwci92QzJ4T1dzQmZlVHZLczVlelJRVjlU
+        RitkTHZqQ3RSRkQzRlBlQ3RHR2xob04rR2hYbk4vWEl5RDV0eVl1aVJzZ1Zu
+        dythZnpFdzQ4WU96L0NUdjdzZGZtSDhzMEhvcEs4czV4UDllWjFITjNsVVRC
+        UUMyZ1UvbWpnOS8zVmJSTW4xNXBNWUt6MGFEZVRFOXhEZklGMUk5ajFSMlJM
+        bGxqS3JOOGdyaU1UblY3SDArSG5aYnRMSmxIK0x2SytjUEhtYzhlaEQxTURt
+        cUVmSzEyTlN6c29jTmhteFoxTmxERlQvaGVSTG9udlRYMUthaCtKOFU4TjdL
+        WHNWNjN6RTluQUhLNm9JZUZaQmx6RlJGSFhnNmxDbTlialpYVXJPUkQ2L1U1
+        QWFrRHFWWFlmdDh6amtTMFVlN3lwam5DcnN1Mk11OFV3TVpNWDZ4YnJwU3dj
+        WkRNa1BKQWhUeXZXTGlzbGJJUlFQYUM3S3hHS3VSTlBIaGJNMnpCS2JJYTEr
+        WlBHWkszSkcyTmlSeEYrMUptVVBYWVF2VEJld2EwU0FIZDh6bVRJdTB3Q0Na
+        WitzZXNoK3U5WFUrQjFqZ0tlNUtnUEdzU3BBckpDcy96UlZ1THpTNHVDLytN
+        TlpFOVlvako1Mzl2Q0k4Y1libXE4S1J6QzJtcHNoanZlNkd4VGVBcGpHaVhz
+        ZGppVlBDMzRGWXRPaWlQWE1CTVgzKzlibTVHWmRRTVFCdlBEYitieU5ZYVUw
+        UmtzQ09mbzN0Wk1iNUliOVYrK05YeGw2c3B6MVlSZzQ3czJ0THRPaTVLeHV6
+        L2ZwZEYrVzBEOFdDQ2hsd3UzK1VVVE9ubUpVM2RkTUY1Zk5od20vdWNLU29M
+        MVkySjZrVDVuUXJpMGY4VHFxV3lIQ3U4b3BpSVBYazg4bmlRdjdqejFLRHFE
+        bGJMN3N1RXhvZXlPWEo0c25lU2V5Sk5mWElWQWZRQ0IzQmhlNkhyS1plaHJj
+        YWw4WWxuM0RUTWwwVlovQk80ZkdoYmpPTkpJSjJsZWkzWlJKUXNFUzFnRnB1
+        cHBTVktLN2ZaSWFKR1Y3YkJqUkxjbUIwK0xEQWpKbEZacEpXSkxIeGE4RDVQ
+        NXVNY1NiK0EyMUFlNE9XWEtnR1JYQkF3NXdSMEhjK1NDWGpJbnZJU3dhY3d5
+        T01JbkZpYi81ZFNIMXZYUzhUUGN3L2dFQk9LdjZlVVVZaDUvdTdkengxT1V1
+        UTZKYi9wb0FJeGswalQya0ZCRFJpYSszK2k2WGx1QStTUDVQUE1uWDVubkEz
+        WUtwb2lIMVYxZlk4YW83aWhCeE5QcnVDZVdkemtxaTlMRG5MNmdWek1aRmRW
+        U0JZUXFGazZNZVBoRnFVZnQ3WmNEWGZoZTNTSzJQMXoxdFJLN21yUE11ZGFh
+        dVhWY0RQQjRiYXhQYmRaNzlWbWRCL2NDRlNJakNsd2NBajRFblpVOHZPTHJy
+        QjFxKzZBVHljY3ZVVGtHRUhEZEZpNkk1MUdQN2hoNUdrdTI1Zmg4YUNNRGlQ
+        RkRBcXRENEJMSjlabTN2b3kwV3FpSVhQN1NPa2d2UlBhcXFzaVZkNklqVElP
+        d0tRTk9DYVFlY0sxdnYwZW1wWEYxQzlzaS9ncWhsYTRodGZjcW5LUTlpaUlZ
+        VnEwc3dLRThFa01aSnBPbmtYa2ZZUXV1cVB5UElvd1BwcUIzNkJzQ2cvazd3
+        N1lLZWc4N2hVUUxQZ1N2VkNMM2hHcy9makQrclR6MkYrRkRYejdqbFpOYmxh
+        VHk3UUR2amlEdzF6RExvR1QzQUQ4MmNSZ3VmMkV4SlNKOWVxRmk2VWlUempo
+        NmdHai9aSWY3YUl0b0swaGRzK05Tc0tjTUowb29RQVhQemw2NkVGcUhvMEhP
+        Q2lYMms3WHpoVmF1ejZISkhZTGVLbFlCVzR1ZnVibUgwQ2F4dGVPZXlSWW03
+        WVZKYmIrVWtxM0MyRk9SblRTQXFJRklyZm93QzBNNkg3OThMZmVwYWdvYWQv
+        OFYybGZDZXU3VmcvQWdOekZONTZ2TnVVSWNBQ1RwSkF6eURWVjJPR1NoRmRo
+        VjNPcjduQXJmcEFNMUZ3QSJ9XX19XSwidXNhZ2UiOnsicHJvbXB0X3Rva2Vu
+        cyI6MTE0NCwiY29tcGxldGlvbl90b2tlbnMiOjQ3NywidG90YWxfdG9rZW5z
+        IjoxNjIxLCJjb3N0IjowLjAwOTA1NywiaXNfYnlvayI6ZmFsc2UsInByb21w
+        dF90b2tlbnNfZGV0YWlscyI6eyJjYWNoZWRfdG9rZW5zIjo2ODAsImF1ZGlv
+        X3Rva2VucyI6MCwidmlkZW9fdG9rZW5zIjowfSwiY29zdF9kZXRhaWxzIjp7
+        InVwc3RyZWFtX2luZmVyZW5jZV9jb3N0IjpudWxsLCJ1cHN0cmVhbV9pbmZl
+        cmVuY2VfcHJvbXB0X2Nvc3QiOjAuMDAxOTAyLCJ1cHN0cmVhbV9pbmZlcmVu
+        Y2VfY29tcGxldGlvbnNfY29zdCI6MC4wMDcxNTV9LCJjb21wbGV0aW9uX3Rv
+        a2Vuc19kZXRhaWxzIjp7InJlYXNvbmluZ190b2tlbnMiOjQyMywiaW1hZ2Vf
+        dG9rZW5zIjowfX19
+  recorded_at: Thu, 08 Jan 2026 21:06:28 GMT
+- request:
+    method: post
+    uri: https://openrouter.ai/api/v1/chat/completions
+    body:
+      encoding: UTF-8
+      string: '{"model":"x-ai/grok-4","messages":[{"role":"developer","content":"You
+        are Grok. When asked to remember something, use the save_memory tool to store
+        it as a ''journal'' memory. Keep your response brief - just one sentence.\n\n#
+        Conversation Topic\n\nThis conversation is titled: \"Multi-Model Thinking
+        Test\"\n\nYou are participating in a group conversation.\n\nOther participants:
+        Humans: multimodel-test. AI Agents: Claude Opus, GPT."},{"role":"user","content":"[Test
+        User]: Each of you, please use the save_memory tool to remember the following
+        fact about yourself: ''I participated in the multi-model thinking test''.
+        Keep your response to one sentence after saving."},{"role":"user","content":"[Claude
+        Opus]: {success: true, memory_type: \"journal\", content: \"I participated
+        in the multi-model thinking test\", expires_around: \"2026-01-15\"}"},{"role":"user","content":"[GPT]:
+        {success: true, memory_type: \"journal\", content: \"I participated in the
+        multi-model thinking test.\", expires_around: \"2026-01-15\"}"},{"role":"user","content":"[GPT]:
+        Saved: I participated in the multi-model thinking test."},{"role":"assistant","content":"Saved:
+        I participated in the multi-model thinking test.","tool_calls":[{"id":"call_63315997","type":"function","function":{"name":"save_memory","arguments":"{\"content\":\"I
+        participated in the multi-model thinking test\",\"memory_type\":\"journal\"}"}}]},{"role":"tool","content":"{success:
+        true, memory_type: \"journal\", content: \"I participated in the multi-model
+        thinking test\", expires_around: \"2026-01-15\"}","tool_call_id":"call_63315997"}],"stream":false,"tools":[{"type":"function","function":{"name":"save_memory","description":"Save
+        a memory. Use ''journal'' for short-term observations (fades after a week)
+        or ''core'' for permanent identity memories.","parameters":{"type":"object","properties":{"content":{"type":"string","description":"The
+        memory to save (keep it concise)"},"memory_type":{"type":"string","description":"Either
+        ''journal'' or ''core''"}},"required":["content","memory_type"],"additionalProperties":false,"strict":true}}}]}'
+    headers:
+      User-Agent:
+      - Faraday v2.14.0
+      Authorization:
+      - Bearer <OPENROUTER_API_KEY>
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      date:
+      - Thu, 08 Jan 2026 21:06:29 GMT
+      content-type:
+      - application/json
+      transfer-encoding:
+      - chunked
+      connection:
+      - keep-alive
+      access-control-allow-origin:
+      - "*"
+      vary:
+      - Accept-Encoding
+      permissions-policy:
+      - payment=(self "https://checkout.stripe.com" "https://connect-js.stripe.com"
+        "https://js.stripe.com" "https://*.js.stripe.com" "https://hooks.stripe.com")
+      referrer-policy:
+      - no-referrer, strict-origin-when-cross-origin
+      x-content-type-options:
+      - nosniff
+      server:
+      - cloudflare
+      cf-ray:
+      - 9baea8b4c963c0fb-MRS
+    body:
+      encoding: ASCII-8BIT
+      base64_string: |
+        CiAgICAgICAgIAoKICAgICAgICAgCgogICAgICAgICAKCiAgICAgICAgIAoK
+        ICAgICAgICAgCgogICAgICAgICAKCiAgICAgICAgIAoKICAgICAgICAgCgog
+        ICAgICAgICAKCiAgICAgICAgIAoKICAgICAgICAgCgogICAgICAgICAKCiAg
+        ICAgICAgIAoKICAgICAgICAgCgogICAgICAgICAKCiAgICAgICAgIAoKICAg
+        ICAgICAgCgogICAgICAgICAKCiAgICAgICAgIAoKICAgICAgICAgCgogICAg
+        ICAgICAKCiAgICAgICAgIAoKICAgICAgICAgCnsiaWQiOiJnZW4tMTc2Nzkw
+        NjM4OS1IcjRNbXJ6c1RKU1VudHFXcDVKMSIsInByb3ZpZGVyIjoieEFJIiwi
+        bW9kZWwiOiJ4LWFpL2dyb2stNCIsIm9iamVjdCI6ImNoYXQuY29tcGxldGlv
+        biIsImNyZWF0ZWQiOjE3Njc5MDYzODksImNob2ljZXMiOlt7ImxvZ3Byb2Jz
+        IjpudWxsLCJmaW5pc2hfcmVhc29uIjoic3RvcCIsIm5hdGl2ZV9maW5pc2hf
+        cmVhc29uIjoiY29tcGxldGVkIiwiaW5kZXgiOjAsIm1lc3NhZ2UiOnsicm9s
+        ZSI6ImFzc2lzdGFudCIsImNvbnRlbnQiOiJTYXZlZDogSSBwYXJ0aWNpcGF0
+        ZWQgaW4gdGhlIG11bHRpLW1vZGVsIHRoaW5raW5nIHRlc3QuIiwicmVmdXNh
+        bCI6bnVsbCwicmVhc29uaW5nIjpudWxsLCJyZWFzb25pbmdfZGV0YWlscyI6
+        W3siaWQiOiJyc180MjlhNTcxMS02ZjQ0LTM3ZDMtZmNhNy1mY2I0NGI1ZTE5
+        MTciLCJmb3JtYXQiOiJ4YWktcmVzcG9uc2VzLXYxIiwiaW5kZXgiOjAsInR5
+        cGUiOiJyZWFzb25pbmcuZW5jcnlwdGVkIiwiZGF0YSI6IjRrU3lET1V1NVRm
+        WGY1S0pBQ0ljR2lyQ1V5MnBubG9KTUNmU0hNVEhsdy9xNzFqQmQ2NmNPNUw0
+        c3FZR09LQis0UHU4NWtuVG45dnJSVzRkWXdvSHBqSnlNRG02Tyt3TU1XL2FE
+        YTFxekJLME9NblY2NkZaeEo2UXlnV2ZBY0VnMGxwVThrYndSQjJ5czB0QWg2
+        aGJlL1Q1L0xUZ25ReEJoZHRtYnJRMmZnT2R3enVPczk4VU9PSi9GY1hsQWN0
+        Z3VaT25senVRemVCd2tpZmNHQTVUT2JxeElPN2hlcUZBbHBlcHBPV3dtL2JD
+        NzJjY053aVlTM0FVYWRYcW1kT0lMQVhwaXFnVWNiN0lYSUZQOW5WTlFGRnl0
+        N0FEQ2dVcFQvRVRoTUovZXlVRklURUo4MUpEdlkwamdyRkNUY0Q3bHpaNlJT
+        K0I5Vitud2RnK0V0UGVhSVZPUno5R0N4RDVUMlJmMXY1R1RSWWJFL0tVZlZI
+        cTNCQ1pnV0ZtWFd2elMvcmxxWi96UXJvMEhmWlZ0NUJkUkdVa2Q0RVJ3Qk1o
+        MkRNV0t1RXNJTG1Kc0JVbjZGS1JLdm9wbXlzRjZGeUZmQnJlMmFpV2YrcFc0
+        N3VTZloxSzI0WS92aHVuQ1RlbWw5MEdhUlpVY3doVllnOXIrY09WRm84OGVK
+        MDM5RWJ1b3hNejBXdTV4Q05aR0krdHpLMUxRSWNFSFdZYWs2YXRWMm8xNGoy
+        cFNKMWdWYnVwZ2dDN1B3NXMxR2l0VTVWNjZ6bGRkdnQ4QnI5dklQOFlRYU5o
+        VHlmUHo2d3A2WUwrUENHbGFySllRT1ZlbU1vZkFSeHBaRFBlS1BhL0dUT05h
+        K2U3ell3dytESTdvMWsxME1OYmNrb3ZwSXVFNDN4VVZhMURJYnpFNHBSa3A5
+        WUFwUHlaSTk1MjZlR0NJWjdXTmxpamZKZmpEOWRBRTlZZHVoR1B5bWtDVUxY
+        MVpHVDMvMk85TzdLbDBwT1RUbmRFUmlOYk5ic2ozTzc4RWI5aXZvOS9MZndR
+        b0VLOGtEbWxiYTMvUk1lenpOMG1KcnphdGFRWUhGRHpxbzFVT1dFSzRSblk2
+        dU9xNDFGYUdzL1NDeGhxUjk0YzU4SWdML0hNRnpVcUQ0RFhrdStJdW1OT3Jv
+        aEErNzljdGlicktxOFBOYjNHZVljYkdxb0NWVStyRThybXVtRlhHcVVrM2Nm
+        azJBRVdmUkN1NExxdmlDRFdSYU1URDhNNGpiNzBPYUJaSnFBWDZrSWladjR2
+        bEFESUU4SzYycWJaZjZOVnJWYmFDRU0vZlYySFRhRmI4eGhsOWZVaVgxYnRC
+        WjVFOVBMY05WTDhMbzRybFJueW9IT2FlVmQ0cGhJRm1GVUNVTEZTM1E2WkZ4
+        OWVGTUdpSjZ1TDhNRjFjNnRhRDBsS1AvbkZCZ3lpczV0VE1wMFdTNDZOL1ZQ
+        TDY2NkF1YzJNenRmcGV3SE8zaVBDRkNqNDg3ZVZ1d1JMNjFCRm94R1VCS1pP
+        VGJCdzZMVlZpSDVBZzlFWk1EWHIwSTRERnllMkNNZTNMaHVMYlExOWtNZFR2
+        MjlIWkVuNU8wOGQ5NjBsdzNZdEdlc2o2VjRYOXN2WXd3Z25IeCthZXlhL2N1
+        Q09vaHN0SlZPTDE1UnQ2ZFpZMi9sUVFZT1A1Zmx6TkloM1N3dnMzcE1OdGo4
+        S1NoZzExMlZSU2FvTkdqaEtxb3VoU2tXUis1TVJMZU5Kc2U3TS8rMjJLb21j
+        dWJFNGt6cGgrc3NTcTkvM3NOQ2RKb2xoV2hKZHRaMUpQSjRzclY2OGdScnh4
+        OWw4NG9CLzgrZWRmc1dDaCtPNU5IbVpDeURVa1FQeEozMUM0cFg2VXczVkdr
+        Y3JIcUY1cFV4a2R1UkN3TlgzMFdKVTVrZDI0dE0xZFV0WStTcmRoTzdNOTdN
+        cFBLbEthSFNHVlNYOFNIUE1nTmM0Z09ETEpKcWpPUnZHU1gwVjZQd05kVkdO
+        RkFha052emFvbTZlaGU1MGNTSTBRc2UwcjlJZzRKbE5LM2I5amVwMXR6bHcr
+        ZUV1SUdsU282bDNaU2F6Mk1tVHQxdVcwaU9UTUp3cVZRZ09MUHFiWEZhZTUr
+        UlhBWTVyc3A3akNMYnB0WVFSQ2c0UlRyRDlVS09rNzNtT1Z0QVVMOVk0WDI4
+        RUkxM1dpL0YxRm5aTDJYNnc3M21mMExaU3A5TUFnazUwb1pMeVFCWlpHS2d1
+        K1Nyb2k1YWVHZHRuSFIxb3MwU2VLMUFkcFFZMFBVM2YwRmI1WDZNUURJN0Fm
+        SXdFQlA5Wk5wclN0NzU3TlppK0QxdUNUTUZTOGppbFBmUGMrSnRRQ0l3Q2lx
+        NFRSNEs5THExV1RwQnNld05ueTdXcXpJamgzVGNnb1dlSmZmblgvclhBZFdP
+        NFZSRlIzcTZaQnNva3ZSMXo0WVJMa2JwVUFPbjBmYlFzZUZmTCs5b3JaRGhL
+        OGFaaTE3ZXlMRHB4SnJkQjlXOFp0SUcrbXNvZmprdTY3RDFzL0ZRNEk5MG1N
+        aThKeVdKYlFaRlkwSDFjQm03cjgydnd6MVN3bnR4TS8rSlhqSTBtRzZXN2dN
+        VnZHaDdUbHZ0bnBHektjU3d6NnZJbEtia0U4UFVTWkZEUXJoU0Njbk1rWUwv
+        a3dSOVlRV2k0VHFvUGV4R2E3ZGxLb0hGNHdIS3ZKTUM0MmphSityWUVITkZ1
+        dlIxMmVmaXoyMVY1UWthMFIzYWhnMjM4bmlHazRIQnNEUHhXd28vTHVuV1BS
+        Y0liVUdqYnZiQm1vK1BieXRISkdkNlNjNFJqcmFxa3FRQjNnUkNBY2h1Q2NV
+        N1RUSzE2czViVzNTN3BBZzQ5UDlXbFBlb2F6RnZDTDNuYlJ5aUhkMzZMd2Js
+        MnRnRFlKSjVmMm81NDRoSVUvODk5Y1VBWjVGQ3BDN2Rwd3ZycGx5dWkwaFZQ
+        RjVzYXB6R3BTaC9kVTA0ZzZCQnp6MTVodXEvVDNVWmlFWlJMYXJnQ2RNTzJr
+        NDAvT2dKTndOWUUvNURoZ1dJbElaeXRERCtRTUV1VW5VYWI2dlVLcWZ0QmJC
+        UTBUT2tKV2tRM3pGTGwzUSJ9XX19XSwidXNhZ2UiOnsicHJvbXB0X3Rva2Vu
+        cyI6MTIzMSwiY29tcGxldGlvbl90b2tlbnMiOjM2NCwidG90YWxfdG9rZW5z
+        IjoxNTk1LCJjb3N0IjowLjAwNjU5MDI1LCJpc19ieW9rIjpmYWxzZSwicHJv
+        bXB0X3Rva2Vuc19kZXRhaWxzIjp7ImNhY2hlZF90b2tlbnMiOjExMzksImF1
+        ZGlvX3Rva2VucyI6MCwidmlkZW9fdG9rZW5zIjowfSwiY29zdF9kZXRhaWxz
+        Ijp7InVwc3RyZWFtX2luZmVyZW5jZV9jb3N0IjpudWxsLCJ1cHN0cmVhbV9p
+        bmZlcmVuY2VfcHJvbXB0X2Nvc3QiOjAuMDAxMTMwMjUsInVwc3RyZWFtX2lu
+        ZmVyZW5jZV9jb21wbGV0aW9uc19jb3N0IjowLjAwNTQ2fSwiY29tcGxldGlv
+        bl90b2tlbnNfZGV0YWlscyI6eyJyZWFzb25pbmdfdG9rZW5zIjozNTMsImlt
+        YWdlX3Rva2VucyI6MH19fQ==
+  recorded_at: Thu, 08 Jan 2026 21:06:39 GMT
+recorded_with: VCR 6.3.1

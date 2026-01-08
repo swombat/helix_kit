@@ -27,11 +27,42 @@ The testing strategy for Helix Kit follows a multi-layered approach to ensure re
 
 The application uses Rails' default Minitest framework for backend testing.
 
-When doing Ruby tests, NEVER use mocks or stubs.
+## ⚠️ CRITICAL: NO MOCKING IN RUBY TESTS - EVER!
 
-If an external API is being tested, use VCR to record the responses and use them in the tests.
+**NEVER use mocks, stubs, or fake objects in Ruby tests!**
 
-NEVER use mocks and stubs in Ruby tests!
+This includes:
+- ❌ `Minitest::Mock`
+- ❌ `stub` or `stub_any_instance`
+- ❌ Custom mock/fake classes that simulate API behavior
+- ❌ Any pattern where you create a fake object to simulate real behavior
+
+**Why?** Mocks only test that your understanding of an API matches your implementation. They don't test that your code actually works with the real API. If your code has a bug, a mock will hide it because the mock reflects your (potentially flawed) assumptions.
+
+### External API Testing: Use VCR
+
+For external API calls (LLM APIs, webhooks, etc.), use VCR to record REAL API responses:
+
+```ruby
+VCR.use_cassette("my_api_call") do
+  # This makes a REAL API call the first time
+  # and replays the recorded response on subsequent runs
+  result = SomeService.call_api(params)
+  assert_equal expected_value, result
+end
+```
+
+**VCR benefits:**
+- Tests real API behavior (recorded from actual calls)
+- Fast replay on subsequent runs
+- Catches API changes when cassettes are re-recorded
+- Documents actual API responses in cassette files
+
+**If VCR doesn't work for a specific case** (e.g., streaming responses), find a real solution:
+1. Configure VCR/Faraday to handle the case
+2. Use non-streaming mode in tests if available
+3. Run against real API (slower but tests real behavior)
+4. Ask for help - don't resort to mocks!
 
 NEVER skip tests or delete tests without the user's explicit approval.
 

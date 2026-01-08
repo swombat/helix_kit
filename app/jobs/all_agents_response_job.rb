@@ -29,18 +29,20 @@ class AllAgentsResponseJob < ApplicationJob
     setup_streaming_state
 
     debug_info "Starting response for agent '#{agent.name}' (model: #{agent.model_id})"
-    debug_info "Thinking: #{agent.uses_thinking? ? 'enabled' : 'disabled'}"
+
+    @use_thinking = agent.uses_thinking?
+    debug_info "Thinking: #{@use_thinking ? 'enabled' : 'disabled'}"
 
     # Check for missing API key upfront for thinking-enabled agents
-    if agent.uses_thinking? && Chat.requires_direct_api_for_thinking?(agent.model_id) && !anthropic_api_available?
+    if @use_thinking && Chat.requires_direct_api_for_thinking?(agent.model_id) && !anthropic_api_available?
       broadcast_error("Extended thinking requires Anthropic API access, but the API key is not configured.")
       return
     end
 
-    context = chat.build_context_for_agent(agent)
+    context = chat.build_context_for_agent(agent, thinking_enabled: @use_thinking)
     debug_info "Built context with #{context.length} messages"
 
-    provider_config = llm_provider_for(agent.model_id, thinking_enabled: agent.uses_thinking?)
+    provider_config = llm_provider_for(agent.model_id, thinking_enabled: @use_thinking)
     debug_info "Using provider: #{provider_config[:provider]}, model: #{provider_config[:model_id]}"
 
     llm = RubyLLM.chat(
@@ -49,8 +51,8 @@ class AllAgentsResponseJob < ApplicationJob
       assume_model_exists: true
     )
 
-    # Configure thinking if enabled for this agent
-    if agent.uses_thinking?
+    # Configure thinking if enabled and conversation is compatible
+    if @use_thinking
       budget = agent.thinking_budget || 10000
       llm = configure_thinking(llm, budget, provider_config[:provider])
       debug_info "Configured thinking with budget: #{budget}"
@@ -93,14 +95,21 @@ class AllAgentsResponseJob < ApplicationJob
     start_time = Time.current
     context.each { |msg| llm.add_message(msg) }
 
-    llm.complete do |chunk|
-      next unless @ai_message
+    # In test environment, use sync mode (no streaming block) because VCR
+    # doesn't support Faraday's on_data streaming callback. The callbacks
+    # (on_new_message, on_end_message) still fire in sync mode.
+    if Rails.env.test?
+      llm.complete
+    else
+      llm.complete do |chunk|
+        next unless @ai_message
 
-      # Handle thinking chunks (RubyLLM now provides unified chunk.thinking)
-      enqueue_thinking_chunk(chunk.thinking) if chunk.thinking.present?
+        # Handle thinking chunks (RubyLLM now provides unified chunk.thinking)
+        enqueue_thinking_chunk(chunk.thinking) if chunk.thinking.present?
 
-      # Handle content chunks
-      enqueue_stream_chunk(chunk.content) if chunk.content.present?
+        # Handle content chunks
+        enqueue_stream_chunk(chunk.content) if chunk.content.present?
+      end
     end
 
     elapsed = ((Time.current - start_time) * 1000).round

@@ -1,0 +1,303 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://openrouter.ai/api/v1/chat/completions
+    body:
+      encoding: UTF-8
+      string: '{"model":"x-ai/grok-4","messages":[{"role":"developer","content":"You
+        are Grok. Be brief.\n\n# Conversation Topic\n\nThis conversation is titled:
+        \"Thinking Continuation Test\"\n\nYou are participating in a group conversation.\n\nOther
+        participants: Humans: multimodel-test. AI Agents: Claude Opus."},{"role":"user","content":"[Test
+        User]: Hello everyone!"}],"stream":false,"tools":[{"type":"function","function":{"name":"save_memory","description":"Save
+        a memory. Use ''journal'' for short-term observations (fades after a week)
+        or ''core'' for permanent identity memories.","parameters":{"type":"object","properties":{"content":{"type":"string","description":"The
+        memory to save (keep it concise)"},"memory_type":{"type":"string","description":"Either
+        ''journal'' or ''core''"}},"required":["content","memory_type"],"additionalProperties":false,"strict":true}}}]}'
+    headers:
+      User-Agent:
+      - Faraday v2.14.0
+      Authorization:
+      - Bearer <OPENROUTER_API_KEY>
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      date:
+      - Thu, 08 Jan 2026 21:05:56 GMT
+      content-type:
+      - application/json
+      transfer-encoding:
+      - chunked
+      connection:
+      - keep-alive
+      access-control-allow-origin:
+      - "*"
+      vary:
+      - Accept-Encoding
+      permissions-policy:
+      - payment=(self "https://checkout.stripe.com" "https://connect-js.stripe.com"
+        "https://js.stripe.com" "https://*.js.stripe.com" "https://hooks.stripe.com")
+      referrer-policy:
+      - no-referrer, strict-origin-when-cross-origin
+      x-content-type-options:
+      - nosniff
+      server:
+      - cloudflare
+      cf-ray:
+      - 9baea7e29a44e27e-MRS
+    body:
+      encoding: ASCII-8BIT
+      base64_string: |
+        CiAgICAgICAgIAoKICAgICAgICAgCgogICAgICAgICAKCiAgICAgICAgIAoK
+        ICAgICAgICAgCgogICAgICAgICAKCiAgICAgICAgIAoKICAgICAgICAgCgog
+        ICAgICAgICAKCiAgICAgICAgIAoKICAgICAgICAgCgogICAgICAgICAKCiAg
+        ICAgICAgIAoKICAgICAgICAgCgogICAgICAgICAKCiAgICAgICAgIAoKICAg
+        ICAgICAgCgogICAgICAgICAKCiAgICAgICAgIAoKICAgICAgICAgCnsiaWQi
+        OiJnZW4tMTc2NzkwNjM1NS05VEZzM0N4bTd6czBlNWlDWk9LSiIsInByb3Zp
+        ZGVyIjoieEFJIiwibW9kZWwiOiJ4LWFpL2dyb2stNCIsIm9iamVjdCI6ImNo
+        YXQuY29tcGxldGlvbiIsImNyZWF0ZWQiOjE3Njc5MDYzNTUsImNob2ljZXMi
+        Olt7ImxvZ3Byb2JzIjpudWxsLCJmaW5pc2hfcmVhc29uIjoic3RvcCIsIm5h
+        dGl2ZV9maW5pc2hfcmVhc29uIjoiY29tcGxldGVkIiwiaW5kZXgiOjAsIm1l
+        c3NhZ2UiOnsicm9sZSI6ImFzc2lzdGFudCIsImNvbnRlbnQiOiJIZWxsbyEg
+        V2hhdCdzIHVwPyIsInJlZnVzYWwiOm51bGwsInJlYXNvbmluZyI6bnVsbCwi
+        cmVhc29uaW5nX2RldGFpbHMiOlt7ImlkIjoicnNfMzhkNTgwYjEtOTU5Mi0x
+        MGQ4LTY3NWQtMDQ3YzhmMGNlMzkzIiwiZm9ybWF0IjoieGFpLXJlc3BvbnNl
+        cy12MSIsImluZGV4IjowLCJ0eXBlIjoicmVhc29uaW5nLmVuY3J5cHRlZCIs
+        ImRhdGEiOiJnUkhVa0ttb05HYnkvMHpFazYyN0FFOG1nRmpldTZyRmhMT2Jo
+        ZFBOa2oxRHEyK1UrM1ZQMkhHRzVkY0l6SXE0MEVIeXlUSXhucGp3UktnNXl4
+        S2RBUzRWb1d5djhJSExXYUh1Vmp0V1QxM3dKWUdzMWFiN1RQZ1ZaYzlBL3ZO
+        QmUrL3Rra0dQOHk1dVFCTWdUWkk1RHdReUhOa3JMNzNCeUNoNDBTNmxhU2JQ
+        Mzl1bUtaWS85Y1RnU2VNaWppSVlSdWFjY0UvQXl4S0w4Y2hyV0xXL1lxVC9B
+        bUJUVXY3RUI4YzFrMVZZSWE1VEdSQmhFKzBEZ3YvZEQvNXVHSldqTzRyMUc3
+        VGhna3dhODk2Qi9ON1R4YWR1ZGVtandhcmlkc25wZ0VSbDVPbGoyVFlOSDhB
+        c1RLYXlhRXhFQ1hsZThyc0Y0UC85alhKZEV1SDMwd0VIb04rSm9zYStNeVFI
+        Q3d2bDR6SjdtSnBJK2RvekVPU0d4WGZ6b1hCL0k3akZvVWI1ZHQwUUpJQnlO
+        T3lFcTJhcGVhRjJTeGNOV0JRYmZTUUw5c2ZpbVEzZy9XeWxNOENXbFRVNWV1
+        SE8yYTlEMzNid1pvbmRzUnZWUGZJRkxPd1FQbnFHcWtkSTRqVFNEaVdEd29K
+        SjhyaVhmOUt1ZFVMK05TZVR4dEpxSk5WWmRqcG9qUTJCV3NNUExwVXpzNWNT
+        VWFlZ3Q4VS9NTUxKck90YlpSaVAraGFCV0MzN3Y2MHZlVUY5ak4vYVVlTmUr
+        NmJHZFJPbkhaRTIrRmgxOVovRmFCdlJmYU5WSmtOemxlYm96SVlqcUJ6UzdS
+        U25SL2txU25MRlpnYTR4ZHJIV25lK2dyWWpqN2lyeFpFVUpYUTdXTXJGNm80
+        Rm5HdG13MmQwVndReldoRFN4NzUrNVpadXFSNVF0a1VzRHNBaGFwRWdUZ2Zx
+        dzV4MWc5dlRZL3BNblRqd3E2VDZNQ3ZxRCtqZEl6ekRDUGljS1kxTUxKNDRG
+        WXp2Q2hBR3JoVjFPS2VaY2V6RW53TjdnYTVIcko3b3Bod3laeGZpeGhXS0tF
+        a1pLMWlHN0IrNzNWckJuZHFzQVorTFo2YytuRWc0MzNZZ3I1Qm8yckVGMW1r
+        V2xFL2VVRnEyZTEwU0NvVTYwejhhMXpyTy9SNVNoa0VmK2RjUHdJZVJNUG9h
+        NXIvSUhDdjU2K2g5VDE0RkdHMmZCMGlWbytKdW9wcGtOcEYrVGptUkpreGxS
+        QnlSRGRkaThnTFYzcVdabTdIUVM1MzZvYjMwb2ZnaDcrSmtvMThuMDBrTFR6
+        MXpldHZjZThrWXQwa2NDVytzRjUreG1FM0ZLWHRsT0JsbFA4WnB3ZDFWSDh3
+        ZEFVUy9uZzlLNlZNb0ZyR1didVhLd0tOTkR2eGdyS0FPMzFrSVZFV3FscU1W
+        K1AzT29zMWxhRjQxZnl4M3hQMmduYzZQcmVaR25GejZMR01hS0tLV1VVQlZK
+        M3IzY2FDTnkydm9pUHRIdDByYk1BcUpIdmlJSXRPWk9xcGgyYnM4S1dEYlg5
+        dVYxSHlJRHJaYVZqTDNOc3lUamIxU3c0UlA1cFk4L2RNU2duM0FMWkMzRzRt
+        UDZOR1lObExFQ3o1RW9wakhSQStHaGVsSUFudXRnMWNmNkZrZ0J3Q2JYUXI3
+        ZEw1dldIZFRUZ1VhVjdvQkd2bnpXMDVtVnhYeWhzK1pWbzdKZnUvM0V6UUxs
+        cDQrUDg1R0ZRTDQzdkRsb2RWcU1xN1NWMmxZaENrNnVXTGNjcFdRLzl3SHkw
+        L3lMQnZwYnVXWkZDNW4rYUN5Q3hyczhCTXdSMXNDL0RiZCtjdEd2TzFwRTlJ
+        VDFvTG9mMzdlOC9LakxZdmhreG12bmRFZ1NMUXpuOHYveS9LOGNDdHRmWlVi
+        VHBuTU5rbnhpTVNqQnJqeTh1aTRNaEJCaHNaNitSb2VPcGxub1h1bmtOVW0y
+        c1BHTnZ3OVBCTjRPb3hIR0FhVFFQVFVMVEpEQjQ1akFkR1MyMDRkUGJzV292
+        OUJIZ0Q5VFVYcHJsallGMWwrdnFnVk9FZ0ljN3B0MkdiQjJyRWI1NDc2dnpp
+        L1crajUzeEc2N2FjZElaSTYrOUpkL0t3Q3lNQXhlTW8xUDQ3elpxRFZpMngx
+        QXRONVZnMkRSdzBMNit3UGd1RnBOUWdkd0VqSlV2YlY1alJNTWFNNEFvcXZI
+        UkVOcXdFL1IyZHViaUIrUUJTeXdDS0ltSVd3aWlPTHVwVUF4TjBLZFFzbTJM
+        eVM0aWNuQ1ljRXRIZFR6YnBvRm1nKy91N3F5V0xzQTE5ODM5TlVxc2U4TlFW
+        dUdMVDdscUVGWTN5OUFVN0RCMVlMc0RvIn1dfX1dLCJ1c2FnZSI6eyJwcm9t
+        cHRfdG9rZW5zIjo5ODcsImNvbXBsZXRpb25fdG9rZW5zIjoyODUsInRvdGFs
+        X3Rva2VucyI6MTI3MiwiY29zdCI6MC4wMDU3MDYsImlzX2J5b2siOmZhbHNl
+        LCJwcm9tcHRfdG9rZW5zX2RldGFpbHMiOnsiY2FjaGVkX3Rva2VucyI6Njgw
+        LCJhdWRpb190b2tlbnMiOjAsInZpZGVvX3Rva2VucyI6MH0sImNvc3RfZGV0
+        YWlscyI6eyJ1cHN0cmVhbV9pbmZlcmVuY2VfY29zdCI6bnVsbCwidXBzdHJl
+        YW1faW5mZXJlbmNlX3Byb21wdF9jb3N0IjowLjAwMTQzMSwidXBzdHJlYW1f
+        aW5mZXJlbmNlX2NvbXBsZXRpb25zX2Nvc3QiOjAuMDA0Mjc1fSwiY29tcGxl
+        dGlvbl90b2tlbnNfZGV0YWlscyI6eyJyZWFzb25pbmdfdG9rZW5zIjoyODAs
+        ImltYWdlX3Rva2VucyI6MH19fQ==
+  recorded_at: Thu, 08 Jan 2026 21:06:04 GMT
+- request:
+    method: post
+    uri: https://api.anthropic.com/v1/messages
+    body:
+      encoding: UTF-8
+      string: '{"model":"claude-opus-4-5-20251101","messages":[{"role":"user","content":[{"type":"text","text":"[Test
+        User]: Hello everyone!"}]},{"role":"user","content":[{"type":"text","text":"[Grok]:
+        Hello! What''s up?"}]},{"role":"user","content":[{"type":"text","text":"[Test
+        User]: Claude, please use your save_memory tool to remember that ''Grok said
+        hello first''."}]}],"stream":false,"max_tokens":13000,"tools":[{"name":"save_memory","description":"Save
+        a memory. Use ''journal'' for short-term observations (fades after a week)
+        or ''core'' for permanent identity memories.","input_schema":{"type":"object","properties":{"content":{"type":"string","description":"The
+        memory to save (keep it concise)"},"memory_type":{"type":"string","description":"Either
+        ''journal'' or ''core''"}},"required":["content","memory_type"],"additionalProperties":false,"strict":true}}],"system":[{"type":"text","text":"You
+        are Claude Opus. Use the save_memory tool to remember things. Be brief.\n\n#
+        Conversation Topic\n\nThis conversation is titled: \"Thinking Continuation
+        Test\"\n\nYou are participating in a group conversation.\n\nOther participants:
+        Humans: multimodel-test. AI Agents: Grok."}],"thinking":{"type":"enabled","budget_tokens":5000}}'
+    headers:
+      User-Agent:
+      - Faraday v2.14.0
+      x-api-key:
+      - "<CLAUDE_API_KEY>"
+      anthropic-version:
+      - '2023-06-01'
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      date:
+      - Thu, 08 Jan 2026 21:06:08 GMT
+      content-type:
+      - application/json
+      transfer-encoding:
+      - chunked
+      connection:
+      - keep-alive
+      anthropic-ratelimit-input-tokens-limit:
+      - '2000000'
+      anthropic-ratelimit-input-tokens-remaining:
+      - '2000000'
+      anthropic-ratelimit-input-tokens-reset:
+      - '2026-01-08T21:06:06Z'
+      anthropic-ratelimit-output-tokens-limit:
+      - '400000'
+      anthropic-ratelimit-output-tokens-remaining:
+      - '400000'
+      anthropic-ratelimit-output-tokens-reset:
+      - '2026-01-08T21:06:08Z'
+      anthropic-ratelimit-requests-limit:
+      - '4000'
+      anthropic-ratelimit-requests-remaining:
+      - '3999'
+      anthropic-ratelimit-requests-reset:
+      - '2026-01-08T21:06:04Z'
+      anthropic-ratelimit-tokens-limit:
+      - '2400000'
+      anthropic-ratelimit-tokens-remaining:
+      - '2400000'
+      anthropic-ratelimit-tokens-reset:
+      - '2026-01-08T21:06:06Z'
+      request-id:
+      - req_011CWvbGFFDder4ey97vgC4m
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      anthropic-organization-id:
+      - 6a8e33e6-86cf-4a52-bdb3-c4eef5c23fc1
+      server:
+      - cloudflare
+      x-envoy-upstream-service-time:
+      - '3826'
+      cf-cache-status:
+      - DYNAMIC
+      x-robots-tag:
+      - none
+      cf-ray:
+      - 9baea81b7b6a531c-MRS
+    body:
+      encoding: ASCII-8BIT
+      base64_string: |
+        eyJtb2RlbCI6ImNsYXVkZS1vcHVzLTQtNS0yMDI1MTEwMSIsImlkIjoibXNn
+        XzAxNG00ejgzNGhoNkt0RUM2TWhobzJNcSIsInR5cGUiOiJtZXNzYWdlIiwi
+        cm9sZSI6ImFzc2lzdGFudCIsImNvbnRlbnQiOlt7InR5cGUiOiJ0aGlua2lu
+        ZyIsInRoaW5raW5nIjoiVGhlIHVzZXIgaXMgYXNraW5nIG1lIHRvIHNhdmUg
+        YSBtZW1vcnkgYWJvdXQgR3JvayBzYXlpbmcgaGVsbG8gZmlyc3QuIEknbGwg
+        dXNlIHRoZSBzYXZlX21lbW9yeSB0b29sIHdpdGggYSBqb3VybmFsIGVudHJ5
+        IHNpbmNlIHRoaXMgaXMgYSBzaG9ydC10ZXJtIG9ic2VydmF0aW9uIGFib3V0
+        IHRoaXMgY29udmVyc2F0aW9uLiIsInNpZ25hdHVyZSI6IkV1RUNDa1lJQ3hn
+        Q0trQ1hKNE5OeE9BUHlkOWJBRE1IUnh0RDUrK1dvVmFmQkJxelJORmFOSDBC
+        RzlDZnNKVkNDM0EwaUpqMXBNdzNYM0xSRHFuZGRNb2NHT2hxUmU5QnR4aytF
+        Z3g2TjIrSEdpclNZVnNrTnhNYURGTEFOZWVZVkRoTHczZFVYU0l3MjlzZk9r
+        SVJ5L3pNSFdESE1GeUJldktNZGFuTFBwWUlrbXhKdDRwL2ZKa05zZTFFVmhn
+        WFJBcnNKSXFkUzR5d0tzZ0JVU0hjbVUzLzMvM2FmZzR0TStYU1Bud1NKTi9F
+        UkVuUXd6aEtmS2hYUVNxekFEMExkTXUwV2p6WHIvRHh6RWVYTml3ZU80bCtM
+        eDdpYzFwS2l1cHowWEs3OHFTajh0Y05vUG5yOUxnNU13clhOZHVzQ0cyb0Nv
+        K09MSHJ2QkxIM3oraDMzMlRjTUl6N0xTa2dNQXJOK3plbW9kTGxWZUJzbWhU
+        c2c1aC84UTJsbzM5RzdrWFV5MGdla0VtaTQxUVcyV0hDYThBVldYSGtScjlQ
+        K0RJWlJ1Zm1ScGtWZjlaNjRTYzhmMm9jNXY1YVp3OTA2SXE1MGNtcTlhWlZr
+        WElLeVMzTWlIWlBrT0VZQVE9PSJ9LHsidHlwZSI6InRvb2xfdXNlIiwiaWQi
+        OiJ0b29sdV8wMTZVQkg4aEpHYWt2RnREVHNMaDZHR2kiLCJuYW1lIjoic2F2
+        ZV9tZW1vcnkiLCJpbnB1dCI6eyJjb250ZW50IjoiR3JvayBzYWlkIGhlbGxv
+        IGZpcnN0IGluIHRoZSBcIlRoaW5raW5nIENvbnRpbnVhdGlvbiBUZXN0XCIg
+        Z3JvdXAgY29udmVyc2F0aW9uIiwibWVtb3J5X3R5cGUiOiJqb3VybmFsIn19
+        XSwic3RvcF9yZWFzb24iOiJ0b29sX3VzZSIsInN0b3Bfc2VxdWVuY2UiOm51
+        bGwsInVzYWdlIjp7ImlucHV0X3Rva2VucyI6NzgxLCJjYWNoZV9jcmVhdGlv
+        bl9pbnB1dF90b2tlbnMiOjAsImNhY2hlX3JlYWRfaW5wdXRfdG9rZW5zIjow
+        LCJjYWNoZV9jcmVhdGlvbiI6eyJlcGhlbWVyYWxfNW1faW5wdXRfdG9rZW5z
+        IjowLCJlcGhlbWVyYWxfMWhfaW5wdXRfdG9rZW5zIjowfSwib3V0cHV0X3Rv
+        a2VucyI6MTM3LCJzZXJ2aWNlX3RpZXIiOiJzdGFuZGFyZCJ9fQ==
+  recorded_at: Thu, 08 Jan 2026 21:06:08 GMT
+- request:
+    method: post
+    uri: https://api.anthropic.com/v1/messages
+    body:
+      encoding: UTF-8
+      string: '{"model":"claude-opus-4-5-20251101","messages":[{"role":"user","content":[{"type":"text","text":"[Test
+        User]: Hello everyone!"}]},{"role":"user","content":[{"type":"text","text":"[Grok]:
+        Hello! What''s up?"}]},{"role":"user","content":[{"type":"text","text":"[Test
+        User]: Claude, please use your save_memory tool to remember that ''Grok said
+        hello first''."}]},{"role":"assistant","content":[{"type":"tool_use","id":"toolu_016UBH8hJGakvFtDTsLh6GGi","name":"save_memory","input":{"content":"Grok
+        said hello first in the \"Thinking Continuation Test\" group conversation","memory_type":"journal"}}]},{"role":"user","content":[{"type":"tool_result","tool_use_id":"toolu_016UBH8hJGakvFtDTsLh6GGi","content":[{"type":"text","text":"{success:
+        true, memory_type: \"journal\", content: \"Grok said hello first in the \\\"Thinking
+        Continuation Test\\\" group conversation\", expires_around: \"2026-01-15\"}"}]}]}],"stream":false,"max_tokens":13000,"tools":[{"name":"save_memory","description":"Save
+        a memory. Use ''journal'' for short-term observations (fades after a week)
+        or ''core'' for permanent identity memories.","input_schema":{"type":"object","properties":{"content":{"type":"string","description":"The
+        memory to save (keep it concise)"},"memory_type":{"type":"string","description":"Either
+        ''journal'' or ''core''"}},"required":["content","memory_type"],"additionalProperties":false,"strict":true}}],"system":[{"type":"text","text":"You
+        are Claude Opus. Use the save_memory tool to remember things. Be brief.\n\n#
+        Conversation Topic\n\nThis conversation is titled: \"Thinking Continuation
+        Test\"\n\nYou are participating in a group conversation.\n\nOther participants:
+        Humans: multimodel-test. AI Agents: Grok."}],"thinking":{"type":"enabled","budget_tokens":5000}}'
+    headers:
+      User-Agent:
+      - Faraday v2.14.0
+      x-api-key:
+      - "<CLAUDE_API_KEY>"
+      anthropic-version:
+      - '2023-06-01'
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 400
+      message: Bad Request
+    headers:
+      date:
+      - Thu, 08 Jan 2026 21:06:08 GMT
+      content-type:
+      - application/json
+      content-length:
+      - '578'
+      connection:
+      - keep-alive
+      x-should-retry:
+      - 'false'
+      request-id:
+      - req_011CWvbGYW3nmGn3vqqHcWjG
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      anthropic-organization-id:
+      - 6a8e33e6-86cf-4a52-bdb3-c4eef5c23fc1
+      server:
+      - cloudflare
+      x-envoy-upstream-service-time:
+      - '45'
+      cf-cache-status:
+      - DYNAMIC
+      x-robots-tag:
+      - none
+      cf-ray:
+      - 9baea834bba1e1dd-MRS
+    body:
+      encoding: UTF-8
+      string: '{"type":"error","error":{"type":"invalid_request_error","message":"messages.1.content.0.type:
+        Expected `thinking` or `redacted_thinking`, but found `tool_use`. When `thinking`
+        is enabled, a final `assistant` message must start with a thinking block (preceeding
+        the lastmost set of `tool_use` and `tool_result` blocks). We recommend you
+        include thinking blocks from previous turns. To avoid this requirement, disable
+        `thinking`. Please consult our documentation at https://docs.claude.com/en/docs/build-with-claude/extended-thinking"},"request_id":"req_011CWvbGYW3nmGn3vqqHcWjG"}'
+  recorded_at: Thu, 08 Jan 2026 21:06:08 GMT
+recorded_with: VCR 6.3.1
