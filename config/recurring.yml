@@ -22,3 +22,7 @@ production:
   consolidate_conversations:
     class: ConsolidateStaleConversationsJob
     schedule: every hour at minute 30
+
+  database_backup:
+    class: DatabaseBackupJob
+    schedule: every day at 4am

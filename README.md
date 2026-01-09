@@ -43,6 +43,7 @@ Unlike typical app-kits, this one begins with the assumption that all apps worth
     - [x] Memory management (Journal - mid term, Core - long term)
     - [x] Consolidation of idle conversations (hourly job)
     - [x] Shared whiteboard for collaborative editing
+- **Automated Database Backups** - Daily PostgreSQL backups to S3 via scheduled job
 
 ## Target features (TODO)
 
@@ -100,6 +101,7 @@ Unlike typical app-kits, this one begins with the assumption that all apps worth
       s3_bucket: ...
       s3_region: ...
       secret_access_key: ...
+      postgres_bucket: ...  # For automated database backups
 
     ai:
       claude:

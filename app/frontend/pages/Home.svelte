@@ -29,6 +29,7 @@
     Trash,
     Chats,
     Lightbulb,
+    CloudArrowUp,
   } from 'phosphor-svelte';
   import * as Card from '$lib/components/shadcn/card/index.js';
 
@@ -157,6 +158,11 @@
         'Multiple agents in single chat with memory management (Journal/Core), conversation consolidation, and shared whiteboard.',
       icon: Chats,
     },
+    {
+      title: 'Automated Database Backups',
+      description: 'Daily PostgreSQL backups to S3 via scheduled job with compression and easy restore process.',
+      icon: CloudArrowUp,
+    },
   ];
 
   const todoFeatures = [
@@ -209,7 +215,9 @@
       frontend, with Ruby on Rails as the backend, and including a number of other useful libraries and tools.
     </p>
     <p class="opacity-80 mt-4">
-      Unlike typical app-kits, this one begins with the assumption that all apps worth building at this point will have heavy AI integration, including at the very least chat/conversation features, agentic set ups, tools, and group chat features.
+      Unlike typical app-kits, this one begins with the assumption that all apps worth building at this point will have
+      heavy AI integration, including at the very least chat/conversation features, agentic set ups, tools, and group
+      chat features.
     </p>
     <div class="mt-8">
       <a href={githubUrl} class={buttonVariants({ variant: 'default' })} target="_blank" rel="noopener noreferrer">

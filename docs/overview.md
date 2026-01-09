@@ -27,6 +27,7 @@ This directory contains detailed documentation for the Helix Kit Rails applicati
   - [Polymorphic Tools](./polymorphic-tools.md) - Domain-based tool consolidation pattern for scaling to 50+ capabilities
 - **[Frontend](./frontend.md)** - Svelte, Inertia.js, and component organization
 - **[Database](./database.md)** - PostgreSQL setup and Solid adapters configuration
+- **[Database Backup](./database-backup.md)** - Automated daily backups to S3
 - **[Icons](./icons.md)** - Comprehensive Phosphor Icons reference with 1500+ searchable icons
 - **[JSON Attributes](./json-attributes.md)** - Declarative JSON serialization with automatic ID obfuscation
 - **[Real-time Synchronization Usage](./synchronization-usage.md)** - How to use the real-time sync system to update Svelte components when Rails models change
