@@ -21,10 +21,12 @@
     Archive,
     Trash,
     ArrowCounterClockwise,
+    DotsThreeVertical,
   } from 'phosphor-svelte';
   import * as Card from '$lib/components/shadcn/card/index.js';
   import * as Select from '$lib/components/shadcn/select/index.js';
   import * as Drawer from '$lib/components/shadcn/drawer/index.js';
+  import * as DropdownMenu from '$lib/components/shadcn/dropdown-menu/index.js';
   import ChatList from './ChatList.svelte';
   import FileUploadInput from '$lib/components/chat/FileUploadInput.svelte';
   import FileAttachment from '$lib/components/chat/FileAttachment.svelte';
@@ -73,6 +75,7 @@
   let selectedModel = $state(models?.[0]?.model_id ?? '');
   let messageInput = $state('');
   let selectedFiles = $state([]);
+  let submitting = $state(false);
   let messagesContainer;
   let waitingForResponse = $state(false);
   let messageSentAt = $state(null);
@@ -417,6 +420,11 @@
   function sendMessage() {
     logging.debug('messageForm:', $messageForm);
 
+    if (submitting) {
+      logging.debug('Already submitting, returning');
+      return;
+    }
+
     if (!$messageForm.message.content.trim() && selectedFiles.length === 0) {
       logging.debug('Empty message and no files, returning');
       return;
@@ -432,9 +440,12 @@
       messageSentAt = Date.now();
     }
 
+    submitting = true;
+
     router.post(accountChatMessagesPath(account.id, chat.id), formData, {
       onSuccess: () => {
         logging.debug('Message sent successfully');
+        submitting = false;
         $messageForm.message.content = '';
         selectedFiles = [];
         // Reset textarea height
@@ -450,6 +461,7 @@
       },
       onError: (errors) => {
         logging.error('Message send failed:', errors);
+        submitting = false;
         waitingForResponse = false;
         messageSentAt = null;
       },
@@ -801,82 +813,77 @@
             {/if}
           </div>
         </div>
+
+        <!-- Actions dropdown menu -->
+        {#if chat}
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger
+              class="inline-flex items-center justify-center h-8 w-8 rounded-md text-sm font-medium ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+              <DotsThreeVertical size={20} weight="bold" />
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content align="end" class="w-48">
+              {#if !chat.manual_responses}
+                <DropdownMenu.CheckboxItem checked={chat.web_access} onCheckedChange={toggleWebAccess}>
+                  <Globe size={16} class="mr-2" weight="duotone" />
+                  Allow web access
+                </DropdownMenu.CheckboxItem>
+                <DropdownMenu.Separator />
+              {/if}
+
+              <DropdownMenu.Item onclick={forkConversation}>
+                <GitFork size={16} class="mr-2" weight="duotone" />
+                Fork
+              </DropdownMenu.Item>
+
+              {#if chat?.active_whiteboard}
+                <DropdownMenu.Item onclick={() => (whiteboardOpen = true)}>
+                  <Notepad size={16} class="mr-2" weight="duotone" />
+                  Whiteboard
+                </DropdownMenu.Item>
+              {/if}
+
+              <DropdownMenu.Separator />
+
+              <DropdownMenu.Item onclick={archiveChat}>
+                <Archive size={16} class="mr-2" weight="duotone" />
+                {chat.archived ? 'Unarchive' : 'Archive'}
+              </DropdownMenu.Item>
+
+              {#if canDeleteChat}
+                <DropdownMenu.Item
+                  onclick={deleteChat}
+                  class={chat.discarded
+                    ? ''
+                    : 'text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400'}>
+                  {#if chat.discarded}
+                    <ArrowCounterClockwise size={16} class="mr-2" weight="duotone" />
+                    Restore
+                  {:else}
+                    <Trash size={16} class="mr-2" weight="duotone" />
+                    Delete
+                  {/if}
+                </DropdownMenu.Item>
+              {/if}
+
+              {#if isSiteAdmin}
+                <DropdownMenu.Separator />
+                <DropdownMenu.CheckboxItem
+                  checked={showToolCalls}
+                  onCheckedChange={(checked) => (showToolCalls = checked)}>
+                  Show tool calls
+                </DropdownMenu.CheckboxItem>
+                <DropdownMenu.CheckboxItem
+                  checked={debugMode}
+                  onCheckedChange={(checked) => (debugMode = checked)}
+                  class="text-orange-600 focus:text-orange-600">
+                  Debug mode
+                </DropdownMenu.CheckboxItem>
+              {/if}
+            </DropdownMenu.Content>
+          </DropdownMenu.Root>
+        {/if}
       </div>
     </header>
-
-    <!-- Settings bar with web access toggle -->
-    {#if chat}
-      <div class="border-b border-border px-4 md:px-6 py-2 bg-muted/10 flex flex-wrap items-center gap-3 md:gap-6">
-        {#if !chat.manual_responses}
-          <label class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity w-fit">
-            <input
-              type="checkbox"
-              checked={chat.web_access}
-              onchange={toggleWebAccess}
-              class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary focus:ring-offset-0 focus:ring-2 transition-colors cursor-pointer" />
-            <Globe size={16} class="text-muted-foreground" weight="duotone" />
-            <span class="text-sm text-muted-foreground">Allow web access</span>
-          </label>
-        {/if}
-
-        <button
-          onclick={forkConversation}
-          class="flex items-center gap-2 hover:opacity-80 transition-opacity text-sm text-muted-foreground">
-          <GitFork size={16} weight="duotone" />
-          <span>Fork</span>
-        </button>
-
-        {#if chat?.active_whiteboard}
-          <button
-            onclick={() => (whiteboardOpen = true)}
-            class="flex items-center gap-2 hover:opacity-80 transition-opacity text-sm text-muted-foreground">
-            <Notepad size={16} weight="duotone" />
-            <span>Whiteboard</span>
-          </button>
-        {/if}
-
-        <button
-          onclick={archiveChat}
-          class="flex items-center gap-2 hover:opacity-80 transition-opacity text-sm text-muted-foreground">
-          <Archive size={16} weight="duotone" />
-          <span>{chat.archived ? 'Unarchive' : 'Archive'}</span>
-        </button>
-
-        {#if canDeleteChat}
-          <button
-            onclick={deleteChat}
-            class="flex items-center gap-2 hover:opacity-80 transition-opacity text-sm {chat.discarded
-              ? 'text-muted-foreground'
-              : 'text-red-600 dark:text-red-400'}">
-            {#if chat.discarded}
-              <ArrowCounterClockwise size={16} weight="duotone" />
-              <span>Restore</span>
-            {:else}
-              <Trash size={16} weight="duotone" />
-              <span>Delete</span>
-            {/if}
-          </button>
-        {/if}
-
-        {#if isSiteAdmin}
-          <label class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity w-fit">
-            <input
-              type="checkbox"
-              bind:checked={showToolCalls}
-              class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary focus:ring-offset-0 focus:ring-2 transition-colors cursor-pointer" />
-            <span class="text-sm text-muted-foreground">Show tool calls</span>
-          </label>
-
-          <label class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity w-fit">
-            <input
-              type="checkbox"
-              bind:checked={debugMode}
-              class="w-4 h-4 rounded border-gray-300 text-orange-500 focus:ring-orange-500 focus:ring-offset-0 focus:ring-2 transition-colors cursor-pointer" />
-            <span class="text-sm text-orange-600">Debug mode</span>
-          </label>
-        {/if}
-      </div>
-    {/if}
 
     <!-- Debug panel for site admins -->
     {#if debugMode && isSiteAdmin}
@@ -1136,7 +1143,7 @@
       <div class="flex gap-2 md:gap-3 items-start">
         <FileUploadInput
           bind:files={selectedFiles}
-          disabled={$messageForm.processing || !chat?.respondable}
+          disabled={submitting || !chat?.respondable}
           allowedTypes={file_upload_config.acceptable_types || []}
           allowedExtensions={file_upload_config.acceptable_extensions || []}
           maxSize={file_upload_config.max_size || 50 * 1024 * 1024} />
@@ -1148,7 +1155,7 @@
             onkeydown={handleKeydown}
             oninput={autoResize}
             {placeholder}
-            disabled={$messageForm.processing || !chat?.respondable}
+            disabled={submitting || !chat?.respondable}
             class="w-full resize-none border border-input rounded-md px-3 py-2 text-sm bg-background
                    focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent
                    min-h-[40px] max-h-[240px] overflow-y-auto disabled:opacity-50 disabled:cursor-not-allowed"
@@ -1157,10 +1164,14 @@
         <button
           onclick={sendMessage}
           disabled={(!$messageForm.message.content.trim() && selectedFiles.length === 0) ||
-            $messageForm.processing ||
+            submitting ||
             !chat?.respondable}
           class="h-10 w-10 p-0 inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:pointer-events-none disabled:opacity-50">
-          <ArrowUp size={16} />
+          {#if submitting}
+            <Spinner size={16} class="animate-spin" />
+          {:else}
+            <ArrowUp size={16} />
+          {/if}
         </button>
       </div>
     </div>
