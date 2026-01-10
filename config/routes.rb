@@ -46,6 +46,7 @@ Rails.application.routes.draw do
         post :unarchive
         post :discard
         post :restore
+        post :assign_agent
       end
       resources :messages, only: :create
     end

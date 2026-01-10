@@ -22,18 +22,20 @@
     Trash,
     ArrowCounterClockwise,
     DotsThreeVertical,
+    Robot,
   } from 'phosphor-svelte';
   import * as Card from '$lib/components/shadcn/card/index.js';
   import * as Select from '$lib/components/shadcn/select/index.js';
   import * as Drawer from '$lib/components/shadcn/drawer/index.js';
   import * as DropdownMenu from '$lib/components/shadcn/dropdown-menu/index.js';
+  import * as Dialog from '$lib/components/shadcn/dialog/index.js';
   import ChatList from './ChatList.svelte';
   import FileUploadInput from '$lib/components/chat/FileUploadInput.svelte';
   import FileAttachment from '$lib/components/chat/FileAttachment.svelte';
   import AgentTriggerBar from '$lib/components/chat/AgentTriggerBar.svelte';
   import ParticipantAvatars from '$lib/components/chat/ParticipantAvatars.svelte';
   import ThinkingBlock from '$lib/components/chat/ThinkingBlock.svelte';
-  import { accountChatMessagesPath, retryMessagePath, forkAccountChatPath } from '@/routes';
+  import { accountChatMessagesPath, retryMessagePath, forkAccountChatPath, assignAgentAccountChatPath } from '@/routes';
   import { marked } from 'marked';
   import * as logging from '$lib/logging';
   import { formatTime, formatDate, formatDateTime } from '$lib/utils';
@@ -70,7 +72,16 @@
   // Browser check for event listeners
   const browser = typeof window !== 'undefined';
 
-  let { chat, chats = [], messages = [], account, models = [], agents = [], file_upload_config = {} } = $props();
+  let {
+    chat,
+    chats = [],
+    messages = [],
+    account,
+    models = [],
+    agents = [],
+    available_agents = [],
+    file_upload_config = {},
+  } = $props();
 
   let selectedModel = $state(models?.[0]?.model_id ?? '');
   let messageInput = $state('');
@@ -100,6 +111,11 @@
   let whiteboardEditContent = $state('');
   let whiteboardConflict = $state(null);
   let whiteboardSaving = $state(false);
+
+  // Assign agent dialog state
+  let assignAgentOpen = $state(false);
+  let selectedAgentId = $state(null);
+  let assigningAgent = $state(false);
 
   // Thinking streaming state
   let streamingThinking = $state({});
@@ -552,6 +568,22 @@
     router.post(endpoint, {}, { preserveScroll: true });
   }
 
+  function assignToAgent() {
+    if (!chat || !selectedAgentId) return;
+    assigningAgent = true;
+    router.post(
+      assignAgentAccountChatPath(account.id, chat.id),
+      { agent_id: selectedAgentId },
+      {
+        onFinish: () => {
+          assigningAgent = false;
+          assignAgentOpen = false;
+          selectedAgentId = null;
+        },
+      }
+    );
+  }
+
   function startEditingTitle() {
     if (!chat) return;
     originalTitle = chat.title || 'New Chat';
@@ -827,6 +859,12 @@
                   <Globe size={16} class="mr-2" weight="duotone" />
                   Allow web access
                 </DropdownMenu.CheckboxItem>
+                {#if available_agents.length > 0}
+                  <DropdownMenu.Item onclick={() => (assignAgentOpen = true)}>
+                    <Robot size={16} class="mr-2" weight="duotone" />
+                    Assign to Agent
+                  </DropdownMenu.Item>
+                {/if}
                 <DropdownMenu.Separator />
               {/if}
 
@@ -1277,3 +1315,50 @@
     {errorMessage}
   </div>
 {/if}
+
+<!-- Assign Agent Dialog -->
+<Dialog.Root bind:open={assignAgentOpen}>
+  <Dialog.Content class="max-w-md">
+    <Dialog.Header>
+      <Dialog.Title>Assign to Agent</Dialog.Title>
+      <Dialog.Description>
+        Select an agent to take over this conversation. The agent will be informed that previous messages were with a
+        model that had no identity or memories.
+      </Dialog.Description>
+    </Dialog.Header>
+
+    <div class="py-4">
+      <Select.Root type="single" value={selectedAgentId} onValueChange={(value) => (selectedAgentId = value)}>
+        <Select.Trigger class="w-full">
+          {#if selectedAgentId}
+            {available_agents.find((a) => a.id === selectedAgentId)?.name ?? 'Select an agent'}
+          {:else}
+            Select an agent
+          {/if}
+        </Select.Trigger>
+        <Select.Content sideOffset={4} class="max-h-60">
+          {#each available_agents as agent (agent.id)}
+            <Select.Item value={agent.id} label={agent.name}>
+              <span class="flex items-center gap-2">
+                <Robot size={14} weight="duotone" />
+                {agent.name}
+              </span>
+            </Select.Item>
+          {/each}
+        </Select.Content>
+      </Select.Root>
+    </div>
+
+    <Dialog.Footer>
+      <Button variant="outline" onclick={() => (assignAgentOpen = false)}>Cancel</Button>
+      <Button onclick={assignToAgent} disabled={!selectedAgentId || assigningAgent}>
+        {#if assigningAgent}
+          <Spinner size={16} class="mr-2 animate-spin" />
+          Assigning...
+        {:else}
+          Assign
+        {/if}
+      </Button>
+    </Dialog.Footer>
+  </Dialog.Content>
+</Dialog.Root>
