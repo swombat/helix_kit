@@ -84,6 +84,7 @@
   let { chats = [], account, models = [], agents = [], file_upload_config = null } = $props();
 
   let selectedModel = $state(models?.[0]?.model_id ?? '');
+  let selectedAgent = $state(null); // Will hold the agent object if an agent is selected from dropdown
   let isGroupChat = $state(false);
   let selectedAgentIds = $state([]);
   let sidebarOpen = $state(false);
@@ -121,6 +122,45 @@
     }
   }
 
+  // Handle selection from the combined dropdown (agents + models)
+  function handleSelection(value) {
+    if (value.startsWith('agent:')) {
+      const agentId = value.replace('agent:', '');
+      selectedAgent = agents.find((a) => a.id === agentId) || null;
+      // Use the agent's model_id for the chat
+      if (selectedAgent) {
+        selectedModel = selectedAgent.model_id;
+        // Clear group chat mode since we're using the dropdown shortcut
+        isGroupChat = false;
+        selectedAgentIds = [];
+      }
+    } else {
+      selectedAgent = null;
+      selectedModel = value;
+    }
+  }
+
+  // When enabling group chat mode, clear the dropdown agent selection
+  function toggleGroupChat() {
+    isGroupChat = !isGroupChat;
+    if (isGroupChat) {
+      selectedAgent = null;
+    } else {
+      selectedAgentIds = [];
+    }
+  }
+
+  // Get the current selection value for the dropdown
+  const selectionValue = $derived(selectedAgent ? `agent:${selectedAgent.id}` : selectedModel);
+
+  // Get display label for current selection
+  const selectionLabel = $derived(() => {
+    if (selectedAgent) {
+      return selectedAgent.name;
+    }
+    return models.find((model) => model.model_id === selectedModel)?.label || 'Select AI model';
+  });
+
   function handleKeydown(event) {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
@@ -152,8 +192,12 @@
       formData.append('files[]', file);
     });
 
-    // Append agent IDs for group chat
-    if (isGroupChat) {
+    // If an agent is selected from dropdown, create a group chat with that single agent
+    if (selectedAgent) {
+      formData.append('agent_ids[]', selectedAgent.id);
+    }
+    // If group chat mode with manually selected agents
+    else if (isGroupChat) {
       selectedAgentIds.forEach((agentId) => {
         formData.append('agent_ids[]', agentId);
       });
@@ -200,16 +244,45 @@
       </div>
       <div class="mt-2 ml-0 md:ml-0">
         {#if Array.isArray(models) && models.length > 0}
-          <Select.Root
-            type="single"
-            value={selectedModel}
-            onValueChange={(value) => {
-              selectedModel = value;
-            }}>
+          <Select.Root type="single" value={selectionValue} onValueChange={handleSelection}>
             <Select.Trigger class="w-56">
-              {models.find((model) => model.model_id === selectedModel)?.label || 'Select AI model'}
+              {#if selectedAgent}
+                {@const IconComponent = iconComponents[selectedAgent.icon] || Robot}
+                <span class="flex items-center gap-2">
+                  <IconComponent
+                    size={14}
+                    weight="duotone"
+                    class={selectedAgent.colour
+                      ? `text-${selectedAgent.colour}-600 dark:text-${selectedAgent.colour}-400`
+                      : ''} />
+                  {selectedAgent.name}
+                </span>
+              {:else}
+                {selectionLabel()}
+              {/if}
             </Select.Trigger>
             <Select.Content sideOffset={4} class="max-h-80">
+              <!-- Agents section (if any exist) -->
+              {#if agents.length > 0}
+                <Select.Group>
+                  <Select.GroupHeading class="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
+                    Agents
+                  </Select.GroupHeading>
+                  {#each agents as agent (agent.id)}
+                    {@const IconComponent = iconComponents[agent.icon] || Robot}
+                    <Select.Item value={`agent:${agent.id}`} label={agent.name}>
+                      <span class="flex items-center gap-2">
+                        <IconComponent
+                          size={14}
+                          weight="duotone"
+                          class={agent.colour ? `text-${agent.colour}-600 dark:text-${agent.colour}-400` : ''} />
+                        {agent.name}
+                      </span>
+                    </Select.Item>
+                  {/each}
+                </Select.Group>
+              {/if}
+              <!-- Models section -->
               {#each groupedModels().groupOrder as groupName}
                 <Select.Group>
                   <Select.GroupHeading class="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
@@ -243,7 +316,8 @@
         <label class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity w-fit">
           <input
             type="checkbox"
-            bind:checked={isGroupChat}
+            checked={isGroupChat}
+            onchange={toggleGroupChat}
             class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary focus:ring-offset-0 focus:ring-2 transition-colors cursor-pointer" />
           <UsersThree size={16} class="text-muted-foreground" weight="duotone" />
           <span class="text-sm text-muted-foreground">Group chat with agents</span>
@@ -288,7 +362,7 @@
     <div class="flex-1 flex items-center justify-center px-4 md:px-6 py-4">
       <div class="text-center text-muted-foreground max-w-md">
         <h2 class="text-xl font-semibold mb-2">Start a new conversation</h2>
-        <p>Select a model above and type your first message below to begin.</p>
+        <p>Select a model or agent above and type your first message below to begin.</p>
       </div>
     </div>
 
