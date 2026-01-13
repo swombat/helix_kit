@@ -12,7 +12,19 @@ class Message < ApplicationRecord
   belongs_to :agent, optional: true
   has_one :account, through: :chat
 
-  has_many_attached :attachments
+  has_many_attached :attachments do |attachable|
+    # Small thumbnail for message list (fast loading)
+    attachable.variant :thumb,
+      resize_to_limit: [ 200, 200 ],
+      format: :jpeg,
+      saver: { quality: 70, strip: true }
+
+    # Medium preview for lightbox (~500kb target)
+    attachable.variant :preview,
+      resize_to_limit: [ 1200, 1200 ],
+      format: :jpeg,
+      saver: { quality: 80, strip: true }
+  end
 
   attr_accessor :skip_content_validation
 
@@ -120,6 +132,8 @@ class Message < ApplicationRecord
   def files_json
     return [] unless attachments.attached?
 
+    url_helpers = Rails.application.routes.url_helpers
+
     attachments.map do |file|
       file_data = {
         id: file.id,
@@ -128,10 +142,16 @@ class Message < ApplicationRecord
         byte_size: file.byte_size
       }
 
-      # Generate URL safely, handling test environment
+      # Generate URLs safely, handling test environment
       begin
-        file_data[:url] = Rails.application.routes.url_helpers.url_for(file)
-      rescue ArgumentError => e
+        file_data[:url] = url_helpers.rails_blob_url(file, only_path: true)
+
+        # Add variant URLs for images
+        if file.content_type&.start_with?("image/")
+          file_data[:thumb_url] = url_helpers.rails_representation_url(file.variant(:thumb), only_path: true)
+          file_data[:preview_url] = url_helpers.rails_representation_url(file.variant(:preview), only_path: true)
+        end
+      rescue ArgumentError
         # In test environment, URL generation might fail due to missing host
         file_data[:url] = "/files/#{file.id}"
       end

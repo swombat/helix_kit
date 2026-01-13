@@ -32,6 +32,7 @@
   import ChatList from './ChatList.svelte';
   import FileUploadInput from '$lib/components/chat/FileUploadInput.svelte';
   import FileAttachment from '$lib/components/chat/FileAttachment.svelte';
+  import ImageLightbox from '$lib/components/chat/ImageLightbox.svelte';
   import AgentTriggerBar from '$lib/components/chat/AgentTriggerBar.svelte';
   import ParticipantAvatars from '$lib/components/chat/ParticipantAvatars.svelte';
   import ThinkingBlock from '$lib/components/chat/ThinkingBlock.svelte';
@@ -122,6 +123,15 @@
 
   // Error handling state
   let errorMessage = $state(null);
+
+  // Image lightbox state
+  let lightboxOpen = $state(false);
+  let lightboxImage = $state(null);
+
+  function openImageLightbox(file) {
+    lightboxImage = file;
+    lightboxOpen = true;
+  }
 
   // Title editing state
   let titleEditing = $state(false);
@@ -986,7 +996,7 @@
                       {#if message.files_json && message.files_json.length > 0}
                         <div class="space-y-2 mb-3">
                           {#each message.files_json as file}
-                            <FileAttachment {file} />
+                            <FileAttachment {file} onImageClick={openImageLightbox} />
                           {/each}
                         </div>
                       {/if}
@@ -1362,3 +1372,5 @@
     </Dialog.Footer>
   </Dialog.Content>
 </Dialog.Root>
+
+<ImageLightbox bind:open={lightboxOpen} file={lightboxImage} />
