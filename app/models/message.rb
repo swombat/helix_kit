@@ -163,12 +163,25 @@ class Message < ApplicationRecord
   def file_paths_for_llm
     return [] unless attachments.attached?
 
-    attachments.map do |file|
-      if ActiveStorage::Blob.service.respond_to?(:path_for)
-        ActiveStorage::Blob.service.path_for(file.key)
+    attachments.filter_map do |file|
+      # Skip files that don't exist (e.g., after database restore without storage)
+      next unless file.blob.service.exist?(file.key)
+
+      if file.blob.service.respond_to?(:path_for)
+        # Disk service: return local path directly
+        file.blob.service.path_for(file.key)
       else
-        file.open { |f| f.path }
+        # Remote service (S3, etc.): download to temp file that persists beyond this block
+        tempfile = Tempfile.new([ "attachment", File.extname(file.filename.to_s) ])
+        tempfile.binmode
+        file.download { |chunk| tempfile.write(chunk) }
+        tempfile.rewind
+        tempfile.path
+        # Note: tempfile will be cleaned up by Ruby GC after the LLM API call completes
       end
+    rescue Errno::ENOENT, ActiveStorage::FileNotFoundError
+      # File disappeared between exist? check and access, skip it
+      nil
     end
   end
 

@@ -1042,9 +1042,7 @@
       <div
         class="bg-red-100 dark:bg-red-900/50 border-b border-red-200 dark:border-red-800 px-4 py-2 text-sm text-red-800 dark:text-red-200">
         <WarningCircle size={16} class="inline mr-2" weight="fill" />
-        This conversation is very long ({formatTokenCount(totalTokens)} tokens). Consider
-        <button onclick={forkConversation} class="underline font-medium hover:no-underline">forking</button> or starting
-        a new conversation.
+        This conversation is very long ({formatTokenCount(totalTokens)} tokens). Consider starting a new conversation.
       </div>
     {/if}
 
