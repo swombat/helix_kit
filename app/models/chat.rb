@@ -394,6 +394,10 @@ class Chat < ApplicationRecord
       parts << active_board
     end
 
+    if Rails.env.development?
+      parts << "**DEVELOPMENT TESTING MODE**: You are currently being tested on a development server using a production database backup. Any memories or changes you make will NOT be saved to the production server. This is a safe testing environment."
+    end
+
     parts << "You are participating in a group conversation."
     parts << "Other participants: #{participant_description(agent)}."
 
