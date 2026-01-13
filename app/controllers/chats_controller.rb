@@ -50,17 +50,33 @@ class ChatsController < ApplicationController
     active_chats = base_scope.kept.active.latest
     archived_chats = base_scope.kept.archived.latest
     @chats = active_chats + archived_chats
-    @messages = @chat.messages.includes(:user, :agent).with_attached_attachments.sorted
+
+    # Use paginated messages - load most recent 30 by default
+    @messages = @chat.messages_page
+    @has_more = @messages.any? && @chat.messages.where("id < ?", @messages.first.id).exists?
 
     render inertia: "chats/show", props: {
       chat: chat_json_with_whiteboard,
       chats: @chats.map(&:as_json),
-      messages: @messages.all.collect(&:as_json),
+      messages: @messages.collect(&:as_json),
+      has_more_messages: @has_more,
+      oldest_message_id: @messages.first&.to_param,
       account: current_account.as_json,
       models: available_models,
       agents: @chat.group_chat? ? @chat.agents.as_json : [],
       available_agents: available_agents,
       file_upload_config: file_upload_config
+    }
+  end
+
+  def older_messages
+    @messages = @chat.messages_page(before_id: params[:before_id])
+    @has_more = @messages.any? && @chat.messages.where("id < ?", @messages.first.id).exists?
+
+    render json: {
+      messages: @messages.collect(&:as_json),
+      has_more: @has_more,
+      oldest_id: @messages.first&.to_param
     }
   end
 

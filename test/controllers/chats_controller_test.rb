@@ -580,4 +580,106 @@ class ChatsControllerTest < ActionDispatch::IntegrationTest
     assert_not_includes kept_chats.map(&:id), discarded_chat.id
   end
 
+  # Pagination tests
+
+  test "older_messages returns JSON with pagination info" do
+    chat = @account.chats.create!(model_id: "openrouter/auto")
+    messages = 50.times.map { |i| chat.messages.create!(content: "Message #{i}", role: "user", user: @user) }
+
+    get older_messages_account_chat_path(@account, chat, before_id: messages.last.to_param),
+        headers: { "Accept" => "application/json" }
+
+    assert_response :success
+    json = JSON.parse(response.body)
+    assert json.key?("messages")
+    assert json.key?("has_more")
+    assert json.key?("oldest_id")
+    assert json["messages"].is_a?(Array)
+    assert_equal 30, json["messages"].length  # Default limit is 30
+  end
+
+  test "older_messages returns messages before specified ID" do
+    chat = @account.chats.create!(model_id: "openrouter/auto")
+    messages = 10.times.map { |i| chat.messages.create!(content: "Message #{i}", role: "user", user: @user) }
+    middle = messages[5]
+
+    get older_messages_account_chat_path(@account, chat, before_id: middle.to_param),
+        headers: { "Accept" => "application/json" }
+
+    assert_response :success
+    json = JSON.parse(response.body)
+
+    # All returned messages should have IDs less than the middle message
+    returned_ids = json["messages"].map { |m| Message.decode_id(m["id"]) }
+    assert returned_ids.all? { |id| id < middle.id }
+  end
+
+  test "older_messages returns empty when no more messages" do
+    chat = @account.chats.create!(model_id: "openrouter/auto")
+    message = chat.messages.create!(content: "Only message", role: "user", user: @user)
+
+    get older_messages_account_chat_path(@account, chat, before_id: message.to_param),
+        headers: { "Accept" => "application/json" }
+
+    assert_response :success
+    json = JSON.parse(response.body)
+    assert_equal [], json["messages"]
+    assert_equal false, json["has_more"]
+  end
+
+  test "older_messages requires authentication" do
+    delete logout_path
+
+    chat = @account.chats.create!(model_id: "openrouter/auto")
+    message = chat.messages.create!(content: "Test", role: "user")
+
+    get older_messages_account_chat_path(@account, chat, before_id: message.to_param),
+        headers: { "Accept" => "application/json" }
+
+    assert_response :redirect
+  end
+
+  test "older_messages scopes to current account" do
+    other_user = User.create!(email_address: "paginationother@example.com")
+    other_user.profile.update!(first_name: "Other", last_name: "User")
+    other_account = other_user.personal_account
+    other_chat = other_account.chats.create!(model_id: "openrouter/auto")
+    message = other_chat.messages.create!(content: "Test", role: "user", user: other_user)
+
+    get older_messages_account_chat_path(@account, other_chat, before_id: message.to_param),
+        headers: { "Accept" => "application/json" }
+
+    assert_response :not_found
+  end
+
+  test "older_messages indicates has_more correctly when more messages exist" do
+    chat = @account.chats.create!(model_id: "openrouter/auto")
+    # Create 50 messages (0-49)
+    messages = 50.times.map { |i| chat.messages.create!(content: "Message #{i}", role: "user", user: @user) }
+
+    # Request messages before the last one (message 49)
+    # Should get messages 19-48 (30 messages), and there should be more (0-18)
+    get older_messages_account_chat_path(@account, chat, before_id: messages.last.to_param),
+        headers: { "Accept" => "application/json" }
+
+    assert_response :success
+    json = JSON.parse(response.body)
+    assert_equal true, json["has_more"], "Should indicate more messages exist"
+  end
+
+  test "older_messages indicates has_more false when no more messages" do
+    chat = @account.chats.create!(model_id: "openrouter/auto")
+    # Create 5 messages (0-4)
+    messages = 5.times.map { |i| chat.messages.create!(content: "Message #{i}", role: "user", user: @user) }
+
+    # Request messages before the last one (message 4)
+    # Should get messages 0-3 (4 messages), and there should be no more
+    get older_messages_account_chat_path(@account, chat, before_id: messages.last.to_param),
+        headers: { "Accept" => "application/json" }
+
+    assert_response :success
+    json = JSON.parse(response.body)
+    assert_equal false, json["has_more"], "Should indicate no more messages"
+  end
+
 end

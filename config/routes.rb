@@ -39,6 +39,7 @@ Rails.application.routes.draw do
     end
     resources :chats do
       member do
+        get :older_messages
         post "trigger_agent/:agent_id", action: :trigger_agent, as: :trigger_agent
         post :trigger_all_agents
         post :fork

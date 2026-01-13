@@ -17,8 +17,8 @@ class Chat < ApplicationRecord
   validates :agents, length: { minimum: 1, message: "must include at least one agent" }, if: :manual_responses?
 
   json_attributes :title_or_default, :model_id, :model_label, :ai_model_name, :updated_at_formatted,
-                  :updated_at_short, :message_count, :web_access, :manual_responses, :participants_json,
-                  :archived_at, :discarded_at, :archived, :discarded, :respondable do |hash, options|
+                  :updated_at_short, :message_count, :total_tokens, :web_access, :manual_responses,
+                  :participants_json, :archived_at, :discarded_at, :archived, :discarded, :respondable do |hash, options|
     # For sidebar format, only include minimal attributes
     if options&.dig(:as) == :sidebar_json
       hash.slice!("id", "title_or_default", "updated_at_short")
@@ -201,6 +201,23 @@ class Chat < ApplicationRecord
 
   def message_count
     messages.count
+  end
+
+  # Returns paginated messages for display
+  # Uses cursor-based pagination with before_id for efficient loading of older messages
+  # Returns the most recent N messages that are older than before_id, in ascending order for display
+  def messages_page(before_id: nil, limit: 30)
+    scope = messages.includes(:user, :agent).with_attached_attachments
+    scope = scope.where("messages.id < ?", Message.decode_id(before_id)) if before_id.present?
+    # Use reorder to replace any existing ordering (from acts_as_chat),
+    # get the most recent messages by ordering by ID DESC, limit, then reverse for display
+    scope.reorder(id: :desc).limit(limit).reverse
+  end
+
+  # Returns total token count for all messages in this chat
+  # Uses COALESCE to handle nil values in the database
+  def total_tokens
+    messages.sum("COALESCE(input_tokens, 0) + COALESCE(output_tokens, 0)")
   end
 
   # Archive/unarchive methods

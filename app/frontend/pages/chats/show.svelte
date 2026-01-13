@@ -73,16 +73,74 @@
   // Browser check for event listeners
   const browser = typeof window !== 'undefined';
 
+  // Scroll threshold for loading more messages
+  const SCROLL_THRESHOLD = 200;
+
   let {
     chat,
     chats = [],
-    messages = [],
+    messages: recentMessages = [],
+    has_more_messages: serverHasMore = false,
+    oldest_message_id: serverOldestId = null,
     account,
     models = [],
     agents = [],
     available_agents = [],
     file_upload_config = {},
   } = $props();
+
+  // Older messages loaded via pagination (not managed by Inertia)
+  let olderMessages = $state([]);
+  let hasMore = $state(serverHasMore);
+  let oldestId = $state(serverOldestId);
+  let loadingMore = $state(false);
+
+  // Combined messages for display
+  const allMessages = $derived([...olderMessages, ...recentMessages]);
+
+  // Token thresholds from server
+  const thresholds = $derived($page.props.token_thresholds || { amber: 100_000, red: 150_000, critical: 200_000 });
+
+  // Use server-provided total tokens from chat
+  const totalTokens = $derived(chat?.total_tokens || 0);
+
+  // Direct ternary expression for token warning level
+  const tokenWarningLevel = $derived(
+    totalTokens >= thresholds.critical
+      ? 'critical'
+      : totalTokens >= thresholds.red
+        ? 'red'
+        : totalTokens >= thresholds.amber
+          ? 'amber'
+          : null
+  );
+
+  // Header class computed based on token warning level
+  const headerClass = $derived(
+    tokenWarningLevel === 'critical'
+      ? 'border-b border-border px-4 md:px-6 py-3 md:py-4 bg-red-50 dark:bg-red-950/30'
+      : 'border-b border-border px-4 md:px-6 py-3 md:py-4 bg-muted/30'
+  );
+
+  // Explicit chat reset tracking
+  let previousChatId = null;
+
+  $effect(() => {
+    if (chat?.id !== previousChatId) {
+      previousChatId = chat?.id;
+      olderMessages = [];
+      hasMore = serverHasMore;
+      oldestId = serverOldestId;
+    }
+  });
+
+  // Update pagination state when server props change (only when not loading)
+  $effect(() => {
+    if (!loadingMore) {
+      hasMore = serverHasMore;
+      oldestId = serverOldestId;
+    }
+  });
 
   let selectedModel = $state(models?.[0]?.model_id ?? '');
   let messageInput = $state('');
@@ -165,11 +223,53 @@
     }
   }
 
+  // Handle scroll for loading more messages
+  function handleScroll() {
+    if (!messagesContainer) return;
+    if (messagesContainer.scrollTop < SCROLL_THRESHOLD && hasMore && !loadingMore) {
+      loadMoreMessages();
+    }
+  }
+
+  // Load more messages from the server
+  async function loadMoreMessages() {
+    if (loadingMore || !hasMore || !oldestId) return;
+
+    loadingMore = true;
+    const container = messagesContainer;
+    const previousHeight = container.scrollHeight;
+
+    try {
+      const response = await fetch(`/accounts/${account.id}/chats/${chat.id}/older_messages?before_id=${oldestId}`, {
+        headers: {
+          Accept: 'application/json',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        olderMessages = [...data.messages, ...olderMessages];
+        hasMore = data.has_more;
+        oldestId = data.oldest_id;
+
+        // Simple scroll preservation with requestAnimationFrame
+        requestAnimationFrame(() => {
+          container.scrollTop += container.scrollHeight - previousHeight;
+        });
+      }
+    } catch (error) {
+      logging.error('Failed to load more messages:', error);
+    } finally {
+      loadingMore = false;
+    }
+  }
+
   // Filter out tool messages and empty assistant messages unless showToolCalls is enabled
   const visibleMessages = $derived(
     showToolCalls
-      ? messages
-      : messages.filter((m) => {
+      ? allMessages
+      : allMessages.filter((m) => {
           // Hide tool messages
           if (m.role === 'tool') return false;
           // Hide empty assistant messages (these appear before tool calls)
@@ -183,15 +283,9 @@
 
   // Count unique human participants in group chats
   const uniqueHumanCount = $derived(() => {
-    if (!messages || messages.length === 0) return 0;
-    const humanNames = new Set(messages.filter((m) => m.role === 'user' && m.author_name).map((m) => m.author_name));
+    if (!allMessages || allMessages.length === 0) return 0;
+    const humanNames = new Set(allMessages.filter((m) => m.role === 'user' && m.author_name).map((m) => m.author_name));
     return humanNames.size;
-  });
-
-  // Calculate total tokens used in the conversation
-  const totalTokens = $derived(() => {
-    if (!messages || messages.length === 0) return 0;
-    return messages.reduce((sum, m) => sum + (m.input_tokens || 0) + (m.output_tokens || 0), 0);
   });
 
   // Format token count for display (e.g., 1.2k, 15.3k)
@@ -204,8 +298,8 @@
 
   // Check if the last actual message is hidden (tool call or empty assistant) - model is still thinking
   const lastMessageIsHiddenThinking = $derived(() => {
-    if (!messages || messages.length === 0) return false;
-    const lastMessage = messages[messages.length - 1];
+    if (!allMessages || allMessages.length === 0) return false;
+    const lastMessage = allMessages[allMessages.length - 1];
     if (!lastMessage) return false;
     // Tool message means model is processing tool results
     if (lastMessage.role === 'tool') return true;
@@ -229,16 +323,16 @@
 
   // Check if the last message is a user message without a response
   const lastMessageIsUserWithoutResponse = $derived(() => {
-    if (!messages || messages.length === 0) return false;
-    const lastMessage = messages[messages.length - 1];
+    if (!allMessages || allMessages.length === 0) return false;
+    const lastMessage = allMessages[allMessages.length - 1];
     return lastMessage && lastMessage.role === 'user';
   });
 
   // Check if title is loading (no title yet but has messages) - cosmetic only, doesn't block functionality
-  const titleIsLoading = $derived(chat && !chat.title && messages?.length > 0);
+  const titleIsLoading = $derived(chat && !chat.title && allMessages?.length > 0);
 
   // Check if any agent is currently responding (streaming)
-  const agentIsResponding = $derived(messages?.some((m) => m.streaming) ?? false);
+  const agentIsResponding = $derived(allMessages?.some((m) => m.streaming) ?? false);
 
   // Auto-detect waiting state based on messages
   // Don't show for manual_responses chats (group chats) since they don't auto-respond
@@ -248,8 +342,8 @@
 
   // Get the timestamp of when the last user message was sent
   const lastUserMessageTime = $derived(() => {
-    if (!messages || messages.length === 0) return null;
-    const lastMessage = messages[messages.length - 1];
+    if (!allMessages || allMessages.length === 0) return null;
+    const lastMessage = allMessages[allMessages.length - 1];
     if (lastMessage && lastMessage.role === 'user') {
       return new Date(lastMessage.created_at).getTime();
     }
@@ -264,8 +358,8 @@
 
   // Check if last message needs resend option
   const lastUserMessageNeedsResend = $derived(() => {
-    if (!messages || messages.length === 0) return false;
-    const lastMessage = messages[messages.length - 1];
+    if (!allMessages || allMessages.length === 0) return false;
+    const lastMessage = allMessages[allMessages.length - 1];
     if (!lastMessage || lastMessage.role !== 'user') return false;
 
     // Check if there's been more than 1 minute since message was created
@@ -313,7 +407,7 @@
     }
   });
 
-  // Set up real-time subscriptions
+  // Set up real-time subscriptions - SIMPLIFIED (no message count comparison)
   $effect(() => {
     const subs = {};
     subs[`Account:${account.id}:chats`] = 'chats';
@@ -327,32 +421,23 @@
       }
     }
 
-    const messageSignature = Array.isArray(messages) ? messages.map((message) => message.id).join(':') : '';
+    const messageSignature = Array.isArray(recentMessages) ? recentMessages.map((message) => message.id).join(':') : '';
     const nextSignature = `${account.id}|${chat?.id ?? 'none'}|${messageSignature}`;
 
     if (nextSignature !== syncSignature) {
       syncSignature = nextSignature;
       updateSync(subs);
     }
-
-    // If the messages length does not match the chat messages count, reload the page
-    if (chat && messages.length !== chat.message_count) {
-      logging.debug('Reloading: messages length vs chat messages count mismatch:', messages.length, chat.message_count);
-      router.reload({
-        only: ['messages'],
-        preserveState: true,
-        preserveScroll: true,
-      });
-    }
+    // ActionCable broadcasts handle new messages automatically
   });
 
   // Auto-scroll to bottom when messages change (only if user is near bottom)
   $effect(() => {
-    messages; // Subscribe to messages changes
+    recentMessages; // Subscribe to messages changes
 
     // Clear waiting state if an assistant message appeared
-    if (waitingForResponse && messages.length > 0) {
-      const lastMessage = messages[messages.length - 1];
+    if (waitingForResponse && recentMessages.length > 0) {
+      const lastMessage = recentMessages[recentMessages.length - 1];
       if (lastMessage.role === 'assistant') {
         waitingForResponse = false;
         messageSentAt = null;
@@ -377,7 +462,7 @@
   streamingSync(
     (data) => {
       if (data.id) {
-        const index = messages.findIndex((m) => m.id === data.id);
+        const index = recentMessages.findIndex((m) => m.id === data.id);
         if (index !== -1) {
           if (data.action === 'thinking_update') {
             // Handle thinking updates
@@ -385,14 +470,16 @@
           } else if (data.action === 'streaming_update') {
             // Handle content streaming
             logging.debug('Updating message via streaming:', data.id, data.chunk);
-            const currentMessage = messages[index] || {};
+            const currentMessage = recentMessages[index] || {};
             const updatedMessage = {
               ...currentMessage,
               content: `${currentMessage.content || ''}${data.chunk || ''}`,
               streaming: true,
             };
 
-            messages = messages.map((message, messageIndex) => (messageIndex === index ? updatedMessage : message));
+            recentMessages = recentMessages.map((message, messageIndex) =>
+              messageIndex === index ? updatedMessage : message
+            );
             logging.debug('Message updated:', updatedMessage);
 
             // Scroll to bottom if user is near the bottom during streaming
@@ -402,7 +489,7 @@
           }
         } else {
           logging.debug('No message found in streaming update:', data.id);
-          logging.debug('Messages:', messages);
+          logging.debug('Messages:', recentMessages);
         }
       } else if (data.action === 'error') {
         // Handle transient errors
@@ -420,10 +507,10 @@
           streamingThinking = { ...streamingThinking };
         }
 
-        const index = messages.findIndex((m) => m.id === data.id);
+        const index = recentMessages.findIndex((m) => m.id === data.id);
         if (index !== -1) {
           logging.debug('Updating message via streaming end:', data.id);
-          messages = messages.map((message, messageIndex) =>
+          recentMessages = recentMessages.map((message, messageIndex) =>
             messageIndex === index ? { ...message, streaming: false } : message
           );
         }
@@ -500,10 +587,10 @@
 
   function resendLastMessage() {
     // Find the last user message and retry the AI response
-    logging.debug('resendLastMessage called, messages:', messages?.length);
-    if (messages && messages.length > 0) {
+    logging.debug('resendLastMessage called, messages:', allMessages?.length);
+    if (allMessages && allMessages.length > 0) {
       // Find the actual last user message (may not be the very last message if AI started responding)
-      const lastUserMessage = [...messages].reverse().find((m) => m.role === 'user');
+      const lastUserMessage = [...allMessages].reverse().find((m) => m.role === 'user');
       logging.debug('lastUserMessage:', lastUserMessage);
       if (lastUserMessage) {
         // Retry the AI response for this message
@@ -820,7 +907,7 @@
   <!-- Right side: Chat messages -->
   <main class="flex-1 flex flex-col bg-background min-w-0">
     <!-- Chat header -->
-    <header class="border-b border-border bg-muted/30 px-4 md:px-6 py-3 md:py-4">
+    <header class={headerClass}>
       <div class="flex items-center gap-3">
         <Button variant="ghost" size="sm" onclick={() => (sidebarOpen = true)} class="h-8 w-8 p-0 md:hidden">
           <List size={20} />
@@ -846,12 +933,29 @@
               {/if}
             </h1>
           {/if}
-          <div class="text-sm text-muted-foreground flex items-center gap-2">
+          <div class="text-sm text-muted-foreground flex items-center gap-2 flex-wrap">
             {#if chat?.manual_responses}
-              <ParticipantAvatars {agents} {messages} />
-              <span class="ml-2">{formatTokenCount(totalTokens())} tokens</span>
+              <ParticipantAvatars {agents} messages={allMessages} />
+              <span class="ml-2">{formatTokenCount(totalTokens)} tokens</span>
             {:else}
               {chat?.model_label || chat?.model_id || 'Auto'}
+              <span class="ml-2 text-xs">({formatTokenCount(totalTokens)} tokens)</span>
+            {/if}
+
+            {#if tokenWarningLevel === 'amber'}
+              <Badge
+                variant="outline"
+                class="bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-700">
+                Long conversation
+              </Badge>
+            {:else if tokenWarningLevel === 'red'}
+              <Badge
+                variant="outline"
+                class="bg-red-100 text-red-800 border-red-300 dark:bg-red-900/30 dark:text-red-400 dark:border-red-700">
+                Very long
+              </Badge>
+            {:else if tokenWarningLevel === 'critical'}
+              <Badge variant="destructive">Extremely long</Badge>
             {/if}
           </div>
         </div>
@@ -933,6 +1037,17 @@
       </div>
     </header>
 
+    <!-- Critical token warning banner -->
+    {#if tokenWarningLevel === 'critical'}
+      <div
+        class="bg-red-100 dark:bg-red-900/50 border-b border-red-200 dark:border-red-800 px-4 py-2 text-sm text-red-800 dark:text-red-200">
+        <WarningCircle size={16} class="inline mr-2" weight="fill" />
+        This conversation is very long ({formatTokenCount(totalTokens)} tokens). Consider
+        <button onclick={forkConversation} class="underline font-medium hover:no-underline">forking</button> or starting
+        a new conversation.
+      </div>
+    {/if}
+
     <!-- Debug panel for site admins -->
     {#if debugMode && isSiteAdmin}
       <div
@@ -968,7 +1083,22 @@
     {/if}
 
     <!-- Messages container -->
-    <div bind:this={messagesContainer} class="flex-1 overflow-y-auto px-3 md:px-6 py-4 space-y-4">
+    <div
+      bind:this={messagesContainer}
+      onscroll={handleScroll}
+      class="flex-1 overflow-y-auto px-3 md:px-6 py-4 space-y-4">
+      {#if loadingMore}
+        <div class="flex justify-center py-4">
+          <Spinner size={24} class="animate-spin text-muted-foreground" />
+        </div>
+      {:else if hasMore}
+        <div class="flex justify-center py-2">
+          <button onclick={loadMoreMessages} class="text-sm text-muted-foreground hover:text-foreground">
+            Load earlier messages
+          </button>
+        </div>
+      {/if}
+
       {#if !Array.isArray(visibleMessages) || visibleMessages.length === 0}
         <div class="flex items-center justify-center h-full">
           <div class="text-center text-muted-foreground">
@@ -1096,9 +1226,9 @@
                       <span class="hidden group-hover:inline-block">({formatDateTime(message.created_at, true)})</span>
                     </span>
                     {#if message.status === 'pending'}
-                      <span class="ml-2 text-blue-600">●</span>
+                      <span class="ml-2 text-blue-600">...</span>
                     {:else if message.streaming}
-                      <span class="ml-2 text-green-600 animate-pulse">●</span>
+                      <span class="ml-2 text-green-600 animate-pulse">...</span>
                     {/if}
                   </div>
                 </div>
@@ -1109,7 +1239,7 @@
 
         <!-- Thinking bubble when last message is hidden (tool call or empty assistant) -->
         {#if !showToolCalls && lastMessageIsHiddenThinking()}
-          {@const lastMessage = messages[messages.length - 1]}
+          {@const lastMessage = allMessages[allMessages.length - 1]}
           <div class="flex justify-start">
             <div class="max-w-[85%] md:max-w-[70%]">
               <Card.Root>

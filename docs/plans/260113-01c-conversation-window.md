@@ -2,7 +2,7 @@
 
 **Date:** 2026-01-13
 **Feature:** Message Pagination with Scroll-to-Load
-**Status:** Ready for Implementation
+**Status:** Phase 1 & 2 Complete - Ready for Phase 3 (Frontend)
 **Revision:** C (final, incorporates all DHH feedback)
 
 ## Executive Summary
@@ -42,19 +42,21 @@ Follow this sequence to catch backend bugs before they cascade to the frontend:
 
 ## Implementation Plan
 
-### Phase 1: Backend Changes
+### Phase 1: Backend Changes (COMPLETE)
 
 #### 1.1 Add Pagination Method to Chat Model
 
-- [ ] Add `messages_page` method to Chat model (inline the before logic, no separate scope)
+- [x] Add `messages_page` method to Chat model (inline the before logic, no separate scope)
 
 ```ruby
 # app/models/chat.rb
 
 def messages_page(before_id: nil, limit: 30)
-  scope = messages.includes(:user, :agent).with_attached_attachments.sorted
+  scope = messages.includes(:user, :agent).with_attached_attachments
   scope = scope.where("messages.id < ?", Message.decode_id(before_id)) if before_id.present?
-  scope.limit(limit)
+  # Use reorder to replace any existing ordering (from acts_as_chat),
+  # get the most recent messages by ordering by ID DESC, limit, then reverse for display
+  scope.reorder(id: :desc).limit(limit).reverse
 end
 
 def total_tokens
@@ -62,7 +64,7 @@ def total_tokens
 end
 ```
 
-- [ ] Add `total_tokens` to `json_attributes`
+- [x] Add `total_tokens` to `json_attributes`
 
 ```ruby
 json_attributes :title_or_default, :model_id, :model_label, :ai_model_name,
@@ -72,7 +74,7 @@ json_attributes :title_or_default, :model_id, :model_label, :ai_model_name,
 
 #### 1.2 Update ChatsController#show
 
-- [ ] Modify `show` action to use pagination
+- [x] Modify `show` action to use pagination
 
 ```ruby
 # app/controllers/chats_controller.rb
@@ -103,7 +105,7 @@ end
 
 #### 1.3 Add JSON Endpoint for Older Messages
 
-- [ ] Add `older_messages` action to ChatsController
+- [x] Add `older_messages` action to ChatsController
 
 ```ruby
 # app/controllers/chats_controller.rb
@@ -120,7 +122,7 @@ def older_messages
 end
 ```
 
-- [ ] Add route for older_messages endpoint
+- [x] Add route for older_messages endpoint
 
 ```ruby
 # config/routes.rb
@@ -137,7 +139,7 @@ end
 
 #### 1.4 Share Token Thresholds via ApplicationController
 
-- [ ] Add token thresholds to `inertia_share`
+- [x] Add token thresholds to `inertia_share`
 
 ```ruby
 # app/controllers/application_controller.rb
@@ -162,105 +164,36 @@ inertia_share do
 end
 ```
 
-### Phase 2: Backend Tests
+### Phase 2: Backend Tests (COMPLETE)
 
 #### 2.1 Model Tests
 
-- [ ] Add tests for Chat pagination methods
+- [x] Add tests for Chat pagination methods
 
-```ruby
-# test/models/chat_test.rb
-
-class ChatTest < ActiveSupport::TestCase
-  test "messages_page returns limited messages in sorted order" do
-    chat = chats(:one)
-    10.times { |i| chat.messages.create!(content: "Message #{i}", role: "user") }
-
-    page = chat.messages_page(limit: 5)
-
-    assert_equal 5, page.count
-    assert page.first.created_at <= page.last.created_at
-  end
-
-  test "messages_page with before_id returns older messages" do
-    chat = chats(:one)
-    messages = 10.times.map { |i| chat.messages.create!(content: "Message #{i}", role: "user") }
-    middle = messages[5]
-
-    page = chat.messages_page(before_id: middle.to_param, limit: 5)
-
-    assert page.all? { |m| m.id < middle.id }
-  end
-
-  test "total_tokens sums input and output tokens" do
-    chat = chats(:one)
-    chat.messages.create!(content: "Hello", role: "user", input_tokens: 10, output_tokens: 0)
-    chat.messages.create!(content: "Hi there", role: "assistant", input_tokens: 0, output_tokens: 20)
-
-    assert_equal 30, chat.total_tokens
-  end
-
-  test "total_tokens handles nil values" do
-    chat = chats(:one)
-    chat.messages.create!(content: "Hello", role: "user", input_tokens: nil, output_tokens: nil)
-
-    assert_equal 0, chat.total_tokens
-  end
-end
-```
+All tests added to `/test/models/chat_test.rb`:
+- `test_messages_page_returns_limited_messages`
+- `test_messages_page_returns_messages_in_ascending_order_for_display`
+- `test_messages_page_with_before_id_returns_older_messages`
+- `test_messages_page_returns_empty_when_before_id_is_first_message`
+- `test_messages_page_default_limit_is_30`
+- `test_total_tokens_sums_input_and_output_tokens`
+- `test_total_tokens_handles_nil_values`
+- `test_total_tokens_returns_zero_for_chat_with_no_messages`
+- `test_total_tokens_sums_all_message_tokens_correctly`
+- `test_as_json_includes_total_tokens`
 
 #### 2.2 Controller Tests
 
-- [ ] Add tests for ChatsController pagination
+- [x] Add tests for ChatsController pagination
 
-```ruby
-# test/controllers/chats_controller_test.rb
-
-class ChatsControllerTest < ActionDispatch::IntegrationTest
-  setup do
-    @user = users(:one)
-    @account = accounts(:one)
-    sign_in(@user)
-  end
-
-  test "show loads limited messages" do
-    chat = @account.chats.create!(model_id: "openrouter/auto")
-    50.times { |i| chat.messages.create!(content: "Message #{i}", role: "user") }
-
-    get account_chat_path(@account, chat)
-
-    assert_response :success
-    # Inertia props should have limited messages
-  end
-
-  test "older_messages returns JSON with pagination info" do
-    chat = @account.chats.create!(model_id: "openrouter/auto")
-    messages = 50.times.map { |i| chat.messages.create!(content: "Message #{i}", role: "user") }
-
-    get older_messages_account_chat_path(@account, chat, before_id: messages.last.to_param),
-        headers: { 'Accept' => 'application/json' }
-
-    assert_response :success
-    json = JSON.parse(response.body)
-    assert json.key?('messages')
-    assert json.key?('has_more')
-    assert json.key?('oldest_id')
-  end
-
-  test "older_messages returns empty when no more messages" do
-    chat = @account.chats.create!(model_id: "openrouter/auto")
-    message = chat.messages.create!(content: "Only message", role: "user")
-
-    get older_messages_account_chat_path(@account, chat, before_id: message.to_param),
-        headers: { 'Accept' => 'application/json' }
-
-    assert_response :success
-    json = JSON.parse(response.body)
-    assert_equal [], json['messages']
-    assert_equal false, json['has_more']
-  end
-end
-```
+All tests added to `/test/controllers/chats_controller_test.rb`:
+- `test_older_messages_returns_JSON_with_pagination_info`
+- `test_older_messages_returns_messages_before_specified_ID`
+- `test_older_messages_returns_empty_when_no_more_messages`
+- `test_older_messages_requires_authentication`
+- `test_older_messages_scopes_to_current_account`
+- `test_older_messages_indicates_has_more_correctly_when_more_messages_exist`
+- `test_older_messages_indicates_has_more_false_when_no_more_messages`
 
 ### Phase 3: Frontend Changes
 
@@ -561,47 +494,46 @@ test('critical warning shows red header and banner', async ({ page }) => {
 });
 ```
 
-## Files to Modify
+## Files Modified
 
-### Backend
-- `/app/models/chat.rb` - Add `messages_page` and `total_tokens` methods
-- `/app/controllers/chats_controller.rb` - Update `show`, add `older_messages`
-- `/app/controllers/application_controller.rb` - Add `token_thresholds` to `inertia_share`
-- `/config/routes.rb` - Add `older_messages` route
+### Backend (COMPLETE)
+- `/app/models/chat.rb` - Added `messages_page` and `total_tokens` methods, added `total_tokens` to json_attributes
+- `/app/controllers/chats_controller.rb` - Updated `show`, added `older_messages`
+- `/app/controllers/application_controller.rb` - Added `token_thresholds` to `inertia_share`
+- `/config/routes.rb` - Added `older_messages` route
 
-### Frontend
+### Tests (COMPLETE)
+- `/test/models/chat_test.rb` - Added pagination and total_tokens tests
+- `/test/controllers/chats_controller_test.rb` - Added older_messages endpoint tests
+
+### Frontend (NOT STARTED)
 - `/app/frontend/pages/chats/show.svelte` - Pagination state, scroll detection, token warnings
 
-### Tests
-- `/test/models/chat_test.rb`
-- `/test/controllers/chats_controller_test.rb`
+### Integration Tests (NOT STARTED)
 - `/test/e2e/chat-pagination.spec.js` (new file)
 
-## Changes from Revision B
+## Implementation Notes
 
-| Change | Revision B | Revision C (Final) |
-|--------|------------|-------------------|
-| Message `before` scope | Separate scope in Message model | Inlined in `messages_page` |
-| `tokenWarningLevel` | Arrow function requiring `()` calls | Direct ternary expression |
-| Chat reset effect | Implicit dependency on `chat?.id` | Explicit `previousChatId` tracking |
-| Implementation order | Not specified | Explicit 4-phase order |
+### Key Change from Original Spec
+
+The `messages_page` method uses `reorder(id: :desc)` instead of `order(id: :desc)` because the `acts_as_chat` macro from RubyLLM adds a default ordering to the messages association. Using `reorder` replaces the existing order clause entirely, ensuring we get the most recent messages first.
 
 ## Checklist Summary
 
-### Phase 1: Backend
-- [ ] Add `messages_page(before_id:, limit:)` to Chat model (with inlined before logic)
-- [ ] Add `total_tokens` to Chat model using single SQL query
-- [ ] Add `total_tokens` to Chat json_attributes
-- [ ] Update `ChatsController#show` with pagination
-- [ ] Add `ChatsController#older_messages` JSON endpoint
-- [ ] Add route for `older_messages`
-- [ ] Add `token_thresholds` to ApplicationController inertia_share
+### Phase 1: Backend (COMPLETE)
+- [x] Add `messages_page(before_id:, limit:)` to Chat model (with inlined before logic)
+- [x] Add `total_tokens` to Chat model using single SQL query
+- [x] Add `total_tokens` to Chat json_attributes
+- [x] Update `ChatsController#show` with pagination
+- [x] Add `ChatsController#older_messages` JSON endpoint
+- [x] Add route for `older_messages`
+- [x] Add `token_thresholds` to ApplicationController inertia_share
 
-### Phase 2: Backend Tests
-- [ ] Add model tests for pagination
-- [ ] Add controller tests for both endpoints
+### Phase 2: Backend Tests (COMPLETE)
+- [x] Add model tests for pagination
+- [x] Add controller tests for both endpoints
 
-### Phase 3: Frontend
+### Phase 3: Frontend (NOT STARTED)
 - [ ] Update Svelte: separate `olderMessages` state
 - [ ] Update Svelte: `allMessages` derived combining both
 - [ ] Update Svelte: scroll detection with `requestAnimationFrame`
@@ -610,5 +542,5 @@ test('critical warning shows red header and banner', async ({ page }) => {
 - [ ] Update Svelte: token warnings from server thresholds (no parentheses)
 - [ ] Remove message count comparison from sync logic
 
-### Phase 4: Integration Tests
+### Phase 4: Integration Tests (NOT STARTED)
 - [ ] Add Playwright integration tests

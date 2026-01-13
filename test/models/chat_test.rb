@@ -439,4 +439,105 @@ class ChatTest < ActiveSupport::TestCase
     assert_equal false, json["respondable"]
   end
 
+  # Pagination tests
+
+  test "messages_page returns limited messages" do
+    chat = Chat.create!(account: @account)
+    10.times { |i| chat.messages.create!(content: "Message #{i}", role: "user", user: @user) }
+
+    page = chat.messages_page(limit: 5)
+
+    # messages_page returns an Array after .reverse
+    assert_equal 5, page.size
+    # Verify we got the most recent 5 messages (messages 5-9)
+    assert_equal "Message 5", page.first.content
+    assert_equal "Message 9", page.last.content
+  end
+
+  test "messages_page returns messages in ascending order for display" do
+    chat = Chat.create!(account: @account)
+    10.times { |i| chat.messages.create!(content: "Message #{i}", role: "user", user: @user) }
+
+    page = chat.messages_page(limit: 5)
+
+    # Messages should be in ascending order (oldest of the recent 5 first)
+    assert page.first.id < page.last.id
+  end
+
+  test "messages_page with before_id returns older messages" do
+    chat = Chat.create!(account: @account)
+    messages = 10.times.map { |i| chat.messages.create!(content: "Message #{i}", role: "user", user: @user) }
+    middle = messages[5]
+
+    page = chat.messages_page(before_id: middle.to_param, limit: 5)
+
+    # All returned messages should have IDs less than the middle message
+    assert page.all? { |m| m.id < middle.id }
+    # Should get messages 1-5 (the 5 most recent before message 5)
+    assert_equal 5, page.size
+  end
+
+  test "messages_page returns empty when before_id is first message" do
+    chat = Chat.create!(account: @account)
+    first_message = chat.messages.create!(content: "First", role: "user", user: @user)
+    chat.messages.create!(content: "Second", role: "user", user: @user)
+
+    page = chat.messages_page(before_id: first_message.to_param)
+
+    assert_empty page
+  end
+
+  test "messages_page default limit is 30" do
+    chat = Chat.create!(account: @account)
+    50.times { |i| chat.messages.create!(content: "Message #{i}", role: "user", user: @user) }
+
+    page = chat.messages_page
+
+    assert_equal 30, page.size
+    # Should get the 30 most recent (messages 20-49)
+    assert_equal "Message 20", page.first.content
+    assert_equal "Message 49", page.last.content
+  end
+
+  test "total_tokens sums input and output tokens" do
+    chat = Chat.create!(account: @account)
+    chat.messages.create!(content: "Hello", role: "user", user: @user, input_tokens: 10, output_tokens: 0)
+    chat.messages.create!(content: "Hi there", role: "assistant", input_tokens: 0, output_tokens: 20)
+
+    assert_equal 30, chat.total_tokens
+  end
+
+  test "total_tokens handles nil values" do
+    chat = Chat.create!(account: @account)
+    chat.messages.create!(content: "Hello", role: "user", user: @user, input_tokens: nil, output_tokens: nil)
+
+    assert_equal 0, chat.total_tokens
+  end
+
+  test "total_tokens returns zero for chat with no messages" do
+    chat = Chat.create!(account: @account)
+
+    assert_equal 0, chat.total_tokens
+  end
+
+  test "total_tokens sums all message tokens correctly" do
+    chat = Chat.create!(account: @account)
+    chat.messages.create!(content: "Message 1", role: "user", user: @user, input_tokens: 100, output_tokens: 50)
+    chat.messages.create!(content: "Message 2", role: "assistant", input_tokens: 200, output_tokens: 300)
+    chat.messages.create!(content: "Message 3", role: "user", user: @user, input_tokens: 150, output_tokens: nil)
+
+    # 100 + 50 + 200 + 300 + 150 + 0 = 800
+    assert_equal 800, chat.total_tokens
+  end
+
+  test "as_json includes total_tokens" do
+    chat = Chat.create!(account: @account)
+    chat.messages.create!(content: "Hello", role: "user", user: @user, input_tokens: 100, output_tokens: 50)
+
+    json = chat.as_json
+
+    assert_includes json.keys, "total_tokens"
+    assert_equal 150, json["total_tokens"]
+  end
+
 end

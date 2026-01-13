@@ -18,7 +18,8 @@ class ApplicationController < ActionController::Base
         accounts: Current.user.accounts.map(&:as_json),
         theme_preference: Current.user&.theme || cookies[:theme],
         site_settings: shared_site_settings,
-        is_account_admin: current_account&.manageable_by?(Current.user) || false
+        is_account_admin: current_account&.manageable_by?(Current.user) || false,
+        token_thresholds: { amber: 100_000, red: 150_000, critical: 200_000 }
       }
     else
       {
