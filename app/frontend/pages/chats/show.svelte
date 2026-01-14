@@ -197,6 +197,12 @@
   let titleInputRef = $state(null);
   let originalTitle = $state('');
 
+  // Edit message state
+  let editDrawerOpen = $state(false);
+  let editingMessageId = $state(null);
+  let editingContent = $state('');
+  let editSaving = $state(false);
+
   // Check if current user is a site admin
   const isSiteAdmin = $derived($page.props.user?.site_admin ?? false);
 
@@ -756,6 +762,59 @@
     }
   }
 
+  function startEditingMessage(message) {
+    editingMessageId = message.id;
+    editingContent = message.content;
+    editDrawerOpen = true;
+  }
+
+  function cancelEditingMessage() {
+    editDrawerOpen = false;
+    editingMessageId = null;
+    editingContent = '';
+  }
+
+  async function saveEditedMessage() {
+    if (editSaving) return;
+    editSaving = true;
+
+    const trimmedContent = editingContent.trim();
+    const messageId = editingMessageId;
+
+    try {
+      const response = await fetch(`/messages/${messageId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || '',
+        },
+        body: JSON.stringify({ message: { content: trimmedContent } }),
+      });
+
+      if (response.ok) {
+        // Immediately update the message in local state for instant feedback
+        recentMessages = recentMessages.map((m) =>
+          m.id === messageId ? { ...m, content: trimmedContent, editable: false } : m
+        );
+        olderMessages = olderMessages.map((m) =>
+          m.id === messageId ? { ...m, content: trimmedContent, editable: false } : m
+        );
+
+        cancelEditingMessage();
+        // Also reload to get proper server state (markdown rendering, etc.)
+        router.reload({ only: ['messages'], preserveScroll: true });
+      } else {
+        errorMessage = 'Failed to save message';
+        setTimeout(() => (errorMessage = null), 3000);
+      }
+    } catch (error) {
+      errorMessage = 'Failed to save message';
+      setTimeout(() => (errorMessage = null), 3000);
+    } finally {
+      editSaving = false;
+    }
+  }
+
   async function saveWhiteboard() {
     if (!chat?.active_whiteboard) return;
 
@@ -1117,33 +1176,45 @@
 
           <div class="space-y-1">
             {#if message.role === 'user'}
-              <div class="flex justify-end">
+              <div class="flex justify-end group">
                 <div class="max-w-[85%] md:max-w-[70%]">
-                  <Card.Root class={getBubbleClass(message.author_colour)}>
-                    <Card.Content class="p-4">
-                      {#if message.files_json && message.files_json.length > 0}
-                        <div class="space-y-2 mb-3">
-                          {#each message.files_json as file}
-                            <FileAttachment {file} onImageClick={openImageLightbox} />
-                          {/each}
-                        </div>
-                      {/if}
-                      <Streamdown
-                        content={message.content}
-                        parseIncompleteMarkdown
-                        baseTheme="shadcn"
-                        class="prose"
-                        animation={{
-                          enabled: true,
-                          type: 'fade',
-                          tokenize: 'word',
-                          duration: 300,
-                          timingFunction: 'ease-out',
-                          animateOnMount: false,
-                        }} />
-                    </Card.Content>
-                  </Card.Root>
-                  <div class="text-xs text-muted-foreground text-right mt-1">
+                  <div class="flex justify-end items-center gap-2">
+                    {#if message.editable}
+                      <button
+                        onclick={() => startEditingMessage(message)}
+                        class="p-1.5 rounded-full text-muted-foreground/50 hover:text-muted-foreground hover:bg-muted
+                               opacity-50 hover:opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity
+                               focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring"
+                        title="Edit message">
+                        <PencilSimple size={20} weight="regular" />
+                      </button>
+                    {/if}
+                    <Card.Root class="{getBubbleClass(message.author_colour)} w-fit">
+                      <Card.Content class="p-4">
+                        {#if message.files_json && message.files_json.length > 0}
+                          <div class="space-y-2 mb-3">
+                            {#each message.files_json as file}
+                              <FileAttachment {file} onImageClick={openImageLightbox} />
+                            {/each}
+                          </div>
+                        {/if}
+                        <Streamdown
+                          content={message.content}
+                          parseIncompleteMarkdown
+                          baseTheme="shadcn"
+                          class="prose"
+                          animation={{
+                            enabled: true,
+                            type: 'fade',
+                            tokenize: 'word',
+                            duration: 300,
+                            timingFunction: 'ease-out',
+                            animateOnMount: false,
+                          }} />
+                      </Card.Content>
+                    </Card.Root>
+                  </div>
+                  <div class="text-xs text-muted-foreground text-right mt-1 flex items-center justify-end gap-2">
                     <span class="group">
                       <span class="hidden group-hover:inline-block">({formatDateTime(message.created_at, true)})</span>
                       {formatTime(message.created_at)}
@@ -1151,7 +1222,7 @@
                     {#if chat?.manual_responses && message.author_name}
                       <span class="ml-1">· {message.author_name}</span>
                     {/if}
-                    {#if index === visibleMessages.length - 1 && lastUserMessageNeedsResend() && !waitingForResponse}
+                    {#if index === visibleMessages.length - 1 && lastUserMessageNeedsResend() && !waitingForResponse && !chat?.manual_responses}
                       <button onclick={resendLastMessage} class="ml-2 text-blue-600 hover:text-blue-700 underline">
                         Resend
                       </button>
@@ -1444,6 +1515,33 @@
     </Drawer.Content>
   </Drawer.Root>
 {/if}
+
+<!-- Edit Message Drawer -->
+<Drawer.Root bind:open={editDrawerOpen} onClose={() => !editSaving && cancelEditingMessage()}>
+  <Drawer.Content class="max-h-[50vh]">
+    <Drawer.Header>
+      <Drawer.Title>Edit Message</Drawer.Title>
+    </Drawer.Header>
+    <div class="p-4 space-y-4">
+      <textarea
+        bind:value={editingContent}
+        disabled={editSaving}
+        class="w-full min-h-[100px] resize-none border border-input rounded-md px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
+      ></textarea>
+      <div class="flex justify-end gap-2">
+        <Button variant="outline" onclick={cancelEditingMessage} disabled={editSaving}>Cancel</Button>
+        <Button onclick={saveEditedMessage} disabled={!editingContent.trim() || editSaving}>
+          {#if editSaving}
+            <Spinner size={16} class="mr-2 animate-spin" />
+            Saving...
+          {:else}
+            Save
+          {/if}
+        </Button>
+      </div>
+    </div>
+  </Drawer.Content>
+</Drawer.Root>
 
 <!-- Error toast -->
 {#if errorMessage}

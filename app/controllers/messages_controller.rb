@@ -1,8 +1,9 @@
 class MessagesController < ApplicationController
 
   require_feature_enabled :chats
-  before_action :set_chat, except: :retry
+  before_action :set_chat, except: [ :retry, :update ]
   before_action :set_chat_for_retry, only: :retry
+  before_action :set_message, only: [ :update ]
   before_action :require_respondable_chat, only: [ :create, :retry ]
 
   def create
@@ -37,6 +38,18 @@ class MessagesController < ApplicationController
     respond_to do |format|
       format.html { redirect_back_or_to account_chat_path(@chat.account, @chat), alert: "Failed to send message: #{e.message}" }
       format.json { render json: { errors: [ e.message ] }, status: :unprocessable_entity }
+    end
+  end
+
+  def update
+    unless @message.editable_by?(Current.user)
+      return head :forbidden
+    end
+
+    if @message.update(message_params)
+      head :ok
+    else
+      render json: { errors: @message.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
@@ -76,7 +89,12 @@ class MessagesController < ApplicationController
     raise
   end
 
-def message_params
+  def set_message
+    @message = Message.find(params[:id])
+    @chat = current_account.chats.find(@message.chat_id)
+  end
+
+  def message_params
     params.require(:message).permit(:content)
   end
 

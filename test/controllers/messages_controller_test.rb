@@ -325,4 +325,63 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
     assert @chat.updated_at > original_updated_at
   end
 
+  # Edit Last Message feature tests
+
+  test "updates message content" do
+    message = @chat.messages.create!(user: @user, role: "user", content: "Original")
+
+    patch message_path(message), params: { message: { content: "Updated content" } }
+
+    assert_response :ok
+    assert_equal "Updated content", message.reload.content
+  end
+
+  test "cannot edit message with subsequent messages" do
+    message = @chat.messages.create!(user: @user, role: "user", content: "Original")
+    @chat.messages.create!(role: "assistant", content: "Response")
+
+    patch message_path(message), params: { message: { content: "Updated" } }
+
+    assert_response :forbidden
+  end
+
+  test "cannot edit another user's message" do
+    other_user = User.create!(email_address: "editother@example.com")
+    other_user.profile.update!(first_name: "Other", last_name: "User")
+    message = @chat.messages.create!(user: other_user, role: "user", content: "Their message")
+
+    patch message_path(message), params: { message: { content: "Hacked" } }
+
+    assert_response :forbidden
+  end
+
+  test "cannot edit assistant messages" do
+    message = @chat.messages.create!(role: "assistant", content: "AI response")
+
+    patch message_path(message), params: { message: { content: "Modified" } }
+
+    assert_response :forbidden
+  end
+
+  test "update scopes to current account" do
+    other_user = User.create!(email_address: "updateother@example.com")
+    other_user.profile.update!(first_name: "Other", last_name: "User")
+    other_account = other_user.personal_account
+    other_chat = other_account.chats.create!(model_id: "gpt-4o")
+    other_message = other_chat.messages.create!(user: other_user, role: "user", content: "Their message")
+
+    patch message_path(other_message), params: { message: { content: "Hacked" } }
+
+    assert_response :not_found
+  end
+
+  test "update requires authentication" do
+    message = @chat.messages.create!(user: @user, role: "user", content: "Original")
+
+    delete logout_path
+
+    patch message_path(message), params: { message: { content: "Updated" } }
+    assert_response :redirect
+  end
+
 end

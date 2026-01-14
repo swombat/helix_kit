@@ -60,7 +60,7 @@ Rails.application.routes.draw do
     resources :whiteboards, only: [ :index, :update ]
   end
 
-  resources :messages, only: [] do
+  resources :messages, only: [ :update ] do
     member do
       post :retry
     end

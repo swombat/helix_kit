@@ -66,7 +66,8 @@ class Message < ApplicationRecord
   json_attributes :role, :content, :thinking, :thinking_preview, :user_name, :user_avatar_url,
                   :completed, :created_at_formatted, :created_at_hour, :streaming,
                   :files_json, :content_html, :tools_used, :tool_status,
-                  :author_name, :author_type, :author_colour, :input_tokens, :output_tokens
+                  :author_name, :author_type, :author_colour, :input_tokens, :output_tokens,
+                  :editable
 
   def completed?
     # User messages are always completed
@@ -250,7 +251,19 @@ class Message < ApplicationRecord
     tools_used.present? && tools_used.any?
   end
 
+  def editable
+    editable_by?(Current.user)
+  end
+
+  def editable_by?(user)
+    role == "user" && user_id == user&.id && !has_subsequent_messages?
+  end
+
   private
+
+  def has_subsequent_messages?
+    chat.messages.where("created_at > ?", created_at).exists?
+  end
 
   def format_tool_status(tool_name, tool_args)
     case tool_name
