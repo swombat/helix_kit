@@ -1,9 +1,9 @@
 class MessagesController < ApplicationController
 
   require_feature_enabled :chats
-  before_action :set_chat, except: [ :retry, :update ]
+  before_action :set_chat, except: [ :retry, :update, :destroy ]
   before_action :set_chat_for_retry, only: :retry
-  before_action :set_message, only: [ :update ]
+  before_action :set_message, only: [ :update, :destroy ]
   before_action :require_respondable_chat, only: [ :create, :retry ]
 
   def create
@@ -51,6 +51,15 @@ class MessagesController < ApplicationController
     else
       render json: { errors: @message.errors.full_messages }, status: :unprocessable_entity
     end
+  end
+
+  def destroy
+    unless @message.deletable_by?(Current.user)
+      return head :forbidden
+    end
+
+    @message.destroy!
+    head :ok
   end
 
   def retry

@@ -384,4 +384,72 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
     assert_response :redirect
   end
 
+  # Delete Message feature tests
+
+  test "deletes message" do
+    message = @chat.messages.create!(user: @user, role: "user", content: "To be deleted")
+
+    assert_difference "Message.count", -1 do
+      delete message_path(message), as: :json
+    end
+
+    assert_response :ok
+  end
+
+  test "cannot delete message with subsequent messages" do
+    message = @chat.messages.create!(user: @user, role: "user", content: "Original")
+    @chat.messages.create!(role: "assistant", content: "Response")
+
+    assert_no_difference "Message.count" do
+      delete message_path(message), as: :json
+    end
+
+    assert_response :forbidden
+  end
+
+  test "cannot delete another user's message" do
+    other_user = User.create!(email_address: "deleteother@example.com")
+    other_user.profile.update!(first_name: "Other", last_name: "User")
+    message = @chat.messages.create!(user: other_user, role: "user", content: "Their message")
+
+    assert_no_difference "Message.count" do
+      delete message_path(message), as: :json
+    end
+
+    assert_response :forbidden
+  end
+
+  test "cannot delete assistant messages" do
+    message = @chat.messages.create!(role: "assistant", content: "AI response")
+
+    assert_no_difference "Message.count" do
+      delete message_path(message), as: :json
+    end
+
+    assert_response :forbidden
+  end
+
+  test "destroy scopes to current account" do
+    other_user = User.create!(email_address: "destroyother@example.com")
+    other_user.profile.update!(first_name: "Other", last_name: "User")
+    other_account = other_user.personal_account
+    other_chat = other_account.chats.create!(model_id: "gpt-4o")
+    other_message = other_chat.messages.create!(user: other_user, role: "user", content: "Their message")
+
+    assert_no_difference "Message.count" do
+      delete message_path(other_message), as: :json
+    end
+
+    assert_response :not_found
+  end
+
+  test "destroy requires authentication" do
+    message = @chat.messages.create!(user: @user, role: "user", content: "Original")
+
+    delete logout_path
+
+    delete message_path(message), as: :json
+    assert_response :redirect
+  end
+
 end

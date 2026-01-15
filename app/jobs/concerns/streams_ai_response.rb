@@ -29,8 +29,44 @@ module StreamsAiResponse
     # Use RubyLLM's thinking attribute (authoritative source) with buffer fallback
     thinking_content = ruby_llm_message.thinking.presence || @thinking_accumulated.presence
 
+    # Use RubyLLM's content with fallback to accumulated streaming content or existing DB content
+    # This prevents the update! from overwriting content that was already saved during streaming
+    content = extract_message_content(ruby_llm_message.content)
+    if content.blank?
+      # First try accumulated content (in-memory copy of what was streamed)
+      # Then fall back to what's already in the database (which was saved during streaming)
+      fallback_content = @content_accumulated.presence || @ai_message.reload.content
+      if fallback_content.present?
+        Rails.logger.warn "⚠️ RubyLLM content was blank, using fallback content (#{fallback_content.length} chars)"
+        content = fallback_content
+      end
+    end
+
+    # Check for empty response which may indicate content filtering
+    if content.blank? && ruby_llm_message.output_tokens.to_i == 0
+      Rails.logger.warn "⚠️ LLM returned empty response (0 output tokens)"
+      Rails.logger.warn "⚠️ Raw response: #{ruby_llm_message.raw.inspect}"
+
+      # Check for Gemini-specific block reasons in the raw response
+      raw = ruby_llm_message.raw || {}
+      finish_reason = raw.dig("candidates", 0, "finishReason") ||
+                      raw.dig("choices", 0, "finish_reason")
+      block_reason = raw.dig("promptFeedback", "blockReason") ||
+                     raw.dig("candidates", 0, "finishReason")
+
+      if block_reason == "SAFETY" || finish_reason == "SAFETY"
+        Rails.logger.warn "⚠️ Response blocked due to safety filters"
+        content = "_The AI was unable to respond due to content safety filters. Try rephrasing your message or starting a new conversation._"
+      elsif finish_reason.present? && finish_reason != "STOP"
+        Rails.logger.warn "⚠️ Unusual finish reason: #{finish_reason}"
+        content = "_The AI was unable to complete its response (reason: #{finish_reason}). Please try again._"
+      else
+        content = "_The AI returned an empty response. This may be due to content filtering or a temporary issue. Please try again._"
+      end
+    end
+
     @ai_message.update!({
-      content: extract_message_content(ruby_llm_message.content),
+      content: content,
       thinking: thinking_content,
       model_id_string: ruby_llm_message.model_id,
       input_tokens: ruby_llm_message.input_tokens,
@@ -117,8 +153,10 @@ module StreamsAiResponse
   end
 
   def cleanup_streaming
+    Rails.logger.info "🧹 cleanup_streaming called, @ai_message: #{@ai_message&.to_param || 'nil'}, streaming: #{@ai_message&.streaming?}"
     flush_all_buffers
     @ai_message&.stop_streaming if @ai_message&.streaming?
+    Rails.logger.info "🧹 cleanup_streaming completed"
   end
 
 end

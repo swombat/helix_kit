@@ -67,7 +67,7 @@ class Message < ApplicationRecord
                   :completed, :created_at_formatted, :created_at_hour, :streaming,
                   :files_json, :content_html, :tools_used, :tool_status,
                   :author_name, :author_type, :author_colour, :input_tokens, :output_tokens,
-                  :editable
+                  :editable, :deletable
 
   def completed?
     # User messages are always completed
@@ -225,10 +225,17 @@ class Message < ApplicationRecord
 
   # Stop streaming and finalize the message
   def stop_streaming
-    Rails.logger.debug "🛑 Stopping streaming for Message:#{to_param}"
+    Rails.logger.info "🛑 Stopping streaming for Message:#{to_param}, currently streaming: #{streaming?}"
     # Use update! to trigger callbacks and broadcast_refresh
     # Also clear tool_status since streaming is complete
-    update!(streaming: false, tool_status: nil) if streaming?
+    if streaming?
+      update!(streaming: false, tool_status: nil)
+      Rails.logger.info "🛑 Message #{to_param} updated to streaming: false"
+    end
+
+    # Broadcast streaming_end to both Message and Chat channels for reliability
+    # The Chat channel broadcast ensures the frontend receives the event even if
+    # the Message channel subscription hasn't been set up yet (race condition fix)
     broadcast_marker(
       "Message:#{to_param}",
       {
@@ -237,6 +244,15 @@ class Message < ApplicationRecord
         id: to_param
       }
     )
+    broadcast_marker(
+      "Chat:#{chat.obfuscated_id}",
+      {
+        action: "streaming_end",
+        chunk: nil,
+        id: to_param
+      }
+    )
+    Rails.logger.info "🛑 Broadcasted streaming_end to Message:#{to_param} and Chat:#{chat.obfuscated_id}"
   end
 
   # Update tool call status for real-time UI display
@@ -256,6 +272,14 @@ class Message < ApplicationRecord
   end
 
   def editable_by?(user)
+    role == "user" && user_id == user&.id && !has_subsequent_messages?
+  end
+
+  def deletable
+    deletable_by?(Current.user)
+  end
+
+  def deletable_by?(user)
     role == "user" && user_id == user&.id && !has_subsequent_messages?
   end
 

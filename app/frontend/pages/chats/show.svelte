@@ -36,7 +36,13 @@
   import AgentTriggerBar from '$lib/components/chat/AgentTriggerBar.svelte';
   import ParticipantAvatars from '$lib/components/chat/ParticipantAvatars.svelte';
   import ThinkingBlock from '$lib/components/chat/ThinkingBlock.svelte';
-  import { accountChatMessagesPath, retryMessagePath, forkAccountChatPath, assignAgentAccountChatPath } from '@/routes';
+  import {
+    accountChatMessagesPath,
+    retryMessagePath,
+    forkAccountChatPath,
+    assignAgentAccountChatPath,
+    messagePath,
+  } from '@/routes';
   import { marked } from 'marked';
   import * as logging from '$lib/logging';
   import { formatTime, formatDate, formatDateTime } from '$lib/utils';
@@ -815,6 +821,33 @@
     }
   }
 
+  async function deleteMessage(messageId) {
+    if (!confirm('Delete this message?')) return;
+
+    try {
+      const response = await fetch(messagePath(messageId), {
+        method: 'DELETE',
+        headers: {
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || '',
+        },
+      });
+
+      if (response.ok) {
+        // Remove from local state immediately
+        recentMessages = recentMessages.filter((m) => m.id !== messageId);
+        olderMessages = olderMessages.filter((m) => m.id !== messageId);
+        // Reload to get proper server state
+        router.reload({ only: ['messages'], preserveScroll: true });
+      } else {
+        errorMessage = 'Failed to delete message';
+        setTimeout(() => (errorMessage = null), 3000);
+      }
+    } catch (error) {
+      errorMessage = 'Failed to delete message';
+      setTimeout(() => (errorMessage = null), 3000);
+    }
+  }
+
   async function saveWhiteboard() {
     if (!chat?.active_whiteboard) return;
 
@@ -1187,6 +1220,16 @@
                                focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring"
                         title="Edit message">
                         <PencilSimple size={20} weight="regular" />
+                      </button>
+                    {/if}
+                    {#if message.deletable}
+                      <button
+                        onclick={() => deleteMessage(message.id)}
+                        class="p-1.5 rounded-full text-muted-foreground/50 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950
+                               opacity-50 hover:opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity
+                               focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring"
+                        title="Delete message">
+                        <Trash size={20} weight="regular" />
                       </button>
                     {/if}
                     <Card.Root class="{getBubbleClass(message.author_colour)} w-fit">
