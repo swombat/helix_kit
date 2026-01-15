@@ -18,6 +18,9 @@ class User < ApplicationRecord
           class_name: "Membership"
   has_one :personal_account, through: :personal_membership, source: :account
 
+  # API keys for external access
+  has_many :api_keys, dependent: :destroy
+
   # Broadcasting configuration - automatically broadcasts to all associated accounts
   broadcasts_to :accounts
 

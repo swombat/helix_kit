@@ -2,7 +2,11 @@ class Current < ActiveSupport::CurrentAttributes
 
   attribute :session
   attribute :account
+  attribute :api_user
 
-  delegate :user, to: :session, allow_nil: true
+  # User can come from either session (web) or api_user (API)
+  def user
+    api_user || session&.user
+  end
 
 end

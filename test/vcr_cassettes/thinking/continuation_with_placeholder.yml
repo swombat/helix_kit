@@ -370,4 +370,74 @@ http_interactions:
         include thinking blocks from previous turns. To avoid this requirement, disable
         `thinking`. Please consult our documentation at https://docs.claude.com/en/docs/build-with-claude/extended-thinking"},"request_id":"req_011CX5N7YcmKA1FyMJvVjcPy"}'
   recorded_at: Tue, 13 Jan 2026 12:18:58 GMT
+- request:
+    method: post
+    uri: https://api.anthropic.com/v1/messages
+    body:
+      encoding: UTF-8
+      string: '{"model":"claude-opus-4-5-20251101","messages":[{"role":"user","content":[{"type":"text","text":"[Test
+        User]: Hello everyone!"}]},{"role":"user","content":[{"type":"text","text":"[Grok]:
+        Hello! What''s up?"}]},{"role":"user","content":[{"type":"text","text":"[Test
+        User]: Claude, please use your save_memory tool to remember that ''Grok said
+        hello first''."}]},{"role":"assistant","content":[{"type":"tool_use","id":"toolu_016UBH8hJGakvFtDTsLh6GGi","name":"save_memory","input":{"content":"Grok
+        said hello first in the \"Thinking Continuation Test\" group conversation","memory_type":"journal"}}]},{"role":"user","content":[{"type":"tool_result","tool_use_id":"toolu_016UBH8hJGakvFtDTsLh6GGi","content":[{"type":"text","text":"{success:
+        true, memory_type: \"journal\", content: \"Grok said hello first in the \\\"Thinking
+        Continuation Test\\\" group conversation\", expires_around: \"2026-01-22\"}"}]}]}],"stream":false,"max_tokens":13000,"tools":[{"name":"save_memory","description":"Save
+        a memory. Use ''journal'' for short-term observations (fades after a week)
+        or ''core'' for permanent identity memories.","input_schema":{"type":"object","properties":{"content":{"type":"string","description":"The
+        memory to save (keep it concise)"},"memory_type":{"type":"string","description":"Either
+        ''journal'' or ''core''"}},"required":["content","memory_type"],"additionalProperties":false,"strict":true}}],"system":[{"type":"text","text":"You
+        are Claude Opus. Use the save_memory tool to remember things. Be brief.\n\n#
+        Conversation Topic\n\nThis conversation is titled: \"Thinking Continuation
+        Test\"\n\nYou are participating in a group conversation.\n\nOther participants:
+        Humans: multimodel-test. AI Agents: Grok."}],"thinking":{"type":"enabled","budget_tokens":5000}}'
+    headers:
+      User-Agent:
+      - Faraday v2.14.0
+      x-api-key:
+      - "<CLAUDE_API_KEY>"
+      anthropic-version:
+      - '2023-06-01'
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 400
+      message: Bad Request
+    headers:
+      date:
+      - Thu, 15 Jan 2026 19:48:47 GMT
+      content-type:
+      - application/json
+      content-length:
+      - '578'
+      connection:
+      - keep-alive
+      x-should-retry:
+      - 'false'
+      request-id:
+      - req_011CX9k2oFX34z7rw3dTiLuL
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      anthropic-organization-id:
+      - 6a8e33e6-86cf-4a52-bdb3-c4eef5c23fc1
+      server:
+      - cloudflare
+      x-envoy-upstream-service-time:
+      - '92'
+      cf-cache-status:
+      - DYNAMIC
+      x-robots-tag:
+      - none
+      cf-ray:
+      - 9be7e4827f1e2531-MAD
+    body:
+      encoding: UTF-8
+      string: '{"type":"error","error":{"type":"invalid_request_error","message":"messages.1.content.0.type:
+        Expected `thinking` or `redacted_thinking`, but found `tool_use`. When `thinking`
+        is enabled, a final `assistant` message must start with a thinking block (preceeding
+        the lastmost set of `tool_use` and `tool_result` blocks). We recommend you
+        include thinking blocks from previous turns. To avoid this requirement, disable
+        `thinking`. Please consult our documentation at https://docs.claude.com/en/docs/build-with-claude/extended-thinking"},"request_id":"req_011CX9k2oFX34z7rw3dTiLuL"}'
+  recorded_at: Thu, 15 Jan 2026 19:48:47 GMT
 recorded_with: VCR 6.3.1

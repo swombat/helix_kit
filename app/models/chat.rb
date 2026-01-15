@@ -18,7 +18,7 @@ class Chat < ApplicationRecord
 
   json_attributes :title_or_default, :model_id, :model_label, :ai_model_name, :updated_at_formatted,
                   :updated_at_short, :message_count, :total_tokens, :web_access, :manual_responses,
-                  :participants_json, :archived_at, :discarded_at, :archived, :discarded, :respondable do |hash, options|
+                  :participants_json, :archived_at, :discarded_at, :archived, :discarded, :respondable, :summary do |hash, options|
     # For sidebar format, only include minimal attributes
     if options&.dig(:as) == :sidebar_json
       hash.slice!("id", "title_or_default", "updated_at_short")
@@ -124,6 +124,10 @@ class Chat < ApplicationRecord
     { model_id: "deepseek/deepseek-r1", label: "DeepSeek R1", group: "DeepSeek" },
     { model_id: "deepseek/deepseek-v3", label: "DeepSeek V3", group: "DeepSeek" }
   ].freeze
+
+  # Summary generation constants
+  SUMMARY_COOLDOWN = 1.hour
+  SUMMARY_MAX_WORDS = 200
 
   def self.model_config(model_id)
     MODELS.find { |m| m[:model_id] == model_id }
@@ -369,6 +373,28 @@ class Chat < ApplicationRecord
     end
   end
 
+  # Summary generation for API
+  def summary_stale?
+    summary_generated_at.nil? || summary_generated_at < SUMMARY_COOLDOWN.ago
+  end
+
+  def generate_summary!
+    return summary unless summary_stale?
+    return nil if messages.where(role: %w[user assistant]).count < 2
+
+    new_summary = generate_summary_from_llm
+    update!(summary: new_summary, summary_generated_at: Time.current) if new_summary.present?
+    summary
+  end
+
+  # Returns transcript in a format suitable for the API
+  def transcript_for_api
+    messages.includes(:user, :agent)
+            .where(role: %w[user assistant])
+            .order(:created_at)
+            .map { |m| format_message_for_api(m) }
+  end
+
   private
 
   def configure_for_openrouter
@@ -499,6 +525,42 @@ class Chat < ApplicationRecord
     end
 
     result
+  end
+
+  # Summary generation helpers
+  def generate_summary_from_llm
+    transcript_lines = messages.where(role: %w[user assistant])
+                               .order(:created_at)
+                               .limit(20)
+                               .map { |m| "#{m.role.titleize}: #{m.content.to_s.truncate(300)}" }
+
+    return nil if transcript_lines.blank?
+
+    prompt = Prompt.new(model: Prompt::LIGHT_MODEL, template: "generate_summary")
+    prompt.render(messages: transcript_lines)
+    prompt.execute_to_string&.squish&.truncate_words(SUMMARY_MAX_WORDS)
+  rescue StandardError => e
+    Rails.logger.error "Summary generation failed: #{e.message}"
+    nil
+  end
+
+  def format_message_for_api(message)
+    {
+      role: message.role,
+      content: message.content,
+      author: api_author_name(message),
+      timestamp: message.created_at.iso8601
+    }
+  end
+
+  def api_author_name(message)
+    if message.agent.present?
+      message.agent.name
+    elsif message.user.present?
+      message.user.full_name.presence || message.user.email_address.split("@").first
+    else
+      message.role.titleize
+    end
   end
 
 end

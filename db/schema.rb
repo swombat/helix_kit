@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_03_141838) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_15_100003) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -107,6 +107,31 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_03_141838) do
     t.index ["provider"], name: "index_ai_models_on_provider"
   end
 
+  create_table "api_key_requests", force: :cascade do |t|
+    t.bigint "api_key_id"
+    t.text "approved_token_encrypted"
+    t.string "client_name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "expires_at", null: false
+    t.string "request_token", null: false
+    t.string "status", default: "pending", null: false
+    t.datetime "updated_at", null: false
+    t.index ["request_token"], name: "index_api_key_requests_on_request_token", unique: true
+  end
+
+  create_table "api_keys", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "last_used_at"
+    t.string "last_used_ip"
+    t.string "name", null: false
+    t.string "token_digest", null: false
+    t.string "token_prefix", limit: 8, null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["token_digest"], name: "index_api_keys_on_token_digest", unique: true
+    t.index ["user_id"], name: "index_api_keys_on_user_id"
+  end
+
   create_table "audit_logs", force: :cascade do |t|
     t.bigint "account_id"
     t.string "action", null: false
@@ -146,6 +171,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_03_141838) do
     t.bigint "last_consolidated_message_id"
     t.boolean "manual_responses", default: false, null: false
     t.string "model_id_string", default: "openrouter/auto", null: false
+    t.text "summary"
+    t.datetime "summary_generated_at"
     t.string "title"
     t.datetime "updated_at", null: false
     t.boolean "web_access", default: false, null: false
@@ -285,6 +312,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_03_141838) do
     t.datetime "last_edited_at"
     t.bigint "last_edited_by_id"
     t.string "last_edited_by_type"
+    t.integer "lock_version", default: 0, null: false
     t.string "name", null: false
     t.integer "revision", default: 1, null: false
     t.string "summary", limit: 250
@@ -299,6 +327,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_03_141838) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "agent_memories", "agents"
   add_foreign_key "agents", "accounts"
+  add_foreign_key "api_key_requests", "api_keys"
+  add_foreign_key "api_keys", "users"
   add_foreign_key "audit_logs", "accounts"
   add_foreign_key "audit_logs", "users"
   add_foreign_key "chat_agents", "agents"

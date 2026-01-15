@@ -1,0 +1,115 @@
+require "test_helper"
+
+module Api
+  module V1
+    class WhiteboardsControllerTest < ActionDispatch::IntegrationTest
+
+      setup do
+        @user = users(:confirmed_user)
+        @api_key = ApiKey.generate_for(@user, name: "Test")
+        @token = @api_key.raw_token
+        @account = @user.personal_account
+        @whiteboard = @account.whiteboards.create!(name: "Test Board", content: "Initial content", summary: "A test board")
+      end
+
+      test "returns unauthorized without token" do
+        get api_v1_whiteboards_url
+        assert_response :unauthorized
+      end
+
+      test "lists whiteboards with valid token" do
+        get api_v1_whiteboards_url, headers: { "Authorization" => "Bearer #{@token}" }
+        assert_response :success
+
+        json = JSON.parse(response.body)
+        assert json["whiteboards"].is_a?(Array)
+        assert json["whiteboards"].length >= 1
+      end
+
+      test "lists only active whiteboards" do
+        deleted_board = @account.whiteboards.create!(name: "Deleted Board", content: "Content")
+        deleted_board.soft_delete!
+
+        get api_v1_whiteboards_url, headers: { "Authorization" => "Bearer #{@token}" }
+        json = JSON.parse(response.body)
+
+        names = json["whiteboards"].map { |w| w["name"] }
+        assert_includes names, "Test Board"
+        assert_not_includes names, "Deleted Board"
+      end
+
+      test "shows whiteboard details" do
+        get api_v1_whiteboard_url(@whiteboard), headers: { "Authorization" => "Bearer #{@token}" }
+        assert_response :success
+
+        json = JSON.parse(response.body)
+        assert_equal @whiteboard.to_param, json["whiteboard"]["id"]
+        assert_equal "Test Board", json["whiteboard"]["name"]
+        assert_equal "Initial content", json["whiteboard"]["content"]
+        assert_equal 0, json["whiteboard"]["lock_version"]
+      end
+
+      test "returns 404 for unknown whiteboard" do
+        get api_v1_whiteboard_url("nonexistent"), headers: { "Authorization" => "Bearer #{@token}" }
+        assert_response :not_found
+      end
+
+      test "returns 404 for deleted whiteboard" do
+        @whiteboard.soft_delete!
+
+        get api_v1_whiteboard_url(@whiteboard), headers: { "Authorization" => "Bearer #{@token}" }
+        assert_response :not_found
+      end
+
+      test "updates whiteboard content" do
+        patch api_v1_whiteboard_url(@whiteboard),
+              params: { content: "Updated content", lock_version: 0 },
+              headers: { "Authorization" => "Bearer #{@token}" }
+        assert_response :success
+
+        json = JSON.parse(response.body)
+        assert json["whiteboard"]["lock_version"] > 0
+
+        @whiteboard.reload
+        assert_equal "Updated content", @whiteboard.content
+      end
+
+      test "update returns conflict on stale lock_version" do
+        # Update with correct lock_version first
+        patch api_v1_whiteboard_url(@whiteboard),
+              params: { content: "First update", lock_version: 0 },
+              headers: { "Authorization" => "Bearer #{@token}" }
+        assert_response :success
+
+        # Try to update with stale lock_version
+        patch api_v1_whiteboard_url(@whiteboard),
+              params: { content: "Second update", lock_version: 0 },
+              headers: { "Authorization" => "Bearer #{@token}" }
+        assert_response :conflict
+
+        json = JSON.parse(response.body)
+        assert_equal "Whiteboard was modified by another user", json["error"]
+      end
+
+      test "update sets last_edited_by to API user" do
+        patch api_v1_whiteboard_url(@whiteboard),
+              params: { content: "Updated content" },
+              headers: { "Authorization" => "Bearer #{@token}" }
+        assert_response :success
+
+        @whiteboard.reload
+        assert_equal @user, @whiteboard.last_edited_by
+      end
+
+      test "cannot access other user whiteboards" do
+        other_user = users(:existing_user)
+        other_account = other_user.personal_account
+        other_board = other_account.whiteboards.create!(name: "Other Board", content: "Content")
+
+        get api_v1_whiteboard_url(other_board), headers: { "Authorization" => "Bearer #{@token}" }
+        assert_response :not_found
+      end
+
+    end
+  end
+end

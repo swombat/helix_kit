@@ -30,6 +30,12 @@ Rails.application.routes.draw do
 
   resource :user_avatar, only: %i[destroy], controller: "users", path: "user/avatar"
 
+  # API Key Management (browser-based)
+  resources :api_keys, only: [ :index, :create, :destroy ]
+  get "api_keys/approve/:token", to: "api_keys#approve", as: :approve_api_key
+  post "api_keys/approve/:token", to: "api_keys#confirm_approve"
+  delete "api_keys/approve/:token", to: "api_keys#deny", as: :deny_api_key
+
   resources :accounts, only: [ :show, :edit, :update ] do
     resources :members, controller: "account_members", only: [ :destroy ]
     resources :invitations, only: [ :create ] do
@@ -70,6 +76,19 @@ Rails.application.routes.draw do
     resources :accounts, only: [ :index ]
     resources :audit_logs, only: [ :index ]
     resource :settings, only: [ :show, :update ]
+  end
+
+  # JSON API for external clients (Claude Code, etc.)
+  namespace :api do
+    namespace :v1 do
+      resources :key_requests, only: [ :create, :show ]
+      resources :conversations, only: [ :index, :show ] do
+        member do
+          post :create_message
+        end
+      end
+      resources :whiteboards, only: [ :index, :show, :update ]
+    end
   end
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
