@@ -48,7 +48,10 @@ module StreamsAiResponse
       Rails.logger.warn "⚠️ Raw response: #{ruby_llm_message.raw.inspect}"
 
       # Check for Gemini-specific block reasons in the raw response
-      raw = ruby_llm_message.raw || {}
+      # raw might be a Faraday::Response or a Hash depending on the provider
+      raw = ruby_llm_message.raw
+      raw = raw.is_a?(Hash) ? raw : {}
+
       finish_reason = raw.dig("candidates", 0, "finishReason") ||
                       raw.dig("choices", 0, "finish_reason")
       block_reason = raw.dig("promptFeedback", "blockReason") ||
