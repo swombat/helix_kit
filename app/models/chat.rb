@@ -173,6 +173,12 @@ class Chat < ApplicationRecord
     title.presence || "New Conversation"
   end
 
+  # Returns cached JSON representation, invalidated when chat is updated
+  # (which happens automatically when messages are added via touch: true)
+  def cached_json
+    Rails.cache.fetch(cache_key_with_version) { as_json }
+  end
+
   # Override RubyLLM's model_id getter to return the string value
   # (RubyLLM's version returns ai_model&.model_id which is nil before save)
   def model_id

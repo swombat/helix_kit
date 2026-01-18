@@ -20,7 +20,7 @@ class ChatsController < ApplicationController
     end
 
     render inertia: "chats/new", props: {
-      chats: Array(@chats).map(&:as_json),
+      chats: Array(@chats).map(&:cached_json),
       models: available_models,
       agents: available_agents,
       account: current_account.as_json,
@@ -36,7 +36,7 @@ class ChatsController < ApplicationController
     @chats = active_chats + archived_chats
 
     render inertia: "chats/new", props: {
-      chats: @chats.map(&:as_json),
+      chats: @chats.map(&:cached_json),
       account: current_account.as_json,
       models: available_models,
       agents: available_agents,
@@ -57,7 +57,7 @@ class ChatsController < ApplicationController
 
     render inertia: "chats/show", props: {
       chat: chat_json_with_whiteboard,
-      chats: @chats.map(&:as_json),
+      chats: @chats.map(&:cached_json),
       messages: @messages.collect(&:as_json),
       has_more_messages: @has_more,
       oldest_message_id: @messages.first&.to_param,
