@@ -336,13 +336,14 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Updated content", message.reload.content
   end
 
-  test "cannot edit message with subsequent messages" do
+  test "can edit message even with subsequent messages" do
     message = @chat.messages.create!(user: @user, role: "user", content: "Original")
     @chat.messages.create!(role: "assistant", content: "Response")
 
     patch message_path(message), params: { message: { content: "Updated" } }
 
-    assert_response :forbidden
+    assert_response :ok
+    assert_equal "Updated", message.reload.content
   end
 
   test "cannot edit another user's message" do
@@ -396,15 +397,15 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
     assert_response :ok
   end
 
-  test "cannot delete message with subsequent messages" do
+  test "can delete message even with subsequent messages" do
     message = @chat.messages.create!(user: @user, role: "user", content: "Original")
     @chat.messages.create!(role: "assistant", content: "Response")
 
-    assert_no_difference "Message.count" do
+    assert_difference "Message.count", -1 do
       delete message_path(message), as: :json
     end
 
-    assert_response :forbidden
+    assert_response :ok
   end
 
   test "cannot delete another user's message" do
@@ -450,6 +451,75 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
 
     delete message_path(message), as: :json
     assert_response :redirect
+  end
+
+  # Audit logging tests
+
+  test "update creates audit log" do
+    message = @chat.messages.create!(user: @user, role: "user", content: "Original")
+
+    assert_difference "AuditLog.count", 1 do
+      patch message_path(message), params: { message: { content: "Updated content" } }
+    end
+
+    assert_response :ok
+    audit = AuditLog.last
+    assert_equal "update_message", audit.action
+    assert_equal message, audit.auditable
+    assert_equal @user, audit.user
+    assert_equal "Original", audit.data["old_content"]
+    assert_equal "Updated content", audit.data["new_content"]
+  end
+
+  test "destroy creates audit log" do
+    message = @chat.messages.create!(user: @user, role: "user", content: "To be deleted")
+
+    assert_difference "AuditLog.count", 1 do
+      delete message_path(message), as: :json
+    end
+
+    assert_response :ok
+    audit = AuditLog.last
+    assert_equal "delete_message", audit.action
+    assert_equal @user, audit.user
+    assert_equal "To be deleted", audit.data["content"]
+  end
+
+  # Site admin tests
+
+  test "site admin can edit another user's message" do
+    # Create message from regular user
+    other_user = User.create!(email_address: "admintestreg@example.com")
+    other_user.profile.update!(first_name: "Regular", last_name: "User")
+    message = @chat.messages.create!(user: other_user, role: "user", content: "Regular user message")
+
+    # Log out and log in as site admin
+    delete logout_path
+    admin_user = users(:site_admin_user)
+    post login_path, params: { email_address: admin_user.email_address, password: "password123" }
+
+    patch message_path(message), params: { message: { content: "Admin edited" } }
+
+    assert_response :ok
+    assert_equal "Admin edited", message.reload.content
+  end
+
+  test "site admin can delete another user's message" do
+    # Create message from regular user
+    other_user = User.create!(email_address: "admintestreg2@example.com")
+    other_user.profile.update!(first_name: "Regular", last_name: "User")
+    message = @chat.messages.create!(user: other_user, role: "user", content: "To be admin deleted")
+
+    # Log out and log in as site admin
+    delete logout_path
+    admin_user = users(:site_admin_user)
+    post login_path, params: { email_address: admin_user.email_address, password: "password123" }
+
+    assert_difference "Message.count", -1 do
+      delete message_path(message), as: :json
+    end
+
+    assert_response :ok
   end
 
 end

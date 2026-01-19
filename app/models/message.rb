@@ -267,27 +267,22 @@ class Message < ApplicationRecord
     tools_used.present? && tools_used.any?
   end
 
-  def editable
-    editable_by?(Current.user)
+  def owned_by?(user)
+    role == "user" && (user_id == user&.id || user&.site_admin)
   end
 
-  def editable_by?(user)
-    role == "user" && user_id == user&.id && !has_subsequent_messages?
+  alias_method :editable_by?, :owned_by?
+  alias_method :deletable_by?, :owned_by?
+
+  def editable
+    editable_by?(Current.user)
   end
 
   def deletable
     deletable_by?(Current.user)
   end
 
-  def deletable_by?(user)
-    role == "user" && user_id == user&.id && !has_subsequent_messages?
-  end
-
   private
-
-  def has_subsequent_messages?
-    chat.messages.where("created_at > ?", created_at).exists?
-  end
 
   def format_tool_status(tool_name, tool_args)
     case tool_name

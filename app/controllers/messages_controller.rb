@@ -5,6 +5,7 @@ class MessagesController < ApplicationController
   before_action :set_chat_for_retry, only: :retry
   before_action :set_message, only: [ :update, :destroy ]
   before_action :require_respondable_chat, only: [ :create, :retry ]
+  before_action :authorize_message_modification, only: [ :update, :destroy ]
 
   def create
     @message = @chat.messages.build(
@@ -42,11 +43,9 @@ class MessagesController < ApplicationController
   end
 
   def update
-    unless @message.editable_by?(Current.user)
-      return head :forbidden
-    end
-
+    old_content = @message.content
     if @message.update(message_params)
+      audit(:update_message, @message, old_content: old_content, new_content: @message.content)
       head :ok
     else
       render json: { errors: @message.errors.full_messages }, status: :unprocessable_entity
@@ -54,10 +53,7 @@ class MessagesController < ApplicationController
   end
 
   def destroy
-    unless @message.deletable_by?(Current.user)
-      return head :forbidden
-    end
-
+    audit(:delete_message, @message, content: @message.content)
     @message.destroy!
     head :ok
   end
@@ -100,7 +96,11 @@ class MessagesController < ApplicationController
 
   def set_message
     @message = Message.find(params[:id])
-    @chat = current_account.chats.find(@message.chat_id)
+    @chat = if Current.user.site_admin
+      Chat.find(@message.chat_id)
+    else
+      current_account.chats.find(@message.chat_id)
+    end
   end
 
   def message_params
@@ -114,6 +114,10 @@ class MessagesController < ApplicationController
       format.html { redirect_back_or_to account_chat_path(@chat.account, @chat), alert: "This conversation is archived or deleted and cannot receive new messages" }
       format.json { render json: { error: "This conversation is archived or deleted" }, status: :unprocessable_entity }
     end
+  end
+
+  def authorize_message_modification
+    head :forbidden unless @message.owned_by?(Current.user)
   end
 
 end
