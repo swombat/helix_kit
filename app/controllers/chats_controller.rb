@@ -7,7 +7,7 @@ class ChatsController < ApplicationController
   def index
     # Show active chats first (kept and not archived), then archived chats at the bottom
     # Optionally include discarded chats if admin requests them
-    base_scope = current_account.chats.includes(:messages)
+    base_scope = current_account.chats
 
     if params[:show_deleted].present? && can_manage_account?
       # Admin view: show all including discarded
