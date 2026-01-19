@@ -157,7 +157,7 @@
   let messageSentAt = $state(null);
   let currentTime = $state(Date.now());
   let timeoutCheckInterval;
-  let showToolCalls = $state(false);
+  let showAllMessages = $state(false);
   let debugMode = $state(false);
   let debugLogs = $state([]);
   // Brief "select an agent" prompt for group chats after sending a message
@@ -277,9 +277,9 @@
     }
   }
 
-  // Filter out tool messages and empty assistant messages unless showToolCalls is enabled
+  // Filter out tool messages and empty assistant messages unless admin has enabled "show all messages"
   const visibleMessages = $derived(
-    showToolCalls
+    showAllMessages
       ? allMessages
       : allMessages.filter((m) => {
           // Hide tool messages
@@ -1112,9 +1112,9 @@
               {#if isSiteAdmin}
                 <DropdownMenu.Separator />
                 <DropdownMenu.CheckboxItem
-                  checked={showToolCalls}
-                  onCheckedChange={(checked) => (showToolCalls = checked)}>
-                  Show tool calls
+                  checked={showAllMessages}
+                  onCheckedChange={(checked) => (showAllMessages = checked)}>
+                  Show all messages
                 </DropdownMenu.CheckboxItem>
                 <DropdownMenu.CheckboxItem
                   checked={debugMode}
@@ -1349,8 +1349,8 @@
           </div>
         {/each}
 
-        <!-- Thinking bubble when last message is hidden (tool call or empty assistant) -->
-        {#if !showToolCalls && lastMessageIsHiddenThinking()}
+        <!-- Thinking bubble when last message is hidden (tool call or empty assistant) - only shown when not showing all messages -->
+        {#if !showAllMessages && lastMessageIsHiddenThinking()}
           {@const lastMessage = allMessages[allMessages.length - 1]}
           <div class="flex justify-start">
             <div class="max-w-[85%] md:max-w-[70%]">
