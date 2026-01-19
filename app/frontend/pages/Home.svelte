@@ -28,7 +28,6 @@
     Plugs,
     Trash,
     Chats,
-    Lightbulb,
     CloudArrowUp,
   } from 'phosphor-svelte';
   import * as Card from '$lib/components/shadcn/card/index.js';
@@ -148,7 +147,7 @@
     {
       title: 'AI Integration',
       description:
-        'OpenRouter integration, Prompt system, Basic Conversation System, and Agentic Conversation System with Tools.',
+        'OpenRouter integration, Prompt system, Basic Conversation System, Agentic Conversation System with Tools, and Extended Thinking Mode.',
       icon: Brain,
       link: 'https://openrouter.ai/',
     },
@@ -163,6 +162,13 @@
       description: 'Daily PostgreSQL backups to S3 via scheduled job with compression and easy restore process.',
       icon: CloudArrowUp,
     },
+    {
+      title: 'AI-Friendly JSON API',
+      description:
+        'RESTful API with OAuth-style CLI authentication for AI assistants. Includes conversations and whiteboards access.',
+      icon: Plugs,
+      link: '/ai/api.md',
+    },
   ];
 
   const todoFeatures = [
@@ -172,11 +178,6 @@
         'Never delete anything important (e.g. accounts, users, etc), only soft-delete it for data integrity and recovery.',
       link: 'https://github.com/jhawthorn/discard',
       icon: Trash,
-    },
-    {
-      title: 'Thinking Mode',
-      description: 'Extended thinking support for AI models with streaming thought blocks.',
-      icon: Lightbulb,
     },
     {
       title: 'MultiAttachment System',
@@ -192,11 +193,6 @@
       title: 'Billing',
       description: 'Billing integration for all account types.',
       icon: CreditCard,
-    },
-    {
-      title: 'API capability',
-      description: 'API key management, usage tracking, rate limiting, billing, audit logging, and API documentation.',
-      icon: Plugs,
     },
   ];
 </script>

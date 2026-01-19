@@ -125,7 +125,26 @@ class WhiteboardTool < RubyLLM::Tool
   end
 
   def whiteboards = @chat.account.whiteboards
-  def find_board(id) = id.present? ? whiteboards.find_by_obfuscated_id(id) : nil
+
+  def find_board(id_or_name)
+    return nil if id_or_name.blank?
+
+    # Try obfuscated ID first
+    board = whiteboards.find_by_obfuscated_id(id_or_name)
+    return board if board.present?
+
+    # If not found by ID, try finding by name
+    # First try exact match, then case-insensitive, then partial match
+    whiteboards.find_by(name: id_or_name) ||
+      whiteboards.where("LOWER(name) = LOWER(?)", id_or_name).first ||
+      whiteboards.where("LOWER(name) LIKE LOWER(?)", "%#{id_or_name.gsub('-', '%')}%").first
+  rescue Hashids::InputError
+    # In rare cases where Hashids raises an error, fall back to name search
+    whiteboards.find_by(name: id_or_name) ||
+      whiteboards.where("LOWER(name) = LOWER(?)", id_or_name).first ||
+      whiteboards.where("LOWER(name) LIKE LOWER(?)", "%#{id_or_name.gsub('-', '%')}%").first
+  end
+
   def validation_error(msg) = { type: "error", error: msg, allowed_actions: ACTIONS }
   def param_error(action, param) = { type: "error", error: "#{param} required for #{action}", allowed_actions: ACTIONS }
 
