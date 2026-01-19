@@ -87,7 +87,7 @@ Rails.application.routes.draw do
           post :create_message
         end
       end
-      resources :whiteboards, only: [ :index, :show, :update ]
+      resources :whiteboards, only: [ :index, :show, :create, :update ]
     end
   end
 

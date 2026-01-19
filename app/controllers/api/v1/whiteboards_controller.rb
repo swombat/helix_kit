@@ -11,6 +11,25 @@ module Api
         render json: { whiteboards: whiteboards.map { |w| whiteboard_summary(w) } }
       end
 
+      def create
+        whiteboard = current_api_account.whiteboards.create!(
+          name: params[:name],
+          content: params[:content],
+          summary: params[:summary],
+          last_edited_by: current_api_user
+        )
+
+        render json: {
+          whiteboard: {
+            id: whiteboard.to_param,
+            name: whiteboard.name,
+            lock_version: whiteboard.lock_version
+          }
+        }, status: :created
+      rescue ActiveRecord::RecordInvalid => e
+        render json: { error: e.record.errors.full_messages.to_sentence }, status: :unprocessable_entity
+      end
+
       def show
         whiteboard = current_api_account.whiteboards.active.find(params[:id])
         render json: {

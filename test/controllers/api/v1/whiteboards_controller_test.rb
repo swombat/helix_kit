@@ -110,6 +110,66 @@ module Api
         assert_response :not_found
       end
 
+      # Create whiteboard tests
+
+      test "creates whiteboard with valid params" do
+        assert_difference -> { @account.whiteboards.count }, 1 do
+          post api_v1_whiteboards_url,
+               params: { name: "New Board", content: "Some content", summary: "A summary" },
+               headers: { "Authorization" => "Bearer #{@token}" }
+        end
+
+        assert_response :created
+
+        json = JSON.parse(response.body)
+        assert_equal "New Board", json["whiteboard"]["name"]
+        assert_equal 0, json["whiteboard"]["lock_version"]
+        assert json["whiteboard"]["id"].present?
+      end
+
+      test "creates whiteboard with only name" do
+        post api_v1_whiteboards_url,
+             params: { name: "Minimal Board" },
+             headers: { "Authorization" => "Bearer #{@token}" }
+
+        assert_response :created
+
+        whiteboard = @account.whiteboards.find_by(name: "Minimal Board")
+        assert whiteboard.present?
+        assert_nil whiteboard.content
+      end
+
+      test "create sets last_edited_by to API user" do
+        post api_v1_whiteboards_url,
+             params: { name: "User Board" },
+             headers: { "Authorization" => "Bearer #{@token}" }
+
+        whiteboard = @account.whiteboards.find_by(name: "User Board")
+        assert_equal @user, whiteboard.last_edited_by
+      end
+
+      test "create fails without name" do
+        post api_v1_whiteboards_url,
+             params: { content: "Some content" },
+             headers: { "Authorization" => "Bearer #{@token}" }
+
+        assert_response :unprocessable_entity
+
+        json = JSON.parse(response.body)
+        assert json["error"].include?("Name")
+      end
+
+      test "create fails with duplicate name" do
+        post api_v1_whiteboards_url,
+             params: { name: "Test Board" },
+             headers: { "Authorization" => "Bearer #{@token}" }
+
+        assert_response :unprocessable_entity
+
+        json = JSON.parse(response.body)
+        assert json["error"].include?("taken")
+      end
+
     end
   end
 end

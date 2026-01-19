@@ -180,6 +180,47 @@ Returns all active whiteboards.
 
 ---
 
+### Create Whiteboard
+
+```
+POST /api/v1/whiteboards
+Content-Type: application/json
+
+{
+  "name": "My New Whiteboard",
+  "content": "# Initial content\n\nStart writing here...",
+  "summary": "Optional short summary"
+}
+```
+
+Creates a new whiteboard.
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `name` | Yes | Whiteboard name (max 100 chars, must be unique) |
+| `content` | No | Initial content (max 100,000 chars) |
+| `summary` | No | Short summary (max 250 chars) |
+
+**Response (success - 201):**
+```json
+{
+  "whiteboard": {
+    "id": "wb456",
+    "name": "My New Whiteboard",
+    "lock_version": 0
+  }
+}
+```
+
+**Response (validation error - 422):**
+```json
+{
+  "error": "Name has already been taken"
+}
+```
+
+---
+
 ### Get Whiteboard
 
 ```
@@ -280,6 +321,13 @@ curl -X POST \
   -H "Content-Type: application/json" \
   -d '{"content":"Hello from Claude Code!"}' \
   https://your-domain/api/v1/conversations/abc123/create_message
+
+# Create a whiteboard
+curl -X POST \
+  -H "Authorization: Bearer $HELIX_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"My Notes", "content":"# Notes\n\nStarting fresh."}' \
+  https://your-domain/api/v1/whiteboards
 
 # Update a whiteboard
 curl -X PATCH \

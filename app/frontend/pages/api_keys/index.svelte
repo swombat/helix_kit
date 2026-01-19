@@ -78,4 +78,38 @@
       </div>
     {/if}
   </div>
+
+  <!-- API Usage Instructions -->
+  <div class="mt-8 p-6 border rounded-lg bg-muted/30">
+    <div class="flex items-start gap-3 mb-4">
+      <Key size={24} class="text-muted-foreground mt-0.5" />
+      <div>
+        <h2 class="font-semibold">Using the API</h2>
+        <p class="text-sm text-muted-foreground">Include your API key in the Authorization header of all requests:</p>
+      </div>
+    </div>
+
+    <code class="block p-3 bg-muted rounded text-sm mb-4 overflow-x-auto">
+      curl -H "Authorization: Bearer hx_your_key_here" {window.location.origin}/api/v1/conversations
+    </code>
+
+    <div class="text-sm text-muted-foreground space-y-2">
+      <p><strong>Available endpoints:</strong></p>
+      <ul class="list-disc list-inside ml-2 space-y-1">
+        <li><code class="bg-muted px-1 rounded">GET /api/v1/conversations</code> — List your conversations</li>
+        <li><code class="bg-muted px-1 rounded">GET /api/v1/conversations/:id</code> — Get full transcript</li>
+        <li>
+          <code class="bg-muted px-1 rounded">POST /api/v1/conversations/:id/create_message</code> — Post a message
+        </li>
+        <li><code class="bg-muted px-1 rounded">GET/POST /api/v1/whiteboards</code> — List/create whiteboards</li>
+        <li><code class="bg-muted px-1 rounded">GET/PATCH /api/v1/whiteboards/:id</code> — Read/update whiteboard</li>
+      </ul>
+    </div>
+
+    <div class="mt-4 pt-4 border-t flex items-center gap-2">
+      <a href="/ai/api.md" target="_blank" class="text-sm text-primary hover:underline">
+        View full API documentation →
+      </a>
+    </div>
+  </div>
 </div>
