@@ -99,7 +99,7 @@ class MessagesController < ApplicationController
     @chat = if Current.user.site_admin
       Chat.find(@message.chat_id)
     else
-      current_account.chats.find(@message.chat_id)
+      Chat.where(id: @message.chat_id, account_id: Current.user.account_ids).first!
     end
   end
 
