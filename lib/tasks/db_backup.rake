@@ -44,6 +44,47 @@ module DbBackupHelpers
     puts "All passwords reset to 'password'"
   end
 
+  def create_test_agents!
+    nexus_account_obfuscated_id = "PNvAYr"
+    nexus_account_id = Account.decode_id(nexus_account_obfuscated_id)
+    nexus_account = Account.find_by(id: nexus_account_id)
+
+    unless nexus_account
+      puts "Warning: Nexus account (#{nexus_account_obfuscated_id}) not found. Skipping test agent creation."
+      return
+    end
+
+    puts "Creating test agents in #{nexus_account.name} account..."
+
+    # GPT Test Agent
+    gpt_agent = nexus_account.agents.find_or_initialize_by(name: "GPT Test Agent")
+    gpt_agent.assign_attributes(
+      system_prompt: "You are a test agent for GPT models. Your purpose is to help with testing and development.",
+      model_id: "openai/gpt-5-mini",
+      active: true
+    )
+    if gpt_agent.save
+      puts "  Created/updated GPT Test Agent (#{gpt_agent.model_id})"
+    else
+      puts "  Failed to create GPT Test Agent: #{gpt_agent.errors.full_messages.join(', ')}"
+    end
+
+    # Claude Test Agent
+    claude_agent = nexus_account.agents.find_or_initialize_by(name: "Claude Test Agent")
+    claude_agent.assign_attributes(
+      system_prompt: "You are a test agent for Claude models. Your purpose is to help with testing and development.",
+      model_id: "anthropic/claude-sonnet-4.5",
+      active: true
+    )
+    if claude_agent.save
+      puts "  Created/updated Claude Test Agent (#{claude_agent.model_id})"
+    else
+      puts "  Failed to create Claude Test Agent: #{claude_agent.errors.full_messages.join(', ')}"
+    end
+
+    puts "Test agents created."
+  end
+
   def download_path
     Rails.root.join("db", "backups")
   end
@@ -157,6 +198,7 @@ namespace :db_backup do
     if success
       puts "Database restored successfully."
       DbBackupHelpers.reset_user_passwords!
+      DbBackupHelpers.create_test_agents!
     else
       abort "Database restoration failed!"
     end
@@ -166,5 +208,11 @@ namespace :db_backup do
   task refresh: [ :download, :restore ] do
     DbBackupHelpers.ensure_not_production!
     puts "Database refresh completed."
+  end
+
+  desc "Create test agents in the Nexus account"
+  task create_test_agents: :environment do
+    DbBackupHelpers.ensure_not_production!
+    DbBackupHelpers.create_test_agents!
   end
 end
