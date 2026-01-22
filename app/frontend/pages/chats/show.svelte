@@ -23,6 +23,7 @@
     ArrowCounterClockwise,
     DotsThreeVertical,
     Robot,
+    ShieldCheck,
   } from 'phosphor-svelte';
   import * as Card from '$lib/components/shadcn/card/index.js';
   import * as Select from '$lib/components/shadcn/select/index.js';
@@ -36,12 +37,14 @@
   import AgentTriggerBar from '$lib/components/chat/AgentTriggerBar.svelte';
   import ParticipantAvatars from '$lib/components/chat/ParticipantAvatars.svelte';
   import ThinkingBlock from '$lib/components/chat/ThinkingBlock.svelte';
+  import ModerationIndicator from '$lib/components/chat/ModerationIndicator.svelte';
   import {
     accountChatMessagesPath,
     retryMessagePath,
     forkAccountChatPath,
     assignAgentAccountChatPath,
     messagePath,
+    moderateAllAccountChatPath,
   } from '@/routes';
   import { marked } from 'marked';
   import * as logging from '$lib/logging';
@@ -187,6 +190,7 @@
 
   // Error handling state
   let errorMessage = $state(null);
+  let successMessage = $state(null);
 
   // Image lightbox state
   let lightboxOpen = $state(false);
@@ -848,6 +852,31 @@
     }
   }
 
+  // Moderate all messages in the chat (site admin only)
+  async function moderateAllMessages() {
+    try {
+      const response = await fetch(moderateAllAccountChatPath(account.id, chat.id), {
+        method: 'POST',
+        headers: {
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || '',
+          Accept: 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        successMessage = `Queued moderation for ${data.queued} messages`;
+        setTimeout(() => (successMessage = null), 3000);
+      } else {
+        errorMessage = 'Failed to queue moderation';
+        setTimeout(() => (errorMessage = null), 3000);
+      }
+    } catch (error) {
+      errorMessage = 'Failed to queue moderation';
+      setTimeout(() => (errorMessage = null), 3000);
+    }
+  }
+
   async function saveWhiteboard() {
     if (!chat?.active_whiteboard) return;
 
@@ -1111,6 +1140,10 @@
 
               {#if isSiteAdmin}
                 <DropdownMenu.Separator />
+                <DropdownMenu.Item onclick={moderateAllMessages}>
+                  <ShieldCheck size={16} class="mr-2" weight="duotone" />
+                  Moderate All Messages
+                </DropdownMenu.Item>
                 <DropdownMenu.CheckboxItem
                   checked={showAllMessages}
                   onCheckedChange={(checked) => (showAllMessages = checked)}>
@@ -1265,6 +1298,9 @@
                     {#if chat?.manual_responses && message.author_name}
                       <span class="ml-1">· {message.author_name}</span>
                     {/if}
+                    {#if message.moderation_scores}
+                      <ModerationIndicator scores={message.moderation_scores} />
+                    {/if}
                     {#if index === visibleMessages.length - 1 && lastUserMessageNeedsResend() && !waitingForResponse && !chat?.manual_responses}
                       <button onclick={resendLastMessage} class="ml-2 text-blue-600 hover:text-blue-700 underline">
                         Resend
@@ -1329,7 +1365,10 @@
                       {/if}
                     </Card.Content>
                   </Card.Root>
-                  <div class="text-xs text-muted-foreground mt-1">
+                  <div class="text-xs text-muted-foreground mt-1 flex items-center gap-2">
+                    {#if message.moderation_scores}
+                      <ModerationIndicator scores={message.moderation_scores} />
+                    {/if}
                     {#if chat?.manual_responses && message.author_name}
                       <span class="mr-1">{message.author_name} ·</span>
                     {/if}
@@ -1592,6 +1631,13 @@
     class="fixed bottom-4 right-4 bg-destructive text-destructive-foreground px-4 py-2 rounded-lg shadow-lg z-50"
     transition:fade>
     {errorMessage}
+  </div>
+{/if}
+
+<!-- Success toast -->
+{#if successMessage}
+  <div class="fixed bottom-4 right-4 bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg z-50" transition:fade>
+    {successMessage}
   </div>
 {/if}
 

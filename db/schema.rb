@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_15_100003) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_22_090949) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -166,6 +166,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_15_100003) do
     t.bigint "ai_model_id"
     t.datetime "archived_at"
     t.datetime "created_at", null: false
+    t.text "debug_log"
     t.datetime "discarded_at"
     t.datetime "last_consolidated_at"
     t.bigint "last_consolidated_message_id"
@@ -216,6 +217,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_15_100003) do
     t.datetime "created_at", null: false
     t.integer "input_tokens"
     t.string "model_id_string"
+    t.datetime "moderated_at"
+    t.jsonb "moderation_scores"
     t.integer "output_tokens"
     t.string "role", null: false
     t.boolean "streaming", default: false, null: false

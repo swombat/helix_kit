@@ -54,6 +54,7 @@ Rails.application.routes.draw do
         post :discard
         post :restore
         post :assign_agent
+        post :moderate_all
       end
       resources :messages, only: :create
     end

@@ -401,6 +401,13 @@ class Chat < ApplicationRecord
             .map { |m| format_message_for_api(m) }
   end
 
+  # Queue moderation for all unmoderated messages with content
+  def queue_moderation_for_all_messages
+    unmoderated = messages.where(moderated_at: nil).where.not(content: [ nil, "" ])
+    unmoderated.find_each { |message| ModerateMessageJob.perform_later(message) }
+    unmoderated.count
+  end
+
   private
 
   def configure_for_openrouter

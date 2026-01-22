@@ -76,6 +76,9 @@ module StreamsAiResponse
       output_tokens: ruby_llm_message.output_tokens,
       tools_used: @tools_used.uniq
     })
+
+    # Queue content moderation for the completed assistant message
+    ModerateMessageJob.perform_later(@ai_message) if @ai_message.content.present?
   end
 
   def extract_message_content(content)

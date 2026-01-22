@@ -56,6 +56,8 @@ class Message < ApplicationRecord
 
   MAX_FILE_SIZE = 50.megabytes
 
+  MODERATION_THRESHOLD = 0.5
+
   validates :role, inclusion: { in: %w[user assistant system tool] }
   validates :content, presence: true, unless: -> { role.in?(%w[assistant tool]) || skip_content_validation }
   validate :acceptable_files
@@ -63,11 +65,14 @@ class Message < ApplicationRecord
 
   scope :sorted, -> { order(created_at: :asc) }
 
+  after_commit :queue_moderation, on: :create, if: :user_message_with_content?
+
   json_attributes :role, :content, :thinking, :thinking_preview, :user_name, :user_avatar_url,
                   :completed, :created_at_formatted, :created_at_hour, :streaming,
                   :files_json, :content_html, :tools_used, :tool_status,
                   :author_name, :author_type, :author_colour, :input_tokens, :output_tokens,
-                  :editable, :deletable
+                  :editable, :deletable,
+                  :moderation_flagged, :moderation_severity, :moderation_scores
 
   def completed?
     # User messages are always completed
@@ -282,7 +287,26 @@ class Message < ApplicationRecord
     deletable_by?(Current.user)
   end
 
+  def moderation_flagged?
+    moderation_scores&.values&.any? { |score| score.to_f >= MODERATION_THRESHOLD }
+  end
+
+  alias_method :moderation_flagged, :moderation_flagged?
+
+  def moderation_severity
+    return unless moderation_flagged?
+    moderation_scores.values.max.to_f >= 0.8 ? :high : :medium
+  end
+
   private
+
+  def user_message_with_content?
+    role == "user" && content.present?
+  end
+
+  def queue_moderation
+    ModerateMessageJob.perform_later(self)
+  end
 
   def format_tool_status(tool_name, tool_args)
     case tool_name

@@ -458,4 +458,104 @@ class MessageTest < ActiveSupport::TestCase
     assert_equal [ "Web fetch", "Calculator" ], json["tools_used"]
   end
 
+  # Content moderation tests
+
+  test "moderation_flagged? returns false when scores are nil" do
+    message = @chat.messages.create!(
+      role: "assistant",
+      content: "AI response"
+    )
+    message.moderation_scores = nil
+    assert_not message.moderation_flagged?
+  end
+
+  test "moderation_flagged? returns false when no scores meet threshold" do
+    message = @chat.messages.create!(
+      role: "assistant",
+      content: "AI response"
+    )
+    message.moderation_scores = { "hate" => 0.3, "violence" => 0.2 }
+    assert_not message.moderation_flagged?
+  end
+
+  test "moderation_flagged? returns true when any score meets threshold" do
+    message = @chat.messages.create!(
+      role: "assistant",
+      content: "AI response"
+    )
+    message.moderation_scores = { "hate" => 0.5, "violence" => 0.2 }
+    assert message.moderation_flagged?
+  end
+
+  test "moderation_flagged? returns true when score exceeds threshold" do
+    message = @chat.messages.create!(
+      role: "assistant",
+      content: "AI response"
+    )
+    message.moderation_scores = { "hate" => 0.6, "violence" => 0.2 }
+    assert message.moderation_flagged?
+  end
+
+  test "moderation_severity returns nil when not flagged" do
+    message = @chat.messages.create!(
+      role: "assistant",
+      content: "AI response"
+    )
+    message.moderation_scores = { "hate" => 0.3 }
+    assert_nil message.moderation_severity
+  end
+
+  test "moderation_severity returns :high for scores >= 0.8" do
+    message = @chat.messages.create!(
+      role: "assistant",
+      content: "AI response"
+    )
+    message.moderation_scores = { "hate" => 0.85, "violence" => 0.2 }
+    assert_equal :high, message.moderation_severity
+  end
+
+  test "moderation_severity returns :medium for scores 0.5-0.8" do
+    message = @chat.messages.create!(
+      role: "assistant",
+      content: "AI response"
+    )
+    message.moderation_scores = { "hate" => 0.65, "violence" => 0.2 }
+    assert_equal :medium, message.moderation_severity
+  end
+
+  test "moderation_severity returns :medium for score at exactly 0.5" do
+    message = @chat.messages.create!(
+      role: "assistant",
+      content: "AI response"
+    )
+    message.moderation_scores = { "hate" => 0.5, "violence" => 0.2 }
+    assert_equal :medium, message.moderation_severity
+  end
+
+  test "user message queues moderation on create" do
+    assert_enqueued_with(job: ModerateMessageJob) do
+      @chat.messages.create!(role: "user", content: "Test message", user: @user)
+    end
+  end
+
+  test "assistant message does not queue moderation on create" do
+    assert_no_enqueued_jobs(only: ModerateMessageJob) do
+      @chat.messages.create!(role: "assistant", content: "Response")
+    end
+  end
+
+  test "as_json includes moderation attributes when present" do
+    message = @chat.messages.create!(
+      role: "assistant",
+      content: "AI response"
+    )
+    message.update!(moderation_scores: { "hate" => 0.85, "violence" => 0.1 })
+
+    json = message.as_json
+
+    assert json["moderation_flagged"]
+    assert_equal :high, json["moderation_severity"]
+    assert_equal({ "hate" => 0.85, "violence" => 0.1 }, json["moderation_scores"])
+  end
+
 end

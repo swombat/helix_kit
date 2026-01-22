@@ -3,6 +3,7 @@ class ChatsController < ApplicationController
   require_feature_enabled :chats
   before_action :set_chat, except: [ :index, :create, :new ]
   before_action :require_admin, only: [ :discard, :restore ]
+  before_action :require_site_admin, only: [ :moderate_all ]
 
   def index
     # Show active chats first (kept and not archived), then archived chats at the bottom
@@ -200,6 +201,17 @@ class ChatsController < ApplicationController
     redirect_back_or_to account_chats_path(current_account), notice: "Chat restored"
   end
 
+  # Queue moderation for all unmoderated messages in the chat - site admins only
+  def moderate_all
+    count = @chat.queue_moderation_for_all_messages
+    audit("moderate_all_messages", @chat, count: count)
+
+    respond_to do |format|
+      format.html { redirect_back_or_to account_chat_path(current_account, @chat), notice: "Queued moderation for #{count} messages" }
+      format.json { render json: { queued: count } }
+    end
+  end
+
   def destroy
     audit("destroy_chat", @chat)
     @chat.destroy!
@@ -255,6 +267,12 @@ class ChatsController < ApplicationController
 
   def require_admin
     unless can_manage_account?
+      redirect_back_or_to account_chats_path(current_account), alert: "You don't have permission to perform this action"
+    end
+  end
+
+  def require_site_admin
+    unless Current.user&.site_admin
       redirect_back_or_to account_chats_path(current_account), alert: "You don't have permission to perform this action"
     end
   end
