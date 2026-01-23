@@ -290,9 +290,20 @@
           if (m.role === 'tool') return false;
           // Hide empty assistant messages (these appear before tool calls)
           if (m.role === 'assistant' && (!m.content || m.content.trim() === '') && !m.streaming) return false;
-          // Hide assistant messages that are raw tool results (JSON objects)
-          // These are stored as assistant role but contain tool call output
-          if (m.role === 'assistant' && m.content && m.content.trim().startsWith('{') && !m.streaming) return false;
+          // Hide assistant messages that are PURE JSON tool results (no text content after the JSON)
+          // Some messages may have JSON prefix followed by actual text - those should be shown
+          if (m.role === 'assistant' && m.content && !m.streaming) {
+            const trimmed = m.content.trim();
+            if (trimmed.startsWith('{')) {
+              // Only hide if it looks like pure JSON (ends with } and nothing substantial after)
+              // This allows messages like "{...}Actual response text" to be shown
+              const lastBrace = trimmed.lastIndexOf('}');
+              if (lastBrace !== -1) {
+                const afterJson = trimmed.substring(lastBrace + 1).trim();
+                if (afterJson === '') return false; // Pure JSON, hide it
+              }
+            }
+          }
           return true;
         })
   );
