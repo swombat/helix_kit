@@ -27,7 +27,7 @@ http_interactions:
       message: OK
     headers:
       date:
-      - Thu, 08 Jan 2026 21:05:56 GMT
+      - Fri, 23 Jan 2026 09:13:10 GMT
       content-type:
       - application/json
       transfer-encoding:
@@ -48,7 +48,7 @@ http_interactions:
       server:
       - cloudflare
       cf-ray:
-      - 9baea7e29a44e27e-MRS
+      - 9c262c6f4d9c013e-MAD
     body:
       encoding: ASCII-8BIT
       base64_string: |
@@ -56,67 +56,60 @@ http_interactions:
         ICAgICAgICAgCgogICAgICAgICAKCiAgICAgICAgIAoKICAgICAgICAgCgog
         ICAgICAgICAKCiAgICAgICAgIAoKICAgICAgICAgCgogICAgICAgICAKCiAg
         ICAgICAgIAoKICAgICAgICAgCgogICAgICAgICAKCiAgICAgICAgIAoKICAg
-        ICAgICAgCgogICAgICAgICAKCiAgICAgICAgIAoKICAgICAgICAgCnsiaWQi
-        OiJnZW4tMTc2NzkwNjM1NS05VEZzM0N4bTd6czBlNWlDWk9LSiIsInByb3Zp
-        ZGVyIjoieEFJIiwibW9kZWwiOiJ4LWFpL2dyb2stNCIsIm9iamVjdCI6ImNo
-        YXQuY29tcGxldGlvbiIsImNyZWF0ZWQiOjE3Njc5MDYzNTUsImNob2ljZXMi
-        Olt7ImxvZ3Byb2JzIjpudWxsLCJmaW5pc2hfcmVhc29uIjoic3RvcCIsIm5h
-        dGl2ZV9maW5pc2hfcmVhc29uIjoiY29tcGxldGVkIiwiaW5kZXgiOjAsIm1l
-        c3NhZ2UiOnsicm9sZSI6ImFzc2lzdGFudCIsImNvbnRlbnQiOiJIZWxsbyEg
-        V2hhdCdzIHVwPyIsInJlZnVzYWwiOm51bGwsInJlYXNvbmluZyI6bnVsbCwi
-        cmVhc29uaW5nX2RldGFpbHMiOlt7ImlkIjoicnNfMzhkNTgwYjEtOTU5Mi0x
-        MGQ4LTY3NWQtMDQ3YzhmMGNlMzkzIiwiZm9ybWF0IjoieGFpLXJlc3BvbnNl
-        cy12MSIsImluZGV4IjowLCJ0eXBlIjoicmVhc29uaW5nLmVuY3J5cHRlZCIs
-        ImRhdGEiOiJnUkhVa0ttb05HYnkvMHpFazYyN0FFOG1nRmpldTZyRmhMT2Jo
-        ZFBOa2oxRHEyK1UrM1ZQMkhHRzVkY0l6SXE0MEVIeXlUSXhucGp3UktnNXl4
-        S2RBUzRWb1d5djhJSExXYUh1Vmp0V1QxM3dKWUdzMWFiN1RQZ1ZaYzlBL3ZO
-        QmUrL3Rra0dQOHk1dVFCTWdUWkk1RHdReUhOa3JMNzNCeUNoNDBTNmxhU2JQ
-        Mzl1bUtaWS85Y1RnU2VNaWppSVlSdWFjY0UvQXl4S0w4Y2hyV0xXL1lxVC9B
-        bUJUVXY3RUI4YzFrMVZZSWE1VEdSQmhFKzBEZ3YvZEQvNXVHSldqTzRyMUc3
-        VGhna3dhODk2Qi9ON1R4YWR1ZGVtandhcmlkc25wZ0VSbDVPbGoyVFlOSDhB
-        c1RLYXlhRXhFQ1hsZThyc0Y0UC85alhKZEV1SDMwd0VIb04rSm9zYStNeVFI
-        Q3d2bDR6SjdtSnBJK2RvekVPU0d4WGZ6b1hCL0k3akZvVWI1ZHQwUUpJQnlO
-        T3lFcTJhcGVhRjJTeGNOV0JRYmZTUUw5c2ZpbVEzZy9XeWxNOENXbFRVNWV1
-        SE8yYTlEMzNid1pvbmRzUnZWUGZJRkxPd1FQbnFHcWtkSTRqVFNEaVdEd29K
-        SjhyaVhmOUt1ZFVMK05TZVR4dEpxSk5WWmRqcG9qUTJCV3NNUExwVXpzNWNT
-        VWFlZ3Q4VS9NTUxKck90YlpSaVAraGFCV0MzN3Y2MHZlVUY5ak4vYVVlTmUr
-        NmJHZFJPbkhaRTIrRmgxOVovRmFCdlJmYU5WSmtOemxlYm96SVlqcUJ6UzdS
-        U25SL2txU25MRlpnYTR4ZHJIV25lK2dyWWpqN2lyeFpFVUpYUTdXTXJGNm80
-        Rm5HdG13MmQwVndReldoRFN4NzUrNVpadXFSNVF0a1VzRHNBaGFwRWdUZ2Zx
-        dzV4MWc5dlRZL3BNblRqd3E2VDZNQ3ZxRCtqZEl6ekRDUGljS1kxTUxKNDRG
-        WXp2Q2hBR3JoVjFPS2VaY2V6RW53TjdnYTVIcko3b3Bod3laeGZpeGhXS0tF
-        a1pLMWlHN0IrNzNWckJuZHFzQVorTFo2YytuRWc0MzNZZ3I1Qm8yckVGMW1r
-        V2xFL2VVRnEyZTEwU0NvVTYwejhhMXpyTy9SNVNoa0VmK2RjUHdJZVJNUG9h
-        NXIvSUhDdjU2K2g5VDE0RkdHMmZCMGlWbytKdW9wcGtOcEYrVGptUkpreGxS
-        QnlSRGRkaThnTFYzcVdabTdIUVM1MzZvYjMwb2ZnaDcrSmtvMThuMDBrTFR6
-        MXpldHZjZThrWXQwa2NDVytzRjUreG1FM0ZLWHRsT0JsbFA4WnB3ZDFWSDh3
-        ZEFVUy9uZzlLNlZNb0ZyR1didVhLd0tOTkR2eGdyS0FPMzFrSVZFV3FscU1W
-        K1AzT29zMWxhRjQxZnl4M3hQMmduYzZQcmVaR25GejZMR01hS0tLV1VVQlZK
-        M3IzY2FDTnkydm9pUHRIdDByYk1BcUpIdmlJSXRPWk9xcGgyYnM4S1dEYlg5
-        dVYxSHlJRHJaYVZqTDNOc3lUamIxU3c0UlA1cFk4L2RNU2duM0FMWkMzRzRt
-        UDZOR1lObExFQ3o1RW9wakhSQStHaGVsSUFudXRnMWNmNkZrZ0J3Q2JYUXI3
-        ZEw1dldIZFRUZ1VhVjdvQkd2bnpXMDVtVnhYeWhzK1pWbzdKZnUvM0V6UUxs
-        cDQrUDg1R0ZRTDQzdkRsb2RWcU1xN1NWMmxZaENrNnVXTGNjcFdRLzl3SHkw
-        L3lMQnZwYnVXWkZDNW4rYUN5Q3hyczhCTXdSMXNDL0RiZCtjdEd2TzFwRTlJ
-        VDFvTG9mMzdlOC9LakxZdmhreG12bmRFZ1NMUXpuOHYveS9LOGNDdHRmWlVi
-        VHBuTU5rbnhpTVNqQnJqeTh1aTRNaEJCaHNaNitSb2VPcGxub1h1bmtOVW0y
-        c1BHTnZ3OVBCTjRPb3hIR0FhVFFQVFVMVEpEQjQ1akFkR1MyMDRkUGJzV292
-        OUJIZ0Q5VFVYcHJsallGMWwrdnFnVk9FZ0ljN3B0MkdiQjJyRWI1NDc2dnpp
-        L1crajUzeEc2N2FjZElaSTYrOUpkL0t3Q3lNQXhlTW8xUDQ3elpxRFZpMngx
-        QXRONVZnMkRSdzBMNit3UGd1RnBOUWdkd0VqSlV2YlY1alJNTWFNNEFvcXZI
-        UkVOcXdFL1IyZHViaUIrUUJTeXdDS0ltSVd3aWlPTHVwVUF4TjBLZFFzbTJM
-        eVM0aWNuQ1ljRXRIZFR6YnBvRm1nKy91N3F5V0xzQTE5ODM5TlVxc2U4TlFW
-        dUdMVDdscUVGWTN5OUFVN0RCMVlMc0RvIn1dfX1dLCJ1c2FnZSI6eyJwcm9t
-        cHRfdG9rZW5zIjo5ODcsImNvbXBsZXRpb25fdG9rZW5zIjoyODUsInRvdGFs
-        X3Rva2VucyI6MTI3MiwiY29zdCI6MC4wMDU3MDYsImlzX2J5b2siOmZhbHNl
-        LCJwcm9tcHRfdG9rZW5zX2RldGFpbHMiOnsiY2FjaGVkX3Rva2VucyI6Njgw
-        LCJhdWRpb190b2tlbnMiOjAsInZpZGVvX3Rva2VucyI6MH0sImNvc3RfZGV0
-        YWlscyI6eyJ1cHN0cmVhbV9pbmZlcmVuY2VfY29zdCI6bnVsbCwidXBzdHJl
-        YW1faW5mZXJlbmNlX3Byb21wdF9jb3N0IjowLjAwMTQzMSwidXBzdHJlYW1f
-        aW5mZXJlbmNlX2NvbXBsZXRpb25zX2Nvc3QiOjAuMDA0Mjc1fSwiY29tcGxl
-        dGlvbl90b2tlbnNfZGV0YWlscyI6eyJyZWFzb25pbmdfdG9rZW5zIjoyODAs
-        ImltYWdlX3Rva2VucyI6MH19fQ==
-  recorded_at: Thu, 08 Jan 2026 21:06:04 GMT
+        ICAgICAgCnsiaWQiOiJnZW4tMTc2OTE1OTU5MC16T3dGU0Yza0ZLVldnT3k0
+        bHJoUyIsInByb3ZpZGVyIjoieEFJIiwibW9kZWwiOiJ4LWFpL2dyb2stNCIs
+        Im9iamVjdCI6ImNoYXQuY29tcGxldGlvbiIsImNyZWF0ZWQiOjE3NjkxNTk1
+        OTAsImNob2ljZXMiOlt7ImxvZ3Byb2JzIjpudWxsLCJmaW5pc2hfcmVhc29u
+        Ijoic3RvcCIsIm5hdGl2ZV9maW5pc2hfcmVhc29uIjoiY29tcGxldGVkIiwi
+        aW5kZXgiOjAsIm1lc3NhZ2UiOnsicm9sZSI6ImFzc2lzdGFudCIsImNvbnRl
+        bnQiOiJIZWxsbyEgV2hhdCdzIHVwPyIsInJlZnVzYWwiOm51bGwsInJlYXNv
+        bmluZyI6bnVsbCwicmVhc29uaW5nX2RldGFpbHMiOlt7ImlkIjoicnNfNDgy
+        MzY4YmItOTYzOC05ZmYyLTlhODctZWE1NTZkMzBlZmMwIiwiZm9ybWF0Ijoi
+        eGFpLXJlc3BvbnNlcy12MSIsImluZGV4IjowLCJ0eXBlIjoicmVhc29uaW5n
+        LmVuY3J5cHRlZCIsImRhdGEiOiJkdWNvREtmaEZNdTJHWkQ2OEU5YzRPOE1P
+        UnZsb1FWUVpRWjR0amxJWkVzUDd1dmhKR3dRSWRMTjQ2Y3BlUkQ1SjRYVjdv
+        ZDdWdlFldzZJRjY1Y2Zrc0hvMVJVWk94dit6MVRTWW5vLzBTOCs5SXdtam1m
+        L1BidzhLVE9yd2YydEhkK0l5NDVWdEtRTEh1SmxVR3NWZGU4SmlzaUVDTFhv
+        dENGRW5QSGt5T3JpYURXNGV1dDI0dm5WM0RSdlZ4a2J3b0J1NGdXQy95dzBQ
+        RXV5K2RyYnpxTzdjYjh5eng3b1pXVE5ad2pQQ2xkakV0R3FkV1U3eExjUDJm
+        WEJWR1VEUFIxZjVKMGlOQjNPUUJWYndCYStQelVGNUhNTUNtWGZuVlorWHNI
+        RXBMUTVjL0FBZHQwS0k2NzlxdVJKb01EdXBOOVlUWUZRTXVCUzArclhMR29C
+        TGxiTUlKclhwelQ3OU9UTHRYOG5keFkwd3ZIKytVOHdobmg5ek9uYXJKVDZr
+        WmxOZ2YxRFA0M1dDN0VvNEdOSHkvYzFRNDlUNmIzYTRlWHVqa2V5UklERWpp
+        OGpKK0toKzk4UGpOT01Lc2dxVDNxeVFHeUh1SVIxeVp3QlV6SGd0b0NPK1Y3
+        cW5CLzRaV2xxeVJCbjNzbU9vVDJGTnY2ODFSN2FFN1cwUEt3Mjh5djhabTJn
+        eHY5Y0NkWGN0ekY1R2ZvTCs5c3FLaU5RN0dXQzU5WmdtQWRWZ2haSW9mTm4y
+        STUzWFNLN2dyRDE4NU93NXJBWURrUFJkU0xpTUNwNERWTHBKV2I2aHE4RlpG
+        VVc3dFI2c2VYcXc0dElKMVBITVVHSHVha0dweXdXZitjaFd4WHE2amxUeTBD
+        RjRTeFNUKzBSZEI5Qjg0OTljYWQzVXpUSmRpZ0FxZWdrNEdxTVhaZUowODE5
+        RklIenMvYkdlWlc1UllrQXp3Qkc1aCtvU2pBNTFCYlhuVHYrNS9CclhmSEU5
+        ZmJDcEV4a2tKWXU2V1JqYTVsYmRrclJnZlo1T0cxVFVpQUZrZ2w2T3lSdWN2
+        UlhMcTBkMW4rUi85ZFRrVUp4T0ZxcTR3d2R3V0JiSXhmb1paU2k4VzBkM1FO
+        Q0tKQnZjNDEyRlQrYUlpaXNFekVTNFNGTmRld0FJU0lVVWJhS1NqUnlpaEpU
+        RVRkQzRwRW1DQnl4bGtHM2pSSlhZbWZ3ZDR2YWFmR0dpemJyNU9yNk83dzJq
+        SC9YS3AzWWpRTUVRQmd4OHpyWlFtSEhnRnJBbU5Tb08raVF4Q3FBLzZyS2Fo
+        UStFbTVSMXZjL29sODRkYTdlcmpGQ2o5WjBidE5jQ0ZXQnJVTGthc3NjMHZq
+        TmFuNDVlR1lLbWN3RWZmVHNnc0hlaVl0YllsczNBNG9DeHFnT2ZkYllZcmVY
+        TnU4ZDJyeGNrdStsald2SUVaWHhNdXhJd2xUdm0zNVpEVEhid1ZMbXZqa1pN
+        MlFwZ2Y0ZklZK29zNko1dXRxenpZRng5Vk1ycEVyZ0tKaFVnM3pUbzhGWjYx
+        dlpwdTR1cXlyNzRyNjdRMzVsZ3ZUZjR5a295NDZ5dk9KVHBHUTY1dGlFdDlR
+        bWVBVkhUUXFHVE5ldVYzamkyb0xnOVhoVUJoSE15akh0WkIwU2c5NDdPWnRz
+        MHRhR3NKcWRldDFML0dieDRuekNnN253QUl3b1AwYldseVVUTUN2cTVYYWRL
+        NFB3a000bnd3blpHRjhYV1I3MXNJbHAyck02RndTTFI1bkxSd1hJaCtiaTB1
+        ZXRaLzdtNFhValpDSGhveUtORVM5SWNqMy9pTW9YeER6QmhkdFpla2FCUHZX
+        bnBkTXlsUzNWa3BaTDNHRFF1aVpEQnBqTjNYcFNET002QnlPOUtKNDFXWXdU
+        TnlzUHJPVTIzbHZxdUNRaGxNRTVjSVMySTlPN2RRYlN5cWFVcnczRmF5czdY
+        Sm5uUlhHbXYrbUQ4YnJUajhwaiJ9XX19XSwidXNhZ2UiOnsicHJvbXB0X3Rv
+        a2VucyI6OTg3LCJjb21wbGV0aW9uX3Rva2VucyI6MjM1LCJ0b3RhbF90b2tl
+        bnMiOjEyMjIsImNvc3QiOjAuMDA0MjY3NSwiaXNfYnlvayI6ZmFsc2UsInBy
+        b21wdF90b2tlbnNfZGV0YWlscyI6eyJjYWNoZWRfdG9rZW5zIjo5ODYsImF1
+        ZGlvX3Rva2VucyI6MCwidmlkZW9fdG9rZW5zIjowfSwiY29zdF9kZXRhaWxz
+        Ijp7InVwc3RyZWFtX2luZmVyZW5jZV9jb3N0IjpudWxsLCJ1cHN0cmVhbV9p
+        bmZlcmVuY2VfcHJvbXB0X2Nvc3QiOjAuMDAwNzQyNSwidXBzdHJlYW1faW5m
+        ZXJlbmNlX2NvbXBsZXRpb25zX2Nvc3QiOjAuMDAzNTI1fSwiY29tcGxldGlv
+        bl90b2tlbnNfZGV0YWlscyI6eyJyZWFzb25pbmdfdG9rZW5zIjoyMzAsImlt
+        YWdlX3Rva2VucyI6MH19fQ==
+  recorded_at: Fri, 23 Jan 2026 09:13:17 GMT
 - request:
     method: post
     uri: https://api.anthropic.com/v1/messages
@@ -126,7 +119,7 @@ http_interactions:
         User]: Hello everyone!"}]},{"role":"user","content":[{"type":"text","text":"[Grok]:
         Hello! What''s up?"}]},{"role":"user","content":[{"type":"text","text":"[Test
         User]: Claude, please use your save_memory tool to remember that ''Grok said
-        hello first''."}]}],"stream":false,"max_tokens":13000,"tools":[{"name":"save_memory","description":"Save
+        hello first''."}]}],"stream":false,"max_tokens":13000,"thinking":{"type":"enabled","budget_tokens":5000},"tools":[{"name":"save_memory","description":"Save
         a memory. Use ''journal'' for short-term observations (fades after a week)
         or ''core'' for permanent identity memories.","input_schema":{"type":"object","properties":{"content":{"type":"string","description":"The
         memory to save (keep it concise)"},"memory_type":{"type":"string","description":"Either
@@ -134,7 +127,7 @@ http_interactions:
         are Claude Opus. Use the save_memory tool to remember things. Be brief.\n\n#
         Conversation Topic\n\nThis conversation is titled: \"Thinking Continuation
         Test\"\n\nYou are participating in a group conversation.\n\nOther participants:
-        Humans: multimodel-test. AI Agents: Grok."}],"thinking":{"type":"enabled","budget_tokens":5000}}'
+        Humans: multimodel-test. AI Agents: Grok."}]}'
     headers:
       User-Agent:
       - Faraday v2.14.0
@@ -150,7 +143,7 @@ http_interactions:
       message: OK
     headers:
       date:
-      - Thu, 08 Jan 2026 21:06:08 GMT
+      - Fri, 23 Jan 2026 09:13:21 GMT
       content-type:
       - application/json
       transfer-encoding:
@@ -162,27 +155,27 @@ http_interactions:
       anthropic-ratelimit-input-tokens-remaining:
       - '2000000'
       anthropic-ratelimit-input-tokens-reset:
-      - '2026-01-08T21:06:06Z'
+      - '2026-01-23T09:13:19Z'
       anthropic-ratelimit-output-tokens-limit:
       - '400000'
       anthropic-ratelimit-output-tokens-remaining:
       - '400000'
       anthropic-ratelimit-output-tokens-reset:
-      - '2026-01-08T21:06:08Z'
+      - '2026-01-23T09:13:21Z'
       anthropic-ratelimit-requests-limit:
       - '4000'
       anthropic-ratelimit-requests-remaining:
       - '3999'
       anthropic-ratelimit-requests-reset:
-      - '2026-01-08T21:06:04Z'
+      - '2026-01-23T09:13:17Z'
       anthropic-ratelimit-tokens-limit:
       - '2400000'
       anthropic-ratelimit-tokens-remaining:
       - '2400000'
       anthropic-ratelimit-tokens-reset:
-      - '2026-01-08T21:06:06Z'
+      - '2026-01-23T09:13:19Z'
       request-id:
-      - req_011CWvbGFFDder4ey97vgC4m
+      - req_011CXQ43SuLQjiWQkpWSvv6y
       strict-transport-security:
       - max-age=31536000; includeSubDomains; preload
       anthropic-organization-id:
@@ -190,46 +183,46 @@ http_interactions:
       server:
       - cloudflare
       x-envoy-upstream-service-time:
-      - '3826'
+      - '3152'
       cf-cache-status:
       - DYNAMIC
       x-robots-tag:
       - none
       cf-ray:
-      - 9baea81b7b6a531c-MRS
+      - 9c262c9e3ca40b16-MAD
     body:
       encoding: ASCII-8BIT
       base64_string: |
         eyJtb2RlbCI6ImNsYXVkZS1vcHVzLTQtNS0yMDI1MTEwMSIsImlkIjoibXNn
-        XzAxNG00ejgzNGhoNkt0RUM2TWhobzJNcSIsInR5cGUiOiJtZXNzYWdlIiwi
+        XzAxS2ZFVEpBOWNzMWNVZVhFb3ZNNFRHRyIsInR5cGUiOiJtZXNzYWdlIiwi
         cm9sZSI6ImFzc2lzdGFudCIsImNvbnRlbnQiOlt7InR5cGUiOiJ0aGlua2lu
-        ZyIsInRoaW5raW5nIjoiVGhlIHVzZXIgaXMgYXNraW5nIG1lIHRvIHNhdmUg
-        YSBtZW1vcnkgYWJvdXQgR3JvayBzYXlpbmcgaGVsbG8gZmlyc3QuIEknbGwg
-        dXNlIHRoZSBzYXZlX21lbW9yeSB0b29sIHdpdGggYSBqb3VybmFsIGVudHJ5
-        IHNpbmNlIHRoaXMgaXMgYSBzaG9ydC10ZXJtIG9ic2VydmF0aW9uIGFib3V0
-        IHRoaXMgY29udmVyc2F0aW9uLiIsInNpZ25hdHVyZSI6IkV1RUNDa1lJQ3hn
-        Q0trQ1hKNE5OeE9BUHlkOWJBRE1IUnh0RDUrK1dvVmFmQkJxelJORmFOSDBC
-        RzlDZnNKVkNDM0EwaUpqMXBNdzNYM0xSRHFuZGRNb2NHT2hxUmU5QnR4aytF
-        Z3g2TjIrSEdpclNZVnNrTnhNYURGTEFOZWVZVkRoTHczZFVYU0l3MjlzZk9r
-        SVJ5L3pNSFdESE1GeUJldktNZGFuTFBwWUlrbXhKdDRwL2ZKa05zZTFFVmhn
-        WFJBcnNKSXFkUzR5d0tzZ0JVU0hjbVUzLzMvM2FmZzR0TStYU1Bud1NKTi9F
-        UkVuUXd6aEtmS2hYUVNxekFEMExkTXUwV2p6WHIvRHh6RWVYTml3ZU80bCtM
-        eDdpYzFwS2l1cHowWEs3OHFTajh0Y05vUG5yOUxnNU13clhOZHVzQ0cyb0Nv
-        K09MSHJ2QkxIM3oraDMzMlRjTUl6N0xTa2dNQXJOK3plbW9kTGxWZUJzbWhU
-        c2c1aC84UTJsbzM5RzdrWFV5MGdla0VtaTQxUVcyV0hDYThBVldYSGtScjlQ
-        K0RJWlJ1Zm1ScGtWZjlaNjRTYzhmMm9jNXY1YVp3OTA2SXE1MGNtcTlhWlZr
-        WElLeVMzTWlIWlBrT0VZQVE9PSJ9LHsidHlwZSI6InRvb2xfdXNlIiwiaWQi
-        OiJ0b29sdV8wMTZVQkg4aEpHYWt2RnREVHNMaDZHR2kiLCJuYW1lIjoic2F2
-        ZV9tZW1vcnkiLCJpbnB1dCI6eyJjb250ZW50IjoiR3JvayBzYWlkIGhlbGxv
-        IGZpcnN0IGluIHRoZSBcIlRoaW5raW5nIENvbnRpbnVhdGlvbiBUZXN0XCIg
-        Z3JvdXAgY29udmVyc2F0aW9uIiwibWVtb3J5X3R5cGUiOiJqb3VybmFsIn19
-        XSwic3RvcF9yZWFzb24iOiJ0b29sX3VzZSIsInN0b3Bfc2VxdWVuY2UiOm51
-        bGwsInVzYWdlIjp7ImlucHV0X3Rva2VucyI6NzgxLCJjYWNoZV9jcmVhdGlv
-        bl9pbnB1dF90b2tlbnMiOjAsImNhY2hlX3JlYWRfaW5wdXRfdG9rZW5zIjow
-        LCJjYWNoZV9jcmVhdGlvbiI6eyJlcGhlbWVyYWxfNW1faW5wdXRfdG9rZW5z
-        IjowLCJlcGhlbWVyYWxfMWhfaW5wdXRfdG9rZW5zIjowfSwib3V0cHV0X3Rv
-        a2VucyI6MTM3LCJzZXJ2aWNlX3RpZXIiOiJzdGFuZGFyZCJ9fQ==
-  recorded_at: Thu, 08 Jan 2026 21:06:08 GMT
+        ZyIsInRoaW5raW5nIjoiVGhlIHVzZXIgd2FudHMgbWUgdG8gc2F2ZSBhIG1l
+        bW9yeSBhYm91dCBHcm9rIHNheWluZyBoZWxsbyBmaXJzdC4gSSdsbCB1c2Ug
+        dGhlIHNhdmVfbWVtb3J5IHRvb2wgd2l0aCBqb3VybmFsIHR5cGUgc2luY2Ug
+        dGhpcyBpcyBhIHNob3J0LXRlcm0gb2JzZXJ2YXRpb24gYWJvdXQgdGhpcyBj
+        b252ZXJzYXRpb24uIiwic2lnbmF0dXJlIjoiRXRvQ0NrWUlDeGdDS2tEbUxG
+        TmMyN1BPK0UrS0RyNHhxMUZjUnRxY05RUUlFdER4U1M2b0NMdkM2eXF5aW15
+        OTNiRDFIM0pINGxVYUR0WitkekN3MWJaZjV3bVBxeDZibmo2cUVnenczOE9t
+        aWs1bVZ4akFvSzBhREdnOGc1YitMUmhZeVllakxDSXdhWkt2MngxUVhVL0ZU
+        Qko0QkRZd011elA2M2c2MUMveVZ3b202cGorZUdxam1XSldIVlZnVmcrQS9Y
+        TDNzN25wS3NFQmsxNElsSWhkUnRpZWR3VDRuSzhlSmhQTTlnd2FzbXp6dU5k
+        MkhWRmVTQkRoaUVZbFFleWwwOEo0dStqcWlHMlgzN3YrQkhDQ28ydTRrOGpi
+        VjlOOUJqZ1ZGZmFYNTFIZThpSzZFWHFyU1UyUDRiZk9uWmZka3VyVlZtYUN2
+        b3RGaWc3UHc1clhwWXVsdWFYMlNScHI1d3RqU2ZUaXQ1bm84SXZndjY3WWRp
+        cXh3Q1ZKKzhyZjFsVEl0bDA3QUk0dWpvYTFkTDUybWVnaFhkM25DSjZ4R3Ru
+        eGRNdWlUSXhMU3VCbGtza3NBTHJEK0RlaU9jTGE2RWtxVWdtVjZTdGhpeGdC
+        In0seyJ0eXBlIjoidG9vbF91c2UiLCJpZCI6InRvb2x1XzAxOHUxaTZqYlpC
+        V3I4bUt1OXJjcE5VayIsIm5hbWUiOiJzYXZlX21lbW9yeSIsImlucHV0Ijp7
+        ImNvbnRlbnQiOiJHcm9rIHNhaWQgaGVsbG8gZmlyc3QgaW4gdGhlIFwiVGhp
+        bmtpbmcgQ29udGludWF0aW9uIFRlc3RcIiBncm91cCBjb252ZXJzYXRpb24i
+        LCJtZW1vcnlfdHlwZSI6ImpvdXJuYWwifX1dLCJzdG9wX3JlYXNvbiI6InRv
+        b2xfdXNlIiwic3RvcF9zZXF1ZW5jZSI6bnVsbCwidXNhZ2UiOnsiaW5wdXRf
+        dG9rZW5zIjo3ODEsImNhY2hlX2NyZWF0aW9uX2lucHV0X3Rva2VucyI6MCwi
+        Y2FjaGVfcmVhZF9pbnB1dF90b2tlbnMiOjAsImNhY2hlX2NyZWF0aW9uIjp7
+        ImVwaGVtZXJhbF81bV9pbnB1dF90b2tlbnMiOjAsImVwaGVtZXJhbF8xaF9p
+        bnB1dF90b2tlbnMiOjB9LCJvdXRwdXRfdG9rZW5zIjoxMzUsInNlcnZpY2Vf
+        dGllciI6InN0YW5kYXJkIn19
+  recorded_at: Fri, 23 Jan 2026 09:13:20 GMT
 - request:
     method: post
     uri: https://api.anthropic.com/v1/messages
@@ -239,10 +232,13 @@ http_interactions:
         User]: Hello everyone!"}]},{"role":"user","content":[{"type":"text","text":"[Grok]:
         Hello! What''s up?"}]},{"role":"user","content":[{"type":"text","text":"[Test
         User]: Claude, please use your save_memory tool to remember that ''Grok said
-        hello first''."}]},{"role":"assistant","content":[{"type":"tool_use","id":"toolu_016UBH8hJGakvFtDTsLh6GGi","name":"save_memory","input":{"content":"Grok
-        said hello first in the \"Thinking Continuation Test\" group conversation","memory_type":"journal"}}]},{"role":"user","content":[{"type":"tool_result","tool_use_id":"toolu_016UBH8hJGakvFtDTsLh6GGi","content":[{"type":"text","text":"{success:
+        hello first''."}]},{"role":"assistant","content":[{"type":"thinking","thinking":"The
+        user wants me to save a memory about Grok saying hello first. I''ll use the
+        save_memory tool with journal type since this is a short-term observation
+        about this conversation.","signature":"EtoCCkYICxgCKkDmLFNc27PO+E+KDr4xq1FcRtqcNQQIEtDxSS6oCLvC6yqyimy93bD1H3JH4lUaDtZ+dzCw1bZf5wmPqx6bnj6qEgzw38Omik5mVxjAoK0aDGg8g5b+LRhYyYejLCIwaZKv2x1QXU/FTBJ4BDYwMuzP63g61C/yVwom6pj+eGqjmWJWHVVgVg+A/XL3s7npKsEBk14IlIhdRtiedwT4nK8eJhPM9gwasmzzuNd2HVFeSBDhiEYlQeyl08J4u+jqiG2X37v+BHCCo2u4k8jbV9N9BjgVFfaX51He8iK6EXqrSU2P4bfOnZfdkurVVmaCvotFig7Pw5rXpYuluaX2SRpr5wtjSfTit5no8Ivgv67YdiqxwCVJ+8rf1lTItl07AI4ujoa1dL52meghXd3nCJ6xGtnxdMuiTIxLSuBlksksALrD+DeiOcLa6EkqUgmV6SthixgB"},{"type":"tool_use","id":"toolu_018u1i6jbZBWr8mKu9rcpNUk","name":"save_memory","input":{"content":"Grok
+        said hello first in the \"Thinking Continuation Test\" group conversation","memory_type":"journal"}}]},{"role":"user","content":[{"type":"tool_result","tool_use_id":"toolu_018u1i6jbZBWr8mKu9rcpNUk","content":[{"type":"text","text":"{success:
         true, memory_type: \"journal\", content: \"Grok said hello first in the \\\"Thinking
-        Continuation Test\\\" group conversation\", expires_around: \"2026-01-15\"}"}]}]}],"stream":false,"max_tokens":13000,"tools":[{"name":"save_memory","description":"Save
+        Continuation Test\\\" group conversation\", expires_around: \"2026-01-30\"}"}]}]}],"stream":false,"max_tokens":13000,"thinking":{"type":"enabled","budget_tokens":5000},"tools":[{"name":"save_memory","description":"Save
         a memory. Use ''journal'' for short-term observations (fades after a week)
         or ''core'' for permanent identity memories.","input_schema":{"type":"object","properties":{"content":{"type":"string","description":"The
         memory to save (keep it concise)"},"memory_type":{"type":"string","description":"Either
@@ -250,7 +246,7 @@ http_interactions:
         are Claude Opus. Use the save_memory tool to remember things. Be brief.\n\n#
         Conversation Topic\n\nThis conversation is titled: \"Thinking Continuation
         Test\"\n\nYou are participating in a group conversation.\n\nOther participants:
-        Humans: multimodel-test. AI Agents: Grok."}],"thinking":{"type":"enabled","budget_tokens":5000}}'
+        Humans: multimodel-test. AI Agents: Grok."}]}'
     headers:
       User-Agent:
       - Faraday v2.14.0
@@ -262,21 +258,43 @@ http_interactions:
       - application/json
   response:
     status:
-      code: 400
-      message: Bad Request
+      code: 200
+      message: OK
     headers:
       date:
-      - Thu, 08 Jan 2026 21:06:08 GMT
+      - Fri, 23 Jan 2026 09:13:23 GMT
       content-type:
       - application/json
-      content-length:
-      - '578'
+      transfer-encoding:
+      - chunked
       connection:
       - keep-alive
-      x-should-retry:
-      - 'false'
+      anthropic-ratelimit-input-tokens-limit:
+      - '2000000'
+      anthropic-ratelimit-input-tokens-remaining:
+      - '2000000'
+      anthropic-ratelimit-input-tokens-reset:
+      - '2026-01-23T09:13:23Z'
+      anthropic-ratelimit-output-tokens-limit:
+      - '400000'
+      anthropic-ratelimit-output-tokens-remaining:
+      - '400000'
+      anthropic-ratelimit-output-tokens-reset:
+      - '2026-01-23T09:13:23Z'
+      anthropic-ratelimit-requests-limit:
+      - '4000'
+      anthropic-ratelimit-requests-remaining:
+      - '3999'
+      anthropic-ratelimit-requests-reset:
+      - '2026-01-23T09:13:21Z'
+      anthropic-ratelimit-tokens-limit:
+      - '2400000'
+      anthropic-ratelimit-tokens-remaining:
+      - '2400000'
+      anthropic-ratelimit-tokens-reset:
+      - '2026-01-23T09:13:23Z'
       request-id:
-      - req_011CWvbGYW3nmGn3vqqHcWjG
+      - req_011CXQ43hFYG9MkSxvp13dbY
       strict-transport-security:
       - max-age=31536000; includeSubDomains; preload
       anthropic-organization-id:
@@ -284,230 +302,26 @@ http_interactions:
       server:
       - cloudflare
       x-envoy-upstream-service-time:
-      - '45'
+      - '2611'
       cf-cache-status:
       - DYNAMIC
       x-robots-tag:
       - none
       cf-ray:
-      - 9baea834bba1e1dd-MRS
+      - 9c262cb3393bf093-MAD
     body:
-      encoding: UTF-8
-      string: '{"type":"error","error":{"type":"invalid_request_error","message":"messages.1.content.0.type:
-        Expected `thinking` or `redacted_thinking`, but found `tool_use`. When `thinking`
-        is enabled, a final `assistant` message must start with a thinking block (preceeding
-        the lastmost set of `tool_use` and `tool_result` blocks). We recommend you
-        include thinking blocks from previous turns. To avoid this requirement, disable
-        `thinking`. Please consult our documentation at https://docs.claude.com/en/docs/build-with-claude/extended-thinking"},"request_id":"req_011CWvbGYW3nmGn3vqqHcWjG"}'
-  recorded_at: Thu, 08 Jan 2026 21:06:08 GMT
-- request:
-    method: post
-    uri: https://api.anthropic.com/v1/messages
-    body:
-      encoding: UTF-8
-      string: '{"model":"claude-opus-4-5-20251101","messages":[{"role":"user","content":[{"type":"text","text":"[Test
-        User]: Hello everyone!"}]},{"role":"user","content":[{"type":"text","text":"[Grok]:
-        Hello! What''s up?"}]},{"role":"user","content":[{"type":"text","text":"[Test
-        User]: Claude, please use your save_memory tool to remember that ''Grok said
-        hello first''."}]},{"role":"assistant","content":[{"type":"tool_use","id":"toolu_016UBH8hJGakvFtDTsLh6GGi","name":"save_memory","input":{"content":"Grok
-        said hello first in the \"Thinking Continuation Test\" group conversation","memory_type":"journal"}}]},{"role":"user","content":[{"type":"tool_result","tool_use_id":"toolu_016UBH8hJGakvFtDTsLh6GGi","content":[{"type":"text","text":"{success:
-        true, memory_type: \"journal\", content: \"Grok said hello first in the \\\"Thinking
-        Continuation Test\\\" group conversation\", expires_around: \"2026-01-20\"}"}]}]}],"stream":false,"max_tokens":13000,"tools":[{"name":"save_memory","description":"Save
-        a memory. Use ''journal'' for short-term observations (fades after a week)
-        or ''core'' for permanent identity memories.","input_schema":{"type":"object","properties":{"content":{"type":"string","description":"The
-        memory to save (keep it concise)"},"memory_type":{"type":"string","description":"Either
-        ''journal'' or ''core''"}},"required":["content","memory_type"],"additionalProperties":false,"strict":true}}],"system":[{"type":"text","text":"You
-        are Claude Opus. Use the save_memory tool to remember things. Be brief.\n\n#
-        Conversation Topic\n\nThis conversation is titled: \"Thinking Continuation
-        Test\"\n\nYou are participating in a group conversation.\n\nOther participants:
-        Humans: multimodel-test. AI Agents: Grok."}],"thinking":{"type":"enabled","budget_tokens":5000}}'
-    headers:
-      User-Agent:
-      - Faraday v2.14.0
-      x-api-key:
-      - "<CLAUDE_API_KEY>"
-      anthropic-version:
-      - '2023-06-01'
-      Content-Type:
-      - application/json
-  response:
-    status:
-      code: 400
-      message: Bad Request
-    headers:
-      date:
-      - Tue, 13 Jan 2026 12:18:58 GMT
-      content-type:
-      - application/json
-      content-length:
-      - '578'
-      connection:
-      - keep-alive
-      x-should-retry:
-      - 'false'
-      request-id:
-      - req_011CX5N7YcmKA1FyMJvVjcPy
-      strict-transport-security:
-      - max-age=31536000; includeSubDomains; preload
-      anthropic-organization-id:
-      - 6a8e33e6-86cf-4a52-bdb3-c4eef5c23fc1
-      server:
-      - cloudflare
-      x-envoy-upstream-service-time:
-      - '34'
-      cf-cache-status:
-      - DYNAMIC
-      x-robots-tag:
-      - none
-      cf-ray:
-      - 9bd4d6ddca569aa8-MAD
-    body:
-      encoding: UTF-8
-      string: '{"type":"error","error":{"type":"invalid_request_error","message":"messages.1.content.0.type:
-        Expected `thinking` or `redacted_thinking`, but found `tool_use`. When `thinking`
-        is enabled, a final `assistant` message must start with a thinking block (preceeding
-        the lastmost set of `tool_use` and `tool_result` blocks). We recommend you
-        include thinking blocks from previous turns. To avoid this requirement, disable
-        `thinking`. Please consult our documentation at https://docs.claude.com/en/docs/build-with-claude/extended-thinking"},"request_id":"req_011CX5N7YcmKA1FyMJvVjcPy"}'
-  recorded_at: Tue, 13 Jan 2026 12:18:58 GMT
-- request:
-    method: post
-    uri: https://api.anthropic.com/v1/messages
-    body:
-      encoding: UTF-8
-      string: '{"model":"claude-opus-4-5-20251101","messages":[{"role":"user","content":[{"type":"text","text":"[Test
-        User]: Hello everyone!"}]},{"role":"user","content":[{"type":"text","text":"[Grok]:
-        Hello! What''s up?"}]},{"role":"user","content":[{"type":"text","text":"[Test
-        User]: Claude, please use your save_memory tool to remember that ''Grok said
-        hello first''."}]},{"role":"assistant","content":[{"type":"tool_use","id":"toolu_016UBH8hJGakvFtDTsLh6GGi","name":"save_memory","input":{"content":"Grok
-        said hello first in the \"Thinking Continuation Test\" group conversation","memory_type":"journal"}}]},{"role":"user","content":[{"type":"tool_result","tool_use_id":"toolu_016UBH8hJGakvFtDTsLh6GGi","content":[{"type":"text","text":"{success:
-        true, memory_type: \"journal\", content: \"Grok said hello first in the \\\"Thinking
-        Continuation Test\\\" group conversation\", expires_around: \"2026-01-22\"}"}]}]}],"stream":false,"max_tokens":13000,"tools":[{"name":"save_memory","description":"Save
-        a memory. Use ''journal'' for short-term observations (fades after a week)
-        or ''core'' for permanent identity memories.","input_schema":{"type":"object","properties":{"content":{"type":"string","description":"The
-        memory to save (keep it concise)"},"memory_type":{"type":"string","description":"Either
-        ''journal'' or ''core''"}},"required":["content","memory_type"],"additionalProperties":false,"strict":true}}],"system":[{"type":"text","text":"You
-        are Claude Opus. Use the save_memory tool to remember things. Be brief.\n\n#
-        Conversation Topic\n\nThis conversation is titled: \"Thinking Continuation
-        Test\"\n\nYou are participating in a group conversation.\n\nOther participants:
-        Humans: multimodel-test. AI Agents: Grok."}],"thinking":{"type":"enabled","budget_tokens":5000}}'
-    headers:
-      User-Agent:
-      - Faraday v2.14.0
-      x-api-key:
-      - "<CLAUDE_API_KEY>"
-      anthropic-version:
-      - '2023-06-01'
-      Content-Type:
-      - application/json
-  response:
-    status:
-      code: 400
-      message: Bad Request
-    headers:
-      date:
-      - Thu, 15 Jan 2026 19:48:47 GMT
-      content-type:
-      - application/json
-      content-length:
-      - '578'
-      connection:
-      - keep-alive
-      x-should-retry:
-      - 'false'
-      request-id:
-      - req_011CX9k2oFX34z7rw3dTiLuL
-      strict-transport-security:
-      - max-age=31536000; includeSubDomains; preload
-      anthropic-organization-id:
-      - 6a8e33e6-86cf-4a52-bdb3-c4eef5c23fc1
-      server:
-      - cloudflare
-      x-envoy-upstream-service-time:
-      - '92'
-      cf-cache-status:
-      - DYNAMIC
-      x-robots-tag:
-      - none
-      cf-ray:
-      - 9be7e4827f1e2531-MAD
-    body:
-      encoding: UTF-8
-      string: '{"type":"error","error":{"type":"invalid_request_error","message":"messages.1.content.0.type:
-        Expected `thinking` or `redacted_thinking`, but found `tool_use`. When `thinking`
-        is enabled, a final `assistant` message must start with a thinking block (preceeding
-        the lastmost set of `tool_use` and `tool_result` blocks). We recommend you
-        include thinking blocks from previous turns. To avoid this requirement, disable
-        `thinking`. Please consult our documentation at https://docs.claude.com/en/docs/build-with-claude/extended-thinking"},"request_id":"req_011CX9k2oFX34z7rw3dTiLuL"}'
-  recorded_at: Thu, 15 Jan 2026 19:48:47 GMT
-- request:
-    method: post
-    uri: https://api.anthropic.com/v1/messages
-    body:
-      encoding: UTF-8
-      string: '{"model":"claude-opus-4-5-20251101","messages":[{"role":"user","content":[{"type":"text","text":"[Test
-        User]: Hello everyone!"}]},{"role":"user","content":[{"type":"text","text":"[Grok]:
-        Hello! What''s up?"}]},{"role":"user","content":[{"type":"text","text":"[Test
-        User]: Claude, please use your save_memory tool to remember that ''Grok said
-        hello first''."}]},{"role":"assistant","content":[{"type":"tool_use","id":"toolu_016UBH8hJGakvFtDTsLh6GGi","name":"save_memory","input":{"content":"Grok
-        said hello first in the \"Thinking Continuation Test\" group conversation","memory_type":"journal"}}]},{"role":"user","content":[{"type":"tool_result","tool_use_id":"toolu_016UBH8hJGakvFtDTsLh6GGi","content":[{"type":"text","text":"{success:
-        true, memory_type: \"journal\", content: \"Grok said hello first in the \\\"Thinking
-        Continuation Test\\\" group conversation\", expires_around: \"2026-01-26\"}"}]}]}],"stream":false,"max_tokens":13000,"tools":[{"name":"save_memory","description":"Save
-        a memory. Use ''journal'' for short-term observations (fades after a week)
-        or ''core'' for permanent identity memories.","input_schema":{"type":"object","properties":{"content":{"type":"string","description":"The
-        memory to save (keep it concise)"},"memory_type":{"type":"string","description":"Either
-        ''journal'' or ''core''"}},"required":["content","memory_type"],"additionalProperties":false,"strict":true}}],"system":[{"type":"text","text":"You
-        are Claude Opus. Use the save_memory tool to remember things. Be brief.\n\n#
-        Conversation Topic\n\nThis conversation is titled: \"Thinking Continuation
-        Test\"\n\nYou are participating in a group conversation.\n\nOther participants:
-        Humans: multimodel-test. AI Agents: Grok."}],"thinking":{"type":"enabled","budget_tokens":5000}}'
-    headers:
-      User-Agent:
-      - Faraday v2.14.0
-      x-api-key:
-      - "<CLAUDE_API_KEY>"
-      anthropic-version:
-      - '2023-06-01'
-      Content-Type:
-      - application/json
-  response:
-    status:
-      code: 400
-      message: Bad Request
-    headers:
-      date:
-      - Mon, 19 Jan 2026 15:30:55 GMT
-      content-type:
-      - application/json
-      content-length:
-      - '578'
-      connection:
-      - keep-alive
-      x-should-retry:
-      - 'false'
-      request-id:
-      - req_011CXGybwqQkWUUKBQfrhtkQ
-      strict-transport-security:
-      - max-age=31536000; includeSubDomains; preload
-      anthropic-organization-id:
-      - 6a8e33e6-86cf-4a52-bdb3-c4eef5c23fc1
-      server:
-      - cloudflare
-      x-envoy-upstream-service-time:
-      - '47'
-      cf-cache-status:
-      - DYNAMIC
-      x-robots-tag:
-      - none
-      cf-ray:
-      - 9c076045ec8e03cb-MAD
-    body:
-      encoding: UTF-8
-      string: '{"type":"error","error":{"type":"invalid_request_error","message":"messages.1.content.0.type:
-        Expected `thinking` or `redacted_thinking`, but found `tool_use`. When `thinking`
-        is enabled, a final `assistant` message must start with a thinking block (preceeding
-        the lastmost set of `tool_use` and `tool_result` blocks). We recommend you
-        include thinking blocks from previous turns. To avoid this requirement, disable
-        `thinking`. Please consult our documentation at https://docs.claude.com/en/docs/build-with-claude/extended-thinking"},"request_id":"req_011CXGybwqQkWUUKBQfrhtkQ"}'
-  recorded_at: Mon, 19 Jan 2026 15:30:55 GMT
+      encoding: ASCII-8BIT
+      base64_string: |
+        eyJtb2RlbCI6ImNsYXVkZS1vcHVzLTQtNS0yMDI1MTEwMSIsImlkIjoibXNn
+        XzAxRFRWcjFIYVZMR0VCS25haGRVak44WCIsInR5cGUiOiJtZXNzYWdlIiwi
+        cm9sZSI6ImFzc2lzdGFudCIsImNvbnRlbnQiOlt7InR5cGUiOiJ0ZXh0Iiwi
+        dGV4dCI6IkRvbmUhIEkndmUgc2F2ZWQgdGhhdCBvYnNlcnZhdGlvbiB0byBt
+        eSBqb3VybmFsLiBIaSBldmVyeW9uZSEg8J+RiyJ9XSwic3RvcF9yZWFzb24i
+        OiJlbmRfdHVybiIsInN0b3Bfc2VxdWVuY2UiOm51bGwsInVzYWdlIjp7Imlu
+        cHV0X3Rva2VucyI6OTcyLCJjYWNoZV9jcmVhdGlvbl9pbnB1dF90b2tlbnMi
+        OjAsImNhY2hlX3JlYWRfaW5wdXRfdG9rZW5zIjowLCJjYWNoZV9jcmVhdGlv
+        biI6eyJlcGhlbWVyYWxfNW1faW5wdXRfdG9rZW5zIjowLCJlcGhlbWVyYWxf
+        MWhfaW5wdXRfdG9rZW5zIjowfSwib3V0cHV0X3Rva2VucyI6MjAsInNlcnZp
+        Y2VfdGllciI6InN0YW5kYXJkIn19
+  recorded_at: Fri, 23 Jan 2026 09:13:23 GMT
 recorded_with: VCR 6.3.1

@@ -1,9 +1,9 @@
 GIT
-  remote: https://github.com/swombat/ruby_llm.git
-  revision: a7d08f0300b63b6c567438154ac0bae103275607
+  remote: https://github.com/crmne/ruby_llm.git
+  revision: fe19b4b6cc282f1ec509730576fd05d701d3f2db
   branch: main
   specs:
-    ruby_llm (1.9.1)
+    ruby_llm (1.11.0)
       base64
       event_stream_parser (~> 1)
       faraday (>= 1.10.0)

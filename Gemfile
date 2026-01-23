@@ -77,9 +77,8 @@ gem "hashids"
 
 gem "ruby-openai"
 
-# Using swombat fork with extended thinking support
-# PR: https://github.com/crmne/ruby_llm/pull/552
-gem "ruby_llm", github: "swombat/ruby_llm", branch: "main"
+# Ruby LLM - AI framework with extended thinking support (v1.10+) and xAI/Grok (v1.11+)
+gem "ruby_llm", github: "crmne/ruby_llm", branch: "main"
 
 gem "pagy", "~> 9.3"
 

@@ -152,7 +152,13 @@ class AllAgentsResponseJob < ApplicationJob
 
   # Configures thinking on the LLM chat, with fallback for outdated model registry
   def configure_thinking(llm, budget, provider)
-    llm.with_thinking(budget: budget)
+    # Anthropic requires max_tokens > budget_tokens, so we must set it explicitly
+    if provider == :anthropic
+      max_tokens = budget + 8000
+      llm.with_thinking(budget: budget).with_params(max_tokens: max_tokens)
+    else
+      llm.with_thinking(budget: budget)
+    end
   rescue RubyLLM::UnsupportedFeatureError
     # Model registry may be outdated - fall back to direct params for known providers
     case provider
@@ -162,8 +168,8 @@ class AllAgentsResponseJob < ApplicationJob
         thinking: { type: "enabled", budget_tokens: budget },
         max_tokens: max_tokens
       )
-    when :openrouter, :openai
-      # OpenAI uses reasoning effort levels and provides summaries (not raw tokens)
+    when :openrouter, :openai, :xai
+      # OpenAI/xAI use reasoning effort levels (xAI Grok models support similar format)
       effort = budget_to_effort(budget)
       llm.with_params(
         reasoning: { effort: effort, summary: "auto" },

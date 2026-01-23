@@ -3,6 +3,7 @@ RubyLLM.configure do |config|
   config.anthropic_api_key = Rails.application.credentials.dig(:ai, :claude, :api_token) || ENV["ANTHROPIC_API_KEY"] || "<ANTHROPIC_API_KEY>"
   config.openrouter_api_key = Rails.application.credentials.dig(:ai, :openrouter, :api_token) || ENV["OPENROUTER_API_KEY"] || "<OPENROUTER_API_KEY>"
   config.gemini_api_key = Rails.application.credentials.dig(:ai, :gemini, :api_token) || ENV["GEMINI_API_KEY"] || "<GEMINI_API_KEY>"
+  config.xai_api_key = Rails.application.credentials.dig(:ai, :xai, :api_token) || ENV["XAI_API_KEY"] || "<XAI_API_KEY>"
 
   config.default_model = "openrouter/auto"
 

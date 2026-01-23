@@ -5,6 +5,7 @@
 # Routes to appropriate providers:
 # - Anthropic direct: for Claude 4+ models with thinking enabled
 # - Gemini direct: for Google models (due to thought_signature requirements)
+# - xAI direct: for Grok models with thinking enabled (when API key is configured)
 # - OpenRouter: fallback for all other models
 module SelectsLlmProvider
 
@@ -27,6 +28,11 @@ module SelectsLlmProvider
       {
         provider: :gemini,
         model_id: normalize_gemini_model_id(model_id)
+      }
+    elsif xai_model?(model_id) && thinking_enabled && xai_api_available?
+      {
+        provider: :xai,
+        model_id: normalize_xai_model_id(model_id)
       }
     else
       {
@@ -74,6 +80,28 @@ module SelectsLlmProvider
 
   def normalize_gemini_model_id(model_id)
     model_id.to_s.sub(/^google\//, "")
+  end
+
+  def xai_model?(model_id)
+    model_id.to_s.start_with?("x-ai/")
+  end
+
+  def xai_api_available?
+    return @xai_available if defined?(@xai_available)
+
+    api_key = RubyLLM.config.xai_api_key
+    @xai_available = api_key.present? && !api_key.start_with?("<")
+
+    unless @xai_available
+      Rails.logger.warn "[SelectsLlmProvider] xAI API key not configured, falling back to OpenRouter"
+    end
+
+    @xai_available
+  end
+
+  def normalize_xai_model_id(model_id)
+    # xAI API uses model names without the x-ai/ prefix
+    model_id.to_s.sub(/^x-ai\//, "")
   end
 
 end

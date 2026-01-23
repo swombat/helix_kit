@@ -63,7 +63,12 @@ class Chat < ApplicationRecord
       group: "Top Models",
       thinking: { supported: true }
     },
-    { model_id: "x-ai/grok-4.1-fast", label: "Grok 4.1 Fast", group: "Top Models" },
+    {
+      model_id: "x-ai/grok-4.1-fast",
+      label: "Grok 4.1 Fast",
+      group: "Top Models",
+      thinking: { supported: true }
+    },
     { model_id: "deepseek/deepseek-v3.2", label: "DeepSeek V3.2", group: "Top Models" },
 
     # OpenAI
@@ -115,8 +120,22 @@ class Chat < ApplicationRecord
     { model_id: "google/gemini-2.5-pro", label: "Gemini 2.5 Pro", group: "Google" },
     { model_id: "google/gemini-2.5-flash", label: "Gemini 2.5 Flash", group: "Google" },
 
-    # xAI
-    { model_id: "x-ai/grok-4-fast", label: "Grok 4 Fast", group: "xAI" },
+    # xAI - Grok models with reasoning support
+    # grok-3-mini: Shows thinking traces, uses reasoning_effort parameter
+    # grok-4-fast/4.1-fast: Can toggle reasoning on/off
+    # grok-4/grok-3: Built-in reasoning but not exposed/configurable
+    {
+      model_id: "x-ai/grok-3-mini",
+      label: "Grok 3 Mini",
+      group: "xAI",
+      thinking: { supported: true }
+    },
+    {
+      model_id: "x-ai/grok-4-fast",
+      label: "Grok 4 Fast",
+      group: "xAI",
+      thinking: { supported: true }
+    },
     { model_id: "x-ai/grok-4", label: "Grok 4", group: "xAI" },
     { model_id: "x-ai/grok-3", label: "Grok 3", group: "xAI" },
 

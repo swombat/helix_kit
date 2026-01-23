@@ -95,13 +95,13 @@ class MessageThinkingTest < ActiveSupport::TestCase
   end
 
   test "stream_thinking appends to existing thinking" do
-    @message.update_columns(thinking: "First chunk ")
+    @message.update_columns(thinking_text: "First chunk ")
     @message.stream_thinking("second chunk")
     assert_equal "First chunk second chunk", @message.reload.thinking
   end
 
   test "stream_thinking handles multiple chunks" do
-    @message.update_columns(thinking: "")
+    @message.update_columns(thinking_text: "")
     @message.stream_thinking("First ")
     @message.stream_thinking("second ")
     @message.stream_thinking("third")
@@ -109,25 +109,25 @@ class MessageThinkingTest < ActiveSupport::TestCase
   end
 
   test "stream_thinking ignores empty chunks" do
-    @message.update_columns(thinking: "Initial")
+    @message.update_columns(thinking_text: "Initial")
     @message.stream_thinking("")
     assert_equal "Initial", @message.reload.thinking
   end
 
   test "stream_thinking ignores nil chunks" do
-    @message.update_columns(thinking: "Initial")
+    @message.update_columns(thinking_text: "Initial")
     @message.stream_thinking(nil)
     assert_equal "Initial", @message.reload.thinking
   end
 
   test "stream_thinking converts chunks to string" do
-    @message.update_columns(thinking: "")
+    @message.update_columns(thinking_text: "")
     @message.stream_thinking(123)
     assert_equal "123", @message.reload.thinking
   end
 
   test "stream_thinking handles thinking starting as nil" do
-    @message.update_columns(thinking: nil)
+    @message.update_columns(thinking_text: nil)
     @message.stream_thinking("First chunk")
     assert_equal "First chunk", @message.reload.thinking
   end
@@ -147,7 +147,7 @@ class MessageThinkingTest < ActiveSupport::TestCase
   end
 
   test "thinking persists across reload" do
-    @message.update_columns(thinking: "Persisted thought")
+    @message.update_columns(thinking_text: "Persisted thought")
     reloaded = Message.find(@message.id)
     assert_equal "Persisted thought", reloaded.thinking
   end

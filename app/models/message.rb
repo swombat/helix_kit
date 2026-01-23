@@ -7,6 +7,21 @@ class Message < ApplicationRecord
 
   acts_as_message model: :ai_model, model_class: "AiModel", model_foreign_key: :ai_model_id
 
+  # RubyLLM 1.10+ uses thinking_text column and returns a RubyLLM::Thinking object.
+  # We override to maintain backwards compatibility with our string-based API.
+  # Virtual attribute enables mass assignment (e.g., create!(thinking: "..."))
+  attribute :thinking, :string
+
+  def thinking
+    thinking_text
+  end
+
+  def thinking=(value)
+    # Handle both string values (our code) and RubyLLM::Thinking objects
+    text_value = value.respond_to?(:text) ? value.text : value
+    self.thinking_text = text_value
+  end
+
   belongs_to :chat, touch: true
   belongs_to :user, optional: true
   belongs_to :agent, optional: true
@@ -216,7 +231,7 @@ class Message < ApplicationRecord
     chunk = chunk.to_s
     return if chunk.empty?
 
-    update_columns(thinking: (thinking.to_s + chunk))
+    update_columns(thinking_text: (thinking_text.to_s + chunk))
 
     broadcast_marker(
       "Message:#{to_param}",
