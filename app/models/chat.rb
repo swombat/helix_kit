@@ -473,6 +473,8 @@ class Chat < ApplicationRecord
       parts << "**DEVELOPMENT TESTING MODE**: You are currently being tested on a development server using a production database backup. Any memories or changes you make will NOT be saved to the production server. This is a safe testing environment."
     end
 
+    parts << "Current time: #{Time.current.in_time_zone(user_timezone).strftime('%Y-%m-%d %H:%M %Z')}"
+
     parts << "You are participating in a group conversation."
     parts << "Other participants: #{participant_description(agent)}."
 
@@ -509,9 +511,10 @@ class Chat < ApplicationRecord
   end
 
   def messages_context_for(agent, thinking_enabled: false)
+    tz = user_timezone
     messages.includes(:user, :agent).order(:created_at)
       .reject { |msg| msg.content.blank? }  # Filter out empty messages (e.g., before tool calls)
-      .map { |msg| format_message_for_context(msg, agent, thinking_enabled: thinking_enabled) }
+      .map { |msg| format_message_for_context(msg, agent, tz, thinking_enabled: thinking_enabled) }
   end
 
   def participant_description(current_agent)
@@ -526,14 +529,28 @@ class Chat < ApplicationRecord
     parts.join(". ")
   end
 
-  def format_message_for_context(message, current_agent, thinking_enabled: false)
+  def user_timezone
+    @user_timezone ||= ActiveSupport::TimeZone[recent_user_timezone || "UTC"]
+  end
+
+  def recent_user_timezone
+    messages.joins(user: :profile)
+            .where.not(user_id: nil)
+            .order(created_at: :desc)
+            .limit(1)
+            .pick("profiles.timezone")
+  end
+
+  def format_message_for_context(message, current_agent, timezone, thinking_enabled: false)
+    timestamp = message.created_at.in_time_zone(timezone).strftime("[%Y-%m-%d %H:%M]")
+
     text_content = if message.agent_id == current_agent.id
-      message.content
+      "#{timestamp} #{message.content}"
     elsif message.agent_id.present?
-      "[#{message.agent.name}]: #{message.content}"
+      "#{timestamp} [#{message.agent.name}]: #{message.content}"
     else
       name = message.user&.full_name.presence || message.user&.email_address&.split("@")&.first || "User"
-      "[#{name}]: #{message.content}"
+      "#{timestamp} [#{name}]: #{message.content}"
     end
 
     role = message.agent_id == current_agent.id ? "assistant" : "user"
