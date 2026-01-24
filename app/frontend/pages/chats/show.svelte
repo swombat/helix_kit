@@ -1406,7 +1406,7 @@
                     {#if message.fixable}
                       <button
                         onclick={() => fixHallucinatedToolCalls(message.id)}
-                        class="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-amber-500 transition-colors opacity-0 group-hover:opacity-100"
+                        class="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-amber-500 transition-colors md:opacity-0 md:group-hover:opacity-100"
                         title="Fix hallucinated tool call">
                         <Wrench size={14} />
                         Fix
