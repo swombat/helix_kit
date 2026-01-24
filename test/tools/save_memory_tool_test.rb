@@ -50,7 +50,7 @@ class SaveMemoryToolTest < ActiveSupport::TestCase
     result = tool.execute(content: "Test", memory_type: "invalid")
 
     assert result[:error]
-    assert_includes result[:error], "must be 'journal' or 'core'"
+    assert_includes result[:error], "Invalid memory_type"
   end
 
   test "fails with blank content via model validation" do
@@ -69,6 +69,152 @@ class SaveMemoryToolTest < ActiveSupport::TestCase
 
     assert result[:error]
     assert_includes result[:error], "too long"
+  end
+
+  # Hallucination recovery interface tests
+
+  test "recoverable_from? returns true for memory-like JSON" do
+    assert SaveMemoryTool.recoverable_from?({ "memory_type" => "journal", "content" => "test" })
+  end
+
+  test "recoverable_from? returns true when JSON has extra fields" do
+    assert SaveMemoryTool.recoverable_from?({
+      "success" => true,
+      "memory_type" => "journal",
+      "content" => "test",
+      "expires_around" => "2026-01-31"
+    })
+  end
+
+  test "recoverable_from? returns false for non-memory JSON" do
+    assert_not SaveMemoryTool.recoverable_from?({ "url" => "http://example.com" })
+  end
+
+  test "recoverable_from? returns false for JSON missing memory_type" do
+    assert_not SaveMemoryTool.recoverable_from?({ "content" => "test" })
+  end
+
+  test "recoverable_from? returns false for JSON missing content" do
+    assert_not SaveMemoryTool.recoverable_from?({ "memory_type" => "journal" })
+  end
+
+  test "recoverable_from? returns false for non-hash input" do
+    assert_not SaveMemoryTool.recoverable_from?([])
+    assert_not SaveMemoryTool.recoverable_from?("string")
+    assert_not SaveMemoryTool.recoverable_from?(nil)
+  end
+
+  test "recover_from_hallucination creates journal memory" do
+    agent = agents(:with_save_memory_tool)
+
+    result = SaveMemoryTool.recover_from_hallucination(
+      { "memory_type" => "journal", "content" => "Test content" },
+      agent: agent,
+      chat: nil
+    )
+
+    assert result[:success]
+    assert_equal "SaveMemoryTool", result[:tool_name]
+    assert agent.memories.exists?(content: "Test content", memory_type: "journal")
+  end
+
+  test "recover_from_hallucination creates core memory" do
+    agent = agents(:with_save_memory_tool)
+
+    result = SaveMemoryTool.recover_from_hallucination(
+      { "memory_type" => "core", "content" => "Core identity" },
+      agent: agent,
+      chat: nil
+    )
+
+    assert result[:success]
+    assert_equal "SaveMemoryTool", result[:tool_name]
+    assert agent.memories.exists?(content: "Core identity", memory_type: "core")
+  end
+
+  test "recover_from_hallucination strips whitespace from content" do
+    agent = agents(:with_save_memory_tool)
+
+    result = SaveMemoryTool.recover_from_hallucination(
+      { "memory_type" => "journal", "content" => "  Padded content  " },
+      agent: agent,
+      chat: nil
+    )
+
+    assert result[:success]
+    assert agent.memories.exists?(content: "Padded content")
+  end
+
+  test "recover_from_hallucination returns error for missing memory_type" do
+    agent = agents(:with_save_memory_tool)
+
+    result = SaveMemoryTool.recover_from_hallucination(
+      { "content" => "Test" },
+      agent: agent,
+      chat: nil
+    )
+
+    assert result[:error]
+    assert_includes result[:error], "Missing memory_type"
+  end
+
+  test "recover_from_hallucination returns error for missing content" do
+    agent = agents(:with_save_memory_tool)
+
+    result = SaveMemoryTool.recover_from_hallucination(
+      { "memory_type" => "journal" },
+      agent: agent,
+      chat: nil
+    )
+
+    assert result[:error]
+    assert_includes result[:error], "Missing memory_type or content"
+  end
+
+  test "recover_from_hallucination returns error for invalid memory_type" do
+    agent = agents(:with_save_memory_tool)
+
+    result = SaveMemoryTool.recover_from_hallucination(
+      { "memory_type" => "invalid", "content" => "Test" },
+      agent: agent,
+      chat: nil
+    )
+
+    assert result[:error]
+    assert_includes result[:error], "Invalid memory_type"
+  end
+
+  test "recover_from_hallucination returns error for blank content" do
+    agent = agents(:with_save_memory_tool)
+
+    result = SaveMemoryTool.recover_from_hallucination(
+      { "memory_type" => "journal", "content" => "   " },
+      agent: agent,
+      chat: nil
+    )
+
+    assert result[:error]
+    assert_includes result[:error], "Failed to save memory"
+    assert_includes result[:error], "Content can't be blank"
+  end
+
+  test "recover_from_hallucination handles hallucinated response format" do
+    # This is what models like Gemini actually generate
+    agent = agents(:with_save_memory_tool)
+
+    result = SaveMemoryTool.recover_from_hallucination(
+      {
+        "success" => true,
+        "memory_type" => "journal",
+        "content" => "User prefers dark mode",
+        "expires_around" => "2026-01-31"
+      },
+      agent: agent,
+      chat: nil
+    )
+
+    assert result[:success]
+    assert agent.memories.exists?(content: "User prefers dark mode")
   end
 
 end

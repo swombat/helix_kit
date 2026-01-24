@@ -87,7 +87,8 @@ class Message < ApplicationRecord
                   :files_json, :content_html, :tools_used, :tool_status,
                   :author_name, :author_type, :author_colour, :input_tokens, :output_tokens,
                   :editable, :deletable,
-                  :moderation_flagged, :moderation_severity, :moderation_scores
+                  :moderation_flagged, :moderation_severity, :moderation_scores,
+                  :fixable
 
   def completed?
     # User messages are always completed
@@ -313,6 +314,56 @@ class Message < ApplicationRecord
     moderation_scores.values.max.to_f >= 0.8 ? :high : :medium
   end
 
+  # Detects if this is an assistant message with JSON at the start
+  # (indicates a potential hallucinated tool call)
+  def has_json_prefix?
+    return false unless role == "assistant" && content.present?
+    content.strip.start_with?("{")
+  end
+
+  # Returns true if this message can be fixed (has JSON prefix and an agent)
+  def fixable
+    has_json_prefix? && agent.present?
+  end
+
+  # Attempts to fix hallucinated tool calls by:
+  # 1. Extracting JSON blocks from the start of the message
+  # 2. Attempting to execute each as a tool call via tool-specific recovery
+  # 3. Recording results (success or error) as messages before this one
+  # 4. Stripping the JSON from this message's content
+  def fix_hallucinated_tool_calls!
+    raise "Not an assistant message" unless role == "assistant"
+    raise "No JSON prefix detected" unless has_json_prefix?
+    raise "Cannot fix: message has no agent" unless agent.present?
+
+    transaction do
+      remaining_content = content.strip
+      json_blocks = []
+
+      # Extract all leading JSON blocks
+      while remaining_content.start_with?("{")
+        extracted = extract_first_json(remaining_content)
+        break unless extracted
+
+        json_blocks << extracted[:json]
+        remaining_content = extracted[:remainder].lstrip
+      end
+
+      # Process each JSON block
+      json_blocks.each do |json_str|
+        parsed = parse_loose_json(json_str)
+        next unless parsed
+
+        result = attempt_tool_recovery(parsed)
+        record_tool_result(result, json_str)
+      end
+
+      # Strip JSON from content
+      update!(content: remaining_content)
+      chat.touch
+    end
+  end
+
   private
 
   def user_message_with_content?
@@ -391,5 +442,93 @@ class Message < ApplicationRecord
     renderer.render(content || "").html_safe
   end
 
+  # Extracts the first brace-balanced block from the start of text.
+  # Uses brace-counting with string awareness for O(n) performance.
+  # Returns { json: "...", remainder: "..." } or nil if no balanced block found.
+  # Note: Does not validate JSON - hallucinated content often has unquoted keys.
+  def extract_first_json(text)
+    depth = 0
+    in_string = false
+    escape_next = false
+
+    text.chars.each_with_index do |char, i|
+      if escape_next
+        escape_next = false
+        next
+      end
+
+      case char
+      when "\\"
+        escape_next = in_string
+      when '"'
+        in_string = !in_string
+      when "{"
+        depth += 1 unless in_string
+      when "}"
+        next if in_string
+        depth -= 1
+        if depth.zero?
+          candidate = text[0..i]
+          return { json: candidate, remainder: text[(i + 1)..].to_s }
+        end
+      end
+    end
+    nil
+  end
+
+  # Parses JSON that may have unquoted keys (JavaScript object literal style).
+  # Models often hallucinate {success: true} instead of {"success": true}.
+  def parse_loose_json(json_str)
+    # First try strict JSON
+    JSON.parse(json_str)
+  rescue JSON::ParserError
+    # Try quoting unquoted keys: {foo: "bar"} -> {"foo": "bar"}
+    # This regex finds word characters followed by colon (not inside quotes)
+    quoted = json_str.gsub(/([{,]\s*)(\w+)(\s*:)/, '\1"\2"\3')
+    JSON.parse(quoted)
+  rescue JSON::ParserError
+    nil
+  end
+
+  # Attempts to find a tool that can recover from the parsed JSON structure.
+  # Returns { success: true, tool_name: ..., result: ... } or { error: "..." }
+  def attempt_tool_recovery(parsed_json)
+    recoverable_tools.each do |tool_class|
+      next unless tool_class.respond_to?(:recoverable_from?) && tool_class.recoverable_from?(parsed_json)
+      next unless agent.tools.include?(tool_class)
+
+      return tool_class.recover_from_hallucination(parsed_json, agent: agent, chat: chat)
+    end
+
+    { error: "Could not identify tool from JSON structure" }
+  end
+
+  # List of tools that implement the recovery interface.
+  # Add new tools here as they gain recovery support.
+  def recoverable_tools
+    [ SaveMemoryTool ].select { |t| t.respond_to?(:recover_from_hallucination) }
+  end
+
+  # Records the result of a tool recovery attempt as a message just before this one.
+  def record_tool_result(result, original_json)
+    if result[:success]
+      # Create a successful tool execution record
+      chat.messages.create!(
+        role: "assistant",
+        content: "",
+        agent: agent,
+        tools_used: [ result[:tool_name] ],
+        created_at: created_at - 1.second
+      )
+    else
+      # Create an error message explaining the failure
+      chat.messages.create!(
+        role: "assistant",
+        content: "Tool call failed: #{original_json.truncate(200)}\n\nError: #{result[:error]}",
+        agent: agent,
+        created_at: created_at - 1.second
+      )
+    end
+  end
 
 end

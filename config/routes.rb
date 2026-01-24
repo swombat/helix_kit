@@ -70,6 +70,7 @@ Rails.application.routes.draw do
   resources :messages, only: [ :update, :destroy ] do
     member do
       post :retry
+      post :fix_hallucinated_tool_calls
     end
   end
 

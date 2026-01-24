@@ -29,3 +29,22 @@ other_account_agent:
   model_id: openrouter/auto
   enabled_tools: []
   active: true
+
+# Agent with SaveMemoryTool enabled for hallucinated tool call tests
+with_save_memory_tool:
+  account_id: 1
+  name: Memory Agent
+  system_prompt: You are an agent that can save memories.
+  model_id: openrouter/auto
+  enabled_tools:
+    - SaveMemoryTool
+  active: true
+
+# Agent without any tools enabled
+without_tools:
+  account_id: 1
+  name: No Tools Agent
+  system_prompt: You are an agent without any tools.
+  model_id: openrouter/auto
+  enabled_tools: []
+  active: true

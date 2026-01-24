@@ -558,4 +558,243 @@ class MessageTest < ActiveSupport::TestCase
     assert_equal({ "hate" => 0.85, "violence" => 0.1 }, json["moderation_scores"])
   end
 
+  # Hallucinated tool call detection tests
+
+  test "has_json_prefix? detects JSON-prefixed assistant messages" do
+    msg = Message.new(role: "assistant", content: '{"success": true}Hello')
+    assert msg.has_json_prefix?
+  end
+
+  test "has_json_prefix? detects JSON with leading whitespace" do
+    msg = Message.new(role: "assistant", content: '  {"success": true}Hello')
+    assert msg.has_json_prefix?
+  end
+
+  test "has_json_prefix? returns false for user messages" do
+    msg = Message.new(role: "user", content: '{"data": 1}Text')
+    assert_not msg.has_json_prefix?
+  end
+
+  test "has_json_prefix? returns false for normal text" do
+    msg = Message.new(role: "assistant", content: "Hello world")
+    assert_not msg.has_json_prefix?
+  end
+
+  test "has_json_prefix? returns false for nil content" do
+    msg = Message.new(role: "assistant", content: nil)
+    assert_not msg.has_json_prefix?
+  end
+
+  test "has_json_prefix? returns false for empty content" do
+    msg = Message.new(role: "assistant", content: "")
+    assert_not msg.has_json_prefix?
+  end
+
+  test "fixable returns false when no agent present" do
+    msg = Message.new(role: "assistant", content: '{"x": 1}Text', agent: nil)
+    assert_not msg.fixable
+  end
+
+  test "fixable returns false for user messages" do
+    agent = agents(:with_save_memory_tool)
+    msg = Message.new(role: "user", content: '{"x": 1}Text', agent: agent)
+    assert_not msg.fixable
+  end
+
+  test "fixable returns true for JSON-prefixed assistant message with agent" do
+    agent = agents(:with_save_memory_tool)
+    msg = Message.new(role: "assistant", content: '{"x": 1}Text', agent: agent)
+    assert msg.fixable
+  end
+
+  test "as_json includes fixable attribute" do
+    agent = agents(:with_save_memory_tool)
+    message = @chat.messages.create!(
+      role: "assistant",
+      content: '{"memory_type": "journal", "content": "test"}Real text',
+      agent: agent
+    )
+
+    json = message.as_json
+    assert json["fixable"]
+  end
+
+  # fix_hallucinated_tool_calls! tests
+
+  test "fix_hallucinated_tool_calls! raises for non-assistant message" do
+    msg = @chat.messages.create!(
+      role: "user",
+      user: @user,
+      content: '{"test": 1}Hello'
+    )
+
+    assert_raises RuntimeError do
+      msg.fix_hallucinated_tool_calls!
+    end
+  end
+
+  test "fix_hallucinated_tool_calls! raises when no JSON prefix" do
+    msg = @chat.messages.create!(
+      role: "assistant",
+      content: "Normal text"
+    )
+
+    assert_raises RuntimeError do
+      msg.fix_hallucinated_tool_calls!
+    end
+  end
+
+  test "fix_hallucinated_tool_calls! raises when no agent present" do
+    msg = @chat.messages.create!(
+      role: "assistant",
+      content: '{"test": 1}Hello',
+      agent: nil
+    )
+
+    assert_raises RuntimeError do
+      msg.fix_hallucinated_tool_calls!
+    end
+  end
+
+  test "fix_hallucinated_tool_calls! strips JSON and executes tool" do
+    agent = agents(:with_save_memory_tool)
+    chat = Chat.create!(account: @account)
+
+    # Add the agent to the chat so it has a chat association
+    chat.agents << agent
+
+    msg = chat.messages.create!(
+      role: "assistant",
+      agent: agent,
+      content: '{"success": true, "memory_type": "journal", "content": "Test memory"}You saw through me.'
+    )
+
+    assert_difference -> { agent.memories.count }, 1 do
+      assert_difference -> { chat.messages.count }, 1 do  # Tool result message
+        msg.fix_hallucinated_tool_calls!
+      end
+    end
+
+    msg.reload
+    assert_equal "You saw through me.", msg.content
+    assert agent.memories.exists?(memory_type: "journal", content: "Test memory")
+  end
+
+  test "fix_hallucinated_tool_calls! handles JSON with nested braces" do
+    agent = agents(:with_save_memory_tool)
+    chat = Chat.create!(account: @account)
+    chat.agents << agent
+
+    msg = chat.messages.create!(
+      role: "assistant",
+      agent: agent,
+      content: '{"memory_type": "journal", "content": "User said {something}"}Real text'
+    )
+
+    msg.fix_hallucinated_tool_calls!
+
+    assert_equal "Real text", msg.reload.content
+    assert agent.memories.exists?(content: "User said {something}")
+  end
+
+  test "fix_hallucinated_tool_calls! handles multiple JSON blocks" do
+    agent = agents(:with_save_memory_tool)
+    chat = Chat.create!(account: @account)
+    chat.agents << agent
+
+    msg = chat.messages.create!(
+      role: "assistant",
+      agent: agent,
+      content: '{"memory_type": "journal", "content": "First"}{"memory_type": "core", "content": "Second"}Final'
+    )
+
+    assert_difference -> { agent.memories.count }, 2 do
+      msg.fix_hallucinated_tool_calls!
+    end
+
+    assert_equal "Final", msg.reload.content
+    assert agent.memories.exists?(memory_type: "journal", content: "First")
+    assert agent.memories.exists?(memory_type: "core", content: "Second")
+  end
+
+  test "fix_hallucinated_tool_calls! records error for unknown tool structure" do
+    agent = agents(:with_save_memory_tool)
+    chat = Chat.create!(account: @account)
+    chat.agents << agent
+
+    msg = chat.messages.create!(
+      role: "assistant",
+      agent: agent,
+      content: '{"unknown_field": "value"}Real text'
+    )
+
+    msg.fix_hallucinated_tool_calls!
+
+    assert_equal "Real text", msg.reload.content
+    error_msg = chat.messages.where("content LIKE ?", "Tool call failed:%").first
+    assert error_msg, "Should have created an error message"
+    assert_includes error_msg.content, "Could not identify tool"
+  end
+
+  test "fix_hallucinated_tool_calls! records error when tool not enabled" do
+    agent = agents(:without_tools)  # Agent with no enabled tools
+    chat = Chat.create!(account: @account)
+    chat.agents << agent
+
+    msg = chat.messages.create!(
+      role: "assistant",
+      agent: agent,
+      content: '{"memory_type": "journal", "content": "Test"}Real text'
+    )
+
+    msg.fix_hallucinated_tool_calls!
+
+    assert_equal "Real text", msg.reload.content
+    error_msg = chat.messages.where("content LIKE ?", "Tool call failed:%").first
+    assert error_msg, "Should have created an error message"
+    assert_includes error_msg.content, "Could not identify tool"
+  end
+
+  test "fix_hallucinated_tool_calls! creates tool result message before original" do
+    agent = agents(:with_save_memory_tool)
+    chat = Chat.create!(account: @account)
+    chat.agents << agent
+
+    # Create a message at a specific time
+    original_time = 10.seconds.ago
+    msg = chat.messages.create!(
+      role: "assistant",
+      agent: agent,
+      content: '{"memory_type": "journal", "content": "Test"}Real text',
+      created_at: original_time
+    )
+
+    msg.fix_hallucinated_tool_calls!
+
+    # Find the tool result message
+    tool_msg = chat.messages.where.not(id: msg.id).first
+    assert tool_msg.created_at < msg.reload.created_at, "Tool result message should be timestamped before the original"
+    assert_equal [ "SaveMemoryTool" ], tool_msg.tools_used
+  end
+
+  test "fix_hallucinated_tool_calls! touches the chat" do
+    agent = agents(:with_save_memory_tool)
+    chat = Chat.create!(account: @account)
+    chat.agents << agent
+
+    msg = chat.messages.create!(
+      role: "assistant",
+      agent: agent,
+      content: '{"memory_type": "journal", "content": "Test"}Real text'
+    )
+
+    chat_updated_at = chat.reload.updated_at
+
+    # Small sleep to ensure time difference
+    sleep 0.01
+    msg.fix_hallucinated_tool_calls!
+
+    assert chat.reload.updated_at > chat_updated_at, "Chat should have been touched"
+  end
+
 end

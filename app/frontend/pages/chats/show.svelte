@@ -24,6 +24,7 @@
     DotsThreeVertical,
     Robot,
     ShieldCheck,
+    Wrench,
   } from 'phosphor-svelte';
   import * as Card from '$lib/components/shadcn/card/index.js';
   import * as Select from '$lib/components/shadcn/select/index.js';
@@ -45,6 +46,7 @@
     assignAgentAccountChatPath,
     messagePath,
     moderateAllAccountChatPath,
+    fixHallucinatedToolCallsMessagePath,
   } from '@/routes';
   import { marked } from 'marked';
   import * as logging from '$lib/logging';
@@ -642,6 +644,15 @@
     } else {
       logging.error('No messages available for retry');
     }
+  }
+
+  async function fixHallucinatedToolCalls(messageId) {
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
+    await fetch(fixHallucinatedToolCallsMessagePath(messageId), {
+      method: 'POST',
+      headers: { 'X-CSRF-Token': csrfToken },
+    });
+    router.reload({ only: ['messages'], preserveScroll: true });
   }
 
   function toggleWebAccess() {
@@ -1321,7 +1332,7 @@
                 </div>
               </div>
             {:else}
-              <div class="flex justify-start">
+              <div class="flex justify-start group">
                 <div class="max-w-[85%] md:max-w-[70%]">
                   <Card.Root class={getBubbleClass(message.author_colour)}>
                     <Card.Content class="p-4">
@@ -1391,6 +1402,15 @@
                       <span class="ml-2 text-blue-600">...</span>
                     {:else if message.streaming}
                       <span class="ml-2 text-green-600 animate-pulse">...</span>
+                    {/if}
+                    {#if message.fixable}
+                      <button
+                        onclick={() => fixHallucinatedToolCalls(message.id)}
+                        class="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-amber-500 transition-colors opacity-0 group-hover:opacity-100"
+                        title="Fix hallucinated tool call">
+                        <Wrench size={14} />
+                        Fix
+                      </button>
                     {/if}
                   </div>
                 </div>
