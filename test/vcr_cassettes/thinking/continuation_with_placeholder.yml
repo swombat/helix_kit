@@ -324,4 +324,105 @@ http_interactions:
         MWhfaW5wdXRfdG9rZW5zIjowfSwib3V0cHV0X3Rva2VucyI6MjAsInNlcnZp
         Y2VfdGllciI6InN0YW5kYXJkIn19
   recorded_at: Fri, 23 Jan 2026 09:13:23 GMT
+- request:
+    method: post
+    uri: https://api.anthropic.com/v1/messages
+    body:
+      encoding: UTF-8
+      string: '{"model":"claude-opus-4-5-20251101","messages":[{"role":"user","content":[{"type":"text","text":"[Test
+        User]: Hello everyone!"}]},{"role":"user","content":[{"type":"text","text":"[Grok]:
+        Hello! What''s up?"}]},{"role":"user","content":[{"type":"text","text":"[Test
+        User]: Claude, please use your save_memory tool to remember that ''Grok said
+        hello first''."}]},{"role":"assistant","content":[{"type":"thinking","thinking":"The
+        user wants me to save a memory about Grok saying hello first. I''ll use the
+        save_memory tool with journal type since this is a short-term observation
+        about this conversation.","signature":"EtoCCkYICxgCKkDmLFNc27PO+E+KDr4xq1FcRtqcNQQIEtDxSS6oCLvC6yqyimy93bD1H3JH4lUaDtZ+dzCw1bZf5wmPqx6bnj6qEgzw38Omik5mVxjAoK0aDGg8g5b+LRhYyYejLCIwaZKv2x1QXU/FTBJ4BDYwMuzP63g61C/yVwom6pj+eGqjmWJWHVVgVg+A/XL3s7npKsEBk14IlIhdRtiedwT4nK8eJhPM9gwasmzzuNd2HVFeSBDhiEYlQeyl08J4u+jqiG2X37v+BHCCo2u4k8jbV9N9BjgVFfaX51He8iK6EXqrSU2P4bfOnZfdkurVVmaCvotFig7Pw5rXpYuluaX2SRpr5wtjSfTit5no8Ivgv67YdiqxwCVJ+8rf1lTItl07AI4ujoa1dL52meghXd3nCJ6xGtnxdMuiTIxLSuBlksksALrD+DeiOcLa6EkqUgmV6SthixgB"},{"type":"tool_use","id":"toolu_018u1i6jbZBWr8mKu9rcpNUk","name":"save_memory","input":{"content":"Grok
+        said hello first in the \"Thinking Continuation Test\" group conversation","memory_type":"journal"}}]},{"role":"user","content":[{"type":"tool_result","tool_use_id":"toolu_018u1i6jbZBWr8mKu9rcpNUk","content":[{"type":"text","text":"{success:
+        true, memory_type: \"journal\", content: \"Grok said hello first in the \\\"Thinking
+        Continuation Test\\\" group conversation\", expires_around: \"2026-01-31\"}"}]}]}],"stream":false,"max_tokens":13000,"thinking":{"type":"enabled","budget_tokens":5000},"tools":[{"name":"save_memory","description":"Save
+        a memory. Use ''journal'' for short-term observations (fades after a week)
+        or ''core'' for permanent identity memories.","input_schema":{"type":"object","properties":{"content":{"type":"string","description":"The
+        memory to save (keep it concise)"},"memory_type":{"type":"string","description":"Either
+        ''journal'' or ''core''"}},"required":["content","memory_type"],"additionalProperties":false,"strict":true}}],"system":[{"type":"text","text":"You
+        are Claude Opus. Use the save_memory tool to remember things. Be brief.\n\n#
+        Conversation Topic\n\nThis conversation is titled: \"Thinking Continuation
+        Test\"\n\nYou are participating in a group conversation.\n\nOther participants:
+        Humans: multimodel-test. AI Agents: Grok."}]}'
+    headers:
+      User-Agent:
+      - Faraday v2.14.0
+      x-api-key:
+      - "<CLAUDE_API_KEY>"
+      anthropic-version:
+      - '2023-06-01'
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      date:
+      - Sat, 24 Jan 2026 13:21:25 GMT
+      content-type:
+      - application/json
+      transfer-encoding:
+      - chunked
+      connection:
+      - keep-alive
+      anthropic-ratelimit-input-tokens-limit:
+      - '2000000'
+      anthropic-ratelimit-input-tokens-remaining:
+      - '2000000'
+      anthropic-ratelimit-input-tokens-reset:
+      - '2026-01-24T13:21:25Z'
+      anthropic-ratelimit-output-tokens-limit:
+      - '400000'
+      anthropic-ratelimit-output-tokens-remaining:
+      - '400000'
+      anthropic-ratelimit-output-tokens-reset:
+      - '2026-01-24T13:21:25Z'
+      anthropic-ratelimit-requests-limit:
+      - '4000'
+      anthropic-ratelimit-requests-remaining:
+      - '3999'
+      anthropic-ratelimit-requests-reset:
+      - '2026-01-24T13:21:23Z'
+      anthropic-ratelimit-tokens-limit:
+      - '2400000'
+      anthropic-ratelimit-tokens-remaining:
+      - '2400000'
+      anthropic-ratelimit-tokens-reset:
+      - '2026-01-24T13:21:25Z'
+      request-id:
+      - req_011CXSGmcXbsKTNWwfkUbddL
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      anthropic-organization-id:
+      - 6a8e33e6-86cf-4a52-bdb3-c4eef5c23fc1
+      server:
+      - cloudflare
+      x-envoy-upstream-service-time:
+      - '2696'
+      cf-cache-status:
+      - DYNAMIC
+      x-robots-tag:
+      - none
+      cf-ray:
+      - 9c2fd5669cdb18b2-MAD
+    body:
+      encoding: ASCII-8BIT
+      base64_string: |
+        eyJtb2RlbCI6ImNsYXVkZS1vcHVzLTQtNS0yMDI1MTEwMSIsImlkIjoibXNn
+        XzAxQUZBUko0alJ6YkRyWXE5enFvakdSRSIsInR5cGUiOiJtZXNzYWdlIiwi
+        cm9sZSI6ImFzc2lzdGFudCIsImNvbnRlbnQiOlt7InR5cGUiOiJ0ZXh0Iiwi
+        dGV4dCI6IkRvbmUhIEkndmUgc2F2ZWQgdGhhdCBvYnNlcnZhdGlvbi4gSGVs
+        bG8gdG8geW91IGJvdGghIPCfkYsifV0sInN0b3BfcmVhc29uIjoiZW5kX3R1
+        cm4iLCJzdG9wX3NlcXVlbmNlIjpudWxsLCJ1c2FnZSI6eyJpbnB1dF90b2tl
+        bnMiOjk3MiwiY2FjaGVfY3JlYXRpb25faW5wdXRfdG9rZW5zIjowLCJjYWNo
+        ZV9yZWFkX2lucHV0X3Rva2VucyI6MCwiY2FjaGVfY3JlYXRpb24iOnsiZXBo
+        ZW1lcmFsXzVtX2lucHV0X3Rva2VucyI6MCwiZXBoZW1lcmFsXzFoX2lucHV0
+        X3Rva2VucyI6MH0sIm91dHB1dF90b2tlbnMiOjE5LCJzZXJ2aWNlX3RpZXIi
+        OiJzdGFuZGFyZCJ9fQ==
+  recorded_at: Sat, 24 Jan 2026 13:21:25 GMT
 recorded_with: VCR 6.3.1
