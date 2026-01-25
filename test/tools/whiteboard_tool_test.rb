@@ -336,4 +336,73 @@ class WhiteboardToolTest < ActiveSupport::TestCase
     assert_equal board, @chat.reload.active_whiteboard
   end
 
+  # Recovery interface tests
+  test "recoverable_from? returns true for whiteboard type with action" do
+    json = { "type" => "whiteboard", "action" => "update", "board_id" => "abc123" }
+    assert WhiteboardTool.recoverable_from?(json)
+  end
+
+  test "recoverable_from? returns true for valid action with board_id" do
+    json = { "action" => "update", "board_id" => "abc123", "content" => "test" }
+    assert WhiteboardTool.recoverable_from?(json)
+  end
+
+  test "recoverable_from? returns false for missing action" do
+    json = { "type" => "whiteboard", "board_id" => "abc123" }
+    assert_not WhiteboardTool.recoverable_from?(json)
+  end
+
+  test "recoverable_from? returns false for invalid action" do
+    json = { "action" => "invalid", "board_id" => "abc123" }
+    assert_not WhiteboardTool.recoverable_from?(json)
+  end
+
+  test "recover_from_hallucination executes update action" do
+    board = whiteboards(:project_notes)
+    json = {
+      "type" => "whiteboard",
+      "action" => "update",
+      "board_id" => board.obfuscated_id,
+      "content" => "Recovered content from hallucination"
+    }
+
+    result = WhiteboardTool.recover_from_hallucination(json, agent: @agent, chat: @chat)
+
+    assert result[:success]
+    assert_equal "WhiteboardTool", result[:tool_name]
+    assert_equal "board_updated", result[:result][:type]
+    assert_equal "Recovered content from hallucination", board.reload.content
+  end
+
+  test "recover_from_hallucination returns error for missing action" do
+    json = { "board_id" => "abc123", "content" => "test" }
+
+    result = WhiteboardTool.recover_from_hallucination(json, agent: @agent, chat: @chat)
+
+    assert result[:error]
+    assert_match(/Missing action/, result[:error])
+  end
+
+  test "recover_from_hallucination returns error for invalid action" do
+    json = { "action" => "invalid", "board_id" => "abc123" }
+
+    result = WhiteboardTool.recover_from_hallucination(json, agent: @agent, chat: @chat)
+
+    assert result[:error]
+    assert_match(/Invalid action/, result[:error])
+  end
+
+  test "recover_from_hallucination returns error when board not found" do
+    json = {
+      "action" => "update",
+      "board_id" => "nonexistent",
+      "content" => "test"
+    }
+
+    result = WhiteboardTool.recover_from_hallucination(json, agent: @agent, chat: @chat)
+
+    assert result[:error]
+    assert_match(/not found/, result[:error])
+  end
+
 end

@@ -506,7 +506,7 @@ class Message < ApplicationRecord
   # List of tools that implement the recovery interface.
   # Add new tools here as they gain recovery support.
   def recoverable_tools
-    [ SaveMemoryTool ].select { |t| t.respond_to?(:recover_from_hallucination) }
+    [ SaveMemoryTool, WhiteboardTool ].select { |t| t.respond_to?(:recover_from_hallucination) }
   end
 
   # Records the result of a tool recovery attempt as a message just before this one.

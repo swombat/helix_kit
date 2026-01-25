@@ -30,6 +30,40 @@ class WhiteboardTool < RubyLLM::Tool
     @agent = current_agent
   end
 
+  # Recovery interface for hallucinated tool calls
+  def self.recoverable_from?(parsed_json)
+    # Check for hallucinated whiteboard responses
+    # Models output {type: "whiteboard", action: "update", board_id: "...", content: "..."}
+    return true if parsed_json["type"] == "whiteboard" && parsed_json["action"].present?
+
+    # Also check for action + board_id pattern (common hallucination format)
+    parsed_json["action"].in?(ACTIONS) && parsed_json["board_id"].present?
+  end
+
+  def self.recover_from_hallucination(parsed_json, agent:, chat:)
+    action = parsed_json["action"]
+    return { error: "Missing action" } unless action.present?
+    return { error: "Invalid action: #{action}" } unless ACTIONS.include?(action)
+
+    # Build params from the hallucinated response
+    params = {
+      board_id: parsed_json["board_id"],
+      name: parsed_json["name"],
+      summary: parsed_json["summary"],
+      content: parsed_json["content"]
+    }.compact
+
+    # Execute the tool
+    tool = new(chat: chat, current_agent: agent)
+    result = tool.execute(action: action, **params.symbolize_keys)
+
+    if result[:type] == "error"
+      { error: result[:error] }
+    else
+      { success: true, tool_name: name, result: result }
+    end
+  end
+
   def execute(action:, **params)
     return validation_error("Requires group conversation context") unless @agent && @chat
     return validation_error("Invalid action '#{action}'") unless ACTIONS.include?(action)
