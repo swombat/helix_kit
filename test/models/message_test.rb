@@ -797,4 +797,79 @@ class MessageTest < ActiveSupport::TestCase
     assert chat.reload.updated_at > chat_updated_at, "Chat should have been touched"
   end
 
+  # Timestamp hallucination tests
+
+  test "has_timestamp_prefix? detects timestamp at start" do
+    msg = Message.new(role: "assistant", content: "[2026-01-25 18:48] Hello world")
+    assert msg.has_timestamp_prefix?
+  end
+
+  test "has_timestamp_prefix? returns false for text without timestamp" do
+    msg = Message.new(role: "assistant", content: "Hello world")
+    assert_not msg.has_timestamp_prefix?
+  end
+
+  test "has_timestamp_prefix? returns false for user messages" do
+    msg = Message.new(role: "user", content: "[2026-01-25 18:48] Hello")
+    assert_not msg.has_timestamp_prefix?
+  end
+
+  test "has_json_prefix? detects JSON after timestamp" do
+    msg = Message.new(role: "assistant", content: '[2026-01-25 18:48] {"success": true}Hello')
+    assert msg.has_json_prefix?
+  end
+
+  test "strip_leading_timestamp removes timestamp from start" do
+    text = "[2026-01-25 18:48] Hello world"
+    assert_equal "Hello world", Message.strip_leading_timestamp(text)
+  end
+
+  test "strip_leading_timestamp leaves text without timestamp unchanged" do
+    text = "Hello world"
+    assert_equal "Hello world", Message.strip_leading_timestamp(text)
+  end
+
+  test "strip_leading_timestamp handles nil" do
+    assert_nil Message.strip_leading_timestamp(nil)
+  end
+
+  test "fixable returns true for timestamp-only message with agent" do
+    agent = agents(:with_save_memory_tool)
+    msg = Message.new(role: "assistant", content: "[2026-01-25 18:48] Hello", agent: agent)
+    assert msg.fixable
+  end
+
+  test "fix_hallucinated_tool_calls! strips timestamp and JSON together" do
+    agent = agents(:with_save_memory_tool)
+    chat = Chat.create!(account: @account)
+    chat.agents << agent
+
+    msg = chat.messages.create!(
+      role: "assistant",
+      agent: agent,
+      content: '[2026-01-25 18:48] {"memory_type": "journal", "content": "Test"}Real text'
+    )
+
+    msg.fix_hallucinated_tool_calls!
+
+    assert_equal "Real text", msg.reload.content
+    assert agent.memories.exists?(content: "Test")
+  end
+
+  test "fix_hallucinated_tool_calls! strips timestamp-only message" do
+    agent = agents(:with_save_memory_tool)
+    chat = Chat.create!(account: @account)
+    chat.agents << agent
+
+    msg = chat.messages.create!(
+      role: "assistant",
+      agent: agent,
+      content: "[2026-01-25 18:48] Hello world"
+    )
+
+    msg.fix_hallucinated_tool_calls!
+
+    assert_equal "Hello world", msg.reload.content
+  end
+
 end

@@ -314,30 +314,50 @@ class Message < ApplicationRecord
     moderation_scores.values.max.to_f >= 0.8 ? :high : :medium
   end
 
+  # Pattern for hallucinated timestamps like [2026-01-25 18:48]
+  TIMESTAMP_PATTERN = /\A\s*\[\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}\]\s*/
+
+  # Detects if this is an assistant message with a hallucinated timestamp at the start
+  def has_timestamp_prefix?
+    return false unless role == "assistant" && content.present?
+    content.match?(TIMESTAMP_PATTERN)
+  end
+
   # Detects if this is an assistant message with JSON at the start
   # (indicates a potential hallucinated tool call)
   def has_json_prefix?
     return false unless role == "assistant" && content.present?
-    content.strip.start_with?("{")
+    # Check for JSON directly or after a timestamp
+    stripped = content.gsub(TIMESTAMP_PATTERN, "")
+    stripped.strip.start_with?("{")
   end
 
-  # Returns true if this message can be fixed (has JSON prefix and an agent)
+  # Returns true if this message can be fixed (has timestamp or JSON prefix, and an agent)
   def fixable
-    has_json_prefix? && agent.present?
+    return false unless role == "assistant" && agent.present?
+    has_timestamp_prefix? || has_json_prefix?
   end
 
-  # Attempts to fix hallucinated tool calls by:
-  # 1. Extracting JSON blocks from the start of the message
-  # 2. Attempting to execute each as a tool call via tool-specific recovery
-  # 3. Recording results (success or error) as messages before this one
-  # 4. Stripping the JSON from this message's content
+  # Strips leading timestamp from content (class method for use in jobs)
+  def self.strip_leading_timestamp(text)
+    return text if text.blank?
+    text.gsub(TIMESTAMP_PATTERN, "")
+  end
+
+  # Attempts to fix hallucinated content by:
+  # 1. Stripping hallucinated timestamps from the start
+  # 2. Extracting JSON blocks from the start of the message
+  # 3. Attempting to execute each as a tool call via tool-specific recovery
+  # 4. Recording results (success or error) as messages before this one
+  # 5. Stripping the timestamp/JSON from this message's content
   def fix_hallucinated_tool_calls!
     raise "Not an assistant message" unless role == "assistant"
-    raise "No JSON prefix detected" unless has_json_prefix?
+    raise "Nothing to fix" unless fixable
     raise "Cannot fix: message has no agent" unless agent.present?
 
     transaction do
-      remaining_content = content.strip
+      # First strip any hallucinated timestamp
+      remaining_content = self.class.strip_leading_timestamp(content).strip
       json_blocks = []
 
       # Extract all leading JSON blocks
@@ -358,7 +378,7 @@ class Message < ApplicationRecord
         record_tool_result(result, json_str)
       end
 
-      # Strip JSON from content
+      # Update content (stripped of timestamp and JSON)
       update!(content: remaining_content)
       chat.touch
     end

@@ -68,6 +68,9 @@ module StreamsAiResponse
       end
     end
 
+    # Strip hallucinated timestamps that models sometimes add
+    content = Message.strip_leading_timestamp(content)
+
     @ai_message.update!({
       content: content,
       thinking: thinking_content,
