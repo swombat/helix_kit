@@ -546,6 +546,18 @@
       } else {
         logging.warn('No id found in streaming end:', data);
       }
+    },
+    (data) => {
+      // Handle current_state event - syncs message content when subscription connects
+      logging.debug('Received streaming state:', data);
+      if (data.id) {
+        const index = recentMessages.findIndex((m) => m.id === data.id);
+        if (index !== -1 && recentMessages[index].streaming) {
+          recentMessages = recentMessages.map((message, i) =>
+            i === index ? { ...message, content: data.content, thinking: data.thinking } : message
+          );
+        }
+      }
     }
   );
 

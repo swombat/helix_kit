@@ -95,32 +95,28 @@ export function createDynamicSync() {
   };
 }
 
-export function streamingSync(streamUpdate, streamEnd) {
+export function streamingSync(streamUpdate, streamEnd, streamState = null) {
   onMount(() => {
-    logging.debug('🔍 Setting up streaming event listeners');
+    logging.debug('Setting up streaming event listeners');
     if (typeof window === 'undefined') return;
 
-    const handleStreamingUpdate = (event) => {
-      const data = event.detail;
-      logging.debug('📨 Received streaming update:', data);
+    const listeners = [
+      ['streaming-update', (e) => streamUpdate(e.detail)],
+      ['streaming-end', (e) => streamEnd(e.detail)],
+    ];
 
-      streamUpdate(data);
-    };
+    if (streamState) {
+      listeners.push(['streaming-state', (e) => streamState(e.detail)]);
+    }
 
-    const handleStreamingEnd = (event) => {
-      const data = event.detail;
-      logging.debug('📨 Received streaming end:', data);
-      streamEnd(data);
-    };
-
-    window.addEventListener('streaming-update', handleStreamingUpdate);
-    window.addEventListener('streaming-end', handleStreamingEnd);
-    logging.debug('🔍 Streaming event listeners set up');
+    listeners.forEach(([event, handler]) => {
+      window.addEventListener(event, handler);
+    });
 
     return () => {
-      logging.debug('🧹 Removing streaming event listeners');
-      window.removeEventListener('streaming-update', handleStreamingUpdate);
-      window.removeEventListener('streaming-end', handleStreamingEnd);
+      listeners.forEach(([event, handler]) => {
+        window.removeEventListener(event, handler);
+      });
     };
   });
 }
