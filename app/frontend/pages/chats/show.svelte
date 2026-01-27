@@ -244,7 +244,7 @@
   // Handle scroll for loading more messages
   function handleScroll() {
     if (!messagesContainer) return;
-    if (messagesContainer.scrollTop < SCROLL_THRESHOLD && hasMore && !loadingMore) {
+    if (messagesContainer.scrollTop < SCROLL_THRESHOLD && hasMore && !loadingMore && oldestId) {
       loadMoreMessages();
     }
   }
@@ -1236,7 +1236,7 @@
         <div class="flex justify-center py-4">
           <Spinner size={24} class="animate-spin text-muted-foreground" />
         </div>
-      {:else if hasMore}
+      {:else if hasMore && oldestId}
         <div class="flex justify-center py-2">
           <button onclick={loadMoreMessages} class="text-sm text-muted-foreground hover:text-foreground">
             Load earlier messages
