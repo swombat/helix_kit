@@ -78,16 +78,23 @@ export function subscribeToModel(model, id, props) {
 }
 
 function handleStreamingUpdate(data) {
-  const eventMap = {
-    current_state: 'streaming-state',
-    streaming_update: 'streaming-update',
-    streaming_end: 'streaming-end',
-    debug_log: 'debug-log',
-  };
-
-  const eventName = eventMap[data.action];
-  if (eventName && browser) {
-    window.dispatchEvent(new CustomEvent(eventName, { detail: data }));
+  if (data.action === 'streaming_update') {
+    // Dispatch a custom event that the chat component can listen to
+    if (browser) {
+      window.dispatchEvent(new CustomEvent('streaming-update', { detail: data }));
+    }
+    return true;
+  } else if (data.action === 'streaming_end') {
+    // Dispatch a custom event that the chat component can listen to
+    if (browser) {
+      window.dispatchEvent(new CustomEvent('streaming-end', { detail: data }));
+    }
+    return true;
+  } else if (data.action === 'debug_log') {
+    // Dispatch debug log event for site admins
+    if (browser) {
+      window.dispatchEvent(new CustomEvent('debug-log', { detail: data }));
+    }
     return true;
   }
 }

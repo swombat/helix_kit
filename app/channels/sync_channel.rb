@@ -25,7 +25,6 @@ class SyncChannel < ApplicationCable::Channel
       setup_collection_subscription
     else
       stream_from "#{params[:model]}:#{params[:id]}"
-      deliver_current_state_if_streaming
     end
   end
 
@@ -55,20 +54,6 @@ class SyncChannel < ApplicationCable::Channel
   def unsubscribed
     debug "📡 ❌ Unsubscribed from all"
     stop_all_streams
-  end
-
-  private
-
-  def deliver_current_state_if_streaming
-    return unless params[:model] == "Message"
-    return unless @model&.streaming?
-
-    transmit({
-      action: "current_state",
-      id: @model.obfuscated_id,
-      content: @model.content,
-      thinking: @model.thinking
-    })
   end
 
 end
