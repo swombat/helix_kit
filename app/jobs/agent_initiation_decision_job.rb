@@ -83,7 +83,7 @@ class AgentInitiationDecisionJob < ApplicationJob
     case decision[:action]
     when "continue"
       chat = agent.account.chats.find_by(id: Chat.decode_id(decision[:conversation_id]))
-      ManualAgentResponseJob.perform_later(chat, agent) if chat&.respondable?
+      ManualAgentResponseJob.perform_later(chat, agent, initiation_reason: decision[:reason]) if chat&.respondable?
     when "initiate"
       Chat.initiate_by_agent!(
         agent,

@@ -12,7 +12,7 @@ class ManualAgentResponseJob < ApplicationJob
   retry_on RubyLLM::RateLimitError, wait: :polynomially_longer, attempts: 5
   retry_on Faraday::Error, wait: :polynomially_longer, attempts: 3
 
-  def perform(chat, agent)
+  def perform(chat, agent, initiation_reason: nil)
     @chat = chat
     @agent = agent
     @ai_message = nil
@@ -36,7 +36,7 @@ class ManualAgentResponseJob < ApplicationJob
       return
     end
 
-    context = chat.build_context_for_agent(agent, thinking_enabled: @use_thinking)
+    context = chat.build_context_for_agent(agent, thinking_enabled: @use_thinking, initiation_reason: initiation_reason)
     debug_info "Built context with #{context.length} messages"
 
     provider_config = llm_provider_for(agent.model_id, thinking_enabled: @use_thinking)

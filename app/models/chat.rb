@@ -409,8 +409,8 @@ class Chat < ApplicationRecord
     end
   end
 
-  def build_context_for_agent(agent, thinking_enabled: false)
-    [ system_message_for(agent) ] + messages_context_for(agent, thinking_enabled: thinking_enabled)
+  def build_context_for_agent(agent, thinking_enabled: false, initiation_reason: nil)
+    [ system_message_for(agent, initiation_reason: initiation_reason) ] + messages_context_for(agent, thinking_enabled: thinking_enabled)
   end
 
   # Checks if extended thinking can be used for this agent in this conversation.
@@ -474,7 +474,7 @@ class Chat < ApplicationRecord
   end
 
   # Group chat context building helpers
-  def system_message_for(agent)
+  def system_message_for(agent, initiation_reason: nil)
     parts = []
 
     parts << (agent.system_prompt.presence || "You are #{agent.name}.")
@@ -497,6 +497,10 @@ class Chat < ApplicationRecord
 
     if Rails.env.development?
       parts << "**DEVELOPMENT TESTING MODE**: You are currently being tested on a development server using a production database backup. Any memories or changes you make will NOT be saved to the production server. This is a safe testing environment."
+    end
+
+    if initiation_reason.present?
+      parts << "You have chosen to continue this conversation. Your reason: #{initiation_reason}"
     end
 
     parts << "Current time: #{Time.current.in_time_zone(user_timezone).strftime('%Y-%m-%d %H:%M %Z')}"

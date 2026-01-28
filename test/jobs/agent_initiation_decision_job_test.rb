@@ -80,7 +80,7 @@ class AgentInitiationDecisionJobTest < ActiveSupport::TestCase
     }.to_json
 
     run_with_response(response_json) do
-      assert_enqueued_with(job: ManualAgentResponseJob, args: [ chat, @agent ]) do
+      assert_enqueued_with(job: ManualAgentResponseJob, args: [ chat, @agent, { initiation_reason: "Want to follow up on the question" } ]) do
         AgentInitiationDecisionJob.perform_now(@agent)
       end
     end
