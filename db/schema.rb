@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_23_085332) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_28_074332) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -168,6 +168,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_23_085332) do
     t.datetime "created_at", null: false
     t.text "debug_log"
     t.datetime "discarded_at"
+    t.bigint "initiated_by_agent_id"
+    t.text "initiation_reason"
     t.datetime "last_consolidated_at"
     t.bigint "last_consolidated_message_id"
     t.boolean "manual_responses", default: false, null: false
@@ -183,6 +185,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_23_085332) do
     t.index ["ai_model_id"], name: "index_chats_on_ai_model_id"
     t.index ["archived_at"], name: "index_chats_on_archived_at"
     t.index ["discarded_at"], name: "index_chats_on_discarded_at"
+    t.index ["initiated_by_agent_id"], name: "index_chats_on_initiated_by_agent_id"
     t.index ["last_consolidated_at"], name: "index_chats_on_last_consolidated_at"
     t.index ["manual_responses"], name: "index_chats_on_manual_responses"
     t.index ["web_access"], name: "index_chats_on_web_access"
@@ -338,6 +341,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_23_085332) do
   add_foreign_key "chat_agents", "agents"
   add_foreign_key "chat_agents", "chats"
   add_foreign_key "chats", "accounts"
+  add_foreign_key "chats", "agents", column: "initiated_by_agent_id"
   add_foreign_key "chats", "ai_models"
   add_foreign_key "chats", "whiteboards", column: "active_whiteboard_id"
   add_foreign_key "memberships", "accounts"

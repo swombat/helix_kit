@@ -26,3 +26,7 @@ production:
   database_backup:
     class: DatabaseBackupJob
     schedule: every day at 4am
+
+  conversation_initiation:
+    class: ConversationInitiationJob
+    schedule: every hour at minute 0

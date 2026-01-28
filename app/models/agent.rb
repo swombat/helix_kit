@@ -1,9 +1,14 @@
 class Agent < ApplicationRecord
 
+  include ActionView::Helpers::DateHelper
   include Broadcastable
   include ObfuscatesId
   include JsonAttributes
   include SyncAuthorizable
+
+  # Initiation limits
+  INITIATION_CAP = 2
+  RECENTLY_INITIATED_WINDOW = 48.hours
 
   belongs_to :account
   has_many :chat_agents, dependent: :destroy
@@ -91,6 +96,68 @@ class Agent < ApplicationRecord
     { core: raw.fetch("core", 0), journal: raw.fetch("journal", 0) }
   end
 
+  # Conversation initiation methods
+
+  def at_initiation_cap?
+    pending_initiated_conversations.count >= INITIATION_CAP
+  end
+
+  def pending_initiated_conversations
+    chats.kept.awaiting_human_response.where(initiated_by_agent: self)
+  end
+
+  def continuable_conversations
+    chats.active.kept
+         .where(manual_responses: true)
+         .where.not(id: chats_where_i_spoke_last)
+         .order(updated_at: :desc)
+         .limit(10)
+  end
+
+  def last_initiation_at
+    chats.initiated.where(initiated_by_agent: self).maximum(:created_at)
+  end
+
+  def build_initiation_prompt(conversations:, recent_initiations:, human_activity:)
+    <<~PROMPT
+      #{system_prompt}
+
+      #{memory_context}
+
+      # Current Time
+      #{Time.current.strftime('%Y-%m-%d %H:%M %Z')}
+
+      # Conversations You Could Continue
+      #{format_conversations(conversations)}
+
+      # Recent Agent Initiations (last 48 hours)
+      #{format_recent_initiations(recent_initiations)}
+
+      # Human Activity
+      #{format_human_activity(human_activity)}
+
+      # Your Status
+      #{initiation_status}
+
+      # Guidelines
+      - Avoid initiating too many conversations at once (both you and other agents)
+      - Consider human activity before initiating
+      - Only continue conversations if you have something meaningful to add
+      - Inactive conversations (48+ hours) may be worth reviving only for important topics
+
+      # Your Task
+      Decide whether to:
+      1. Continue an existing conversation (provide conversation_id)
+      2. Start a new conversation (provide topic and opening message)
+      3. Do nothing this cycle (provide reason)
+
+      Respond with JSON only:
+      {"action": "continue", "conversation_id": "abc123", "reason": "..."}
+      {"action": "initiate", "topic": "...", "message": "...", "reason": "..."}
+      {"action": "nothing", "reason": "..."}
+    PROMPT
+  end
+
   private
 
   def clean_enabled_tools
@@ -116,6 +183,57 @@ class Agent < ApplicationRecord
     return unless journal.any?
 
     "## Recent Journal Entries\n" + journal.map { |m| "- [#{m.created_at.strftime('%Y-%m-%d')}] #{m.content}" }.join("\n")
+  end
+
+  # Conversation initiation helpers
+
+  def chats_where_i_spoke_last
+    Chat.where(id: chats.active.kept.where(manual_responses: true))
+        .joins(:messages)
+        .where(
+          "messages.id = (SELECT MAX(m.id) FROM messages m WHERE m.chat_id = chats.id)"
+        )
+        .where(messages: { agent_id: id })
+        .pluck(:id)
+  end
+
+  def format_conversations(conversations)
+    return "No conversations available." if conversations.empty?
+
+    conversations.map do |chat|
+      last_at = chat.messages.maximum(:created_at)
+      stale = last_at && last_at < 48.hours.ago ? " [INACTIVE 48+ hours]" : ""
+      "- #{chat.title_or_default} (#{chat.obfuscated_id})#{stale}: #{chat.summary || 'No summary'}"
+    end.join("\n")
+  end
+
+  def format_recent_initiations(initiations)
+    return "None in the last 48 hours." if initiations.empty?
+
+    initiations.map do |chat|
+      human_responses = chat.messages.where(role: "user").where.not(user_id: nil).count
+      "- \"#{chat.title}\" by #{chat.initiated_by_agent.name} (#{time_ago_in_words(chat.created_at)} ago) - #{human_responses} human response(s)"
+    end.join("\n")
+  end
+
+  def format_human_activity(activity)
+    return "No recent human activity." if activity.empty?
+
+    activity.map do |user, timestamp|
+      name = user.full_name.presence || user.email_address.split("@").first
+      "- #{name}: last active #{time_ago_in_words(timestamp)} ago"
+    end.join("\n")
+  end
+
+  def initiation_status
+    pending = pending_initiated_conversations.count
+    last = last_initiation_at
+
+    parts = []
+    parts << "You have #{pending} initiated conversation(s) awaiting human response." if pending > 0
+    parts << "Your last initiation: #{last ? "#{time_ago_in_words(last)} ago" : 'Never'}"
+    parts << "Hard cap: #{INITIATION_CAP} pending initiations (you're at the limit)" if pending >= INITIATION_CAP
+    parts.join("\n")
   end
 
 end

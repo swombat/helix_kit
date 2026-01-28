@@ -10,6 +10,7 @@ class Chat < ApplicationRecord
 
   belongs_to :account
   belongs_to :active_whiteboard, class_name: "Whiteboard", optional: true
+  belongs_to :initiated_by_agent, class_name: "Agent", optional: true
 
   has_many :chat_agents, dependent: :destroy
   has_many :agents, through: :chat_agents
@@ -40,6 +41,14 @@ class Chat < ApplicationRecord
   scope :kept, -> { undiscarded }
   scope :archived, -> { where.not(archived_at: nil) }
   scope :active, -> { where(archived_at: nil) }
+
+  # Scopes for agent-initiated conversations
+  scope :initiated, -> { where.not(initiated_by_agent_id: nil) }
+  scope :awaiting_human_response, -> {
+    initiated.where.not(
+      id: Message.where(role: "user").where.not(user_id: nil).select(:chat_id)
+    )
+  }
 
   # Available AI models grouped by category
   # Model IDs from OpenRouter API: https://openrouter.ai/api/v1/models
@@ -184,6 +193,23 @@ class Chat < ApplicationRecord
 
         AiResponseJob.perform_later(chat) unless chat.manual_responses?
       end
+      chat
+    end
+  end
+
+  # Create a chat initiated by an agent with their opening message
+  def self.initiate_by_agent!(agent, topic:, message:, reason: nil)
+    transaction do
+      chat = agent.account.chats.new(
+        title: topic,
+        manual_responses: true,
+        model_id: agent.model_id,
+        initiated_by_agent: agent,
+        initiation_reason: reason
+      )
+      chat.agent_ids = [ agent.id ]
+      chat.save!
+      chat.messages.create!(role: "assistant", agent: agent, content: message)
       chat
     end
   end
