@@ -120,7 +120,7 @@ class AgentInitiationDecisionJobTest < ActiveSupport::TestCase
 
     assert AuditLog.exists?(
       action: "agent_initiation_nothing",
-      data: { "reason" => "Could not extract decision from response" }
+      data: { "reason" => "Could not extract decision from response", "raw_response" => "This is not valid JSON" }
     )
   end
 

@@ -421,7 +421,7 @@
                         Object Data
                       </dt>
                       <dd>
-                        <div class="rounded-lg overflow-x-auto text-xs">
+                        <div class="rounded-lg overflow-x-auto text-xs select-text">
                           <Highlight language={json} code={JSON.stringify(selected_log.auditable, null, 2)} />
                         </div>
                       </dd>
@@ -434,7 +434,7 @@
             <!-- Additional Data -->
             {#if selected_log.data && Object.keys(selected_log.data).length > 0}
               <InfoCard title="Additional Data" icon="Database">
-                <div class="rounded-lg overflow-x-auto text-xs">
+                <div class="rounded-lg overflow-x-auto text-xs select-text">
                   <Highlight language={json} code={JSON.stringify(selected_log.data, null, 2)} />
                 </div>
               </InfoCard>

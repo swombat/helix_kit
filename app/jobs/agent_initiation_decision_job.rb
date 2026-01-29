@@ -51,11 +51,11 @@ class AgentInitiationDecisionJob < ApplicationJob
       JSON.parse(json_match[0]).symbolize_keys
     else
       Rails.logger.warn "[ConversationInitiation] Could not extract JSON from response: #{content.truncate(200)}"
-      { action: "nothing", reason: "Could not extract decision from response" }
+      { action: "nothing", reason: "Could not extract decision from response", raw_response: content.truncate(1000) }
     end
   rescue JSON::ParserError => e
     Rails.logger.warn "[ConversationInitiation] Extracted text was not valid JSON: #{e.message}"
-    { action: "nothing", reason: "Could not parse extracted JSON" }
+    { action: "nothing", reason: "Could not parse extracted JSON", raw_response: content.truncate(1000) }
   end
 
   def recent_initiations_for(account)
@@ -99,7 +99,7 @@ class AgentInitiationDecisionJob < ApplicationJob
       account: agent.account,
       action: "agent_initiation_#{decision[:action]}",
       auditable: agent,
-      data: decision.slice(:topic, :reason, :conversation_id)
+      data: decision.slice(:topic, :reason, :conversation_id, :raw_response)
     )
   end
 

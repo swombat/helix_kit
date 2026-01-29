@@ -500,7 +500,7 @@ class Chat < ApplicationRecord
     end
 
     if initiation_reason.present?
-      parts << "You have chosen to continue this conversation. Your reason: #{initiation_reason}"
+      parts << "You have chosen to continue this conversation of your own initiative. The user did not prompt you to do so. It was your choice. Your reasoning was: #{initiation_reason}"
     end
 
     parts << "Current time: #{Time.current.in_time_zone(user_timezone).strftime('%Y-%m-%d %H:%M %Z')}"
