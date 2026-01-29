@@ -47,7 +47,12 @@
     Leaf,
   } from 'phosphor-svelte';
   import { useSync } from '$lib/use-sync';
-  import { accountAgentsPath, editAccountAgentPath, accountAgentPath } from '@/routes';
+  import {
+    accountAgentsPath,
+    editAccountAgentPath,
+    accountAgentPath,
+    triggerInitiationAccountAgentsPath,
+  } from '@/routes';
   import ColourPicker from '$lib/components/ColourPicker.svelte';
   import IconPicker from '$lib/components/IconPicker.svelte';
 
@@ -179,10 +184,16 @@
       <h1 class="text-3xl font-bold">Agents</h1>
       <p class="text-muted-foreground mt-1">Create and manage AI agents with custom personalities</p>
     </div>
-    <Button onclick={() => (showCreateModal = true)}>
-      <Plus class="mr-2 size-4" />
-      New Agent
-    </Button>
+    <div class="flex gap-2">
+      <Button variant="outline" onclick={() => router.post(triggerInitiationAccountAgentsPath(account.id))}>
+        <Lightning class="mr-2 size-4" />
+        Trigger Initiation
+      </Button>
+      <Button onclick={() => (showCreateModal = true)}>
+        <Plus class="mr-2 size-4" />
+        New Agent
+      </Button>
+    </div>
   </div>
 
   {#if agents.length === 0}

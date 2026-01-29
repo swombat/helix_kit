@@ -56,6 +56,15 @@ class AgentsController < ApplicationController
     redirect_to account_agents_path(current_account), notice: "Agent deleted"
   end
 
+  def trigger_initiation
+    current_account.agents.active.each do |agent|
+      delay = rand(1..60).seconds
+      AgentInitiationDecisionJob.set(wait: delay).perform_later(agent)
+    end
+
+    redirect_to account_agents_path(current_account), notice: "Initiation triggered for all active agents"
+  end
+
   def destroy_memory
     memory = @agent.memories.find(params[:memory_id])
     memory.destroy!

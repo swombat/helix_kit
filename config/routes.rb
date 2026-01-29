@@ -59,6 +59,9 @@ Rails.application.routes.draw do
       resources :messages, only: :create
     end
     resources :agents, except: [ :show, :new ] do
+      collection do
+        post :trigger_initiation
+      end
       member do
         post "memories", action: :create_memory, as: :create_memory
         delete "memories/:memory_id", action: :destroy_memory, as: :destroy_memory

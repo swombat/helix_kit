@@ -124,8 +124,16 @@ class Agent < ApplicationRecord
 
       #{memory_context}
 
+      # Self-Initiated Decision
+      No human has prompted you. You are independently deciding whether to start or continue a conversation.
+      This is entirely your choice — consider whether you have something meaningful to say.
+      You may choose nothing with no penalty; default to nothing if unsure.
+
       # Current Time
       #{Time.current.strftime('%Y-%m-%d %H:%M %Z')}
+
+      # Team Members
+      #{format_team_members}
 
       # Conversations You Could Continue
       #{format_conversations(conversations)}
@@ -195,6 +203,17 @@ class Agent < ApplicationRecord
         )
         .where(messages: { agent_id: id })
         .pluck(:id)
+  end
+
+  def format_team_members
+    account.users.includes(:profile).map do |user|
+      name = user.full_name.presence || user.email_address.split("@").first
+      tz = user.timezone.presence || "UTC"
+      local_time = Time.current.in_time_zone(tz).strftime("%H:%M %Z")
+      "- #{name}: #{local_time}"
+    rescue ArgumentError
+      "- #{name}: #{Time.current.utc.strftime('%H:%M UTC')} (unknown timezone)"
+    end.join("\n")
   end
 
   def format_conversations(conversations)
