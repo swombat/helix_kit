@@ -86,7 +86,7 @@ class ManualAgentResponseJob < ApplicationJob
     llm.on_end_message do |msg|
       debug_info "Response complete - #{msg.content&.length || 0} chars"
       finalize_message!(msg)
-      @agent.notify_subscribers!(@ai_message, @chat) if @ai_message&.persisted?
+      @agent.notify_subscribers!(@ai_message, @chat) if @ai_message&.persisted? && initiation_reason.present?
     end
 
     debug_info "Sending request to LLM..."
