@@ -29,10 +29,10 @@ class ProcessTelegramUpdateJob < ApplicationJob
   def verify_deep_link(agent, param)
     return nil unless param.present?
 
-    user_id = Rails.application.message_verifier(:telegram_deep_link).verified(param)
-    return nil unless user_id
+    data = Rails.cache.read("telegram_deep_link:#{param}")
+    return nil unless data && data[:agent_id] == agent.id
 
-    agent.account.users.find_by(id: user_id)
+    agent.account.users.find_by(id: data[:user_id])
   end
 
   def send_unknown_user_message(agent, chat_id)

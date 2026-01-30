@@ -70,7 +70,10 @@ module TelegramNotifiable
   end
 
   def telegram_deep_link_for(user)
-    token = Rails.application.message_verifier(:telegram_deep_link).generate(user.id, expires_in: 7.days)
+    # Telegram deep link params only allow [A-Za-z0-9_] and max 64 chars,
+    # so we store a short random token in Rails cache instead of signing
+    token = SecureRandom.alphanumeric(32)
+    Rails.cache.write("telegram_deep_link:#{token}", { user_id: user.id, agent_id: id }, expires_in: 7.days)
     "https://t.me/#{telegram_bot_username}?start=#{token}"
   end
 
