@@ -39,6 +39,7 @@
   import ParticipantAvatars from '$lib/components/chat/ParticipantAvatars.svelte';
   import ThinkingBlock from '$lib/components/chat/ThinkingBlock.svelte';
   import ModerationIndicator from '$lib/components/chat/ModerationIndicator.svelte';
+  import AgentPickerDialog from '$lib/components/chat/AgentPickerDialog.svelte';
   import {
     accountChatMessagesPath,
     retryMessagePath,
@@ -48,6 +49,7 @@
     moderateAllAccountChatPath,
     fixHallucinatedToolCallsMessagePath,
   } from '@/routes';
+  import { addAgentAccountChatPath } from '@/routes';
   import { marked } from 'marked';
   import * as logging from '$lib/logging';
   import { formatTime, formatDate, formatDateTime } from '$lib/utils';
@@ -97,6 +99,7 @@
     models = [],
     agents = [],
     available_agents = [],
+    addable_agents = [],
     file_upload_config = {},
     telegram_deep_link: telegramDeepLink = null,
   } = $props();
@@ -185,8 +188,11 @@
 
   // Assign agent dialog state
   let assignAgentOpen = $state(false);
-  let selectedAgentId = $state(null);
   let assigningAgent = $state(false);
+
+  // Add agent dialog state
+  let addAgentOpen = $state(false);
+  let addAgentProcessing = $state(false);
 
   // Thinking streaming state
   let streamingThinking = $state({});
@@ -738,17 +744,31 @@
     router.post(endpoint, {}, { preserveScroll: true });
   }
 
-  function assignToAgent() {
-    if (!chat || !selectedAgentId) return;
+  function assignToAgent(agentId) {
+    if (!chat || !agentId) return;
     assigningAgent = true;
     router.post(
       assignAgentAccountChatPath(account.id, chat.id),
-      { agent_id: selectedAgentId },
+      { agent_id: agentId },
       {
         onFinish: () => {
           assigningAgent = false;
           assignAgentOpen = false;
-          selectedAgentId = null;
+        },
+      }
+    );
+  }
+
+  function addAgentToChat(agentId) {
+    if (!chat || !agentId) return;
+    addAgentProcessing = true;
+    router.post(
+      addAgentAccountChatPath(account.id, chat.id),
+      { agent_id: agentId },
+      {
+        onFinish: () => {
+          addAgentProcessing = false;
+          addAgentOpen = false;
         },
       }
     );
@@ -1158,6 +1178,12 @@
                   </DropdownMenu.Item>
                 {/if}
                 <DropdownMenu.Separator />
+              {/if}
+              {#if chat.manual_responses && addable_agents.length > 0}
+                <DropdownMenu.Item onclick={() => (addAgentOpen = true)}>
+                  <Robot size={16} class="mr-2" weight="duotone" />
+                  Add Agent
+                </DropdownMenu.Item>
               {/if}
 
               <DropdownMenu.Item onclick={forkConversation}>
@@ -1734,50 +1760,25 @@
 {/if}
 
 <!-- Assign Agent Dialog -->
-<Dialog.Root bind:open={assignAgentOpen}>
-  <Dialog.Content class="max-w-md">
-    <Dialog.Header>
-      <Dialog.Title>Assign to Agent</Dialog.Title>
-      <Dialog.Description>
-        Select an agent to take over this conversation. The agent will be informed that previous messages were with a
-        model that had no identity or memories.
-      </Dialog.Description>
-    </Dialog.Header>
+<AgentPickerDialog
+  bind:open={assignAgentOpen}
+  agents={available_agents}
+  title="Assign to Agent"
+  description="Select an agent to take over this conversation. The agent will be informed that previous messages were with a model that had no identity or memories."
+  confirmLabel="Assign"
+  confirmingLabel="Assigning..."
+  processing={assigningAgent}
+  onconfirm={assignToAgent} />
 
-    <div class="py-4">
-      <Select.Root type="single" value={selectedAgentId} onValueChange={(value) => (selectedAgentId = value)}>
-        <Select.Trigger class="w-full">
-          {#if selectedAgentId}
-            {available_agents.find((a) => a.id === selectedAgentId)?.name ?? 'Select an agent'}
-          {:else}
-            Select an agent
-          {/if}
-        </Select.Trigger>
-        <Select.Content sideOffset={4} class="max-h-60">
-          {#each available_agents as agent (agent.id)}
-            <Select.Item value={agent.id} label={agent.name}>
-              <span class="flex items-center gap-2">
-                <Robot size={14} weight="duotone" />
-                {agent.name}
-              </span>
-            </Select.Item>
-          {/each}
-        </Select.Content>
-      </Select.Root>
-    </div>
-
-    <Dialog.Footer>
-      <Button variant="outline" onclick={() => (assignAgentOpen = false)}>Cancel</Button>
-      <Button onclick={assignToAgent} disabled={!selectedAgentId || assigningAgent}>
-        {#if assigningAgent}
-          <Spinner size={16} class="mr-2 animate-spin" />
-          Assigning...
-        {:else}
-          Assign
-        {/if}
-      </Button>
-    </Dialog.Footer>
-  </Dialog.Content>
-</Dialog.Root>
+<!-- Add Agent Dialog -->
+<AgentPickerDialog
+  bind:open={addAgentOpen}
+  agents={addable_agents}
+  title="Add Agent to Conversation"
+  description="Select an agent to add to this group chat."
+  confirmLabel="Add"
+  confirmingLabel="Adding..."
+  processing={addAgentProcessing}
+  onconfirm={addAgentToChat} />
 
 <ImageLightbox bind:open={lightboxOpen} file={lightboxImage} />

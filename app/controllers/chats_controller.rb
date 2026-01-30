@@ -66,6 +66,7 @@ class ChatsController < ApplicationController
       models: available_models,
       agents: @chat.group_chat? ? @chat.agents.as_json : [],
       available_agents: available_agents,
+      addable_agents: addable_agents_for_chat,
       file_upload_config: file_upload_config,
       telegram_deep_link: telegram_deep_link_for_chat
     }
@@ -157,6 +158,33 @@ class ChatsController < ApplicationController
     redirect_to account_chat_path(current_account, @chat)
   end
 
+  def add_agent
+    unless @chat.group_chat?
+      redirect_back_or_to account_chat_path(current_account, @chat),
+        alert: "Can only add agents to group chats"
+      return
+    end
+
+    agent = current_account.agents.find(params[:agent_id])
+
+    if @chat.agents.include?(agent)
+      redirect_back_or_to account_chat_path(current_account, @chat),
+        alert: "#{agent.name} is already in this conversation"
+      return
+    end
+
+    @chat.transaction do
+      @chat.agents << agent
+      @chat.messages.create!(
+        role: "user",
+        content: "[System Notice] #{agent.name} has joined the conversation."
+      )
+    end
+
+    audit("add_agent_to_chat", @chat, agent_id: agent.id)
+    redirect_to account_chat_path(current_account, @chat)
+  end
+
   def fork
     new_title = params[:title].presence || "#{@chat.title_or_default} (Fork)"
     forked_chat = @chat.fork_with_title!(new_title)
@@ -245,6 +273,11 @@ class ChatsController < ApplicationController
 
   def available_agents
     current_account.agents.active.as_json
+  end
+
+  def addable_agents_for_chat
+    return [] unless @chat.group_chat?
+    current_account.agents.active.where.not(id: @chat.agent_ids).as_json
   end
 
   def chat_json_with_whiteboard
