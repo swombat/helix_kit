@@ -7,7 +7,7 @@
   import { Switch } from '$lib/components/shadcn/switch';
   import * as Select from '$lib/components/shadcn/select/index.js';
   import { ArrowLeft, Brain, BookOpen, Warning, Trash, Plus } from 'phosphor-svelte';
-  import { accountAgentsPath, accountAgentPath } from '@/routes';
+  import { accountAgentsPath, accountAgentPath, sendTestTelegramAccountAgentPath } from '@/routes';
   import ColourPicker from '$lib/components/ColourPicker.svelte';
   import IconPicker from '$lib/components/IconPicker.svelte';
   import { useSync } from '$lib/use-sync';
@@ -15,6 +15,7 @@
   let {
     agent,
     telegram_deep_link: telegramDeepLink = null,
+    telegram_subscriber_count: telegramSubscriberCount = 0,
     memories = [],
     grouped_models = {},
     available_tools = [],
@@ -29,6 +30,7 @@
   });
 
   let selectedModel = $state(agent.model_id);
+  let sendingTestNotification = $state(false);
 
   // Helper function to check if model supports thinking
   function modelSupportsThinking(modelId) {
@@ -87,6 +89,20 @@
         preserveScroll: true,
       });
     }
+  }
+
+  function sendTestNotification() {
+    sendingTestNotification = true;
+    router.post(
+      sendTestTelegramAccountAgentPath(account.id, agent.id),
+      {},
+      {
+        preserveScroll: true,
+        onFinish() {
+          sendingTestNotification = false;
+        },
+      }
+    );
   }
 
   let showNewMemoryForm = $state(false);
@@ -385,6 +401,25 @@
               <code class="text-xs block p-2 bg-background rounded border break-all">
                 {telegramDeepLink}
               </code>
+            </div>
+
+            <div class="p-3 rounded-lg bg-muted/50 space-y-2">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm font-medium">Test Notifications</p>
+                  <p class="text-xs text-muted-foreground">
+                    {telegramSubscriberCount} subscriber{telegramSubscriberCount === 1 ? '' : 's'} connected
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={sendingTestNotification || telegramSubscriberCount === 0}
+                  onclick={sendTestNotification}>
+                  {sendingTestNotification ? 'Sending...' : 'Send Test Notification'}
+                </Button>
+              </div>
             </div>
           {/if}
         </CardContent>

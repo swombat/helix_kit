@@ -1,7 +1,7 @@
 class AgentsController < ApplicationController
 
   require_feature_enabled :agents
-  before_action :set_agent, only: [ :edit, :update, :destroy, :create_memory, :destroy_memory ]
+  before_action :set_agent, only: [ :edit, :update, :destroy, :create_memory, :destroy_memory, :send_test_telegram ]
 
   def index
     @agents = current_account.agents.by_name
@@ -34,6 +34,7 @@ class AgentsController < ApplicationController
         "telegram_bot_token" => @agent.telegram_bot_token
       ),
       telegram_deep_link: @agent.telegram_configured? ? @agent.telegram_deep_link_for(Current.user) : nil,
+      telegram_subscriber_count: @agent.telegram_subscriptions.active.count,
       memories: memories_for_display,
       grouped_models: grouped_models,
       available_tools: tools_for_frontend,
@@ -83,6 +84,25 @@ class AgentsController < ApplicationController
       redirect_to edit_account_agent_path(current_account, @agent),
                   inertia: { errors: memory.errors.to_hash }
     end
+  end
+
+  def send_test_telegram
+    unless @agent.telegram_configured?
+      return redirect_to edit_account_agent_path(current_account, @agent), alert: "Telegram bot is not configured."
+    end
+
+    subscriptions = @agent.telegram_subscriptions.active
+    if subscriptions.none?
+      return redirect_to edit_account_agent_path(current_account, @agent), alert: "No users have connected to this bot yet."
+    end
+
+    subscriptions.each do |sub|
+      @agent.telegram_send_message(sub.telegram_chat_id, "Test notification from #{@agent.name}.\n\nIf you see this, Telegram notifications are working!")
+    end
+
+    redirect_to edit_account_agent_path(current_account, @agent), notice: "Test notification sent to #{subscriptions.count} subscriber(s)."
+  rescue TelegramNotifiable::TelegramError => e
+    redirect_to edit_account_agent_path(current_account, @agent), alert: "Telegram error: #{e.message}"
   end
 
   private

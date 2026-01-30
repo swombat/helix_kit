@@ -68,6 +68,7 @@ Rails.application.routes.draw do
       member do
         post "memories", action: :create_memory, as: :create_memory
         delete "memories/:memory_id", action: :destroy_memory, as: :destroy_memory
+        post :send_test_telegram
       end
     end
     resources :whiteboards, only: [ :index, :update ]

@@ -221,4 +221,49 @@ class AgentsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to edit_account_agent_path(@account, @agent)
   end
 
+  # Send test telegram tests
+
+  test "send_test_telegram redirects with error when telegram not configured" do
+    post send_test_telegram_account_agent_path(@account, @agent)
+
+    assert_redirected_to edit_account_agent_path(@account, @agent)
+    assert_match(/not configured/, flash[:alert])
+  end
+
+  test "send_test_telegram redirects with error when no subscribers" do
+    @agent.update!(telegram_bot_token: "123:ABC", telegram_bot_username: "test_bot")
+
+    post send_test_telegram_account_agent_path(@account, @agent)
+
+    assert_redirected_to edit_account_agent_path(@account, @agent)
+    assert_match(/No users have connected/, flash[:alert])
+  end
+
+  test "send_test_telegram sends to subscribers and redirects with success" do
+    @agent.update!(telegram_bot_token: "123:ABC", telegram_bot_username: "test_bot")
+    @agent.telegram_subscriptions.create!(user: @user, telegram_chat_id: 12345)
+
+    # Stub Net::HTTP.post to return a successful Telegram response
+    fake_response = Struct.new(:body).new({ "ok" => true, "result" => {} }.to_json)
+    Net::HTTP.stub(:post, fake_response) do
+      post send_test_telegram_account_agent_path(@account, @agent)
+    end
+
+    assert_redirected_to edit_account_agent_path(@account, @agent)
+    assert_match(/Test notification sent to 1 subscriber/, flash[:notice])
+  end
+
+  test "send_test_telegram handles telegram API error" do
+    @agent.update!(telegram_bot_token: "123:ABC", telegram_bot_username: "test_bot")
+    @agent.telegram_subscriptions.create!(user: @user, telegram_chat_id: 12345)
+
+    fake_response = Struct.new(:body).new({ "ok" => false, "description" => "Bot was blocked" }.to_json)
+    Net::HTTP.stub(:post, fake_response) do
+      post send_test_telegram_account_agent_path(@account, @agent)
+    end
+
+    assert_redirected_to edit_account_agent_path(@account, @agent)
+    assert_match(/Telegram error/, flash[:alert])
+  end
+
 end
