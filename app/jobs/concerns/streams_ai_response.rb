@@ -27,7 +27,9 @@ module StreamsAiResponse
     flush_all_buffers
 
     # Use RubyLLM's thinking attribute (authoritative source) with buffer fallback
-    thinking_content = ruby_llm_message.thinking.presence || @thinking_accumulated.presence
+    # Extract .text from RubyLLM::Thinking objects (RubyLLM 1.10+ returns objects, not strings)
+    raw_thinking = ruby_llm_message.thinking
+    thinking_content = (raw_thinking.respond_to?(:text) ? raw_thinking.text : raw_thinking).presence || @thinking_accumulated.presence
 
     # Use RubyLLM's content with fallback to accumulated streaming content or existing DB content
     # This prevents the update! from overwriting content that was already saved during streaming
@@ -108,8 +110,9 @@ module StreamsAiResponse
   end
 
   def enqueue_thinking_chunk(chunk)
-    @thinking_buffer << chunk.to_s
-    @thinking_accumulated << chunk.to_s
+    text = chunk.respond_to?(:text) ? chunk.text : chunk.to_s
+    @thinking_buffer << text
+    @thinking_accumulated << text
 
     if thinking_flush_due?
       chunk_to_send = @thinking_buffer
