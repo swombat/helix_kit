@@ -110,7 +110,7 @@ module StreamsAiResponse
   end
 
   def enqueue_thinking_chunk(chunk)
-    text = chunk.respond_to?(:text) ? chunk.text : chunk.to_s
+    text = (chunk.respond_to?(:text) ? chunk.text : chunk).to_s
     @thinking_buffer << text
     @thinking_accumulated << text
 
