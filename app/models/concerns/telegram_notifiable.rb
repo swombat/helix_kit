@@ -56,7 +56,8 @@ module TelegramNotifiable
 
   def telegram_webhook_secret
     Base64.urlsafe_encode64(
-      Rails.application.key_generator.generate_key("telegram_webhook_secret:#{id}", 32)
+      Rails.application.key_generator.generate_key("telegram_webhook_secret:#{id}", 32),
+      padding: false
     )
   end
 
