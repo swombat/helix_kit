@@ -7,10 +7,10 @@ class ManualAgentResponseJob < ApplicationJob
   include BroadcastsDebug
 
   retry_on RubyLLM::ModelNotFoundError, wait: 5.seconds, attempts: 2
-  retry_on RubyLLM::BadRequestError, wait: :polynomially_longer, attempts: 3
-  retry_on RubyLLM::ServerError, wait: :polynomially_longer, attempts: 3
-  retry_on RubyLLM::RateLimitError, wait: :polynomially_longer, attempts: 5
-  retry_on Faraday::Error, wait: :polynomially_longer, attempts: 3
+  retry_on RubyLLM::BadRequestError, wait: :polynomially_later, attempts: 3
+  retry_on RubyLLM::ServerError, wait: :polynomially_later, attempts: 3
+  retry_on RubyLLM::RateLimitError, wait: :polynomially_later, attempts: 5
+  retry_on Faraday::Error, wait: :polynomially_later, attempts: 3
 
   def perform(chat, agent, initiation_reason: nil)
     @chat = chat
@@ -86,6 +86,7 @@ class ManualAgentResponseJob < ApplicationJob
     llm.on_end_message do |msg|
       debug_info "Response complete - #{msg.content&.length || 0} chars"
       finalize_message!(msg)
+      @agent.notify_subscribers!(@ai_message, @chat) if @ai_message&.persisted?
     end
 
     debug_info "Sending request to LLM..."

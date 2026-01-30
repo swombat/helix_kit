@@ -5,6 +5,7 @@ class Agent < ApplicationRecord
   include ObfuscatesId
   include JsonAttributes
   include SyncAuthorizable
+  include TelegramNotifiable
 
   # Initiation limits
   INITIATION_CAP = 2
@@ -51,7 +52,8 @@ class Agent < ApplicationRecord
 
   json_attributes :name, :system_prompt, :reflection_prompt, :memory_reflection_prompt,
                   :model_id, :model_label, :enabled_tools, :active?, :colour, :icon,
-                  :memories_count, :thinking_enabled, :thinking_budget
+                  :memories_count, :thinking_enabled, :thinking_budget,
+                  :telegram_bot_username, :telegram_configured?
 
   def self.available_tools
     Dir[Rails.root.join("app/tools/*_tool.rb")].filter_map do |file|

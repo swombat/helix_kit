@@ -98,6 +98,7 @@
     agents = [],
     available_agents = [],
     file_upload_config = {},
+    telegram_deep_link: telegramDeepLink = null,
   } = $props();
 
   // Older messages loaded via pagination (not managed by Inertia)
@@ -214,6 +215,40 @@
   let editingMessageId = $state(null);
   let editingContent = $state('');
   let editSaving = $state(false);
+
+  // Telegram banner dismissal state
+  let telegramBannerDismissed = $state(false);
+
+  // Check localStorage for previously dismissed Telegram banners
+  $effect(() => {
+    if (browser && chat?.id) {
+      const dismissedAgents = JSON.parse(localStorage.getItem('telegram_banner_dismissed') || '{}');
+      // Find agent id from the deep link context - use first agent's id
+      const agentId = agents?.[0]?.id;
+      if (agentId && dismissedAgents[agentId]) {
+        telegramBannerDismissed = true;
+      } else {
+        telegramBannerDismissed = false;
+      }
+    }
+  });
+
+  function dismissTelegramBanner() {
+    telegramBannerDismissed = true;
+    if (browser) {
+      const agentId = agents?.[0]?.id;
+      if (agentId) {
+        const dismissed = JSON.parse(localStorage.getItem('telegram_banner_dismissed') || '{}');
+        dismissed[agentId] = true;
+        localStorage.setItem('telegram_banner_dismissed', JSON.stringify(dismissed));
+      }
+    }
+  }
+
+  // Telegram agent name for the banner
+  const telegramAgentName = $derived(
+    agents?.find((a) => a.telegram_configured)?.name || agents?.[0]?.name || 'this agent'
+  );
 
   // Check if current user is a site admin
   const isSiteAdmin = $derived($page.props.user?.site_admin ?? false);
@@ -1190,6 +1225,32 @@
         class="bg-red-100 dark:bg-red-900/50 border-b border-red-200 dark:border-red-800 px-4 py-2 text-sm text-red-800 dark:text-red-200">
         <WarningCircle size={16} class="inline mr-2" weight="fill" />
         This conversation is very long ({formatTokenCount(totalTokens)} tokens). Consider starting a new conversation.
+      </div>
+    {/if}
+
+    <!-- Telegram notification banner -->
+    {#if telegramDeepLink && !telegramBannerDismissed}
+      <div
+        class="border-b border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/30 px-4 py-2 text-sm flex items-center justify-between gap-3">
+        <div>
+          <span class="font-medium text-blue-800 dark:text-blue-200">Get notified on Telegram</span>
+          <span class="text-blue-700 dark:text-blue-300 ml-1">
+            -- Receive a notification when {telegramAgentName} reaches out.
+          </span>
+          <a
+            href={telegramDeepLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="ml-2 text-blue-600 dark:text-blue-400 underline hover:text-blue-800 dark:hover:text-blue-200">
+            Connect on Telegram
+          </a>
+        </div>
+        <button
+          onclick={dismissTelegramBanner}
+          class="flex-shrink-0 p-1 text-blue-400 hover:text-blue-600 dark:text-blue-500 dark:hover:text-blue-300"
+          title="Dismiss">
+          <X size={16} />
+        </button>
       </div>
     {/if}
 

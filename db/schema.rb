@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_28_074332) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_29_155831) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -77,12 +77,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_28_074332) do
     t.string "name", null: false
     t.text "reflection_prompt"
     t.text "system_prompt"
+    t.string "telegram_bot_token"
+    t.string "telegram_bot_username"
+    t.string "telegram_webhook_token"
     t.integer "thinking_budget", default: 10000
     t.boolean "thinking_enabled", default: false, null: false
     t.datetime "updated_at", null: false
     t.index ["account_id", "active"], name: "index_agents_on_account_id_and_active"
     t.index ["account_id", "name"], name: "index_agents_on_account_id_and_name", unique: true
     t.index ["account_id"], name: "index_agents_on_account_id"
+    t.index ["telegram_webhook_token"], name: "index_agents_on_telegram_webhook_token", unique: true
   end
 
   create_table "ai_models", force: :cascade do |t|
@@ -286,6 +290,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_28_074332) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "telegram_subscriptions", force: :cascade do |t|
+    t.bigint "agent_id", null: false
+    t.boolean "blocked", default: false
+    t.datetime "created_at", null: false
+    t.bigint "telegram_chat_id", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["agent_id", "telegram_chat_id"], name: "index_telegram_subscriptions_on_agent_id_and_telegram_chat_id", unique: true
+    t.index ["agent_id", "user_id"], name: "index_telegram_subscriptions_on_agent_id_and_user_id", unique: true
+    t.index ["agent_id"], name: "index_telegram_subscriptions_on_agent_id"
+    t.index ["user_id"], name: "index_telegram_subscriptions_on_user_id"
+  end
+
   create_table "tool_calls", force: :cascade do |t|
     t.jsonb "arguments", default: {}
     t.datetime "created_at", null: false
@@ -354,6 +371,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_28_074332) do
   add_foreign_key "profiles", "users"
   add_foreign_key "prompt_outputs", "accounts"
   add_foreign_key "sessions", "users"
+  add_foreign_key "telegram_subscriptions", "agents"
+  add_foreign_key "telegram_subscriptions", "users"
   add_foreign_key "tool_calls", "messages"
   add_foreign_key "whiteboards", "accounts"
 end

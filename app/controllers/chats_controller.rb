@@ -66,7 +66,8 @@ class ChatsController < ApplicationController
       models: available_models,
       agents: @chat.group_chat? ? @chat.agents.as_json : [],
       available_agents: available_agents,
-      file_upload_config: file_upload_config
+      file_upload_config: file_upload_config,
+      telegram_deep_link: telegram_deep_link_for_chat
     }
   end
 
@@ -259,6 +260,16 @@ class ChatsController < ApplicationController
       }
     end
     json
+  end
+
+  def telegram_deep_link_for_chat
+    telegram_agent = @chat.agents.detect(&:telegram_configured?)
+    return nil unless telegram_agent
+
+    existing_sub = telegram_agent.telegram_subscriptions.find_by(user: Current.user, blocked: false)
+    return nil if existing_sub
+
+    telegram_agent.telegram_deep_link_for(Current.user)
   end
 
   def can_manage_account?

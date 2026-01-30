@@ -14,6 +14,7 @@
 
   let {
     agent,
+    telegram_deep_link: telegramDeepLink = null,
     memories = [],
     grouped_models = {},
     available_tools = [],
@@ -51,6 +52,8 @@
       icon: agent.icon || null,
       thinking_enabled: agent.thinking_enabled || false,
       thinking_budget: agent.thinking_budget || 10000,
+      telegram_bot_username: agent.telegram_bot_username || '',
+      telegram_bot_token: agent.telegram_bot_token || '',
     },
   });
 
@@ -333,6 +336,55 @@
                   </div>
                 </label>
               {/each}
+            </div>
+          {/if}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Telegram Notifications</CardTitle>
+          <CardDescription>
+            Connect a Telegram bot to send notifications when this agent initiates conversations or replies.
+          </CardDescription>
+        </CardHeader>
+        <CardContent class="space-y-4">
+          <div class="space-y-2">
+            <Label for="telegram_bot_username">Bot Username</Label>
+            <Input
+              id="telegram_bot_username"
+              type="text"
+              bind:value={$form.agent.telegram_bot_username}
+              placeholder="e.g., my_agent_bot" />
+            <p class="text-xs text-muted-foreground">
+              Create a bot via <a
+                href="https://t.me/botfather"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="underline">@BotFather</a> on Telegram, then paste the username here.
+            </p>
+          </div>
+
+          <div class="space-y-2">
+            <Label for="telegram_bot_token">Bot Token</Label>
+            <Input
+              id="telegram_bot_token"
+              type="password"
+              bind:value={$form.agent.telegram_bot_token}
+              placeholder="123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11" />
+            <p class="text-xs text-muted-foreground">The API token provided by BotFather. Stored encrypted.</p>
+          </div>
+
+          {#if agent.telegram_configured}
+            <div class="p-3 rounded-lg bg-muted/50 space-y-2">
+              <p class="text-sm font-medium">Your Registration Link</p>
+              <p class="text-xs text-muted-foreground">
+                Use this to connect your own Telegram account for testing. Other users will see their own link in the
+                chat UI.
+              </p>
+              <code class="text-xs block p-2 bg-background rounded border break-all">
+                {telegramDeepLink}
+              </code>
             </div>
           {/if}
         </CardContent>

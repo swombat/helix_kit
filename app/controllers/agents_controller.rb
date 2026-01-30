@@ -30,7 +30,10 @@ class AgentsController < ApplicationController
 
   def edit
     render inertia: "agents/edit", props: {
-      agent: @agent.as_json,
+      agent: @agent.as_json.merge(
+        "telegram_bot_token" => @agent.telegram_bot_token
+      ),
+      telegram_deep_link: @agent.telegram_configured? ? @agent.telegram_deep_link_for(Current.user) : nil,
       memories: memories_for_display,
       grouped_models: grouped_models,
       available_tools: tools_for_frontend,
@@ -93,6 +96,7 @@ class AgentsController < ApplicationController
       :name, :system_prompt, :reflection_prompt, :memory_reflection_prompt,
       :model_id, :active, :colour, :icon,
       :thinking_enabled, :thinking_budget,
+      :telegram_bot_token, :telegram_bot_username,
       enabled_tools: []
     )
   end

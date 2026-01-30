@@ -211,6 +211,8 @@ class Chat < ApplicationRecord
       chat.save!
       chat.messages.create!(role: "assistant", agent: agent, content: message)
       chat
+    end.tap do |chat|
+      agent.notify_subscribers!(chat.messages.last, chat)
     end
   end
 
