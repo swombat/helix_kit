@@ -12,7 +12,7 @@ module TelegramNotifiable
     validates :telegram_bot_username, format: { with: /\A[a-zA-Z0-9_]+\z/ }, allow_blank: true
 
     before_save :set_telegram_webhook_token, if: :telegram_bot_token_changed?
-    after_update_commit :manage_telegram_webhook, if: :saved_change_to_telegram_bot_token?
+    after_update_commit :manage_telegram_webhook, if: -> { saved_change_to_telegram_bot_token? || saved_change_to_telegram_bot_username? }
   end
 
   def telegram_configured?
@@ -39,6 +39,11 @@ module TelegramNotifiable
     })
 
     Rails.logger.error("[Telegram] setWebhook failed for agent #{id}: #{result['description']}") unless result["ok"]
+  end
+
+  def telegram_webhook_info
+    return nil unless telegram_bot_token.present?
+    telegram_api_request("getWebhookInfo", {})
   end
 
   def delete_telegram_webhook!

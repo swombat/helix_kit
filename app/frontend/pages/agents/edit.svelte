@@ -7,7 +7,12 @@
   import { Switch } from '$lib/components/shadcn/switch';
   import * as Select from '$lib/components/shadcn/select/index.js';
   import { ArrowLeft, Brain, BookOpen, Warning, Trash, Plus } from 'phosphor-svelte';
-  import { accountAgentsPath, accountAgentPath, sendTestTelegramAccountAgentPath } from '@/routes';
+  import {
+    accountAgentsPath,
+    accountAgentPath,
+    sendTestTelegramAccountAgentPath,
+    registerTelegramWebhookAccountAgentPath,
+  } from '@/routes';
   import ColourPicker from '$lib/components/ColourPicker.svelte';
   import IconPicker from '$lib/components/IconPicker.svelte';
   import { useSync } from '$lib/use-sync';
@@ -31,6 +36,7 @@
 
   let selectedModel = $state(agent.model_id);
   let sendingTestNotification = $state(false);
+  let registeringWebhook = $state(false);
 
   // Helper function to check if model supports thinking
   function modelSupportsThinking(modelId) {
@@ -100,6 +106,20 @@
         preserveScroll: true,
         onFinish() {
           sendingTestNotification = false;
+        },
+      }
+    );
+  }
+
+  function registerWebhook() {
+    registeringWebhook = true;
+    router.post(
+      registerTelegramWebhookAccountAgentPath(account.id, agent.id),
+      {},
+      {
+        preserveScroll: true,
+        onFinish() {
+          registeringWebhook = false;
         },
       }
     );
@@ -418,6 +438,25 @@
                   disabled={sendingTestNotification || telegramSubscriberCount === 0}
                   onclick={sendTestNotification}>
                   {sendingTestNotification ? 'Sending...' : 'Send Test Notification'}
+                </Button>
+              </div>
+            </div>
+
+            <div class="p-3 rounded-lg bg-muted/50 space-y-2">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm font-medium">Webhook</p>
+                  <p class="text-xs text-muted-foreground">
+                    Re-register the webhook if Telegram isn't receiving updates.
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={registeringWebhook}
+                  onclick={registerWebhook}>
+                  {registeringWebhook ? 'Registering...' : 'Re-register Webhook'}
                 </Button>
               </div>
             </div>

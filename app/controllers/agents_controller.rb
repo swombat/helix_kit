@@ -1,7 +1,7 @@
 class AgentsController < ApplicationController
 
   require_feature_enabled :agents
-  before_action :set_agent, only: [ :edit, :update, :destroy, :create_memory, :destroy_memory, :send_test_telegram ]
+  before_action :set_agent, only: [ :edit, :update, :destroy, :create_memory, :destroy_memory, :send_test_telegram, :register_telegram_webhook ]
 
   def index
     @agents = current_account.agents.by_name
@@ -103,6 +103,22 @@ class AgentsController < ApplicationController
     redirect_to edit_account_agent_path(current_account, @agent), notice: "Test notification sent to #{subscriptions.count} subscriber(s)."
   rescue TelegramNotifiable::TelegramError => e
     redirect_to edit_account_agent_path(current_account, @agent), alert: "Telegram error: #{e.message}"
+  end
+
+  def register_telegram_webhook
+    unless @agent.telegram_configured?
+      return redirect_to edit_account_agent_path(current_account, @agent), alert: "Telegram bot is not configured."
+    end
+
+    @agent.set_telegram_webhook!
+    info = @agent.telegram_webhook_info
+    webhook_url = info&.dig("result", "url")
+
+    if webhook_url.present?
+      redirect_to edit_account_agent_path(current_account, @agent), notice: "Webhook registered: #{webhook_url}"
+    else
+      redirect_to edit_account_agent_path(current_account, @agent), alert: "Webhook registration may have failed. Check logs."
+    end
   end
 
   private
