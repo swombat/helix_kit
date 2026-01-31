@@ -52,7 +52,7 @@ class Agent < ApplicationRecord
 
   json_attributes :name, :system_prompt, :reflection_prompt, :memory_reflection_prompt,
                   :model_id, :model_label, :enabled_tools, :active?, :colour, :icon,
-                  :memories_count, :thinking_enabled, :thinking_budget,
+                  :memories_count, :memory_token_summary, :thinking_enabled, :thinking_budget,
                   :telegram_bot_username, :telegram_configured?
 
   def self.available_tools
@@ -96,6 +96,13 @@ class Agent < ApplicationRecord
   def memories_count
     raw = memories.group(:memory_type).count
     { core: raw.fetch("core", 0), journal: raw.fetch("journal", 0) }
+  end
+
+  def memory_token_summary
+    core_tokens = memories.core.sum("CEIL(CHAR_LENGTH(content) / 4.0)").to_i
+    active_journal_tokens = memories.active_journal.sum("CEIL(CHAR_LENGTH(content) / 4.0)").to_i
+    inactive_journal_tokens = memories.journal.where(created_at: ...AgentMemory::JOURNAL_WINDOW.ago).sum("CEIL(CHAR_LENGTH(content) / 4.0)").to_i
+    { core: core_tokens, active_journal: active_journal_tokens, inactive_journal: inactive_journal_tokens }
   end
 
   # Conversation initiation methods
@@ -166,6 +173,17 @@ class Agent < ApplicationRecord
       {"action": "initiate", "topic": "...", "message": "...", "reason": "..."}
       {"action": "nothing", "reason": "..."}
     PROMPT
+  end
+
+  # Memory refinement methods
+
+  def core_token_usage
+    memories.core.sum("CEIL(CHAR_LENGTH(content) / 4.0)").to_i
+  end
+
+  def needs_refinement?
+    return true if last_refinement_at.nil? || last_refinement_at < 1.week.ago
+    core_token_usage > AgentMemory::CORE_TOKEN_BUDGET
   end
 
   private

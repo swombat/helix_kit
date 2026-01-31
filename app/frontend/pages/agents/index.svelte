@@ -242,10 +242,22 @@
               {agent.system_prompt || 'No system prompt defined'}
             </p>
 
-            <div class="text-xs text-muted-foreground mb-4">
+            <div class="text-xs text-muted-foreground mb-2">
               <span class="font-medium">Model:</span>
               {agent.model_label || agent.model_id}
             </div>
+
+            {#if agent.memory_token_summary}
+              {@const mts = agent.memory_token_summary}
+              <div class="text-xs text-muted-foreground mb-4 flex flex-wrap gap-x-3 gap-y-0.5">
+                <span><span class="font-medium">Core:</span> {mts.core.toLocaleString()}t</span>
+                <span><span class="font-medium">Journal:</span> {mts.active_journal.toLocaleString()}t</span>
+                {#if mts.inactive_journal > 0}
+                  <span class="opacity-50"
+                    ><span class="font-medium">Inactive:</span> {mts.inactive_journal.toLocaleString()}t</span>
+                {/if}
+              </div>
+            {/if}
 
             {#if agent.enabled_tools?.length > 0}
               <div class="flex flex-wrap gap-1 mb-4">
