@@ -110,8 +110,15 @@
   let oldestId = $state(serverOldestId);
   let loadingMore = $state(false);
 
-  // Combined messages for display
-  const allMessages = $derived([...olderMessages, ...recentMessages]);
+  // Combined messages for display (deduplicated - recentMessages wins on overlap)
+  const allMessages = $derived.by(() => {
+    const seen = new Set();
+    return [...olderMessages, ...recentMessages].filter((m) => {
+      if (seen.has(m.id)) return false;
+      seen.add(m.id);
+      return true;
+    });
+  });
 
   // Token thresholds from server
   const thresholds = $derived($page.props.token_thresholds || { amber: 100_000, red: 150_000, critical: 200_000 });
@@ -149,9 +156,9 @@
     }
   });
 
-  // Update pagination state when server props change (only when not loading)
+  // Update pagination state when server props change, but only if we haven't paginated yet
   $effect(() => {
-    if (!loadingMore) {
+    if (olderMessages.length === 0) {
       hasMore = serverHasMore;
       oldestId = serverOldestId;
     }
