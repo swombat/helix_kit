@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_30_162500) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_30_164628) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -56,6 +56,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_30_162500) do
 
   create_table "agent_memories", force: :cascade do |t|
     t.bigint "agent_id", null: false
+    t.boolean "constitutional", default: false, null: false
     t.text "content", null: false
     t.datetime "created_at", null: false
     t.integer "memory_type", default: 0, null: false
@@ -72,6 +73,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_30_162500) do
     t.datetime "created_at", null: false
     t.jsonb "enabled_tools", default: [], null: false
     t.string "icon"
+    t.datetime "last_refinement_at"
     t.text "memory_reflection_prompt"
     t.string "model_id", default: "openrouter/auto", null: false
     t.string "name", null: false

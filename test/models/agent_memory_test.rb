@@ -58,4 +58,47 @@ class AgentMemoryTest < ActiveSupport::TestCase
     assert_includes memory.errors[:content].first, "too long"
   end
 
+  test "constitutional memory cannot be destroyed" do
+    memory = @agent.memories.create!(content: "Sacred belief", memory_type: :core, constitutional: true)
+    assert_not memory.destroy
+    assert AgentMemory.exists?(memory.id)
+  end
+
+  test "non-constitutional memory can be destroyed" do
+    memory = @agent.memories.create!(content: "Normal memory", memory_type: :core)
+    assert memory.destroy
+    assert_not AgentMemory.exists?(memory.id)
+  end
+
+  test "token_estimate returns roughly content length / 4" do
+    memory = @agent.memories.create!(content: "a" * 100, memory_type: :core)
+    assert_equal 25, memory.token_estimate
+  end
+
+  test "as_ledger_entry returns correct hash" do
+    memory = @agent.memories.create!(content: "Test", memory_type: :core, constitutional: true)
+    entry = memory.as_ledger_entry
+    assert_equal memory.id, entry[:id]
+    assert_equal "Test", entry[:content]
+    assert entry[:constitutional]
+    assert entry[:tokens].is_a?(Integer)
+  end
+
+  test "audit_refinement creates audit log" do
+    memory = @agent.memories.create!(content: "Test", memory_type: :core)
+    assert_difference "AuditLog.count", 1 do
+      memory.audit_refinement("update", "old", "new")
+    end
+    log = AuditLog.last
+    assert_equal "memory_refinement_update", log.action
+    assert_equal "old", log.data["before"]
+    assert_equal "new", log.data["after"]
+  end
+
+  test "constitutional scope returns only constitutional memories" do
+    @agent.memories.create!(content: "Normal", memory_type: :core)
+    @agent.memories.create!(content: "Protected", memory_type: :core, constitutional: true)
+    assert_equal 1, @agent.memories.constitutional.count
+  end
+
 end

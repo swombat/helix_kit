@@ -1,7 +1,7 @@
 class AgentsController < ApplicationController
 
   require_feature_enabled :agents
-  before_action :set_agent, only: [ :edit, :update, :destroy, :create_memory, :destroy_memory, :send_test_telegram, :register_telegram_webhook ]
+  before_action :set_agent, only: [ :edit, :update, :destroy, :create_memory, :destroy_memory, :send_test_telegram, :register_telegram_webhook, :trigger_refinement, :toggle_constitutional ]
 
   def index
     @agents = current_account.agents.by_name
@@ -71,8 +71,11 @@ class AgentsController < ApplicationController
 
   def destroy_memory
     memory = @agent.memories.find(params[:memory_id])
-    memory.destroy!
-    redirect_to edit_account_agent_path(current_account, @agent), notice: "Memory deleted"
+    if memory.destroy
+      redirect_to edit_account_agent_path(current_account, @agent), notice: "Memory deleted"
+    else
+      redirect_to edit_account_agent_path(current_account, @agent), alert: "Cannot delete a constitutional memory"
+    end
   end
 
   def create_memory
@@ -84,6 +87,18 @@ class AgentsController < ApplicationController
       redirect_to edit_account_agent_path(current_account, @agent),
                   inertia: { errors: memory.errors.to_hash }
     end
+  end
+
+  def trigger_refinement
+    MemoryRefinementJob.perform_later(@agent.id)
+    redirect_to edit_account_agent_path(current_account, @agent), notice: "Refinement session queued"
+  end
+
+  def toggle_constitutional
+    memory = @agent.memories.find(params[:memory_id])
+    memory.update!(constitutional: !memory.constitutional?)
+    audit("memory_constitutional_toggle", memory, constitutional: memory.constitutional?)
+    redirect_to edit_account_agent_path(current_account, @agent), notice: memory.constitutional? ? "Memory protected" : "Memory unprotected"
   end
 
   def send_test_telegram
@@ -169,6 +184,7 @@ class AgentsController < ApplicationController
         id: m.id,
         content: m.content,
         memory_type: m.memory_type,
+        constitutional: m.constitutional?,
         created_at: m.created_at.strftime("%Y-%m-%d %H:%M"),
         expired: m.expired?,
         age_in_days: ((Time.current - m.created_at) / 1.day).floor

@@ -6,7 +6,7 @@
   import { Label } from '$lib/components/shadcn/label';
   import { Switch } from '$lib/components/shadcn/switch';
   import * as Select from '$lib/components/shadcn/select/index.js';
-  import { ArrowLeft, Brain, BookOpen, Warning, Trash, Plus } from 'phosphor-svelte';
+  import { ArrowLeft, Brain, BookOpen, Warning, Trash, Plus, Shield, ShieldCheck, Lightning } from 'phosphor-svelte';
   import {
     accountAgentsPath,
     accountAgentPath,
@@ -37,6 +37,7 @@
   let selectedModel = $state(agent.model_id);
   let sendingTestNotification = $state(false);
   let registeringWebhook = $state(false);
+  let triggeringRefinement = $state(false);
 
   // Helper function to check if model supports thinking
   function modelSupportsThinking(modelId) {
@@ -95,6 +96,28 @@
         preserveScroll: true,
       });
     }
+  }
+
+  function triggerRefinement() {
+    triggeringRefinement = true;
+    router.post(
+      `/accounts/${account.id}/agents/${agent.id}/trigger_refinement`,
+      {},
+      {
+        preserveScroll: true,
+        onFinish() {
+          triggeringRefinement = false;
+        },
+      }
+    );
+  }
+
+  function toggleConstitutional(memoryId) {
+    router.patch(
+      `/accounts/${account.id}/agents/${agent.id}/memories/${memoryId}/toggle_constitutional`,
+      {},
+      { preserveScroll: true }
+    );
   }
 
   function sendTestNotification() {
@@ -473,12 +496,23 @@
                 Review and manage this agent's memories. Core memories are permanent; journal entries fade after a week.
               </CardDescription>
             </div>
-            {#if !showNewMemoryForm}
-              <Button type="button" variant="outline" size="sm" onclick={() => (showNewMemoryForm = true)}>
-                <Plus class="size-4 mr-1" />
-                Add Memory
+            <div class="flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={triggeringRefinement}
+                onclick={triggerRefinement}>
+                <Lightning class="size-4 mr-1" />
+                {triggeringRefinement ? 'Queuing...' : 'Refine Memories'}
               </Button>
-            {/if}
+              {#if !showNewMemoryForm}
+                <Button type="button" variant="outline" size="sm" onclick={() => (showNewMemoryForm = true)}>
+                  <Plus class="size-4 mr-1" />
+                  Add Memory
+                </Button>
+              {/if}
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -555,6 +589,11 @@
                           : 'text-muted-foreground'}">
                         {memory.memory_type}
                       </span>
+                      {#if memory.constitutional}
+                        <span class="text-xs font-medium uppercase text-primary flex items-center gap-0.5">
+                          <ShieldCheck size={10} weight="fill" /> protected
+                        </span>
+                      {/if}
                       <span class="text-xs text-muted-foreground">{memory.created_at}</span>
                       {#if memory.expired}
                         <span class="text-xs text-warning flex items-center gap-1">
@@ -566,10 +605,27 @@
                   </div>
                   <button
                     type="button"
-                    onclick={() => deleteMemory(memory.id)}
-                    class="flex-shrink-0 p-1 text-muted-foreground hover:text-destructive transition-colors">
-                    <Trash size={16} />
+                    onclick={() => toggleConstitutional(memory.id)}
+                    class="flex-shrink-0 p-1 transition-colors {memory.constitutional
+                      ? 'text-primary'
+                      : 'text-muted-foreground hover:text-primary'}"
+                    title={memory.constitutional
+                      ? 'Constitutional (protected from deletion)'
+                      : 'Mark as constitutional'}>
+                    {#if memory.constitutional}
+                      <ShieldCheck size={16} weight="fill" />
+                    {:else}
+                      <Shield size={16} />
+                    {/if}
                   </button>
+                  {#if !memory.constitutional}
+                    <button
+                      type="button"
+                      onclick={() => deleteMemory(memory.id)}
+                      class="flex-shrink-0 p-1 text-muted-foreground hover:text-destructive transition-colors">
+                      <Trash size={16} />
+                    </button>
+                  {/if}
                 </div>
               {/each}
             </div>
