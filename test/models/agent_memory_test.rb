@@ -101,4 +101,40 @@ class AgentMemoryTest < ActiveSupport::TestCase
     assert_equal 1, @agent.memories.constitutional.count
   end
 
+  # Soft-delete (discard) tests
+
+  test "discard sets discarded_at" do
+    memory = @agent.memories.create!(content: "Test", memory_type: :core)
+    memory.discard!
+    assert memory.discarded?
+    assert_not AgentMemory.kept.exists?(memory.id)
+  end
+
+  test "constitutional memory cannot be discarded" do
+    memory = @agent.memories.create!(content: "Sacred", memory_type: :core, constitutional: true)
+    assert_not memory.discard
+    assert_not memory.discarded?
+  end
+
+  test "undiscard restores memory" do
+    memory = @agent.memories.create!(content: "Test", memory_type: :core)
+    memory.discard!
+    memory.undiscard!
+    assert_not memory.discarded?
+    assert AgentMemory.kept.exists?(memory.id)
+  end
+
+  test "for_prompt excludes discarded memories" do
+    memory = @agent.memories.create!(content: "Core", memory_type: :core)
+    assert_equal 1, @agent.memories.for_prompt.count
+    memory.discard!
+    assert_equal 0, @agent.memories.for_prompt.count
+  end
+
+  test "discarded scope returns discarded memories" do
+    memory = @agent.memories.create!(content: "Test", memory_type: :core)
+    memory.discard!
+    assert_equal 1, @agent.memories.discarded.count
+  end
+
 end

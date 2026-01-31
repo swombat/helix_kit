@@ -7,14 +7,18 @@ class MemoryRefinementJob < ApplicationJob
 
   def perform(agent_id = nil)
     if agent_id
+      Rails.logger.info "[Refinement] Starting for agent #{agent_id}"
       refine_agent(Agent.find(agent_id))
     else
+      Rails.logger.info "[Refinement] Sweep starting"
       Agent.active.find_each do |agent|
         next unless agent.needs_refinement?
+        Rails.logger.info "[Refinement] Agent #{agent.id} (#{agent.name}) needs refinement"
         refine_agent(agent)
       rescue => e
-        Rails.logger.error "Refinement failed for agent #{agent.id}: #{e.message}"
+        Rails.logger.error "[Refinement] Failed for agent #{agent.id}: #{e.message}"
       end
+      Rails.logger.info "[Refinement] Sweep complete"
     end
   end
 
@@ -22,10 +26,14 @@ class MemoryRefinementJob < ApplicationJob
 
   def refine_agent(agent)
     core_memories = agent.memories.core.order(:created_at)
-    return if core_memories.empty?
+    if core_memories.empty?
+      Rails.logger.info "[Refinement] Agent #{agent.id} (#{agent.name}) has no core memories, skipping"
+      return
+    end
 
     token_usage = agent.core_token_usage
     budget = AgentMemory::CORE_TOKEN_BUDGET
+    Rails.logger.info "[Refinement] Agent #{agent.id} (#{agent.name}): #{core_memories.size} memories, #{token_usage}/#{budget} tokens"
 
     tool = RefinementTool.new(agent: agent)
     prompt = build_refinement_prompt(agent, core_memories, token_usage, budget)
@@ -33,6 +41,8 @@ class MemoryRefinementJob < ApplicationJob
     chat = RubyLLM.chat(model: agent.model_id, provider: :openrouter, assume_model_exists: true)
     chat.with_tool(tool)
     chat.ask(prompt)
+
+    Rails.logger.info "[Refinement] Agent #{agent.id} (#{agent.name}) complete: #{tool.stats.inspect}"
   end
 
   def build_refinement_prompt(agent, memories, usage, budget)

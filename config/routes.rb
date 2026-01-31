@@ -69,6 +69,7 @@ Rails.application.routes.draw do
       member do
         post "memories", action: :create_memory, as: :create_memory
         delete "memories/:memory_id", action: :destroy_memory, as: :destroy_memory
+        post "memories/:memory_id/undiscard", action: :undiscard_memory, as: :undiscard_memory
         patch "memories/:memory_id/toggle_constitutional", action: :toggle_constitutional, as: :toggle_constitutional
         post :send_test_telegram
         post :register_telegram_webhook

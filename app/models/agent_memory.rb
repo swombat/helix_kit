@@ -1,6 +1,7 @@
 class AgentMemory < ApplicationRecord
 
   include Broadcastable
+  include Discard::Model
 
   JOURNAL_WINDOW = 1.week
   CORE_TOKEN_BUDGET = 5000
@@ -14,12 +15,13 @@ class AgentMemory < ApplicationRecord
   validates :content, presence: true, length: { maximum: 10_000 }
   validates :memory_type, presence: true
 
-  scope :active_journal, -> { journal.where(created_at: JOURNAL_WINDOW.ago..) }
-  scope :for_prompt, -> { where(memory_type: :core).or(active_journal).order(created_at: :asc) }
+  scope :active_journal, -> { kept.journal.where(created_at: JOURNAL_WINDOW.ago..) }
+  scope :for_prompt, -> { kept.where(memory_type: :core).or(kept.active_journal).order(created_at: :asc) }
   scope :recent_first, -> { order(created_at: :desc) }
-  scope :constitutional, -> { where(constitutional: true) }
+  scope :constitutional, -> { kept.where(constitutional: true) }
 
   before_destroy :prevent_constitutional_destruction
+  before_discard :prevent_constitutional_discard
 
   def expired?
     journal? && created_at < JOURNAL_WINDOW.ago
@@ -45,6 +47,10 @@ class AgentMemory < ApplicationRecord
   private
 
   def prevent_constitutional_destruction
+    throw(:abort) if constitutional?
+  end
+
+  def prevent_constitutional_discard
     throw(:abort) if constitutional?
   end
 

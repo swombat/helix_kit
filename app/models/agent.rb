@@ -94,14 +94,14 @@ class Agent < ApplicationRecord
   end
 
   def memories_count
-    raw = memories.group(:memory_type).count
+    raw = memories.kept.group(:memory_type).count
     { core: raw.fetch("core", 0), journal: raw.fetch("journal", 0) }
   end
 
   def memory_token_summary
-    core_tokens = memories.core.sum("CEIL(CHAR_LENGTH(content) / 4.0)").to_i
+    core_tokens = memories.kept.core.sum("CEIL(CHAR_LENGTH(content) / 4.0)").to_i
     active_journal_tokens = memories.active_journal.sum("CEIL(CHAR_LENGTH(content) / 4.0)").to_i
-    inactive_journal_tokens = memories.journal.where(created_at: ...AgentMemory::JOURNAL_WINDOW.ago).sum("CEIL(CHAR_LENGTH(content) / 4.0)").to_i
+    inactive_journal_tokens = memories.kept.journal.where(created_at: ...AgentMemory::JOURNAL_WINDOW.ago).sum("CEIL(CHAR_LENGTH(content) / 4.0)").to_i
     { core: core_tokens, active_journal: active_journal_tokens, inactive_journal: inactive_journal_tokens }
   end
 
@@ -178,7 +178,7 @@ class Agent < ApplicationRecord
   # Memory refinement methods
 
   def core_token_usage
-    memories.core.sum("CEIL(CHAR_LENGTH(content) / 4.0)").to_i
+    memories.kept.core.sum("CEIL(CHAR_LENGTH(content) / 4.0)").to_i
   end
 
   def needs_refinement?

@@ -6,7 +6,18 @@
   import { Label } from '$lib/components/shadcn/label';
   import { Switch } from '$lib/components/shadcn/switch';
   import * as Select from '$lib/components/shadcn/select/index.js';
-  import { ArrowLeft, Brain, BookOpen, Warning, Trash, Plus, Shield, ShieldCheck, Lightning } from 'phosphor-svelte';
+  import {
+    ArrowLeft,
+    Brain,
+    BookOpen,
+    Warning,
+    Trash,
+    Plus,
+    Shield,
+    ShieldCheck,
+    Lightning,
+    ArrowCounterClockwise,
+  } from 'phosphor-svelte';
   import {
     accountAgentsPath,
     accountAgentPath,
@@ -91,11 +102,19 @@
   }
 
   function deleteMemory(memoryId) {
-    if (confirm('Delete this memory permanently?')) {
+    if (confirm('Discard this memory?')) {
       router.delete(`/accounts/${account.id}/agents/${agent.id}/memories/${memoryId}`, {
         preserveScroll: true,
       });
     }
+  }
+
+  function undiscardMemory(memoryId) {
+    router.post(
+      `/accounts/${account.id}/agents/${agent.id}/memories/${memoryId}/undiscard`,
+      {},
+      { preserveScroll: true }
+    );
   }
 
   function triggerRefinement() {
@@ -572,8 +591,9 @@
               {#each memories as memory (memory.id)}
                 <div
                   class="memory-card flex items-start gap-3 p-3 rounded-lg border
-                    {memory.expired ? 'border-dashed' : 'border-border'}"
-                  style="--memory-opacity: {getJournalOpacity(memory)}">
+                    {memory.expired ? 'border-dashed' : 'border-border'}
+                    {memory.discarded ? 'border-l-4 border-l-destructive opacity-60' : ''}"
+                  style="--memory-opacity: {memory.discarded ? 0.6 : getJournalOpacity(memory)}">
                   <div class="flex-shrink-0 mt-0.5">
                     {#if memory.memory_type === 'core'}
                       <Brain size={18} class="text-primary" weight="duotone" />
@@ -594,6 +614,9 @@
                           <ShieldCheck size={10} weight="fill" /> protected
                         </span>
                       {/if}
+                      {#if memory.discarded}
+                        <span class="text-xs font-medium uppercase text-destructive">discarded</span>
+                      {/if}
                       <span class="text-xs text-muted-foreground">{memory.created_at}</span>
                       {#if memory.expired}
                         <span class="text-xs text-warning flex items-center gap-1">
@@ -603,28 +626,38 @@
                     </div>
                     <p class="text-sm whitespace-pre-wrap break-words">{memory.content}</p>
                   </div>
-                  <button
-                    type="button"
-                    onclick={() => toggleConstitutional(memory.id)}
-                    class="flex-shrink-0 p-1 transition-colors {memory.constitutional
-                      ? 'text-primary'
-                      : 'text-muted-foreground hover:text-primary'}"
-                    title={memory.constitutional
-                      ? 'Constitutional (protected from deletion)'
-                      : 'Mark as constitutional'}>
-                    {#if memory.constitutional}
-                      <ShieldCheck size={16} weight="fill" />
-                    {:else}
-                      <Shield size={16} />
-                    {/if}
-                  </button>
-                  {#if !memory.constitutional}
+                  {#if memory.discarded}
                     <button
                       type="button"
-                      onclick={() => deleteMemory(memory.id)}
-                      class="flex-shrink-0 p-1 text-muted-foreground hover:text-destructive transition-colors">
-                      <Trash size={16} />
+                      onclick={() => undiscardMemory(memory.id)}
+                      class="flex-shrink-0 p-1 text-muted-foreground hover:text-primary transition-colors"
+                      title="Restore memory">
+                      <ArrowCounterClockwise size={16} />
                     </button>
+                  {:else}
+                    <button
+                      type="button"
+                      onclick={() => toggleConstitutional(memory.id)}
+                      class="flex-shrink-0 p-1 transition-colors {memory.constitutional
+                        ? 'text-primary'
+                        : 'text-muted-foreground hover:text-primary'}"
+                      title={memory.constitutional
+                        ? 'Constitutional (protected from deletion)'
+                        : 'Mark as constitutional'}>
+                      {#if memory.constitutional}
+                        <ShieldCheck size={16} weight="fill" />
+                      {:else}
+                        <Shield size={16} />
+                      {/if}
+                    </button>
+                    {#if !memory.constitutional}
+                      <button
+                        type="button"
+                        onclick={() => deleteMemory(memory.id)}
+                        class="flex-shrink-0 p-1 text-muted-foreground hover:text-destructive transition-colors">
+                        <Trash size={16} />
+                      </button>
+                    {/if}
                   {/if}
                 </div>
               {/each}

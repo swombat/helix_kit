@@ -32,6 +32,15 @@ class RefinementToolTest < ActiveSupport::TestCase
     assert_equal 1, result[:count]
   end
 
+  test "search excludes discarded memories" do
+    m = @agent.memories.create!(content: "I love Ruby programming", memory_type: :core)
+    m.discard!
+
+    result = @tool.execute(action: "search", query: "Ruby")
+    assert_equal "search_results", result[:type]
+    assert_equal 0, result[:count]
+  end
+
   # Consolidate action
 
   test "consolidate merges memories into one" do
@@ -42,9 +51,9 @@ class RefinementToolTest < ActiveSupport::TestCase
     assert_equal "consolidated", result[:type]
     assert_equal 2, result[:merged_count]
 
-    assert_not AgentMemory.exists?(m1.id)
-    assert_not AgentMemory.exists?(m2.id)
-    assert @agent.memories.core.exists?(content: "Facts A and B combined")
+    assert m1.reload.discarded?
+    assert m2.reload.discarded?
+    assert @agent.memories.kept.core.exists?(content: "Facts A and B combined")
   end
 
   test "consolidate preserves earliest timestamp" do
@@ -54,7 +63,7 @@ class RefinementToolTest < ActiveSupport::TestCase
 
     @tool.execute(action: "consolidate", ids: "#{m1.id},#{m2.id}", content: "Combined")
 
-    new_memory = @agent.memories.core.find_by(content: "Combined")
+    new_memory = @agent.memories.kept.core.find_by(content: "Combined")
     assert_in_delta m1.created_at.to_f, new_memory.created_at.to_f, 1.0
   end
 
@@ -118,12 +127,12 @@ class RefinementToolTest < ActiveSupport::TestCase
 
   # Delete action
 
-  test "delete destroys memory" do
+  test "delete discards memory" do
     m = @agent.memories.create!(content: "To remove", memory_type: :core)
     result = @tool.execute(action: "delete", id: m.id.to_s)
 
     assert_equal "deleted", result[:type]
-    assert_not AgentMemory.exists?(m.id)
+    assert m.reload.discarded?
   end
 
   test "delete rejects constitutional memory" do
@@ -132,7 +141,7 @@ class RefinementToolTest < ActiveSupport::TestCase
 
     assert_equal "error", result[:type]
     assert_includes result[:error], "constitutional"
-    assert AgentMemory.exists?(m.id)
+    assert_not m.reload.discarded?
   end
 
   test "delete creates audit log" do

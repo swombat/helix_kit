@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_30_164628) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_31_074644) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -59,11 +59,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_30_164628) do
     t.boolean "constitutional", default: false, null: false
     t.text "content", null: false
     t.datetime "created_at", null: false
+    t.datetime "discarded_at"
     t.integer "memory_type", default: 0, null: false
     t.datetime "updated_at", null: false
     t.index ["agent_id", "created_at"], name: "index_agent_memories_on_agent_id_and_created_at"
     t.index ["agent_id", "memory_type"], name: "index_agent_memories_on_agent_id_and_memory_type"
     t.index ["agent_id"], name: "index_agent_memories_on_agent_id"
+    t.index ["discarded_at"], name: "index_agent_memories_on_discarded_at"
   end
 
   create_table "agents", force: :cascade do |t|

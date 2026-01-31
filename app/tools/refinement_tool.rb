@@ -28,6 +28,8 @@ class RefinementTool < RubyLLM::Tool
         desc: "Refinement summary (for complete)",
         required: false
 
+  attr_reader :stats
+
   def initialize(agent:)
     super()
     @agent = agent
@@ -35,6 +37,7 @@ class RefinementTool < RubyLLM::Tool
   end
 
   def execute(action:, **params)
+    Rails.logger.info "[Refinement] Agent #{@agent.id}: #{action}"
     return validation_error("Invalid action '#{action}'") unless ACTIONS.include?(action)
     send("#{action}_action", **params)
   end
@@ -44,7 +47,7 @@ class RefinementTool < RubyLLM::Tool
   def search_action(query: nil, **)
     return param_error("search", "query") if query.blank?
 
-    results = @agent.memories.core
+    results = @agent.memories.kept.core
                     .where("content ILIKE ?", "%#{AgentMemory.sanitize_sql_like(query)}%")
                     .order(:created_at)
                     .map(&:as_ledger_entry)
@@ -59,7 +62,7 @@ class RefinementTool < RubyLLM::Tool
     memory_ids = ids.split(",").map(&:strip).map(&:to_i)
     return { type: "error", error: "consolidate requires at least 2 memory IDs" } if memory_ids.size < 2
 
-    memories = @agent.memories.core.where(id: memory_ids)
+    memories = @agent.memories.kept.core.where(id: memory_ids)
     return { type: "error", error: "No matching memories found" } if memories.empty?
 
     constitutional = memories.select(&:constitutional?)
@@ -73,7 +76,7 @@ class RefinementTool < RubyLLM::Tool
       new_memory = @agent.memories.create!(content: content.strip, memory_type: :core, created_at: earliest)
 
       merged = memories.map { |m| { id: m.id, content: m.content } }
-      memories.each(&:destroy!)
+      memories.each(&:discard!)
 
       AuditLog.create!(
         action: "memory_refinement_consolidate",
@@ -97,7 +100,7 @@ class RefinementTool < RubyLLM::Tool
     return param_error("update", "id") if id.blank?
     return param_error("update", "content") if content.blank?
 
-    memory = @agent.memories.core.find_by(id: id)
+    memory = @agent.memories.kept.core.find_by(id: id)
     return { type: "error", error: "Memory ##{id} not found" } unless memory
 
     old_content = memory.content
@@ -111,12 +114,12 @@ class RefinementTool < RubyLLM::Tool
   def delete_action(id: nil, **)
     return param_error("delete", "id") if id.blank?
 
-    memory = @agent.memories.core.find_by(id: id)
+    memory = @agent.memories.kept.core.find_by(id: id)
     return { type: "error", error: "Memory ##{id} not found" } unless memory
     return { type: "error", error: "Cannot delete constitutional memory ##{id}" } if memory.constitutional?
 
     memory.audit_refinement("delete", memory.content, nil)
-    memory.destroy!
+    memory.discard!
     @stats[:deleted] += 1
 
     { type: "deleted", id: memory.id }
@@ -125,7 +128,7 @@ class RefinementTool < RubyLLM::Tool
   def protect_action(id: nil, **)
     return param_error("protect", "id") if id.blank?
 
-    memory = @agent.memories.core.find_by(id: id)
+    memory = @agent.memories.kept.core.find_by(id: id)
     return { type: "error", error: "Memory ##{id} not found" } unless memory
 
     memory.update!(constitutional: true)
