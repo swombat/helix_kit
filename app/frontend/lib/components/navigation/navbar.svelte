@@ -17,6 +17,7 @@
     ClockClockwise,
     CaretRight,
     Check,
+    Heartbeat,
   } from 'phosphor-svelte';
   import * as DropdownMenu from '$lib/components/shadcn/dropdown-menu/index.js';
   import { Button, buttonVariants } from '$lib/components/shadcn/button/index.js';
@@ -253,6 +254,10 @@
             <DropdownMenu.Item onclick={() => router.visit(editUserPath())}>
               <UserCircle class="mr-2 size-4" />
               <span>User Settings</span>
+            </DropdownMenu.Item>
+            <DropdownMenu.Item onclick={() => router.visit('/oura_integration')}>
+              <Heartbeat class="mr-2 size-4" />
+              <span>Oura Ring</span>
             </DropdownMenu.Item>
             {#if currentAccount?.id}
               <DropdownMenu.Item onclick={() => router.visit(accountPath(currentAccount.id))}>

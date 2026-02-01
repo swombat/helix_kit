@@ -21,6 +21,9 @@ class User < ApplicationRecord
   # API keys for external access
   has_many :api_keys, dependent: :destroy
 
+  # Integrations
+  has_one :oura_integration, dependent: :destroy
+
   # Broadcasting configuration - automatically broadcasts to all associated accounts
   broadcasts_to :accounts
 
@@ -102,6 +105,10 @@ class User < ApplicationRecord
     user = new(email_address: email_address)
     user.save!(validate: false)
     user
+  end
+
+  def oura_health_context
+    oura_integration&.health_context
   end
 
   def site_admin

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_31_074644) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_01_071832) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -251,6 +251,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_31_074644) do
     t.index ["user_id"], name: "index_messages_on_user_id"
   end
 
+  create_table "oura_integrations", force: :cascade do |t|
+    t.text "access_token"
+    t.datetime "created_at", null: false
+    t.boolean "enabled", default: true, null: false
+    t.jsonb "health_data", default: {}
+    t.datetime "health_data_synced_at"
+    t.text "refresh_token"
+    t.datetime "token_expires_at"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["user_id"], name: "index_oura_integrations_on_user_id", unique: true
+  end
+
   create_table "profiles", force: :cascade do |t|
     t.string "chat_colour"
     t.datetime "created_at", null: false
@@ -372,6 +385,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_31_074644) do
   add_foreign_key "messages", "ai_models"
   add_foreign_key "messages", "chats"
   add_foreign_key "messages", "users"
+  add_foreign_key "oura_integrations", "users"
   add_foreign_key "profiles", "users"
   add_foreign_key "prompt_outputs", "accounts"
   add_foreign_key "sessions", "users"

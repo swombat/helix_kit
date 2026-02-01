@@ -497,6 +497,10 @@ class Chat < ApplicationRecord
       parts << memory_context
     end
 
+    if (health_context = account.owner&.oura_health_context)
+      parts << health_context
+    end
+
     if (whiteboard_index = whiteboard_index_context)
       parts << whiteboard_index
     end

@@ -35,3 +35,8 @@ production:
     class: MemoryRefinementJob
     queue: default
     schedule: every monday at 4am
+
+  sync_oura_data:
+    class: SyncOuraDataJob
+    queue: default
+    schedule: every 4 hours
