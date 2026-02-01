@@ -6,4 +6,12 @@ class PagesController < ApplicationController
     render inertia: "home"
   end
 
+  def privacy
+    render inertia: "privacy"
+  end
+
+  def terms
+    render inertia: "terms"
+  end
+
 end
