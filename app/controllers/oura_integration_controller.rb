@@ -16,7 +16,7 @@ class OuraIntegrationController < ApplicationController
     session[:oura_oauth_state_expires_at] = 10.minutes.from_now.to_i
 
     integration = Current.user.oura_integration || Current.user.create_oura_integration!
-    redirect_to integration.authorization_url(state: state, redirect_uri: callback_oura_integration_url),
+    redirect_to integration.authorization_url(state: state, redirect_uri: oura_redirect_uri),
                 allow_other_host: true
   end
 
@@ -39,7 +39,7 @@ class OuraIntegrationController < ApplicationController
       return
     end
 
-    @integration.exchange_code!(code: params[:code], redirect_uri: callback_oura_integration_url)
+    @integration.exchange_code!(code: params[:code], redirect_uri: oura_redirect_uri)
 
     SyncOuraDataJob.perform_later(@integration.id)
 
@@ -74,6 +74,11 @@ class OuraIntegrationController < ApplicationController
 
   def set_integration
     @integration = Current.user.oura_integration
+  end
+
+  def oura_redirect_uri
+    base = Rails.application.credentials.dig(:app, :url) || request.base_url
+    "#{base}/oura_integration/callback"
   end
 
   def integration_params

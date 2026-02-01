@@ -10,7 +10,17 @@
   let syncing = $state(false);
 
   function connect() {
-    router.post('/oura_integration');
+    // Use native form submission so the browser follows the external redirect to Oura's OAuth page
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/oura_integration';
+    const csrf = document.createElement('input');
+    csrf.type = 'hidden';
+    csrf.name = 'authenticity_token';
+    csrf.value = document.querySelector('meta[name="csrf-token"]')?.content || '';
+    form.appendChild(csrf);
+    document.body.appendChild(form);
+    form.submit();
   }
 
   function disconnect() {
