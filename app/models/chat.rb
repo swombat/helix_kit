@@ -198,7 +198,9 @@ class Chat < ApplicationRecord
   end
 
   # Create a chat initiated by an agent with their opening message
-  def self.initiate_by_agent!(agent, topic:, message:, reason: nil)
+  def self.initiate_by_agent!(agent, topic:, message:, reason: nil, invite_agent_ids: [])
+    invited_agents = resolve_invited_agents(agent.account, invite_agent_ids)
+
     transaction do
       chat = agent.account.chats.new(
         title: topic,
@@ -207,13 +209,23 @@ class Chat < ApplicationRecord
         initiated_by_agent: agent,
         initiation_reason: reason
       )
-      chat.agent_ids = [ agent.id ]
+      chat.agent_ids = [ agent.id ] + invited_agents.map(&:id)
       chat.save!
       chat.messages.create!(role: "assistant", agent: agent, content: message)
       chat
     end.tap do |chat|
       agent.notify_subscribers!(chat.messages.last, chat)
+      invited_agents.each_with_index do |invited_agent, i|
+        delay = (i + 1).minutes
+        ManualAgentResponseJob.set(wait: delay).perform_later(chat, invited_agent)
+      end
     end
+  end
+
+  def self.resolve_invited_agents(account, obfuscated_ids)
+    return [] if obfuscated_ids.blank?
+    real_ids = obfuscated_ids.filter_map { |oid| Agent.decode_id(oid) }
+    account.agents.active.where(id: real_ids).to_a
   end
 
   def title_or_default

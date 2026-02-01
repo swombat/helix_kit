@@ -89,7 +89,8 @@ class AgentInitiationDecisionJob < ApplicationJob
         agent,
         topic: decision[:topic],
         message: decision[:message],
-        reason: decision[:reason]
+        reason: decision[:reason],
+        invite_agent_ids: decision[:invite_agents]
       )
     end
   end
@@ -99,7 +100,7 @@ class AgentInitiationDecisionJob < ApplicationJob
       account: agent.account,
       action: "agent_initiation_#{decision[:action]}",
       auditable: agent,
-      data: decision.slice(:topic, :reason, :conversation_id, :raw_response)
+      data: decision.slice(:topic, :reason, :conversation_id, :invite_agents, :raw_response)
     )
   end
 

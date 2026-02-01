@@ -168,10 +168,18 @@ class Agent < ApplicationRecord
       2. Start a new conversation (provide topic and opening message)
       3. Do nothing this cycle (provide reason)
 
+      # Other Agents You Can Invite
+      When starting a new conversation, you can optionally invite other agents to join.
+      They will respond shortly after your opening message.
+
+      #{format_available_agents}
+
       Respond with JSON only:
       {"action": "continue", "conversation_id": "abc123", "reason": "..."}
-      {"action": "initiate", "topic": "...", "message": "...", "reason": "..."}
+      {"action": "initiate", "topic": "...", "message": "...", "invite_agents": ["agent_id1"], "reason": "..."}
       {"action": "nothing", "reason": "..."}
+
+      Note: invite_agents is optional — only include it when another agent's perspective would be valuable.
     PROMPT
   end
 
@@ -211,6 +219,13 @@ class Agent < ApplicationRecord
     return unless journal.any?
 
     "## Recent Journal Entries\n" + journal.map { |m| "- [#{m.created_at.strftime('%Y-%m-%d')}] #{m.content}" }.join("\n")
+  end
+
+  def format_available_agents
+    others = account.agents.active.where.not(id: id)
+    return "No other agents available." if others.empty?
+
+    others.map { |a| "- #{a.to_param}: #{a.name}" }.join("\n")
   end
 
   # Conversation initiation helpers
