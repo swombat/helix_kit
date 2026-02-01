@@ -1,3 +1,6 @@
+require "net/http"
+require "json"
+
 module OuraApi
 
   extend ActiveSupport::Concern
@@ -26,7 +29,7 @@ module OuraApi
   end
 
   def exchange_code!(code:, redirect_uri:)
-    response = HTTParty.post(OURA_TOKEN_URL, body: {
+    response = post_form(OURA_TOKEN_URL, {
       grant_type: "authorization_code",
       code: code,
       client_id: oura_credentials(:client_id),
@@ -40,7 +43,7 @@ module OuraApi
   def refresh_tokens!
     return if token_fresh?
 
-    response = HTTParty.post(OURA_TOKEN_URL, body: {
+    response = post_form(OURA_TOKEN_URL, {
       grant_type: "refresh_token",
       refresh_token: refresh_token,
       client_id: oura_credentials(:client_id),
@@ -71,7 +74,9 @@ module OuraApi
 
   def revoke_token
     return unless access_token
-    HTTParty.get("https://api.ouraring.com/oauth/revoke", query: { access_token: access_token })
+    uri = URI("https://api.ouraring.com/oauth/revoke")
+    uri.query = URI.encode_www_form(access_token: access_token)
+    Net::HTTP.get_response(uri)
   rescue StandardError => e
     Rails.logger.warn("Oura token revocation failed: #{e.message}")
   end
@@ -84,7 +89,7 @@ module OuraApi
   end
 
   def save_tokens!(response)
-    raise Error, "Token exchange failed: #{response.code}" unless response.success?
+    raise Error, "Token exchange failed: #{response.code}" unless response.is_a?(Net::HTTPSuccess)
 
     data = JSON.parse(response.body)
     update!(
@@ -95,27 +100,34 @@ module OuraApi
   end
 
   def fetch_endpoint(path, start_date, end_date)
-    response = HTTParty.get(
-      "#{OURA_API_BASE}#{path}",
-      headers: { "Authorization" => "Bearer #{access_token}" },
-      query: { start_date: start_date.to_s, end_date: end_date.to_s }
-    )
+    uri = URI("#{OURA_API_BASE}#{path}")
+    uri.query = URI.encode_www_form(start_date: start_date.to_s, end_date: end_date.to_s)
 
-    if response.code == 401
+    request = Net::HTTP::Get.new(uri)
+    request["Authorization"] = "Bearer #{access_token}"
+
+    response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) { |http| http.request(request) }
+
+    if response.code == "401"
       update!(access_token: nil, token_expires_at: nil)
       return nil
     end
 
-    if response.code == 429
+    if response.code == "429"
       Rails.logger.warn("Oura rate limit hit for user #{user_id}")
       return nil
     end
 
-    return nil unless response.success?
+    return nil unless response.is_a?(Net::HTTPSuccess)
     JSON.parse(response.body)["data"]
   rescue StandardError => e
     Rails.logger.error("Oura API error for #{path}: #{e.message}")
     nil
+  end
+
+  def post_form(url, params)
+    uri = URI(url)
+    Net::HTTP.post_form(uri, params)
   end
 
 end
