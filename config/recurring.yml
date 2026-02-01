@@ -31,10 +31,10 @@ production:
     class: ConversationInitiationJob
     schedule: every hour at minute 0
 
-  memory_refinement:
-    class: MemoryRefinementJob
-    queue: default
-    schedule: every monday at 4am
+  # memory_refinement:
+  #   class: MemoryRefinementJob
+  #   queue: default
+  #   schedule: every monday at 4am
 
   sync_oura_data:
     class: SyncOuraDataJob
