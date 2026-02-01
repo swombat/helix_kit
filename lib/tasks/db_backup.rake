@@ -210,6 +210,12 @@ namespace :db_backup do
     puts "Database refresh completed."
   end
 
+  desc "Trigger a database backup on production via Kamal"
+  task :perform do
+    puts "Triggering database backup on production..."
+    system('kamal app exec -r web "bin/rails runner \'DatabaseBackupJob.perform_now\'"')
+  end
+
   desc "Create test agents in the Nexus account"
   task create_test_agents: :environment do
     DbBackupHelpers.ensure_not_production!
