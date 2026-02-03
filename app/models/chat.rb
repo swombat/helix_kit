@@ -497,8 +497,10 @@ class Chat < ApplicationRecord
       parts << memory_context
     end
 
-    if (health_context = account.owner&.oura_health_context)
-      parts << health_context
+    account.users.each do |user|
+      if (health_context = user.oura_health_context_labeled)
+        parts << health_context
+      end
     end
 
     if (whiteboard_index = whiteboard_index_context)

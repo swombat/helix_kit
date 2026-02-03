@@ -111,6 +111,14 @@ class User < ApplicationRecord
     oura_integration&.health_context
   end
 
+  def oura_health_context_labeled
+    oura_integration&.health_context_for(display_name)
+  end
+
+  def display_name
+    full_name.presence || email_address
+  end
+
   def site_admin
     return true if is_site_admin
 

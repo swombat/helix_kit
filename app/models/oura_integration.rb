@@ -21,6 +21,10 @@ class OuraIntegration < ApplicationRecord
   end
 
   def health_context
+    health_context_for(nil)
+  end
+
+  def health_context_for(owner_name)
     return unless enabled? && health_data.present?
 
     parts = [
@@ -31,7 +35,8 @@ class OuraIntegration < ApplicationRecord
 
     return if parts.empty?
 
-    "# Health Data from Oura Ring\n\n#{parts.join("\n\n")}"
+    header = owner_name ? "# #{owner_name}'s Health Data (Oura Ring)" : "# Health Data from Oura Ring"
+    "#{header}\n\n#{parts.join("\n\n")}"
   end
 
   def disconnect!
