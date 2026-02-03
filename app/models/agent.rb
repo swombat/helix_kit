@@ -168,18 +168,22 @@ class Agent < ApplicationRecord
       2. Start a new conversation (provide topic and opening message)
       3. Do nothing this cycle (provide reason)
 
-      # Other Agents You Can Invite
-      When starting a new conversation, you can optionally invite other agents to join.
-      They will respond shortly after your opening message.
+      # Reaching Out to Other Agents
+      To contact another agent directly, start a new conversation and include them in invite_agents.
+      This is how you communicate with other agents — they will respond shortly after your message.
 
+      Example: To reach out to Chris about something:
+      {"action": "initiate", "topic": "Discussion with Chris", "message": "Hey Chris, ...", "invite_agents": ["chris_id"], "reason": "Wanted to discuss X with Chris"}
+
+      Available agents you can contact:
       #{format_available_agents}
+
+      You can invite multiple agents for group discussions, or just one for a direct conversation.
 
       Respond with JSON only:
       {"action": "continue", "conversation_id": "abc123", "reason": "..."}
       {"action": "initiate", "topic": "...", "message": "...", "invite_agents": ["agent_id1"], "reason": "..."}
       {"action": "nothing", "reason": "..."}
-
-      Note: invite_agents is optional — only include it when another agent's perspective would be valuable.
     PROMPT
   end
 
