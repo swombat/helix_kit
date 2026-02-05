@@ -6,19 +6,7 @@ class ChatsController < ApplicationController
   before_action :require_site_admin, only: [ :moderate_all ]
 
   def index
-    # Show active chats first (kept and not archived), then archived chats at the bottom
-    # Optionally include discarded chats if admin requests them
-    base_scope = current_account.chats
-
-    if params[:show_deleted].present? && can_manage_account?
-      # Admin view: show all including discarded
-      @chats = base_scope.with_discarded.latest
-    else
-      # Normal view: kept chats, active first then archived
-      active_chats = base_scope.kept.active.latest
-      archived_chats = base_scope.kept.archived.latest
-      @chats = active_chats + archived_chats
-    end
+    @chats = sidebar_chats
 
     render inertia: "chats/new", props: {
       chats: Array(@chats).map(&:cached_json),
@@ -30,11 +18,7 @@ class ChatsController < ApplicationController
   end
 
   def new
-    # Same ordering as index: active first, then archived
-    base_scope = current_account.chats
-    active_chats = base_scope.kept.active.latest
-    archived_chats = base_scope.kept.archived.latest
-    @chats = active_chats + archived_chats
+    @chats = sidebar_chats
 
     render inertia: "chats/new", props: {
       chats: @chats.map(&:cached_json),
@@ -46,11 +30,7 @@ class ChatsController < ApplicationController
   end
 
   def show
-    # Same ordering as index: active first, then archived
-    base_scope = current_account.chats
-    active_chats = base_scope.kept.active.latest
-    archived_chats = base_scope.kept.archived.latest
-    @chats = active_chats + archived_chats
+    @chats = sidebar_chats
 
     # Use paginated messages - load most recent 30 by default
     @messages = @chat.messages_page
@@ -248,6 +228,27 @@ class ChatsController < ApplicationController
   end
 
   private
+
+  def sidebar_chats
+    base_scope = current_account.chats
+
+    if params[:show_deleted].present? && can_manage_account?
+      chats = base_scope.with_discarded
+    else
+      chats = base_scope.kept
+    end
+
+    # Filter out agent-only chats unless site admin has toggled them on
+    unless params[:show_agent_only].present? && Current.user&.site_admin
+      chats = chats.not_agent_only
+    end
+
+    if params[:show_deleted].present? && can_manage_account?
+      chats.latest
+    else
+      chats.active.latest + chats.archived.latest
+    end
+  end
 
   def set_chat
     # Use with_discarded to allow admins to find discarded chats for restore

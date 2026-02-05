@@ -6,6 +6,8 @@ class Chat < ApplicationRecord
   include SyncAuthorizable
   include JsonAttributes
 
+  AGENT_ONLY_PREFIX = "[AGENT-ONLY]"
+
   acts_as_chat model: :ai_model, model_class: "AiModel", model_foreign_key: :ai_model_id
 
   belongs_to :account
@@ -19,7 +21,7 @@ class Chat < ApplicationRecord
 
   json_attributes :title_or_default, :model_id, :model_label, :ai_model_name, :updated_at_formatted,
                   :updated_at_short, :message_count, :total_tokens, :web_access, :manual_responses,
-                  :participants_json, :archived_at, :discarded_at, :archived, :discarded, :respondable, :summary do |hash, options|
+                  :participants_json, :archived_at, :discarded_at, :archived, :discarded, :respondable, :agent_only, :summary do |hash, options|
     # For sidebar format, only include minimal attributes
     if options&.dig(:as) == :sidebar_json
       hash.slice!("id", "title_or_default", "updated_at_short")
@@ -41,6 +43,10 @@ class Chat < ApplicationRecord
   scope :kept, -> { undiscarded }
   scope :archived, -> { where.not(archived_at: nil) }
   scope :active, -> { where(archived_at: nil) }
+
+  # Scopes for agent-only threads (title starts with [AGENT-ONLY])
+  scope :agent_only, -> { where("title LIKE ?", "#{AGENT_ONLY_PREFIX}%") }
+  scope :not_agent_only, -> { where("title NOT LIKE ? OR title IS NULL", "#{AGENT_ONLY_PREFIX}%") }
 
   # Scopes for agent-initiated conversations
   scope :initiated, -> { where.not(initiated_by_agent_id: nil) }
@@ -242,6 +248,15 @@ class Chat < ApplicationRecord
 
   def title_or_default
     title.presence || "New Conversation"
+  end
+
+  def agent_only?
+    title&.start_with?(AGENT_ONLY_PREFIX)
+  end
+
+  # Alias for json_attributes
+  def agent_only
+    agent_only?
   end
 
   # Returns cached JSON representation, invalidated when chat is updated
@@ -529,6 +544,10 @@ class Chat < ApplicationRecord
 
     if Rails.env.development?
       parts << "**DEVELOPMENT TESTING MODE**: You are currently being tested on a development server using a production database backup. Any memories or changes you make will NOT be saved to the production server. This is a safe testing environment."
+    end
+
+    if agent_only?
+      parts << "**AGENT-ONLY THREAD**: This conversation is not visible to humans. You are communicating privately with other agents. No notifications are sent to human users for messages in this thread."
     end
 
     if initiation_reason.present?
