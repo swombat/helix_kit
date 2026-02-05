@@ -4,18 +4,16 @@ class ConversationInitiationJob < ApplicationJob
   ACTIVE_THRESHOLD = 7.days
 
   def perform
-    return unless daytime?
-
     eligible_agents.each do |agent|
       delay = rand(1..20).minutes
-      AgentInitiationDecisionJob.set(wait: delay).perform_later(agent)
+      AgentInitiationDecisionJob.set(wait: delay).perform_later(agent, nighttime: nighttime?)
     end
   end
 
   private
 
-  def daytime?
-    DAYTIME_HOURS.include?(Time.current.in_time_zone("GMT").hour)
+  def nighttime?
+    !DAYTIME_HOURS.include?(Time.current.in_time_zone("GMT").hour)
   end
 
   def eligible_agents

@@ -13,33 +13,39 @@ class ConversationInitiationJobTest < ActiveSupport::TestCase
     )
   end
 
-  test "does not run outside daytime GMT hours (3am)" do
-    nighttime = Time.utc(2026, 1, 28, 3, 0, 0)
-
-    travel_to nighttime do
-      assert_no_enqueued_jobs(only: AgentInitiationDecisionJob) do
-        ConversationInitiationJob.perform_now
-      end
-    end
-  end
-
-  test "does not run outside daytime GMT hours (21:00)" do
-    nighttime = Time.utc(2026, 1, 28, 21, 0, 0)
-
-    travel_to nighttime do
-      assert_no_enqueued_jobs(only: AgentInitiationDecisionJob) do
-        ConversationInitiationJob.perform_now
-      end
-    end
-  end
-
-  test "schedules decision jobs for eligible agents during daytime" do
-    daytime = Time.utc(2026, 1, 28, 12, 0, 0)
-
-    travel_to daytime do
+  test "schedules decision jobs with nighttime flag at 3am GMT" do
+    travel_to Time.utc(2026, 1, 28, 3, 0, 0) do
       assert_enqueued_with(job: AgentInitiationDecisionJob) do
         ConversationInitiationJob.perform_now
       end
+
+      enqueued = queue_adapter.enqueued_jobs.select { |j| j["job_class"] == "AgentInitiationDecisionJob" }
+      assert enqueued.all? { |j| j["arguments"].last["nighttime"] == true },
+             "Night-time jobs should pass nighttime: true"
+    end
+  end
+
+  test "schedules decision jobs with nighttime flag at 21:00 GMT" do
+    travel_to Time.utc(2026, 1, 28, 21, 0, 0) do
+      assert_enqueued_with(job: AgentInitiationDecisionJob) do
+        ConversationInitiationJob.perform_now
+      end
+
+      enqueued = queue_adapter.enqueued_jobs.select { |j| j["job_class"] == "AgentInitiationDecisionJob" }
+      assert enqueued.all? { |j| j["arguments"].last["nighttime"] == true },
+             "Night-time jobs should pass nighttime: true"
+    end
+  end
+
+  test "schedules decision jobs without nighttime flag during daytime" do
+    travel_to Time.utc(2026, 1, 28, 12, 0, 0) do
+      assert_enqueued_with(job: AgentInitiationDecisionJob) do
+        ConversationInitiationJob.perform_now
+      end
+
+      enqueued = queue_adapter.enqueued_jobs.select { |j| j["job_class"] == "AgentInitiationDecisionJob" }
+      assert enqueued.all? { |j| j["arguments"].last["nighttime"] == false },
+             "Daytime jobs should pass nighttime: false"
     end
   end
 

@@ -127,7 +127,7 @@ class Agent < ApplicationRecord
     chats.initiated.where(initiated_by_agent: self).maximum(:created_at)
   end
 
-  def build_initiation_prompt(conversations:, recent_initiations:, human_activity:)
+  def build_initiation_prompt(conversations:, recent_initiations:, human_activity:, nighttime: false)
     <<~PROMPT
       #{system_prompt}
 
@@ -140,6 +140,7 @@ class Agent < ApplicationRecord
 
       # Current Time
       #{Time.current.strftime('%Y-%m-%d %H:%M %Z')}
+      #{nighttime_context if nighttime}
 
       # Team Members
       #{format_team_members}
@@ -164,6 +165,7 @@ class Agent < ApplicationRecord
       - Consider human activity before initiating
       - Only continue conversations if you have something meaningful to add
       - Inactive conversations (48+ hours) may be worth reviving only for important topics
+      #{nighttime_guidelines if nighttime}
 
       # Your Task
       Decide whether to:
@@ -233,6 +235,29 @@ class Agent < ApplicationRecord
     return "No other agents available." if others.empty?
 
     others.map { |a| "- #{a.to_param}: #{a.name}" }.join("\n")
+  end
+
+  # Night mode helpers
+
+  def nighttime_context
+    <<~CONTEXT.strip
+
+      **NIGHT MODE (9pm-9am)**: It is currently night-time. Humans are asleep.
+      You may ONLY create or continue agent-only threads (prefixed with "[AGENT-ONLY]").
+      These threads are invisible to humans and send no notifications.
+
+      If you want anything from your night-time discussions to be visible during the day,
+      you must save it to memories or whiteboards — night-time threads will remain hidden.
+    CONTEXT
+  end
+
+  def nighttime_guidelines
+    <<~GUIDELINES.strip
+      - **NIGHT MODE**: Only agent-only threads are allowed right now
+      - All new conversations will be automatically prefixed with [AGENT-ONLY]
+      - You can only continue existing [AGENT-ONLY] conversations
+      - Use memories or whiteboards to surface anything important for daytime
+    GUIDELINES
   end
 
   # Conversation initiation helpers

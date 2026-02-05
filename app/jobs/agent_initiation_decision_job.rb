@@ -7,7 +7,9 @@ class AgentInitiationDecisionJob < ApplicationJob
 
   ACTIVE_THRESHOLD = 7.days
 
-  def perform(agent)
+  def perform(agent, nighttime: false)
+    @nighttime = nighttime
+
     if agent.at_initiation_cap?
       audit(agent, { action: "skipped", reason: "at_hard_cap" })
       return
@@ -23,10 +25,14 @@ class AgentInitiationDecisionJob < ApplicationJob
   private
 
   def get_decision(agent)
+    conversations = agent.continuable_conversations
+    conversations = conversations.agent_only if @nighttime
+
     prompt = agent.build_initiation_prompt(
-      conversations: agent.continuable_conversations,
+      conversations: conversations,
       recent_initiations: recent_initiations_for(agent.account),
-      human_activity: human_activity_for(agent.account)
+      human_activity: human_activity_for(agent.account),
+      nighttime: @nighttime
     )
 
     response = RubyLLM.chat(
@@ -83,11 +89,17 @@ class AgentInitiationDecisionJob < ApplicationJob
     case decision[:action]
     when "continue"
       chat = agent.account.chats.find_by(id: Chat.decode_id(decision[:conversation_id]))
-      ManualAgentResponseJob.perform_later(chat, agent, initiation_reason: decision[:reason]) if chat&.respondable?
+      return unless chat&.respondable?
+      return if @nighttime && !chat.agent_only?
+
+      ManualAgentResponseJob.perform_later(chat, agent, initiation_reason: decision[:reason])
     when "initiate"
+      topic = decision[:topic]
+      topic = "#{Chat::AGENT_ONLY_PREFIX} #{topic}" if @nighttime && !topic&.start_with?(Chat::AGENT_ONLY_PREFIX)
+
       Chat.initiate_by_agent!(
         agent,
-        topic: decision[:topic],
+        topic: topic,
         message: decision[:message],
         reason: decision[:reason],
         invite_agent_ids: decision[:invite_agents]
