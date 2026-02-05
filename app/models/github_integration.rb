@@ -30,11 +30,24 @@ class GithubIntegration < ApplicationRecord
   def commits_context
     return unless enabled? && recent_commits.present?
 
+    now = Time.current
     lines = recent_commits.map do |c|
-      "- #{c['sha']} #{c['date']}: #{c['message']} (#{c['author']})"
+      recency = commit_recency_label(c["date"], now)
+      prefix = recency ? " [#{recency}]" : ""
+      "- #{c['sha']} #{c['date']}: #{c['message']} (#{c['author']})#{prefix}"
     end
 
     "# Recent Commits to #{repository_full_name}\n\n#{lines.join("\n")}"
+  end
+
+  def formatted_commits(limit:)
+    return [] unless enabled? && recent_commits.present?
+
+    now = Time.current
+    recent_commits.first(limit).map do |c|
+      recency = commit_recency_label(c["date"], now)
+      { sha: c["sha"], message: c["message"], author: c["author"], date: c["date"], recency: recency }.compact
+    end
   end
 
   def disconnect!
@@ -44,6 +57,21 @@ class GithubIntegration < ApplicationRecord
       recent_commits: [],
       commits_synced_at: nil
     )
+  end
+
+  private
+
+  def commit_recency_label(date_string, now = Time.current)
+    return unless date_string.present?
+
+    commit_time = Time.parse(date_string) rescue return
+    hours_ago = (now - commit_time) / 1.hour
+
+    if hours_ago < 1
+      "JUST DEPLOYED"
+    elsif hours_ago < 12
+      "RECENTLY DEPLOYED"
+    end
   end
 
 end

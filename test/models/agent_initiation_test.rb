@@ -215,4 +215,37 @@ class AgentInitiationTest < ActiveSupport::TestCase
     assert_equal 48.hours, Agent::RECENTLY_INITIATED_WINDOW
   end
 
+  test "build_initiation_prompt includes github commits context when available" do
+    GithubIntegration.create!(
+      account: @account,
+      enabled: true,
+      repository_full_name: "owner/repo",
+      recent_commits: [
+        { "sha" => "abc12345", "date" => 30.minutes.ago.iso8601, "message" => "Deploy feature X", "author" => "Dev" }
+      ]
+    )
+
+    prompt = @agent.build_initiation_prompt(
+      conversations: [],
+      recent_initiations: [],
+      human_activity: []
+    )
+
+    assert_includes prompt, "# Recent Code Activity"
+    assert_includes prompt, "# Recent Commits to owner/repo"
+    assert_includes prompt, "Deploy feature X"
+    assert_includes prompt, "JUST DEPLOYED"
+  end
+
+  test "build_initiation_prompt shows no activity when no github integration" do
+    prompt = @agent.build_initiation_prompt(
+      conversations: [],
+      recent_initiations: [],
+      human_activity: []
+    )
+
+    assert_includes prompt, "# Recent Code Activity"
+    assert_includes prompt, "No recent code activity."
+  end
+
 end

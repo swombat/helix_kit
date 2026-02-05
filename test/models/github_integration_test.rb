@@ -229,6 +229,87 @@ class GithubIntegrationTest < ActiveSupport::TestCase
     assert_not_nil @integration.commits_synced_at
   end
 
+  # --- commits_context recency labels ---
+
+  test "commits_context marks commits less than 1 hour old as JUST DEPLOYED" do
+    @integration.update!(
+      enabled: true,
+      repository_full_name: "owner/repo",
+      recent_commits: [
+        { "sha" => "abc12345", "date" => 30.minutes.ago.iso8601, "message" => "Hot fix", "author" => "Dev" }
+      ]
+    )
+
+    assert_includes @integration.commits_context, "[JUST DEPLOYED]"
+  end
+
+  test "commits_context marks commits less than 12 hours old as RECENTLY DEPLOYED" do
+    @integration.update!(
+      enabled: true,
+      repository_full_name: "owner/repo",
+      recent_commits: [
+        { "sha" => "abc12345", "date" => 6.hours.ago.iso8601, "message" => "Feature", "author" => "Dev" }
+      ]
+    )
+
+    context = @integration.commits_context
+    assert_includes context, "[RECENTLY DEPLOYED]"
+    assert_not_includes context, "[JUST DEPLOYED]"
+  end
+
+  test "commits_context does not mark old commits" do
+    @integration.update!(
+      enabled: true,
+      repository_full_name: "owner/repo",
+      recent_commits: [
+        { "sha" => "abc12345", "date" => 2.days.ago.iso8601, "message" => "Old change", "author" => "Dev" }
+      ]
+    )
+
+    context = @integration.commits_context
+    assert_not_includes context, "DEPLOYED"
+  end
+
+  # --- formatted_commits ---
+
+  test "formatted_commits returns limited commits with recency" do
+    @integration.update!(
+      enabled: true,
+      recent_commits: [
+        { "sha" => "aaa", "date" => 30.minutes.ago.iso8601, "message" => "First", "author" => "Alice" },
+        { "sha" => "bbb", "date" => 6.hours.ago.iso8601, "message" => "Second", "author" => "Bob" },
+        { "sha" => "ccc", "date" => 2.days.ago.iso8601, "message" => "Third", "author" => "Carol" }
+      ]
+    )
+
+    results = @integration.formatted_commits(limit: 2)
+    assert_equal 2, results.length
+    assert_equal "JUST DEPLOYED", results[0][:recency]
+    assert_equal "RECENTLY DEPLOYED", results[1][:recency]
+  end
+
+  test "formatted_commits returns empty array when disabled" do
+    @integration.update!(enabled: false, recent_commits: [{ "sha" => "a", "date" => "2026-01-01", "message" => "x", "author" => "y" }])
+    assert_equal [], @integration.formatted_commits(limit: 10)
+  end
+
+  test "formatted_commits returns empty array when no commits" do
+    @integration.update!(enabled: true, recent_commits: [])
+    assert_equal [], @integration.formatted_commits(limit: 10)
+  end
+
+  test "formatted_commits omits nil recency" do
+    @integration.update!(
+      enabled: true,
+      recent_commits: [
+        { "sha" => "aaa", "date" => 2.days.ago.iso8601, "message" => "Old", "author" => "Dev" }
+      ]
+    )
+
+    result = @integration.formatted_commits(limit: 1).first
+    assert_not result.key?(:recency)
+  end
+
   # --- belongs_to account ---
 
   test "belongs to account" do

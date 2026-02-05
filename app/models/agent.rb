@@ -153,6 +153,9 @@ class Agent < ApplicationRecord
       # Human Activity
       #{format_human_activity(human_activity)}
 
+      # Recent Code Activity
+      #{format_github_commits}
+
       # Your Status
       #{initiation_status}
 
@@ -281,6 +284,10 @@ class Agent < ApplicationRecord
       name = user.full_name.presence || user.email_address.split("@").first
       "- #{name}: last active #{time_ago_in_words(timestamp)} ago"
     end.join("\n")
+  end
+
+  def format_github_commits
+    account.github_commits_context || "No recent code activity."
   end
 
   def initiation_status
