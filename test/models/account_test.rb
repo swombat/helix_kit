@@ -148,6 +148,43 @@ class AccountTest < ActiveSupport::TestCase
     end
   end
 
+  # === GitHub Integration Association Tests ===
+
+  test "has_one github_integration association" do
+    account = accounts(:team_account)
+    integration = GithubIntegration.create!(account: account)
+
+    assert_equal integration, account.github_integration
+  end
+
+  test "github_commits_context delegates to integration" do
+    account = accounts(:another_team)
+    integration = GithubIntegration.create!(
+      account: account,
+      enabled: true,
+      repository_full_name: "owner/repo",
+      recent_commits: [
+        { "sha" => "abc12345", "date" => "2026-02-05", "message" => "Fix bug", "author" => "Dev" }
+      ]
+    )
+
+    context = account.github_commits_context
+    assert_includes context, "# Recent Commits to owner/repo"
+    assert_includes context, "Fix bug (Dev)"
+  end
+
+  test "github_commits_context returns nil without integration" do
+    account = Account.create!(name: "No GitHub", account_type: :team)
+    assert_nil account.github_commits_context
+  end
+
+  test "github_commits_context returns nil when integration has no commits" do
+    account = Account.create!(name: "Empty GitHub", account_type: :team)
+    GithubIntegration.create!(account: account, enabled: true, recent_commits: [])
+
+    assert_nil account.github_commits_context
+  end
+
   # === Validation Tests ===
 
   test "validates name presence when not using callback" do

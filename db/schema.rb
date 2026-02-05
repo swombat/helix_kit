@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_01_071832) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_05_122857) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -199,6 +199,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_01_071832) do
     t.index ["web_access"], name: "index_chats_on_web_access"
   end
 
+  create_table "github_integrations", force: :cascade do |t|
+    t.text "access_token"
+    t.bigint "account_id", null: false
+    t.datetime "commits_synced_at"
+    t.datetime "created_at", null: false
+    t.boolean "enabled", default: true, null: false
+    t.string "github_username"
+    t.jsonb "recent_commits", default: []
+    t.string "repository_full_name"
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_github_integrations_on_account_id", unique: true
+  end
+
   create_table "memberships", force: :cascade do |t|
     t.bigint "account_id", null: false
     t.datetime "confirmation_sent_at"
@@ -378,6 +391,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_01_071832) do
   add_foreign_key "chats", "agents", column: "initiated_by_agent_id"
   add_foreign_key "chats", "ai_models"
   add_foreign_key "chats", "whiteboards", column: "active_whiteboard_id"
+  add_foreign_key "github_integrations", "accounts"
   add_foreign_key "memberships", "accounts"
   add_foreign_key "memberships", "users"
   add_foreign_key "memberships", "users", column: "invited_by_id"

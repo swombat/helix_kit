@@ -40,3 +40,7 @@ production:
     class: SyncOuraDataJob
     queue: default
     schedule: every 4 hours
+
+  sync_github_commits:
+    command: "GithubIntegration.sync_all_due!"
+    schedule: every hour at minute 15

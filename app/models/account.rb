@@ -20,6 +20,7 @@ class Account < ApplicationRecord
   has_many :chats, dependent: :destroy
   has_many :agents, dependent: :destroy
   has_many :whiteboards, dependent: :destroy
+  has_one :github_integration
 
   # Validations (Rails-only, no SQL constraints!)
   validates :name, presence: true
@@ -123,6 +124,10 @@ class Account < ApplicationRecord
 
   def members_count
     memberships.confirmed.count
+  end
+
+  def github_commits_context
+    github_integration&.commits_context
   end
 
   alias_method :active, :active?
