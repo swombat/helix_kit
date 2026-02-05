@@ -61,10 +61,10 @@ class Chat < ApplicationRecord
       thinking: { supported: true }
     },
     {
-      model_id: "anthropic/claude-opus-4.5",
-      label: "Claude Opus 4.5",
+      model_id: "anthropic/claude-opus-4.6",
+      label: "Claude Opus 4.6",
       group: "Top Models",
-      thinking: { supported: true, requires_direct_api: true, provider_model_id: "claude-opus-4-5-20251101" }
+      thinking: { supported: true, requires_direct_api: true, provider_model_id: "claude-opus-4-6" }
     },
     {
       model_id: "google/gemini-3-pro-preview",
@@ -97,12 +97,24 @@ class Chat < ApplicationRecord
 
     # Anthropic
     {
+      model_id: "anthropic/claude-opus-4.5",
+      label: "Claude Opus 4.5",
+      group: "Anthropic",
+      thinking: { supported: true, requires_direct_api: true, provider_model_id: "claude-opus-4-5-20251101" }
+    },
+    {
       model_id: "anthropic/claude-sonnet-4.5",
       label: "Claude Sonnet 4.5",
       group: "Anthropic",
-      thinking: { supported: true, requires_direct_api: true, provider_model_id: "claude-sonnet-4-5-20251201" }
+      thinking: { supported: true, requires_direct_api: true, provider_model_id: "claude-sonnet-4-5-20250929" }
     },
     { model_id: "anthropic/claude-haiku-4.5", label: "Claude Haiku 4.5", group: "Anthropic" },
+    {
+      model_id: "anthropic/claude-opus-4.1",
+      label: "Claude Opus 4.1",
+      group: "Anthropic",
+      thinking: { supported: true, requires_direct_api: true, provider_model_id: "claude-opus-4-1-20250805" }
+    },
     {
       model_id: "anthropic/claude-opus-4",
       label: "Claude Opus 4",
