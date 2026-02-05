@@ -21,7 +21,7 @@
 
 ## Test Plan Overview
 
-This guide provides step-by-step instructions for manually testing the Extended Thinking feature. Since automated browser testing via Playwright MCP is not available, follow these manual test scenarios carefully.
+This guide provides step-by-step instructions for manually testing the Extended Thinking feature. Since automated browser testing via the `agent-browser` skill is not available, follow these manual test scenarios carefully.
 
 ---
 

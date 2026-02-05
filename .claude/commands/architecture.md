@@ -52,6 +52,6 @@ In your notification, summarise the key, final components of the spec at a very 
 
 ### 9. Afterwards: build with sub-agents
 
-Use the rails-programmer primarily, and svelte-developer as needed, to actually build the feature with sub-agents, rather than cluttering your context with the entire build. Instruct them to use Playwright to check the functionality works as expected, as well as writing automated tests.
+Use the rails-programmer primarily, and svelte-developer as needed, to actually build the feature with sub-agents, rather than cluttering your context with the entire build. Instruct them to use the `agent-browser` skill (invoke with `/agent-browser`) to check the functionality works as expected, as well as writing automated tests.
 
 Once they have finished building the feature, please review their code output yourself to ensure they have not deviated substantially from the spec without good cause.

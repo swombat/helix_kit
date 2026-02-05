@@ -1,12 +1,12 @@
-# Playwright Testing Guide
+# Browser Testing Guide
 
-This document covers how to use Playwright for testing and interacting with the application during development.
+This document covers how to use the `agent-browser` skill for testing and interacting with the application during development.
 
 ## Overview
 
-Playwright is installed and can be used to navigate to pages, test them, take screenshots, etc.
+Use the `agent-browser` skill (invoke with `/agent-browser`) to navigate to pages, test them, take screenshots, etc.
 
-To navigate anywhere, first you need to open a tab, using the open_tab command in playwright. Then you can navigate it wherever you want.
+To navigate anywhere, first you need to open a tab. Then you can navigate it wherever you want.
 
 **NEVER GUESS THE URL.** Use a route helper if you must, but ideally, click on links in the app. Most of the time when you try to guess the URL you will get it wrong (it happens all the time, even with this instruction...). So instead, log in and let it show you the default page, and then use the navigation controls on-page to get where you want to be.
 
@@ -17,9 +17,9 @@ When you check a page is working, ALWAYS check the contents, not just the 200 re
 - The app is running on **http://localhost:3100** - not https!
 - If you need to restart it, don't - just ask the user to restart it for you.
 
-## Logging in with Playwright
+## Logging In
 
-**Note: The browser session may already be logged in when you start Playwright.** Check if you're already on a logged-in page before attempting to log in.
+**Note: The browser session may already be logged in when you start.** Check if you're already on a logged-in page before attempting to log in.
 
 To log into the application (if not already logged in):
 1. Navigate to `http://localhost:3100`
@@ -27,7 +27,7 @@ To log into the application (if not already logged in):
 3. Fill the password field: `input[type="password"]` with `password`
 4. Click the submit button: `button[type="submit"]`
 
-## Debugging with Playwright
+## Debugging
 
 **When selectors aren't working or timing out:** The page may have a server error (500, routing errors, etc.). Always take a screenshot or reload the page to check if there's an error page being displayed instead of the expected content. If selectors are timing out, it's often because the page has an error and the expected elements don't exist.
 

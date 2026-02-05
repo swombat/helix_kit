@@ -70,8 +70,8 @@ See **[File System Structure](./file_system_structure.md)** for complete directo
 - Review the README.md for installation instructions
 - Look at existing code patterns in the codebase for examples
 
-## Playwright Testing
+## Browser Testing
 
-Separate from the Playwright Component Testing described in `docs/testing.md`, there is also a Playwright MCP server installed that should be used to test changes in a real browser before telling the user the change is complete.
+Separate from the Playwright Component Testing described in `docs/testing.md`, the `agent-browser` skill should be used to test changes in a real browser before telling the user the change is complete.
 
-See `docs/playwright-testing.md` for more information.
+Invoke it with `/agent-browser`. See `docs/playwright-testing.md` for more information.

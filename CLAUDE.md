@@ -49,7 +49,7 @@ Start with **[/docs/overview.md](/docs/overview.md)** which indexes all document
 2. Follow existing code conventions in similar files
 3. Run tests after changes: `rails test`
 4. Check linting: `bin/rubocop`
-5. Test features using the Playwright MCP
+5. Test features using the `agent-browser` skill (invoke with `/agent-browser`)
 
 ### Technology Stack
 - **Backend**: Rails 8 with PostgreSQL
