@@ -201,6 +201,69 @@ class AgentInitiationDecisionJobTest < ActiveSupport::TestCase
     end
   end
 
+  # Debug notification tests
+
+  test "sends debug notification via telegram when agent chooses nothing during daytime" do
+    response_json = {
+      action: "nothing",
+      reason: "No pressing matters to discuss"
+    }.to_json
+
+    run_with_response(response_json) do
+      assert_enqueued_with(job: TelegramInitiationDebugJob, args: [ @agent, "No pressing matters to discuss" ]) do
+        AgentInitiationDecisionJob.perform_now(@agent, nighttime: false)
+      end
+    end
+  end
+
+  test "does not send debug notification when agent chooses nothing during nighttime" do
+    response_json = {
+      action: "nothing",
+      reason: "No pressing matters"
+    }.to_json
+
+    run_with_response(response_json) do
+      assert_no_enqueued_jobs(only: TelegramInitiationDebugJob) do
+        AgentInitiationDecisionJob.perform_now(@agent, nighttime: true)
+      end
+    end
+  end
+
+  test "sends debug notification when initiation blocked by cap during daytime" do
+    Agent::INITIATION_CAP.times { create_pending_initiation(@agent) }
+
+    response_json = {
+      action: "initiate",
+      topic: "New Topic",
+      message: "Hello!",
+      reason: "Want to start something"
+    }.to_json
+
+    run_with_response(response_json) do
+      assert_enqueued_with(job: TelegramInitiationDebugJob) do
+        AgentInitiationDecisionJob.perform_now(@agent, nighttime: false)
+      end
+    end
+  end
+
+  test "sends debug notification when continuing non-respondable chat during daytime" do
+    chat = create_manual_chat_with_agent(@agent, title: "Archived Chat 2")
+    chat.messages.create!(role: "user", user: @user, content: "Hello!")
+    chat.archive!
+
+    response_json = {
+      action: "continue",
+      conversation_id: chat.obfuscated_id,
+      reason: "Following up"
+    }.to_json
+
+    run_with_response(response_json) do
+      assert_enqueued_with(job: TelegramInitiationDebugJob) do
+        AgentInitiationDecisionJob.perform_now(@agent, nighttime: false)
+      end
+    end
+  end
+
   test "logs error and does not crash on LLM failure" do
     mock_chat = Object.new
     mock_chat.define_singleton_method(:ask) { |_prompt| raise "API timeout" }
