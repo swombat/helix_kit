@@ -10,11 +10,6 @@ class AgentInitiationDecisionJob < ApplicationJob
   def perform(agent, nighttime: false)
     @nighttime = nighttime
 
-    if agent.at_initiation_cap?
-      audit(agent, { action: "skipped", reason: "at_hard_cap" })
-      return
-    end
-
     decision = get_decision(agent)
     execute_decision(agent, decision)
     audit(agent, decision)
@@ -94,6 +89,8 @@ class AgentInitiationDecisionJob < ApplicationJob
 
       ManualAgentResponseJob.perform_later(chat, agent, initiation_reason: decision[:reason])
     when "initiate"
+      return if agent.at_initiation_cap?
+
       topic = decision[:topic]
       topic = "#{Chat::AGENT_ONLY_PREFIX} #{topic}" if @nighttime && !topic&.start_with?(Chat::AGENT_ONLY_PREFIX)
 

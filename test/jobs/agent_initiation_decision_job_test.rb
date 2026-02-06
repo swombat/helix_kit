@@ -38,16 +38,40 @@ class AgentInitiationDecisionJobTest < ActiveSupport::TestCase
     end
   end
 
-  test "skips agent at hard cap" do
+  test "blocks initiation when agent at hard cap" do
     Agent::INITIATION_CAP.times { create_pending_initiation(@agent) }
 
-    AgentInitiationDecisionJob.perform_now(@agent)
+    response_json = {
+      action: "initiate",
+      topic: "New Topic",
+      message: "Hello!",
+      reason: "Want to start something"
+    }.to_json
 
-    assert AuditLog.exists?(
-      action: "agent_initiation_skipped",
-      auditable: @agent,
-      data: { "reason" => "at_hard_cap" }
-    )
+    run_with_response(response_json) do
+      assert_no_difference -> { Chat.initiated.where(initiated_by_agent: @agent).count } do
+        AgentInitiationDecisionJob.perform_now(@agent)
+      end
+    end
+  end
+
+  test "allows continuation when agent at hard cap" do
+    Agent::INITIATION_CAP.times { create_pending_initiation(@agent) }
+
+    chat = create_manual_chat_with_agent(@agent, title: "Existing Chat")
+    chat.messages.create!(role: "user", user: @user, content: "Hello!")
+
+    response_json = {
+      action: "continue",
+      conversation_id: chat.obfuscated_id,
+      reason: "Following up on question"
+    }.to_json
+
+    run_with_response(response_json) do
+      assert_enqueued_with(job: ManualAgentResponseJob, args: [ chat, @agent, { initiation_reason: "Following up on question" } ]) do
+        AgentInitiationDecisionJob.perform_now(@agent)
+      end
+    end
   end
 
   test "initiates conversation when agent decides to" do
