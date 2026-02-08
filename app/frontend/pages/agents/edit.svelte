@@ -22,6 +22,7 @@
     Cpu,
     Plug,
     Notebook,
+    Hourglass,
   } from 'phosphor-svelte';
   import {
     accountAgentsPath,
@@ -574,17 +575,6 @@
                   Review and manage this agent's memories. Core memories are permanent; journal entries fade after a
                   week.
                 </p>
-                {#if agent.memory_token_summary}
-                  {@const mts = agent.memory_token_summary}
-                  <div class="text-xs text-muted-foreground flex flex-wrap gap-x-3 gap-y-0.5 mt-1">
-                    <span><span class="font-medium">Core:</span> {mts.core.toLocaleString()}t</span>
-                    <span><span class="font-medium">Journal:</span> {mts.active_journal.toLocaleString()}t</span>
-                    {#if mts.inactive_journal > 0}
-                      <span class="opacity-50"
-                        ><span class="font-medium">Inactive:</span> {mts.inactive_journal.toLocaleString()}t</span>
-                    {/if}
-                  </div>
-                {/if}
               </div>
               <div class="flex flex-col sm:flex-row gap-2">
                 <Button
@@ -668,21 +658,25 @@
                   <Input type="text" placeholder="Search memories..." bind:value={memorySearch} class="pl-8" />
                 </div>
                 <div class="flex gap-3">
-                  <label class="flex items-center gap-1.5 cursor-pointer text-sm">
+                  <label class="flex items-center gap-1.5 cursor-pointer text-sm" title="Core">
                     <input type="checkbox" bind:checked={showCore} class="w-3.5 h-3.5 rounded" />
-                    Core
+                    <Brain size={14} weight="duotone" class="lg:hidden text-primary" />
+                    <span class="hidden lg:inline">Core</span>
                   </label>
-                  <label class="flex items-center gap-1.5 cursor-pointer text-sm">
+                  <label class="flex items-center gap-1.5 cursor-pointer text-sm" title="Journal">
                     <input type="checkbox" bind:checked={showJournal} class="w-3.5 h-3.5 rounded" />
-                    Journal
+                    <BookOpen size={14} weight="duotone" class="lg:hidden text-muted-foreground" />
+                    <span class="hidden lg:inline">Journal</span>
                   </label>
-                  <label class="flex items-center gap-1.5 cursor-pointer text-sm">
+                  <label class="flex items-center gap-1.5 cursor-pointer text-sm" title="Protected">
                     <input type="checkbox" bind:checked={showProtected} class="w-3.5 h-3.5 rounded" />
-                    Protected
+                    <ShieldCheck size={14} weight="duotone" class="lg:hidden text-primary" />
+                    <span class="hidden lg:inline">Protected</span>
                   </label>
-                  <label class="flex items-center gap-1.5 cursor-pointer text-sm">
+                  <label class="flex items-center gap-1.5 cursor-pointer text-sm" title="Discarded">
                     <input type="checkbox" bind:checked={showDiscarded} class="w-3.5 h-3.5 rounded" />
-                    Discarded
+                    <Trash size={14} weight="duotone" class="lg:hidden text-destructive" />
+                    <span class="hidden lg:inline">Discarded</span>
                   </label>
                 </div>
               </div>
@@ -690,9 +684,29 @@
               {#if filteredMemories.length === 0}
                 <p class="text-sm text-muted-foreground py-4">No memories match your filters.</p>
               {:else}
-                <p class="text-xs text-muted-foreground">
-                  Showing {filteredMemories.length} of {memories.length} memories
-                </p>
+                <div class="text-xs text-muted-foreground flex flex-wrap items-center gap-x-3 gap-y-0.5">
+                  <span>Showing {filteredMemories.length} of {memories.length} memories</span>
+                  {#if agent.memory_token_summary}
+                    {@const mts = agent.memory_token_summary}
+                    <span class="flex items-center gap-1">
+                      <Brain size={12} weight="duotone" class="lg:hidden text-primary" />
+                      <span class="hidden lg:inline font-medium">Core:</span>
+                      {mts.core.toLocaleString()}t
+                    </span>
+                    <span class="flex items-center gap-1">
+                      <BookOpen size={12} weight="duotone" class="lg:hidden text-muted-foreground" />
+                      <span class="hidden lg:inline font-medium">Journal:</span>
+                      {mts.active_journal.toLocaleString()}t
+                    </span>
+                    {#if mts.inactive_journal > 0}
+                      <span class="flex items-center gap-1 opacity-50">
+                        <Hourglass size={12} weight="duotone" class="lg:hidden" />
+                        <span class="hidden lg:inline font-medium">Inactive:</span>
+                        {mts.inactive_journal.toLocaleString()}t
+                      </span>
+                    {/if}
+                  {/if}
+                </div>
               {/if}
 
               <div class="space-y-3 max-h-[32rem] overflow-y-auto">
