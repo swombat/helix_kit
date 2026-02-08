@@ -5,6 +5,9 @@
   import * as Card from '$lib/components/shadcn/card/index.js';
   import { Notepad, ChatCircle, PencilSimple, FloppyDisk, X, Spinner } from 'phosphor-svelte';
   import { Streamdown } from 'svelte-streamdown';
+  import { mode } from 'mode-watcher';
+
+  const shikiTheme = $derived(mode.current === 'dark' ? 'catppuccin-mocha' : 'catppuccin-latte');
 
   let { whiteboards = [], account } = $props();
 
@@ -231,7 +234,12 @@
                     placeholder="Write your whiteboard content here..."></textarea>
                 {:else if selected.content?.trim()}
                   <div class="prose dark:prose-invert max-w-none">
-                    <Streamdown content={selected.content} parseIncompleteMarkdown={false} baseTheme="shadcn" />
+                    <Streamdown
+                      content={selected.content}
+                      parseIncompleteMarkdown={false}
+                      baseTheme="shadcn"
+                      {shikiTheme}
+                      shikiPreloadThemes={['catppuccin-latte', 'catppuccin-mocha']} />
                   </div>
                 {:else}
                   <p class="text-muted-foreground text-center py-8">No content yet. Click Edit to add content.</p>

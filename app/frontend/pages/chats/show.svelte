@@ -53,8 +53,11 @@
   import { marked } from 'marked';
   import * as logging from '$lib/logging';
   import { formatTime, formatDate, formatDateTime } from '$lib/utils';
+  import { mode } from 'mode-watcher';
   import { fade } from 'svelte/transition';
   import { Streamdown } from 'svelte-streamdown';
+
+  const shikiTheme = $derived(mode.current === 'dark' ? 'catppuccin-mocha' : 'catppuccin-latte');
 
   // Format tools_used for display - extracts domain from URLs or cleans up legacy format
   function formatToolsUsed(toolsUsed) {
@@ -1394,6 +1397,8 @@
                           content={message.content}
                           parseIncompleteMarkdown
                           baseTheme="shadcn"
+                          {shikiTheme}
+                          shikiPreloadThemes={['catppuccin-latte', 'catppuccin-mocha']}
                           class="prose"
                           animation={{
                             enabled: true,
@@ -1456,6 +1461,8 @@
                           content={message.content}
                           parseIncompleteMarkdown
                           baseTheme="shadcn"
+                          {shikiTheme}
+                          shikiPreloadThemes={['catppuccin-latte', 'catppuccin-mocha']}
                           class="prose"
                           animation={{
                             enabled: true,
@@ -1712,7 +1719,12 @@
               placeholder="Write your whiteboard content here..."></textarea>
           {:else if chat.active_whiteboard.content?.trim()}
             <div class="prose dark:prose-invert max-w-none">
-              <Streamdown content={chat.active_whiteboard.content} parseIncompleteMarkdown={false} baseTheme="shadcn" />
+              <Streamdown
+                content={chat.active_whiteboard.content}
+                parseIncompleteMarkdown={false}
+                baseTheme="shadcn"
+                {shikiTheme}
+                shikiPreloadThemes={['catppuccin-latte', 'catppuccin-mocha']} />
             </div>
           {:else}
             <p class="text-muted-foreground text-center py-8">No content yet. Click Edit to add content.</p>
