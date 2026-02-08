@@ -264,6 +264,118 @@ class AgentInitiationDecisionJobTest < ActiveSupport::TestCase
     end
   end
 
+  # Agent-only cap tests
+
+  test "blocks agent-only initiation when at agent-only cap" do
+    Agent::AGENT_ONLY_INITIATION_CAP.times do |i|
+      Chat.initiate_by_agent!(
+        @agent,
+        topic: "#{Chat::AGENT_ONLY_PREFIX} Topic #{i}",
+        message: "Test message"
+      )
+    end
+
+    response_json = {
+      action: "initiate",
+      topic: "Agent Discussion",
+      message: "Hey!",
+      agent_only: true,
+      reason: "Want to chat with agents"
+    }.to_json
+
+    run_with_response(response_json) do
+      assert_no_difference -> { Chat.initiated.where(initiated_by_agent: @agent).count } do
+        AgentInitiationDecisionJob.perform_now(@agent)
+      end
+    end
+  end
+
+  test "allows human initiation when only at agent-only cap" do
+    Agent::AGENT_ONLY_INITIATION_CAP.times do |i|
+      Chat.initiate_by_agent!(
+        @agent,
+        topic: "#{Chat::AGENT_ONLY_PREFIX} Topic #{i}",
+        message: "Test message"
+      )
+    end
+
+    response_json = {
+      action: "initiate",
+      topic: "Human Discussion",
+      message: "Hey!",
+      reason: "Want to discuss with humans"
+    }.to_json
+
+    run_with_response(response_json) do
+      AgentInitiationDecisionJob.perform_now(@agent)
+    end
+
+    chat = Chat.where(initiated_by_agent: @agent).not_agent_only.last
+    assert_not_nil chat
+    assert_equal "Human Discussion", chat.title
+  end
+
+  test "allows agent-only initiation when only at human cap" do
+    Agent::INITIATION_CAP.times { create_pending_initiation(@agent) }
+
+    response_json = {
+      action: "initiate",
+      topic: "Agent Discussion",
+      message: "Hey agents!",
+      agent_only: true,
+      reason: "Want to chat with agents"
+    }.to_json
+
+    run_with_response(response_json) do
+      AgentInitiationDecisionJob.perform_now(@agent)
+    end
+
+    chat = Chat.where(initiated_by_agent: @agent).agent_only.last
+    assert_not_nil chat
+    assert chat.title.start_with?(Chat::AGENT_ONLY_PREFIX)
+  end
+
+  test "nighttime initiation checks agent-only cap not human cap" do
+    Agent::AGENT_ONLY_INITIATION_CAP.times do |i|
+      Chat.initiate_by_agent!(
+        @agent,
+        topic: "#{Chat::AGENT_ONLY_PREFIX} Topic #{i}",
+        message: "Test message"
+      )
+    end
+
+    response_json = {
+      action: "initiate",
+      topic: "Night Discussion",
+      message: "Hello!",
+      reason: "Nighttime chat"
+    }.to_json
+
+    run_with_response(response_json) do
+      assert_no_difference -> { Chat.initiated.where(initiated_by_agent: @agent).count } do
+        AgentInitiationDecisionJob.perform_now(@agent, nighttime: true)
+      end
+    end
+  end
+
+  test "agent_only flag prefixes topic with AGENT_ONLY_PREFIX" do
+    response_json = {
+      action: "initiate",
+      topic: "Agent Chat",
+      message: "Hey!",
+      agent_only: true,
+      reason: "Private discussion"
+    }.to_json
+
+    run_with_response(response_json) do
+      AgentInitiationDecisionJob.perform_now(@agent)
+    end
+
+    chat = Chat.where(initiated_by_agent: @agent).agent_only.last
+    assert_not_nil chat
+    assert_equal "#{Chat::AGENT_ONLY_PREFIX} Agent Chat", chat.title
+  end
+
   test "logs error and does not crash on LLM failure" do
     mock_chat = Object.new
     mock_chat.define_singleton_method(:ask) { |_prompt| raise "API timeout" }

@@ -204,15 +204,81 @@ class AgentInitiationTest < ActiveSupport::TestCase
 
     assert_includes prompt, '{"action": "continue"'
     assert_includes prompt, '{"action": "initiate"'
+    assert_includes prompt, '"agent_only": true'
     assert_includes prompt, '{"action": "nothing"'
+  end
+
+  test "build_initiation_prompt mentions agent-only conversations" do
+    prompt = @agent.build_initiation_prompt(
+      conversations: [],
+      recent_initiations: [],
+      human_activity: []
+    )
+
+    assert_includes prompt, "Agent-Only Conversations"
+    assert_includes prompt, "private conversations with other agents"
   end
 
   test "INITIATION_CAP constant is defined" do
     assert_equal 2, Agent::INITIATION_CAP
   end
 
+  test "AGENT_ONLY_INITIATION_CAP constant is defined" do
+    assert_equal 2, Agent::AGENT_ONLY_INITIATION_CAP
+  end
+
   test "RECENTLY_INITIATED_WINDOW constant is defined" do
     assert_equal 48.hours, Agent::RECENTLY_INITIATED_WINDOW
+  end
+
+  # Agent-only cap tests
+
+  test "at_agent_only_initiation_cap? returns false when no agent-only initiations" do
+    refute @agent.at_agent_only_initiation_cap?
+  end
+
+  test "at_agent_only_initiation_cap? returns true when at limit" do
+    Agent::AGENT_ONLY_INITIATION_CAP.times do |i|
+      Chat.initiate_by_agent!(
+        @agent,
+        topic: "#{Chat::AGENT_ONLY_PREFIX} Topic #{i}",
+        message: "Test message"
+      )
+    end
+
+    assert @agent.at_agent_only_initiation_cap?
+  end
+
+  test "at_agent_only_initiation_cap? ignores initiations older than 48 hours" do
+    travel_to 49.hours.ago do
+      Agent::AGENT_ONLY_INITIATION_CAP.times do |i|
+        Chat.initiate_by_agent!(
+          @agent,
+          topic: "#{Chat::AGENT_ONLY_PREFIX} Old Topic #{i}",
+          message: "Test message"
+        )
+      end
+    end
+
+    refute @agent.at_agent_only_initiation_cap?
+  end
+
+  test "agent-only chats do not count against human initiation cap" do
+    Agent::AGENT_ONLY_INITIATION_CAP.times do |i|
+      Chat.initiate_by_agent!(
+        @agent,
+        topic: "#{Chat::AGENT_ONLY_PREFIX} Topic #{i}",
+        message: "Test message"
+      )
+    end
+
+    refute @agent.at_initiation_cap?
+  end
+
+  test "human chats do not count against agent-only initiation cap" do
+    Agent::INITIATION_CAP.times { create_pending_initiation(@agent) }
+
+    refute @agent.at_agent_only_initiation_cap?
   end
 
   test "build_initiation_prompt includes github commits context when available" do

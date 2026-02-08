@@ -92,13 +92,21 @@ class AgentInitiationDecisionJob < ApplicationJob
 
       ManualAgentResponseJob.perform_later(chat, agent, initiation_reason: decision[:reason])
     when "initiate"
-      if agent.at_initiation_cap?
-        notify_non_initiation!(agent, "Wanted to initiate '#{decision[:topic]}' but at initiation cap (#{Agent::INITIATION_CAP}+ pending conversations awaiting human response)")
-        return
-      end
-
+      agent_only = @nighttime || decision[:agent_only]
       topic = decision[:topic]
-      topic = "#{Chat::AGENT_ONLY_PREFIX} #{topic}" if @nighttime && !topic&.start_with?(Chat::AGENT_ONLY_PREFIX)
+      topic = "#{Chat::AGENT_ONLY_PREFIX} #{topic}" if agent_only && !topic&.start_with?(Chat::AGENT_ONLY_PREFIX)
+
+      if agent_only
+        if agent.at_agent_only_initiation_cap?
+          notify_non_initiation!(agent, "Wanted to initiate agent-only '#{decision[:topic]}' but at agent-only cap (#{Agent::AGENT_ONLY_INITIATION_CAP} in last 48 hours)")
+          return
+        end
+      else
+        if agent.at_initiation_cap?
+          notify_non_initiation!(agent, "Wanted to initiate '#{decision[:topic]}' but at initiation cap (#{Agent::INITIATION_CAP}+ pending conversations awaiting human response)")
+          return
+        end
+      end
 
       Chat.initiate_by_agent!(
         agent,
