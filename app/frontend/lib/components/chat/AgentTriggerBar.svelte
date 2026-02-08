@@ -77,7 +77,7 @@
     Leaf,
   };
 
-  let { agents = [], accountId, chatId, disabled = false } = $props();
+  let { agents = [], accountId, chatId, disabled = false, onTrigger = null } = $props();
   let triggeringAgent = $state(null);
   let triggeringAll = $state(false);
   let waitingForResponse = $state(false);
@@ -100,6 +100,9 @@
       triggerAgentAccountChatPath(accountId, chatId, agent.id),
       {},
       {
+        onSuccess: () => {
+          onTrigger?.();
+        },
         onError: () => {
           triggeringAgent = null;
           waitingForResponse = false;
@@ -117,6 +120,9 @@
       triggerAllAgentsAccountChatPath(accountId, chatId),
       {},
       {
+        onSuccess: () => {
+          onTrigger?.();
+        },
         onError: () => {
           triggeringAll = false;
           waitingForResponse = false;

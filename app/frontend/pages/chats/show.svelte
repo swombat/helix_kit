@@ -207,6 +207,26 @@
   // Thinking streaming state
   let streamingThinking = $state({});
 
+  // Streaming safety-net refresh timer
+  let streamingRefreshTimer = null;
+
+  function scheduleStreamingRefresh(delayMs = 5000) {
+    if (streamingRefreshTimer) clearTimeout(streamingRefreshTimer);
+    streamingRefreshTimer = setTimeout(() => {
+      streamingRefreshTimer = null;
+      router.reload({
+        only: ['messages'],
+        preserveScroll: true,
+        onSuccess: () => {
+          // If any message is still streaming, schedule another refresh in 10s
+          if (recentMessages?.some((m) => m.streaming)) {
+            scheduleStreamingRefresh(10000);
+          }
+        },
+      });
+    }, delayMs);
+  }
+
   // Error handling state
   let errorMessage = $state(null);
   let successMessage = $state(null);
@@ -473,6 +493,9 @@
     if (timeoutCheckInterval) {
       clearInterval(timeoutCheckInterval);
     }
+    if (streamingRefreshTimer) {
+      clearTimeout(streamingRefreshTimer);
+    }
   });
 
   // Listen for debug log events when debug mode is enabled
@@ -651,6 +674,11 @@
             showAgentPrompt = false;
           }, 3000); // Hide after 3 seconds
         }
+
+        // Safety-net refresh in case streaming doesn't come through
+        if (!chat?.manual_responses) {
+          scheduleStreamingRefresh();
+        }
       },
       onError: (errors) => {
         logging.error('Message send failed:', errors);
@@ -662,7 +690,11 @@
   }
 
   function retryMessage(messageId) {
-    $retryForm.post(retryMessagePath(messageId));
+    $retryForm.post(retryMessagePath(messageId), {
+      onSuccess: () => {
+        scheduleStreamingRefresh();
+      },
+    });
   }
 
   function resendLastMessage() {
@@ -682,6 +714,7 @@
         $retryForm.post(retryPath, {
           onSuccess: () => {
             logging.debug('Retry triggered successfully');
+            scheduleStreamingRefresh();
           },
           onError: (errors) => {
             logging.error('Retry failed:', errors);
@@ -1584,7 +1617,8 @@
         {agents}
         accountId={account.id}
         chatId={chat.id}
-        disabled={agentIsResponding || !chat?.respondable} />
+        disabled={agentIsResponding || !chat?.respondable}
+        onTrigger={scheduleStreamingRefresh} />
     {/if}
 
     <!-- Not respondable banner -->
