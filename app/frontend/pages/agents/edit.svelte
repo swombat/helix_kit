@@ -186,10 +186,12 @@
   let showCore = $state(true);
   let showJournal = $state(true);
   let showProtected = $state(true);
+  let showDiscarded = $state(false);
 
   let filteredMemories = $derived.by(() => {
     const search = memorySearch.toLowerCase();
     return memories.filter((m) => {
+      if (m.discarded && !showDiscarded) return false;
       if (m.memory_type === 'core' && !m.constitutional && !showCore) return false;
       if (m.memory_type === 'journal' && !showJournal) return false;
       if (m.constitutional && !showProtected) return false;
@@ -572,6 +574,17 @@
                   Review and manage this agent's memories. Core memories are permanent; journal entries fade after a
                   week.
                 </p>
+                {#if agent.memory_token_summary}
+                  {@const mts = agent.memory_token_summary}
+                  <div class="text-xs text-muted-foreground flex flex-wrap gap-x-3 gap-y-0.5 mt-1">
+                    <span><span class="font-medium">Core:</span> {mts.core.toLocaleString()}t</span>
+                    <span><span class="font-medium">Journal:</span> {mts.active_journal.toLocaleString()}t</span>
+                    {#if mts.inactive_journal > 0}
+                      <span class="opacity-50"
+                        ><span class="font-medium">Inactive:</span> {mts.inactive_journal.toLocaleString()}t</span>
+                    {/if}
+                  </div>
+                {/if}
               </div>
               <div class="flex flex-col sm:flex-row gap-2">
                 <Button
@@ -666,6 +679,10 @@
                   <label class="flex items-center gap-1.5 cursor-pointer text-sm">
                     <input type="checkbox" bind:checked={showProtected} class="w-3.5 h-3.5 rounded" />
                     Protected
+                  </label>
+                  <label class="flex items-center gap-1.5 cursor-pointer text-sm">
+                    <input type="checkbox" bind:checked={showDiscarded} class="w-3.5 h-3.5 rounded" />
+                    Discarded
                   </label>
                 </div>
               </div>
