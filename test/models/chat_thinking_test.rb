@@ -56,7 +56,7 @@ class ChatThinkingTest < ActiveSupport::TestCase
   end
 
   test "provider_model_id returns correct Anthropic model ID for Claude 4.5 Sonnet" do
-    assert_equal "claude-sonnet-4-5-20251201", Chat.provider_model_id("anthropic/claude-sonnet-4.5")
+    assert_equal "claude-sonnet-4-5-20250929", Chat.provider_model_id("anthropic/claude-sonnet-4.5")
   end
 
   test "provider_model_id returns correct Anthropic model ID for Claude 4 Opus" do
@@ -88,7 +88,7 @@ class ChatThinkingTest < ActiveSupport::TestCase
     assert_not_nil config
     assert_equal "anthropic/claude-opus-4.5", config[:model_id]
     assert_equal "Claude Opus 4.5", config[:label]
-    assert_equal "Top Models", config[:group]
+    assert_equal "Anthropic", config[:group]
     assert_equal true, config.dig(:thinking, :supported)
     assert_equal true, config.dig(:thinking, :requires_direct_api)
     assert_equal "claude-opus-4-5-20251101", config.dig(:thinking, :provider_model_id)

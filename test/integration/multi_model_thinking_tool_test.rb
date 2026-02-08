@@ -82,7 +82,7 @@ class MultiModelThinkingToolTest < ActiveSupport::TestCase
       content: "Each of you, please use the save_memory tool to remember the following fact about yourself: 'I participated in the multi-model thinking test'. Keep your response to one sentence after saving."
     )
 
-    VCR.use_cassette("thinking/multi_model_tool_use", record: :none) do
+    VCR.use_cassette("thinking/multi_model_tool_use", record: :none, match_requests_on: [ :method, :uri ]) do
       # Each agent responds in turn
       [ opus_agent, gpt_agent, grok_agent ].each do |agent|
         ManualAgentResponseJob.perform_now(chat, agent)
@@ -249,7 +249,7 @@ class MultiModelThinkingToolTest < ActiveSupport::TestCase
     chat.agents = [ grok_agent, opus_agent ]
     chat.save!
 
-    VCR.use_cassette("thinking/continuation_with_placeholder", record: :none) do
+    VCR.use_cassette("thinking/continuation_with_placeholder", record: :none, match_requests_on: [ :method, :uri ]) do
       # User message
       chat.messages.create!(
         role: "user",

@@ -14,10 +14,18 @@ class ProcessTelegramUpdateJobTest < ActiveSupport::TestCase
         telegram_bot_username: "update_bot"
       )
     end
+    # Use memory store so deep link tokens persist within the test
+    @original_cache = Rails.cache
+    Rails.cache = ActiveSupport::Cache::MemoryStore.new
+  end
+
+  teardown do
+    Rails.cache = @original_cache
   end
 
   test "creates subscription on /start with valid deep link" do
-    token = Rails.application.message_verifier(:telegram_deep_link).generate(@user.id, expires_in: 7.days)
+    token = "test_token_#{SecureRandom.hex(8)}"
+    Rails.cache.write("telegram_deep_link:#{token}", { user_id: @user.id, agent_id: @agent.id }, expires_in: 7.days)
 
     Net::HTTP.stub :post, @fake_ok do
       assert_difference "TelegramSubscription.count", 1 do
@@ -33,7 +41,8 @@ class ProcessTelegramUpdateJobTest < ActiveSupport::TestCase
 
   test "updates existing subscription and unblocks" do
     sub = @agent.telegram_subscriptions.create!(user: @user, telegram_chat_id: 999, blocked: true)
-    token = Rails.application.message_verifier(:telegram_deep_link).generate(@user.id, expires_in: 7.days)
+    token = "test_token_#{SecureRandom.hex(8)}"
+    Rails.cache.write("telegram_deep_link:#{token}", { user_id: @user.id, agent_id: @agent.id }, expires_in: 7.days)
 
     Net::HTTP.stub :post, @fake_ok do
       assert_no_difference "TelegramSubscription.count" do
@@ -55,7 +64,8 @@ class ProcessTelegramUpdateJobTest < ActiveSupport::TestCase
   end
 
   test "sends error for expired deep link" do
-    token = Rails.application.message_verifier(:telegram_deep_link).generate(@user.id, expires_in: 0.seconds)
+    token = "test_token_#{SecureRandom.hex(8)}"
+    Rails.cache.write("telegram_deep_link:#{token}", { user_id: @user.id, agent_id: @agent.id }, expires_in: 0.seconds)
     sleep 0.1
 
     Net::HTTP.stub :post, @fake_ok do
@@ -68,7 +78,8 @@ class ProcessTelegramUpdateJobTest < ActiveSupport::TestCase
   test "rejects cross-account user" do
     # regular_user only belongs to regular_user_account, NOT personal_account
     cross_user = users(:regular_user)
-    token = Rails.application.message_verifier(:telegram_deep_link).generate(cross_user.id, expires_in: 7.days)
+    token = "test_token_#{SecureRandom.hex(8)}"
+    Rails.cache.write("telegram_deep_link:#{token}", { user_id: cross_user.id, agent_id: @agent.id }, expires_in: 7.days)
 
     Net::HTTP.stub :post, @fake_ok do
       assert_no_difference "TelegramSubscription.count" do

@@ -71,7 +71,7 @@ class ChatToolsFlowTest < ActionDispatch::IntegrationTest
     patch account_chat_path(@account, chat), params: {
       chat: { web_access: true }
     }
-    assert_response :success
+    assert_redirected_to account_chat_path(@account, chat)
 
     chat.reload
     assert chat.web_access, "Web access should now be enabled"
@@ -81,7 +81,7 @@ class ChatToolsFlowTest < ActionDispatch::IntegrationTest
     patch account_chat_path(@account, chat), params: {
       chat: { web_access: false }
     }
-    assert_response :success
+    assert_redirected_to account_chat_path(@account, chat)
 
     chat.reload
     assert_not chat.web_access, "Web access should be disabled again"
@@ -257,7 +257,7 @@ class ChatToolsFlowTest < ActionDispatch::IntegrationTest
     patch account_chat_path(@account, chat), params: {
       chat: { web_access: true }
     }
-    assert_response :success
+    assert_redirected_to account_chat_path(@account, chat)
 
     chat.reload
     assert chat.web_access
@@ -277,7 +277,7 @@ class ChatToolsFlowTest < ActionDispatch::IntegrationTest
     patch account_chat_path(@account, chat), params: {
       chat: { web_access: false }
     }
-    assert_response :success
+    assert_redirected_to account_chat_path(@account, chat)
 
     chat.reload
     assert_not chat.web_access
