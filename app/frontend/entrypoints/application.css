@@ -142,4 +142,9 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Let Streamdown/Shiki control code block backgrounds instead of prose defaults */
+  .prose pre {
+    background-color: transparent;
+  }
 }

@@ -16,6 +16,7 @@
     ShieldCheck,
     Lightning,
     ArrowCounterClockwise,
+    MagnifyingGlass,
     IdentificationCard,
     Palette,
     Cpu,
@@ -181,6 +182,21 @@
   let showNewMemoryForm = $state(false);
   let newMemoryContent = $state('');
   let newMemoryType = $state('core');
+  let memorySearch = $state('');
+  let showCore = $state(true);
+  let showJournal = $state(true);
+  let showProtected = $state(true);
+
+  let filteredMemories = $derived.by(() => {
+    const search = memorySearch.toLowerCase();
+    return memories.filter((m) => {
+      if (m.memory_type === 'core' && !m.constitutional && !showCore) return false;
+      if (m.memory_type === 'journal' && !showJournal) return false;
+      if (m.constitutional && !showProtected) return false;
+      if (search && !m.content.toLowerCase().includes(search)) return false;
+      return true;
+    });
+  });
 
   function getJournalOpacity(memory) {
     if (memory.memory_type !== 'journal') return 1;
@@ -633,8 +649,37 @@
                 as the agent creates them using the save_memory tool.
               </p>
             {:else if memories.length > 0}
+              <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+                <div class="relative flex-1 w-full sm:w-auto">
+                  <MagnifyingGlass size={16} class="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <Input type="text" placeholder="Search memories..." bind:value={memorySearch} class="pl-8" />
+                </div>
+                <div class="flex gap-3">
+                  <label class="flex items-center gap-1.5 cursor-pointer text-sm">
+                    <input type="checkbox" bind:checked={showCore} class="w-3.5 h-3.5 rounded" />
+                    Core
+                  </label>
+                  <label class="flex items-center gap-1.5 cursor-pointer text-sm">
+                    <input type="checkbox" bind:checked={showJournal} class="w-3.5 h-3.5 rounded" />
+                    Journal
+                  </label>
+                  <label class="flex items-center gap-1.5 cursor-pointer text-sm">
+                    <input type="checkbox" bind:checked={showProtected} class="w-3.5 h-3.5 rounded" />
+                    Protected
+                  </label>
+                </div>
+              </div>
+
+              {#if filteredMemories.length === 0}
+                <p class="text-sm text-muted-foreground py-4">No memories match your filters.</p>
+              {:else}
+                <p class="text-xs text-muted-foreground">
+                  Showing {filteredMemories.length} of {memories.length} memories
+                </p>
+              {/if}
+
               <div class="space-y-3 max-h-[32rem] overflow-y-auto">
-                {#each memories as memory (memory.id)}
+                {#each filteredMemories as memory (memory.id)}
                   <div
                     class="memory-card flex items-start gap-3 p-3 rounded-lg border
                       {memory.expired ? 'border-dashed' : 'border-border'}

@@ -185,7 +185,9 @@ class AgentsController < ApplicationController
   end
 
   def memories_for_display
-    @agent.memories.recent_first.limit(100).map do |m|
+    scope = @agent.memories.where(memory_type: :core)
+      .or(@agent.memories.where(memory_type: :journal, created_at: AgentMemory::JOURNAL_WINDOW.ago..))
+    scope.recent_first.map do |m|
       {
         id: m.id,
         content: m.content,
