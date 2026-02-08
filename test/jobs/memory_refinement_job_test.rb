@@ -10,28 +10,48 @@ class MemoryRefinementJobTest < ActiveSupport::TestCase
   end
 
   test "skips agents without core memories" do
-    # Should complete without calling LLM
-    mock_chat_never_called do
+    chat_called = false
+    mock = Object.new
+    mock.define_singleton_method(:with_tool) { |_t| self }
+    mock.define_singleton_method(:ask) { |_p| chat_called = true; OpenStruct.new(content: "Done") }
+
+    RubyLLM.stub :chat, ->(**opts) { mock } do
       MemoryRefinementJob.perform_now
     end
+
+    assert_not chat_called, "LLM should not be called when agent has no core memories"
   end
 
   test "skips agents that do not need refinement" do
     @agent.update_column(:last_refinement_at, 1.day.ago)
     # Agent has no core memories, so doesn't need refinement even with recent last_refinement_at
 
-    mock_chat_never_called do
+    chat_called = false
+    mock = Object.new
+    mock.define_singleton_method(:with_tool) { |_t| self }
+    mock.define_singleton_method(:ask) { |_p| chat_called = true; OpenStruct.new(content: "Done") }
+
+    RubyLLM.stub :chat, ->(**opts) { mock } do
       MemoryRefinementJob.perform_now
     end
+
+    assert_not chat_called, "LLM should not be called when agent does not need refinement"
   end
 
   test "skips inactive agents" do
     @agent.update!(active: false)
     @agent.memories.create!(content: "Something", memory_type: :core)
 
-    mock_chat_never_called do
+    chat_called = false
+    mock = Object.new
+    mock.define_singleton_method(:with_tool) { |_t| self }
+    mock.define_singleton_method(:ask) { |_p| chat_called = true; OpenStruct.new(content: "Done") }
+
+    RubyLLM.stub :chat, ->(**opts) { mock } do
       MemoryRefinementJob.perform_now
     end
+
+    assert_not chat_called, "LLM should not be called for inactive agents"
   end
 
   test "runs refinement for agent with no last_refinement_at" do
@@ -98,16 +118,6 @@ class MemoryRefinementJobTest < ActiveSupport::TestCase
   end
 
   private
-
-  def mock_chat_never_called(&block)
-    mock = Object.new
-    mock.define_singleton_method(:with_tool) { |_t| self }
-    mock.define_singleton_method(:ask) { |_p| raise "Should not have been called" }
-
-    RubyLLM.stub :chat, ->(**opts) { mock } do
-      yield
-    end
-  end
 
   def mock_agentic_chat(on_ask)
     mock = Object.new

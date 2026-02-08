@@ -84,6 +84,9 @@ module StreamsAiResponse
 
     # Queue content moderation for the completed assistant message
     ModerateMessageJob.perform_later(@ai_message) if @ai_message.content.present?
+
+    # Auto-fix hallucinated tool calls (JSON blocks at start of message)
+    FixHallucinatedToolCallsJob.perform_later(@ai_message) if @ai_message.fixable
   end
 
   def extract_message_content(content)
