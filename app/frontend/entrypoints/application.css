@@ -142,9 +142,10 @@
   body {
     @apply bg-background text-foreground;
   }
+}
 
-  /* Let Streamdown/Shiki control code block backgrounds instead of prose defaults */
-  .prose pre {
-    background-color: transparent;
-  }
+/* Let Streamdown/Shiki control code block backgrounds instead of prose defaults */
+.prose :where(pre):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  background-color: transparent;
+  color: inherit;
 }
