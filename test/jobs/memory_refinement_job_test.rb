@@ -10,76 +10,54 @@ class MemoryRefinementJobTest < ActiveSupport::TestCase
   end
 
   test "skips agents without core memories" do
-    chat_called = false
-    mock = Object.new
-    mock.define_singleton_method(:with_tool) { |_t| self }
-    mock.define_singleton_method(:ask) { |_p| chat_called = true; OpenStruct.new(content: "Done") }
-
-    RubyLLM.stub :chat, ->(**opts) { mock } do
-      MemoryRefinementJob.perform_now
-    end
-
-    assert_not chat_called, "LLM should not be called when agent has no core memories"
+    assert_no_llm_calls { MemoryRefinementJob.perform_now }
   end
 
   test "skips agents that do not need refinement" do
     @agent.update_column(:last_refinement_at, 1.day.ago)
-    # Agent has no core memories, so doesn't need refinement even with recent last_refinement_at
-
-    chat_called = false
-    mock = Object.new
-    mock.define_singleton_method(:with_tool) { |_t| self }
-    mock.define_singleton_method(:ask) { |_p| chat_called = true; OpenStruct.new(content: "Done") }
-
-    RubyLLM.stub :chat, ->(**opts) { mock } do
-      MemoryRefinementJob.perform_now
-    end
-
-    assert_not chat_called, "LLM should not be called when agent does not need refinement"
+    assert_no_llm_calls { MemoryRefinementJob.perform_now }
   end
 
   test "skips inactive agents" do
     @agent.update!(active: false)
     @agent.memories.create!(content: "Something", memory_type: :core)
+    assert_no_llm_calls { MemoryRefinementJob.perform_now }
+  end
 
-    chat_called = false
-    mock = Object.new
-    mock.define_singleton_method(:with_tool) { |_t| self }
-    mock.define_singleton_method(:ask) { |_p| chat_called = true; OpenStruct.new(content: "Done") }
+  test "runs refinement when agent consents" do
+    @agent.memories.create!(content: "Core memory", memory_type: :core)
 
-    RubyLLM.stub :chat, ->(**opts) { mock } do
+    refinement_called = false
+
+    stub_consent_and_refinement("YES", on_refinement: -> { refinement_called = true }) do
       MemoryRefinementJob.perform_now
     end
 
-    assert_not chat_called, "LLM should not be called for inactive agents"
+    assert refinement_called, "Expected refinement to run after agent consented"
   end
 
-  test "runs refinement for agent with no last_refinement_at" do
+  test "skips refinement when agent declines consent" do
     @agent.memories.create!(content: "Core memory", memory_type: :core)
 
-    chat_called = false
-    mock_chat = mock_agentic_chat(-> {
-      chat_called = true
-    })
+    refinement_called = false
 
-    RubyLLM.stub :chat, ->(**opts) { mock_chat } do
+    stub_consent_and_refinement("NO, I'd prefer not to right now.", on_refinement: -> { refinement_called = true }) do
       MemoryRefinementJob.perform_now
     end
 
-    assert chat_called, "Expected LLM chat to be called"
+    assert_not refinement_called, "Refinement should not run when agent declines"
   end
 
-  test "runs refinement for specific agent_id" do
+  test "runs refinement for specific agent_id with consent" do
     @agent.memories.create!(content: "Core memory", memory_type: :core)
 
-    chat_called = false
-    mock_chat = mock_agentic_chat(-> { chat_called = true })
+    refinement_called = false
 
-    RubyLLM.stub :chat, ->(**opts) { mock_chat } do
+    stub_consent_and_refinement("YES", on_refinement: -> { refinement_called = true }) do
       MemoryRefinementJob.perform_now(@agent.id)
     end
 
-    assert chat_called
+    assert refinement_called
   end
 
   test "continues processing if one agent fails" do
@@ -89,54 +67,110 @@ class MemoryRefinementJobTest < ActiveSupport::TestCase
     @agent.memories.create!(content: "Memory 1", memory_type: :core)
     agent2.memories.create!(content: "Memory 2", memory_type: :core)
 
-    call_count = 0
-    mock_chat = mock_agentic_chat(-> {
-      call_count += 1
-      raise "Simulated error" if call_count == 1
-    })
+    consent_count = 0
+    refinement_count = 0
 
-    RubyLLM.stub :chat, ->(**opts) { mock_chat } do
+    mock_factory = ->(**opts) {
+      mock = Object.new
+      has_tool = false
+      mock.define_singleton_method(:with_tool) { |_t| has_tool = true; self }
+      mock.define_singleton_method(:ask) do |_prompt|
+        unless has_tool
+          consent_count += 1
+          return OpenStruct.new(content: "YES")
+        end
+        refinement_count += 1
+        raise "Simulated error" if refinement_count == 1
+        OpenStruct.new(content: "Done")
+      end
+      mock
+    }
+
+    RubyLLM.stub :chat, mock_factory do
       MemoryRefinementJob.perform_now
     end
 
-    assert_equal 2, call_count
+    assert_equal 2, consent_count, "Both agents should be asked for consent"
+    assert_equal 2, refinement_count, "Both agents should attempt refinement"
   end
 
-  test "prompt includes agent system prompt" do
+  test "refinement prompt includes agent system prompt" do
     @agent.memories.create!(content: "Test memory", memory_type: :core)
 
-    prompt_received = nil
-    mock_chat = mock_agentic_chat_with_prompt_capture(->(prompt) { prompt_received = prompt })
+    refinement_prompt = nil
 
-    RubyLLM.stub :chat, ->(**opts) { mock_chat } do
+    stub_consent_and_refinement("YES", capture_refinement_prompt: ->(p) { refinement_prompt = p }) do
       MemoryRefinementJob.perform_now(@agent.id)
     end
 
-    assert_includes prompt_received, @agent.system_prompt
-    assert_includes prompt_received, "Memory Refinement Session"
-    assert_includes prompt_received, "Test memory"
+    assert_includes refinement_prompt, @agent.system_prompt
+    assert_includes refinement_prompt, "Memory Refinement Session"
+    assert_includes refinement_prompt, "Test memory"
+  end
+
+  test "consent prompt includes memory stats and agent context" do
+    @agent.memories.create!(content: "Test memory", memory_type: :core)
+
+    consent_prompt = nil
+
+    mock_factory = ->(**opts) {
+      mock = Object.new
+      has_tool = false
+      mock.define_singleton_method(:with_tool) { |_t| has_tool = true; self }
+      mock.define_singleton_method(:ask) do |prompt|
+        unless has_tool
+          consent_prompt = prompt
+          return OpenStruct.new(content: "NO")
+        end
+        OpenStruct.new(content: "Done")
+      end
+      mock
+    }
+
+    RubyLLM.stub :chat, mock_factory do
+      MemoryRefinementJob.perform_now(@agent.id)
+    end
+
+    assert_includes consent_prompt, @agent.system_prompt
+    assert_includes consent_prompt, "Memory Refinement Request"
+    assert_includes consent_prompt, "YES"
+    assert_includes consent_prompt, "NO"
   end
 
   private
 
-  def mock_agentic_chat(on_ask)
+  def assert_no_llm_calls(&block)
+    chat_called = false
     mock = Object.new
     mock.define_singleton_method(:with_tool) { |_t| self }
-    mock.define_singleton_method(:ask) do |_prompt|
-      on_ask.call
-      OpenStruct.new(content: "Done")
+    mock.define_singleton_method(:ask) { |_p| chat_called = true; OpenStruct.new(content: "Done") }
+
+    RubyLLM.stub :chat, ->(**opts) { mock } do
+      block.call
     end
-    mock
+
+    assert_not chat_called, "LLM should not have been called"
   end
 
-  def mock_agentic_chat_with_prompt_capture(handler)
-    mock = Object.new
-    mock.define_singleton_method(:with_tool) { |_t| self }
-    mock.define_singleton_method(:ask) do |prompt|
-      handler.call(prompt)
-      OpenStruct.new(content: "Done")
+  def stub_consent_and_refinement(consent_answer, on_refinement: nil, capture_refinement_prompt: nil)
+    mock_factory = ->(**opts) {
+      mock = Object.new
+      has_tool = false
+      mock.define_singleton_method(:with_tool) { |_t| has_tool = true; self }
+      mock.define_singleton_method(:ask) do |prompt|
+        unless has_tool
+          return OpenStruct.new(content: consent_answer)
+        end
+        on_refinement&.call
+        capture_refinement_prompt&.call(prompt)
+        OpenStruct.new(content: "Done")
+      end
+      mock
+    }
+
+    RubyLLM.stub :chat, mock_factory do
+      yield
     end
-    mock
   end
 
 end
