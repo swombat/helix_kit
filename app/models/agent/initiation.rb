@@ -48,7 +48,7 @@ module Agent::Initiation
       You may choose nothing with no penalty; default to nothing if unsure.
 
       # Current Time
-      #{Time.current.strftime('%Y-%m-%d %H:%M %Z')}
+      #{Time.current.strftime('%A, %Y-%m-%d %H:%M %Z')}
       #{nighttime_context if nighttime}
 
       # Team Members

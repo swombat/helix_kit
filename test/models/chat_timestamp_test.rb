@@ -61,7 +61,7 @@ class ChatTimestampTest < ActiveSupport::TestCase
 
   test "system_message_for includes current time" do
     system_msg = @chat.send(:system_message_for, @agent)
-    assert_match(/Current time: \d{4}-\d{2}-\d{2} \d{2}:\d{2} \w+/, system_msg[:content])
+    assert_match(/Current time: \w+, \d{4}-\d{2}-\d{2} \d{2}:\d{2} \w+/, system_msg[:content])
   end
 
   test "system_message_for uses user timezone for current time" do
@@ -74,7 +74,7 @@ class ChatTimestampTest < ActiveSupport::TestCase
     system_msg = @chat.send(:system_message_for, @agent)
 
     # The timezone abbreviation should be in the output (EST or EDT depending on time of year)
-    assert_match(/Current time: \d{4}-\d{2}-\d{2} \d{2}:\d{2} (EST|EDT)/, system_msg[:content])
+    assert_match(/Current time: \w+, \d{4}-\d{2}-\d{2} \d{2}:\d{2} (EST|EDT)/, system_msg[:content])
   end
 
   test "format_message_for_context prepends timestamp to user messages" do

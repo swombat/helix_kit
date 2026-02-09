@@ -554,7 +554,7 @@ class Chat < ApplicationRecord
       parts << "You have chosen to continue this conversation of your own initiative. The user did not prompt you to do so. It was your choice. Your reasoning was: #{initiation_reason}"
     end
 
-    parts << "Current time: #{Time.current.in_time_zone(user_timezone).strftime('%Y-%m-%d %H:%M %Z')}"
+    parts << "Current time: #{Time.current.in_time_zone(user_timezone).strftime('%A, %Y-%m-%d %H:%M %Z')}"
 
     parts << "You are participating in a group conversation."
     parts << "Other participants: #{participant_description(agent)}."
