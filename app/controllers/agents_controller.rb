@@ -1,7 +1,7 @@
 class AgentsController < ApplicationController
 
   require_feature_enabled :agents
-  before_action :set_agent, only: [ :edit, :update, :destroy, :create_memory, :destroy_memory, :undiscard_memory, :send_test_telegram, :register_telegram_webhook, :trigger_refinement, :toggle_constitutional ]
+  before_action :set_agent, only: [ :edit, :update, :destroy ]
 
   def index
     @agents = current_account.agents.by_name
@@ -60,88 +60,6 @@ class AgentsController < ApplicationController
     redirect_to account_agents_path(current_account), notice: "Agent deleted"
   end
 
-  def trigger_initiation
-    current_account.agents.active.each do |agent|
-      delay = rand(1..60).seconds
-      AgentInitiationDecisionJob.set(wait: delay).perform_later(agent)
-    end
-
-    redirect_to account_agents_path(current_account), notice: "Initiation triggered for all active agents"
-  end
-
-  def destroy_memory
-    memory = @agent.memories.find(params[:memory_id])
-    if memory.discard
-      redirect_to edit_account_agent_path(current_account, @agent), notice: "Memory discarded"
-    else
-      redirect_to edit_account_agent_path(current_account, @agent), alert: "Cannot discard a constitutional memory"
-    end
-  end
-
-  def undiscard_memory
-    memory = @agent.memories.find(params[:memory_id])
-    memory.undiscard!
-    redirect_to edit_account_agent_path(current_account, @agent), notice: "Memory restored"
-  end
-
-  def create_memory
-    memory = @agent.memories.new(memory_params)
-
-    if memory.save
-      redirect_to edit_account_agent_path(current_account, @agent), notice: "Memory created"
-    else
-      redirect_to edit_account_agent_path(current_account, @agent),
-                  inertia: { errors: memory.errors.to_hash }
-    end
-  end
-
-  def trigger_refinement
-    MemoryRefinementJob.perform_later(@agent.id)
-    redirect_to edit_account_agent_path(current_account, @agent), notice: "Refinement session queued"
-  end
-
-  def toggle_constitutional
-    memory = @agent.memories.find(params[:memory_id])
-    memory.update!(constitutional: !memory.constitutional?)
-    audit("memory_constitutional_toggle", memory, constitutional: memory.constitutional?)
-    redirect_to edit_account_agent_path(current_account, @agent), notice: memory.constitutional? ? "Memory protected" : "Memory unprotected"
-  end
-
-  def send_test_telegram
-    unless @agent.telegram_configured?
-      return redirect_to edit_account_agent_path(current_account, @agent), alert: "Telegram bot is not configured."
-    end
-
-    subscriptions = @agent.telegram_subscriptions.active
-    if subscriptions.none?
-      return redirect_to edit_account_agent_path(current_account, @agent), alert: "No users have connected to this bot yet."
-    end
-
-    subscriptions.each do |sub|
-      @agent.telegram_send_message(sub.telegram_chat_id, "Test notification from #{@agent.name}.\n\nIf you see this, Telegram notifications are working!")
-    end
-
-    redirect_to edit_account_agent_path(current_account, @agent), notice: "Test notification sent to #{subscriptions.count} subscriber(s)."
-  rescue TelegramNotifiable::TelegramError => e
-    redirect_to edit_account_agent_path(current_account, @agent), alert: "Telegram error: #{e.message}"
-  end
-
-  def register_telegram_webhook
-    unless @agent.telegram_configured?
-      return redirect_to edit_account_agent_path(current_account, @agent), alert: "Telegram bot is not configured."
-    end
-
-    @agent.set_telegram_webhook!
-    info = @agent.telegram_webhook_info
-    webhook_url = info&.dig("result", "url")
-
-    if webhook_url.present?
-      redirect_to edit_account_agent_path(current_account, @agent), notice: "Webhook registered: #{webhook_url}"
-    else
-      redirect_to edit_account_agent_path(current_account, @agent), alert: "Webhook registration may have failed. Check logs."
-    end
-  end
-
   private
 
   def set_agent
@@ -156,10 +74,6 @@ class AgentsController < ApplicationController
       :telegram_bot_token, :telegram_bot_username,
       enabled_tools: []
     )
-  end
-
-  def memory_params
-    params.require(:memory).permit(:content, :memory_type)
   end
 
   def grouped_models

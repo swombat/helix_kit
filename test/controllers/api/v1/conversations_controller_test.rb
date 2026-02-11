@@ -80,43 +80,6 @@ module Api
         assert_response :not_found
       end
 
-      test "creates message and triggers AI" do
-        @chat.messages.create!(content: "Hello", role: "user", user: @user)
-
-        assert_enqueued_with(job: AiResponseJob) do
-          post create_message_api_v1_conversation_url(@chat),
-               params: { content: "New message" },
-               headers: { "Authorization" => "Bearer #{@token}" }
-        end
-        assert_response :created
-
-        json = JSON.parse(response.body)
-        assert json["message"]["id"].present?
-        assert_equal "New message", json["message"]["content"]
-        assert json["ai_response_triggered"]
-      end
-
-      test "create message rejects archived conversations" do
-        @chat.archive!
-
-        post create_message_api_v1_conversation_url(@chat),
-             params: { content: "New message" },
-             headers: { "Authorization" => "Bearer #{@token}" }
-        assert_response :unprocessable_entity
-
-        json = JSON.parse(response.body)
-        assert_equal "Conversation is archived or deleted", json["error"]
-      end
-
-      test "create message rejects discarded conversations" do
-        @chat.discard!
-
-        post create_message_api_v1_conversation_url(@chat),
-             params: { content: "New message" },
-             headers: { "Authorization" => "Bearer #{@token}" }
-        assert_response :unprocessable_entity
-      end
-
       test "updates api key last used timestamp" do
         assert_nil @api_key.reload.last_used_at
 

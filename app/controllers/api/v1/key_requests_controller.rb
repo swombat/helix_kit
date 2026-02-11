@@ -11,7 +11,7 @@ module Api
 
         render json: {
           request_token: request_record.request_token,
-          approval_url: approve_api_key_url(request_record.request_token),
+          approval_url: api_key_approval_url(request_record.request_token),
           poll_url: api_v1_key_request_url(request_record.request_token),
           expires_at: request_record.expires_at.iso8601
         }, status: :created

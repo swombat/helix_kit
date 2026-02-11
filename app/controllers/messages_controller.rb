@@ -1,11 +1,21 @@
 class MessagesController < ApplicationController
 
   require_feature_enabled :chats
-  before_action :set_chat, except: [ :retry, :update, :destroy, :fix_hallucinated_tool_calls ]
-  before_action :set_chat_for_retry, only: :retry
-  before_action :set_message, only: [ :update, :destroy, :fix_hallucinated_tool_calls ]
-  before_action :require_respondable_chat, only: [ :create, :retry ]
+  before_action :set_chat, only: [ :index, :create ]
+  before_action :set_message, only: [ :update, :destroy ]
+  before_action :require_respondable_chat, only: :create
   before_action :authorize_message_modification, only: [ :update, :destroy ]
+
+  def index
+    @messages = @chat.messages_page(before_id: params[:before_id])
+    @has_more = @messages.any? && @chat.messages.where("id < ?", @messages.first.id).exists?
+
+    render json: {
+      messages: @messages.collect(&:as_json),
+      has_more: @has_more,
+      oldest_id: @messages.first&.to_param
+    }
+  end
 
   def create
     @message = @chat.messages.build(
@@ -58,48 +68,10 @@ class MessagesController < ApplicationController
     head :ok
   end
 
-  def retry
-    Rails.logger.info "🔄 Retry called for message #{params[:id]}, chat #{@chat.id}"
-    AiResponseJob.perform_later(@chat)
-    Rails.logger.info "🔄 AiResponseJob enqueued for chat #{@chat.id}"
-
-    respond_to do |format|
-      format.html { redirect_to account_chat_path(@chat.account, @chat) }
-      format.json { head :ok }
-    end
-  rescue => e
-    Rails.logger.error "🔄 Retry failed: #{e.message}"
-    Rails.logger.error e.backtrace.join("\n")
-    respond_to do |format|
-      format.html { redirect_back_or_to account_chat_path(@chat.account, @chat), alert: "Retry failed: #{e.message}" }
-      format.json { head :internal_server_error }
-    end
-  end
-
-  def fix_hallucinated_tool_calls
-    @message.fix_hallucinated_tool_calls!
-    redirect_to account_chat_path(@chat.account, @chat)
-  rescue StandardError => e
-    Rails.logger.error "Fix hallucinated tool calls failed: #{e.message}"
-    redirect_to account_chat_path(@chat.account, @chat), alert: "Failed to fix: #{e.message}"
-  end
-
   private
 
   def set_chat
     @chat = current_account.chats.find(params[:chat_id])
-  end
-
-  def set_chat_for_retry
-    Rails.logger.info "🔄 set_chat_for_retry: Looking for message #{params[:id]}"
-    @message = Message.find(params[:id])
-    Rails.logger.info "🔄 set_chat_for_retry: Found message #{@message.id}, chat_id=#{@message.chat_id}"
-    @chat = current_account.chats.find(@message.chat_id)
-    Rails.logger.info "🔄 set_chat_for_retry: Found chat #{@chat.id}"
-  rescue => e
-    Rails.logger.error "🔄 set_chat_for_retry failed: #{e.message}"
-    Rails.logger.error e.backtrace.first(5).join("\n")
-    raise
   end
 
   def set_message

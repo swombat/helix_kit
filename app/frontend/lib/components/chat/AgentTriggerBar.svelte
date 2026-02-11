@@ -38,7 +38,7 @@
     Tree,
     Leaf,
   } from 'phosphor-svelte';
-  import { triggerAgentAccountChatPath, triggerAllAgentsAccountChatPath } from '@/routes';
+  import { accountChatAgentTriggerPath } from '@/routes';
 
   // Map icon names to components
   const iconComponents = {
@@ -97,8 +97,8 @@
     waitingForResponse = true;
 
     router.post(
-      triggerAgentAccountChatPath(accountId, chatId, agent.id),
-      {},
+      accountChatAgentTriggerPath(accountId, chatId),
+      { agent_id: agent.id },
       {
         onSuccess: () => {
           onTrigger?.();
@@ -117,7 +117,7 @@
     waitingForResponse = true;
 
     router.post(
-      triggerAllAgentsAccountChatPath(accountId, chatId),
+      accountChatAgentTriggerPath(accountId, chatId),
       {},
       {
         onSuccess: () => {

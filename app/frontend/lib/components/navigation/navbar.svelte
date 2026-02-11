@@ -30,7 +30,7 @@
     signupPath,
     logoutPath,
     editUserPath,
-    editPasswordUserPath,
+    editUserPasswordPath,
     accountPath,
   } from '@/routes';
   import { toggleMode, setMode, resetMode } from 'mode-watcher';
@@ -279,7 +279,7 @@
                 <span>Account Settings</span>
               </DropdownMenu.Item>
             {/if}
-            <DropdownMenu.Item onclick={() => router.visit(editPasswordUserPath())}>
+            <DropdownMenu.Item onclick={() => router.visit(editUserPasswordPath())}>
               <Password class="mr-2 size-4" />
               <span>Change Password</span>
             </DropdownMenu.Item>

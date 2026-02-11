@@ -22,19 +22,19 @@ Rails.application.routes.draw do
   resources :passwords, param: :token, only: %i[new create edit update]
 
   resource :user, only: %i[edit update] do
-    member do
-      get "edit_password"
-      patch "update_password"
+    scope module: :users do
+      resource :password, only: [ :edit, :update ]
+      resource :avatar, only: :destroy
     end
   end
 
-  resource :user_avatar, only: %i[destroy], controller: "users", path: "user/avatar"
-
   # API Key Management (browser-based)
   resources :api_keys, only: [ :index, :create, :destroy ]
-  get "api_keys/approve/:token", to: "api_keys#approve", as: :approve_api_key
-  post "api_keys/approve/:token", to: "api_keys#confirm_approve"
-  delete "api_keys/approve/:token", to: "api_keys#deny", as: :deny_api_key
+
+  # API Key Approvals (all actions keyed by token)
+  get    "api_keys/approvals/:token", to: "api_key_approvals#show",    as: :api_key_approval
+  post   "api_keys/approvals/:token", to: "api_key_approvals#create"
+  delete "api_keys/approvals/:token", to: "api_key_approvals#destroy"
 
   # Telegram webhook (called by Telegram, no auth)
   post "telegram/webhook/:token", to: "telegram_webhooks#receive", as: :telegram_webhook
@@ -46,43 +46,41 @@ Rails.application.routes.draw do
         post :resend
       end
     end
+
+    resource :agent_initiation, only: :create, module: :accounts
+
     resources :chats do
-      member do
-        get :older_messages
-        post "trigger_agent/:agent_id", action: :trigger_agent, as: :trigger_agent
-        post :trigger_all_agents
-        post :fork
-        post :archive
-        post :unarchive
-        post :discard
-        post :restore
-        post :assign_agent
-        post :add_agent
-        post :moderate_all
+      scope module: :chats do
+        resource :archive, only: [ :create, :destroy ]
+        resource :discard, only: [ :create, :destroy ]
+        resource :fork, only: :create
+        resource :moderation, only: :create
+        resource :agent_assignment, only: :create
+        resource :participant, only: :create
+        resource :agent_trigger, only: :create
       end
-      resources :messages, only: :create
+      resources :messages, only: [ :index, :create ]
     end
+
     resources :agents, except: [ :show, :new ] do
-      collection do
-        post :trigger_initiation
-      end
-      member do
-        post "memories", action: :create_memory, as: :create_memory
-        delete "memories/:memory_id", action: :destroy_memory, as: :destroy_memory
-        post "memories/:memory_id/undiscard", action: :undiscard_memory, as: :undiscard_memory
-        patch "memories/:memory_id/toggle_constitutional", action: :toggle_constitutional, as: :toggle_constitutional
-        post :send_test_telegram
-        post :register_telegram_webhook
-        post :trigger_refinement
+      scope module: :agents do
+        resource :refinement, only: :create
+        resource :telegram_test, only: :create
+        resource :telegram_webhook, only: :create
+        resources :memories, only: [ :create ] do
+          resource :discard, only: [ :create, :destroy ], module: :memories
+          resource :protection, only: [ :create, :destroy ], module: :memories
+        end
       end
     end
+
     resources :whiteboards, only: [ :index, :update ]
   end
 
   resources :messages, only: [ :update, :destroy ] do
-    member do
-      post :retry
-      post :fix_hallucinated_tool_calls
+    scope module: :messages do
+      resource :retry, only: :create
+      resource :hallucination_fix, only: :create
     end
   end
 
@@ -97,9 +95,7 @@ Rails.application.routes.draw do
     namespace :v1 do
       resources :key_requests, only: [ :create, :show ]
       resources :conversations, only: [ :index, :show ] do
-        member do
-          post :create_message
-        end
+        resources :messages, only: :create
       end
       resources :whiteboards, only: [ :index, :show, :create, :update ]
     end

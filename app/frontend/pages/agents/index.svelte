@@ -47,12 +47,7 @@
     Leaf,
   } from 'phosphor-svelte';
   import { useSync } from '$lib/use-sync';
-  import {
-    accountAgentsPath,
-    editAccountAgentPath,
-    accountAgentPath,
-    triggerInitiationAccountAgentsPath,
-  } from '@/routes';
+  import { accountAgentsPath, editAccountAgentPath, accountAgentPath, accountAgentInitiationPath } from '@/routes';
   import ColourPicker from '$lib/components/ColourPicker.svelte';
   import IconPicker from '$lib/components/IconPicker.svelte';
 
@@ -185,7 +180,7 @@
       <p class="text-muted-foreground mt-1">Create and manage AI agents with custom personalities</p>
     </div>
     <div class="flex gap-2">
-      <Button variant="outline" onclick={() => router.post(triggerInitiationAccountAgentsPath(account.id))}>
+      <Button variant="outline" onclick={() => router.post(accountAgentInitiationPath(account.id))}>
         <Lightning class="mr-2 size-4" />
         Trigger Initiation
       </Button>

@@ -1,5 +1,5 @@
 <script>
-  import { updatePasswordUserPath } from '@/routes';
+  import { userPasswordPath } from '@/routes';
   import Form from './Form.svelte';
   import Input from '$lib/components/shadcn/input/input.svelte';
   import Label from '$lib/components/shadcn/label/label.svelte';
@@ -14,7 +14,7 @@
 </script>
 
 <Form
-  action={updatePasswordUserPath()}
+  action={userPasswordPath()}
   method="patch"
   data={() => passwordData}
   title="Change Password"

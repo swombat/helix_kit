@@ -349,147 +349,6 @@ class ChatsControllerTest < ActionDispatch::IntegrationTest
     assert @chat.web_access
   end
 
-  # Archive functionality tests
-
-  test "archive action archives the chat" do
-    assert_not @chat.archived?
-
-    post archive_account_chat_path(@account, @chat)
-
-    assert_redirected_to account_chats_path(@account)
-    @chat.reload
-    assert @chat.archived?
-  end
-
-  test "archive action creates audit log" do
-    assert_difference "AuditLog.count" do
-      post archive_account_chat_path(@account, @chat)
-    end
-
-    audit = AuditLog.last
-    assert_equal "archive_chat", audit.action
-    assert_equal @chat.id, audit.auditable_id
-  end
-
-  test "unarchive action unarchives the chat" do
-    @chat.archive!
-    assert @chat.archived?
-
-    post unarchive_account_chat_path(@account, @chat)
-
-    assert_redirected_to account_chats_path(@account)
-    @chat.reload
-    assert_not @chat.archived?
-  end
-
-  test "unarchive action creates audit log" do
-    @chat.archive!
-
-    assert_difference "AuditLog.count" do
-      post unarchive_account_chat_path(@account, @chat)
-    end
-
-    audit = AuditLog.last
-    assert_equal "unarchive_chat", audit.action
-    assert_equal @chat.id, audit.auditable_id
-  end
-
-  # Discard (soft delete) functionality tests
-
-  test "discard action soft deletes the chat for admin" do
-    # User is owner of personal account, so they are an admin
-    assert @account.manageable_by?(@user)
-    assert_not @chat.discarded?
-
-    post discard_account_chat_path(@account, @chat)
-
-    assert_redirected_to account_chats_path(@account)
-    @chat.reload
-    assert @chat.discarded?
-  end
-
-  test "discard action creates audit log" do
-    assert_difference "AuditLog.count" do
-      post discard_account_chat_path(@account, @chat)
-    end
-
-    audit = AuditLog.last
-    assert_equal "discard_chat", audit.action
-    assert_equal @chat.id, audit.auditable_id
-  end
-
-  test "discard action is forbidden for non-admin" do
-    # team_account has user_1 as owner, and existing_user (user_id: 3) as member via team_member membership
-    team_account = accounts(:team_account)
-    member_user = users(:existing_user)  # This user is member via team_member membership
-    team_chat = team_account.chats.create!(model_id: "openrouter/auto", title: "Team Chat")
-
-    # Sign in as member (not admin)
-    delete logout_path
-    post login_path, params: {
-      email_address: member_user.email_address,
-      password: "password123"
-    }
-
-    # Member should not be able to discard
-    assert_not team_account.manageable_by?(member_user)
-
-    post discard_account_chat_path(team_account, team_chat)
-
-    assert_redirected_to account_chats_path(team_account)
-    assert_match(/permission/, flash[:alert])
-    team_chat.reload
-    assert_not team_chat.discarded?
-  end
-
-  test "restore action restores a discarded chat for admin" do
-    @chat.discard!
-    assert @chat.discarded?
-
-    post restore_account_chat_path(@account, @chat)
-
-    assert_redirected_to account_chats_path(@account)
-    @chat.reload
-    assert_not @chat.discarded?
-  end
-
-  test "restore action creates audit log" do
-    @chat.discard!
-
-    assert_difference "AuditLog.count" do
-      post restore_account_chat_path(@account, @chat)
-    end
-
-    audit = AuditLog.last
-    assert_equal "restore_chat", audit.action
-    assert_equal @chat.id, audit.auditable_id
-  end
-
-  test "restore action is forbidden for non-admin" do
-    # team_account has user_1 as owner, and existing_user (user_id: 3) as member via team_member membership
-    team_account = accounts(:team_account)
-    member_user = users(:existing_user)  # This user is member via team_member membership
-    team_chat = team_account.chats.create!(model_id: "openrouter/auto", title: "Team Chat")
-    team_chat.discard!
-
-    # Sign in as member (not admin)
-    delete logout_path
-    post login_path, params: {
-      email_address: member_user.email_address,
-      password: "password123"
-    }
-
-    # Member should not be able to restore
-    assert_not team_account.manageable_by?(member_user)
-
-    post restore_account_chat_path(team_account, team_chat)
-
-    assert_redirected_to account_chats_path(team_account)
-    assert_match(/permission/, flash[:alert])
-    team_chat.reload
-    assert team_chat.discarded?
-  end
-
   # Index ordering tests
 
   test "index shows active chats before archived chats" do
@@ -580,13 +439,13 @@ class ChatsControllerTest < ActionDispatch::IntegrationTest
     assert_not_includes kept_chats.map(&:id), discarded_chat.id
   end
 
-  # Pagination tests
+  # Pagination tests (now via messages#index)
 
-  test "older_messages returns JSON with pagination info" do
+  test "messages index returns JSON with pagination info" do
     chat = @account.chats.create!(model_id: "openrouter/auto")
     messages = 50.times.map { |i| chat.messages.create!(content: "Message #{i}", role: "user", user: @user) }
 
-    get older_messages_account_chat_path(@account, chat, before_id: messages.last.to_param),
+    get account_chat_messages_path(@account, chat, before_id: messages.last.to_param),
         headers: { "Accept" => "application/json" }
 
     assert_response :success
@@ -598,12 +457,12 @@ class ChatsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 30, json["messages"].length  # Default limit is 30
   end
 
-  test "older_messages returns messages before specified ID" do
+  test "messages index returns messages before specified ID" do
     chat = @account.chats.create!(model_id: "openrouter/auto")
     messages = 10.times.map { |i| chat.messages.create!(content: "Message #{i}", role: "user", user: @user) }
     middle = messages[5]
 
-    get older_messages_account_chat_path(@account, chat, before_id: middle.to_param),
+    get account_chat_messages_path(@account, chat, before_id: middle.to_param),
         headers: { "Accept" => "application/json" }
 
     assert_response :success
@@ -614,11 +473,11 @@ class ChatsControllerTest < ActionDispatch::IntegrationTest
     assert returned_ids.all? { |id| id < middle.id }
   end
 
-  test "older_messages returns empty when no more messages" do
+  test "messages index returns empty when no more messages" do
     chat = @account.chats.create!(model_id: "openrouter/auto")
     message = chat.messages.create!(content: "Only message", role: "user", user: @user)
 
-    get older_messages_account_chat_path(@account, chat, before_id: message.to_param),
+    get account_chat_messages_path(@account, chat, before_id: message.to_param),
         headers: { "Accept" => "application/json" }
 
     assert_response :success
@@ -627,39 +486,39 @@ class ChatsControllerTest < ActionDispatch::IntegrationTest
     assert_equal false, json["has_more"]
   end
 
-  test "older_messages requires authentication" do
+  test "messages index requires authentication" do
     delete logout_path
 
     chat = @account.chats.create!(model_id: "openrouter/auto")
     message = chat.messages.create!(content: "Test", role: "user")
 
-    get older_messages_account_chat_path(@account, chat, before_id: message.to_param),
+    get account_chat_messages_path(@account, chat, before_id: message.to_param),
         headers: { "Accept" => "application/json" }
 
     assert_response :redirect
   end
 
-  test "older_messages scopes to current account" do
+  test "messages index scopes to current account" do
     other_user = User.create!(email_address: "paginationother@example.com")
     other_user.profile.update!(first_name: "Other", last_name: "User")
     other_account = other_user.personal_account
     other_chat = other_account.chats.create!(model_id: "openrouter/auto")
     message = other_chat.messages.create!(content: "Test", role: "user", user: other_user)
 
-    get older_messages_account_chat_path(@account, other_chat, before_id: message.to_param),
+    get account_chat_messages_path(@account, other_chat, before_id: message.to_param),
         headers: { "Accept" => "application/json" }
 
     assert_response :not_found
   end
 
-  test "older_messages indicates has_more correctly when more messages exist" do
+  test "messages index indicates has_more correctly when more messages exist" do
     chat = @account.chats.create!(model_id: "openrouter/auto")
     # Create 50 messages (0-49)
     messages = 50.times.map { |i| chat.messages.create!(content: "Message #{i}", role: "user", user: @user) }
 
     # Request messages before the last one (message 49)
     # Should get messages 19-48 (30 messages), and there should be more (0-18)
-    get older_messages_account_chat_path(@account, chat, before_id: messages.last.to_param),
+    get account_chat_messages_path(@account, chat, before_id: messages.last.to_param),
         headers: { "Accept" => "application/json" }
 
     assert_response :success
@@ -667,90 +526,19 @@ class ChatsControllerTest < ActionDispatch::IntegrationTest
     assert_equal true, json["has_more"], "Should indicate more messages exist"
   end
 
-  test "older_messages indicates has_more false when no more messages" do
+  test "messages index indicates has_more false when no more messages" do
     chat = @account.chats.create!(model_id: "openrouter/auto")
     # Create 5 messages (0-4)
     messages = 5.times.map { |i| chat.messages.create!(content: "Message #{i}", role: "user", user: @user) }
 
     # Request messages before the last one (message 4)
     # Should get messages 0-3 (4 messages), and there should be no more
-    get older_messages_account_chat_path(@account, chat, before_id: messages.last.to_param),
+    get account_chat_messages_path(@account, chat, before_id: messages.last.to_param),
         headers: { "Accept" => "application/json" }
 
     assert_response :success
     json = JSON.parse(response.body)
     assert_equal false, json["has_more"], "Should indicate no more messages"
-  end
-
-  # Add Agent to Group Chat tests
-
-  test "add_agent succeeds for group chat and creates system message" do
-    agent1 = @account.agents.create!(name: "Agent One", system_prompt: "You are agent one")
-    agent2 = @account.agents.create!(name: "Agent Two", system_prompt: "You are agent two")
-
-    group_chat = create_group_chat(@account, agent_ids: [ agent1.id ])
-    assert group_chat.group_chat?
-
-    assert_difference "Message.count", 1 do
-      post add_agent_account_chat_path(@account, group_chat), params: { agent_id: agent2.to_param }
-    end
-
-    assert_redirected_to account_chat_path(@account, group_chat)
-    group_chat.reload
-    assert_includes group_chat.agents, agent2
-
-    system_message = group_chat.messages.last
-    assert_equal "user", system_message.role
-    assert_match(/Agent Two has joined the conversation/, system_message.content)
-  end
-
-  test "add_agent rejected for non-group chat" do
-    # @chat is a regular chat (manual_responses = false)
-    assert_not @chat.group_chat?
-
-    agent = @account.agents.create!(name: "Test Agent", system_prompt: "You are a test agent")
-
-    post add_agent_account_chat_path(@account, @chat), params: { agent_id: agent.to_param }
-
-    assert_redirected_to account_chat_path(@account, @chat)
-    assert_match(/group chats/, flash[:alert])
-  end
-
-  test "add_agent rejected for duplicate agent" do
-    agent = @account.agents.create!(name: "Agent One", system_prompt: "You are agent one")
-
-    group_chat = create_group_chat(@account, agent_ids: [ agent.id ])
-
-    assert_no_difference "Message.count" do
-      post add_agent_account_chat_path(@account, group_chat), params: { agent_id: agent.to_param }
-    end
-
-    assert_redirected_to account_chat_path(@account, group_chat)
-    assert_match(/already in this conversation/, flash[:alert])
-  end
-
-  test "add_agent adds agent to chat agents association" do
-    agent1 = @account.agents.create!(name: "Agent One", system_prompt: "You are agent one")
-    agent2 = @account.agents.create!(name: "Agent Two", system_prompt: "You are agent two")
-
-    group_chat = create_group_chat(@account, agent_ids: [ agent1.id ])
-    assert_equal 1, group_chat.agents.count
-
-    post add_agent_account_chat_path(@account, group_chat), params: { agent_id: agent2.to_param }
-
-    group_chat.reload
-    assert_equal 2, group_chat.agents.count
-    assert_includes group_chat.agents, agent1
-    assert_includes group_chat.agents, agent2
-  end
-
-  private
-
-  def create_group_chat(account, agent_ids:)
-    chat = account.chats.new(model_id: "openrouter/auto", manual_responses: true)
-    chat.agent_ids = agent_ids
-    chat.save!
-    chat
   end
 
 end

@@ -11,21 +11,6 @@ class UsersController < ApplicationController
     update_user_successfully || handle_update_failure
   end
 
-  def edit_password
-    render inertia: "user/edit_password"
-  end
-
-  def update_password
-    return redirect_with_incorrect_password unless current_password_valid?
-
-    update_password_successfully || redirect_with_password_errors
-  end
-
-  def destroy
-    remove_user_avatar
-    respond_with_avatar_removal_success
-  end
-
   private
 
   def timezone_options
@@ -87,40 +72,6 @@ class UsersController < ApplicationController
     inertia_request? ?
       redirect_with_inertia_flash(:errors, Current.user.errors.full_messages, edit_user_path) :
       render(json: { errors: Current.user.errors.full_messages }, status: :unprocessable_entity)
-  end
-
-  def current_password_valid?
-    Current.user.authenticate(params[:current_password])
-  end
-
-  def redirect_with_incorrect_password
-    flash[:errors] = [ "Current password is incorrect" ]
-    redirect_to edit_password_user_path
-  end
-
-  def update_password_successfully
-    return false unless Current.user.update(password: params[:password], password_confirmation: params[:password_confirmation])
-
-    audit(:change_password, Current.user)
-    flash[:success] = "Password updated successfully"
-    redirect_to edit_user_path
-    true
-  end
-
-  def redirect_with_password_errors
-    flash[:errors] = Current.user.errors.full_messages
-    redirect_to edit_password_user_path
-  end
-
-  def remove_user_avatar
-    Current.user.profile&.avatar&.purge_later
-    audit(:remove_avatar, Current.user)
-  end
-
-  def respond_with_avatar_removal_success
-    inertia_request? ?
-      redirect_with_inertia_flash(:success, "Avatar removed successfully", edit_user_path) :
-      render(json: { success: true }, status: :ok)
   end
 
   def inertia_request?

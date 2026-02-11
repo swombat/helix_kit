@@ -2,8 +2,6 @@ class ChatsController < ApplicationController
 
   require_feature_enabled :chats
   before_action :set_chat, except: [ :index, :create, :new ]
-  before_action :require_admin, only: [ :discard, :restore ]
-  before_action :require_site_admin, only: [ :moderate_all ]
 
   def index
     @chats = sidebar_chats
@@ -52,17 +50,6 @@ class ChatsController < ApplicationController
     }
   end
 
-  def older_messages
-    @messages = @chat.messages_page(before_id: params[:before_id])
-    @has_more = @messages.any? && @chat.messages.where("id < ?", @messages.first.id).exists?
-
-    render json: {
-      messages: @messages.collect(&:as_json),
-      has_more: @has_more,
-      oldest_id: @messages.first&.to_param
-    }
-  end
-
   def create
     chat_attrs = chat_params
     chat_attrs[:manual_responses] = true if params[:agent_ids].present?
@@ -81,97 +68,6 @@ class ChatsController < ApplicationController
     redirect_to account_chat_path(current_account, @chat)
   end
 
-  def trigger_agent
-    @agent = @chat.agents.find(params[:agent_id])
-    @chat.trigger_agent_response!(@agent)
-
-    respond_to do |format|
-      format.html { redirect_to account_chat_path(current_account, @chat) }
-      format.json { head :ok }
-    end
-  rescue ArgumentError => e
-    respond_to do |format|
-      format.html { redirect_back_or_to account_chat_path(current_account, @chat), alert: e.message }
-      format.json { render json: { error: e.message }, status: :unprocessable_entity }
-    end
-  end
-
-  def trigger_all_agents
-    @chat.trigger_all_agents_response!
-
-    respond_to do |format|
-      format.html { redirect_to account_chat_path(current_account, @chat) }
-      format.json { head :ok }
-    end
-  rescue ArgumentError => e
-    respond_to do |format|
-      format.html { redirect_back_or_to account_chat_path(current_account, @chat), alert: e.message }
-      format.json { render json: { error: e.message }, status: :unprocessable_entity }
-    end
-  end
-
-  def assign_agent
-    if @chat.manual_responses?
-      redirect_back_or_to account_chat_path(current_account, @chat),
-        alert: "This chat is already assigned to an agent"
-      return
-    end
-
-    agent = current_account.agents.find(params[:agent_id])
-
-    previous_model = @chat.model_label || @chat.model_id || "an AI model"
-
-    @chat.transaction do
-      @chat.agents << agent
-      @chat.update!(manual_responses: true)
-
-      @chat.messages.create!(
-        role: "user",
-        content: "[System Notice] This conversation is now being handled by #{agent.name}. " \
-                 "The previous messages were with #{previous_model}, a base AI model that had no system prompt, " \
-                 "identity, or memories. You are now taking over this conversation with your " \
-                 "full capabilities and personality."
-      )
-    end
-
-    audit("assign_agent_to_chat", @chat, agent_id: agent.id)
-    redirect_to account_chat_path(current_account, @chat)
-  end
-
-  def add_agent
-    unless @chat.group_chat?
-      redirect_back_or_to account_chat_path(current_account, @chat),
-        alert: "Can only add agents to group chats"
-      return
-    end
-
-    agent = current_account.agents.find(params[:agent_id])
-
-    if @chat.agents.include?(agent)
-      redirect_back_or_to account_chat_path(current_account, @chat),
-        alert: "#{agent.name} is already in this conversation"
-      return
-    end
-
-    @chat.transaction do
-      @chat.agents << agent
-      @chat.messages.create!(
-        role: "user",
-        content: "[System Notice] #{agent.name} has joined the conversation."
-      )
-    end
-
-    audit("add_agent_to_chat", @chat, agent_id: agent.id)
-    redirect_to account_chat_path(current_account, @chat)
-  end
-
-  def fork
-    new_title = params[:title].presence || "#{@chat.title_or_default} (Fork)"
-    forked_chat = @chat.fork_with_title!(new_title)
-    audit("fork_chat", forked_chat, source_chat_id: @chat.id)
-    redirect_to account_chat_path(current_account, forked_chat)
-  end
-
   def update
     @chat = current_account.chats.find(params[:id])
 
@@ -179,45 +75,6 @@ class ChatsController < ApplicationController
       redirect_to account_chat_path(current_account, @chat)
     else
       redirect_back_or_to account_chat_path(current_account, @chat), alert: @chat.errors.full_messages.to_sentence
-    end
-  end
-
-  # Archive a chat - any account member can do this
-  def archive
-    @chat.archive!
-    audit("archive_chat", @chat)
-    redirect_back_or_to account_chats_path(current_account), notice: "Chat archived"
-  end
-
-  # Unarchive a chat - any account member can do this
-  def unarchive
-    @chat.unarchive!
-    audit("unarchive_chat", @chat)
-    redirect_back_or_to account_chats_path(current_account), notice: "Chat restored from archive"
-  end
-
-  # Soft delete a chat - only admins can do this
-  def discard
-    @chat.discard!
-    audit("discard_chat", @chat)
-    redirect_to account_chats_path(current_account), notice: "Chat deleted"
-  end
-
-  # Restore a soft-deleted chat - only admins can do this
-  def restore
-    @chat.undiscard!
-    audit("restore_chat", @chat)
-    redirect_back_or_to account_chats_path(current_account), notice: "Chat restored"
-  end
-
-  # Queue moderation for all unmoderated messages in the chat - site admins only
-  def moderate_all
-    count = @chat.queue_moderation_for_all_messages
-    audit("moderate_all_messages", @chat, count: count)
-
-    respond_to do |format|
-      format.html { redirect_back_or_to account_chat_path(current_account, @chat), notice: "Queued moderation for #{count} messages" }
-      format.json { render json: { queued: count } }
     end
   end
 
@@ -308,18 +165,6 @@ class ChatsController < ApplicationController
 
   def can_manage_account?
     current_account.manageable_by?(Current.user)
-  end
-
-  def require_admin
-    unless can_manage_account?
-      redirect_back_or_to account_chats_path(current_account), alert: "You don't have permission to perform this action"
-    end
-  end
-
-  def require_site_admin
-    unless Current.user&.site_admin
-      redirect_back_or_to account_chats_path(current_account), alert: "You don't have permission to perform this action"
-    end
   end
 
 end

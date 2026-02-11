@@ -27,8 +27,12 @@
   import {
     accountAgentsPath,
     accountAgentPath,
-    sendTestTelegramAccountAgentPath,
-    registerTelegramWebhookAccountAgentPath,
+    accountAgentTelegramTestPath,
+    accountAgentTelegramWebhookPath,
+    accountAgentRefinementPath,
+    accountAgentMemoriesPath,
+    accountAgentMemoryDiscardPath,
+    accountAgentMemoryProtectionPath,
   } from '@/routes';
   import ColourPicker from '$lib/components/ColourPicker.svelte';
   import IconPicker from '$lib/components/IconPicker.svelte';
@@ -116,24 +120,24 @@
 
   function deleteMemory(memoryId) {
     if (confirm('Discard this memory?')) {
-      router.delete(`/accounts/${account.id}/agents/${agent.id}/memories/${memoryId}`, {
-        preserveScroll: true,
-      });
+      router.post(
+        accountAgentMemoryDiscardPath(account.id, agent.id, memoryId),
+        {},
+        {
+          preserveScroll: true,
+        }
+      );
     }
   }
 
   function undiscardMemory(memoryId) {
-    router.post(
-      `/accounts/${account.id}/agents/${agent.id}/memories/${memoryId}/undiscard`,
-      {},
-      { preserveScroll: true }
-    );
+    router.delete(accountAgentMemoryDiscardPath(account.id, agent.id, memoryId), { preserveScroll: true });
   }
 
   function triggerRefinement() {
     triggeringRefinement = true;
     router.post(
-      `/accounts/${account.id}/agents/${agent.id}/trigger_refinement`,
+      accountAgentRefinementPath(account.id, agent.id),
       {},
       {
         preserveScroll: true,
@@ -144,18 +148,18 @@
     );
   }
 
-  function toggleConstitutional(memoryId) {
-    router.patch(
-      `/accounts/${account.id}/agents/${agent.id}/memories/${memoryId}/toggle_constitutional`,
-      {},
-      { preserveScroll: true }
-    );
+  function toggleConstitutional(memoryId, isCurrentlyProtected) {
+    if (isCurrentlyProtected) {
+      router.delete(accountAgentMemoryProtectionPath(account.id, agent.id, memoryId), { preserveScroll: true });
+    } else {
+      router.post(accountAgentMemoryProtectionPath(account.id, agent.id, memoryId), {}, { preserveScroll: true });
+    }
   }
 
   function sendTestNotification() {
     sendingTestNotification = true;
     router.post(
-      sendTestTelegramAccountAgentPath(account.id, agent.id),
+      accountAgentTelegramTestPath(account.id, agent.id),
       {},
       {
         preserveScroll: true,
@@ -169,7 +173,7 @@
   function registerWebhook() {
     registeringWebhook = true;
     router.post(
-      registerTelegramWebhookAccountAgentPath(account.id, agent.id),
+      accountAgentTelegramWebhookPath(account.id, agent.id),
       {},
       {
         preserveScroll: true,
@@ -211,7 +215,7 @@
     if (!newMemoryContent.trim()) return;
 
     router.post(
-      `/accounts/${account.id}/agents/${agent.id}/memories`,
+      accountAgentMemoriesPath(account.id, agent.id),
       {
         memory: {
           content: newMemoryContent,
@@ -759,7 +763,7 @@
                     {:else}
                       <button
                         type="button"
-                        onclick={() => toggleConstitutional(memory.id)}
+                        onclick={() => toggleConstitutional(memory.id, memory.constitutional)}
                         class="flex-shrink-0 p-1 transition-colors {memory.constitutional
                           ? 'text-primary'
                           : 'text-muted-foreground hover:text-primary'}"

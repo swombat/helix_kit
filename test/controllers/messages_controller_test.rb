@@ -261,56 +261,6 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to account_chat_path(@account, new_chat)
   end
 
-  test "should retry failed message" do
-    # Create a failed assistant message
-    user_message = @chat.messages.create!(
-      user: @user,
-      role: "user",
-      content: "Original question"
-    )
-    failed_message = @chat.messages.create!(
-      role: "assistant",
-      content: "Partial response"
-    )
-
-    # Test that the retry endpoint works - use JSON format to get a success response
-    post retry_message_path(failed_message), as: :json
-    assert_response :success
-
-    # Verify that the AiResponseJob gets enqueued
-    assert_enqueued_jobs 1, only: AiResponseJob
-  end
-
-  test "retry should scope to current account" do
-    # Create message in different account
-    other_user = User.create!(
-      email_address: "retryother@example.com"
-    )
-    other_user.profile.update!(first_name: "Other", last_name: "User")
-    other_account = other_user.personal_account
-    other_chat = other_account.chats.create!(model_id: "gpt-4o")
-    other_message = other_chat.messages.create!(
-      role: "assistant",
-      content: "Failed"
-    )
-
-    # Should return 404 when trying to retry message from different account
-    post retry_message_path(other_message)
-    assert_response :not_found
-  end
-
-  test "retry requires authentication" do
-    message = @chat.messages.create!(
-      role: "assistant",
-      content: "Some content"
-    )
-
-    delete logout_path
-
-    post retry_message_path(message)
-    assert_response :redirect
-  end
-
   test "should touch chat when message is created" do
     original_updated_at = @chat.updated_at
 

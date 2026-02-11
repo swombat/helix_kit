@@ -42,14 +42,16 @@
   import AgentPickerDialog from '$lib/components/chat/AgentPickerDialog.svelte';
   import {
     accountChatMessagesPath,
-    retryMessagePath,
-    forkAccountChatPath,
-    assignAgentAccountChatPath,
+    messageRetryPath,
+    accountChatForkPath,
+    accountChatAgentAssignmentPath,
     messagePath,
-    moderateAllAccountChatPath,
-    fixHallucinatedToolCallsMessagePath,
+    accountChatModerationPath,
+    messageHallucinationFixPath,
+    accountChatArchivePath,
+    accountChatDiscardPath,
+    accountChatParticipantPath,
   } from '@/routes';
-  import { addAgentAccountChatPath } from '@/routes';
   import { marked } from 'marked';
   import * as logging from '$lib/logging';
   import { formatTime, formatDate, formatDateTime } from '$lib/utils';
@@ -329,7 +331,7 @@
     const previousHeight = container.scrollHeight;
 
     try {
-      const response = await fetch(`/accounts/${account.id}/chats/${chat.id}/older_messages?before_id=${oldestId}`, {
+      const response = await fetch(accountChatMessagesPath(account.id, chat.id, { before_id: oldestId }), {
         headers: {
           Accept: 'application/json',
           'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
@@ -690,7 +692,7 @@
   }
 
   function retryMessage(messageId) {
-    $retryForm.post(retryMessagePath(messageId), {
+    $retryForm.post(messageRetryPath(messageId), {
       onSuccess: () => {
         scheduleStreamingRefresh();
       },
@@ -706,7 +708,7 @@
       logging.debug('lastUserMessage:', lastUserMessage);
       if (lastUserMessage) {
         // Retry the AI response for this message
-        const retryPath = retryMessagePath(lastUserMessage.id);
+        const retryPath = messageRetryPath(lastUserMessage.id);
         logging.debug('Posting to retry path:', retryPath);
         waitingForResponse = true;
         messageSentAt = Date.now();
@@ -732,7 +734,7 @@
 
   async function fixHallucinatedToolCalls(messageId) {
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
-    await fetch(fixHallucinatedToolCallsMessagePath(messageId), {
+    await fetch(messageHallucinationFixPath(messageId), {
       method: 'POST',
       headers: { 'X-CSRF-Token': csrfToken },
     });
@@ -767,31 +769,33 @@
     const newTitle = prompt('Enter a name for the forked conversation:', defaultTitle);
     if (newTitle === null) return; // User cancelled
 
-    router.post(forkAccountChatPath(account.id, chat.id), { title: newTitle });
+    router.post(accountChatForkPath(account.id, chat.id), { title: newTitle });
   }
 
   function archiveChat() {
     if (!chat) return;
-    const endpoint = chat.archived
-      ? `/accounts/${account.id}/chats/${chat.id}/unarchive`
-      : `/accounts/${account.id}/chats/${chat.id}/archive`;
-    router.post(endpoint, {}, { preserveScroll: true });
+    if (chat.archived) {
+      router.delete(accountChatArchivePath(account.id, chat.id), { preserveScroll: true });
+    } else {
+      router.post(accountChatArchivePath(account.id, chat.id), {}, { preserveScroll: true });
+    }
   }
 
   function deleteChat() {
     if (!chat) return;
     if (!chat.discarded && !confirm('Are you sure you want to delete this conversation?')) return;
-    const endpoint = chat.discarded
-      ? `/accounts/${account.id}/chats/${chat.id}/restore`
-      : `/accounts/${account.id}/chats/${chat.id}/discard`;
-    router.post(endpoint, {}, { preserveScroll: true });
+    if (chat.discarded) {
+      router.delete(accountChatDiscardPath(account.id, chat.id), { preserveScroll: true });
+    } else {
+      router.post(accountChatDiscardPath(account.id, chat.id), {}, { preserveScroll: true });
+    }
   }
 
   function assignToAgent(agentId) {
     if (!chat || !agentId) return;
     assigningAgent = true;
     router.post(
-      assignAgentAccountChatPath(account.id, chat.id),
+      accountChatAgentAssignmentPath(account.id, chat.id),
       { agent_id: agentId },
       {
         onFinish: () => {
@@ -806,7 +810,7 @@
     if (!chat || !agentId) return;
     addAgentProcessing = true;
     router.post(
-      addAgentAccountChatPath(account.id, chat.id),
+      accountChatParticipantPath(account.id, chat.id),
       { agent_id: agentId },
       {
         onFinish: () => {
@@ -975,7 +979,7 @@
   // Moderate all messages in the chat (site admin only)
   async function moderateAllMessages() {
     try {
-      const response = await fetch(moderateAllAccountChatPath(account.id, chat.id), {
+      const response = await fetch(accountChatModerationPath(account.id, chat.id), {
         method: 'POST',
         headers: {
           'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || '',

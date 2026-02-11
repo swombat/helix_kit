@@ -4,16 +4,17 @@
   import { Button } from '$lib/components/shadcn/button/index.js';
   import { Input } from '$lib/components/shadcn/input/index.js';
   import { Label } from '$lib/components/shadcn/label/index.js';
+  import { apiKeyApprovalPath } from '@/routes';
 
   let { client_name, token, expires_at } = $props();
   let keyName = $state(`${client_name} Key`);
 
   function approve() {
-    router.post(`/api_keys/approve/${token}`, { key_name: keyName });
+    router.post(apiKeyApprovalPath(token), { key_name: keyName });
   }
 
   function deny() {
-    router.delete(`/api_keys/approve/${token}`);
+    router.delete(apiKeyApprovalPath(token));
   }
 
   const expiresDate = new Date(expires_at);
