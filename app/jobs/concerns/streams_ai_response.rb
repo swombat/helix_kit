@@ -82,11 +82,37 @@ module StreamsAiResponse
       tools_used: @tools_used.uniq
     })
 
+    deduplicate_message!
+
     # Queue content moderation for the completed assistant message
     ModerateMessageJob.perform_later(@ai_message) if @ai_message.content.present?
 
     # Auto-fix hallucinated tool calls (JSON blocks at start of message)
     FixHallucinatedToolCallsJob.perform_later(@ai_message) if @ai_message.fixable
+  end
+
+  # After tool use, models often repeat the same text in a new message.
+  # When we detect an identical previous message from the same agent,
+  # merge tools_used into the earlier message and destroy the duplicate.
+  def deduplicate_message!
+    return if @ai_message.blank? || @ai_message.content.blank?
+
+    previous = Message.where(
+      chat_id: @ai_message.chat_id,
+      role: "assistant",
+      agent_id: @ai_message.agent_id,
+      content: @ai_message.content
+    ).where("id < ?", @ai_message.id)
+     .order(id: :desc)
+     .first
+
+    return unless previous
+
+    previous.update!(tools_used: (Array(previous.tools_used) + Array(@ai_message.tools_used)).uniq)
+
+    Rails.logger.info "🔄 Deduplicated message #{@ai_message.id} (merged into #{previous.id})"
+    @ai_message.destroy!
+    @ai_message = previous
   end
 
   def extract_message_content(content)
