@@ -666,7 +666,7 @@ class MessageTest < ActiveSupport::TestCase
     msg = chat.messages.create!(
       role: "assistant",
       agent: agent,
-      content: '{"success": true, "memory_type": "journal", "content": "Test memory"}You saw through me.'
+      content: '{"memory_type": "journal", "content": "Test memory"}You saw through me.'
     )
 
     assert_difference -> { agent.memories.count }, 1 do
@@ -854,6 +854,104 @@ class MessageTest < ActiveSupport::TestCase
 
     assert_equal "Real text", msg.reload.content
     assert agent.memories.exists?(content: "Test")
+  end
+
+  # Tool result echo tests
+
+  test "fix_hallucinated_tool_calls! silently strips tool result echoes with known type" do
+    agent = agents(:with_save_memory_tool)
+    chat = Chat.create!(account: @account)
+    chat.agents << agent
+
+    msg = chat.messages.create!(
+      role: "assistant",
+      agent: agent,
+      content: '{"type": "github_commits", "commits": []}Real text'
+    )
+
+    assert_no_difference -> { chat.messages.count } do
+      msg.fix_hallucinated_tool_calls!
+    end
+
+    assert_equal "Real text", msg.reload.content
+  end
+
+  test "fix_hallucinated_tool_calls! silently strips SaveMemoryTool success echo" do
+    agent = agents(:with_save_memory_tool)
+    chat = Chat.create!(account: @account)
+    chat.agents << agent
+
+    msg = chat.messages.create!(
+      role: "assistant",
+      agent: agent,
+      content: '{"success": true, "memory_type": "journal", "content": "Stored"}Real text'
+    )
+
+    # Should NOT create any new messages (no error, no tool result)
+    assert_no_difference -> { chat.messages.count } do
+      msg.fix_hallucinated_tool_calls!
+    end
+
+    assert_equal "Real text", msg.reload.content
+    # Should NOT create a new memory (it's a result echo, not a tool call)
+    assert_not agent.memories.exists?(content: "Stored")
+  end
+
+  test "fix_hallucinated_tool_calls! strips multiple result echoes without errors" do
+    agent = agents(:with_save_memory_tool)
+    chat = Chat.create!(account: @account)
+    chat.agents << agent
+
+    msg = chat.messages.create!(
+      role: "assistant",
+      agent: agent,
+      content: '{"type": "board_list", "boards": []}{"type": "search_results", "results": []}Real text'
+    )
+
+    assert_no_difference -> { chat.messages.count } do
+      msg.fix_hallucinated_tool_calls!
+    end
+
+    assert_equal "Real text", msg.reload.content
+  end
+
+  test "fix_hallucinated_tool_calls! strips result echo but recovers real tool call" do
+    agent = agents(:with_save_memory_tool)
+    chat = Chat.create!(account: @account)
+    chat.agents << agent
+
+    msg = chat.messages.create!(
+      role: "assistant",
+      agent: agent,
+      content: '{"type": "board_list", "boards": []}{"memory_type": "journal", "content": "Real call"}Final'
+    )
+
+    assert_difference -> { agent.memories.count }, 1 do
+      msg.fix_hallucinated_tool_calls!
+    end
+
+    assert_equal "Final", msg.reload.content
+    assert agent.memories.exists?(memory_type: "journal", content: "Real call")
+  end
+
+  test "fix_hallucinated_tool_calls! recognizes all known tool result types" do
+    Message::TOOL_RESULT_TYPES.each do |type|
+      agent = agents(:with_save_memory_tool)
+      chat = Chat.create!(account: @account)
+      chat.agents << agent
+
+      msg = chat.messages.create!(
+        role: "assistant",
+        agent: agent,
+        content: "{\"type\": \"#{type}\"}Text"
+      )
+
+      assert_no_difference -> { chat.messages.count }, "Type '#{type}' should be silently stripped" do
+        msg.fix_hallucinated_tool_calls!
+      end
+
+      assert_equal "Text", msg.reload.content
+    end
   end
 
   test "fix_hallucinated_tool_calls! strips timestamp-only message" do

@@ -71,6 +71,16 @@ class Message < ApplicationRecord
 
   MAX_FILE_SIZE = 50.megabytes
 
+  # Known tool result type values that should be silently stripped (not recovered or error-recorded)
+  TOOL_RESULT_TYPES = %w[
+    github_commits
+    board board_created board_updated board_list board_deleted board_restored
+    deleted_board_list active_board_cleared active_board_set
+    config
+    search_results fetched_page redirect
+    consolidated updated deleted protected refinement_complete
+  ].freeze
+
   MODERATION_THRESHOLD = 0.5
 
   validates :role, inclusion: { in: %w[user assistant system tool] }
@@ -373,6 +383,7 @@ class Message < ApplicationRecord
       json_blocks.each do |json_str|
         parsed = parse_loose_json(json_str)
         next unless parsed
+        next if tool_result_echo?(parsed)
 
         result = attempt_tool_recovery(parsed)
         record_tool_result(result, json_str)
@@ -527,6 +538,20 @@ class Message < ApplicationRecord
   # Add new tools here as they gain recovery support.
   def recoverable_tools
     [ SaveMemoryTool, WhiteboardTool ].select { |t| t.respond_to?(:recover_from_hallucination) }
+  end
+
+  # Recognizes JSON that matches known tool result shapes.
+  # These are echoed tool results, not tool calls - they should be silently stripped.
+  def tool_result_echo?(parsed_json)
+    return false unless parsed_json.is_a?(Hash)
+
+    # Match by `type` field (used by most tools)
+    return true if parsed_json["type"].in?(TOOL_RESULT_TYPES)
+
+    # Match SaveMemoryTool success response: {success: true, memory_type: ..., content: ...}
+    return true if parsed_json["success"] == true && parsed_json.key?("memory_type")
+
+    false
   end
 
   # Records the result of a tool recovery attempt as a message just before this one.
