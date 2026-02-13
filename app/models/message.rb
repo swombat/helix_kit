@@ -91,6 +91,7 @@ class Message < ApplicationRecord
   scope :sorted, -> { order(created_at: :asc) }
 
   after_commit :queue_moderation, on: :create, if: :user_message_with_content?
+  after_create :reopen_all_agents_for_initiation, if: :human_message_in_group_chat?
 
   json_attributes :role, :content, :thinking, :thinking_preview, :user_name, :user_avatar_url,
                   :completed, :created_at_formatted, :created_at_hour, :streaming,
@@ -403,6 +404,14 @@ class Message < ApplicationRecord
 
   def queue_moderation
     ModerateMessageJob.perform_later(self)
+  end
+
+  def human_message_in_group_chat?
+    role == "user" && user_id.present? && chat.manual_responses?
+  end
+
+  def reopen_all_agents_for_initiation
+    chat.chat_agents.closed_for_initiation.update_all(closed_for_initiation_at: nil)
   end
 
   def format_tool_status(tool_name, tool_args)

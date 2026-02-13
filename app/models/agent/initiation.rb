@@ -28,6 +28,7 @@ module Agent::Initiation
     chats.active.kept
          .where(manual_responses: true)
          .where.not(id: chats_where_i_spoke_last)
+         .where.not(id: chats_closed_for_initiation)
          .order(updated_at: :desc)
          .limit(10)
   end
@@ -107,6 +108,12 @@ module Agent::Initiation
   end
 
   private
+
+  def chats_closed_for_initiation
+    ChatAgent.where(agent_id: id)
+             .closed_for_initiation
+             .select(:chat_id)
+  end
 
   def chats_where_i_spoke_last
     Chat.where(id: chats.active.kept.where(manual_responses: true))

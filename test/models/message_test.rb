@@ -970,4 +970,50 @@ class MessageTest < ActiveSupport::TestCase
     assert_equal "Hello world", msg.reload.content
   end
 
+  # Auto-reopen conversation for agents tests
+
+  test "human message reopens closed agents in group chat" do
+    agent = agents(:research_assistant)
+    chat = @account.chats.new(
+      title: "Group Chat",
+      manual_responses: true,
+      model_id: agent.model_id
+    )
+    chat.agent_ids = [ agent.id ]
+    chat.save!
+    chat_agent = chat.chat_agents.find_by(agent: agent)
+    chat_agent.close_for_initiation!
+
+    chat.messages.create!(role: "user", user: @user, content: "Hey there!")
+
+    refute chat_agent.reload.closed_for_initiation?
+  end
+
+  test "agent message does not reopen closed agents" do
+    agent = agents(:research_assistant)
+    chat = @account.chats.new(
+      title: "Group Chat",
+      manual_responses: true,
+      model_id: agent.model_id
+    )
+    chat.agent_ids = [ agent.id ]
+    chat.save!
+    chat_agent = chat.chat_agents.find_by(agent: agent)
+    chat_agent.close_for_initiation!
+
+    chat.messages.create!(role: "assistant", agent: agent, content: "I'm still here")
+
+    assert chat_agent.reload.closed_for_initiation?
+  end
+
+  test "human message in non-group chat does not reopen agents" do
+    # Non-manual-responses chat
+    chat = @account.chats.create!(title: "Regular Chat", manual_responses: false)
+
+    # No error raised when creating a message
+    assert_nothing_raised do
+      chat.messages.create!(role: "user", user: @user, content: "Hello")
+    end
+  end
+
 end

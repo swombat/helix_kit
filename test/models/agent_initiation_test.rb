@@ -281,6 +281,46 @@ class AgentInitiationTest < ActiveSupport::TestCase
     refute @agent.at_agent_only_initiation_cap?
   end
 
+  # Closed-for-initiation tests
+
+  test "continuable_conversations excludes chats closed for initiation" do
+    chat = create_manual_chat_with_agent(@agent, title: "Closed Chat")
+    chat.messages.create!(role: "user", user: @user, content: "Hello!")
+
+    chat.chat_agents.find_by(agent: @agent).close_for_initiation!
+
+    conversations = @agent.continuable_conversations
+
+    assert_not_includes conversations, chat
+  end
+
+  test "continuable_conversations includes chats reopened after closing" do
+    chat = create_manual_chat_with_agent(@agent, title: "Reopened Chat")
+    chat.messages.create!(role: "user", user: @user, content: "Hello!")
+
+    chat_agent = chat.chat_agents.find_by(agent: @agent)
+    chat_agent.close_for_initiation!
+    chat_agent.reopen_for_initiation!
+
+    conversations = @agent.continuable_conversations
+
+    assert_includes conversations, chat
+  end
+
+  test "closing for one agent does not affect another agent" do
+    other_agent = agents(:code_reviewer)
+    chat = create_manual_chat_with_agent(@agent, title: "Multi-Agent Chat")
+    chat.chat_agents.create!(agent: other_agent)
+    chat.messages.create!(role: "user", user: @user, content: "Hello!")
+
+    # Close for @agent only
+    chat.chat_agents.find_by(agent: @agent).close_for_initiation!
+
+    # Other agent should still see the chat
+    assert_includes other_agent.continuable_conversations, chat
+    assert_not_includes @agent.continuable_conversations, chat
+  end
+
   test "build_initiation_prompt includes github commits context when available" do
     GithubIntegration.create!(
       account: @account,
