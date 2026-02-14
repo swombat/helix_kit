@@ -182,4 +182,36 @@ class SelfAuthoringToolTest < ActiveSupport::TestCase
     assert_equal "NewName", result[:value]
   end
 
+  # Refinement threshold tests
+
+  test "view refinement_threshold returns default when unset" do
+    @agent.update!(refinement_threshold: nil)
+    result = @tool.execute(action: "view", field: "refinement_threshold")
+
+    assert_equal "config", result[:type]
+    assert_equal Agent::DEFAULT_REFINEMENT_THRESHOLD, result[:value]
+    assert_equal true, result[:is_default]
+  end
+
+  test "view refinement_threshold returns custom value when set" do
+    @agent.update!(refinement_threshold: 0.90)
+    result = @tool.execute(action: "view", field: "refinement_threshold")
+
+    assert_equal 0.90, result[:value]
+    assert_equal false, result[:is_default]
+  end
+
+  test "update refinement_threshold coerces to float" do
+    result = @tool.execute(action: "update", field: "refinement_threshold", value: "0.85")
+
+    assert_equal "config", result[:type]
+    assert_equal 0.85, @agent.reload.refinement_threshold
+  end
+
+  test "update refinement_threshold rejects invalid values" do
+    result = @tool.execute(action: "update", field: "refinement_threshold", value: "1.5")
+
+    assert_equal "error", result[:type]
+  end
+
 end

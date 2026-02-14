@@ -187,4 +187,32 @@ class AgentTest < ActiveSupport::TestCase
     assert_equal 0, counts[:journal]
   end
 
+  # Refinement threshold tests
+
+  test "effective_refinement_threshold returns default when nil" do
+    agent = @account.agents.create!(name: "Threshold Agent", refinement_threshold: nil)
+    assert_equal Agent::DEFAULT_REFINEMENT_THRESHOLD, agent.effective_refinement_threshold
+  end
+
+  test "effective_refinement_threshold returns custom value when set" do
+    agent = @account.agents.create!(name: "Custom Threshold Agent", refinement_threshold: 0.90)
+    assert_equal 0.90, agent.effective_refinement_threshold
+  end
+
+  test "refinement_threshold validates range" do
+    agent = @account.agents.build(name: "Range Test")
+
+    agent.refinement_threshold = 0
+    assert_not agent.valid?
+
+    agent.refinement_threshold = 1.5
+    assert_not agent.valid?
+
+    agent.refinement_threshold = 0.75
+    assert agent.valid?
+
+    agent.refinement_threshold = nil
+    assert agent.valid?
+  end
+
 end

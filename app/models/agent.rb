@@ -8,6 +8,8 @@ class Agent < ApplicationRecord
   include TelegramNotifiable
   include Agent::Initiation
 
+  DEFAULT_REFINEMENT_THRESHOLD = 0.90
+
   belongs_to :account
   has_many :chat_agents, dependent: :destroy
   has_many :chats, through: :chat_agents
@@ -39,6 +41,9 @@ class Agent < ApplicationRecord
   validates :icon, inclusion: { in: VALID_ICONS }, allow_nil: true
   validates :thinking_budget,
             numericality: { greater_than_or_equal_to: 1000, less_than_or_equal_to: 50000 },
+            allow_nil: true
+  validates :refinement_threshold,
+            numericality: { greater_than: 0, less_than_or_equal_to: 1 },
             allow_nil: true
   validate :enabled_tools_must_be_valid
 
@@ -80,6 +85,10 @@ class Agent < ApplicationRecord
     thinking_enabled? && Chat.supports_thinking?(model_id)
   end
 
+  def effective_refinement_threshold
+    refinement_threshold || DEFAULT_REFINEMENT_THRESHOLD
+  end
+
   def memory_context
     active = memories.for_prompt.to_a
     return nil if active.empty?
@@ -101,8 +110,6 @@ class Agent < ApplicationRecord
     inactive_journal_tokens = memories.kept.journal.where(created_at: ...AgentMemory::JOURNAL_WINDOW.ago).sum("CEIL(CHAR_LENGTH(content) / 4.0)").to_i
     { core: core_tokens, active_journal: active_journal_tokens, inactive_journal: inactive_journal_tokens }
   end
-
-  # Memory refinement methods
 
   def core_token_usage
     memories.kept.core.sum("CEIL(CHAR_LENGTH(content) / 4.0)").to_i

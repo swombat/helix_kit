@@ -193,4 +193,162 @@ class RefinementToolTest < ActiveSupport::TestCase
     assert_equal RefinementTool::ACTIONS, result[:allowed_actions]
   end
 
+  # Circuit breaker tests
+
+  test "complete rolls back when compression exceeds threshold" do
+    m1 = @agent.memories.create!(content: "A" * 400, memory_type: :core)
+    m2 = @agent.memories.create!(content: "B" * 400, memory_type: :core)
+
+    tool = tool_with_circuit_breaker
+
+    tool.execute(action: "delete", id: m1.id.to_s)
+    tool.execute(action: "delete", id: m2.id.to_s)
+
+    result = tool.execute(action: "complete", summary: "Deleted everything")
+
+    assert_equal "refinement_rolled_back", result[:type]
+    assert_not m1.reload.discarded?
+    assert_not m2.reload.discarded?
+  end
+
+  test "complete succeeds when compression is within threshold" do
+    @agent.memories.create!(content: "A" * 400, memory_type: :core)
+    @agent.memories.create!(content: "B" * 400, memory_type: :core)
+    tiny = @agent.memories.create!(content: "C" * 20, memory_type: :core)
+
+    pre_mass = @agent.core_token_usage
+    tool = RefinementTool.new(agent: @agent, session_id: "test-session", pre_session_mass: pre_mass)
+
+    tool.execute(action: "delete", id: tiny.id.to_s)
+    result = tool.execute(action: "complete", summary: "Minor cleanup")
+
+    assert_equal "refinement_complete", result[:type]
+    assert tiny.reload.discarded?
+  end
+
+  test "rollback undiscards deleted memories" do
+    @agent.memories.create!(content: "Important" * 20, memory_type: :core)
+
+    tool = tool_with_circuit_breaker
+    m = @agent.memories.kept.core.first
+
+    tool.execute(action: "delete", id: m.id.to_s)
+    assert m.reload.discarded?
+
+    tool.execute(action: "complete", summary: "Over-deleted")
+
+    assert_not m.reload.discarded?
+  end
+
+  test "rollback restores updated memory content" do
+    @agent.memories.create!(content: "Original content here" * 10, memory_type: :core)
+
+    tool = tool_with_circuit_breaker
+    m = @agent.memories.kept.core.first
+
+    tool.execute(action: "update", id: m.id.to_s, content: "X")
+    tool.execute(action: "complete", summary: "Over-compressed")
+
+    assert_equal "Original content here" * 10, m.reload.content
+  end
+
+  test "rollback reverses consolidations" do
+    m1 = @agent.memories.create!(content: "A" * 200, memory_type: :core)
+    m2 = @agent.memories.create!(content: "B" * 200, memory_type: :core)
+
+    tool = tool_with_circuit_breaker
+    tool.execute(action: "consolidate", ids: "#{m1.id},#{m2.id}", content: "AB")
+    tool.execute(action: "complete", summary: "Over-consolidated")
+
+    assert_not m1.reload.discarded?
+    assert_not m2.reload.discarded?
+    merged = @agent.memories.find_by(content: "AB")
+    assert merged.discarded?
+  end
+
+  test "rollback reverses protect actions" do
+    m = @agent.memories.create!(content: "A" * 200, memory_type: :core)
+    m2 = @agent.memories.create!(content: "B" * 200, memory_type: :core)
+
+    tool = tool_with_circuit_breaker
+    tool.execute(action: "protect", id: m.id.to_s)
+    tool.execute(action: "delete", id: m2.id.to_s)
+    tool.execute(action: "complete", summary: "Over-deleted")
+
+    assert_not m.reload.constitutional?
+    assert_not m2.reload.discarded?
+  end
+
+  test "rollback creates audit log and journal memory" do
+    @agent.memories.create!(content: "A" * 400, memory_type: :core)
+
+    tool = tool_with_circuit_breaker
+    m = @agent.memories.kept.core.first
+
+    tool.execute(action: "delete", id: m.id.to_s)
+    tool.execute(action: "complete", summary: "Deleted too much")
+
+    rollback_log = AuditLog.find_by(action: "memory_refinement_rollback")
+    assert rollback_log
+    assert_equal @agent.effective_refinement_threshold, rollback_log.data["threshold"]
+
+    journal = @agent.memories.journal.where("content LIKE ?", "%rolled back%").first
+    assert journal
+    assert_includes journal.content, @pre_session_mass.to_s
+    assert_includes journal.content, "1 deletion"
+    assert_includes journal.content, "retention threshold"
+  end
+
+  test "rollback reverses mixed mutations in a single session" do
+    m1 = @agent.memories.create!(content: "Memory one " * 20, memory_type: :core)
+    m2 = @agent.memories.create!(content: "Memory two " * 20, memory_type: :core)
+    m3 = @agent.memories.create!(content: "Memory three " * 20, memory_type: :core)
+    m4 = @agent.memories.create!(content: "Memory four " * 20, memory_type: :core)
+
+    tool = tool_with_circuit_breaker
+
+    tool.execute(action: "consolidate", ids: "#{m1.id},#{m2.id}", content: "Combined")
+    tool.execute(action: "update", id: m3.id.to_s, content: "Shortened")
+    tool.execute(action: "delete", id: m4.id.to_s)
+    result = tool.execute(action: "complete", summary: "Big cleanup")
+
+    assert_equal "refinement_rolled_back", result[:type]
+
+    assert_not m1.reload.discarded?, "consolidated source should be restored"
+    assert_not m2.reload.discarded?, "consolidated source should be restored"
+    assert_equal "Memory three " * 20, m3.reload.content, "updated memory should be restored"
+    assert_not m4.reload.discarded?, "deleted memory should be restored"
+
+    merged = @agent.memories.find_by(content: "Combined")
+    assert merged.discarded?, "consolidated target should be discarded"
+  end
+
+  test "complete succeeds without pre_session_mass (backward compatibility)" do
+    tool = RefinementTool.new(agent: @agent)
+    result = tool.execute(action: "complete", summary: "No gate")
+
+    assert_equal "refinement_complete", result[:type]
+  end
+
+  test "session_id is included in all refinement audit logs" do
+    m = @agent.memories.create!(content: "Test", memory_type: :core)
+    tool = RefinementTool.new(agent: @agent, session_id: "sid-123", pre_session_mass: 1000)
+
+    tool.execute(action: "update", id: m.id.to_s, content: "Updated")
+    log = AuditLog.find_by(action: "memory_refinement_update")
+    assert_equal "sid-123", log.data["session_id"]
+  end
+
+  private
+
+  def tool_with_circuit_breaker(threshold: 1.0)
+    @pre_session_mass = @agent.core_token_usage
+    @agent.update!(refinement_threshold: threshold)
+    RefinementTool.new(
+      agent: @agent,
+      session_id: "test-#{SecureRandom.hex(4)}",
+      pre_session_mass: @pre_session_mass
+    )
+  end
+
 end

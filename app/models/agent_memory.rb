@@ -35,12 +35,12 @@ class AgentMemory < ApplicationRecord
     { id:, content:, created_at: created_at.iso8601, tokens: token_estimate, constitutional: constitutional? }
   end
 
-  def audit_refinement(operation, before_content, after_content)
+  def audit_refinement(operation, before_content, after_content, session_id: nil)
     AuditLog.create!(
       action: "memory_refinement_#{operation}",
       auditable: self,
       account_id: agent.account_id,
-      data: { agent_id: agent_id, operation:, before: before_content, after: after_content }
+      data: { agent_id: agent_id, session_id: session_id, operation:, before: before_content, after: after_content }
     )
   end
 

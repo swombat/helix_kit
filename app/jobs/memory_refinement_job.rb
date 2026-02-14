@@ -36,7 +36,8 @@ class MemoryRefinementJob < ApplicationJob
       return
     end
 
-    tool = RefinementTool.new(agent: agent)
+    session_id = SecureRandom.uuid
+    tool = RefinementTool.new(agent: agent, session_id: session_id, pre_session_mass: token_usage)
     prompt = build_refinement_prompt(agent, core_memories, token_usage, budget)
 
     chat_for(agent).with_tool(tool).ask(prompt)

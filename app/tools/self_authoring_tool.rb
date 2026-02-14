@@ -7,16 +7,22 @@ class SelfAuthoringTool < RubyLLM::Tool
     system_prompt
     reflection_prompt
     memory_reflection_prompt
+    refinement_threshold
   ].freeze
 
-  description "View or update your configuration. Actions: view, update. Fields: name, system_prompt, reflection_prompt, memory_reflection_prompt."
+  FIELD_COERCIONS = {
+    "refinement_threshold" => :to_f
+  }.freeze
+
+  description "View or update your configuration. Actions: view, update. " \
+              "Fields: name, system_prompt, reflection_prompt, memory_reflection_prompt, refinement_threshold."
 
   param :action, type: :string,
         desc: "view or update",
         required: true
 
   param :field, type: :string,
-        desc: "name, system_prompt, reflection_prompt, or memory_reflection_prompt",
+        desc: "name, system_prompt, reflection_prompt, memory_reflection_prompt, or refinement_threshold",
         required: true
 
   param :value, type: :string,
@@ -48,7 +54,7 @@ class SelfAuthoringTool < RubyLLM::Tool
   def view_field(field, _value)
     actual_value = @current_agent.public_send(field)
     default_value = default_for(field)
-    is_default = actual_value.blank? && default_value.present?
+    is_default = actual_value.nil? && default_value.present?
 
     {
       type: "config",
@@ -66,15 +72,17 @@ class SelfAuthoringTool < RubyLLM::Tool
       ConsolidateConversationJob::EXTRACTION_PROMPT
     when "memory_reflection_prompt"
       MemoryReflectionJob::REFLECTION_PROMPT
+    when "refinement_threshold"
+      Agent::DEFAULT_REFINEMENT_THRESHOLD
     end
   end
 
   def update_field(field, value)
-    if value.blank?
-      return validation_error("value required for update")
-    end
+    return validation_error("value required for update") if value.blank?
 
-    if @current_agent.update(field => value)
+    coerced = FIELD_COERCIONS[field] ? value.public_send(FIELD_COERCIONS[field]) : value
+
+    if @current_agent.update(field => coerced)
       {
         type: "config",
         action: "update",

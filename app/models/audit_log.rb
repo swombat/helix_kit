@@ -21,7 +21,9 @@ class AuditLog < ApplicationRecord
   scope :by_type, ->(type) { where(auditable_type: type) if type.present? }
   scope :date_from, ->(date) { where("created_at >= ?", Date.parse(date.to_s)) if date.present? }
   scope :date_to, ->(date) { where("created_at <= ?", Date.parse(date.to_s).end_of_day) if date.present? }
-
+  scope :for_refinement_session, ->(session_id) {
+    where("action LIKE 'memory_refinement_%' AND data->>'session_id' = ?", session_id)
+  }
 
   def self.available_actions
     distinct.pluck(:action).compact.sort
