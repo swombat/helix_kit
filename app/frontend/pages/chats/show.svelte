@@ -40,6 +40,7 @@
   import ThinkingBlock from '$lib/components/chat/ThinkingBlock.svelte';
   import ModerationIndicator from '$lib/components/chat/ModerationIndicator.svelte';
   import AgentPickerDialog from '$lib/components/chat/AgentPickerDialog.svelte';
+  import MicButton from '$lib/components/chat/MicButton.svelte';
   import {
     accountChatMessagesPath,
     messageRetryPath,
@@ -689,6 +690,16 @@
         messageSentAt = null;
       },
     });
+  }
+
+  function handleTranscription(text) {
+    $messageForm.message.content = text;
+    sendMessage();
+  }
+
+  function handleTranscriptionError(message) {
+    errorMessage = message;
+    setTimeout(() => (errorMessage = null), 5000);
   }
 
   function retryMessage(messageId) {
@@ -1660,6 +1671,12 @@
                    min-h-[40px] max-h-[240px] overflow-y-auto disabled:opacity-50 disabled:cursor-not-allowed"
             rows="1"></textarea>
         </div>
+        <MicButton
+          disabled={submitting || !chat?.respondable}
+          accountId={account.id}
+          chatId={chat.id}
+          onsuccess={handleTranscription}
+          onerror={handleTranscriptionError} />
         <button
           onclick={sendMessage}
           disabled={(!$messageForm.message.content.trim() && selectedFiles.length === 0) ||

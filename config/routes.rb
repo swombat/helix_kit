@@ -58,6 +58,7 @@ Rails.application.routes.draw do
         resource :agent_assignment, only: :create
         resource :participant, only: :create
         resource :agent_trigger, only: :create
+        resource :transcription, only: :create
       end
       resources :messages, only: [ :index, :create ]
     end
