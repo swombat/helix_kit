@@ -557,8 +557,10 @@ class Message < ApplicationRecord
     # Match by `type` field (used by most tools)
     return true if parsed_json["type"].in?(TOOL_RESULT_TYPES)
 
-    # Match SaveMemoryTool success response: {success: true, memory_type: ..., content: ...}
-    return true if parsed_json["success"] == true && parsed_json.key?("memory_type")
+    # Match any tool success/error response echo — {success: true, ...} or {error: "..."}
+    # These are result shapes returned by tools, not tool call inputs
+    return true if parsed_json["success"] == true
+    return true if parsed_json.key?("error") && parsed_json.keys.size == 1
 
     false
   end
