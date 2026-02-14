@@ -8,7 +8,7 @@ class GithubIntegration < ApplicationRecord
   validates :repository_full_name, format: { with: /\A[\w\-\.]+\/[\w\-\.]+\z/ }, allow_nil: true
 
   scope :enabled, -> { where(enabled: true) }
-  scope :needs_sync, -> { enabled.where.not(repository_full_name: nil).where("commits_synced_at IS NULL OR commits_synced_at < ?", 1.hour.ago) }
+  scope :needs_sync, -> { enabled.where.not(repository_full_name: nil).where("commits_synced_at IS NULL OR commits_synced_at < ?", 45.minutes.ago) }
 
   def self.sync_all_due!
     needs_sync.find_each { |i| SyncGithubCommitsJob.perform_later(i.id) }
