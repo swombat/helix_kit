@@ -25,7 +25,11 @@ class MessagesController < ApplicationController
 
     if @message.save
       audit("create_message", @message, **message_params.to_h)
-      AiResponseJob.perform_later(@chat) unless @chat.manual_responses?
+      if @chat.manual_responses?
+        @chat.trigger_mentioned_agents!(@message.content)
+      else
+        AiResponseJob.perform_later(@chat)
+      end
 
       respond_to do |format|
         format.html { redirect_to account_chat_path(@chat.account, @chat) }

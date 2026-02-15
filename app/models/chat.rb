@@ -410,6 +410,16 @@ class Chat < ApplicationRecord
     AllAgentsResponseJob.perform_later(self, agent_ids)
   end
 
+  def trigger_mentioned_agents!(content)
+    return if content.blank? || !manual_responses?
+
+    mentioned_ids = agents.select { |agent|
+      content.match?(/\b#{Regexp.escape(agent.name)}\b/i)
+    }.sort_by { |agent| content.index(/\b#{Regexp.escape(agent.name)}\b/i) }.map(&:id)
+
+    AllAgentsResponseJob.perform_later(self, mentioned_ids) if mentioned_ids.any?
+  end
+
   def fork_with_title!(new_title)
     transaction do
       forked = account.chats.new(

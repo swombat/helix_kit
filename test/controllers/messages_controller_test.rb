@@ -472,4 +472,45 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
     assert_response :ok
   end
 
+  # Auto-trigger mentioned agents tests
+
+  test "should auto-trigger mentioned agents in group chat" do
+    agent = @account.agents.create!(name: "Grok", system_prompt: "Test")
+    group_chat = @account.chats.new(model_id: "openrouter/auto", manual_responses: true)
+    group_chat.agent_ids = [ agent.id ]
+    group_chat.save!
+
+    assert_enqueued_with(job: AllAgentsResponseJob) do
+      post account_chat_messages_path(@account, group_chat), params: {
+        message: { content: "Hey Grok, what do you think?" }
+      }
+    end
+  end
+
+  test "should not auto-trigger when no agents mentioned in group chat" do
+    agent = @account.agents.create!(name: "Grok", system_prompt: "Test")
+    group_chat = @account.chats.new(model_id: "openrouter/auto", manual_responses: true)
+    group_chat.agent_ids = [ agent.id ]
+    group_chat.save!
+
+    assert_no_enqueued_jobs(only: AllAgentsResponseJob) do
+      post account_chat_messages_path(@account, group_chat), params: {
+        message: { content: "Hello everyone" }
+      }
+    end
+  end
+
+  test "should not enqueue AiResponseJob for group chat" do
+    agent = @account.agents.create!(name: "Grok", system_prompt: "Test")
+    group_chat = @account.chats.new(model_id: "openrouter/auto", manual_responses: true)
+    group_chat.agent_ids = [ agent.id ]
+    group_chat.save!
+
+    assert_no_enqueued_jobs(only: AiResponseJob) do
+      post account_chat_messages_path(@account, group_chat), params: {
+        message: { content: "Hey Grok, what do you think?" }
+      }
+    end
+  end
+
 end

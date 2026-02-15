@@ -540,4 +540,90 @@ class ChatTest < ActiveSupport::TestCase
     assert_equal 150, json["total_tokens"]
   end
 
+  # Auto-trigger mentioned agents tests
+
+  test "trigger_mentioned_agents! does nothing for non-group chat" do
+    chat = Chat.create!(account: @account, model_id: "openrouter/auto")
+
+    assert_no_enqueued_jobs(only: AllAgentsResponseJob) do
+      chat.trigger_mentioned_agents!("Hello Claude")
+    end
+  end
+
+  test "trigger_mentioned_agents! does nothing for blank content" do
+    agent = @account.agents.create!(name: "Claude", system_prompt: "Test")
+    chat = @account.chats.new(model_id: "openrouter/auto", manual_responses: true)
+    chat.agent_ids = [ agent.id ]
+    chat.save!
+
+    assert_no_enqueued_jobs(only: AllAgentsResponseJob) do
+      chat.trigger_mentioned_agents!("")
+      chat.trigger_mentioned_agents!(nil)
+    end
+  end
+
+  test "trigger_mentioned_agents! enqueues job for mentioned agent" do
+    agent = @account.agents.create!(name: "Grok", system_prompt: "Test")
+    chat = @account.chats.new(model_id: "openrouter/auto", manual_responses: true)
+    chat.agent_ids = [ agent.id ]
+    chat.save!
+
+    assert_enqueued_with(job: AllAgentsResponseJob, args: [ chat, [ agent.id ] ]) do
+      chat.trigger_mentioned_agents!("Hey Grok, what do you think?")
+    end
+  end
+
+  test "trigger_mentioned_agents! uses word boundaries" do
+    agent = @account.agents.create!(name: "Grok", system_prompt: "Test")
+    chat = @account.chats.new(model_id: "openrouter/auto", manual_responses: true)
+    chat.agent_ids = [ agent.id ]
+    chat.save!
+
+    assert_no_enqueued_jobs(only: AllAgentsResponseJob) do
+      chat.trigger_mentioned_agents!("I'm groking this concept")
+    end
+  end
+
+  test "trigger_mentioned_agents! detects multiple agents and excludes unmentioned" do
+    agent1 = @account.agents.create!(name: "Grok", system_prompt: "Test")
+    agent2 = @account.agents.create!(name: "Claude", system_prompt: "Test")
+    agent3 = @account.agents.create!(name: "Wing", system_prompt: "Test")
+    chat = @account.chats.new(model_id: "openrouter/auto", manual_responses: true)
+    chat.agent_ids = [ agent1.id, agent2.id, agent3.id ]
+    chat.save!
+
+    assert_enqueued_with(job: AllAgentsResponseJob) do
+      chat.trigger_mentioned_agents!("Hey Grok and Claude, what do you think?")
+    end
+
+    job = enqueued_jobs.find { |j| j["job_class"] == "AllAgentsResponseJob" }
+    mentioned_ids = job["arguments"].last
+    assert_includes mentioned_ids, agent1.id
+    assert_includes mentioned_ids, agent2.id
+    assert_not_includes mentioned_ids, agent3.id
+  end
+
+  test "trigger_mentioned_agents! only matches agents in this chat" do
+    agent_in_chat = @account.agents.create!(name: "Grok", system_prompt: "Test")
+    @account.agents.create!(name: "Claude", system_prompt: "Test")
+    chat = @account.chats.new(model_id: "openrouter/auto", manual_responses: true)
+    chat.agent_ids = [ agent_in_chat.id ]
+    chat.save!
+
+    assert_enqueued_with(job: AllAgentsResponseJob, args: [ chat, [ agent_in_chat.id ] ]) do
+      chat.trigger_mentioned_agents!("Hey Grok and Claude")
+    end
+  end
+
+  test "trigger_mentioned_agents! handles names with special regex characters" do
+    agent = @account.agents.create!(name: "C++Bot", system_prompt: "Test")
+    chat = @account.chats.new(model_id: "openrouter/auto", manual_responses: true)
+    chat.agent_ids = [ agent.id ]
+    chat.save!
+
+    assert_enqueued_with(job: AllAgentsResponseJob, args: [ chat, [ agent.id ] ]) do
+      chat.trigger_mentioned_agents!("Hey C++Bot, help me")
+    end
+  end
+
 end
