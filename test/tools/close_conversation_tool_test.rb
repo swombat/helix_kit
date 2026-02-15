@@ -14,12 +14,12 @@ class CloseConversationToolTest < ActiveSupport::TestCase
     @chat.save!
   end
 
-  test "closes conversation for the agent" do
+  test "closes conversation for the agent and halts the tool loop" do
     tool = CloseConversationTool.new(chat: @chat, current_agent: @agent)
 
     result = tool.execute
 
-    assert result[:success]
+    assert_kind_of RubyLLM::Tool::Halt, result
     assert @chat.chat_agents.find_by(agent: @agent).closed_for_initiation?
   end
 
@@ -51,13 +51,13 @@ class CloseConversationToolTest < ActiveSupport::TestCase
     assert_includes result[:error], "Not a member"
   end
 
-  test "is idempotent - closing twice succeeds" do
+  test "is idempotent - closing twice halts" do
     tool = CloseConversationTool.new(chat: @chat, current_agent: @agent)
 
     tool.execute
     result = tool.execute
 
-    assert result[:success]
+    assert_kind_of RubyLLM::Tool::Halt, result
   end
 
 end

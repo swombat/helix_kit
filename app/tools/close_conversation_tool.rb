@@ -17,7 +17,7 @@ class CloseConversationTool < RubyLLM::Tool
     return error("Not a member of this conversation") unless chat_agent
 
     chat_agent.close_for_initiation!
-    { success: true, message: "Conversation closed for initiation." }
+    halt("Conversation closed. Stopping response.")
   end
 
   private
