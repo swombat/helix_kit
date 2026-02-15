@@ -9,7 +9,14 @@ class Chats::TranscriptionsController < ApplicationController
     text = ElevenLabsStt.transcribe(audio)
 
     if text.present?
-      render json: { text: text }
+      audio.tempfile.rewind
+      blob = ActiveStorage::Blob.create_and_upload!(
+        io: audio.tempfile,
+        filename: audio.original_filename || "recording.webm",
+        content_type: audio.content_type || "audio/webm"
+      )
+
+      render json: { text: text, audio_signed_id: blob.signed_id }
     else
       render json: { error: "No speech detected" }, status: :unprocessable_entity
     end

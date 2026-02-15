@@ -1016,4 +1016,92 @@ class MessageTest < ActiveSupport::TestCase
     end
   end
 
+  # Audio recording tests
+
+  test "audio_source defaults to false" do
+    message = @chat.messages.create!(
+      user: @user,
+      role: "user",
+      content: "Test message"
+    )
+
+    assert_equal false, message.audio_source
+  end
+
+  test "audio_url returns path when audio_recording attached" do
+    message = @chat.messages.create!(
+      user: @user,
+      role: "user",
+      content: "Voice message"
+    )
+
+    message.audio_recording.attach(
+      io: StringIO.new("fake audio data"),
+      filename: "recording.webm",
+      content_type: "audio/webm"
+    )
+
+    assert message.audio_recording.attached?
+    url = message.audio_url
+    assert url.present?
+    assert url.start_with?("/rails/active_storage/blobs/")
+  end
+
+  test "audio_url returns nil when no audio_recording" do
+    message = @chat.messages.create!(
+      user: @user,
+      role: "user",
+      content: "Text message"
+    )
+
+    assert_nil message.audio_url
+  end
+
+  test "audio_path_for_llm returns local path for disk storage" do
+    message = @chat.messages.create!(
+      user: @user,
+      role: "user",
+      content: "Voice message"
+    )
+
+    message.audio_recording.attach(
+      io: StringIO.new("fake audio data"),
+      filename: "recording.webm",
+      content_type: "audio/webm"
+    )
+
+    path = message.audio_path_for_llm
+    assert path.present?
+    assert path.is_a?(String)
+  end
+
+  test "audio_path_for_llm returns nil when no audio_recording" do
+    message = @chat.messages.create!(
+      user: @user,
+      role: "user",
+      content: "Text message"
+    )
+
+    assert_nil message.audio_path_for_llm
+  end
+
+  test "as_json includes audio_source and audio_url" do
+    message = @chat.messages.create!(
+      user: @user,
+      role: "user",
+      content: "Test message"
+    )
+
+    json = message.as_json
+
+    assert_includes json.keys, "audio_source"
+    assert_includes json.keys, "audio_url"
+    assert_equal false, json["audio_source"]
+    assert_nil json["audio_url"]
+  end
+
+  test "audio/webm is in ACCEPTABLE_FILE_TYPES" do
+    assert_includes Message::ACCEPTABLE_FILE_TYPES[:audio], "audio/webm"
+  end
+
 end

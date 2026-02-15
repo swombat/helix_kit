@@ -513,4 +513,65 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  # Audio recording attachment tests
+
+  test "creates message with audio_recording when audio_signed_id present" do
+    blob = ActiveStorage::Blob.create_and_upload!(
+      io: StringIO.new("fake audio data"),
+      filename: "recording.webm",
+      content_type: "audio/webm"
+    )
+
+    assert_difference "Message.count" do
+      post account_chat_messages_path(@account, @chat), params: {
+        message: { content: "Voice message" },
+        audio_signed_id: blob.signed_id
+      }
+    end
+
+    message = Message.last
+    assert message.audio_recording.attached?
+    assert_equal "recording.webm", message.audio_recording.filename.to_s
+  end
+
+  test "sets audio_source true when audio_signed_id present" do
+    blob = ActiveStorage::Blob.create_and_upload!(
+      io: StringIO.new("fake audio data"),
+      filename: "recording.webm",
+      content_type: "audio/webm"
+    )
+
+    post account_chat_messages_path(@account, @chat), params: {
+      message: { content: "Voice message" },
+      audio_signed_id: blob.signed_id
+    }
+
+    message = Message.last
+    assert message.audio_source
+  end
+
+  test "creates normal message without audio when no audio_signed_id" do
+    post account_chat_messages_path(@account, @chat), params: {
+      message: { content: "Regular message" }
+    }
+
+    message = Message.last
+    assert_not message.audio_recording.attached?
+    assert_not message.audio_source
+  end
+
+  test "handles invalid audio_signed_id gracefully" do
+    assert_difference "Message.count" do
+      post account_chat_messages_path(@account, @chat), params: {
+        message: { content: "Message with bad audio" },
+        audio_signed_id: "invalid-signed-id-value"
+      }
+    end
+
+    message = Message.last
+    assert_equal "Message with bad audio", message.content
+    assert_not message.audio_recording.attached?
+    assert_not message.audio_source
+  end
+
 end

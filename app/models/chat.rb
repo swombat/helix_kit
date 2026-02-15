@@ -76,7 +76,8 @@ class Chat < ApplicationRecord
       model_id: "google/gemini-3-pro-preview",
       label: "Gemini 3 Pro",
       group: "Top Models",
-      thinking: { supported: true }
+      thinking: { supported: true },
+      audio_input: true
     },
     {
       model_id: "x-ai/grok-4.1-fast",
@@ -143,9 +144,9 @@ class Chat < ApplicationRecord
     { model_id: "anthropic/claude-3-opus", label: "Claude 3 Opus", group: "Anthropic" },
 
     # Google
-    { model_id: "google/gemini-3-flash-preview", label: "Gemini 3 Flash", group: "Google" },
-    { model_id: "google/gemini-2.5-pro", label: "Gemini 2.5 Pro", group: "Google" },
-    { model_id: "google/gemini-2.5-flash", label: "Gemini 2.5 Flash", group: "Google" },
+    { model_id: "google/gemini-3-flash-preview", label: "Gemini 3 Flash", group: "Google", audio_input: true },
+    { model_id: "google/gemini-2.5-pro", label: "Gemini 2.5 Pro", group: "Google", audio_input: true },
+    { model_id: "google/gemini-2.5-flash", label: "Gemini 2.5 Flash", group: "Google", audio_input: true },
 
     # xAI - Grok models with reasoning support
     # grok-3-mini: Shows thinking traces, uses reasoning_effort parameter
@@ -181,6 +182,10 @@ class Chat < ApplicationRecord
 
   def self.supports_thinking?(model_id)
     model_config(model_id)&.dig(:thinking, :supported) == true
+  end
+
+  def self.supports_audio_input?(model_id)
+    model_config(model_id)&.dig(:audio_input) == true
   end
 
   def self.requires_direct_api_for_thinking?(model_id)
@@ -303,7 +308,7 @@ class Chat < ApplicationRecord
   # Uses cursor-based pagination with before_id for efficient loading of older messages
   # Returns the most recent N messages that are older than before_id, in ascending order for display
   def messages_page(before_id: nil, limit: 30)
-    scope = messages.includes(:user, :agent).with_attached_attachments
+    scope = messages.includes(:user, :agent).with_attached_attachments.with_attached_audio_recording
     scope = scope.where("messages.id < ?", Message.decode_id(before_id)) if before_id.present?
     # Use reorder to replace any existing ordering (from acts_as_chat),
     # get the most recent messages by ordering by ID DESC, limit, then reverse for display
@@ -454,14 +459,25 @@ class Chat < ApplicationRecord
             content_type: attachment.content_type
           )
         end
+
+        # Reuse audio recording blob (no re-upload needed)
+        if msg.audio_recording.attached?
+          new_msg.audio_recording.attach(msg.audio_recording.blob)
+          new_msg.update_column(:audio_source, true)
+        end
       end
 
       forked
     end
   end
 
+  def audio_tools_available_for?(model_id)
+    self.class.supports_audio_input?(model_id) && messages.where(audio_source: true).exists?
+  end
+
   def build_context_for_agent(agent, thinking_enabled: false, initiation_reason: nil)
-    [ system_message_for(agent, initiation_reason: initiation_reason) ] + messages_context_for(agent, thinking_enabled: thinking_enabled)
+    [ system_message_for(agent, initiation_reason: initiation_reason) ] +
+      messages_context_for(agent, thinking_enabled: thinking_enabled, audio_tools_enabled: audio_tools_available_for?(agent.model_id))
   end
 
   # Checks if extended thinking can be used for this agent in this conversation.
@@ -601,12 +617,12 @@ class Chat < ApplicationRecord
     "This conversation is titled: \"#{title}\""
   end
 
-  def messages_context_for(agent, thinking_enabled: false)
+  def messages_context_for(agent, thinking_enabled: false, audio_tools_enabled: false)
     tz = user_timezone
     messages.includes(:user, :agent).order(:created_at)
       .reject { |msg| msg.content.blank? }  # Filter out empty messages (e.g., before tool calls)
       .reject { |msg| msg.used_tools? && msg.agent_id != agent.id }  # Exclude other agents' tool results
-      .map { |msg| format_message_for_context(msg, agent, tz, thinking_enabled: thinking_enabled) }
+      .map { |msg| format_message_for_context(msg, agent, tz, thinking_enabled: thinking_enabled, audio_tools_enabled: audio_tools_enabled) }
   end
 
   def participant_description(current_agent)
@@ -633,7 +649,7 @@ class Chat < ApplicationRecord
             .pick("profiles.timezone")
   end
 
-  def format_message_for_context(message, current_agent, timezone, thinking_enabled: false)
+  def format_message_for_context(message, current_agent, timezone, thinking_enabled: false, audio_tools_enabled: false)
     timestamp = message.created_at.in_time_zone(timezone).strftime("[%Y-%m-%d %H:%M]")
 
     text_content = if message.agent_id == current_agent.id
@@ -643,6 +659,10 @@ class Chat < ApplicationRecord
     else
       name = message.user&.full_name.presence || message.user&.email_address&.split("@")&.first || "User"
       "#{timestamp} [#{name}]: #{message.content}"
+    end
+
+    if audio_tools_enabled && message.audio_source? && message.audio_recording.attached?
+      text_content += " [voice message, audio_id: #{message.obfuscated_id}]"
     end
 
     role = message.agent_id == current_agent.id ? "assistant" : "user"

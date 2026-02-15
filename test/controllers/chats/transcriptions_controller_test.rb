@@ -28,6 +28,36 @@ class Chats::TranscriptionsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "returns audio_signed_id with successful transcription" do
+    audio = fixture_file_upload("test_audio.webm", "audio/webm")
+
+    ElevenLabsStt.stub(:transcribe, "Hello world") do
+      post account_chat_transcription_path(@account, @chat),
+        params: { audio: audio }
+
+      assert_response :success
+      json = JSON.parse(response.body)
+      assert json["audio_signed_id"].present?, "Response should include audio_signed_id"
+    end
+  end
+
+  test "audio_signed_id is a valid ActiveStorage signed id" do
+    audio = fixture_file_upload("test_audio.webm", "audio/webm")
+
+    ElevenLabsStt.stub(:transcribe, "Hello world") do
+      post account_chat_transcription_path(@account, @chat),
+        params: { audio: audio }
+
+      json = JSON.parse(response.body)
+      signed_id = json["audio_signed_id"]
+
+      # Should be able to find the blob via the signed_id
+      blob = ActiveStorage::Blob.find_signed(signed_id)
+      assert blob.present?, "Should find blob from signed_id"
+      assert_equal "audio/webm", blob.content_type
+    end
+  end
+
   test "returns error when no speech detected" do
     audio = fixture_file_upload("test_audio.webm", "audio/webm")
 

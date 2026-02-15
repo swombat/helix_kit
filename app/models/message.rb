@@ -41,13 +41,15 @@ class Message < ApplicationRecord
       saver: { quality: 80, strip: true }
   end
 
+  has_one_attached :audio_recording
+
   attr_accessor :skip_content_validation
 
   broadcasts_to :chat
 
   ACCEPTABLE_FILE_TYPES = {
     images: %w[image/png image/jpeg image/jpg image/gif image/webp image/bmp],
-    audio: %w[audio/mpeg audio/wav audio/m4a audio/ogg audio/flac],
+    audio: %w[audio/mpeg audio/wav audio/m4a audio/ogg audio/flac audio/webm],
     video: %w[video/mp4 video/quicktime video/x-msvideo video/webm],
     documents: %w[
       application/pdf
@@ -99,7 +101,8 @@ class Message < ApplicationRecord
                   :author_name, :author_type, :author_colour, :input_tokens, :output_tokens,
                   :editable, :deletable,
                   :moderation_flagged, :moderation_severity, :moderation_scores,
-                  :fixable
+                  :fixable,
+                  :audio_source, :audio_url
 
   def completed?
     # User messages are always completed
@@ -193,29 +196,22 @@ class Message < ApplicationRecord
     end
   end
 
+  def audio_url
+    return unless audio_recording.attached?
+
+    Rails.application.routes.url_helpers.rails_blob_url(audio_recording, only_path: true)
+  rescue ArgumentError
+    nil
+  end
+
   def file_paths_for_llm
     return [] unless attachments.attached?
 
-    attachments.filter_map do |file|
-      # Skip files that don't exist (e.g., after database restore without storage)
-      next unless file.blob.service.exist?(file.key)
+    attachments.filter_map { |file| resolve_attachment_path(file) }
+  end
 
-      if file.blob.service.respond_to?(:path_for)
-        # Disk service: return local path directly
-        file.blob.service.path_for(file.key)
-      else
-        # Remote service (S3, etc.): download to temp file that persists beyond this block
-        tempfile = Tempfile.new([ "attachment", File.extname(file.filename.to_s) ])
-        tempfile.binmode
-        file.download { |chunk| tempfile.write(chunk) }
-        tempfile.rewind
-        tempfile.path
-        # Note: tempfile will be cleaned up by Ruby GC after the LLM API call completes
-      end
-    rescue Errno::ENOENT, ActiveStorage::FileNotFoundError
-      # File disappeared between exist? check and access, skip it
-      nil
-    end
+  def audio_path_for_llm
+    resolve_attachment_path(audio_recording)
   end
 
   # Stream content updates for real-time AI response display
@@ -480,6 +476,25 @@ class Message < ApplicationRecord
       strikethrough: true
     )
     renderer.render(content || "").html_safe
+  end
+
+  def resolve_attachment_path(attachment)
+    return unless !attachment.respond_to?(:attached?) || attachment.attached?
+
+    blob = attachment.blob
+    return unless blob.service.exist?(attachment.key)
+
+    if blob.service.respond_to?(:path_for)
+      blob.service.path_for(attachment.key)
+    else
+      tempfile = Tempfile.new([ "attachment", File.extname(attachment.filename.to_s) ])
+      tempfile.binmode
+      attachment.download { |chunk| tempfile.write(chunk) }
+      tempfile.rewind
+      tempfile.path
+    end
+  rescue Errno::ENOENT, ActiveStorage::FileNotFoundError
+    nil
   end
 
   # Extracts the first brace-balanced block from the start of text.

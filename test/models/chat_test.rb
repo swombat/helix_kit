@@ -626,4 +626,72 @@ class ChatTest < ActiveSupport::TestCase
     end
   end
 
+  # Audio input support tests
+
+  test "supports_audio_input? returns true for Gemini models" do
+    assert Chat.supports_audio_input?("google/gemini-3-pro-preview")
+    assert Chat.supports_audio_input?("google/gemini-3-flash-preview")
+    assert Chat.supports_audio_input?("google/gemini-2.5-pro")
+    assert Chat.supports_audio_input?("google/gemini-2.5-flash")
+  end
+
+  test "supports_audio_input? returns false for non-Gemini models" do
+    assert_not Chat.supports_audio_input?("openai/gpt-4o")
+    assert_not Chat.supports_audio_input?("anthropic/claude-opus-4.6")
+    assert_not Chat.supports_audio_input?("x-ai/grok-4")
+    assert_not Chat.supports_audio_input?("unknown/model")
+  end
+
+  test "audio annotation only added when audio_tools_enabled" do
+    agent = @account.agents.create!(name: "TestBot", system_prompt: "Test", model_id: "google/gemini-2.5-pro")
+    chat = @account.chats.new(model_id: "google/gemini-2.5-pro", manual_responses: true)
+    chat.agent_ids = [ agent.id ]
+    chat.save!
+
+    message = chat.messages.create!(
+      role: "user",
+      user: @user,
+      content: "Hello there",
+      audio_source: true
+    )
+    message.audio_recording.attach(
+      io: StringIO.new("fake audio"),
+      filename: "recording.webm",
+      content_type: "audio/webm"
+    )
+
+    context = chat.build_context_for_agent(agent)
+
+    # Find the user message in context
+    user_msg = context.find { |m| m[:role] == "user" && m[:content].to_s.include?("Hello there") }
+    assert user_msg, "Should find the user message in context"
+    assert_includes user_msg[:content].to_s, "[voice message, audio_id:"
+  end
+
+  test "audio annotation omitted when audio_tools_enabled is false" do
+    agent = @account.agents.create!(name: "TestBot", system_prompt: "Test", model_id: "openai/gpt-4o")
+    chat = @account.chats.new(model_id: "openai/gpt-4o", manual_responses: true)
+    chat.agent_ids = [ agent.id ]
+    chat.save!
+
+    message = chat.messages.create!(
+      role: "user",
+      user: @user,
+      content: "Hello there",
+      audio_source: true
+    )
+    message.audio_recording.attach(
+      io: StringIO.new("fake audio"),
+      filename: "recording.webm",
+      content_type: "audio/webm"
+    )
+
+    context = chat.build_context_for_agent(agent)
+
+    # Find the user message in context
+    user_msg = context.find { |m| m[:role] == "user" && m[:content].to_s.include?("Hello there") }
+    assert user_msg, "Should find the user message in context"
+    assert_not_includes user_msg[:content].to_s, "[voice message, audio_id:"
+  end
+
 end

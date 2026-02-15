@@ -64,6 +64,12 @@ class ManualAgentResponseJob < ApplicationJob
     end
     debug_info "Added #{tools_added.length} tools: #{tools_added.join(', ')}" if tools_added.any?
 
+    if chat.audio_tools_available_for?(agent.model_id)
+      llm = llm.with_tool(FetchAudioTool.new(chat: chat, current_agent: agent))
+      tools_added << "FetchAudioTool"
+      debug_info "Added FetchAudioTool (model supports audio input, voice messages present)"
+    end
+
     llm.on_new_message do
       if @ai_message
         @ai_message.reload

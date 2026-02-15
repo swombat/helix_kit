@@ -108,7 +108,7 @@
       const data = await response.json();
 
       if (response.ok && data.text) {
-        onsuccess?.(data.text);
+        onsuccess?.(data.text, data.audio_signed_id);
       } else {
         onerror?.(data.error || 'Transcription failed');
       }

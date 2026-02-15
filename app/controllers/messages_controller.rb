@@ -23,6 +23,15 @@ class MessagesController < ApplicationController
     )
     @message.attachments.attach(params[:files]) if params[:files].present?
 
+    if params[:audio_signed_id].present?
+      begin
+        @message.audio_recording.attach(params[:audio_signed_id])
+        @message.audio_source = true
+      rescue ActiveSupport::MessageVerifier::InvalidSignature
+        Rails.logger.warn "Invalid audio_signed_id for message in chat #{@chat.id}"
+      end
+    end
+
     if @message.save
       audit("create_message", @message, **message_params.to_h)
       if @chat.manual_responses?

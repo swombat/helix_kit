@@ -20,6 +20,10 @@ class AiResponseJob < ApplicationJob
 
     chat.available_tools.each { |tool| chat = chat.with_tool(tool) }
 
+    if chat.audio_tools_available_for?(chat.model_id)
+      chat = chat.with_tool(FetchAudioTool.new(chat: chat))
+    end
+
     chat.on_new_message do
       @ai_message = chat.messages.order(:created_at).last
       @ai_message.update!(streaming: true) if @ai_message

@@ -41,6 +41,7 @@
   import ModerationIndicator from '$lib/components/chat/ModerationIndicator.svelte';
   import AgentPickerDialog from '$lib/components/chat/AgentPickerDialog.svelte';
   import MicButton from '$lib/components/chat/MicButton.svelte';
+  import AudioPlayer from '$lib/components/chat/AudioPlayer.svelte';
   import {
     accountChatMessagesPath,
     messageRetryPath,
@@ -191,6 +192,11 @@
   // Random placeholder (10% chance for the tip)
   const placeholder =
     Math.random() < 0.1 ? 'Did you know? Press shift-enter for a new line...' : 'Type your message...';
+
+  // pendingAudioSignedId is safe from leaking into subsequent messages because
+  // handleTranscription calls sendMessage() synchronously, and the submitting
+  // guard prevents any second sendMessage() call until onSuccess/onError clears it.
+  let pendingAudioSignedId = $state(null);
 
   // Whiteboard state
   let whiteboardOpen = $state(false);
@@ -653,6 +659,10 @@
     formData.append('message[content]', $messageForm.message.content);
     selectedFiles.forEach((file) => formData.append('files[]', file));
 
+    if (pendingAudioSignedId) {
+      formData.append('audio_signed_id', pendingAudioSignedId);
+    }
+
     // Track that we're waiting for response (only for non-manual_responses chats)
     if (!chat?.manual_responses) {
       waitingForResponse = true;
@@ -667,6 +677,7 @@
         submitting = false;
         $messageForm.message.content = '';
         selectedFiles = [];
+        pendingAudioSignedId = null;
         // Reset textarea height
         if (textareaRef) textareaRef.style.height = 'auto';
 
@@ -688,11 +699,13 @@
         submitting = false;
         waitingForResponse = false;
         messageSentAt = null;
+        pendingAudioSignedId = null;
       },
     });
   }
 
-  function handleTranscription(text) {
+  function handleTranscription(text, audioSignedId) {
+    pendingAudioSignedId = audioSignedId || null;
     $messageForm.message.content = text;
     sendMessage();
   }
@@ -1476,6 +1489,11 @@
                       </button>
                     {/if}
                   </div>
+                  {#if message.audio_source && message.audio_url}
+                    <div class="mt-1 flex justify-end">
+                      <AudioPlayer src={message.audio_url} />
+                    </div>
+                  {/if}
                 </div>
               </div>
             {:else}
