@@ -113,8 +113,6 @@ if defined?(RubyLLM) && defined?(RubyLLM::Providers::Gemini)
         if signature
           function_call_part[:thoughtSignature] = signature
           Rails.logger.info "[ThoughtSignature] Added signature to functionCall for: #{tool_call.name}"
-          # Clear from cache after use to prevent memory buildup
-          ThoughtSignatureCache.clear(tool_call.id)
         end
 
         parts << function_call_part

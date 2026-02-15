@@ -7,10 +7,10 @@ class ManualAgentResponseJob < ApplicationJob
   include BroadcastsDebug
 
   retry_on RubyLLM::ModelNotFoundError, wait: 5.seconds, attempts: 2
-  retry_on RubyLLM::BadRequestError, wait: :polynomially_later, attempts: 3
-  retry_on RubyLLM::ServerError, wait: :polynomially_later, attempts: 3
-  retry_on RubyLLM::RateLimitError, wait: :polynomially_later, attempts: 5
-  retry_on Faraday::Error, wait: :polynomially_later, attempts: 3
+  retry_on RubyLLM::BadRequestError, wait: :polynomially_longer, attempts: 3
+  retry_on RubyLLM::ServerError, wait: :polynomially_longer, attempts: 3
+  retry_on RubyLLM::RateLimitError, wait: :polynomially_longer, attempts: 5
+  retry_on Faraday::Error, wait: :polynomially_longer, attempts: 3
 
   def perform(chat, agent, initiation_reason: nil)
     @chat = chat
@@ -65,7 +65,15 @@ class ManualAgentResponseJob < ApplicationJob
     debug_info "Added #{tools_added.length} tools: #{tools_added.join(', ')}" if tools_added.any?
 
     llm.on_new_message do
-      @ai_message&.stop_streaming if @ai_message&.streaming?
+      if @ai_message
+        @ai_message.reload
+        if @ai_message.content.blank?
+          debug_info "Reusing empty message #{@ai_message.obfuscated_id}"
+          next
+        else
+          @ai_message.stop_streaming if @ai_message.streaming?
+        end
+      end
 
       debug_info "Creating new assistant message"
       @ai_message = chat.messages.create!(
@@ -84,6 +92,8 @@ class ManualAgentResponseJob < ApplicationJob
     end
 
     llm.on_end_message do |msg|
+      next if msg.tool_call? || msg.tool_result?
+
       debug_info "Response complete - #{msg.content&.length || 0} chars"
       finalize_message!(msg)
       @agent.notify_subscribers!(@ai_message, @chat) if @ai_message&.persisted? && initiation_reason.present?

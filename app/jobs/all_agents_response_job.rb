@@ -75,7 +75,15 @@ class AllAgentsResponseJob < ApplicationJob
     debug_info "Added #{tools_added.length} tools: #{tools_added.join(', ')}" if tools_added.any?
 
     llm.on_new_message do
-      @ai_message&.stop_streaming if @ai_message&.streaming?
+      if @ai_message
+        @ai_message.reload
+        if @ai_message.content.blank?
+          debug_info "Reusing empty message #{@ai_message.obfuscated_id}"
+          next
+        else
+          @ai_message.stop_streaming if @ai_message.streaming?
+        end
+      end
 
       debug_info "Creating new assistant message"
       @ai_message = chat.messages.create!(
@@ -94,6 +102,8 @@ class AllAgentsResponseJob < ApplicationJob
     end
 
     llm.on_end_message do |msg|
+      next if msg.tool_call? || msg.tool_result?
+
       debug_info "Response complete - #{msg.content&.length || 0} chars"
       finalize_message!(msg)
     end
