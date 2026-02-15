@@ -34,6 +34,7 @@ production:
   memory_refinement:
     class: MemoryRefinementJob
     queue: default
+    args: [ 1 ]
     schedule: every monday at 5am
 
   sync_oura_data:
