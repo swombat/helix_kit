@@ -60,6 +60,21 @@ module GithubApi
     get("/user/repos", { visibility: "all", sort: "updated", direction: "desc", per_page: 100 })
   end
 
+  def fetch_commit_diff(sha)
+    return nil unless repository_full_name.present?
+
+    get_raw("/repos/#{repository_full_name}/commits/#{sha}", accept: "application/vnd.github.diff")
+  end
+
+  def fetch_file_contents(path)
+    return nil unless repository_full_name.present?
+
+    data = get("/repos/#{repository_full_name}/contents/#{path}")
+    return nil unless data.is_a?(Hash) && data["content"]
+
+    Base64.decode64(data["content"]).force_encoding("UTF-8")
+  end
+
   def fetch_recent_commits(limit: 10)
     return [] unless repository_full_name.present?
 
@@ -97,12 +112,27 @@ module GithubApi
   end
 
   def get(path, params = {})
+    response = github_request(path, params: params)
+    return nil unless response
+
+    JSON.parse(response.body)
+  rescue JSON::ParserError => e
+    Rails.logger.error("GitHub API JSON parse error: #{e.message}")
+    nil
+  end
+
+  def get_raw(path, accept: "application/vnd.github.diff")
+    response = github_request(path, accept: accept)
+    response&.body
+  end
+
+  def github_request(path, params: {}, accept: "application/vnd.github+json")
     uri = URI("#{GITHUB_API_BASE}#{path}")
     uri.query = URI.encode_www_form(params) if params.any?
 
     request = Net::HTTP::Get.new(uri)
     request["Authorization"] = "Bearer #{access_token}"
-    request["Accept"] = "application/vnd.github+json"
+    request["Accept"] = accept
     request["X-GitHub-Api-Version"] = API_VERSION
 
     response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) { |http| http.request(request) }
@@ -118,10 +148,7 @@ module GithubApi
     end
 
     return nil unless response.is_a?(Net::HTTPSuccess)
-    JSON.parse(response.body)
-  rescue JSON::ParserError => e
-    Rails.logger.error("GitHub API JSON parse error: #{e.message}")
-    nil
+    response
   end
 
 end

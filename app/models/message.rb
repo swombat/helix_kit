@@ -73,7 +73,7 @@ class Message < ApplicationRecord
 
   # Known tool result type values that should be silently stripped (not recovered or error-recorded)
   TOOL_RESULT_TYPES = %w[
-    github_commits
+    github_commits github_diff github_file
     board board_created board_updated board_list board_deleted board_restored
     deleted_board_list active_board_cleared active_board_set
     config
