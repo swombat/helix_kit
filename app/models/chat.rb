@@ -605,6 +605,7 @@ class Chat < ApplicationRecord
     tz = user_timezone
     messages.includes(:user, :agent).order(:created_at)
       .reject { |msg| msg.content.blank? }  # Filter out empty messages (e.g., before tool calls)
+      .reject { |msg| msg.used_tools? && msg.agent_id != agent.id }  # Exclude other agents' tool results
       .map { |msg| format_message_for_context(msg, agent, tz, thinking_enabled: thinking_enabled) }
   end
 
