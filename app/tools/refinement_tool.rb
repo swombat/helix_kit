@@ -36,10 +36,12 @@ class RefinementTool < RubyLLM::Tool
     @session_id = session_id
     @pre_session_mass = pre_session_mass
     @stats = { consolidated: 0, updated: 0, deleted: 0, protected: 0 }
+    @terminated = false
   end
 
   def execute(action:, **params)
     Rails.logger.info "[Refinement] Agent #{@agent.id}: #{action}"
+    return { type: "error", error: "Session terminated — no further operations allowed" } if @terminated
     return validation_error("Invalid action '#{action}'") unless ACTIONS.include?(action)
     send("#{action}_action", **params)
   end
@@ -155,6 +157,8 @@ class RefinementTool < RubyLLM::Tool
       }
     end
 
+    @terminated = true
+
     AuditLog.create!(
       action: "memory_refinement_complete",
       auditable: @agent,
@@ -177,6 +181,7 @@ class RefinementTool < RubyLLM::Tool
   end
 
   def rollback_session!
+    @terminated = true
     post_compression_mass = @agent.core_token_usage
     ActiveRecord::Base.transaction do
       reverse_session_mutations!
