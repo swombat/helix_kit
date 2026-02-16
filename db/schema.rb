@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_15_114512) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_16_102647) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -81,6 +81,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_15_114512) do
     t.string "name", null: false
     t.float "refinement_threshold"
     t.text "reflection_prompt"
+    t.text "summary_prompt"
     t.text "system_prompt"
     t.string "telegram_bot_token"
     t.string "telegram_bot_username"
@@ -162,9 +163,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_15_114512) do
 
   create_table "chat_agents", force: :cascade do |t|
     t.bigint "agent_id", null: false
+    t.text "agent_summary"
+    t.datetime "agent_summary_generated_at"
+    t.jsonb "borrowed_context_json"
     t.bigint "chat_id", null: false
     t.datetime "closed_for_initiation_at"
     t.datetime "created_at", null: false
+    t.index ["agent_id", "agent_summary_generated_at"], name: "index_chat_agents_on_agent_summary_recency"
     t.index ["agent_id", "closed_for_initiation_at"], name: "index_chat_agents_on_agent_closed_initiation"
     t.index ["agent_id"], name: "index_chat_agents_on_agent_id"
     t.index ["chat_id", "agent_id"], name: "index_chat_agents_on_chat_id_and_agent_id", unique: true

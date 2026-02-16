@@ -694,4 +694,78 @@ class ChatTest < ActiveSupport::TestCase
     assert_not_includes user_msg[:content].to_s, "[voice message, audio_id:"
   end
 
+  # Cross-conversation context tests
+
+  test "format_cross_conversation_context returns nil when no other conversations" do
+    agent = @account.agents.create!(name: "Solo Agent", system_prompt: "Test", model_id: "openrouter/auto")
+    chat = @account.chats.new(title: "Only Chat", manual_responses: true, model_id: "openrouter/auto")
+    chat.agent_ids = [ agent.id ]
+    chat.save!
+
+    context = chat.build_context_for_agent(agent)
+    system_content = context.first[:content]
+    assert_not_includes system_content, "Your Other Active Conversations"
+  end
+
+  test "format_cross_conversation_context formats summaries with obfuscated IDs" do
+    agent = @account.agents.create!(name: "Cross Conv Agent", system_prompt: "Test", model_id: "openrouter/auto")
+
+    chat1 = @account.chats.new(title: "Current Chat", manual_responses: true, model_id: "openrouter/auto")
+    chat1.agent_ids = [ agent.id ]
+    chat1.save!
+
+    chat2 = @account.chats.new(title: "Other Chat", manual_responses: true, model_id: "openrouter/auto")
+    chat2.agent_ids = [ agent.id ]
+    chat2.save!
+
+    ca2 = ChatAgent.find_by(chat: chat2, agent: agent)
+    ca2.update_columns(agent_summary: "Discussing API design patterns", agent_summary_generated_at: 1.minute.ago)
+
+    context = chat1.build_context_for_agent(agent)
+    system_content = context.first[:content]
+
+    assert_includes system_content, "Your Other Active Conversations"
+    assert_includes system_content, "Other Chat"
+    assert_includes system_content, "Discussing API design patterns"
+    assert_includes system_content, chat2.obfuscated_id
+  end
+
+  test "format_borrowed_context returns nil when no borrowed context" do
+    agent = @account.agents.create!(name: "No Borrow Agent", system_prompt: "Test", model_id: "openrouter/auto")
+    chat = @account.chats.new(title: "Test", manual_responses: true, model_id: "openrouter/auto")
+    chat.agent_ids = [ agent.id ]
+    chat.save!
+
+    context = chat.build_context_for_agent(agent)
+    system_content = context.first[:content]
+    assert_not_includes system_content, "Borrowed Context"
+  end
+
+  test "format_borrowed_context formats messages without consuming them" do
+    agent = @account.agents.create!(name: "Borrow Agent", system_prompt: "Test", model_id: "openrouter/auto")
+    chat = @account.chats.new(title: "Current", manual_responses: true, model_id: "openrouter/auto")
+    chat.agent_ids = [ agent.id ]
+    chat.save!
+
+    ca = ChatAgent.find_by(chat: chat, agent: agent)
+    ca.update!(borrowed_context_json: {
+      "source_conversation_id" => "abcdef",
+      "messages" => [
+        { "author" => "Alice", "content" => "Can you review the PR?" },
+        { "author" => "Bot", "content" => "I will review it now." }
+      ]
+    })
+
+    context = chat.build_context_for_agent(agent)
+    system_content = context.first[:content]
+
+    assert_includes system_content, "Borrowed Context from Conversation abcdef"
+    assert_includes system_content, "[Alice]: Can you review the PR?"
+    assert_includes system_content, "[Bot]: I will review it now."
+    assert_includes system_content, "will not appear in future activations"
+
+    # Verify context is NOT consumed (still present)
+    assert ca.reload.borrowed_context_json.present?
+  end
+
 end

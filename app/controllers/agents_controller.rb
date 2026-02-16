@@ -69,6 +69,7 @@ class AgentsController < ApplicationController
   def agent_params
     params.require(:agent).permit(
       :name, :system_prompt, :reflection_prompt, :memory_reflection_prompt,
+      :summary_prompt,
       :model_id, :active, :colour, :icon,
       :thinking_enabled, :thinking_budget,
       :telegram_bot_token, :telegram_bot_username,

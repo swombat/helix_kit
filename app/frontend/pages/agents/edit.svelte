@@ -82,6 +82,7 @@
       system_prompt: agent.system_prompt || '',
       reflection_prompt: agent.reflection_prompt || '',
       memory_reflection_prompt: agent.memory_reflection_prompt || '',
+      summary_prompt: agent.summary_prompt || '',
       model_id: agent.model_id,
       active: agent.active,
       enabled_tools: agent.enabled_tools || [],
@@ -352,6 +353,21 @@
               <p class="text-xs text-muted-foreground">
                 Customize how the agent reviews journal entries to promote them to core memories. Leave empty to use the
                 default prompt. The prompt can use %{'{'}core_memories{'}'} and %{'{'}journal_entries{'}'} placeholders.
+              </p>
+            </div>
+
+            <div class="space-y-2">
+              <Label for="summary_prompt">Summary Prompt</Label>
+              <textarea
+                id="summary_prompt"
+                bind:value={$form.agent.summary_prompt}
+                placeholder="Leave empty to use default summary prompt (focus on state, 2 lines)"
+                rows="6"
+                class="w-full resize-none border border-input rounded-md px-3 py-2 text-sm bg-background font-mono
+                       focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"></textarea>
+              <p class="text-xs text-muted-foreground">
+                Customize how this agent summarizes conversations for cross-conversation awareness. Leave empty for the
+                default prompt that focuses on current state rather than narrative.
               </p>
             </div>
 

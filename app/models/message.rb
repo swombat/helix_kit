@@ -94,6 +94,7 @@ class Message < ApplicationRecord
 
   after_commit :queue_moderation, on: :create, if: :user_message_with_content?
   after_create :reopen_all_agents_for_initiation, if: :human_message_in_group_chat?
+  after_create_commit :queue_agent_summaries, if: -> { role.in?(%w[user assistant]) && content.present? }
 
   json_attributes :role, :content, :thinking, :thinking_preview, :user_name, :user_avatar_url,
                   :completed, :created_at_formatted, :created_at_hour, :streaming,
@@ -223,7 +224,7 @@ class Message < ApplicationRecord
     update_columns(streaming: true, content: (content.to_s + chunk))
 
     # Broadcast to the chat's messages channel (which we know works)
-    Rails.logger.debug "📡 Broadcasting streaming update to Message:#{to_param}:stream (length: #{content.to_s.length}, chunk: #{chunk})"
+    Rails.logger.debug "Broadcasting streaming update to Message:#{to_param}:stream (length: #{content.to_s.length}, chunk: #{chunk})"
     broadcast_marker(
       "Message:#{to_param}",
       {
@@ -253,12 +254,12 @@ class Message < ApplicationRecord
 
   # Stop streaming and finalize the message
   def stop_streaming
-    Rails.logger.info "🛑 Stopping streaming for Message:#{to_param}, currently streaming: #{streaming?}"
+    Rails.logger.info "Stopping streaming for Message:#{to_param}, currently streaming: #{streaming?}"
     # Use update! to trigger callbacks and broadcast_refresh
     # Also clear tool_status since streaming is complete
     if streaming?
       update!(streaming: false, tool_status: nil)
-      Rails.logger.info "🛑 Message #{to_param} updated to streaming: false"
+      Rails.logger.info "Message #{to_param} updated to streaming: false"
     end
 
     # Broadcast streaming_end to both Message and Chat channels for reliability
@@ -280,13 +281,13 @@ class Message < ApplicationRecord
         id: to_param
       }
     )
-    Rails.logger.info "🛑 Broadcasted streaming_end to Message:#{to_param} and Chat:#{chat.obfuscated_id}"
+    Rails.logger.info "Broadcasted streaming_end to Message:#{to_param} and Chat:#{chat.obfuscated_id}"
   end
 
   # Update tool call status for real-time UI display
   def broadcast_tool_call(tool_name:, tool_args:)
     status = format_tool_status(tool_name, tool_args)
-    Rails.logger.debug "🔧 Updating tool status: #{status}"
+    Rails.logger.debug "Updating tool status: #{status}"
     update!(tool_status: status)
   end
 
@@ -408,6 +409,13 @@ class Message < ApplicationRecord
 
   def reopen_all_agents_for_initiation
     chat.chat_agents.closed_for_initiation.update_all(closed_for_initiation_at: nil)
+  end
+
+  def queue_agent_summaries
+    chat.chat_agents.includes(:agent).each do |chat_agent|
+      next unless chat_agent.summary_stale?
+      GenerateAgentSummaryJob.perform_later(chat, chat_agent.agent)
+    end
   end
 
   def format_tool_status(tool_name, tool_args)
@@ -572,7 +580,7 @@ class Message < ApplicationRecord
     # Match by `type` field (used by most tools)
     return true if parsed_json["type"].in?(TOOL_RESULT_TYPES)
 
-    # Match any tool success/error response echo — {success: true, ...} or {error: "..."}
+    # Match any tool success/error response echo -- {success: true, ...} or {error: "..."}
     # These are result shapes returned by tools, not tool call inputs
     return true if parsed_json["success"] == true
     return true if parsed_json.key?("error") && parsed_json.keys.size == 1

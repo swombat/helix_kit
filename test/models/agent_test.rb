@@ -215,4 +215,141 @@ class AgentTest < ActiveSupport::TestCase
     assert agent.valid?
   end
 
+  # Summary prompt tests
+
+  test "validates summary_prompt length" do
+    agent = @account.agents.build(
+      name: "Test",
+      summary_prompt: "x" * 10_001
+    )
+    assert_not agent.valid?
+    assert_includes agent.errors[:summary_prompt].first, "too long"
+  end
+
+  test "effective_summary_prompt returns custom prompt when set" do
+    agent = @account.agents.create!(
+      name: "Custom Summary Agent",
+      summary_prompt: "My custom summary instructions"
+    )
+    assert_equal "My custom summary instructions", agent.effective_summary_prompt
+  end
+
+  test "effective_summary_prompt returns default when blank" do
+    agent = @account.agents.create!(name: "Default Summary Agent", summary_prompt: nil)
+    assert_equal Agent::DEFAULT_SUMMARY_PROMPT, agent.effective_summary_prompt
+
+    agent.update!(summary_prompt: "")
+    assert_equal Agent::DEFAULT_SUMMARY_PROMPT, agent.effective_summary_prompt
+  end
+
+  test "includes summary_prompt in json_attributes" do
+    agent = @account.agents.create!(name: "JSON Test", summary_prompt: "Custom prompt")
+    json = agent.as_json
+    assert_equal "Custom prompt", json["summary_prompt"]
+  end
+
+  # other_conversation_summaries tests
+
+  test "other_conversation_summaries returns summaries from other conversations and excludes specified chat" do
+    agent = @account.agents.create!(name: "Multi-Chat Agent", model_id: "openrouter/auto")
+
+    # Create two chats with the agent
+    chat1 = @account.chats.new(title: "Chat 1", manual_responses: true, model_id: "openrouter/auto")
+    chat1.agent_ids = [ agent.id ]
+    chat1.save!
+
+    chat2 = @account.chats.new(title: "Chat 2", manual_responses: true, model_id: "openrouter/auto")
+    chat2.agent_ids = [ agent.id ]
+    chat2.save!
+
+    # Set summary on chat2's ChatAgent
+    ca2 = ChatAgent.find_by(chat: chat2, agent: agent)
+    ca2.update_columns(agent_summary: "Working on project X", agent_summary_generated_at: 1.minute.ago)
+
+    summaries = agent.other_conversation_summaries(exclude_chat_id: chat1.id)
+    assert_equal 1, summaries.length
+    assert_equal "Working on project X", summaries.first.agent_summary
+    assert_equal chat2.id, summaries.first.chat_id
+  end
+
+  test "other_conversation_summaries excludes conversations older than 6 hours" do
+    agent = @account.agents.create!(name: "Old Chat Agent", model_id: "openrouter/auto")
+
+    chat1 = @account.chats.new(title: "Current", manual_responses: true, model_id: "openrouter/auto")
+    chat1.agent_ids = [ agent.id ]
+    chat1.save!
+
+    old_chat = @account.chats.new(title: "Old", manual_responses: true, model_id: "openrouter/auto")
+    old_chat.agent_ids = [ agent.id ]
+    old_chat.save!
+    old_chat.update_columns(updated_at: 7.hours.ago)
+
+    ca = ChatAgent.find_by(chat: old_chat, agent: agent)
+    ca.update_columns(agent_summary: "Old summary", agent_summary_generated_at: 7.hours.ago)
+
+    summaries = agent.other_conversation_summaries(exclude_chat_id: chat1.id)
+    assert_empty summaries
+  end
+
+  test "other_conversation_summaries excludes discarded conversations" do
+    agent = @account.agents.create!(name: "Discard Test Agent", model_id: "openrouter/auto")
+
+    chat1 = @account.chats.new(title: "Active", manual_responses: true, model_id: "openrouter/auto")
+    chat1.agent_ids = [ agent.id ]
+    chat1.save!
+
+    discarded_chat = @account.chats.new(title: "Discarded", manual_responses: true, model_id: "openrouter/auto")
+    discarded_chat.agent_ids = [ agent.id ]
+    discarded_chat.save!
+
+    ca = ChatAgent.find_by(chat: discarded_chat, agent: agent)
+    ca.update_columns(agent_summary: "Discarded chat summary", agent_summary_generated_at: 1.minute.ago)
+    discarded_chat.discard!
+
+    summaries = agent.other_conversation_summaries(exclude_chat_id: chat1.id)
+    assert_empty summaries
+  end
+
+  test "other_conversation_summaries excludes blank summaries" do
+    agent = @account.agents.create!(name: "Blank Summary Agent", model_id: "openrouter/auto")
+
+    chat1 = @account.chats.new(title: "Current", manual_responses: true, model_id: "openrouter/auto")
+    chat1.agent_ids = [ agent.id ]
+    chat1.save!
+
+    chat2 = @account.chats.new(title: "No Summary", manual_responses: true, model_id: "openrouter/auto")
+    chat2.agent_ids = [ agent.id ]
+    chat2.save!
+    # No summary set -- should be excluded
+
+    chat3 = @account.chats.new(title: "Empty Summary", manual_responses: true, model_id: "openrouter/auto")
+    chat3.agent_ids = [ agent.id ]
+    chat3.save!
+    ca3 = ChatAgent.find_by(chat: chat3, agent: agent)
+    ca3.update_columns(agent_summary: "", agent_summary_generated_at: 1.minute.ago)
+
+    summaries = agent.other_conversation_summaries(exclude_chat_id: chat1.id)
+    assert_empty summaries
+  end
+
+  test "other_conversation_summaries limits to 10 results" do
+    agent = @account.agents.create!(name: "Many Chats Agent", model_id: "openrouter/auto")
+
+    current_chat = @account.chats.new(title: "Current", manual_responses: true, model_id: "openrouter/auto")
+    current_chat.agent_ids = [ agent.id ]
+    current_chat.save!
+
+    12.times do |i|
+      chat = @account.chats.new(title: "Chat #{i}", manual_responses: true, model_id: "openrouter/auto")
+      chat.agent_ids = [ agent.id ]
+      chat.save!
+
+      ca = ChatAgent.find_by(chat: chat, agent: agent)
+      ca.update_columns(agent_summary: "Summary #{i}", agent_summary_generated_at: 1.minute.ago)
+    end
+
+    summaries = agent.other_conversation_summaries(exclude_chat_id: current_chat.id)
+    assert_equal 10, summaries.length
+  end
+
 end

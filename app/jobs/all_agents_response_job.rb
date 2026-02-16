@@ -112,6 +112,9 @@ class AllAgentsResponseJob < ApplicationJob
 
       debug_info "Response complete - #{msg.content&.length || 0} chars"
       finalize_message!(msg)
+
+      # Clear after finalize_message! succeeds -- if finalize raises, context survives for retry
+      ChatAgent.find_by(chat: @chat, agent: agent)&.clear_borrowed_context!
     end
 
     debug_info "Sending request to LLM..."

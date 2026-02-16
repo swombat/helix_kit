@@ -568,6 +568,14 @@ class Chat < ApplicationRecord
       parts << active_board
     end
 
+    if (cross_conv = format_cross_conversation_context(agent))
+      parts << cross_conv
+    end
+
+    if (borrowed = format_borrowed_context(agent))
+      parts << borrowed
+    end
+
     if Rails.env.development?
       parts << "**DEVELOPMENT TESTING MODE**: You are currently being tested on a development server using a production database backup. Any memories or changes you make will NOT be saved to the production server. This is a safe testing environment."
     end
@@ -615,6 +623,37 @@ class Chat < ApplicationRecord
 
     "# Conversation Topic\n\n" \
     "This conversation is titled: \"#{title}\""
+  end
+
+  def format_cross_conversation_context(agent)
+    summaries = agent.other_conversation_summaries(exclude_chat_id: id)
+    return nil if summaries.empty?
+
+    lines = summaries.map do |ca|
+      "- [#{ca.chat.obfuscated_id}] \"#{ca.chat.title_or_default}\": #{ca.agent_summary}"
+    end
+
+    "# Your Other Active Conversations\n\n" \
+    "You are also participating in these conversations (updated in last 6 hours):\n\n" \
+    "#{lines.join("\n")}\n\n" \
+    "If any of these are relevant to the current discussion, you can use the borrow_context " \
+    "tool with the conversation ID to pull in recent messages for reference."
+  end
+
+  def format_borrowed_context(agent)
+    chat_agent = chat_agents.find_by(agent_id: agent.id)
+    borrowed = chat_agent&.borrowed_context_json
+    return nil if borrowed.blank?
+
+    source_id = borrowed["source_conversation_id"]
+    messages_text = borrowed["messages"].map do |m|
+      "[#{m['author']}]: #{m['content']}"
+    end.join("\n")
+
+    "# Borrowed Context from Conversation #{source_id}\n\n" \
+    "You requested context from another conversation. Here are the recent messages:\n\n" \
+    "#{messages_text}\n\n" \
+    "This context is provided for reference only and will not appear in future activations."
   end
 
   def messages_context_for(agent, thinking_enabled: false, audio_tools_enabled: false)

@@ -10,6 +10,20 @@ class Agent < ApplicationRecord
 
   DEFAULT_REFINEMENT_THRESHOLD = 0.90
 
+  DEFAULT_SUMMARY_PROMPT = <<~PROMPT.freeze
+    You are summarizing a conversation you are participating in. This summary is for
+    your own reference so you can track what is happening across multiple conversations.
+
+    Focus on the current STATE of the conversation:
+    - What is being worked on right now?
+    - What decisions are pending?
+    - What has been agreed or resolved?
+
+    Do NOT narrate what happened. Describe where things stand.
+
+    Write exactly 2 lines. Be specific and concrete.
+  PROMPT
+
   belongs_to :account
   has_many :chat_agents, dependent: :destroy
   has_many :chats, through: :chat_agents
@@ -37,6 +51,7 @@ class Agent < ApplicationRecord
   validates :system_prompt, length: { maximum: 50_000 }
   validates :reflection_prompt, length: { maximum: 10_000 }
   validates :memory_reflection_prompt, length: { maximum: 10_000 }
+  validates :summary_prompt, length: { maximum: 10_000 }
   validates :colour, inclusion: { in: VALID_COLOURS }, allow_nil: true
   validates :icon, inclusion: { in: VALID_ICONS }, allow_nil: true
   validates :thinking_budget,
@@ -53,6 +68,7 @@ class Agent < ApplicationRecord
   scope :by_name, -> { order(:name) }
 
   json_attributes :name, :system_prompt, :reflection_prompt, :memory_reflection_prompt,
+                  :summary_prompt,
                   :model_id, :model_label, :enabled_tools, :active?, :colour, :icon,
                   :memories_count, :memory_token_summary, :thinking_enabled, :thinking_budget,
                   :telegram_bot_username, :telegram_configured?
@@ -87,6 +103,22 @@ class Agent < ApplicationRecord
 
   def effective_refinement_threshold
     refinement_threshold || DEFAULT_REFINEMENT_THRESHOLD
+  end
+
+  def effective_summary_prompt
+    summary_prompt.presence || DEFAULT_SUMMARY_PROMPT
+  end
+
+  def other_conversation_summaries(exclude_chat_id:)
+    chat_agents
+      .joins(:chat)
+      .where.not(chat_id: exclude_chat_id)
+      .where.not(agent_summary: [ nil, "" ])
+      .where("chats.updated_at > ?", 6.hours.ago)
+      .merge(Chat.kept)
+      .includes(:chat)
+      .order("chats.updated_at DESC")
+      .limit(10)
   end
 
   def memory_context
