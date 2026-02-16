@@ -1,6 +1,8 @@
 class RefinementTool < RubyLLM::Tool
 
   ACTIONS = %w[search consolidate update delete protect complete].freeze
+  MUTATING_ACTIONS = %w[consolidate update delete].freeze
+  MAX_MUTATIONS = 10
 
   description "Memory refinement tool. Actions: search, consolidate, update, delete, protect, complete."
 
@@ -36,14 +38,34 @@ class RefinementTool < RubyLLM::Tool
     @session_id = session_id
     @pre_session_mass = pre_session_mass
     @stats = { consolidated: 0, updated: 0, deleted: 0, protected: 0 }
+    @mutation_count = 0
     @terminated = false
   end
 
   def execute(action:, **params)
     Rails.logger.info "[Refinement] Agent #{@agent.id}: #{action}"
-    return { type: "error", error: "Session terminated — no further operations allowed" } if @terminated
+    return terminated_error if @terminated
     return validation_error("Invalid action '#{action}'") unless ACTIONS.include?(action)
-    send("#{action}_action", **params)
+
+    mutating = MUTATING_ACTIONS.include?(action)
+
+    if mutating && @mutation_count >= MAX_MUTATIONS
+      return {
+        type: "error",
+        error: "Hard cap reached: #{MAX_MUTATIONS} mutating operations performed. " \
+               "Call complete to finish the session."
+      }
+    end
+
+    result = send("#{action}_action", **params)
+
+    if mutating && result[:type] != "error"
+      @mutation_count += 1
+      check_retention_after_mutation!
+      return terminated_error if @terminated
+    end
+
+    result
   end
 
   private
@@ -172,6 +194,13 @@ class RefinementTool < RubyLLM::Tool
     { type: "refinement_complete", summary: summary, stats: @stats }
   end
 
+  def check_retention_after_mutation!
+    return unless circuit_breaker_tripped?
+
+    Rails.logger.warn "[Refinement] Agent #{@agent.id}: mid-session circuit breaker tripped after #{@mutation_count} operations"
+    rollback_session!
+  end
+
   def circuit_breaker_tripped?
     return false unless @pre_session_mass && @pre_session_mass > 0
 
@@ -205,7 +234,6 @@ class RefinementTool < RubyLLM::Tool
     when "memory_refinement_consolidate"
       reverse_consolidation(log)
     when "memory_refinement_protect"
-      # Entire session is rolled back -- revert constitutional flags granted during this session
       AgentMemory.find_by(id: log.auditable_id)&.update!(constitutional: false)
     end
   end
@@ -240,17 +268,23 @@ class RefinementTool < RubyLLM::Tool
     parts = stat_labels.filter_map { |key, word| "#{@stats[key]} #{word.pluralize(@stats[key])}" if @stats[key] > 0 }
     stats_summary = parts.any? ? "Rolled back: #{parts.join(', ')}." : ""
 
-    @agent.memories.create!(
-      content: "Refinement session rolled back. Would have reduced core memory from " \
-               "#{@pre_session_mass} to #{post_compression_mass} tokens (#{reduction_pct}% cut), " \
-               "exceeding the #{threshold_pct}% retention threshold. #{stats_summary} " \
-               "All changes reversed to protect memory integrity.",
-      memory_type: :journal
-    )
+    content = [
+      "Refinement session rolled back. Would have reduced core memory from " \
+      "#{@pre_session_mass} to #{post_compression_mass} tokens (#{reduction_pct}% cut), " \
+      "exceeding the #{threshold_pct}% retention threshold.",
+      stats_summary.presence,
+      "All changes reversed to protect memory integrity."
+    ].compact.join(" ")
+
+    @agent.memories.create!(content: content, memory_type: :journal)
   end
 
   def session_audit_logs
     AuditLog.for_refinement_session(@session_id).order(created_at: :desc)
+  end
+
+  def terminated_error
+    { type: "error", error: "Session terminated -- no further operations allowed" }
   end
 
   def validation_error(message)

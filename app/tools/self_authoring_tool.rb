@@ -7,6 +7,7 @@ class SelfAuthoringTool < RubyLLM::Tool
     system_prompt
     reflection_prompt
     memory_reflection_prompt
+    refinement_prompt
     refinement_threshold
   ].freeze
 
@@ -15,14 +16,16 @@ class SelfAuthoringTool < RubyLLM::Tool
   }.freeze
 
   description "View or update your configuration. Actions: view, update. " \
-              "Fields: name, system_prompt, reflection_prompt, memory_reflection_prompt, refinement_threshold."
+              "Fields: name, system_prompt, reflection_prompt, memory_reflection_prompt, " \
+              "refinement_prompt, refinement_threshold."
 
   param :action, type: :string,
         desc: "view or update",
         required: true
 
   param :field, type: :string,
-        desc: "name, system_prompt, reflection_prompt, memory_reflection_prompt, or refinement_threshold",
+        desc: "name, system_prompt, reflection_prompt, memory_reflection_prompt, " \
+              "refinement_prompt, or refinement_threshold",
         required: true
 
   param :value, type: :string,
@@ -72,6 +75,8 @@ class SelfAuthoringTool < RubyLLM::Tool
       ConsolidateConversationJob::EXTRACTION_PROMPT
     when "memory_reflection_prompt"
       MemoryReflectionJob::REFLECTION_PROMPT
+    when "refinement_prompt"
+      Agent::DEFAULT_REFINEMENT_PROMPT
     when "refinement_threshold"
       Agent::DEFAULT_REFINEMENT_THRESHOLD
     end

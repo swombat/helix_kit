@@ -214,4 +214,22 @@ class SelfAuthoringToolTest < ActiveSupport::TestCase
     assert_equal "error", result[:type]
   end
 
+  # Refinement prompt tests
+
+  test "view refinement_prompt shows default when unset" do
+    @agent.update!(refinement_prompt: nil)
+    result = @tool.execute(action: "view", field: "refinement_prompt")
+
+    assert_equal "config", result[:type]
+    assert_equal Agent::DEFAULT_REFINEMENT_PROMPT, result[:value]
+    assert result[:is_default]
+  end
+
+  test "update refinement_prompt saves custom value" do
+    result = @tool.execute(action: "update", field: "refinement_prompt", value: "Custom instructions")
+
+    assert_equal "config", result[:type]
+    assert_equal "Custom instructions", @agent.reload.refinement_prompt
+  end
+
 end

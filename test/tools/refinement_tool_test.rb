@@ -193,7 +193,90 @@ class RefinementToolTest < ActiveSupport::TestCase
     assert_equal RefinementTool::ACTIONS, result[:allowed_actions]
   end
 
-  # Circuit breaker tests
+  # Hard cap tests
+
+  test "refuses mutating operations after hard cap" do
+    memories = 12.times.map { |i| @agent.memories.create!(content: "Memory #{i}", memory_type: :core) }
+    tool = RefinementTool.new(agent: @agent, session_id: "cap-test")
+
+    RefinementTool::MAX_MUTATIONS.times do |i|
+      result = tool.execute(action: "update", id: memories[i].id.to_s, content: "Updated #{i}")
+      assert_equal "updated", result[:type]
+    end
+
+    result = tool.execute(action: "update", id: memories[10].id.to_s, content: "One too many")
+    assert_equal "error", result[:type]
+    assert_includes result[:error], "Hard cap"
+  end
+
+  test "hard cap does not count failed operations" do
+    m = @agent.memories.create!(content: "Real memory", memory_type: :core)
+    tool = RefinementTool.new(agent: @agent, session_id: "cap-fail-test")
+
+    5.times { tool.execute(action: "delete", id: "999999") }
+
+    result = tool.execute(action: "update", id: m.id.to_s, content: "Still allowed")
+    assert_equal "updated", result[:type]
+  end
+
+  test "hard cap does not count search or protect" do
+    memories = 14.times.map { |i| @agent.memories.create!(content: "Memory #{i}" * 5, memory_type: :core) }
+    tool = RefinementTool.new(agent: @agent, session_id: "non-mutating-test")
+
+    5.times { tool.execute(action: "search", query: "Memory") }
+    3.times { |i| tool.execute(action: "protect", id: memories[i].id.to_s) }
+
+    RefinementTool::MAX_MUTATIONS.times do |i|
+      result = tool.execute(action: "update", id: memories[i + 3].id.to_s, content: "Updated #{i}")
+      assert_equal "updated", result[:type]
+    end
+
+    result = tool.execute(action: "update", id: memories[13].id.to_s, content: "Over cap")
+    assert_equal "error", result[:type]
+    assert_includes result[:error], "Hard cap"
+  end
+
+  # Mid-session circuit breaker tests
+
+  test "mid-session circuit breaker rolls back and terminates" do
+    m1 = @agent.memories.create!(content: "A" * 400, memory_type: :core)
+    m2 = @agent.memories.create!(content: "B" * 400, memory_type: :core)
+
+    tool = tool_with_circuit_breaker
+
+    tool.execute(action: "delete", id: m1.id.to_s)
+    tool.execute(action: "delete", id: m2.id.to_s)
+
+    assert_not m1.reload.discarded?, "should be undiscarded after mid-session rollback"
+    assert_not m2.reload.discarded?, "should be undiscarded after mid-session rollback"
+
+    result = tool.execute(action: "search", query: "anything")
+    assert_equal "error", result[:type]
+    assert_includes result[:error], "terminated"
+  end
+
+  test "mid-session circuit breaker returns terminated error on triggering call" do
+    m1 = @agent.memories.create!(content: "A" * 400, memory_type: :core)
+
+    tool = tool_with_circuit_breaker
+
+    result = tool.execute(action: "delete", id: m1.id.to_s)
+    assert_equal "error", result[:type]
+    assert_includes result[:error], "terminated"
+  end
+
+  test "all calls after mid-session rollback return terminated error" do
+    m1 = @agent.memories.create!(content: "A" * 400, memory_type: :core)
+
+    tool = tool_with_circuit_breaker
+    tool.execute(action: "delete", id: m1.id.to_s)
+
+    result = tool.execute(action: "complete", summary: "Trying to complete")
+    assert_equal "error", result[:type]
+    assert_includes result[:error], "terminated"
+  end
+
+  # Circuit breaker tests (complete action -- safety net)
 
   test "complete rolls back when compression exceeds threshold" do
     m1 = @agent.memories.create!(content: "A" * 400, memory_type: :core)
@@ -204,9 +287,7 @@ class RefinementToolTest < ActiveSupport::TestCase
     tool.execute(action: "delete", id: m1.id.to_s)
     tool.execute(action: "delete", id: m2.id.to_s)
 
-    result = tool.execute(action: "complete", summary: "Deleted everything")
-
-    assert_equal "refinement_rolled_back", result[:type]
+    # Mid-session circuit breaker already rolled back
     assert_not m1.reload.discarded?
     assert_not m2.reload.discarded?
   end
@@ -233,9 +314,6 @@ class RefinementToolTest < ActiveSupport::TestCase
     m = @agent.memories.kept.core.first
 
     tool.execute(action: "delete", id: m.id.to_s)
-    assert m.reload.discarded?
-
-    tool.execute(action: "complete", summary: "Over-deleted")
 
     assert_not m.reload.discarded?
   end
@@ -247,7 +325,6 @@ class RefinementToolTest < ActiveSupport::TestCase
     m = @agent.memories.kept.core.first
 
     tool.execute(action: "update", id: m.id.to_s, content: "X")
-    tool.execute(action: "complete", summary: "Over-compressed")
 
     assert_equal "Original content here" * 10, m.reload.content
   end
@@ -258,7 +335,6 @@ class RefinementToolTest < ActiveSupport::TestCase
 
     tool = tool_with_circuit_breaker
     tool.execute(action: "consolidate", ids: "#{m1.id},#{m2.id}", content: "AB")
-    tool.execute(action: "complete", summary: "Over-consolidated")
 
     assert_not m1.reload.discarded?
     assert_not m2.reload.discarded?
@@ -273,7 +349,6 @@ class RefinementToolTest < ActiveSupport::TestCase
     tool = tool_with_circuit_breaker
     tool.execute(action: "protect", id: m.id.to_s)
     tool.execute(action: "delete", id: m2.id.to_s)
-    tool.execute(action: "complete", summary: "Over-deleted")
 
     assert_not m.reload.constitutional?
     assert_not m2.reload.discarded?
@@ -286,7 +361,6 @@ class RefinementToolTest < ActiveSupport::TestCase
     m = @agent.memories.kept.core.first
 
     tool.execute(action: "delete", id: m.id.to_s)
-    tool.execute(action: "complete", summary: "Deleted too much")
 
     rollback_log = AuditLog.find_by(action: "memory_refinement_rollback")
     assert rollback_log
@@ -299,28 +373,26 @@ class RefinementToolTest < ActiveSupport::TestCase
     assert_includes journal.content, "retention threshold"
   end
 
-  test "rollback reverses mixed mutations in a single session" do
-    m1 = @agent.memories.create!(content: "Memory one " * 20, memory_type: :core)
-    m2 = @agent.memories.create!(content: "Memory two " * 20, memory_type: :core)
-    m3 = @agent.memories.create!(content: "Memory three " * 20, memory_type: :core)
-    m4 = @agent.memories.create!(content: "Memory four " * 20, memory_type: :core)
+  test "complete action safety net catches external mass loss" do
+    # Verify the complete_action circuit breaker catches mass loss not
+    # tracked by per-operation checks (e.g., external deletions).
+    @agent.memories.create!(content: "A" * 400, memory_type: :core)
+    target = @agent.memories.create!(content: "B" * 400, memory_type: :core)
 
-    tool = tool_with_circuit_breaker
+    pre_mass = @agent.core_token_usage
+    @agent.update!(refinement_threshold: 0.99)
+    tool = RefinementTool.new(
+      agent: @agent,
+      session_id: "test-#{SecureRandom.hex(4)}",
+      pre_session_mass: pre_mass
+    )
 
-    tool.execute(action: "consolidate", ids: "#{m1.id},#{m2.id}", content: "Combined")
-    tool.execute(action: "update", id: m3.id.to_s, content: "Shortened")
-    tool.execute(action: "delete", id: m4.id.to_s)
-    result = tool.execute(action: "complete", summary: "Big cleanup")
+    # External deletion bypasses the tool, so no mid-session check runs
+    target.discard!
 
+    result = tool.execute(action: "complete", summary: "External deletion happened")
     assert_equal "refinement_rolled_back", result[:type]
-
-    assert_not m1.reload.discarded?, "consolidated source should be restored"
-    assert_not m2.reload.discarded?, "consolidated source should be restored"
-    assert_equal "Memory three " * 20, m3.reload.content, "updated memory should be restored"
-    assert_not m4.reload.discarded?, "deleted memory should be restored"
-
-    merged = @agent.memories.find_by(content: "Combined")
-    assert merged.discarded?, "consolidated target should be discarded"
+    assert_includes result[:reason], "retention threshold"
   end
 
   test "complete succeeds without pre_session_mass (backward compatibility)" do

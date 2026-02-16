@@ -248,6 +248,33 @@ class AgentTest < ActiveSupport::TestCase
     assert_equal "Custom prompt", json["summary_prompt"]
   end
 
+  # Refinement prompt tests
+
+  test "effective_refinement_prompt returns custom prompt when set" do
+    agent = @account.agents.create!(
+      name: "Custom Refinement Agent",
+      refinement_prompt: "My custom refinement instructions"
+    )
+    assert_equal "My custom refinement instructions", agent.effective_refinement_prompt
+  end
+
+  test "effective_refinement_prompt returns default when blank" do
+    agent = @account.agents.create!(name: "Default Refinement Agent", refinement_prompt: nil)
+    assert_equal Agent::DEFAULT_REFINEMENT_PROMPT, agent.effective_refinement_prompt
+
+    agent.update!(refinement_prompt: "")
+    assert_equal Agent::DEFAULT_REFINEMENT_PROMPT, agent.effective_refinement_prompt
+  end
+
+  test "validates refinement_prompt length" do
+    agent = @account.agents.build(
+      name: "Test",
+      refinement_prompt: "x" * 10_001
+    )
+    assert_not agent.valid?
+    assert_includes agent.errors[:refinement_prompt].first, "too long"
+  end
+
   # other_conversation_summaries tests
 
   test "other_conversation_summaries returns summaries from other conversations and excludes specified chat" do

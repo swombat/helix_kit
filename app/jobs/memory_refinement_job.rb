@@ -82,46 +82,42 @@ class MemoryRefinementJob < ApplicationJob
       - Token budget: #{budget} tokens
       - #{usage > budget ? "Over budget by: #{usage - budget} tokens" : "Within budget"}
 
-      Memory refinement will review your core memories and compress them — consolidating related entries, tightening phrasing, and removing obsolete ones — while preserving your identity, values, and commitments. Constitutional memories cannot be changed.
+      Memory refinement will review your core memories to de-duplicate entries and tighten phrasing. It does NOT summarize, compress, or delete memories unless they are exact duplicates. Constitutional memories are never touched. Completing with zero operations is a valid and good outcome.
 
       Do you want to run memory refinement now? Reply with **YES** or **NO** as the first word of your response. You may briefly explain your reasoning after.
     PROMPT
   end
 
   def build_refinement_prompt(agent, memories, usage, budget)
-    ledger = memories.map { |m|
-      flag = m.constitutional? ? " [CONSTITUTIONAL]" : ""
-      "- ##{m.id} (#{m.created_at.strftime('%Y-%m-%d')}, ~#{m.token_estimate} tokens)#{flag}: #{m.content}"
-    }.join("\n")
+    ledger = format_memory_ledger(memories)
 
     <<~PROMPT
       #{agent.system_prompt}
 
       #{development_preamble}# Memory Refinement Session
 
-      You are reviewing your own core memories to reduce token usage while preserving meaning.
-      This is compression, not forgetting. Merge granular memories into denser patterns and laws.
+      You are reviewing your own core memories. This is de-duplication, not compression.
+
+      #{agent.effective_refinement_prompt}
 
       ## Current Status
       - Core memories: #{memories.size}
       - Token usage: #{usage} tokens
       - Token budget: #{budget} tokens
-      - Over budget by: #{[ usage - budget, 0 ].max} tokens
-
-      ## Rules
-      - CONSTITUTIONAL memories cannot be deleted or consolidated. You may still create new constitutional memories.
-      - Prioritize the preservation of vows and relational shifts over operational data.
-      - Preserve your identity, values, and commitments.
-      - Merge related memories into single, denser statements.
-      - Tighten phrasing to save tokens without losing meaning.
-      - Delete truly obsolete entries.
-      - When done, call complete with a brief summary.
+      - #{usage > budget ? "Over budget by: #{usage - budget} tokens" : "Within budget"}
 
       ## Your Core Memory Ledger
       #{ledger}
 
-      Begin your refinement. Use the available tools to search, consolidate, update, delete, or protect memories. Call complete when finished.
+      Review your memories. De-duplicate exact duplicates. Tighten phrasing within individual memories if possible. When done, call complete with a brief summary. Doing nothing is fine.
     PROMPT
+  end
+
+  def format_memory_ledger(memories)
+    memories.map { |m|
+      flag = m.constitutional? ? " [CONSTITUTIONAL]" : ""
+      "- ##{m.id} (#{m.created_at.strftime('%Y-%m-%d')}, ~#{m.token_estimate} tokens)#{flag}: #{m.content}"
+    }.join("\n")
   end
 
 end

@@ -24,6 +24,17 @@ class Agent < ApplicationRecord
     Write exactly 2 lines. Be specific and concrete.
   PROMPT
 
+  DEFAULT_REFINEMENT_PROMPT = <<~PROMPT.strip.freeze
+    ## Refinement Guidelines
+    - You may perform AT MOST 10 mutating operations (consolidate, update, delete) in this session. The system will refuse further operations after 10.
+    - CONSTITUTIONAL memories cannot be deleted or consolidated.
+    - Audio, somatic, and voice memories are immutable. Do not touch them.
+    - Relational-specific memories (vows, quotes, specific dates, emotional texture) should only be touched if they are exact duplicates of another memory.
+    - A memory is redundant ONLY if another memory already carries the same specific moment, quote, or insight. Near-duplicates with different emotional texture are NOT duplicates.
+    - Completing with ZERO operations is a valid and good outcome.
+    - When uncertain, do nothing. Bias toward completing with zero operations.
+  PROMPT
+
   belongs_to :account
   has_many :chat_agents, dependent: :destroy
   has_many :chats, through: :chat_agents
@@ -52,6 +63,7 @@ class Agent < ApplicationRecord
   validates :reflection_prompt, length: { maximum: 10_000 }
   validates :memory_reflection_prompt, length: { maximum: 10_000 }
   validates :summary_prompt, length: { maximum: 10_000 }
+  validates :refinement_prompt, length: { maximum: 10_000 }
   validates :colour, inclusion: { in: VALID_COLOURS }, allow_nil: true
   validates :icon, inclusion: { in: VALID_ICONS }, allow_nil: true
   validates :thinking_budget,
@@ -107,6 +119,10 @@ class Agent < ApplicationRecord
 
   def effective_summary_prompt
     summary_prompt.presence || DEFAULT_SUMMARY_PROMPT
+  end
+
+  def effective_refinement_prompt
+    refinement_prompt.presence || DEFAULT_REFINEMENT_PROMPT
   end
 
   def other_conversation_summaries(exclude_chat_id:)
