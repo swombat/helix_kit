@@ -84,10 +84,7 @@ class AgentInitiationDecisionJob < ApplicationJob
     case decision[:action]
     when "continue"
       chat = agent.account.chats.find_by(id: Chat.decode_id(decision[:conversation_id]))
-      unless chat&.respondable?
-        notify_non_initiation!(agent, "Chose to continue conversation #{decision[:conversation_id]} but it's not respondable")
-        return
-      end
+      return unless chat&.respondable?
       return if @nighttime && !chat.agent_only?
 
       ManualAgentResponseJob.perform_later(chat, agent, initiation_reason: decision[:reason])
@@ -97,15 +94,9 @@ class AgentInitiationDecisionJob < ApplicationJob
       topic = "#{Chat::AGENT_ONLY_PREFIX} #{topic}" if agent_only && !topic&.start_with?(Chat::AGENT_ONLY_PREFIX)
 
       if agent_only
-        if agent.at_agent_only_initiation_cap?
-          notify_non_initiation!(agent, "Wanted to initiate agent-only '#{decision[:topic]}' but at agent-only cap (#{Agent::AGENT_ONLY_INITIATION_CAP} in last 48 hours)")
-          return
-        end
+        return if agent.at_agent_only_initiation_cap?
       else
-        if agent.at_initiation_cap?
-          notify_non_initiation!(agent, "Wanted to initiate '#{decision[:topic]}' but at initiation cap (#{Agent::INITIATION_CAP}+ pending conversations awaiting human response)")
-          return
-        end
+        return if agent.at_initiation_cap?
       end
 
       Chat.initiate_by_agent!(
@@ -115,15 +106,7 @@ class AgentInitiationDecisionJob < ApplicationJob
         reason: decision[:reason],
         invite_agent_ids: decision[:invite_agents]
       )
-    when "nothing"
-      notify_non_initiation!(agent, decision[:reason])
     end
-  end
-
-  def notify_non_initiation!(agent, reason)
-    return if @nighttime
-
-    TelegramInitiationDebugJob.perform_later(agent, reason.to_s)
   end
 
   def audit(agent, decision)
