@@ -25,7 +25,7 @@ class OpenRouterApi
       "anthropic/claude-3.7-sonnet:thinking",
       "anthropic/claude-opus-4",
       "anthropic/claude-sonnet-4",
-      "google/gemini-2.5-flash-preview-09-2025",
+      "google/gemini-2.5-flash",
       "google/gemini-2.5-pro",
       "x-ai/grok-4-fast",
       "x-ai/grok-code-fast-1",

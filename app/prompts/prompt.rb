@@ -6,7 +6,7 @@ class Prompt
 
   DEFAULT_MODEL = "openai/gpt-5"
   SMART_MODEL = "openai/gpt-5"
-  LIGHT_MODEL = "google/gemini-2.5-flash-preview-09-2025"
+  LIGHT_MODEL = "google/gemini-2.5-flash"
   CHAT_MODEL = "openai/gpt-5-chat"
 
   def initialize(model: DEFAULT_MODEL, template: nil)

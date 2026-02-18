@@ -5,7 +5,7 @@ http_interactions:
     uri: https://openrouter.ai/api/v1/chat/completions
     body:
       encoding: UTF-8
-      string: '{"model":"google/gemini-2.5-flash-preview-09-2025","messages":[{"role":"system","content":"You
+      string: '{"model":"google/gemini-2.5-flash","messages":[{"role":"system","content":"You
         are a helpful assistant that writes concise, descriptive conversation titles.\n\nGuidelines:\n-
         Limit the title to 3 to 5 words.\n- Use sentence case (capitalize only the
         first word and proper nouns).\n- Do not add quotation marks or ending punctuation.\n-
@@ -27,21 +27,17 @@ http_interactions:
       message: OK
     headers:
       date:
-      - Sat, 03 Jan 2026 11:57:10 GMT
+      - Wed, 18 Feb 2026 22:17:36 GMT
       content-type:
       - text/event-stream
       transfer-encoding:
       - chunked
       connection:
       - keep-alive
-      cf-ray:
-      - 9b8251262ed9034d-MAD
       access-control-allow-origin:
       - "*"
       cache-control:
       - no-cache
-      vary:
-      - Accept-Encoding
       permissions-policy:
       - payment=(self "https://checkout.stripe.com" "https://connect-js.stripe.com"
         "https://js.stripe.com" "https://*.js.stripe.com" "https://hooks.stripe.com")
@@ -51,17 +47,21 @@ http_interactions:
       - nosniff
       server:
       - cloudflare
+      cf-ray:
+      - 9d00e5421c80f773-MAD
     body:
       encoding: UTF-8
       string: |+
-        data: {"id":"gen-1767441429-MQWhk4QJW7WRGPUWG3HY","provider":"Google AI Studio","model":"google/gemini-2.5-flash-preview-09-2025","object":"chat.completion.chunk","created":1767441429,"choices":[{"index":0,"delta":{"role":"assistant","content":"Planning","reasoning":null,"reasoning_details":[],"annotations":[]},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
+        data: {"id":"gen-1771453056-yxtxjmZ2uKP8D4OJwA5s","provider":"Google","model":"google/gemini-2.5-flash","object":"chat.completion.chunk","created":1771453056,"choices":[{"index":0,"delta":{"role":"assistant","content":"Q","reasoning":null,"reasoning_details":[],"annotations":[]},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
 
-        data: {"id":"gen-1767441429-MQWhk4QJW7WRGPUWG3HY","provider":"Google AI Studio","model":"google/gemini-2.5-flash-preview-09-2025","object":"chat.completion.chunk","created":1767441429,"choices":[{"index":0,"delta":{"role":"assistant","content":" Q4 marketing campaign","reasoning":null,"reasoning_details":[],"annotations":[]},"finish_reason":"stop","native_finish_reason":"STOP","logprobs":null}]}
+        data: {"id":"gen-1771453056-yxtxjmZ2uKP8D4OJwA5s","provider":"Google","model":"google/gemini-2.5-flash","object":"chat.completion.chunk","created":1771453056,"choices":[{"index":0,"delta":{"role":"assistant","content":"4 marketing","reasoning":null,"reasoning_details":[],"annotations":[]},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
 
-        data: {"id":"gen-1767441429-MQWhk4QJW7WRGPUWG3HY","provider":"Google AI Studio","model":"google/gemini-2.5-flash-preview-09-2025","object":"chat.completion.chunk","created":1767441429,"choices":[{"index":0,"delta":{"role":"assistant","content":""},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"usage":{"prompt_tokens":162,"completion_tokens":5,"total_tokens":167,"cost":0.0000611,"is_byok":false,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0,"video_tokens":0},"cost_details":{"upstream_inference_cost":null,"upstream_inference_prompt_cost":0.0000486,"upstream_inference_completions_cost":0.0000125},"completion_tokens_details":{"reasoning_tokens":0,"image_tokens":0}}}
+        data: {"id":"gen-1771453056-yxtxjmZ2uKP8D4OJwA5s","provider":"Google","model":"google/gemini-2.5-flash","object":"chat.completion.chunk","created":1771453056,"choices":[{"index":0,"delta":{"role":"assistant","content":" campaign","reasoning":null,"reasoning_details":[],"annotations":[]},"finish_reason":"stop","native_finish_reason":"STOP","logprobs":null}]}
+
+        data: {"id":"gen-1771453056-yxtxjmZ2uKP8D4OJwA5s","provider":"Google","model":"google/gemini-2.5-flash","object":"chat.completion.chunk","created":1771453056,"choices":[{"index":0,"delta":{"role":"assistant","content":""},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"usage":{"prompt_tokens":160,"completion_tokens":4,"total_tokens":164,"cost":0.000058,"is_byok":false,"prompt_tokens_details":{"cached_tokens":0,"cache_write_tokens":0,"audio_tokens":0,"video_tokens":0},"cost_details":{"upstream_inference_cost":0.000058,"upstream_inference_prompt_cost":0.000048,"upstream_inference_completions_cost":0.00001},"completion_tokens_details":{"reasoning_tokens":0,"image_tokens":0}}}
 
         data: [DONE]
 
-  recorded_at: Sat, 03 Jan 2026 11:57:10 GMT
+  recorded_at: Wed, 18 Feb 2026 22:17:36 GMT
 recorded_with: VCR 6.3.1
 ...
