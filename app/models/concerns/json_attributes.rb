@@ -49,7 +49,7 @@ module JsonAttributes
 
         # Build our configured options
         configured_options = {
-          methods: self.class.json_attrs,
+          methods: self.class.json_attrs_for(runtime_options),
           include: self.class.json_includes
         }.merge(self.class.json_options)
 
@@ -85,6 +85,10 @@ module JsonAttributes
     end
 
     attr_reader :json_attrs, :json_includes, :json_options, :json_enhancer
+
+    def json_attrs_for(options = nil)
+      json_attrs
+    end
 
     def merge_json_options(base, overrides)
       return base if overrides.blank?

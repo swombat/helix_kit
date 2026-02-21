@@ -59,7 +59,9 @@ class Profile < ApplicationRecord
 
   def avatar_file_exists?
     return false unless avatar.attached?
-    avatar.blob.service.exist?(avatar.blob.key)
+    Rails.cache.fetch("avatar_exists/#{avatar.blob.key}", expires_in: 5.minutes) do
+      avatar.blob.service.exist?(avatar.blob.key)
+    end
   rescue StandardError
     false
   end

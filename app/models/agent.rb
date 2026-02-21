@@ -85,6 +85,12 @@ class Agent < ApplicationRecord
                   :memories_count, :memory_token_summary, :thinking_enabled, :thinking_budget,
                   :telegram_bot_username, :telegram_configured?
 
+  def self.json_attrs_for(options = nil)
+    return json_attrs unless options&.dig(:as) == :list
+
+    json_attrs - [ :memories_count, :memory_token_summary ]
+  end
+
   def self.available_tools
     Dir[Rails.root.join("app/tools/*_tool.rb")].filter_map do |file|
       File.basename(file, ".rb").camelize.constantize

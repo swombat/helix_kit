@@ -7,9 +7,9 @@ class ChatsController < ApplicationController
     @chats = sidebar_chats
 
     render inertia: "chats/new", props: {
-      chats: Array(@chats).map(&:cached_json),
+      chats: Chat.cached_json_for(Array(@chats), as: :sidebar_json),
       models: available_models,
-      agents: available_agents,
+      agents: available_agents(as: :list),
       account: current_account.as_json,
       file_upload_config: file_upload_config
     }
@@ -19,35 +19,39 @@ class ChatsController < ApplicationController
     @chats = sidebar_chats
 
     render inertia: "chats/new", props: {
-      chats: @chats.map(&:cached_json),
+      chats: Chat.cached_json_for(@chats, as: :sidebar_json),
       account: current_account.as_json,
       models: available_models,
-      agents: available_agents,
+      agents: available_agents(as: :list),
       file_upload_config: file_upload_config
     }
   end
 
   def show
-    @chats = sidebar_chats
+    props = { account: current_account.as_json }
 
-    # Use paginated messages - load most recent 30 by default
-    @messages = @chat.messages_page
-    @has_more = @messages.any? && @chat.messages.where("id < ?", @messages.first.id).exists?
+    if inertia_prop_requested?(:chats)
+      chats = sidebar_chats
+      props[:chats] = Chat.cached_json_for(chats, as: :sidebar_json)
+    end
 
-    render inertia: "chats/show", props: {
-      chat: chat_json_with_whiteboard,
-      chats: @chats.map(&:cached_json),
-      messages: @messages.collect(&:as_json),
-      has_more_messages: @has_more,
-      oldest_message_id: @messages.first&.to_param,
-      account: current_account.as_json,
-      models: available_models,
-      agents: @chat.group_chat? ? @chat.agents.as_json : [],
-      available_agents: available_agents,
-      addable_agents: addable_agents_for_chat,
-      file_upload_config: file_upload_config,
-      telegram_deep_link: telegram_deep_link_for_chat
-    }
+    if inertia_prop_requested?(:messages)
+      messages = @chat.messages_page
+      has_more = messages.any? && @chat.messages.where("id < ?", messages.first.id).exists?
+      props[:messages] = messages.collect(&:as_json)
+      props[:has_more_messages] = has_more
+      props[:oldest_message_id] = messages.first&.to_param
+    end
+
+    props[:chat] = chat_json_with_whiteboard if inertia_prop_requested?(:chat)
+    props[:models] = available_models if inertia_prop_requested?(:models)
+    props[:agents] = @chat.group_chat? ? @chat.agents.as_json(as: :list) : [] if inertia_prop_requested?(:agents)
+    props[:available_agents] = available_agents(as: :list) if inertia_prop_requested?(:available_agents)
+    props[:addable_agents] = addable_agents_for_chat(as: :list) if inertia_prop_requested?(:addable_agents)
+    props[:file_upload_config] = file_upload_config if inertia_prop_requested?(:file_upload_config)
+    props[:telegram_deep_link] = telegram_deep_link_for_chat if inertia_prop_requested?(:telegram_deep_link)
+
+    render inertia: "chats/show", props: props
   end
 
   def create
@@ -129,13 +133,18 @@ class ChatsController < ApplicationController
     }
   end
 
-  def available_agents
-    current_account.agents.active.as_json
+  def available_agents(as: nil)
+    if as.present?
+      current_account.agents.active.as_json(as: as)
+    else
+      current_account.agents.active.as_json
+    end
   end
 
-  def addable_agents_for_chat
+  def addable_agents_for_chat(as: nil)
     return [] unless @chat.group_chat?
-    current_account.agents.active.where.not(id: @chat.agent_ids).as_json
+    scope = current_account.agents.active.where.not(id: @chat.agent_ids)
+    as.present? ? scope.as_json(as: as) : scope.as_json
   end
 
   def chat_json_with_whiteboard
@@ -165,6 +174,21 @@ class ChatsController < ApplicationController
 
   def can_manage_account?
     current_account.manageable_by?(Current.user)
+  end
+
+  def inertia_partial_request?
+    request.headers["X-Inertia-Partial-Component"].present?
+  end
+
+  def inertia_partial_props
+    @inertia_partial_props ||= (request.headers["X-Inertia-Partial-Data"] || "").split(",").map(&:strip)
+  end
+
+  def inertia_prop_requested?(prop)
+    return true unless inertia_partial_request?
+    return true if inertia_partial_props.empty?
+
+    inertia_partial_props.include?(prop.to_s)
   end
 
 end

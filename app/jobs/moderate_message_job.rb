@@ -10,7 +10,7 @@ class ModerateMessageJob < ApplicationJob
     return unless message.content.present? && message.moderated_at.nil?
 
     result = RubyLLM.moderate(message.content, provider: :openai, assume_model_exists: true)
-    message.update!(moderation_scores: result.category_scores, moderated_at: Time.current)
+    message.update_columns(moderation_scores: result.category_scores, moderated_at: Time.current)
   end
 
 end

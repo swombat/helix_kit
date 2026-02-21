@@ -22,11 +22,40 @@ class Chat < ApplicationRecord
   json_attributes :title_or_default, :model_id, :model_label, :ai_model_name, :updated_at_formatted,
                   :updated_at_short, :message_count, :total_tokens, :web_access, :manual_responses,
                   :participants_json, :archived_at, :discarded_at, :archived, :discarded, :respondable, :agent_only, :summary do |hash, options|
-    # For sidebar format, only include minimal attributes
+    # For sidebar format, only include attributes used by the chat list UI.
     if options&.dig(:as) == :sidebar_json
-      hash.slice!("id", "title_or_default", "updated_at_short")
+      hash.slice!(
+        "id",
+        "title",
+        "title_or_default",
+        "updated_at",
+        "updated_at_short",
+        "message_count",
+        "manual_responses",
+        "participants_json",
+        "archived",
+        "discarded",
+        "agent_only"
+      )
     end
     hash
+  end
+
+  def self.json_attrs_for(options = nil)
+    return json_attrs unless options&.dig(:as) == :sidebar_json
+
+    json_attrs - [
+      :model_id,
+      :model_label,
+      :ai_model_name,
+      :updated_at_formatted,
+      :total_tokens,
+      :web_access,
+      :archived_at,
+      :discarded_at,
+      :respondable,
+      :summary
+    ]
   end
 
   broadcasts_to :account
@@ -266,8 +295,44 @@ class Chat < ApplicationRecord
 
   # Returns cached JSON representation, invalidated when chat is updated
   # (which happens automatically when messages are added via touch: true)
-  def cached_json
-    Rails.cache.fetch(cache_key_with_version) { as_json }
+  def cached_json(as: nil)
+    Rails.cache.fetch(json_cache_key(as: as)) do
+      as.present? ? as_json(as: as) : as_json
+    end
+  end
+
+  def cached_sidebar_json
+    cached_json(as: :sidebar_json)
+  end
+
+  def self.cached_json_for(chats, as: nil)
+    return [] if chats.blank?
+
+    entries = chats.map { |chat| [ chat, chat.json_cache_key(as: as) ] }
+    cached = Rails.cache.read_multi(*entries.map(&:last))
+    missing = {}
+
+    entries.each do |chat, key|
+      next if cached.key?(key)
+
+      missing[key] = as.present? ? chat.as_json(as: as) : chat.as_json
+    end
+
+    if missing.any?
+      if Rails.cache.respond_to?(:write_multi)
+        Rails.cache.write_multi(missing)
+      else
+        missing.each { |key, value| Rails.cache.write(key, value) }
+      end
+    end
+
+    entries.map { |_, key| cached[key] || missing[key] }
+  end
+
+  def json_cache_key(as: nil)
+    return cache_key_with_version unless as.present?
+
+    "#{cache_key_with_version}/json/#{as}"
   end
 
   # Override RubyLLM's model_id getter to return the string value
@@ -529,7 +594,7 @@ class Chat < ApplicationRecord
     self.assume_model_exists = true
 
     # Set default model if none specified (check all possible sources)
-    unless @model_string.present? || ai_model.present? || model_id_string.present?
+    unless @model_string.present? || ai_model_id.present? || model_id_string.present?
       self.model_id = "openrouter/auto"
     end
   end

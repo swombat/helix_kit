@@ -642,7 +642,7 @@
 
   const retryForm = useForm({});
 
-  function sendMessage() {
+  async function sendMessage() {
     logging.debug('messageForm:', $messageForm);
 
     if (submitting) {
@@ -671,37 +671,60 @@
 
     submitting = true;
 
-    router.post(accountChatMessagesPath(account.id, chat.id), formData, {
-      onSuccess: () => {
-        logging.debug('Message sent successfully');
-        submitting = false;
-        $messageForm.message.content = '';
-        selectedFiles = [];
-        pendingAudioSignedId = null;
-        // Reset textarea height
-        if (textareaRef) textareaRef.style.height = 'auto';
+    try {
+      const response = await fetch(accountChatMessagesPath(account.id, chat.id), {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || '',
+        },
+        credentials: 'same-origin',
+        body: formData,
+      });
 
-        // For group chats, show the agent prompt briefly
-        if (chat?.manual_responses) {
-          showAgentPrompt = true;
-          setTimeout(() => {
-            showAgentPrompt = false;
-          }, 3000); // Hide after 3 seconds
-        }
+      const data = await response.json().catch(() => ({}));
 
-        // Safety-net refresh in case streaming doesn't come through
-        if (!chat?.manual_responses) {
-          scheduleStreamingRefresh();
+      if (!response.ok) {
+        const errorPayload = data?.errors || ['Failed to send message'];
+        throw new Error(Array.isArray(errorPayload) ? errorPayload.join(', ') : errorPayload);
+      }
+
+      if (data?.id) {
+        const seen = new Set(recentMessages.map((message) => message.id));
+        if (!seen.has(data.id)) {
+          recentMessages = [...recentMessages, data];
         }
-      },
-      onError: (errors) => {
-        logging.error('Message send failed:', errors);
-        submitting = false;
-        waitingForResponse = false;
-        messageSentAt = null;
-        pendingAudioSignedId = null;
-      },
-    });
+      }
+
+      logging.debug('Message sent successfully');
+      submitting = false;
+      $messageForm.message.content = '';
+      selectedFiles = [];
+      pendingAudioSignedId = null;
+      // Reset textarea height
+      if (textareaRef) textareaRef.style.height = 'auto';
+
+      // For group chats, show the agent prompt briefly
+      if (chat?.manual_responses) {
+        showAgentPrompt = true;
+        setTimeout(() => {
+          showAgentPrompt = false;
+        }, 3000); // Hide after 3 seconds
+      }
+
+      // Safety-net refresh in case streaming doesn't come through
+      if (!chat?.manual_responses) {
+        scheduleStreamingRefresh();
+      }
+    } catch (error) {
+      logging.error('Message send failed:', error);
+      submitting = false;
+      waitingForResponse = false;
+      messageSentAt = null;
+      pendingAudioSignedId = null;
+      errorMessage = error?.message || 'Failed to send message';
+      setTimeout(() => (errorMessage = null), 5000);
+    }
   }
 
   function handleTranscription(text, audioSignedId) {

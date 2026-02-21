@@ -134,6 +134,27 @@ class AgentTest < ActiveSupport::TestCase
     assert_equal "Custom prompt", json["reflection_prompt"]
   end
 
+  test "as_json list excludes memory stats" do
+    agent = @account.agents.create!(name: "List Agent")
+    agent.memories.create!(content: "Core memory", memory_type: :core)
+
+    json = agent.as_json(as: :list)
+
+    assert_equal "List Agent", json["name"]
+    assert_nil json["memories_count"]
+    assert_nil json["memory_token_summary"]
+  end
+
+  test "as_json includes memory stats by default" do
+    agent = @account.agents.create!(name: "Full Agent")
+    agent.memories.create!(content: "Core memory", memory_type: :core)
+
+    json = agent.as_json
+
+    assert_equal 1, json.dig("memories_count", "core")
+    assert json["memory_token_summary"].is_a?(Hash)
+  end
+
   # Memory context tests
 
   test "memory_context returns nil when no memories" do

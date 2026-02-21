@@ -234,11 +234,12 @@ class ChatTest < ActiveSupport::TestCase
     assert_equal chat.to_param, json["id"]
     assert_equal "Sidebar Chat", json["title_or_default"]
     assert json["updated_at_short"].present?
+    assert_equal 0, json["message_count"]
+    assert_equal false, json["manual_responses"]
 
     # Should not include other fields
     assert_nil json["model_id"]
     assert_nil json["ai_model_name"]
-    assert_nil json["message_count"]
     assert_nil json["updated_at_formatted"]
   end
 
