@@ -1,8 +1,5 @@
-class Messages::RetriesController < ApplicationController
+class Messages::RetriesController < Messages::BaseController
 
-  require_feature_enabled :chats
-
-  before_action :set_message_and_chat
   before_action :require_respondable_chat
 
   def create
@@ -20,11 +17,6 @@ class Messages::RetriesController < ApplicationController
   end
 
   private
-
-  def set_message_and_chat
-    @message = Message.find(params[:message_id])
-    @chat = current_account.chats.find(@message.chat_id)
-  end
 
   def require_respondable_chat
     return if @chat.respondable?

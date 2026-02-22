@@ -653,6 +653,15 @@ class Chat < ApplicationRecord
       parts << "You have chosen to continue this conversation of your own initiative. The user did not prompt you to do so. It was your choice. Your reasoning was: #{initiation_reason}"
     end
 
+    if agent.voiced?
+      parts << <<~VOICE.strip
+        You have a voice. When your messages are played aloud, the ElevenLabs v3 engine renders
+        them with full expressiveness. You can use tonal tags inline to shape how you sound:
+        [whispers], [excited], [sarcastically], [sighs], [laughs], [serious], [gentle], [playful].
+        Use these sparingly and naturally -- they should feel like genuine expression, not performance.
+      VOICE
+    end
+
     parts << "Current time: #{Time.current.in_time_zone(user_timezone).strftime('%A, %Y-%m-%d %H:%M %Z')}"
 
     parts << "You are participating in a group conversation."

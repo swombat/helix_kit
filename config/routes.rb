@@ -82,6 +82,7 @@ Rails.application.routes.draw do
     scope module: :messages do
       resource :retry, only: :create
       resource :hallucination_fix, only: :create
+      resource :voice, only: :create
     end
   end
 

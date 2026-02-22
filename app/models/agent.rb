@@ -83,7 +83,8 @@ class Agent < ApplicationRecord
                   :summary_prompt,
                   :model_id, :model_label, :enabled_tools, :active?, :colour, :icon,
                   :memories_count, :memory_token_summary, :thinking_enabled, :thinking_budget,
-                  :telegram_bot_username, :telegram_configured?
+                  :telegram_bot_username, :telegram_configured?,
+                  :voiced?, :voice_id
 
   def self.json_attrs_for(options = nil)
     return json_attrs unless options&.dig(:as) == :list
@@ -117,6 +118,10 @@ class Agent < ApplicationRecord
 
   def uses_thinking?
     thinking_enabled? && Chat.supports_thinking?(model_id)
+  end
+
+  def voiced?
+    voice_id.present?
   end
 
   def effective_refinement_threshold

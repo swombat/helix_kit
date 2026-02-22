@@ -26,7 +26,7 @@ Reference: `docs/voice-samples/selections.json`
 - Add `voice_id` (string) and `voice_settings` (JSONB) columns to the `agents` table.
 - `voice_settings` stores per-agent ElevenLabs tuning: `stability`, `similarity_boost`, `style`, `speed`, `use_speaker_boost`.
 - `voice_id` is the ElevenLabs voice ID (the generated voices must first be saved to the ElevenLabs account via their API to get permanent IDs).
-- No UI needed for configuring these yet — set via console/migration.
+- The agent edit/setup page should include a voice configuration field where the user can select from pre-defined voices (the saved ElevenLabs voices) or type a voice ID directly.
 
 ### 2. On-demand TTS rendering
 
@@ -67,7 +67,7 @@ Reference: `docs/voice-samples/selections.json`
 
 - No pre-rendering / background job to render all messages.
 - No streaming TTS (the endpoint returns complete audio, not a stream).
-- No voice configuration UI (admin can set voice_id via console for now).
+- No complex voice browser/search UI — just a dropdown of known voices + a text field for custom IDs.
 - No voice playback for user messages (they already have audio recording).
 - No auto-play.
 
@@ -86,3 +86,21 @@ Reference: `docs/voice-samples/selections.json`
 - S3 caching prevents duplicate charges for the same message.
 - Average message might be 200-500 characters; long messages could be 2000+.
 - Consider a reasonable max character limit for TTS (e.g. 5,000 chars — the v3 model's max).
+
+## Clarifications
+
+### Async rendering via background job + ActionCable
+The voice endpoint should kick off a background job rather than making the user wait synchronously. The frontend gets notified via ActionCable when the audio is ready. This provides better UX especially for longer messages.
+
+### Smart markdown stripping for TTS
+Code blocks should be replaced with a natural spoken marker like "I've skipped the code block here." The stripping logic must be "smart":
+- **Remove** standalone action/reflection markers (e.g. `*sits with this*`, `*pauses*`) — these are stage directions, not speech.
+- **Preserve** emphasis within actual sentences (e.g. "This is *it*!" should be spoken as-is, stripping only the asterisks).
+- **Preserve** ElevenLabs v3 emotion/tonal tags like `[whispers]`, `[excited]`, `[sarcastically]` — these are rendering directives for the TTS engine.
+- **Remove** image links, raw URLs, and other non-speech content.
+
+### System prompt update for voiced agents
+All agents that have a voice configured should have their system prompts updated to let them know they can use ElevenLabs v3 tonal tags (e.g. `[whispers]`, `[excited]`, `[sarcastically]`) in their responses, and that these will be rendered expressively in audio playback.
+
+### TTS service location
+The new TTS service should live at `lib/eleven_labs_tts.rb`, matching the existing `lib/eleven_labs_stt.rb` pattern.

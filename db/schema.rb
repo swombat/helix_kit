@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_16_135006) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_22_085408) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -90,6 +90,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_16_135006) do
     t.integer "thinking_budget", default: 10000
     t.boolean "thinking_enabled", default: false, null: false
     t.datetime "updated_at", null: false
+    t.string "voice_id"
     t.index ["account_id", "active"], name: "index_agents_on_account_id_and_active"
     t.index ["account_id", "name"], name: "index_agents_on_account_id_and_name", unique: true
     t.index ["account_id"], name: "index_agents_on_account_id"

@@ -2,7 +2,7 @@
   import { Button } from '$lib/components/shadcn/button/index.js';
   import { Badge } from '$lib/components/shadcn/badge/index.js';
   import * as Card from '$lib/components/shadcn/card/index.js';
-  import { ArrowClockwise, Spinner, Globe, PencilSimple, Trash, Wrench } from 'phosphor-svelte';
+  import { ArrowClockwise, Spinner, Globe, PencilSimple, SpeakerSimpleHigh, Trash, Wrench } from 'phosphor-svelte';
   import FileAttachment from '$lib/components/chat/FileAttachment.svelte';
   import ThinkingBlock from '$lib/components/chat/ThinkingBlock.svelte';
   import ModerationIndicator from '$lib/components/chat/ModerationIndicator.svelte';
@@ -23,6 +23,7 @@
     onfix,
     onresend,
     onimagelightbox,
+    onvoice,
   } = $props();
 
   // Generate bubble background class based on author colour
@@ -211,6 +212,27 @@
             </button>
           {/if}
         </div>
+        {#if message.voice_available && !message.streaming}
+          <div class="mt-1">
+            {#if message.voice_audio_url}
+              <AudioPlayer src={message.voice_audio_url} />
+            {:else if message._voice_loading}
+              <div class="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Spinner size={14} class="animate-spin" />
+                <span>Generating voice...</span>
+              </div>
+            {:else}
+              <button
+                onclick={() => onvoice(message.id)}
+                class="inline-flex items-center gap-1.5 text-xs text-muted-foreground
+                       hover:text-foreground transition-colors"
+                title="Play voice">
+                <SpeakerSimpleHigh size={14} weight="duotone" />
+                <span>Listen</span>
+              </button>
+            {/if}
+          </div>
+        {/if}
       </div>
     </div>
   {/if}

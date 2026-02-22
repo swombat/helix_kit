@@ -42,6 +42,7 @@ class Message < ApplicationRecord
   end
 
   has_one_attached :audio_recording
+  has_one_attached :voice_audio
 
   attr_accessor :skip_content_validation
 
@@ -103,7 +104,8 @@ class Message < ApplicationRecord
                   :editable, :deletable,
                   :moderation_flagged, :moderation_severity, :moderation_scores,
                   :fixable,
-                  :audio_source, :audio_url
+                  :audio_source, :audio_url,
+                  :voice_available, :voice_audio_url
 
   def completed?
     # User messages are always completed
@@ -197,12 +199,15 @@ class Message < ApplicationRecord
     end
   end
 
-  def audio_url
-    return unless audio_recording.attached?
+  def voice_available
+    role == "assistant" && agent&.voiced?
+  end
 
-    Rails.application.routes.url_helpers.rails_blob_url(audio_recording, only_path: true)
-  rescue ArgumentError
-    nil
+  def audio_url = blob_url_for(audio_recording)
+  def voice_audio_url = blob_url_for(voice_audio)
+
+  def content_for_speech
+    Message::SpeechText.new(content).to_s
   end
 
   def file_paths_for_llm(include_audio: true)
@@ -395,6 +400,13 @@ class Message < ApplicationRecord
   end
 
   private
+
+  def blob_url_for(attachment)
+    return unless attachment.attached?
+    Rails.application.routes.url_helpers.rails_blob_url(attachment, only_path: true)
+  rescue ArgumentError
+    nil
+  end
 
   def user_message_with_content?
     role == "user" && content.present?

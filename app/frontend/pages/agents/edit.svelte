@@ -45,6 +45,7 @@
     memories = [],
     grouped_models = {},
     available_tools = [],
+    available_voices = [],
     colour_options = [],
     icon_options = [],
     account,
@@ -59,6 +60,9 @@
   let registeringWebhook = $state(false);
   let triggeringRefinement = $state(false);
   let activeTab = $state('identity');
+  let customVoiceId = $state('');
+
+  const isCustomVoice = $derived($form.agent.voice_id && !available_voices.some((v) => v.id === $form.agent.voice_id));
 
   const tabs = [
     { id: 'identity', label: 'Identity', icon: IdentificationCard },
@@ -92,6 +96,7 @@
       thinking_budget: agent.thinking_budget || 10000,
       telegram_bot_username: agent.telegram_bot_username || '',
       telegram_bot_token: agent.telegram_bot_token || '',
+      voice_id: agent.voice_id || '',
     },
   });
 
@@ -380,6 +385,39 @@
                 id="active"
                 checked={$form.agent.active}
                 onCheckedChange={(checked) => ($form.agent.active = checked)} />
+            </div>
+
+            <div class="space-y-2">
+              <Label for="voice_id">Voice</Label>
+              <select
+                id="voice_id"
+                value={isCustomVoice ? 'custom' : $form.agent.voice_id || ''}
+                onchange={(e) => {
+                  if (e.target.value === 'custom') {
+                    customVoiceId = $form.agent.voice_id || '';
+                    $form.agent.voice_id = customVoiceId;
+                  } else {
+                    $form.agent.voice_id = e.target.value;
+                  }
+                }}
+                class="w-full max-w-md border border-input rounded-md px-3 py-2 text-sm bg-background
+                       focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent">
+                <option value="">No voice</option>
+                {#each available_voices as voice (voice.id)}
+                  <option value={voice.id}>{voice.name}</option>
+                {/each}
+                <option value="custom">Custom voice ID...</option>
+              </select>
+              {#if isCustomVoice}
+                <Input
+                  type="text"
+                  bind:value={$form.agent.voice_id}
+                  placeholder="Paste ElevenLabs voice ID"
+                  class="max-w-md mt-2" />
+              {/if}
+              <p class="text-xs text-muted-foreground">
+                Select a voice for text-to-speech playback, or leave empty to disable.
+              </p>
             </div>
           </div>
         {:else if activeTab === 'appearance'}

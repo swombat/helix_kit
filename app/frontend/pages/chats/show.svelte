@@ -41,6 +41,16 @@
   // Scroll threshold for loading more messages
   const SCROLL_THRESHOLD = 200;
 
+  // CSRF token helper
+  function csrfToken() {
+    return document.querySelector('meta[name="csrf-token"]')?.content || '';
+  }
+
+  // Voice route helper (until js:routes:generate is run with the new route)
+  function messageVoicePath(messageId) {
+    return `/messages/${messageId}/voice`;
+  }
+
   let {
     chat,
     chats = [],
@@ -227,7 +237,7 @@
       const response = await fetch(accountChatMessagesPath(account.id, chat.id, { before_id: oldestId }), {
         headers: {
           Accept: 'application/json',
-          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+          'X-CSRF-Token': csrfToken(),
         },
       });
 
@@ -246,6 +256,34 @@
       logging.error('Failed to load more messages:', error);
     } finally {
       loadingMore = false;
+    }
+  }
+
+  // Helper to update a message in both recentMessages and olderMessages
+  function updateMessage(messageId, patch) {
+    recentMessages = recentMessages.map((m) => (m.id === messageId ? { ...m, ...patch } : m));
+    olderMessages = olderMessages.map((m) => (m.id === messageId ? { ...m, ...patch } : m));
+  }
+
+  // Request voice synthesis for a message
+  async function requestVoice(messageId) {
+    updateMessage(messageId, { _voice_loading: true });
+
+    try {
+      const response = await fetch(messageVoicePath(messageId), {
+        method: 'POST',
+        headers: { 'X-CSRF-Token': csrfToken(), Accept: 'application/json' },
+      });
+
+      if (response.status === 200) {
+        const { voice_audio_url } = await response.json();
+        updateMessage(messageId, { voice_audio_url, _voice_loading: false });
+      } else if (response.status !== 202) {
+        updateMessage(messageId, { _voice_loading: false });
+      }
+      // 202: loading state clears when Broadcastable refresh replaces the message
+    } catch {
+      updateMessage(messageId, { _voice_loading: false });
     }
   }
 
@@ -543,10 +581,9 @@
   }
 
   async function fixHallucinatedToolCalls(messageId) {
-    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
     await fetch(messageHallucinationFixPath(messageId), {
       method: 'POST',
-      headers: { 'X-CSRF-Token': csrfToken },
+      headers: { 'X-CSRF-Token': csrfToken() },
     });
     router.reload({ only: ['messages'], preserveScroll: true });
   }
@@ -594,7 +631,7 @@
       const response = await fetch(messagePath(messageId), {
         method: 'DELETE',
         headers: {
-          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || '',
+          'X-CSRF-Token': csrfToken(),
         },
       });
 
@@ -775,7 +812,8 @@
             onretry={retryMessage}
             onfix={fixHallucinatedToolCalls}
             onresend={resendLastMessage}
-            onimagelightbox={openImageLightbox} />
+            onimagelightbox={openImageLightbox}
+            onvoice={requestVoice} />
         {/each}
 
         <!-- Thinking bubble when last message is hidden (tool call or empty assistant) - only shown when not showing all messages -->
@@ -910,12 +948,7 @@
   messageId={editingMessageId}
   initialContent={editingContent}
   onsaved={(messageId, trimmedContent) => {
-    recentMessages = recentMessages.map((m) =>
-      m.id === messageId ? { ...m, content: trimmedContent, editable: false } : m
-    );
-    olderMessages = olderMessages.map((m) =>
-      m.id === messageId ? { ...m, content: trimmedContent, editable: false } : m
-    );
+    updateMessage(messageId, { content: trimmedContent, editable: false });
     editDrawerOpen = false;
     editingMessageId = null;
     editingContent = '';
