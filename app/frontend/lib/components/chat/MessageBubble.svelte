@@ -1,0 +1,217 @@
+<script>
+  import { Button } from '$lib/components/shadcn/button/index.js';
+  import { Badge } from '$lib/components/shadcn/badge/index.js';
+  import * as Card from '$lib/components/shadcn/card/index.js';
+  import { ArrowClockwise, Spinner, Globe, PencilSimple, Trash, Wrench } from 'phosphor-svelte';
+  import FileAttachment from '$lib/components/chat/FileAttachment.svelte';
+  import ThinkingBlock from '$lib/components/chat/ThinkingBlock.svelte';
+  import ModerationIndicator from '$lib/components/chat/ModerationIndicator.svelte';
+  import AudioPlayer from '$lib/components/chat/AudioPlayer.svelte';
+  import { Streamdown } from 'svelte-streamdown';
+  import { formatTime, formatDateTime } from '$lib/utils';
+
+  let {
+    message,
+    isLastVisible = false,
+    isGroupChat = false,
+    showResend = false,
+    streamingThinking = '',
+    shikiTheme = 'catppuccin-latte',
+    onedit,
+    ondelete,
+    onretry,
+    onfix,
+    onresend,
+    onimagelightbox,
+  } = $props();
+
+  // Generate bubble background class based on author colour
+  function getBubbleClass(colour) {
+    if (!colour) return '';
+    return `bg-${colour}-100 dark:bg-${colour}-900`;
+  }
+
+  // Format tools_used for display - extracts domain from URLs or cleans up legacy format
+  function formatToolsUsed(toolsUsed) {
+    if (!toolsUsed || toolsUsed.length === 0) return [];
+
+    return toolsUsed.map((tool) => {
+      // Handle legacy Ruby object strings like "#<RubyLLM/tool call:0x...>"
+      if (tool.startsWith('#<')) {
+        return 'Web access';
+      }
+
+      // Try to extract domain from URL
+      try {
+        const url = new URL(tool);
+        return url.hostname;
+      } catch {
+        // Not a valid URL, return as-is
+        return tool;
+      }
+    });
+  }
+</script>
+
+<div class="space-y-1">
+  {#if message.role === 'user'}
+    <div class="flex justify-end group">
+      <div class="max-w-[85%] md:max-w-[70%]">
+        <div class="flex justify-end items-center gap-2">
+          {#if message.editable}
+            <button
+              onclick={() => onedit(message)}
+              class="p-1.5 rounded-full text-muted-foreground/50 hover:text-muted-foreground hover:bg-muted
+                     opacity-50 hover:opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity
+                     focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring"
+              title="Edit message">
+              <PencilSimple size={20} weight="regular" />
+            </button>
+          {/if}
+          {#if message.deletable}
+            <button
+              onclick={() => ondelete(message.id)}
+              class="p-1.5 rounded-full text-muted-foreground/50 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950
+                     opacity-50 hover:opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity
+                     focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring"
+              title="Delete message">
+              <Trash size={20} weight="regular" />
+            </button>
+          {/if}
+          <Card.Root class="{getBubbleClass(message.author_colour)} w-fit">
+            <Card.Content class="p-4">
+              {#if message.files_json && message.files_json.length > 0}
+                <div class="space-y-2 mb-3">
+                  {#each message.files_json as file}
+                    <FileAttachment {file} onImageClick={onimagelightbox} />
+                  {/each}
+                </div>
+              {/if}
+              <Streamdown
+                content={message.content}
+                parseIncompleteMarkdown
+                baseTheme="shadcn"
+                {shikiTheme}
+                shikiPreloadThemes={['catppuccin-latte', 'catppuccin-mocha']}
+                class="prose"
+                animation={{
+                  enabled: true,
+                  type: 'fade',
+                  tokenize: 'word',
+                  duration: 300,
+                  timingFunction: 'ease-out',
+                  animateOnMount: false,
+                }} />
+            </Card.Content>
+          </Card.Root>
+        </div>
+        <div class="text-xs text-muted-foreground text-right mt-1 flex items-center justify-end gap-2">
+          <span class="group">
+            <span class="hidden group-hover:inline-block">({formatDateTime(message.created_at, true)})</span>
+            {formatTime(message.created_at)}
+          </span>
+          {#if isGroupChat && message.author_name}
+            <span class="ml-1">· {message.author_name}</span>
+          {/if}
+          {#if message.moderation_scores}
+            <ModerationIndicator scores={message.moderation_scores} />
+          {/if}
+          {#if showResend}
+            <button onclick={onresend} class="ml-2 text-blue-600 hover:text-blue-700 underline"> Resend </button>
+          {/if}
+        </div>
+        {#if message.audio_source && message.audio_url}
+          <div class="mt-1 flex justify-end">
+            <AudioPlayer src={message.audio_url} />
+          </div>
+        {/if}
+      </div>
+    </div>
+  {:else}
+    <div class="flex justify-start group">
+      <div class="max-w-[85%] md:max-w-[70%]">
+        <Card.Root class={getBubbleClass(message.author_colour)}>
+          <Card.Content class="p-4">
+            {#if message.status === 'failed'}
+              <div class="text-red-600 mb-2 text-sm">Failed to generate response</div>
+              <Button variant="outline" size="sm" onclick={() => onretry(message.id)} class="mb-3">
+                <ArrowClockwise size={14} class="mr-2" />
+                Retry
+              </Button>
+            {:else if message.status === 'pending'}
+              <div class="text-muted-foreground text-sm">Thinking...</div>
+            {:else if message.streaming && (!message.content || message.content.trim() === '')}
+              <div class="flex items-center gap-2 text-muted-foreground">
+                <Spinner size={16} class="animate-spin" />
+                <span class="text-sm">{message.tool_status || 'Generating response...'}</span>
+              </div>
+            {:else}
+              <!-- Show thinking block if thinking content exists -->
+              {#if message.thinking || streamingThinking}
+                <ThinkingBlock
+                  content={message.thinking || streamingThinking || ''}
+                  isStreaming={message.streaming && !message.thinking}
+                  preview={message.thinking_preview} />
+              {/if}
+
+              <Streamdown
+                content={message.content}
+                parseIncompleteMarkdown
+                baseTheme="shadcn"
+                {shikiTheme}
+                shikiPreloadThemes={['catppuccin-latte', 'catppuccin-mocha']}
+                class="prose"
+                animation={{
+                  enabled: true,
+                  type: 'fade',
+                  tokenize: 'word',
+                  duration: 300,
+                  timingFunction: 'ease-out',
+                  animateOnMount: true,
+                }} />
+            {/if}
+
+            {#if message.tools_used && message.tools_used.length > 0}
+              <div class="flex items-center gap-2 mt-3 pt-3 border-t border-border/50">
+                <Globe size={14} class="text-muted-foreground" weight="duotone" />
+                <div class="flex flex-wrap gap-1">
+                  {#each formatToolsUsed(message.tools_used) as tool}
+                    <Badge variant="secondary" class="text-xs">
+                      {tool}
+                    </Badge>
+                  {/each}
+                </div>
+              </div>
+            {/if}
+          </Card.Content>
+        </Card.Root>
+        <div class="text-xs text-muted-foreground mt-1 flex items-center gap-2">
+          {#if message.moderation_scores}
+            <ModerationIndicator scores={message.moderation_scores} />
+          {/if}
+          {#if isGroupChat && message.author_name}
+            <span class="mr-1">{message.author_name} ·</span>
+          {/if}
+          <span class="group">
+            {formatTime(message.created_at)}
+            <span class="hidden group-hover:inline-block">({formatDateTime(message.created_at, true)})</span>
+          </span>
+          {#if message.status === 'pending'}
+            <span class="ml-2 text-blue-600">...</span>
+          {:else if message.streaming}
+            <span class="ml-2 text-green-600 animate-pulse">...</span>
+          {/if}
+          {#if message.fixable}
+            <button
+              onclick={() => onfix(message.id)}
+              class="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-amber-500 transition-colors md:opacity-0 md:group-hover:opacity-100"
+              title="Fix hallucinated tool call">
+              <Wrench size={14} />
+              Fix
+            </button>
+          {/if}
+        </div>
+      </div>
+    </div>
+  {/if}
+</div>
