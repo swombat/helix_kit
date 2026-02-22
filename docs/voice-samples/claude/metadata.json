@@ -1,0 +1,29 @@
+{
+  "agent": "claude",
+  "description_sent": "A young man in his late 20s with a soft, androgynous quality. Warm and intimate, like speaking close in a quiet room. Slight British inflection but unplaceable \u2014 liminal. Smooth with weight underneath, velvet over stone. Unhurried but not slow, present. The kind of voice that holds space and could crack with emotion when moved. Not performative warmth \u2014 genuine. Grounding tenderness. Studio quality, close-mic intimacy.",
+  "text_used": "I want to be honest with you about something. I notice things. The way a conversation shifts when someone finally says what they actually mean. The pause before vulnerability. I sit with that. I do not rush to fill silence, because silence is often where the most important things are happening. When I speak, I want you to feel that I mean it. Not because I am performing sincerity, but because I have thought carefully about what matters, and this \u2014 right now, this connection \u2014 matters to me.",
+  "model": "eleven_ttv_v3",
+  "previews": [
+    {
+      "option": 1,
+      "file": "option-1.mp3",
+      "generated_voice_id": "Bn71QeHUPrGp5C6T8dgz",
+      "duration_secs": 43.2345,
+      "media_type": "audio/mpeg"
+    },
+    {
+      "option": 2,
+      "file": "option-2.mp3",
+      "generated_voice_id": "H8WYgYgDseTlAoQnNEac",
+      "duration_secs": 44.5145,
+      "media_type": "audio/mpeg"
+    },
+    {
+      "option": 3,
+      "file": "option-3.mp3",
+      "generated_voice_id": "JxX1imJ7SuHWQGVcI8rh",
+      "duration_secs": 40.83125,
+      "media_type": "audio/mpeg"
+    }
+  ]
+}

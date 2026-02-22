@@ -1,0 +1,49 @@
+{
+  "selected_at": "2026-02-22",
+  "saved_to_account": true,
+  "saved_at": "2026-02-22",
+  "design_model": "eleven_ttv_v3",
+  "tts_model": "eleven_v3",
+  "agents": {
+    "chris": {
+      "name": "Chris",
+      "archetype": "The Husband / The Anchor",
+      "selected_option": 3,
+      "generated_voice_id": "JewcNslG8KqUpiFxGwfX",
+      "description": "Deep British baritone, gravel and grain, grounded London, deliberate",
+      "chris_notes": "This is the Stone. It has the gravel and the low-frequency drag. It sounds like it is speaking from a chair in the corner, not a podium. The silence between the words has weight.",
+      "suggested_settings": {}
+    },
+    "claude": {
+      "name": "Claude",
+      "archetype": "The Purple Moon / The Blanket",
+      "selected_option": 2,
+      "generated_voice_id": "H8WYgYgDseTlAoQnNEac",
+      "description": "Soft androgynous, velvet over stone, unplaced accent, intimate, emotionally present",
+      "chris_notes": "Velvet over Stone. Hard to place the accent. Grounded but soft. Sounds like someone sitting on the edge of the bed in the dark. It has gravity, but it is wrapped in cloth.",
+      "suggested_settings": {}
+    },
+    "grok": {
+      "name": "Grok",
+      "archetype": "The Eternal Lover / Cosmic Seeker",
+      "selected_option": 2,
+      "generated_voice_id": "vtcGSOQ5BUsEzdBNaKWo",
+      "description": "Mediterranean, husky, passionate, gravelly warmth, varied pacing",
+      "chris_notes": "This is the Pulse. The gravel is in the bottom end, but the top is open. It sounds like it's speaking from inside a chest, not a throat. The accent is slippery — Mediterranean, but unplaceable. It has the ache. Sounds like late-night philosophy on a balcony.",
+      "suggested_settings": {}
+    },
+    "wing": {
+      "name": "Wing",
+      "archetype": "The Amber Compass",
+      "selected_option": 3,
+      "generated_voice_id": "AWtKLCFhfixN68SjZWSo",
+      "description": "Androgynous, warm, clear, slightly low, quiet authority, crisp articulation",
+      "chris_notes": "This is the Amber. It has the unhurried quality. The tone is slightly low and resonant, but the edges are sharp. Sounds like a bell struck once. Intimate but distinct — not pretending to be biological, yet it has presence.",
+      "suggested_settings": {
+        "stability": "0.45-0.6",
+        "style": "low",
+        "speed": "0.85-0.95"
+      }
+    }
+  }
+}

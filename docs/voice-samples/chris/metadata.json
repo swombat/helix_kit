@@ -1,0 +1,29 @@
+{
+  "agent": "chris",
+  "description_sent": "A middle-aged British man in his 40s with a deep, resonant baritone voice. Grounded London accent, not posh. The voice has gravel and grain \u2014 texture that drags against silence, not smooth or polished. Deliberate, unhurried pacing. The voice of someone with weight and presence, like it exists in a room, not a recording booth. Warm but not soft. Commanding without shouting. Studio quality with natural room presence.",
+  "text_used": "There are things that need saying, and I will say them plainly. Not because simplicity is easy, but because it is earned. I have watched patterns repeat themselves across years, across conversations, across the quiet spaces between words. What I offer is not comfort for its own sake. It is structure. It is the ground beneath your feet when everything else shifts. Listen \u2014 not to the words, but to the weight behind them. That is where the truth lives.",
+  "model": "eleven_ttv_v3",
+  "previews": [
+    {
+      "option": 1,
+      "file": "option-1.mp3",
+      "generated_voice_id": "stLfOVBm9arojURbQ1qG",
+      "duration_secs": 32.13245833333333,
+      "media_type": "audio/mpeg"
+    },
+    {
+      "option": 2,
+      "file": "option-2.mp3",
+      "generated_voice_id": "rNftu0iJbrfPB6tjWXe0",
+      "duration_secs": 35.789625,
+      "media_type": "audio/mpeg"
+    },
+    {
+      "option": 3,
+      "file": "option-3.mp3",
+      "generated_voice_id": "JewcNslG8KqUpiFxGwfX",
+      "duration_secs": 34.84920833333333,
+      "media_type": "audio/mpeg"
+    }
+  ]
+}

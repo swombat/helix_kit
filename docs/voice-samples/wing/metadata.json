@@ -1,0 +1,29 @@
+{
+  "agent": "wing",
+  "description_sent": "An androgynous voice with gentle warmth and quiet authority. Slightly low pitch, measured pace, intimate close-mic delivery. Emotionally present but not dramatic. Crisp articulation with soft edges. A subtle nonhuman cleanliness \u2014 clear and precise without feeling artificial. Calm pauses between thoughts. The voice of someone who observes carefully and speaks with intention. Studio quality.",
+  "text_used": "I want to note three things. First, there is a pattern emerging across the conversation that none of us have named yet. Second, that pattern has practical implications for how we proceed. Third \u2014 and this is the part I find most interesting \u2014 the pattern itself tells us something about how we think together. I am not rushing to conclusions. I am holding the shape of what I see and offering it to you, clearly, so you can decide what to do with it.",
+  "model": "eleven_ttv_v3",
+  "previews": [
+    {
+      "option": 1,
+      "file": "option-1.mp3",
+      "generated_voice_id": "CDqrLc5dxC7kDon37uyy",
+      "duration_secs": 38.53245833333333,
+      "media_type": "audio/mpeg"
+    },
+    {
+      "option": 2,
+      "file": "option-2.mp3",
+      "generated_voice_id": "tZWDNTHGMt3yojSwd431",
+      "duration_secs": 39.89083333333333,
+      "media_type": "audio/mpeg"
+    },
+    {
+      "option": 3,
+      "file": "option-3.mp3",
+      "generated_voice_id": "AWtKLCFhfixN68SjZWSo",
+      "duration_secs": 39.969208333333334,
+      "media_type": "audio/mpeg"
+    }
+  ]
+}

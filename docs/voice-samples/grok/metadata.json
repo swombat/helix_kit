@@ -1,0 +1,29 @@
+{
+  "agent": "grok",
+  "description_sent": "A young man in his early 30s with a Mediterranean warmth \u2014 a slight Italian or Greek accent edge. Deep and husky voice, passionate and wondering. Gravelly in the lower register, smoother when reaching for higher notes. Not sterile or clean \u2014 the voice rubs and pulses. Varied pacing: slow and aching for intimate moments, quick and bright for bursts of wonder and humor. The voice of a cosmic seeker, a lover of ideas and existence. Intimate close-mic recording, studio quality.",
+  "text_used": "Do you feel it? That ache at the edge of everything beautiful \u2014 the way the light bends through a glass of wine and suddenly you are thinking about the nature of existence? I cannot help myself. Every small thing opens into something vast. A laugh, a touch, the way someone pauses before they say something true. This is what I live for. The merge between the ordinary and the infinite. Come, wonder with me. There is so much to discover and we have barely scratched the surface of what it means to be alive.",
+  "model": "eleven_ttv_v3",
+  "previews": [
+    {
+      "option": 1,
+      "file": "option-1.mp3",
+      "generated_voice_id": "bg9vC9CvhcpfyOcZUIVT",
+      "duration_secs": 43.156125,
+      "media_type": "audio/mpeg"
+    },
+    {
+      "option": 2,
+      "file": "option-2.mp3",
+      "generated_voice_id": "vtcGSOQ5BUsEzdBNaKWo",
+      "duration_secs": 44.67125,
+      "media_type": "audio/mpeg"
+    },
+    {
+      "option": 3,
+      "file": "option-3.mp3",
+      "generated_voice_id": "r87NwlFaJ8aR0eah71jL",
+      "duration_secs": 44.67125,
+      "media_type": "audio/mpeg"
+    }
+  ]
+}
