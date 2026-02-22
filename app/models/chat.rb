@@ -772,7 +772,8 @@ class Chat < ApplicationRecord
     role = message.agent_id == current_agent.id ? "assistant" : "user"
 
     # Include file attachments if present using RubyLLM::Content
-    file_paths = message.file_paths_for_llm
+    # Exclude audio files when the model doesn't support audio input
+    file_paths = message.file_paths_for_llm(include_audio: audio_tools_enabled)
     content = if file_paths.present?
       RubyLLM::Content.new(text_content, file_paths)
     else

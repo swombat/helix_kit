@@ -205,10 +205,11 @@ class Message < ApplicationRecord
     nil
   end
 
-  def file_paths_for_llm
+  def file_paths_for_llm(include_audio: true)
     return [] unless attachments.attached?
 
-    attachments.filter_map { |file| resolve_attachment_path(file) }
+    files = include_audio ? attachments : attachments.reject { |f| f.content_type&.start_with?("audio/") }
+    files.filter_map { |file| resolve_attachment_path(file) }
   end
 
   def audio_path_for_llm
