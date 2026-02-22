@@ -197,6 +197,16 @@
     }
   }
 
+  // Scroll to bottom unconditionally (e.g. after user sends a message)
+  function scrollToBottom() {
+    if (messagesContainer) {
+      messagesContainer.scrollTo({
+        top: messagesContainer.scrollHeight,
+        behavior: 'smooth',
+      });
+    }
+  }
+
   // Handle scroll for loading more messages
   function handleScroll() {
     if (!messagesContainer) return;
@@ -862,6 +872,7 @@
           }
         }
         if (!chat?.manual_responses) scheduleStreamingRefresh();
+        setTimeout(() => scrollToBottom(), 50);
       }}
       onwaiting={() => {
         if (!chat?.manual_responses) {
