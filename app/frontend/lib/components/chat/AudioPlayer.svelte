@@ -7,6 +7,7 @@
   let playing = $state(false);
   let progress = $state(0);
   let duration = $state(0);
+  let currentTime = $state(0);
 
   function toggle() {
     if (playing) {
@@ -17,24 +18,46 @@
   }
 
   function handleTimeUpdate() {
-    if (audioEl && duration > 0) {
-      progress = (audioEl.currentTime / duration) * 100;
+    if (!audioEl) return;
+    currentTime = audioEl.currentTime;
+    if (duration > 0 && isFinite(duration)) {
+      progress = (currentTime / duration) * 100;
     }
   }
 
   function handleLoadedMetadata() {
-    if (audioEl) {
+    if (!audioEl) return;
+    if (isFinite(audioEl.duration)) {
       duration = audioEl.duration;
+    } else {
+      // WebM files from MediaRecorder often lack duration metadata.
+      // Seeking to a huge time forces the browser to calculate the real duration.
+      audioEl.currentTime = 1e10;
+    }
+  }
+
+  function handleDurationChange() {
+    if (audioEl && isFinite(audioEl.duration)) {
+      duration = audioEl.duration;
+    }
+  }
+
+  function handleSeeked() {
+    // After the duration-discovery seek trick, reset to the beginning
+    if (audioEl && audioEl.currentTime >= 1e10) {
+      duration = audioEl.duration;
+      audioEl.currentTime = 0;
     }
   }
 
   function handleEnded() {
     playing = false;
     progress = 0;
+    currentTime = 0;
   }
 
   function seek(e) {
-    if (!audioEl || !duration) return;
+    if (!audioEl || !duration || !isFinite(duration)) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const ratio = (e.clientX - rect.left) / rect.width;
     audioEl.currentTime = ratio * duration;
@@ -74,7 +97,7 @@
   </button>
 
   <span class="text-[10px] text-muted-foreground tabular-nums w-8 text-right">
-    {playing ? formatTime(audioEl?.currentTime) : formatTime(duration)}
+    {playing ? formatTime(currentTime) : formatTime(duration)}
   </span>
 
   <audio
@@ -85,6 +108,8 @@
     onpause={() => (playing = false)}
     ontimeupdate={handleTimeUpdate}
     onloadedmetadata={handleLoadedMetadata}
+    ondurationchange={handleDurationChange}
+    onseeked={handleSeeked}
     onended={handleEnded}>
   </audio>
 </div>
