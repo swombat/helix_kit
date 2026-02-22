@@ -249,22 +249,19 @@ test('signup form submits with email', async () => {
 });
 ```
 
-#### 2. Playwright for E2E Testing
-For testing complete user journeys across the full stack.
+#### 2. Browser Testing with agent-browser
 
-```javascript
-// test/e2e/user-flow.spec.js
-import { test, expect } from '@playwright/test';
+For testing complete user journeys in a real browser, use the `agent-browser` skill — **NOT raw Playwright or Playwright MCP**.
 
-test('complete user registration flow', async ({ page }) => {
-  await page.goto('/signup');
-  await page.fill('[name="email"]', 'test@example.com');
-  await page.fill('[name="password"]', 'password123');
-  await page.click('button[type="submit"]');
-  
-  await expect(page).toHaveURL('/dashboard');
-  await expect(page.locator('.welcome-message')).toBeVisible();
-});
+Invoke with `/agent-browser`. See `docs/playwright-testing.md` for the full guide.
+
+```bash
+# Basic flow: open → snapshot → interact → snapshot to verify
+agent-browser open http://localhost:3100
+agent-browser snapshot -i          # See refs like @e1, @e2...
+agent-browser fill @e2 "test@example.com"
+agent-browser click @e5
+agent-browser snapshot -i          # Verify result
 ```
 
 ## Testing Best Practices
