@@ -56,30 +56,32 @@ module DbBackupHelpers
 
     puts "Creating test agents in #{nexus_account.name} account..."
 
-    # GPT Test Agent
-    gpt_agent = nexus_account.agents.find_or_initialize_by(name: "GPT Test Agent")
-    gpt_agent.assign_attributes(
-      system_prompt: "You are a test agent for GPT models. Your purpose is to help with testing and development.",
-      model_id: "openai/gpt-5-mini",
-      active: true
-    )
-    if gpt_agent.save
-      puts "  Created/updated GPT Test Agent (#{gpt_agent.model_id})"
-    else
-      puts "  Failed to create GPT Test Agent: #{gpt_agent.errors.full_messages.join(', ')}"
-    end
+    all_tools = Agent.available_tools.map(&:name)
+    tools_without_refinement = all_tools - %w[RefinementTool]
+    tools_without_refinement_and_audio = tools_without_refinement - %w[FetchAudioTool]
 
-    # Claude Test Agent
-    claude_agent = nexus_account.agents.find_or_initialize_by(name: "Claude Test Agent")
-    claude_agent.assign_attributes(
-      system_prompt: "You are a test agent for Claude models. Your purpose is to help with testing and development.",
-      model_id: "anthropic/claude-sonnet-4.5",
-      active: true
-    )
-    if claude_agent.save
-      puts "  Created/updated Claude Test Agent (#{claude_agent.model_id})"
-    else
-      puts "  Failed to create Claude Test Agent: #{claude_agent.errors.full_messages.join(', ')}"
+    test_agents = [
+      { name: "Claude Test Agent", model_id: "anthropic/claude-sonnet-4.5", enabled_tools: tools_without_refinement_and_audio, colour: "violet", icon: "Sun" },
+      { name: "GPT Test Agent", model_id: "openai/gpt-5-mini", enabled_tools: tools_without_refinement_and_audio, colour: "sky", icon: "Lightning" },
+      { name: "Grok Test Agent", model_id: "x-ai/grok-3-mini", enabled_tools: tools_without_refinement_and_audio, colour: "pink", icon: "Sparkle" },
+      { name: "Gemini Test Agent", model_id: "google/gemini-2.5-flash", enabled_tools: tools_without_refinement, colour: "gray", icon: "PuzzlePiece" }
+    ]
+
+    test_agents.each do |config|
+      agent = nexus_account.agents.find_or_initialize_by(name: config[:name])
+      agent.assign_attributes(
+        system_prompt: "You are a test agent. Your purpose is to help with testing and development.",
+        model_id: config[:model_id],
+        enabled_tools: config[:enabled_tools],
+        colour: config[:colour],
+        icon: config[:icon],
+        active: true
+      )
+      if agent.save
+        puts "  Created/updated #{config[:name]} (#{config[:model_id]}, #{config[:enabled_tools].length} tools)"
+      else
+        puts "  Failed to create #{config[:name]}: #{agent.errors.full_messages.join(', ')}"
+      end
     end
 
     puts "Test agents created."
