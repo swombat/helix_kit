@@ -482,7 +482,7 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
 
     assert_enqueued_with(job: AllAgentsResponseJob) do
       post account_chat_messages_path(@account, group_chat), params: {
-        message: { content: "Hey Grok, what do you think?" }
+        message: { content: "Hey @Grok, what do you think?" }
       }
     end
   end
@@ -508,7 +508,7 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
 
     assert_no_enqueued_jobs(only: AiResponseJob) do
       post account_chat_messages_path(@account, group_chat), params: {
-        message: { content: "Hey Grok, what do you think?" }
+        message: { content: "Hey @Grok, what do you think?" }
       }
     end
   end

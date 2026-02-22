@@ -563,29 +563,40 @@ class ChatTest < ActiveSupport::TestCase
     end
   end
 
-  test "trigger_mentioned_agents! enqueues job for mentioned agent" do
+  test "trigger_mentioned_agents! enqueues job for @mentioned agent" do
     agent = @account.agents.create!(name: "Grok", system_prompt: "Test")
     chat = @account.chats.new(model_id: "openrouter/auto", manual_responses: true)
     chat.agent_ids = [ agent.id ]
     chat.save!
 
     assert_enqueued_with(job: AllAgentsResponseJob, args: [ chat, [ agent.id ] ]) do
-      chat.trigger_mentioned_agents!("Hey Grok, what do you think?")
+      chat.trigger_mentioned_agents!("Hey @Grok, what do you think?")
     end
   end
 
-  test "trigger_mentioned_agents! uses word boundaries" do
+  test "trigger_mentioned_agents! does not trigger without @ prefix" do
     agent = @account.agents.create!(name: "Grok", system_prompt: "Test")
     chat = @account.chats.new(model_id: "openrouter/auto", manual_responses: true)
     chat.agent_ids = [ agent.id ]
     chat.save!
 
     assert_no_enqueued_jobs(only: AllAgentsResponseJob) do
-      chat.trigger_mentioned_agents!("I'm groking this concept")
+      chat.trigger_mentioned_agents!("Hey Grok, what do you think?")
     end
   end
 
-  test "trigger_mentioned_agents! detects multiple agents and excludes unmentioned" do
+  test "trigger_mentioned_agents! uses word boundaries after @" do
+    agent = @account.agents.create!(name: "Grok", system_prompt: "Test")
+    chat = @account.chats.new(model_id: "openrouter/auto", manual_responses: true)
+    chat.agent_ids = [ agent.id ]
+    chat.save!
+
+    assert_no_enqueued_jobs(only: AllAgentsResponseJob) do
+      chat.trigger_mentioned_agents!("I'm @groking this concept")
+    end
+  end
+
+  test "trigger_mentioned_agents! detects multiple @mentioned agents and excludes unmentioned" do
     agent1 = @account.agents.create!(name: "Grok", system_prompt: "Test")
     agent2 = @account.agents.create!(name: "Claude", system_prompt: "Test")
     agent3 = @account.agents.create!(name: "Wing", system_prompt: "Test")
@@ -594,7 +605,7 @@ class ChatTest < ActiveSupport::TestCase
     chat.save!
 
     assert_enqueued_with(job: AllAgentsResponseJob) do
-      chat.trigger_mentioned_agents!("Hey Grok and Claude, what do you think?")
+      chat.trigger_mentioned_agents!("Hey @Grok and @Claude, what do you think?")
     end
 
     job = enqueued_jobs.find { |j| j["job_class"] == "AllAgentsResponseJob" }
@@ -612,7 +623,7 @@ class ChatTest < ActiveSupport::TestCase
     chat.save!
 
     assert_enqueued_with(job: AllAgentsResponseJob, args: [ chat, [ agent_in_chat.id ] ]) do
-      chat.trigger_mentioned_agents!("Hey Grok and Claude")
+      chat.trigger_mentioned_agents!("Hey @Grok and @Claude")
     end
   end
 
@@ -623,7 +634,18 @@ class ChatTest < ActiveSupport::TestCase
     chat.save!
 
     assert_enqueued_with(job: AllAgentsResponseJob, args: [ chat, [ agent.id ] ]) do
-      chat.trigger_mentioned_agents!("Hey C++Bot, help me")
+      chat.trigger_mentioned_agents!("Hey @C++Bot, help me")
+    end
+  end
+
+  test "trigger_mentioned_agents! works with multi-word agent names" do
+    agent = @account.agents.create!(name: "GPT Test Agent", system_prompt: "Test")
+    chat = @account.chats.new(model_id: "openrouter/auto", manual_responses: true)
+    chat.agent_ids = [ agent.id ]
+    chat.save!
+
+    assert_enqueued_with(job: AllAgentsResponseJob, args: [ chat, [ agent.id ] ]) do
+      chat.trigger_mentioned_agents!("Hey @GPT Test Agent, can you please respond?")
     end
   end
 

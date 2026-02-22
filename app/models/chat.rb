@@ -484,8 +484,8 @@ class Chat < ApplicationRecord
     return if content.blank? || !manual_responses?
 
     mentioned_ids = agents.select { |agent|
-      content.match?(/\b#{Regexp.escape(agent.name)}\b/i)
-    }.sort_by { |agent| content.index(/\b#{Regexp.escape(agent.name)}\b/i) }.map(&:id)
+      content.match?(/@#{Regexp.escape(agent.name)}\b/i)
+    }.sort_by { |agent| content.index(/@#{Regexp.escape(agent.name)}\b/i) }.map(&:id)
 
     AllAgentsResponseJob.perform_later(self, mentioned_ids) if mentioned_ids.any?
   end
