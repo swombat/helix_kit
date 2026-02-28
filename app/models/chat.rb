@@ -63,8 +63,8 @@ class Chat < ApplicationRecord
   # Custom validation since model_id is resolved in before_save
   validate :model_must_be_present
 
-  # All models go through OpenRouter
-  after_initialize :configure_for_openrouter
+  # Set defaults for model storage (OpenRouter format in DB, direct routing in to_llm)
+  after_initialize :configure_defaults
 
   after_create_commit -> { GenerateTitleJob.perform_later(self) }, unless: :title?
 
@@ -87,24 +87,28 @@ class Chat < ApplicationRecord
 
   # Available AI models grouped by category
   # Model IDs from OpenRouter API: https://openrouter.ai/api/v1/models
+  # provider_model_id: the model ID used when calling the provider's direct API
   MODELS = [
     # Top Models - Flagship from each major provider
     {
       model_id: "openai/gpt-5.2",
       label: "GPT-5.2",
       group: "Top Models",
+      provider_model_id: "gpt-5.2",
       thinking: { supported: true }
     },
     {
       model_id: "anthropic/claude-opus-4.6",
       label: "Claude Opus 4.6",
       group: "Top Models",
-      thinking: { supported: true, requires_direct_api: true, provider_model_id: "claude-opus-4-6" }
+      provider_model_id: "claude-opus-4-6",
+      thinking: { supported: true, requires_direct_api: true }
     },
     {
       model_id: "google/gemini-3-pro-preview",
       label: "Gemini 3 Pro",
       group: "Top Models",
+      provider_model_id: "gemini-3-pro-preview",
       thinking: { supported: true },
       audio_input: true
     },
@@ -112,70 +116,172 @@ class Chat < ApplicationRecord
       model_id: "x-ai/grok-4.1-fast",
       label: "Grok 4.1 Fast",
       group: "Top Models",
+      provider_model_id: "grok-4.1-fast",
       thinking: { supported: true }
     },
     { model_id: "deepseek/deepseek-v3.2", label: "DeepSeek V3.2", group: "Top Models" },
 
     # OpenAI
-    { model_id: "openai/gpt-5.1", label: "GPT-5.1", group: "OpenAI", thinking: { supported: true } },
-    { model_id: "openai/gpt-5", label: "GPT-5", group: "OpenAI", thinking: { supported: true } },
-    { model_id: "openai/gpt-5-mini", label: "GPT-5 Mini", group: "OpenAI" },
-    { model_id: "openai/gpt-5-nano", label: "GPT-5 Nano", group: "OpenAI" },
-    { model_id: "openai/o3", label: "O3", group: "OpenAI" },
-    { model_id: "openai/o3-mini", label: "O3 Mini", group: "OpenAI" },
+    {
+      model_id: "openai/gpt-5.1",
+      label: "GPT-5.1",
+      group: "OpenAI",
+      provider_model_id: "gpt-5.1",
+      thinking: { supported: true }
+    },
+    {
+      model_id: "openai/gpt-5",
+      label: "GPT-5",
+      group: "OpenAI",
+      provider_model_id: "gpt-5",
+      thinking: { supported: true }
+    },
+    {
+      model_id: "openai/gpt-5-mini",
+      label: "GPT-5 Mini",
+      group: "OpenAI",
+      provider_model_id: "gpt-5-mini"
+    },
+    {
+      model_id: "openai/gpt-5-nano",
+      label: "GPT-5 Nano",
+      group: "OpenAI",
+      provider_model_id: "gpt-5-nano"
+    },
+    {
+      model_id: "openai/o3",
+      label: "O3",
+      group: "OpenAI",
+      provider_model_id: "o3"
+    },
+    {
+      model_id: "openai/o3-mini",
+      label: "O3 Mini",
+      group: "OpenAI",
+      provider_model_id: "o3-mini"
+    },
     { model_id: "openai/o4-mini-high", label: "O4 Mini High", group: "OpenAI" },
-    { model_id: "openai/o4-mini", label: "O4 Mini", group: "OpenAI" },
-    { model_id: "openai/o1", label: "O1", group: "OpenAI" },
-    { model_id: "openai/gpt-4.1", label: "GPT-4.1", group: "OpenAI" },
-    { model_id: "openai/gpt-4.1-mini", label: "GPT-4.1 Mini", group: "OpenAI" },
-    { model_id: "openai/gpt-4o", label: "GPT-4o", group: "OpenAI" },
-    { model_id: "openai/gpt-4o-mini", label: "GPT-4o Mini", group: "OpenAI" },
+    {
+      model_id: "openai/o4-mini",
+      label: "O4 Mini",
+      group: "OpenAI",
+      provider_model_id: "o4-mini"
+    },
+    {
+      model_id: "openai/o1",
+      label: "O1",
+      group: "OpenAI",
+      provider_model_id: "o1"
+    },
+    {
+      model_id: "openai/gpt-4.1",
+      label: "GPT-4.1",
+      group: "OpenAI",
+      provider_model_id: "gpt-4.1"
+    },
+    {
+      model_id: "openai/gpt-4.1-mini",
+      label: "GPT-4.1 Mini",
+      group: "OpenAI",
+      provider_model_id: "gpt-4.1-mini"
+    },
+    {
+      model_id: "openai/gpt-4o",
+      label: "GPT-4o",
+      group: "OpenAI",
+      provider_model_id: "gpt-4o"
+    },
+    {
+      model_id: "openai/gpt-4o-mini",
+      label: "GPT-4o Mini",
+      group: "OpenAI",
+      provider_model_id: "gpt-4o-mini"
+    },
 
     # Anthropic
     {
       model_id: "anthropic/claude-opus-4.5",
       label: "Claude Opus 4.5",
       group: "Anthropic",
-      thinking: { supported: true, requires_direct_api: true, provider_model_id: "claude-opus-4-5-20251101" }
+      provider_model_id: "claude-opus-4-5-20251101",
+      thinking: { supported: true, requires_direct_api: true }
     },
     {
       model_id: "anthropic/claude-sonnet-4.5",
       label: "Claude Sonnet 4.5",
       group: "Anthropic",
-      thinking: { supported: true, requires_direct_api: true, provider_model_id: "claude-sonnet-4-5-20250929" }
+      provider_model_id: "claude-sonnet-4-5-20250929",
+      thinking: { supported: true, requires_direct_api: true }
     },
-    { model_id: "anthropic/claude-haiku-4.5", label: "Claude Haiku 4.5", group: "Anthropic" },
+    {
+      model_id: "anthropic/claude-haiku-4.5",
+      label: "Claude Haiku 4.5",
+      group: "Anthropic",
+      provider_model_id: "claude-haiku-4-5-20251001"
+    },
     {
       model_id: "anthropic/claude-opus-4.1",
       label: "Claude Opus 4.1",
       group: "Anthropic",
-      thinking: { supported: true, requires_direct_api: true, provider_model_id: "claude-opus-4-1-20250805" }
+      provider_model_id: "claude-opus-4-1-20250805",
+      thinking: { supported: true, requires_direct_api: true }
     },
     {
       model_id: "anthropic/claude-opus-4",
       label: "Claude Opus 4",
       group: "Anthropic",
-      thinking: { supported: true, requires_direct_api: true, provider_model_id: "claude-opus-4-20250514" }
+      provider_model_id: "claude-opus-4-20250514",
+      thinking: { supported: true, requires_direct_api: true }
     },
     {
       model_id: "anthropic/claude-sonnet-4",
       label: "Claude Sonnet 4",
       group: "Anthropic",
-      thinking: { supported: true, requires_direct_api: true, provider_model_id: "claude-sonnet-4-20250514" }
+      provider_model_id: "claude-sonnet-4-20250514",
+      thinking: { supported: true, requires_direct_api: true }
     },
     {
       model_id: "anthropic/claude-3.7-sonnet",
       label: "Claude 3.7 Sonnet",
       group: "Anthropic",
+      provider_model_id: "claude-3-7-sonnet-latest",
       thinking: { supported: true }
     },
-    { model_id: "anthropic/claude-3.5-sonnet", label: "Claude 3.5 Sonnet", group: "Anthropic" },
-    { model_id: "anthropic/claude-3-opus", label: "Claude 3 Opus", group: "Anthropic" },
+    {
+      model_id: "anthropic/claude-3.5-sonnet",
+      label: "Claude 3.5 Sonnet",
+      group: "Anthropic",
+      provider_model_id: "claude-3-5-sonnet-latest"
+    },
+    {
+      model_id: "anthropic/claude-3-opus",
+      label: "Claude 3 Opus",
+      group: "Anthropic",
+      provider_model_id: "claude-3-opus-latest"
+    },
 
     # Google
-    { model_id: "google/gemini-3-flash-preview", label: "Gemini 3 Flash", group: "Google", audio_input: true },
-    { model_id: "google/gemini-2.5-pro", label: "Gemini 2.5 Pro", group: "Google", audio_input: true },
-    { model_id: "google/gemini-2.5-flash", label: "Gemini 2.5 Flash", group: "Google", audio_input: true },
+    {
+      model_id: "google/gemini-3-flash-preview",
+      label: "Gemini 3 Flash",
+      group: "Google",
+      provider_model_id: "gemini-3-flash-preview",
+      audio_input: true
+    },
+    {
+      model_id: "google/gemini-2.5-pro",
+      label: "Gemini 2.5 Pro",
+      group: "Google",
+      provider_model_id: "gemini-2.5-pro",
+      audio_input: true
+    },
+    {
+      model_id: "google/gemini-2.5-flash",
+      label: "Gemini 2.5 Flash",
+      group: "Google",
+      provider_model_id: "gemini-2.5-flash",
+      audio_input: true
+    },
 
     # xAI - Grok models with reasoning support
     # grok-3-mini: Shows thinking traces, uses reasoning_effort parameter
@@ -185,16 +291,28 @@ class Chat < ApplicationRecord
       model_id: "x-ai/grok-3-mini",
       label: "Grok 3 Mini",
       group: "xAI",
+      provider_model_id: "grok-3-mini",
       thinking: { supported: true }
     },
     {
       model_id: "x-ai/grok-4-fast",
       label: "Grok 4 Fast",
       group: "xAI",
+      provider_model_id: "grok-4-fast",
       thinking: { supported: true }
     },
-    { model_id: "x-ai/grok-4", label: "Grok 4", group: "xAI" },
-    { model_id: "x-ai/grok-3", label: "Grok 3", group: "xAI" },
+    {
+      model_id: "x-ai/grok-4",
+      label: "Grok 4",
+      group: "xAI",
+      provider_model_id: "grok-4"
+    },
+    {
+      model_id: "x-ai/grok-3",
+      label: "Grok 3",
+      group: "xAI",
+      provider_model_id: "grok-3"
+    },
 
     # DeepSeek
     { model_id: "deepseek/deepseek-r1", label: "DeepSeek R1", group: "DeepSeek" },
@@ -222,7 +340,12 @@ class Chat < ApplicationRecord
   end
 
   def self.provider_model_id(model_id)
-    model_config(model_id)&.dig(:thinking, :provider_model_id) || model_id.to_s.sub(%r{^.+/}, "")
+    config = model_config(model_id)
+    config&.dig(:provider_model_id) || config&.dig(:thinking, :provider_model_id) || model_id.to_s.sub(%r{^.+/}, "")
+  end
+
+  def self.resolve_provider(model_id)
+    ResolvesProvider.resolve_provider(model_id)
   end
 
   scope :latest, -> { order(updated_at: :desc) }
@@ -449,6 +572,25 @@ class Chat < ApplicationRecord
     participants
   end
 
+  # Override RubyLLM's to_llm to route through direct provider APIs when available.
+  # The AiModel record stays in OpenRouter format (for DB storage), but actual API
+  # calls go to the direct provider for lower latency and cost.
+  def to_llm
+    original_model_id = model_id_string_value
+    provider_config = self.class.resolve_provider(original_model_id)
+
+    @chat = (context || RubyLLM).chat(
+      model: provider_config[:model_id],
+      provider: provider_config[:provider]
+    )
+
+    messages_association.each do |msg|
+      @chat.add_message(msg.to_llm)
+    end
+
+    setup_persistence_callbacks
+  end
+
   # Configure tools for RubyLLM based on settings
   def available_tools
     return [] unless web_access?
@@ -587,9 +729,9 @@ class Chat < ApplicationRecord
 
   private
 
-  def configure_for_openrouter
-    # All models go through OpenRouter, so we always use that provider
-    # and assume the model exists (since our MODELS list is curated for OpenRouter)
+  def configure_defaults
+    # DB storage uses OpenRouter format (model IDs like "anthropic/claude-opus-4.6").
+    # Actual API routing to direct providers happens in to_llm.
     self.provider = :openrouter
     self.assume_model_exists = true
 

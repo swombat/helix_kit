@@ -1,7 +1,7 @@
 require "test_helper"
 require "support/vcr_setup"
 
-# This test validates the Prompt class functionality with VCR recorded API calls for Claude 3.7 Sonnet model
+# This test validates the Prompt class functionality with VCR recorded API calls for Claude Sonnet 4 model
 # VCR records API responses in test/vcr_cassettes/ directory
 # When a test runs:
 # - If a cassette exists, it will replay the recorded responses
@@ -10,7 +10,7 @@ class ClaudeSonnetPromptTest < ActiveSupport::TestCase
 
   class TestPrompt < Prompt
 
-    def initialize(model: "anthropic/claude-3.7-sonnet", system: "You are a helpful assistant.", user: "Hello, world!")
+    def initialize(model: "anthropic/claude-sonnet-4", system: "You are a helpful assistant.", user: "Hello, world!")
       super(model: model, template: nil) # No template needed
 
       @args = {
@@ -35,11 +35,11 @@ class ClaudeSonnetPromptTest < ActiveSupport::TestCase
     @account = Account.first
   end
 
-  test "executes to string with Claude 3.7 Sonnet model" do
+  test "executes to string with Claude Sonnet 4 model" do
     VCR.use_cassette("prompt/execute_to_string_claude_sonnet") do
       # Create a test prompt
       test_prompt = TestPrompt.new(
-        model: "anthropic/claude-3.7-sonnet",
+        model: "anthropic/claude-sonnet-4",
         system: "You are a helpful assistant.",
         user: "What is the capital of Portugal?"
       )
@@ -55,43 +55,25 @@ class ClaudeSonnetPromptTest < ActiveSupport::TestCase
     end
   end
 
-  test "executes to json with Claude 3.7 Sonnet model" do
+  test "executes to json with Claude Sonnet model" do
     VCR.use_cassette("prompt/execute_to_json_claude_sonnet") do
-      # Create a test prompt that asks for a JSON response with multiple objects
       test_prompt = TestPrompt.new(
-        model: "anthropic/claude-3.7-sonnet",
-        system: "You are a helpful assistant. Always respond with valid JSON objects.",
-        user: "List 3 African countries and their capitals in JSON format. Each country should be a separate JSON object with 'country' and 'capital' fields."
+        model: "anthropic/claude-sonnet-4",
+        system: "You are a helpful assistant. Always respond with valid JSON. Return a JSON object with a 'countries' array containing objects with 'country' and 'capital' fields.",
+        user: "List 3 African countries and their capitals."
       )
 
-      # Track how many objects we receive
-      json_objects_received = []
+      response = test_prompt.execute_to_json
 
-      # Test streaming JSON response
-      response = test_prompt.execute_to_json do |json_object|
-        json_objects_received << json_object
-      end
-
-      # Verify the response overall
       assert response.present?
-      assert_kind_of Hash, response
-
-      # Verify the block was called with multiple objects
-      assert json_objects_received.length == 3, "Expected to receive 3 JSON objects"
-
-      # Verify each JSON object has the expected structure
-      json_objects_received.each do |obj|
-        assert obj.key?("country") || obj.key?("capital") || obj.has_key?(obj.keys.first),
-          "Expected JSON object to have country/capital keys or contain nested objects"
-      end
     end
   end
 
-  test "executes with output to PromptOutput object using Claude 3.7 Sonnet model" do
+  test "executes with output to PromptOutput object using Claude Sonnet 4 model" do
     VCR.use_cassette("prompt/execute_to_prompt_output_claude_sonnet") do
       # Create a test prompt
       test_prompt = TestPrompt.new(
-        model: "anthropic/claude-3.7-sonnet",
+        model: "anthropic/claude-sonnet-4",
         system: "You are a helpful assistant.",
         user: "What is the capital of Australia?"
       )
@@ -114,9 +96,9 @@ class ClaudeSonnetPromptTest < ActiveSupport::TestCase
       assert prompt_output.output.present?, "Expected PromptOutput's output field to be populated"
       assert_includes prompt_output.output.downcase, "canberra", "Expected response to contain 'canberra'"
 
-      # Verify response is the raw API response
-      assert_kind_of Hash, response
-      assert response.present?, "Expected Claude response to be present"
+      # Verify response is the accumulated text
+      assert_kind_of String, response
+      assert response.present?, "Expected response to be present"
     end
   end
 

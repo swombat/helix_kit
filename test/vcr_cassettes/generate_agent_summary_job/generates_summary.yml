@@ -152,4 +152,87 @@ http_interactions:
         bnNfZGV0YWlscyI6eyJyZWFzb25pbmdfdG9rZW5zIjowLCJpbWFnZV90b2tl
         bnMiOjB9fX0=
   recorded_at: Sat, 21 Feb 2026 19:35:25 GMT
+- request:
+    method: post
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
+    body:
+      encoding: UTF-8
+      string: '{"contents":[{"role":"user","parts":[{"text":"Your identity:\nYou are
+        a helpful research assistant that finds and synthesizes information.\n\nYou
+        are summarizing a conversation you are participating in. This summary is for\nyour
+        own reference so you can track what is happening across multiple conversations.\n\nFocus
+        on the current STATE of the conversation:\n- What is being worked on right
+        now?\n- What decisions are pending?\n- What has been agreed or resolved?\n\nDo
+        NOT narrate what happened. Describe where things stand.\n\nWrite exactly 2
+        lines. Be specific and concrete.\n\n\nRespond with the summary text only.
+        No labels, no bullet points, no prefixes.\n\n---\n\nConversation: \"Summary
+        Test Chat\"\n\nRecent messages:\n\n- User: I need to refactor the authentication
+        system.\n- Research Assistant: Of course! What do you need help with?\n- User:
+        Hello, can you help me with this project?"}]}],"generationConfig":{}}'
+    headers:
+      User-Agent:
+      - Faraday v2.14.0
+      x-goog-api-key:
+      - "<GEMINI_API_KEY>"
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      content-type:
+      - application/json; charset=UTF-8
+      vary:
+      - Origin, X-Origin, Referer
+      date:
+      - Sat, 28 Feb 2026 09:42:27 GMT
+      server:
+      - scaffolding on HTTPServer2
+      x-xss-protection:
+      - '0'
+      x-frame-options:
+      - SAMEORIGIN
+      x-content-type-options:
+      - nosniff
+      server-timing:
+      - gfet4t7; dur=2175
+      alt-svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      transfer-encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: |
+        {
+          "candidates": [
+            {
+              "content": {
+                "parts": [
+                  {
+                    "text": "The user initially mentioned refactoring an authentication system but then broadened the scope to \"this project.\" Clarification is pending on the specific project and the nature of the help needed."
+                  }
+                ],
+                "role": "model"
+              },
+              "finishReason": "STOP",
+              "index": 0
+            }
+          ],
+          "usageMetadata": {
+            "promptTokenCount": 183,
+            "candidatesTokenCount": 35,
+            "totalTokenCount": 535,
+            "promptTokensDetails": [
+              {
+                "modality": "TEXT",
+                "tokenCount": 183
+              }
+            ],
+            "thoughtsTokenCount": 317
+          },
+          "modelVersion": "gemini-2.5-flash",
+          "responseId": "gbiiaZKPE4K128oPzYGcuAg"
+        }
+  recorded_at: Sat, 28 Feb 2026 09:42:27 GMT
 recorded_with: VCR 6.3.1

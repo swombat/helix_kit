@@ -1,5 +1,7 @@
 class MemoryRefinementJob < ApplicationJob
 
+  include SelectsLlmProvider
+
   queue_as :default
 
   retry_on RubyLLM::RateLimitError, wait: :polynomially_longer, attempts: 3
@@ -55,7 +57,8 @@ class MemoryRefinementJob < ApplicationJob
   end
 
   def chat_for(agent)
-    RubyLLM.chat(model: agent.model_id, provider: :openrouter, assume_model_exists: true)
+    provider_config = llm_provider_for(agent.model_id)
+    RubyLLM.chat(model: provider_config[:model_id], provider: provider_config[:provider], assume_model_exists: true)
   end
 
   def development_preamble

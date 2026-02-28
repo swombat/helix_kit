@@ -29,7 +29,7 @@ class ThinkingIntegrationTest < ActiveSupport::TestCase
     assert_not_nil opus_config
     assert_equal true, opus_config.dig(:thinking, :supported)
     assert_equal true, opus_config.dig(:thinking, :requires_direct_api)
-    assert_equal "claude-opus-4-5-20251101", opus_config.dig(:thinking, :provider_model_id)
+    assert_equal "claude-opus-4-5-20251101", opus_config[:provider_model_id]
 
     sonnet_config = Chat.model_config("anthropic/claude-sonnet-4.5")
     assert_not_nil sonnet_config

@@ -91,7 +91,7 @@ class ChatThinkingTest < ActiveSupport::TestCase
     assert_equal "Anthropic", config[:group]
     assert_equal true, config.dig(:thinking, :supported)
     assert_equal true, config.dig(:thinking, :requires_direct_api)
-    assert_equal "claude-opus-4-5-20251101", config.dig(:thinking, :provider_model_id)
+    assert_equal "claude-opus-4-5-20251101", config[:provider_model_id]
   end
 
   test "model_config returns correct config for models without thinking" do
@@ -119,7 +119,7 @@ class ChatThinkingTest < ActiveSupport::TestCase
     claude_4_models.each do |model|
       assert_equal true, model.dig(:thinking, :requires_direct_api),
                    "#{model[:model_id]} should require direct API"
-      assert model.dig(:thinking, :provider_model_id).present?,
+      assert model[:provider_model_id].present?,
                    "#{model[:model_id]} should have provider_model_id"
     end
   end

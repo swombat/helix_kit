@@ -1,5 +1,7 @@
 class ConsolidateConversationJob < ApplicationJob
 
+  include SelectsLlmProvider
+
   IDLE_THRESHOLD = 6.hours
   CHUNK_TARGET_TOKENS = 100_000
 
@@ -77,9 +79,10 @@ class ConsolidateConversationJob < ApplicationJob
     conversation_text = messages.map { |m| message_text(m) }.join("\n\n")
 
     # Agent uses its own model for extraction
+    provider_config = llm_provider_for(agent.model_id)
     llm = RubyLLM.chat(
-      model: agent.model_id,
-      provider: :openrouter,
+      model: provider_config[:model_id],
+      provider: provider_config[:provider],
       assume_model_exists: true
     )
 

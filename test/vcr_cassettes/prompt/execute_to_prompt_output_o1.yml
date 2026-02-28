@@ -2,77 +2,94 @@
 http_interactions:
 - request:
     method: post
-    uri: https://openrouter.ai/api/v1/chat/completions
+    uri: https://api.openai.com/v1/chat/completions
     body:
       encoding: UTF-8
-      string: '{"model":"openai/o1","messages":[{"role":"system","content":"You are
-        a helpful assistant."},{"role":"user","content":"What is the capital of Canada?"}],"stream":true}'
+      string: '{"model":"o1","messages":[{"role":"developer","content":"You are a
+        helpful assistant."},{"role":"user","content":"What is the capital of Canada?"}],"stream":false}'
     headers:
+      User-Agent:
+      - Faraday v2.14.0
+      Authorization:
+      - Bearer <OPENAI_API_KEY>
       Content-Type:
       - application/json
-      Authorization:
-      - Bearer <OPENROUTER_API_KEY>
   response:
     status:
       code: 200
       message: OK
     headers:
       date:
-      - Tue, 02 Sep 2025 09:25:21 GMT
+      - Sat, 28 Feb 2026 10:32:57 GMT
       content-type:
-      - text/event-stream
+      - application/json
       transfer-encoding:
       - chunked
       connection:
       - keep-alive
-      cf-ray:
-      - 978bf5a25afdcbe8-MAD
-      access-control-allow-origin:
-      - "*"
-      cache-control:
-      - no-cache
-      vary:
-      - Accept-Encoding
-      permissions-policy:
-      - payment=(self "https://checkout.stripe.com" "https://connect-js.stripe.com"
-        "https://js.stripe.com" "https://*.js.stripe.com" "https://hooks.stripe.com")
-      referrer-policy:
-      - no-referrer, strict-origin-when-cross-origin
-      x-content-type-options:
-      - nosniff
+      access-control-expose-headers:
+      - X-Request-ID
+      openai-organization:
+      - user-pe37st55wxcpvmlkqbqqbion
+      openai-processing-ms:
+      - '1906'
+      openai-project:
+      - proj_rTxZTWKsOOCkrUMoaDbzkANF
+      openai-version:
+      - '2020-10-01'
       server:
       - cloudflare
+      x-ratelimit-limit-requests:
+      - '10000'
+      x-ratelimit-limit-tokens:
+      - '30000000'
+      x-ratelimit-remaining-requests:
+      - '9999'
+      x-ratelimit-remaining-tokens:
+      - '29999982'
+      x-ratelimit-reset-requests:
+      - 6ms
+      x-ratelimit-reset-tokens:
+      - 0s
+      x-request-id:
+      - req_55c5306c0a8f498fbb6911d199608342
+      x-openai-proxy-wasm:
+      - v0.1
+      cf-cache-status:
+      - DYNAMIC
+      set-cookie:
+      - __cf_bm=8aEwBtOpKKubOWTZbNUwpKztDdaQFj1.AdtpRuyD0L0-1772274775.2180915-1.0.1.1-f4SWEB0zx6g0iaNUtsQpib0bQlJw2twHZ3WBbezQanLiiyl6GeeTB.rzAa4iVEm1N03YWhfEAOR7jeKAmD7fcb3lEg9kxqKbZzGBLZFiWhCmoejeaC7JAOY.gZypP56v;
+        HttpOnly; Secure; Path=/; Domain=api.openai.com; Expires=Sat, 28 Feb 2026
+        11:02:57 GMT
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-content-type-options:
+      - nosniff
+      cf-ray:
+      - 9d4f42c118a2f769-MAD
+      alt-svc:
+      - h3=":443"; ma=86400
     body:
-      encoding: UTF-8
-      string: |+
-        : OPENROUTER PROCESSING
-
-        data: {"id":"gen-1756805120-295B7ift3h4YpV2Co8AH","provider":"OpenAI","model":"openai/o1","object":"chat.completion.chunk","created":1756805120,"choices":[{"index":0,"delta":{"role":"assistant","content":""},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
-
-        : OPENROUTER PROCESSING
-
-        : OPENROUTER PROCESSING
-
-        data: {"id":"gen-1756805120-295B7ift3h4YpV2Co8AH","provider":"OpenAI","model":"openai/o1","object":"chat.completion.chunk","created":1756805120,"choices":[{"index":0,"delta":{"role":"assistant","content":"The"},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
-
-        data: {"id":"gen-1756805120-295B7ift3h4YpV2Co8AH","provider":"OpenAI","model":"openai/o1","object":"chat.completion.chunk","created":1756805120,"choices":[{"index":0,"delta":{"role":"assistant","content":" capital"},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
-
-        data: {"id":"gen-1756805120-295B7ift3h4YpV2Co8AH","provider":"OpenAI","model":"openai/o1","object":"chat.completion.chunk","created":1756805120,"choices":[{"index":0,"delta":{"role":"assistant","content":" of"},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
-
-        data: {"id":"gen-1756805120-295B7ift3h4YpV2Co8AH","provider":"OpenAI","model":"openai/o1","object":"chat.completion.chunk","created":1756805120,"choices":[{"index":0,"delta":{"role":"assistant","content":" Canada"},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
-
-        data: {"id":"gen-1756805120-295B7ift3h4YpV2Co8AH","provider":"OpenAI","model":"openai/o1","object":"chat.completion.chunk","created":1756805120,"choices":[{"index":0,"delta":{"role":"assistant","content":" is"},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
-
-        data: {"id":"gen-1756805120-295B7ift3h4YpV2Co8AH","provider":"OpenAI","model":"openai/o1","object":"chat.completion.chunk","created":1756805120,"choices":[{"index":0,"delta":{"role":"assistant","content":" Ottawa"},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
-
-        data: {"id":"gen-1756805120-295B7ift3h4YpV2Co8AH","provider":"OpenAI","model":"openai/o1","object":"chat.completion.chunk","created":1756805120,"choices":[{"index":0,"delta":{"role":"assistant","content":"."},"finish_reason":null,"native_finish_reason":null,"logprobs":null}]}
-
-        data: {"id":"gen-1756805120-295B7ift3h4YpV2Co8AH","provider":"OpenAI","model":"openai/o1","object":"chat.completion.chunk","created":1756805120,"choices":[{"index":0,"delta":{"role":"assistant","content":""},"finish_reason":"stop","native_finish_reason":"completed","logprobs":null}]}
-
-        data: {"id":"gen-1756805120-295B7ift3h4YpV2Co8AH","provider":"OpenAI","model":"openai/o1","object":"chat.completion.chunk","created":1756805120,"choices":[{"index":0,"delta":{"role":"assistant","content":""},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"usage":{"prompt_tokens":23,"completion_tokens":8,"total_tokens":31}}
-
-        data: [DONE]
-
-  recorded_at: Tue, 02 Sep 2025 09:25:22 GMT
+      encoding: ASCII-8BIT
+      base64_string: |
+        ewogICJpZCI6ICJjaGF0Y21wbC1ERUJ1eGp2TU1WVTFpZTlhZHhnV09pQkdq
+        R0R1NSIsCiAgIm9iamVjdCI6ICJjaGF0LmNvbXBsZXRpb24iLAogICJjcmVh
+        dGVkIjogMTc3MjI3NDc3NSwKICAibW9kZWwiOiAibzEtMjAyNC0xMi0xNyIs
+        CiAgImNob2ljZXMiOiBbCiAgICB7CiAgICAgICJpbmRleCI6IDAsCiAgICAg
+        ICJtZXNzYWdlIjogewogICAgICAgICJyb2xlIjogImFzc2lzdGFudCIsCiAg
+        ICAgICAgImNvbnRlbnQiOiAiT3R0YXdhIGlzIHRoZSBjYXBpdGFsIG9mIENh
+        bmFkYS4iLAogICAgICAgICJyZWZ1c2FsIjogbnVsbCwKICAgICAgICAiYW5u
+        b3RhdGlvbnMiOiBbXQogICAgICB9LAogICAgICAibG9ncHJvYnMiOiBudWxs
+        LAogICAgICAiZmluaXNoX3JlYXNvbiI6ICJzdG9wIgogICAgfQogIF0sCiAg
+        InVzYWdlIjogewogICAgInByb21wdF90b2tlbnMiOiAyMywKICAgICJjb21w
+        bGV0aW9uX3Rva2VucyI6IDI0LAogICAgInRvdGFsX3Rva2VucyI6IDQ3LAog
+        ICAgInByb21wdF90b2tlbnNfZGV0YWlscyI6IHsKICAgICAgImNhY2hlZF90
+        b2tlbnMiOiAwLAogICAgICAiYXVkaW9fdG9rZW5zIjogMAogICAgfSwKICAg
+        ICJjb21wbGV0aW9uX3Rva2Vuc19kZXRhaWxzIjogewogICAgICAicmVhc29u
+        aW5nX3Rva2VucyI6IDAsCiAgICAgICJhdWRpb190b2tlbnMiOiAwLAogICAg
+        ICAiYWNjZXB0ZWRfcHJlZGljdGlvbl90b2tlbnMiOiAwLAogICAgICAicmVq
+        ZWN0ZWRfcHJlZGljdGlvbl90b2tlbnMiOiAwCiAgICB9CiAgfSwKICAic2Vy
+        dmljZV90aWVyIjogImRlZmF1bHQiLAogICJzeXN0ZW1fZmluZ2VycHJpbnQi
+        OiAiZnBfNzQyZThhZjVhMiIKfQo=
+  recorded_at: Sat, 28 Feb 2026 10:32:57 GMT
 recorded_with: VCR 6.3.1
-...

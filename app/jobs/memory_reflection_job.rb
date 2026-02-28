@@ -1,5 +1,7 @@
 class MemoryReflectionJob < ApplicationJob
 
+  include SelectsLlmProvider
+
   queue_as :default
 
   retry_on RubyLLM::RateLimitError, wait: :polynomially_longer, attempts: 5
@@ -31,9 +33,10 @@ class MemoryReflectionJob < ApplicationJob
 
     prompt = build_prompt(agent, core_memories, journal_entries)
 
+    provider_config = llm_provider_for(agent.model_id)
     llm = RubyLLM.chat(
-      model: agent.model_id,
-      provider: :openrouter,
+      model: provider_config[:model_id],
+      provider: provider_config[:provider],
       assume_model_exists: true
     )
 

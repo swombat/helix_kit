@@ -2,11 +2,11 @@
 
 # Determines the correct LLM provider based on model ID and configuration.
 #
-# Routes to appropriate providers:
-# - Anthropic direct: for Claude 4+ models with thinking enabled
-# - Gemini direct: for Google models (due to thought_signature requirements)
-# - xAI direct: for Grok models with thinking enabled (when API key is configured)
-# - OpenRouter: fallback for all other models
+# Routes to direct provider APIs (Anthropic, OpenAI, Gemini, xAI) when API keys
+# are available. Falls back to OpenRouter for unconfigured providers (e.g., DeepSeek).
+#
+# Gemini has an additional requirement: the tool_calls table must have a metadata
+# column (needed for thought_signature storage with tool-calling jobs).
 module SelectsLlmProvider
 
   extend ActiveSupport::Concern
@@ -15,93 +15,30 @@ module SelectsLlmProvider
 
   # Returns the provider and normalized model ID for a given model
   #
-  # @param model_id [String] The model ID (e.g., "anthropic/claude-opus-4.5")
-  # @param thinking_enabled [Boolean] Whether thinking is enabled for this request
+  # @param model_id [String] The model ID (e.g., "anthropic/claude-opus-4.6")
+  # @param thinking_enabled [Boolean] Whether thinking is enabled (retained for caller compatibility)
   # @return [Hash] { provider: Symbol, model_id: String }
   def llm_provider_for(model_id, thinking_enabled: false)
-    if thinking_enabled && Chat.requires_direct_api_for_thinking?(model_id) && anthropic_api_available?
-      {
-        provider: :anthropic,
-        model_id: Chat.provider_model_id(model_id)
-      }
-    elsif gemini_model?(model_id) && gemini_direct_access_enabled?
-      {
-        provider: :gemini,
-        model_id: normalize_gemini_model_id(model_id)
-      }
-    elsif xai_model?(model_id) && thinking_enabled && xai_api_available?
-      {
-        provider: :xai,
-        model_id: normalize_xai_model_id(model_id)
-      }
-    else
-      {
-        provider: :openrouter,
-        model_id: model_id
-      }
+    config = ResolvesProvider.resolve_provider(model_id)
+
+    # Gemini requires metadata column on tool_calls for tool-calling jobs
+    if config[:provider] == :gemini && !gemini_metadata_column_exists?
+      Rails.logger.warn "[SelectsLlmProvider] Direct Gemini access disabled: metadata column missing from tool_calls. Falling back to OpenRouter."
+      return { provider: :openrouter, model_id: model_id }
     end
+
+    config
   end
 
+  def gemini_metadata_column_exists?
+    return @gemini_metadata_exists if defined?(@gemini_metadata_exists)
+    @gemini_metadata_exists = ToolCall.column_names.include?("metadata")
+  end
+
+  # Used directly by ManualAgentResponseJob and AllAgentsResponseJob
+  # to check Anthropic API availability before attempting thinking mode.
   def anthropic_api_available?
-    return @anthropic_available if defined?(@anthropic_available)
-
-    api_key = RubyLLM.config.anthropic_api_key
-    @anthropic_available = api_key.present? && !api_key.start_with?("<")
-
-    unless @anthropic_available
-      Rails.logger.warn "[SelectsLlmProvider] Anthropic API key not configured"
-    end
-
-    @anthropic_available
-  end
-
-  def gemini_model?(model_id)
-    model_id.to_s.start_with?("google/")
-  end
-
-  def gemini_direct_access_enabled?
-    return @gemini_enabled if defined?(@gemini_enabled)
-
-    gemini_key = RubyLLM.config.gemini_api_key
-    key_configured = gemini_key.present? && !gemini_key.start_with?("<")
-    column_exists = ToolCall.column_names.include?("metadata")
-
-    @gemini_enabled = key_configured && column_exists
-
-    unless @gemini_enabled
-      reasons = []
-      reasons << "Gemini API key not configured" unless key_configured
-      reasons << "metadata column missing from tool_calls" unless column_exists
-      Rails.logger.warn "[SelectsLlmProvider] Direct Gemini access disabled: #{reasons.join(', ')}. Falling back to OpenRouter."
-    end
-
-    @gemini_enabled
-  end
-
-  def normalize_gemini_model_id(model_id)
-    model_id.to_s.sub(/^google\//, "")
-  end
-
-  def xai_model?(model_id)
-    model_id.to_s.start_with?("x-ai/")
-  end
-
-  def xai_api_available?
-    return @xai_available if defined?(@xai_available)
-
-    api_key = RubyLLM.config.xai_api_key
-    @xai_available = api_key.present? && !api_key.start_with?("<")
-
-    unless @xai_available
-      Rails.logger.warn "[SelectsLlmProvider] xAI API key not configured, falling back to OpenRouter"
-    end
-
-    @xai_available
-  end
-
-  def normalize_xai_model_id(model_id)
-    # xAI API uses model names without the x-ai/ prefix
-    model_id.to_s.sub(/^x-ai\//, "")
+    ResolvesProvider.api_key_available?(:anthropic)
   end
 
 end

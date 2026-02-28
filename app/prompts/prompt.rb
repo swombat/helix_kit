@@ -11,9 +11,6 @@ class Prompt
 
   def initialize(model: DEFAULT_MODEL, template: nil)
     @model = map_model(model)
-
-    @api = OpenRouterApi.new
-
     @template = template
   end
 
@@ -29,29 +26,61 @@ class Prompt
 
   def execute_to_string
     params = render
+    provider_config = ResolvesProvider.resolve_provider(@model)
+
+    llm = RubyLLM.chat(
+      model: provider_config[:model_id],
+      provider: provider_config[:provider],
+      assume_model_exists: true
+    )
+    llm.with_instructions(params[:system]) if params[:system]
 
     retry_block do
-      response = @api.get_response(
-        params: params,
-        stream_proc: Proc.new { |incremental_response, delta| yield incremental_response, delta if block_given? },
-        stream_response_type: :text
-      )
-
-      return response
+      if block_given?
+        incremental = +""
+        llm.ask(params[:user]) do |chunk|
+          next unless chunk.content
+          incremental << chunk.content
+          yield incremental, chunk.content
+        end
+        return incremental
+      else
+        response = llm.ask(params[:user])
+        return response.content
+      end
     end
   end
 
   def execute_to_json(single_object: false)
     params = render
+    provider_config = ResolvesProvider.resolve_provider(@model)
+
+    llm = RubyLLM.chat(
+      model: provider_config[:model_id],
+      provider: provider_config[:provider],
+      assume_model_exists: true
+    )
+    llm.with_instructions(params[:system]) if params[:system]
 
     retry_block do
-      response = @api.get_response(
-        params: params,
-        stream_proc: Proc.new { |json_object| yield json_object if block_given? },
-        stream_response_type: :json
-      )
-
-      return response
+      if block_given?
+        incremental = +""
+        llm.ask(params[:user]) do |chunk|
+          next unless chunk.content
+          incremental << chunk.content
+          # Try to parse accumulated JSON and yield complete objects
+          begin
+            json_object = JSON.parse(strip_markdown_fences(incremental))
+            yield json_object
+          rescue JSON::ParserError
+            # Not yet a complete JSON object, continue accumulating
+          end
+        end
+        return JSON.parse(strip_markdown_fences(incremental)) rescue incremental
+      else
+        response = llm.ask(params[:user])
+        return JSON.parse(strip_markdown_fences(response.content))
+      end
     end
   end
 
@@ -59,26 +88,30 @@ class Prompt
     info "Executing #{self.class} with output class #{output_class} and id #{output_id} on property #{output_property}"
 
     params = render
+    provider_config = ResolvesProvider.resolve_provider(@model)
 
     @output = output_class.constantize.find(output_id)
 
-    # @output.send(:"#{output_property}=", []) if @output.send(output_property).nil?
+    llm = RubyLLM.chat(
+      model: provider_config[:model_id],
+      provider: provider_config[:provider],
+      assume_model_exists: true
+    )
+    llm.with_instructions(params[:system]) if params[:system]
 
     retry_block do
-      stream_proc = if json
-        Proc.new { |json_object| add_json(@output, output_property, json_object) }
+      response_msg = llm.ask(params[:user])
+      content = response_msg.content
+
+      if json
+        response = JSON.parse(strip_markdown_fences(content))
+        add_json(@output, output_property, response)
       else
-        Proc.new { |incremental_response, _delta| @output.update(output_property => incremental_response) }
+        @output.update(output_property => content)
+        response = content
       end
 
-      response = @api.get_response(
-        params: params,
-        stream_proc: stream_proc,
-        stream_response_type: json ? :json : :text
-      )
-
       info "#{self.class}#execute response (short): #{response.inspect[0..200]}"
-
       return response
     end
   end
@@ -157,6 +190,13 @@ class Prompt
       object.send("#{property}=", object.send(property).merge(new_object))
     end
     object.save
+  end
+
+  private
+
+  # Strip markdown code fences (```json ... ```) that LLMs sometimes wrap around JSON responses
+  def strip_markdown_fences(text)
+    text.sub(/\A\s*```\w*\n/, "").sub(/\n```\s*\z/, "")
   end
 
 end

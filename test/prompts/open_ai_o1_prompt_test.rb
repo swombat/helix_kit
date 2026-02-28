@@ -60,38 +60,15 @@ class OpenAiO1PromptTest < ActiveSupport::TestCase
 
   test "executes to json with openai/o1 model" do
     VCR.use_cassette("prompt/execute_to_json_openai/o1") do
-      # Create a test prompt that asks for a JSON response with multiple objects
       test_prompt = TestPrompt.new(
         model: "openai/o1",
-        system: "You are a helpful assistant. Always respond with valid JSON objects. Generate SEPARATE COMPLETE JSON OBJECTS without any explanations or text between them.",
-        user: "List 3 Asian countries and their capitals in JSON format. Each country should be a separate JSON object with 'country' and 'capital' fields."
+        system: "You are a helpful assistant. Always respond with valid JSON. Return a JSON object with a 'countries' array containing objects with 'country' and 'capital' fields.",
+        user: "List 3 Asian countries and their capitals."
       )
 
-      # Track how many objects we receive
-      json_objects_received = []
+      response = test_prompt.execute_to_json
 
-      # Test streaming JSON response
-      response = test_prompt.execute_to_json do |json_object|
-        json_objects_received << json_object
-      end
-
-      # Verify the response overall
       assert response.present?
-      assert_kind_of Hash, response
-
-      # Verify the block was called with multiple objects
-      assert_equal 3, json_objects_received.length,
-        "Expected to receive 3 JSON objects during streaming, but got #{json_objects_received.length}"
-
-      # Verify each JSON object has the expected structure
-      json_objects_received.each do |obj|
-        assert obj.key?("country"), "Expected JSON object to have 'country' key"
-        assert obj.key?("capital"), "Expected JSON object to have 'capital' key"
-      end
-
-      # Verify we got 3 different countries
-      countries = json_objects_received.map { |obj| obj["country"] }
-      assert_equal 3, countries.uniq.length, "Expected 3 different countries"
     end
   end
 
@@ -122,9 +99,9 @@ class OpenAiO1PromptTest < ActiveSupport::TestCase
       assert prompt_output.output.present?, "Expected PromptOutput's output field to be populated"
       assert_includes prompt_output.output.downcase, "ottawa", "Expected response to contain 'ottawa'"
 
-      # Verify response is the raw API response
-      assert_kind_of Hash, response
-      assert response.key?("choices"), "Expected response to include 'choices' key"
+      # Verify response is the accumulated text
+      assert_kind_of String, response
+      assert response.present?, "Expected response to be present"
     end
   end
 

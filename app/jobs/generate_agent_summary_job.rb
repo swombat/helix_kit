@@ -2,6 +2,8 @@
 
 class GenerateAgentSummaryJob < ApplicationJob
 
+  include SelectsLlmProvider
+
   queue_as :default
 
   def perform(chat, agent)
@@ -40,9 +42,10 @@ class GenerateAgentSummaryJob < ApplicationJob
   def generate_summary(agent, chat_agent, chat, transcript)
     prompt = build_prompt(agent, chat_agent, chat, transcript)
 
+    provider_config = llm_provider_for(Prompt::LIGHT_MODEL)
     llm = RubyLLM.chat(
-      model: Prompt::LIGHT_MODEL,
-      provider: :openrouter,
+      model: provider_config[:model_id],
+      provider: provider_config[:provider],
       assume_model_exists: true
     )
 

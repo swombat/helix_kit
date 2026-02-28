@@ -1,5 +1,7 @@
 class AgentInitiationDecisionJob < ApplicationJob
 
+  include SelectsLlmProvider
+
   queue_as :default
 
   retry_on RubyLLM::ServerError, wait: :polynomially_longer, attempts: 3
@@ -30,9 +32,10 @@ class AgentInitiationDecisionJob < ApplicationJob
       nighttime: @nighttime
     )
 
+    provider_config = llm_provider_for(agent.model_id)
     response = RubyLLM.chat(
-      model: agent.model_id,
-      provider: :openrouter,
+      model: provider_config[:model_id],
+      provider: provider_config[:provider],
       assume_model_exists: true
     ).ask(prompt)
 

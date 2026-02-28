@@ -112,7 +112,7 @@ class GeminiDirectApiTest < ActiveSupport::TestCase
 
     # If Gemini is enabled, should use direct provider with normalized ID
     # If not enabled, should use OpenRouter with original ID
-    if job.send(:gemini_direct_access_enabled?)
+    if job.send(:gemini_metadata_column_exists?)
       assert_equal :gemini, config[:provider]
       assert_equal "gemini-3-pro-preview", config[:model_id]
     else
@@ -124,10 +124,10 @@ class GeminiDirectApiTest < ActiveSupport::TestCase
   test "non-gemini models use openrouter" do
     job = ManualAgentResponseJob.new
 
-    config = job.send(:llm_provider_for, "anthropic/claude-3.5-sonnet")
+    config = job.send(:llm_provider_for, "deepseek/deepseek-r1")
 
     assert_equal :openrouter, config[:provider]
-    assert_equal "anthropic/claude-3.5-sonnet", config[:model_id]
+    assert_equal "deepseek/deepseek-r1", config[:model_id]
   end
 
 end
