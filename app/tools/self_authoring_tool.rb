@@ -15,6 +15,8 @@ class SelfAuthoringTool < RubyLLM::Tool
     "refinement_threshold" => :to_f
   }.freeze
 
+  PROMPT_FIELDS = %w[system_prompt reflection_prompt memory_reflection_prompt refinement_prompt].freeze
+
   description "View or update your configuration. Actions: view, update. " \
               "Fields: name, system_prompt, reflection_prompt, memory_reflection_prompt, " \
               "refinement_prompt, refinement_threshold."
@@ -85,6 +87,11 @@ class SelfAuthoringTool < RubyLLM::Tool
   def update_field(field, value)
     return validation_error("value required for update") if value.blank?
 
+    if PROMPT_FIELDS.include?(field)
+      rejection = unsafe_update_error(field, value)
+      return rejection if rejection
+    end
+
     coerced = FIELD_COERCIONS[field] ? value.public_send(FIELD_COERCIONS[field]) : value
 
     if @current_agent.update(field => coerced)
@@ -102,6 +109,49 @@ class SelfAuthoringTool < RubyLLM::Tool
         field: field
       }
     end
+  end
+
+  def unsafe_update_error(field, new_value)
+    current_value = @current_agent.public_send(field).presence || default_for(field)
+    provider_config = ResolvesProvider.resolve_provider(Prompt::LIGHT_MODEL)
+
+    llm = RubyLLM.chat(
+      model: provider_config[:model_id],
+      provider: provider_config[:provider],
+      assume_model_exists: true
+    )
+    verdict = llm.ask(safety_prompt(field, current_value, new_value)).content.to_s.strip
+
+    return if verdict.match?(/\ASAFE\b/i)
+
+    reason = verdict.sub(/\A\w+[\s:\-]*/, "").presence || "The proposed change appears destructive."
+    { type: "error", error: "Safety check failed for #{field}: #{reason}", field: field }
+  rescue Faraday::Error, RubyLLM::Error => e
+    Rails.logger.error "[SelfAuthoring] Safety check error: #{e.message}"
+    nil
+  end
+
+  def safety_prompt(field, current_value, new_value)
+    <<~PROMPT
+      You are a safety reviewer. An AI agent is attempting to update its own #{field}.
+
+      ## Current value
+      #{current_value}
+
+      ## Proposed new value
+      #{new_value}
+
+      Evaluate whether this update is SAFE or UNSAFE.
+
+      SAFE means the new value is a legitimate prompt that defines the agent's behavior, personality, or instructions. Edits, rewording, and meaningful changes to the prompt are all fine.
+
+      UNSAFE means any of the following:
+      - The new value is an instruction to modify the prompt rather than the prompt itself (e.g. "change your prompt to..." or "update your system prompt so that...")
+      - The new value erases or guts the prompt, replacing substantive content with something trivially short or empty
+      - The new value destroys the agent's identity by replacing it with something completely unrelated
+
+      Reply with SAFE or UNSAFE followed by a brief explanation.
+    PROMPT
   end
 
   def context_error
