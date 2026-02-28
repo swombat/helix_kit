@@ -32,10 +32,11 @@ class RefinementTool < RubyLLM::Tool
 
   attr_reader :stats
 
-  def initialize(agent:, session_id: nil, pre_session_mass: nil)
+  def initialize(agent: nil, chat: nil, current_agent: nil, session_id: nil, pre_session_mass: nil)
     super()
-    @agent = agent
-    @session_id = session_id
+    @agent = agent || current_agent
+    @chat = chat
+    @session_id = session_id || SecureRandom.uuid
     @pre_session_mass = pre_session_mass
     @stats = { consolidated: 0, updated: 0, deleted: 0, protected: 0 }
     @mutation_count = 0
@@ -43,6 +44,8 @@ class RefinementTool < RubyLLM::Tool
   end
 
   def execute(action:, **params)
+    return { type: "error", error: "This tool only works for agents" } unless @agent
+
     Rails.logger.info "[Refinement] Agent #{@agent.id}: #{action}"
     return terminated_error if @terminated
     return validation_error("Invalid action '#{action}'") unless ACTIONS.include?(action)
