@@ -336,6 +336,92 @@ class WhiteboardToolTest < ActiveSupport::TestCase
     assert_equal board, @chat.reload.active_whiteboard
   end
 
+  # Auto-link whiteboard to chat tests
+
+  test "create auto-links whiteboard to chat when no active whiteboard" do
+    assert_nil @chat.active_whiteboard_id
+
+    result = @tool.execute(
+      action: "create",
+      name: "Auto Linked Board",
+      summary: "Should be auto-linked",
+      content: "Some content"
+    )
+
+    assert_equal "board_created", result[:type]
+    board = @account.whiteboards.find_by(name: "Auto Linked Board")
+    assert_equal board, @chat.reload.active_whiteboard
+  end
+
+  test "create does not overwrite existing active whiteboard" do
+    existing = whiteboards(:project_notes)
+    @chat.update!(active_whiteboard: existing)
+
+    @tool.execute(
+      action: "create",
+      name: "Another Board",
+      summary: "Should not replace active",
+      content: "Content"
+    )
+
+    assert_equal existing, @chat.reload.active_whiteboard
+  end
+
+  test "update auto-links whiteboard to chat when no active whiteboard" do
+    board = whiteboards(:project_notes)
+    assert_nil @chat.active_whiteboard_id
+
+    @tool.execute(
+      action: "update",
+      board_id: board.obfuscated_id,
+      content: "Updated content"
+    )
+
+    assert_equal board, @chat.reload.active_whiteboard
+  end
+
+  test "update does not overwrite existing active whiteboard" do
+    board = whiteboards(:project_notes)
+    other = @account.whiteboards.create!(name: "Other", summary: "Other board")
+    @chat.update!(active_whiteboard: other)
+
+    @tool.execute(
+      action: "update",
+      board_id: board.obfuscated_id,
+      content: "Updated content"
+    )
+
+    assert_equal other, @chat.reload.active_whiteboard
+  end
+
+  test "get auto-links whiteboard to chat when no active whiteboard" do
+    board = whiteboards(:project_notes)
+    assert_nil @chat.active_whiteboard_id
+
+    @tool.execute(action: "get", board_id: board.obfuscated_id)
+
+    assert_equal board, @chat.reload.active_whiteboard
+  end
+
+  test "get does not overwrite existing active whiteboard" do
+    board = whiteboards(:project_notes)
+    other = @account.whiteboards.create!(name: "Other", summary: "Other board")
+    @chat.update!(active_whiteboard: other)
+
+    @tool.execute(action: "get", board_id: board.obfuscated_id)
+
+    assert_equal other, @chat.reload.active_whiteboard
+  end
+
+  test "get does not auto-link a deleted whiteboard" do
+    board = whiteboards(:deleted_whiteboard)
+    assert_nil @chat.active_whiteboard_id
+
+    @tool.execute(action: "get", board_id: board.obfuscated_id)
+
+    assert_nil @chat.reload.active_whiteboard_id
+  end
+
   # Recovery interface tests
   test "recoverable_from? returns true for whiteboard type with action" do
     json = { "type" => "whiteboard", "action" => "update", "board_id" => "abc123" }

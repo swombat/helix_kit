@@ -81,6 +81,7 @@ class WhiteboardTool < RubyLLM::Tool
       name: name.strip, summary: summary.strip, content: content&.strip,
       last_edited_by: @agent, last_edited_at: Time.current
     )
+    auto_link_to_chat(board)
     { type: "board_created", board_id: board.obfuscated_id, name: board.name,
       summary: board.summary, content_length: board.content.to_s.length }
   rescue ActiveRecord::RecordInvalid => e
@@ -97,6 +98,7 @@ class WhiteboardTool < RubyLLM::Tool
     updates[:summary] = summary.strip if summary.present?
     updates[:content] = content&.strip unless content.nil?
     board.update!(updates)
+    auto_link_to_chat(board)
 
     result = { type: "board_updated", board_id: board.obfuscated_id, name: board.name,
                revision: board.revision, content_length: board.content.to_s.length }
@@ -108,6 +110,7 @@ class WhiteboardTool < RubyLLM::Tool
 
   def get_action(board_id: nil, **)
     board = find_board(board_id) or return validation_error("Board not found")
+    auto_link_to_chat(board)
     { type: "board", board_id: board.obfuscated_id, name: board.name, summary: board.summary,
       content: board.content, revision: board.revision, content_length: board.content.to_s.length,
       last_edited_at: board.last_edited_at&.iso8601, last_edited_by: board.editor_name, deleted: board.deleted? }
@@ -156,6 +159,13 @@ class WhiteboardTool < RubyLLM::Tool
 
     @chat.update!(active_whiteboard_id: board.id)
     { type: "active_board_set", board_id: board.obfuscated_id, name: board.name }
+  end
+
+  def auto_link_to_chat(board)
+    return if @chat.active_whiteboard_id.present?
+    return if board.deleted?
+
+    @chat.update!(active_whiteboard_id: board.id)
   end
 
   def whiteboards = @chat.account.whiteboards
