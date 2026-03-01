@@ -76,7 +76,7 @@ class RefinementTool < RubyLLM::Tool
   def search_action(query: nil, **)
     return param_error("search", "query") if query.blank?
 
-    results = @agent.memories.kept.core
+    results = @agent.memories.kept
                     .where("content ILIKE ?", "%#{AgentMemory.sanitize_sql_like(query)}%")
                     .order(:created_at)
                     .map(&:as_ledger_entry)
@@ -91,7 +91,7 @@ class RefinementTool < RubyLLM::Tool
     memory_ids = ids.split(",").map(&:strip).map(&:to_i)
     return { type: "error", error: "consolidate requires at least 2 memory IDs" } if memory_ids.size < 2
 
-    memories = @agent.memories.kept.core.where(id: memory_ids)
+    memories = @agent.memories.kept.where(id: memory_ids)
     return { type: "error", error: "No matching memories found" } if memories.empty?
 
     constitutional = memories.select(&:constitutional?)
@@ -130,7 +130,7 @@ class RefinementTool < RubyLLM::Tool
     return param_error("update", "id") if id.blank?
     return param_error("update", "content") if content.blank?
 
-    memory = @agent.memories.kept.core.find_by(id: id)
+    memory = @agent.memories.kept.find_by(id: id)
     return { type: "error", error: "Memory ##{id} not found" } unless memory
 
     old_content = memory.content
@@ -144,7 +144,7 @@ class RefinementTool < RubyLLM::Tool
   def delete_action(id: nil, **)
     return param_error("delete", "id") if id.blank?
 
-    memory = @agent.memories.kept.core.find_by(id: id)
+    memory = @agent.memories.kept.find_by(id: id)
     return { type: "error", error: "Memory ##{id} not found" } unless memory
     return { type: "error", error: "Cannot delete constitutional memory ##{id}" } if memory.constitutional?
 
@@ -158,7 +158,7 @@ class RefinementTool < RubyLLM::Tool
   def protect_action(id: nil, **)
     return param_error("protect", "id") if id.blank?
 
-    memory = @agent.memories.kept.core.find_by(id: id)
+    memory = @agent.memories.kept.find_by(id: id)
     return { type: "error", error: "Memory ##{id} not found" } unless memory
 
     memory.update!(constitutional: true)

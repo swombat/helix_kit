@@ -32,7 +32,7 @@ class AgentMemory < ApplicationRecord
   end
 
   def as_ledger_entry
-    { id:, content:, created_at: created_at.iso8601, tokens: token_estimate, constitutional: constitutional? }
+    { id:, content:, memory_type:, created_at: created_at.iso8601, tokens: token_estimate, constitutional: constitutional? }
   end
 
   def audit_refinement(operation, before_content, after_content, session_id: nil)

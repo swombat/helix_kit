@@ -41,6 +41,53 @@ class RefinementToolTest < ActiveSupport::TestCase
     assert_equal 0, result[:count]
   end
 
+  test "search finds journal memories" do
+    @agent.memories.create!(content: "Core fact about Ruby", memory_type: :core)
+    @agent.memories.create!(content: "Journal note about Ruby session", memory_type: :journal)
+
+    result = @tool.execute(action: "search", query: "Ruby")
+    assert_equal "search_results", result[:type]
+    assert_equal 2, result[:count]
+    assert_includes result[:results].map { |r| r[:memory_type] }, "journal"
+    assert_includes result[:results].map { |r| r[:memory_type] }, "core"
+  end
+
+  test "update works on journal memories" do
+    m = @agent.memories.create!(content: "Old journal note", memory_type: :journal)
+    result = @tool.execute(action: "update", id: m.id.to_s, content: "Refined journal note")
+
+    assert_equal "updated", result[:type]
+    assert_equal "Refined journal note", m.reload.content
+  end
+
+  test "delete works on journal memories" do
+    m = @agent.memories.create!(content: "Stale journal entry", memory_type: :journal)
+    result = @tool.execute(action: "delete", id: m.id.to_s)
+
+    assert_equal "deleted", result[:type]
+    assert m.reload.discarded?
+  end
+
+  test "protect works on journal memories" do
+    m = @agent.memories.create!(content: "Important journal insight", memory_type: :journal)
+    result = @tool.execute(action: "protect", id: m.id.to_s)
+
+    assert_equal "protected", result[:type]
+    assert m.reload.constitutional?
+  end
+
+  test "consolidate works with journal memories" do
+    m1 = @agent.memories.create!(content: "Journal A", memory_type: :journal)
+    m2 = @agent.memories.create!(content: "Journal B", memory_type: :journal)
+
+    result = @tool.execute(action: "consolidate", ids: "#{m1.id},#{m2.id}", content: "Promoted insight from journals A and B")
+    assert_equal "consolidated", result[:type]
+
+    assert m1.reload.discarded?
+    assert m2.reload.discarded?
+    assert @agent.memories.kept.core.exists?(content: "Promoted insight from journals A and B")
+  end
+
   # Consolidate action
 
   test "consolidate merges memories into one" do
