@@ -89,6 +89,8 @@
       reflection_prompt: agent.reflection_prompt || '',
       memory_reflection_prompt: agent.memory_reflection_prompt || '',
       summary_prompt: agent.summary_prompt || '',
+      refinement_prompt: agent.refinement_prompt || '',
+      refinement_threshold: agent.refinement_threshold ?? 0.9,
       model_id: agent.model_id,
       active: agent.active,
       enabled_tools: agent.enabled_tools || [],
@@ -375,6 +377,40 @@
               <p class="text-xs text-muted-foreground">
                 Customize how this agent summarizes conversations for cross-conversation awareness. Leave empty for the
                 default prompt that focuses on current state rather than narrative.
+              </p>
+            </div>
+
+            <div class="space-y-2">
+              <Label for="refinement_prompt">Refinement Prompt</Label>
+              <textarea
+                id="refinement_prompt"
+                bind:value={$form.agent.refinement_prompt}
+                placeholder="Leave empty to use default refinement guidelines"
+                rows="6"
+                class="w-full resize-none border border-input rounded-md px-3 py-2 text-sm bg-background font-mono
+                       focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"></textarea>
+              <p class="text-xs text-muted-foreground">
+                Guidelines for memory refinement sessions. Added alongside the system prompt when the agent reviews its
+                own memories. Leave empty for the default guidelines.
+              </p>
+            </div>
+
+            <div class="space-y-2">
+              <Label for="refinement_threshold">Refinement Retention Threshold</Label>
+              <div class="flex items-center gap-3 max-w-xs">
+                <Input
+                  id="refinement_threshold"
+                  type="number"
+                  min={0.5}
+                  max={1.0}
+                  step={0.05}
+                  bind:value={$form.agent.refinement_threshold}
+                  class="w-24" />
+                <span class="text-sm text-muted-foreground">{Math.round($form.agent.refinement_threshold * 100)}%</span>
+              </div>
+              <p class="text-xs text-muted-foreground">
+                Circuit breaker: if refinement reduces core memory below this percentage of its pre-session size, all
+                changes are rolled back. Default is 90%.
               </p>
             </div>
 

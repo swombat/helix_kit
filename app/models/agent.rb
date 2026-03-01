@@ -80,7 +80,7 @@ class Agent < ApplicationRecord
   scope :by_name, -> { order(:name) }
 
   json_attributes :name, :system_prompt, :reflection_prompt, :memory_reflection_prompt,
-                  :summary_prompt,
+                  :summary_prompt, :refinement_prompt, :refinement_threshold,
                   :model_id, :model_label, :enabled_tools, :active?, :colour, :icon,
                   :memories_count, :memory_token_summary, :thinking_enabled, :thinking_budget,
                   :telegram_bot_username, :telegram_configured?,
