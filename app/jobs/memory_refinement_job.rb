@@ -7,16 +7,23 @@ class MemoryRefinementJob < ApplicationJob
   retry_on RubyLLM::RateLimitError, wait: :polynomially_longer, attempts: 3
   retry_on RubyLLM::ServerError, wait: :polynomially_longer, attempts: 3
 
-  def perform(agent_id = nil)
-    if agent_id
-      Rails.logger.info "[Refinement] Starting for agent #{agent_id}"
-      refine_agent(Agent.find(agent_id))
+  def perform(*args)
+    agent_ids, options = extract_args(args)
+    mode = options.fetch(:mode, :full).to_sym
+
+    if agent_ids.any?
+      Agent.where(id: agent_ids).find_each do |agent|
+        Rails.logger.info "[Refinement] Starting for agent #{agent.id} (#{agent.name}), mode: #{mode}"
+        refine_agent(agent, mode:)
+      rescue => e
+        Rails.logger.error "[Refinement] Failed for agent #{agent.id}: #{e.message}"
+      end
     else
-      Rails.logger.info "[Refinement] Sweep starting"
+      Rails.logger.info "[Refinement] Sweep starting, mode: #{mode}"
       Agent.active.find_each do |agent|
         next unless agent.needs_refinement?
         Rails.logger.info "[Refinement] Agent #{agent.id} (#{agent.name}) needs refinement"
-        refine_agent(agent)
+        refine_agent(agent, mode:)
       rescue => e
         Rails.logger.error "[Refinement] Failed for agent #{agent.id}: #{e.message}"
       end
@@ -26,7 +33,7 @@ class MemoryRefinementJob < ApplicationJob
 
   private
 
-  def refine_agent(agent)
+  def refine_agent(agent, mode: :full)
     core_memories = agent.memories.kept.core.order(:created_at)
     journal_memories = agent.memories.active_journal.order(:created_at)
     return if core_memories.empty? && journal_memories.empty?
@@ -40,12 +47,12 @@ class MemoryRefinementJob < ApplicationJob
     end
 
     session_id = SecureRandom.uuid
-    tool = RefinementTool.new(agent: agent, session_id: session_id, pre_session_mass: token_usage)
-    prompt = build_refinement_prompt(agent, core_memories, journal_memories, token_usage, budget)
+    tool = RefinementTool.new(agent: agent, session_id: session_id, pre_session_mass: token_usage, mode:)
+    prompt = build_refinement_prompt(agent, core_memories, journal_memories, token_usage, budget, mode:)
 
     chat_for(agent).with_tool(tool).ask(prompt)
 
-    Rails.logger.info "[Refinement] Agent #{agent.id} (#{agent.name}) complete: #{tool.stats.inspect}"
+    Rails.logger.info "[Refinement] Agent #{agent.id} (#{agent.name}) complete (#{mode}): #{tool.stats.inspect}"
   end
 
   def agent_consents_to_refinement?(agent, core_memories, journal_memories, usage, budget)
@@ -93,9 +100,17 @@ class MemoryRefinementJob < ApplicationJob
     PROMPT
   end
 
-  def build_refinement_prompt(agent, core_memories, journal_memories, usage, budget)
+  def build_refinement_prompt(agent, core_memories, journal_memories, usage, budget, mode: :full)
     core_ledger = format_memory_ledger(core_memories)
     journal_ledger = format_memory_ledger(journal_memories)
+
+    mode_instructions = if mode == :dedup_only
+      "**DEDUP ONLY MODE**: You may ONLY delete exact duplicate memories. Do NOT update or consolidate. " \
+        "Available actions: search, delete, protect, complete."
+    else
+      "Review your memories. De-duplicate exact duplicates. Tighten phrasing within individual memories if possible. " \
+        "Promote valuable journal insights to core memories if appropriate."
+    end
 
     <<~PROMPT
       #{agent.system_prompt}
@@ -112,6 +127,7 @@ class MemoryRefinementJob < ApplicationJob
       - Core token usage: #{usage} tokens
       - Core token budget: #{budget} tokens
       - #{usage > budget ? "Over budget by: #{usage - budget} tokens" : "Within budget"}
+      - Mode: #{mode}
 
       ## Your Core Memory Ledger
       #{core_ledger.presence || "(empty)"}
@@ -120,7 +136,7 @@ class MemoryRefinementJob < ApplicationJob
       Journal memories expire after #{AgentMemory::JOURNAL_WINDOW.inspect}. Valuable insights from journal entries can be promoted to core memories via consolidate or update.
       #{journal_ledger.presence || "(empty)"}
 
-      Review your memories. De-duplicate exact duplicates. Tighten phrasing within individual memories if possible. Promote valuable journal insights to core memories if appropriate. When done, call complete with a brief summary. Doing nothing is fine.
+      #{mode_instructions} When done, call complete with a brief summary. Doing nothing is fine.
     PROMPT
   end
 
@@ -130,6 +146,14 @@ class MemoryRefinementJob < ApplicationJob
       type_label = m.journal? ? " [JOURNAL]" : ""
       "- ##{m.id} (#{m.created_at.strftime('%Y-%m-%d')}, ~#{m.token_estimate} tokens)#{flag}#{type_label}: #{m.content}"
     }.join("\n")
+  end
+
+  def extract_args(args)
+    if args.last.is_a?(Hash)
+      [ args[0...-1], args.last.symbolize_keys ]
+    else
+      [ args, {} ]
+    end
   end
 
 end

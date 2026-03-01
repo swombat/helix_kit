@@ -23,6 +23,7 @@
     Plug,
     Notebook,
     Hourglass,
+    CaretDown,
   } from 'phosphor-svelte';
   import {
     accountAgentsPath,
@@ -59,6 +60,7 @@
   let sendingTestNotification = $state(false);
   let registeringWebhook = $state(false);
   let triggeringRefinement = $state(false);
+  let showRefinementMenu = $state(false);
   let activeTab = $state('identity');
   let customVoiceId = $state('');
 
@@ -140,11 +142,11 @@
     router.delete(accountAgentMemoryDiscardPath(account.id, agent.id, memoryId), { preserveScroll: true });
   }
 
-  function triggerRefinement() {
+  function triggerRefinement(mode = 'full') {
     triggeringRefinement = true;
     router.post(
       accountAgentRefinementPath(account.id, agent.id),
-      {},
+      { mode },
       {
         preserveScroll: true,
         onFinish() {
@@ -635,15 +637,52 @@
                 </p>
               </div>
               <div class="flex flex-col sm:flex-row gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  disabled={triggeringRefinement}
-                  onclick={triggerRefinement}>
-                  <Lightning class="size-4 mr-1" />
-                  {triggeringRefinement ? 'Queuing...' : 'Refine Memories'}
-                </Button>
+                <div class="relative">
+                  <div class="flex">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      class="rounded-r-none border-r-0"
+                      disabled={triggeringRefinement}
+                      onclick={() => triggerRefinement('full')}>
+                      <Lightning class="size-4 mr-1" />
+                      {triggeringRefinement ? 'Queuing...' : 'Refine'}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      class="rounded-l-none px-1.5"
+                      disabled={triggeringRefinement}
+                      onclick={() => (showRefinementMenu = !showRefinementMenu)}>
+                      <CaretDown class="size-3.5" />
+                    </Button>
+                  </div>
+                  {#if showRefinementMenu}
+                    <div
+                      class="absolute right-0 top-full mt-1 bg-popover border border-border rounded-md shadow-md z-10 py-1 min-w-[160px]">
+                      <button
+                        type="button"
+                        class="w-full text-left px-3 py-1.5 text-sm hover:bg-muted transition-colors"
+                        onclick={() => {
+                          showRefinementMenu = false;
+                          triggerRefinement('full');
+                        }}>
+                        Full Refinement
+                      </button>
+                      <button
+                        type="button"
+                        class="w-full text-left px-3 py-1.5 text-sm hover:bg-muted transition-colors"
+                        onclick={() => {
+                          showRefinementMenu = false;
+                          triggerRefinement('dedup_only');
+                        }}>
+                        Dedup Only
+                      </button>
+                    </div>
+                  {/if}
+                </div>
                 {#if !showNewMemoryForm}
                   <Button type="button" variant="outline" size="sm" onclick={() => (showNewMemoryForm = true)}>
                     <Plus class="size-4 mr-1" />

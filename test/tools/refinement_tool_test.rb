@@ -240,6 +240,51 @@ class RefinementToolTest < ActiveSupport::TestCase
     assert_equal RefinementTool::ACTIONS, result[:allowed_actions]
   end
 
+  # Dedup-only mode tests
+
+  test "dedup_only mode allows search" do
+    tool = RefinementTool.new(agent: @agent, mode: :dedup_only)
+    @agent.memories.create!(content: "Test memory", memory_type: :core)
+
+    result = tool.execute(action: "search", query: "Test")
+    assert_equal "search_results", result[:type]
+  end
+
+  test "dedup_only mode allows delete" do
+    tool = RefinementTool.new(agent: @agent, mode: :dedup_only)
+    m = @agent.memories.create!(content: "Duplicate", memory_type: :core)
+
+    result = tool.execute(action: "delete", id: m.id.to_s)
+    assert_equal "deleted", result[:type]
+  end
+
+  test "dedup_only mode allows protect" do
+    tool = RefinementTool.new(agent: @agent, mode: :dedup_only)
+    m = @agent.memories.create!(content: "Important", memory_type: :core)
+
+    result = tool.execute(action: "protect", id: m.id.to_s)
+    assert_equal "protected", result[:type]
+  end
+
+  test "dedup_only mode rejects update" do
+    tool = RefinementTool.new(agent: @agent, mode: :dedup_only)
+    m = @agent.memories.create!(content: "Original", memory_type: :core)
+
+    result = tool.execute(action: "update", id: m.id.to_s, content: "Changed")
+    assert_equal "error", result[:type]
+    assert_includes result[:error], "dedup_only"
+  end
+
+  test "dedup_only mode rejects consolidate" do
+    tool = RefinementTool.new(agent: @agent, mode: :dedup_only)
+    m1 = @agent.memories.create!(content: "A", memory_type: :core)
+    m2 = @agent.memories.create!(content: "B", memory_type: :core)
+
+    result = tool.execute(action: "consolidate", ids: "#{m1.id},#{m2.id}", content: "AB")
+    assert_equal "error", result[:type]
+    assert_includes result[:error], "dedup_only"
+  end
+
   # Hard cap tests
 
   test "refuses mutating operations after hard cap" do

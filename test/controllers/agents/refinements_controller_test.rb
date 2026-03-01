@@ -16,13 +16,28 @@ class Agents::RefinementsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
   end
 
-  test "create queues refinement job" do
-    assert_enqueued_with(job: MemoryRefinementJob, args: [ @agent.id ]) do
+  test "create queues full refinement job by default" do
+    assert_enqueued_with(job: MemoryRefinementJob, args: [ @agent.id, { mode: "full" } ]) do
       post account_agent_refinement_path(@account, @agent)
     end
 
     assert_redirected_to edit_account_agent_path(@account, @agent)
-    assert_match(/Refinement session queued/, flash[:notice])
+    assert_match(/Full refinement session queued/, flash[:notice])
+  end
+
+  test "create queues dedup_only refinement job" do
+    assert_enqueued_with(job: MemoryRefinementJob, args: [ @agent.id, { mode: "dedup_only" } ]) do
+      post account_agent_refinement_path(@account, @agent), params: { mode: "dedup_only" }
+    end
+
+    assert_redirected_to edit_account_agent_path(@account, @agent)
+    assert_match(/Dedup-only refinement session queued/, flash[:notice])
+  end
+
+  test "create ignores invalid mode" do
+    assert_enqueued_with(job: MemoryRefinementJob, args: [ @agent.id, { mode: "full" } ]) do
+      post account_agent_refinement_path(@account, @agent), params: { mode: "bogus" }
+    end
   end
 
   test "requires authentication" do

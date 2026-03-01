@@ -2,6 +2,8 @@ class RefinementTool < RubyLLM::Tool
 
   ACTIONS = %w[search consolidate update delete protect complete].freeze
   MUTATING_ACTIONS = %w[consolidate update delete].freeze
+  MODES = %i[full dedup_only].freeze
+  DEDUP_ONLY_ACTIONS = %w[search delete protect complete].freeze
   MAX_MUTATIONS = 10
 
   description "Memory refinement tool. Actions: search, consolidate, update, delete, protect, complete."
@@ -32,12 +34,13 @@ class RefinementTool < RubyLLM::Tool
 
   attr_reader :stats
 
-  def initialize(agent: nil, chat: nil, current_agent: nil, session_id: nil, pre_session_mass: nil)
+  def initialize(agent: nil, chat: nil, current_agent: nil, session_id: nil, pre_session_mass: nil, mode: :full)
     super()
     @agent = agent || current_agent
     @chat = chat
     @session_id = session_id || SecureRandom.uuid
     @pre_session_mass = pre_session_mass
+    @mode = mode.to_sym
     @stats = { consolidated: 0, updated: 0, deleted: 0, protected: 0 }
     @mutation_count = 0
     @terminated = false
@@ -49,6 +52,7 @@ class RefinementTool < RubyLLM::Tool
     Rails.logger.info "[Refinement] Agent #{@agent.id}: #{action}"
     return terminated_error if @terminated
     return validation_error("Invalid action '#{action}'") unless ACTIONS.include?(action)
+    return mode_error(action) if @mode == :dedup_only && !DEDUP_ONLY_ACTIONS.include?(action)
 
     mutating = MUTATING_ACTIONS.include?(action)
 
@@ -296,6 +300,10 @@ class RefinementTool < RubyLLM::Tool
 
   def param_error(action, param)
     { type: "error", error: "#{param} is required for #{action}" }
+  end
+
+  def mode_error(action)
+    { type: "error", error: "'#{action}' is not allowed in dedup_only mode. Allowed: #{DEDUP_ONLY_ACTIONS.join(', ')}" }
   end
 
 end
