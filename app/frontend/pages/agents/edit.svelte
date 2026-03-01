@@ -638,30 +638,25 @@
               </div>
               <div class="flex flex-col sm:flex-row gap-2">
                 <div class="relative">
-                  <div class="flex">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      class="rounded-r-none border-r-0"
-                      disabled={triggeringRefinement}
-                      onclick={() => triggerRefinement('full')}>
-                      <Lightning class="size-4 mr-1" />
-                      {triggeringRefinement ? 'Queuing...' : 'Refine'}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      class="rounded-l-none px-1.5"
-                      disabled={triggeringRefinement}
-                      onclick={() => (showRefinementMenu = !showRefinementMenu)}>
-                      <CaretDown class="size-3.5" />
-                    </Button>
-                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={triggeringRefinement}
+                    onclick={() => (showRefinementMenu = !showRefinementMenu)}>
+                    <Lightning class="size-4 mr-1" />
+                    {triggeringRefinement ? 'Queuing...' : 'Refine'}
+                    <CaretDown class="size-3.5 ml-1" />
+                  </Button>
                   {#if showRefinementMenu}
+                    <!-- svelte-ignore a11y_no_static_element_interactions -->
                     <div
-                      class="absolute right-0 top-full mt-1 bg-popover border border-border rounded-md shadow-md z-10 py-1 min-w-[160px]">
+                      class="fixed inset-0 z-10"
+                      onclick={() => (showRefinementMenu = false)}
+                      onkeydown={(e) => e.key === 'Escape' && (showRefinementMenu = false)}>
+                    </div>
+                    <div
+                      class="absolute right-0 top-full mt-1 bg-popover border border-border rounded-md shadow-md z-20 py-1 min-w-[160px]">
                       <button
                         type="button"
                         class="w-full text-left px-3 py-1.5 text-sm hover:bg-muted transition-colors"
