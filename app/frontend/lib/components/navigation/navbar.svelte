@@ -19,6 +19,7 @@
     Check,
     Heartbeat,
     GithubLogo,
+    XLogo,
     Plugs,
   } from 'phosphor-svelte';
   import * as DropdownMenu from '$lib/components/shadcn/dropdown-menu/index.js';
@@ -270,6 +271,10 @@
                 <DropdownMenu.Item onclick={() => router.visit('/github_integration')}>
                   <GithubLogo class="mr-2 size-4" />
                   GitHub
+                </DropdownMenu.Item>
+                <DropdownMenu.Item onclick={() => router.visit('/x_integration')}>
+                  <XLogo class="mr-2 size-4" />
+                  X / Twitter
                 </DropdownMenu.Item>
               </DropdownMenu.SubContent>
             </DropdownMenu.Sub>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_22_085408) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_01_073429) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -356,6 +356,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_22_085408) do
     t.index ["tool_call_id"], name: "index_tool_calls_on_tool_call_id"
   end
 
+  create_table "tweet_logs", force: :cascade do |t|
+    t.bigint "agent_id", null: false
+    t.datetime "created_at", null: false
+    t.text "text", null: false
+    t.string "tweet_id", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "x_integration_id", null: false
+    t.index ["agent_id"], name: "index_tweet_logs_on_agent_id"
+    t.index ["tweet_id"], name: "index_tweet_logs_on_tweet_id", unique: true
+    t.index ["x_integration_id"], name: "index_tweet_logs_on_x_integration_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "email_address", null: false
@@ -388,6 +400,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_22_085408) do
     t.index ["last_edited_by_type", "last_edited_by_id"], name: "index_whiteboards_on_last_edited_by"
   end
 
+  create_table "x_integrations", force: :cascade do |t|
+    t.text "access_token"
+    t.bigint "account_id", null: false
+    t.datetime "created_at", null: false
+    t.boolean "enabled", default: true, null: false
+    t.text "refresh_token"
+    t.datetime "token_expires_at"
+    t.datetime "updated_at", null: false
+    t.string "x_username"
+    t.index ["account_id"], name: "index_x_integrations_on_account_id", unique: true
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "agent_memories", "agents"
@@ -417,5 +441,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_22_085408) do
   add_foreign_key "telegram_subscriptions", "agents"
   add_foreign_key "telegram_subscriptions", "users"
   add_foreign_key "tool_calls", "messages"
+  add_foreign_key "tweet_logs", "agents"
+  add_foreign_key "tweet_logs", "x_integrations"
   add_foreign_key "whiteboards", "accounts"
+  add_foreign_key "x_integrations", "accounts"
 end

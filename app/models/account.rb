@@ -21,6 +21,7 @@ class Account < ApplicationRecord
   has_many :agents, dependent: :destroy
   has_many :whiteboards, dependent: :destroy
   has_one :github_integration
+  has_one :x_integration
 
   # Validations (Rails-only, no SQL constraints!)
   validates :name, presence: true

@@ -54,6 +54,10 @@ VCR.configure do |config|
   config.filter_sensitive_data("<AWS_SECRET_ACCESS_KEY>") { Rails.application.credentials.dig(:aws, :secret_access_key) }
   config.filter_sensitive_data("<HONEYBADGER_API_KEY>") { Rails.application.credentials.dig(:honeybadger, :api_key) }
 
+  # Filter X/Twitter OAuth 2.0 credentials
+  config.filter_sensitive_data("<X_CLIENT_ID>") { Rails.application.credentials.dig(:x, :client_id) }
+  config.filter_sensitive_data("<X_CLIENT_SECRET>") { Rails.application.credentials.dig(:x, :client_secret) }
+
   # Filter random tempfile names in OpenAI audio transcription requests
   config.before_record do |interaction|
     if interaction.request.uri.include?("api.openai.com/v1/audio/transcriptions")

@@ -59,6 +59,7 @@ class ManualAgentResponseJob < ApplicationJob
     tools_added = []
     agent.tools.each do |tool_class|
       tool = tool_class.new(chat: chat, current_agent: agent)
+      next if tool.respond_to?(:available?) && !tool.available?
       llm = llm.with_tool(tool)
       tools_added << tool_class.name
     end
