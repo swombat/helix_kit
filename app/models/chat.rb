@@ -105,10 +105,10 @@ class Chat < ApplicationRecord
       thinking: { supported: true, requires_direct_api: true }
     },
     {
-      model_id: "google/gemini-3-pro-preview",
-      label: "Gemini 3 Pro",
+      model_id: "google/gemini-3.1-pro-preview",
+      label: "Gemini 3.1 Pro",
       group: "Top Models",
-      provider_model_id: "gemini-3-pro-preview",
+      provider_model_id: "gemini-3.1-pro-preview",
       thinking: { supported: true },
       audio_input: true
     },
@@ -261,6 +261,22 @@ class Chat < ApplicationRecord
     },
 
     # Google
+    {
+      model_id: "google/gemini-3.1-pro-preview",
+      label: "Gemini 3.1 Pro",
+      group: "Google",
+      provider_model_id: "gemini-3.1-pro-preview",
+      thinking: { supported: true },
+      audio_input: true
+    },
+    {
+      model_id: "google/gemini-3-pro-preview",
+      label: "Gemini 3 Pro",
+      group: "Google",
+      provider_model_id: "gemini-3-pro-preview",
+      thinking: { supported: true },
+      audio_input: true
+    },
     {
       model_id: "google/gemini-3-flash-preview",
       label: "Gemini 3 Flash",
