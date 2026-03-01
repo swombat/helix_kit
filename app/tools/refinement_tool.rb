@@ -95,13 +95,14 @@ class RefinementTool < RubyLLM::Tool
     memory_ids = ids.split(",").map(&:strip).map(&:to_i)
     return { type: "error", error: "consolidate requires at least 2 memory IDs" } if memory_ids.size < 2
 
-    memories = @agent.memories.kept.where(id: memory_ids)
-    return { type: "error", error: "No matching memories found" } if memories.empty?
+    all_memories = @agent.memories.kept.where(id: memory_ids)
+    return { type: "error", error: "No matching memories found" } if all_memories.empty?
 
-    constitutional = memories.select(&:constitutional?)
-    if constitutional.any?
-      return { type: "error", error: "Cannot consolidate constitutional memories: #{constitutional.map(&:id).join(', ')}" }
-    end
+    skipped = all_memories.select(&:constitutional?)
+    memories = all_memories.reject(&:constitutional?)
+
+    return { type: "error", error: "All specified memories are constitutional and cannot be consolidated" } if memories.empty?
+    return { type: "error", error: "Only 1 non-constitutional memory remains after skipping protected ones — need at least 2" } if memories.size < 2
 
     earliest = memories.map(&:created_at).min
 
@@ -120,6 +121,7 @@ class RefinementTool < RubyLLM::Tool
           session_id: @session_id,
           operation: "consolidate",
           merged: merged,
+          skipped_constitutional: skipped.map(&:id),
           result: { id: new_memory.id, content: new_memory.content }
         }
       )
@@ -127,7 +129,9 @@ class RefinementTool < RubyLLM::Tool
       @stats[:consolidated] += memories.size
     end
 
-    { type: "consolidated", merged_count: memory_ids.size, new_content: content }
+    result = { type: "consolidated", merged_count: memories.size, new_content: content }
+    result[:skipped_constitutional] = skipped.map(&:id) if skipped.any?
+    result
   end
 
   def update_action(id: nil, content: nil, **)

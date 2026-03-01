@@ -121,15 +121,41 @@ class RefinementToolTest < ActiveSupport::TestCase
     assert_includes result[:error], "at least 2"
   end
 
-  test "consolidate rejects constitutional memories" do
+  test "consolidate skips constitutional memories and merges the rest" do
+    m1 = @agent.memories.create!(content: "Sacred", memory_type: :core, constitutional: true)
+    m2 = @agent.memories.create!(content: "Normal A", memory_type: :core)
+    m3 = @agent.memories.create!(content: "Normal B", memory_type: :core)
+
+    result = @tool.execute(action: "consolidate", ids: "#{m1.id},#{m2.id},#{m3.id}", content: "Merged normals")
+    assert_equal "consolidated", result[:type]
+    assert_equal 2, result[:merged_count]
+    assert_equal [ m1.id ], result[:skipped_constitutional]
+
+    assert_not m1.reload.discarded?, "constitutional memory should be untouched"
+    assert m2.reload.discarded?
+    assert m3.reload.discarded?
+    assert @agent.memories.kept.core.exists?(content: "Merged normals")
+  end
+
+  test "consolidate errors when all memories are constitutional" do
+    m1 = @agent.memories.create!(content: "Sacred A", memory_type: :core, constitutional: true)
+    m2 = @agent.memories.create!(content: "Sacred B", memory_type: :core, constitutional: true)
+
+    result = @tool.execute(action: "consolidate", ids: "#{m1.id},#{m2.id}", content: "Merged")
+    assert_equal "error", result[:type]
+    assert_includes result[:error], "constitutional"
+    assert_not m1.reload.discarded?
+    assert_not m2.reload.discarded?
+  end
+
+  test "consolidate errors when only 1 non-constitutional remains after skip" do
     m1 = @agent.memories.create!(content: "Sacred", memory_type: :core, constitutional: true)
     m2 = @agent.memories.create!(content: "Normal", memory_type: :core)
 
     result = @tool.execute(action: "consolidate", ids: "#{m1.id},#{m2.id}", content: "Merged")
     assert_equal "error", result[:type]
-    assert_includes result[:error], "constitutional"
-    assert AgentMemory.exists?(m1.id)
-    assert AgentMemory.exists?(m2.id)
+    assert_includes result[:error], "at least 2"
+    assert_not m2.reload.discarded?
   end
 
   test "consolidate creates audit logs" do
