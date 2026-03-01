@@ -195,7 +195,7 @@ class RefinementTool < RubyLLM::Tool
       data: { session_id: @session_id, summary: summary, stats: @stats }
     )
 
-    @agent.memories.create!(content: "Refinement session: #{summary}", memory_type: :journal)
+    @agent.memories.create!(content: "Refinement session (#{stats_summary}): #{summary}", memory_type: :journal)
     @agent.update!(last_refinement_at: Time.current)
 
     { type: "refinement_complete", summary: summary, stats: @stats }
@@ -300,6 +300,11 @@ class RefinementTool < RubyLLM::Tool
 
   def param_error(action, param)
     { type: "error", error: "#{param} is required for #{action}" }
+  end
+
+  def stats_summary
+    parts = @stats.filter_map { |key, count| "#{count} #{key}" if count > 0 }
+    parts.any? ? parts.join(", ") : "no changes"
   end
 
   def mode_error(action)

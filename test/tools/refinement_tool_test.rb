@@ -222,7 +222,7 @@ class RefinementToolTest < ActiveSupport::TestCase
 
     assert_equal "refinement_complete", result[:type]
     assert @agent.reload.last_refinement_at.present?
-    assert @agent.memories.journal.exists?(content: "Refinement session: Compressed 5 to 2")
+    assert @agent.memories.journal.exists?(content: "Refinement session (no changes): Compressed 5 to 2")
     assert AuditLog.exists?(action: "memory_refinement_complete")
   end
 
