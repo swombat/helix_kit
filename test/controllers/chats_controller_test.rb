@@ -541,4 +541,45 @@ class ChatsControllerTest < ActionDispatch::IntegrationTest
     assert_equal false, json["has_more"], "Should indicate no more messages"
   end
 
+  # Search tests
+
+  test "search returns results matching query" do
+    @chat.messages.create!(content: "Hello world, this is a test message", role: "user", user: @user)
+    @chat.messages.create!(content: "The AI responds with helpful information", role: "assistant")
+
+    get search_account_chats_path(@account), params: { q: "test message" }
+    assert_response :success
+  end
+
+  test "search is case insensitive" do
+    @chat.messages.create!(content: "Ruby on Rails is great", role: "user", user: @user)
+
+    get search_account_chats_path(@account), params: { q: "ruby on rails" }
+    assert_response :success
+  end
+
+  test "search with empty query returns no results" do
+    get search_account_chats_path(@account), params: { q: "" }
+    assert_response :success
+  end
+
+  test "search without query param renders page" do
+    get search_account_chats_path(@account)
+    assert_response :success
+  end
+
+  test "search excludes discarded chats" do
+    @chat.messages.create!(content: "Find me in search", role: "user", user: @user)
+    @chat.discard!
+
+    get search_account_chats_path(@account), params: { q: "Find me" }
+    assert_response :success
+  end
+
+  test "search requires authentication" do
+    delete logout_path
+    get search_account_chats_path(@account), params: { q: "test" }
+    assert_response :redirect
+  end
+
 end

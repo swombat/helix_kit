@@ -39,19 +39,7 @@ class Admin::AuditLogsController < ApplicationController
       selected_log: @selected_log&.as_json(
         include: [ :user, :account, :auditable ]
       ),
-      pagination: @pagy ? {
-        count: @pagy.count,
-        page: @pagy.page,
-        pages: @pagy.pages,
-        last: @pagy.last,
-        from: @pagy.from,
-        to: @pagy.to,
-        prev: @pagy.prev,
-        next: @pagy.next,
-        series: @pagy.series.collect(&:to_s),
-        items: @pagy.vars[:limit].to_s,
-        per_page: @pagy.vars[:limit].to_s
-      } : {},
+      pagination: pagy_to_hash(@pagy),
       filters: filter_options,
       current_filters: filter_params.to_h.transform_keys { |key|
         # Return filter_account_id to frontend, not account_id

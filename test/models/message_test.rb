@@ -1104,4 +1104,46 @@ class MessageTest < ActiveSupport::TestCase
     assert_includes Message::ACCEPTABLE_FILE_TYPES[:audio], "audio/webm"
   end
 
+  # Search scope tests
+
+  test "search_in_account finds messages by content" do
+    chat = @account.chats.create!(model_id: "openrouter/auto", title: "Search test")
+    chat.messages.create!(content: "The quick brown fox", role: "user", user: @user)
+    chat.messages.create!(content: "Jumped over the lazy dog", role: "assistant")
+
+    results = Message.search_in_account(@account, "brown fox")
+    assert_includes results.map(&:content), "The quick brown fox"
+  end
+
+  test "search_in_account is case insensitive" do
+    chat = @account.chats.create!(model_id: "openrouter/auto")
+    chat.messages.create!(content: "Hello World", role: "user", user: @user)
+
+    results = Message.search_in_account(@account, "hello world")
+    assert_equal 1, results.count
+  end
+
+  test "search_in_account excludes discarded chats" do
+    chat = @account.chats.create!(model_id: "openrouter/auto")
+    chat.messages.create!(content: "Should not find this", role: "user", user: @user)
+    chat.discard!
+
+    results = Message.search_in_account(@account, "Should not")
+    assert_empty results
+  end
+
+  test "search_in_account excludes tool and system messages" do
+    chat = @account.chats.create!(model_id: "openrouter/auto")
+    chat.messages.create!(content: "system instructions", role: "system", skip_content_validation: true)
+    chat.messages.create!(content: "tool output", role: "tool", skip_content_validation: true)
+
+    results = Message.search_in_account(@account, "system")
+    assert_empty results
+  end
+
+  test "search_in_account returns empty for blank query" do
+    results = Message.search_in_account(@account, "")
+    assert_empty results
+  end
+
 end

@@ -1,7 +1,7 @@
 class ChatsController < ApplicationController
 
   require_feature_enabled :chats
-  before_action :set_chat, except: [ :index, :create, :new ]
+  before_action :set_chat, except: [ :index, :create, :new, :search ]
 
   def index
     @chats = sidebar_chats
@@ -86,6 +86,20 @@ class ChatsController < ApplicationController
     audit("destroy_chat", @chat)
     @chat.destroy!
     redirect_to account_chats_path(current_account)
+  end
+
+  def search
+    @query = params[:q].to_s.strip.first(500)
+
+    if @query.present?
+      @pagy, @messages = pagy(Message.search_in_account(current_account, @query), limit: 20)
+    end
+
+    render inertia: "chats/search", props: {
+      query: @query,
+      results: (@messages || []).map { |m| search_result_json(m, @query) },
+      pagination: pagy_to_hash(@pagy)
+    }
   end
 
   private
@@ -189,6 +203,30 @@ class ChatsController < ApplicationController
     return true if inertia_partial_props.empty?
 
     inertia_partial_props.include?(prop.to_s)
+  end
+
+  def search_result_json(message, query)
+    {
+      id: message.to_param,
+      chat_id: message.chat.to_param,
+      chat_title: message.chat.title_or_default,
+      snippet: snippet_around(message.content, query),
+      author_name: message.author_name,
+      role: message.role,
+      created_at: message.created_at.strftime("%b %-d, %Y at %-l:%M %p")
+    }
+  end
+
+  def snippet_around(content, query)
+    return content.to_s.truncate(200) if content.blank? || query.blank?
+
+    lines = content.lines
+    match_index = lines.index { |line| line.downcase.include?(query.downcase) }
+    return content.truncate(200) unless match_index
+
+    start = [ match_index - 1, 0 ].max
+    finish = [ match_index + 1, lines.length - 1 ].min
+    lines[start..finish].map(&:strip).join("\n").truncate(300)
   end
 
 end

@@ -50,6 +50,9 @@ Rails.application.routes.draw do
     resource :agent_initiation, only: :create, module: :accounts
 
     resources :chats do
+      collection do
+        get :search
+      end
       scope module: :chats do
         resource :archive, only: [ :create, :destroy ]
         resource :discard, only: [ :create, :destroy ]

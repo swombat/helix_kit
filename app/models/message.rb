@@ -93,6 +93,17 @@ class Message < ApplicationRecord
 
   scope :sorted, -> { order(created_at: :asc) }
 
+  def self.search_in_account(account, query)
+    return none if query.blank?
+
+    joins(:chat)
+      .where(chats: { account_id: account.id, discarded_at: nil })
+      .where("messages.content ILIKE ?", "%#{sanitize_sql_like(query)}%")
+      .where(role: %w[user assistant])
+      .includes(:chat, :user, :agent)
+      .order(created_at: :desc)
+  end
+
   after_commit :queue_moderation, on: :create, if: :user_message_with_content?
   after_create :reopen_all_agents_for_initiation, if: :human_message_in_group_chat?
   after_create_commit :queue_agent_summaries, if: -> { role.in?(%w[user assistant]) && content.present? }

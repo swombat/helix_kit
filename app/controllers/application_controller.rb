@@ -103,4 +103,21 @@ class ApplicationController < ActionController::Base
     }
   end
 
+  def pagy_to_hash(pagy)
+    return {} unless pagy
+
+    {
+      count: pagy.count,
+      page: pagy.page,
+      pages: pagy.pages,
+      last: pagy.last,
+      from: pagy.from,
+      to: pagy.to,
+      prev: pagy.prev,
+      next: pagy.next,
+      series: pagy.series.collect(&:to_s),
+      per_page: pagy.vars[:limit].to_s
+    }
+  end
+
 end

@@ -21,6 +21,7 @@
     GithubLogo,
     XLogo,
     Plugs,
+    MagnifyingGlass,
   } from 'phosphor-svelte';
   import * as DropdownMenu from '$lib/components/shadcn/dropdown-menu/index.js';
   import { Button, buttonVariants } from '$lib/components/shadcn/button/index.js';
@@ -33,6 +34,7 @@
     editUserPath,
     editUserPasswordPath,
     accountPath,
+    searchAccountChatsPath,
   } from '@/routes';
   import { toggleMode, setMode, resetMode } from 'mode-watcher';
   import { ModeWatcher } from 'mode-watcher';
@@ -60,6 +62,16 @@
   ]);
 
   const showAgentsDropdown = $derived(!!currentUser && siteSettings?.allow_agents && currentAccount?.id);
+
+  // Search
+  let navSearchQuery = $state('');
+
+  function handleNavSearch(event) {
+    event.preventDefault();
+    if (!navSearchQuery.trim() || !currentAccount?.id) return;
+    router.get(searchAccountChatsPath(currentAccount.id), { q: navSearchQuery.trim() });
+    navSearchQuery = '';
+  }
 
   // Theme management
   const currentTheme = $derived(currentUser?.preferences?.theme || $page.props?.theme_preference || 'system');
@@ -137,6 +149,21 @@
 
     <div class="flex-grow"></div>
 
+    {#if currentUser && siteSettings?.allow_chats && currentAccount?.id}
+      <form onsubmit={handleNavSearch} class="hidden md:flex items-center">
+        <div class="relative">
+          <MagnifyingGlass size={16} class="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <input
+            type="text"
+            bind:value={navSearchQuery}
+            placeholder="Search..."
+            class="w-40 lg:w-56 pl-8 pr-3 py-1.5 text-sm border border-input rounded-md
+                   bg-background focus:outline-none focus:ring-2 focus:ring-ring
+                   focus:border-transparent placeholder:text-muted-foreground/50" />
+        </div>
+      </form>
+    {/if}
+
     <!-- Theme toggle for guest users only -->
     {#if !currentUser}
       <DropdownMenu.Root>
@@ -173,6 +200,11 @@
             </DropdownMenu.Item>
             <DropdownMenu.Item onclick={() => router.visit(`/accounts/${currentAccount.id}/whiteboards`)}>
               Whiteboards
+            </DropdownMenu.Item>
+          {/if}
+          {#if siteSettings?.allow_chats && currentAccount?.id}
+            <DropdownMenu.Item onclick={() => router.visit(searchAccountChatsPath(currentAccount.id))}>
+              Search Messages
             </DropdownMenu.Item>
           {/if}
         </DropdownMenu.Content>

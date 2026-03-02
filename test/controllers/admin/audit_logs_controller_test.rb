@@ -95,10 +95,10 @@ class Admin::AuditLogsControllerTest < ActionDispatch::IntegrationTest
     assert pagination.key?("count"), "Pagination should have count"
     assert pagination.key?("page"), "Pagination should have page"
     assert pagination.key?("pages"), "Pagination should have pages"
-    assert pagination.key?("items"), "Pagination should have items"
+    assert pagination.key?("per_page"), "Pagination should have per_page"
 
     # Verify per_page parameter works
-    assert_equal "5", pagination["items"], "Items per page should respect per_page param"
+    assert_equal "5", pagination["per_page"], "Per page should respect per_page param"
   end
 
   test "should handle pagination with large per_page value" do
@@ -110,7 +110,7 @@ class Admin::AuditLogsControllerTest < ActionDispatch::IntegrationTest
     props = inertia_shared_props
     pagination = props["pagination"]
 
-    assert_equal "100", pagination["items"]
+    assert_equal "100", pagination["per_page"]
   end
 
   # === Filtering Tests ===
