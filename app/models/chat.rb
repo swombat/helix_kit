@@ -336,6 +336,18 @@ class Chat < ApplicationRecord
       group: "xAI",
       provider_model_id: "grok-3"
     },
+    {
+      model_id: "x-ai/grok-4.20-experimental-beta-0304-reasoning",
+      label: "Grok 4.20 Beta (Reasoning)",
+      group: "xAI",
+      provider_model_id: "grok-4.20-experimental-beta-0304-reasoning"
+    },
+    {
+      model_id: "x-ai/grok-4.20-experimental-beta-0304-non-reasoning",
+      label: "Grok 4.20 Beta",
+      group: "xAI",
+      provider_model_id: "grok-4.20-experimental-beta-0304-non-reasoning"
+    },
 
     # DeepSeek
     { model_id: "deepseek/deepseek-r1", label: "DeepSeek R1", group: "DeepSeek" },
