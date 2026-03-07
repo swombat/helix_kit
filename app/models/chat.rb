@@ -91,10 +91,10 @@ class Chat < ApplicationRecord
   MODELS = [
     # Top Models - Flagship from each major provider
     {
-      model_id: "openai/gpt-5.2",
-      label: "GPT-5.2",
+      model_id: "openai/gpt-5.4",
+      label: "GPT-5.4",
       group: "Top Models",
-      provider_model_id: "gpt-5.2",
+      provider_model_id: "gpt-5.4",
       thinking: { supported: true }
     },
     {
@@ -122,6 +122,13 @@ class Chat < ApplicationRecord
     { model_id: "deepseek/deepseek-v3.2", label: "DeepSeek V3.2", group: "Top Models" },
 
     # OpenAI
+    {
+      model_id: "openai/gpt-5.2",
+      label: "GPT-5.2",
+      group: "OpenAI",
+      provider_model_id: "gpt-5.2",
+      thinking: { supported: true }
+    },
     {
       model_id: "openai/gpt-5.1",
       label: "GPT-5.1",
