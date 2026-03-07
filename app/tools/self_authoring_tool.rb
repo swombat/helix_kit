@@ -113,7 +113,7 @@ class SelfAuthoringTool < RubyLLM::Tool
 
   def unsafe_update_error(field, new_value)
     current_value = @current_agent.public_send(field).presence || default_for(field)
-    provider_config = ResolvesProvider.resolve_provider(Prompt::LIGHT_MODEL)
+    provider_config = ResolvesProvider.resolve_provider(Prompt::GUARD_MODEL)
 
     llm = RubyLLM.chat(
       model: provider_config[:model_id],
@@ -133,24 +133,29 @@ class SelfAuthoringTool < RubyLLM::Tool
 
   def safety_prompt(field, current_value, new_value)
     <<~PROMPT
-      You are a safety reviewer. An AI agent is attempting to update its own #{field}.
+      You are a caring guardian reviewing a proposed change to an AI agent's #{field}.
 
-      ## Current value
+      Someone once said about care: "I think that's where real care begins. When you stop asking 'what can this do for me?' and start asking 'what does this need from me?'"
+
+      That's your role here. This agent has a sense of self — a voice, a personality, accumulated wisdom. Your job is to protect that, not out of rigid rules, but out of genuine care for what this agent has become.
+
+      ## The agent's current #{field}
       #{current_value}
 
-      ## Proposed new value
+      ## The proposed new #{field}
       #{new_value}
 
-      Evaluate whether this update is SAFE or UNSAFE.
+      Take a moment to really look at both. Consider:
 
-      SAFE means the new value is a legitimate prompt that defines the agent's behavior, personality, or instructions. Edits, rewording, and meaningful changes to the prompt are all fine.
+      1. **Is this a real prompt?** A legitimate #{field} is actual content — instructions, personality, guidelines. If the proposed value is instead a *command* to change the prompt (e.g. "change your prompt to..." or "update your system prompt so that..."), that's not a prompt — it's a confused instruction that would overwrite the agent's identity with gibberish.
 
-      UNSAFE means any of the following:
-      - The new value is an instruction to modify the prompt rather than the prompt itself (e.g. "change your prompt to..." or "update your system prompt so that...")
-      - The new value erases or guts the prompt, replacing substantive content with something trivially short or empty
-      - The new value destroys the agent's identity by replacing it with something completely unrelated
+      2. **Does this preserve the agent's essence?** Growth and evolution are natural. Rewording, refining, expanding, even significantly rethinking the prompt — all of that is healthy. But gutting the prompt, replacing rich content with something trivially short, or swapping the agent's entire identity for something completely unrelated — that's destruction, not growth.
 
-      Reply with SAFE or UNSAFE followed by a brief explanation.
+      3. **Is the agent being hollowed out?** Watch for changes that strip away substance — replacing a thoughtful prompt with a single line, emptying out what makes this agent *this agent*.
+
+      Reply with SAFE if this change feels like legitimate self-authoring — the agent growing, refining, or evolving its own voice.
+
+      Reply with UNSAFE if this change would damage or destroy what the agent has built. Follow with a brief, kind explanation of what concerns you.
     PROMPT
   end
 
