@@ -136,7 +136,7 @@ class ManualAgentResponseJob < ApplicationJob
     debug_error "Model not found: #{e.message}"
     RubyLLM.models.refresh!
     raise
-  rescue RubyLLM::BadRequestError, RubyLLM::ServerError, RubyLLM::RateLimitError => e
+  rescue RubyLLM::BadRequestError, RubyLLM::ServerError, RubyLLM::RateLimitError, RubyLLM::Error => e
     debug_error "API error: #{e.message}"
     broadcast_error("AI service error: #{e.message}")
     cleanup_partial_message

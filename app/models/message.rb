@@ -1,3 +1,5 @@
+require "open3"
+
 class Message < ApplicationRecord
 
   include Broadcastable
@@ -221,11 +223,30 @@ class Message < ApplicationRecord
     Message::SpeechText.new(content).to_s
   end
 
-  def file_paths_for_llm(include_audio: true)
+  def file_paths_for_llm(include_audio: true, include_pdf: true)
     return [] unless attachments.attached?
 
-    files = include_audio ? attachments : attachments.reject { |f| f.content_type&.start_with?("audio/") }
+    files = attachments.to_a
+    files.reject! { |f| f.content_type&.start_with?("audio/") } unless include_audio
+    files.reject! { |f| f.content_type == "application/pdf" } unless include_pdf
     files.filter_map { |file| resolve_attachment_path(file) }
+  end
+
+  def pdf_text_for_llm
+    return nil unless attachments.attached?
+
+    pdf_attachments = attachments.select { |f| f.content_type == "application/pdf" }
+    return nil if pdf_attachments.empty?
+
+    pdf_attachments.filter_map { |attachment|
+      path = resolve_attachment_path(attachment)
+      next unless path
+
+      text = extract_pdf_text(path)
+      next if text.blank?
+
+      "<file name='#{attachment.filename}'>\n#{text}\n</file>"
+    }.join("\n\n").presence
   end
 
   def audio_path_for_llm
@@ -526,6 +547,16 @@ class Message < ApplicationRecord
       tempfile.path
     end
   rescue Errno::ENOENT, ActiveStorage::FileNotFoundError
+    nil
+  end
+
+  def extract_pdf_text(path)
+    stdout, status = Open3.capture2("pdftotext", "-layout", path.to_s, "-")
+    return nil unless status.success?
+
+    stdout.strip.truncate(100_000)
+  rescue Errno::ENOENT
+    # pdftotext not installed
     nil
   end
 

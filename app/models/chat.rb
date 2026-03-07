@@ -358,6 +358,12 @@ class Chat < ApplicationRecord
     model_config(model_id)&.dig(:audio_input) == true
   end
 
+  def self.supports_pdf_input?(model_id)
+    # xAI's API doesn't support PDF file attachments (no 'file' content type).
+    # For these providers, PDFs are extracted to text before sending.
+    !model_id.start_with?("x-ai/")
+  end
+
   def self.requires_direct_api_for_thinking?(model_id)
     model_config(model_id)&.dig(:thinking, :requires_direct_api) == true
   end
@@ -707,7 +713,10 @@ class Chat < ApplicationRecord
 
   def build_context_for_agent(agent, thinking_enabled: false, initiation_reason: nil)
     [ system_message_for(agent, initiation_reason: initiation_reason) ] +
-      messages_context_for(agent, thinking_enabled: thinking_enabled, audio_tools_enabled: audio_tools_available_for?(agent.model_id))
+      messages_context_for(agent,
+        thinking_enabled: thinking_enabled,
+        audio_tools_enabled: audio_tools_available_for?(agent.model_id),
+        pdf_input_supported: self.class.supports_pdf_input?(agent.model_id))
   end
 
   # Checks if extended thinking can be used for this agent in this conversation.
@@ -895,12 +904,12 @@ class Chat < ApplicationRecord
     "This context is provided for reference only and will not appear in future activations."
   end
 
-  def messages_context_for(agent, thinking_enabled: false, audio_tools_enabled: false)
+  def messages_context_for(agent, thinking_enabled: false, audio_tools_enabled: false, pdf_input_supported: true)
     tz = user_timezone
     messages.includes(:user, :agent).order(:created_at)
       .reject { |msg| msg.content.blank? }  # Filter out empty messages (e.g., before tool calls)
       .reject { |msg| msg.used_tools? && msg.agent_id != agent.id }  # Exclude other agents' tool results
-      .map { |msg| format_message_for_context(msg, agent, tz, thinking_enabled: thinking_enabled, audio_tools_enabled: audio_tools_enabled) }
+      .map { |msg| format_message_for_context(msg, agent, tz, thinking_enabled: thinking_enabled, audio_tools_enabled: audio_tools_enabled, pdf_input_supported: pdf_input_supported) }
   end
 
   def participant_description(current_agent)
@@ -927,7 +936,7 @@ class Chat < ApplicationRecord
             .pick("profiles.timezone")
   end
 
-  def format_message_for_context(message, current_agent, timezone, thinking_enabled: false, audio_tools_enabled: false)
+  def format_message_for_context(message, current_agent, timezone, thinking_enabled: false, audio_tools_enabled: false, pdf_input_supported: true)
     timestamp = message.created_at.in_time_zone(timezone).strftime("[%Y-%m-%d %H:%M]")
 
     text_content = if message.agent_id == current_agent.id
@@ -943,11 +952,18 @@ class Chat < ApplicationRecord
       text_content += " [voice message, audio_id: #{message.obfuscated_id}]"
     end
 
+    # When the model doesn't support native PDF input, extract text and include inline
+    unless pdf_input_supported
+      pdf_text = message.pdf_text_for_llm
+      text_content += "\n\n#{pdf_text}" if pdf_text.present?
+    end
+
     role = message.agent_id == current_agent.id ? "assistant" : "user"
 
     # Include file attachments if present using RubyLLM::Content
     # Exclude audio files when the model doesn't support audio input
-    file_paths = message.file_paths_for_llm(include_audio: audio_tools_enabled)
+    # Exclude PDFs when the model doesn't support native PDF input (text already extracted above)
+    file_paths = message.file_paths_for_llm(include_audio: audio_tools_enabled, include_pdf: pdf_input_supported)
     content = if file_paths.present?
       RubyLLM::Content.new(text_content, file_paths)
     else
