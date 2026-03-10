@@ -22,6 +22,7 @@
     XLogo,
     Plugs,
     MagnifyingGlass,
+    Key,
   } from 'phosphor-svelte';
   import * as DropdownMenu from '$lib/components/shadcn/dropdown-menu/index.js';
   import { Button, buttonVariants } from '$lib/components/shadcn/button/index.js';
@@ -35,6 +36,7 @@
     editUserPasswordPath,
     accountPath,
     searchAccountChatsPath,
+    apiKeysPath,
   } from '@/routes';
   import { toggleMode, setMode, resetMode } from 'mode-watcher';
   import { ModeWatcher } from 'mode-watcher';
@@ -316,6 +318,10 @@
                 <span>Account Settings</span>
               </DropdownMenu.Item>
             {/if}
+            <DropdownMenu.Item onclick={() => router.visit(apiKeysPath())}>
+              <Key class="mr-2 size-4" />
+              <span>API Keys</span>
+            </DropdownMenu.Item>
             <DropdownMenu.Item onclick={() => router.visit(editUserPasswordPath())}>
               <Password class="mr-2 size-4" />
               <span>Change Password</span>
