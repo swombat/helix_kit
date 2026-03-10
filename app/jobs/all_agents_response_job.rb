@@ -160,6 +160,14 @@ class AllAgentsResponseJob < ApplicationJob
     broadcast_error("Network error - please try again")
     cleanup_partial_message
     raise
+  rescue TypeError, NoMethodError => e
+    # RubyLLM's streaming error parser can crash when providers return
+    # non-standard error formats (e.g., xAI uses flat {code, error} instead
+    # of OpenAI's nested {error: {type, message}}). Treat as API error.
+    debug_error "API error (parse failure): #{e.class.name} - #{e.message}"
+    broadcast_error("AI service error - please try again")
+    cleanup_partial_message
+    raise
   rescue StandardError => e
     debug_error "Unexpected error: #{e.class.name} - #{e.message}"
     raise
