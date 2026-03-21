@@ -93,6 +93,7 @@ Rails.application.routes.draw do
   namespace :admin do
     resources :accounts, only: [ :index ]
     resources :audit_logs, only: [ :index ]
+    resources :jobs, only: [ :index, :create ]
     resource :settings, only: [ :show, :update ]
   end
 

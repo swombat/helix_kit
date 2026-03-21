@@ -19,6 +19,7 @@ module StreamsAiResponse
     @thinking_last_flush_at = nil
 
     @tools_used = []
+    @message_finalized = false
   end
 
   def finalize_message!(ruby_llm_message)
@@ -83,6 +84,7 @@ module StreamsAiResponse
     })
 
     deduplicate_message!
+    @message_finalized = true
 
     # Queue content moderation for the completed assistant message
     ModerateMessageJob.perform_later(@ai_message) if @ai_message.content.present?
@@ -193,10 +195,22 @@ module StreamsAiResponse
     )
   end
 
+  # Destroy the current message if it was never properly finalized.
+  # Called from error handlers before the job retries, so the retry
+  # starts fresh instead of leaving orphaned partial messages.
+  def cleanup_partial_message
+    return unless @ai_message&.persisted?
+    return if @message_finalized
+
+    Rails.logger.info "🧹 Destroying un-finalized message #{@ai_message.id}"
+    @ai_message.destroy
+    @ai_message = nil
+  end
+
   def cleanup_streaming
     Rails.logger.info "🧹 cleanup_streaming called, @ai_message: #{@ai_message&.to_param || 'nil'}, streaming: #{@ai_message&.streaming?}"
     flush_all_buffers
-    @ai_message&.stop_streaming if @ai_message&.streaming?
+    @ai_message&.stop_streaming if @ai_message&.persisted? && @ai_message&.streaming?
     Rails.logger.info "🧹 cleanup_streaming completed"
   end
 

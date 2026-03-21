@@ -82,13 +82,11 @@ class AllAgentsResponseJob < ApplicationJob
 
     llm.on_new_message do
       if @ai_message
-        @ai_message.reload
-        if @ai_message.content.blank?
-          debug_info "Reusing empty message #{@ai_message.obfuscated_id}"
-          next
-        else
-          @ai_message.stop_streaming if @ai_message.streaming?
-        end
+        # Reuse the existing message for the entire response cycle,
+        # including tool call rounds. This prevents a single response
+        # from being split across multiple message bubbles.
+        debug_info "Reusing message #{@ai_message.obfuscated_id} for continued response"
+        next
       end
 
       debug_info "Creating new assistant message"
@@ -170,6 +168,7 @@ class AllAgentsResponseJob < ApplicationJob
     raise
   rescue StandardError => e
     debug_error "Unexpected error: #{e.class.name} - #{e.message}"
+    cleanup_partial_message
     raise
   ensure
     cleanup_streaming
@@ -221,11 +220,6 @@ class AllAgentsResponseJob < ApplicationJob
       "Chat:#{@chat.to_param}",
       { action: "error", message: message }
     )
-  end
-
-  def cleanup_partial_message
-    return unless @ai_message&.persisted?
-    @ai_message.destroy if @ai_message.content.blank? && @ai_message.streaming?
   end
 
 end

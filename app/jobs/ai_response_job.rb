@@ -48,12 +48,4 @@ class AiResponseJob < ApplicationJob
     cleanup_streaming
   end
 
-  private
-
-  def cleanup_partial_message
-    return unless @ai_message&.persisted?
-    # Delete empty streaming messages that were created before the error
-    @ai_message.destroy if @ai_message.content.blank? && @ai_message.streaming?
-  end
-
 end
