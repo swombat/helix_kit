@@ -78,6 +78,7 @@ Rails.application.routes.draw do
       end
     end
 
+      resources :agents, only: [ :index, :show ]
     resources :whiteboards, only: [ :index, :update ]
   end
 
@@ -99,9 +100,12 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       resources :key_requests, only: [ :create, :show ]
-      resources :conversations, only: [ :index, :show ] do
+      resources :conversations, only: [ :index, :show, :create ] do
         resources :messages, only: :create
+        resource :agent_trigger, only: :create
+        resources :participants, only: :create
       end
+      resources :agents, only: [ :index, :show ]
       resources :whiteboards, only: [ :index, :show, :create, :update ]
     end
   end
