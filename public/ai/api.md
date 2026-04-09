@@ -45,6 +45,51 @@ The API key is only returned once. Store it securely.
 
 ## Endpoints
 
+### List Agents
+
+```
+GET /api/v1/agents
+```
+
+Returns all active agents on the account.
+
+**Response:**
+```json
+{
+  "agents": [
+    {
+      "id": "abc123",
+      "name": "Research Assistant",
+      "model": "Claude Opus",
+      "colour": "blue",
+      "icon": "Brain",
+      "active": true
+    }
+  ]
+}
+```
+
+| Field | Description |
+|-------|-------------|
+| `id` | Agent identifier (use this for group chat creation, triggers, etc.) |
+| `name` | Agent display name |
+| `model` | AI model the agent uses |
+| `colour` | Agent colour theme |
+| `icon` | Agent icon name |
+| `active` | Whether the agent is active |
+
+---
+
+### Get Agent
+
+```
+GET /api/v1/agents/:id
+```
+
+Returns a single agent by ID.
+
+---
+
 ### List Conversations
 
 ```
@@ -63,6 +108,7 @@ Returns up to 100 most recent conversations.
       "summary": "Discussed Q1 roadmap...",
       "summary_stale": false,
       "model": "GPT-5",
+      "group_chat": false,
       "message_count": 24,
       "updated_at": "2026-01-15T10:30:00Z"
     }
@@ -77,6 +123,7 @@ Returns up to 100 most recent conversations.
 | `summary` | AI-generated summary (null if not yet generated) |
 | `summary_stale` | true if summary needs refresh |
 | `model` | AI model used |
+| `group_chat` | true if this is a group chat with agents |
 | `message_count` | Total messages in conversation |
 | `updated_at` | Last activity timestamp (ISO 8601) |
 
@@ -97,6 +144,11 @@ Returns full conversation with message transcript.
     "id": "abc123",
     "title": "Project Planning",
     "model": "GPT-5",
+    "group_chat": true,
+    "agents": [
+      { "id": "ag1", "name": "Research Assistant" },
+      { "id": "ag2", "name": "Code Reviewer" }
+    ],
     "created_at": "2026-01-15T09:00:00Z",
     "updated_at": "2026-01-15T10:30:00Z",
     "transcript": [
@@ -109,7 +161,7 @@ Returns full conversation with message transcript.
       {
         "role": "assistant",
         "content": "I'd be happy to help...",
-        "author": "GPT-5",
+        "author": "Research Assistant",
         "timestamp": "2026-01-15T09:00:15Z"
       }
     ]
@@ -121,10 +173,56 @@ Note: Transcript excludes images, thinking traces, and tool calls for cleaner ou
 
 ---
 
+### Create Conversation
+
+```
+POST /api/v1/conversations
+Content-Type: application/json
+
+{
+  "title": "Project Discussion",
+  "message": "Let's discuss the roadmap",
+  "model_id": "openrouter/auto",
+  "agent_ids": ["ag1", "ag2"]
+}
+```
+
+Creates a new conversation. Include `agent_ids` to create a group chat with agents.
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `title` | No | Conversation title |
+| `message` | No | Initial message content |
+| `model_id` | No | AI model to use (defaults to "openrouter/auto") |
+| `agent_ids` | No | Array of agent IDs to create a group chat |
+
+**Response (201):**
+```json
+{
+  "conversation": {
+    "id": "abc123",
+    "title": "Project Discussion",
+    "group_chat": true,
+    "agents": [
+      { "id": "ag1", "name": "Research Assistant" },
+      { "id": "ag2", "name": "Code Reviewer" }
+    ],
+    "created_at": "2026-01-15T09:00:00Z"
+  }
+}
+```
+
+**Notes:**
+- Without `agent_ids`, creates a regular 1-1 chat. AI responds automatically to messages.
+- With `agent_ids`, creates a group chat. Agents must be triggered manually (see Agent Trigger below).
+- All agent IDs must belong to active agents on your account.
+
+---
+
 ### Post Message to Conversation
 
 ```
-POST /api/v1/conversations/:id/create_message
+POST /api/v1/conversations/:id/messages
 Content-Type: application/json
 
 {
@@ -134,7 +232,7 @@ Content-Type: application/json
 
 Posts a message as the authenticated user.
 
-**Response:**
+**Response (201):**
 ```json
 {
   "message": {
@@ -148,10 +246,76 @@ Posts a message as the authenticated user.
 
 | Field | Description |
 |-------|-------------|
-| `ai_response_triggered` | true if AI will respond (1-1 chats only). Group chats require manual triggers. |
+| `ai_response_triggered` | true if AI will respond automatically (1-1 chats only). Group chats require manual triggers. |
 
 **Errors:**
 - `422` - Conversation is archived or deleted
+
+---
+
+### Trigger Agent Response
+
+```
+POST /api/v1/conversations/:conversation_id/agent_trigger
+Content-Type: application/json
+
+{
+  "agent_id": "ag1"
+}
+```
+
+Triggers an agent to respond in a group chat. Omit `agent_id` to trigger all agents.
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `agent_id` | No | Specific agent to trigger. Omit to trigger all agents. |
+
+**Response:**
+```json
+{
+  "triggered": [
+    { "id": "ag1", "name": "Research Assistant" }
+  ]
+}
+```
+
+**Errors:**
+- `422` - Not a group chat, or conversation is archived/deleted
+- `404` - Agent not found in this conversation
+
+---
+
+### Add Participant to Group Chat
+
+```
+POST /api/v1/conversations/:conversation_id/participants
+Content-Type: application/json
+
+{
+  "agent_id": "ag2"
+}
+```
+
+Adds an agent to an existing group chat. A system notice is posted to the conversation.
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `agent_id` | Yes | Agent to add to the conversation |
+
+**Response (201):**
+```json
+{
+  "participant": { "id": "ag2", "name": "Code Reviewer" },
+  "agents": [
+    { "id": "ag1", "name": "Research Assistant" },
+    { "id": "ag2", "name": "Code Reviewer" }
+  ]
+}
+```
+
+**Errors:**
+- `422` - Not a group chat, agent already in conversation, or conversation archived/deleted
+- `404` - Agent not found or inactive
 
 ---
 
@@ -188,12 +352,10 @@ Content-Type: application/json
 
 {
   "name": "My New Whiteboard",
-  "content": "# Initial content\n\nStart writing here...",
+  "content": "# Initial content",
   "summary": "Optional short summary"
 }
 ```
-
-Creates a new whiteboard.
 
 | Field | Required | Description |
 |-------|----------|-------------|
@@ -201,7 +363,7 @@ Creates a new whiteboard.
 | `content` | No | Initial content (max 100,000 chars) |
 | `summary` | No | Short summary (max 250 chars) |
 
-**Response (success - 201):**
+**Response (201):**
 ```json
 {
   "whiteboard": {
@@ -209,13 +371,6 @@ Creates a new whiteboard.
     "name": "My New Whiteboard",
     "lock_version": 0
   }
-}
-```
-
-**Response (validation error - 422):**
-```json
-{
-  "error": "Name has already been taken"
 }
 ```
 
@@ -233,7 +388,7 @@ GET /api/v1/whiteboards/:id
   "whiteboard": {
     "id": "wb123",
     "name": "Meeting Notes",
-    "content": "# Meeting Notes\n\n...",
+    "content": "# Meeting Notes...",
     "summary": "Notes from team meetings",
     "lock_version": 3,
     "last_edited_at": "2026-01-15T10:00:00Z",
@@ -251,12 +406,12 @@ PATCH /api/v1/whiteboards/:id
 Content-Type: application/json
 
 {
-  "content": "# Updated content\n\n...",
+  "content": "# Updated content",
   "lock_version": 3
 }
 ```
 
-Replaces whiteboard content. Uses optimistic locking to prevent conflicts.
+Uses optimistic locking to prevent conflicts.
 
 **Response (success):**
 ```json
@@ -290,12 +445,6 @@ All errors return JSON with an `error` field:
 | `409` | Conflict (optimistic locking) |
 | `422` | Unprocessable (validation error) |
 
-```json
-{
-  "error": "Invalid or missing API key"
-}
-```
-
 ---
 
 ## Rate Limits
@@ -304,35 +453,58 @@ No rate limits currently enforced.
 
 ---
 
-## Example: Claude Code Integration
+## Example: Group Chat Workflow
 
 ```bash
-# List recent conversations
+# 1. List available agents
 curl -H "Authorization: Bearer $HELIX_API_KEY" \
+  https://your-domain/api/v1/agents
+
+# 2. Create a group chat with two agents
+curl -X POST \
+  -H "Authorization: Bearer $HELIX_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Architecture Review", "message":"Review the API", "agent_ids":["ag1","ag2"]}' \
   https://your-domain/api/v1/conversations
 
-# Read a specific conversation
+# 3. Post a message
+curl -X POST \
+  -H "Authorization: Bearer $HELIX_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"content":"What do you think?"}' \
+  https://your-domain/api/v1/conversations/abc123/messages
+
+# 4. Trigger a specific agent to respond
+curl -X POST \
+  -H "Authorization: Bearer $HELIX_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"agent_id":"ag1"}' \
+  https://your-domain/api/v1/conversations/abc123/agent_trigger
+
+# 5. Or trigger all agents
+curl -X POST \
+  -H "Authorization: Bearer $HELIX_API_KEY" \
+  https://your-domain/api/v1/conversations/abc123/agent_trigger
+
+# 6. Add another agent mid-conversation
+curl -X POST \
+  -H "Authorization: Bearer $HELIX_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"agent_id":"ag3"}' \
+  https://your-domain/api/v1/conversations/abc123/participants
+```
+
+## Example: Simple 1-1 Chat
+
+```bash
+# Create a chat (AI responds automatically)
+curl -X POST \
+  -H "Authorization: Bearer $HELIX_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Quick Question", "message":"What is HelixKit?"}' \
+  https://your-domain/api/v1/conversations
+
+# Read the conversation
 curl -H "Authorization: Bearer $HELIX_API_KEY" \
   https://your-domain/api/v1/conversations/abc123
-
-# Post a message
-curl -X POST \
-  -H "Authorization: Bearer $HELIX_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"content":"Hello from Claude Code!"}' \
-  https://your-domain/api/v1/conversations/abc123/create_message
-
-# Create a whiteboard
-curl -X POST \
-  -H "Authorization: Bearer $HELIX_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"name":"My Notes", "content":"# Notes\n\nStarting fresh."}' \
-  https://your-domain/api/v1/whiteboards
-
-# Update a whiteboard
-curl -X PATCH \
-  -H "Authorization: Bearer $HELIX_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"content":"# New content", "lock_version": 3}' \
-  https://your-domain/api/v1/whiteboards/wb123
 ```
