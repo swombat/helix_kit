@@ -96,10 +96,12 @@
     <div class="text-sm text-muted-foreground space-y-2">
       <p><strong>Available endpoints:</strong></p>
       <ul class="list-disc list-inside ml-2 space-y-1">
+        <li><code class="bg-muted px-1 rounded">GET /api/v1/agents</code> — List your agents</li>
         <li><code class="bg-muted px-1 rounded">GET /api/v1/conversations</code> — List your conversations</li>
+        <li><code class="bg-muted px-1 rounded">POST /api/v1/conversations</code> — Create a conversation</li>
         <li><code class="bg-muted px-1 rounded">GET /api/v1/conversations/:id</code> — Get full transcript</li>
         <li>
-          <code class="bg-muted px-1 rounded">POST /api/v1/conversations/:id/create_message</code> — Post a message
+          <code class="bg-muted px-1 rounded">POST /api/v1/conversations/:id/messages</code> — Post a message
         </li>
         <li><code class="bg-muted px-1 rounded">GET/POST /api/v1/whiteboards</code> — List/create whiteboards</li>
         <li><code class="bg-muted px-1 rounded">GET/PATCH /api/v1/whiteboards/:id</code> — Read/update whiteboard</li>
