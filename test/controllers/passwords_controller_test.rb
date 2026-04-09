@@ -97,12 +97,11 @@ class PasswordsControllerTest < ActionDispatch::IntegrationTest
     @user.send_password_reset
     token = @user.reload.password_reset_token_for_url
 
-    # Simulate token expiration by setting sent_at to over 2 hours ago
-    @user.update_column(:password_reset_sent_at, 3.hours.ago)
-
-    get edit_password_path(token)
-    assert_redirected_to new_password_path
-    assert_equal "Password reset link is invalid or has expired.", flash[:alert]
+    travel 3.hours do
+      get edit_password_path(token)
+      assert_redirected_to new_password_path
+      assert_equal "Password reset link is invalid or has expired.", flash[:alert]
+    end
   end
 
   test "password reset pages do not require authentication" do

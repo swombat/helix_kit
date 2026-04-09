@@ -88,11 +88,15 @@ class AccountsController < ApplicationController
   end
 
   def set_account
-    @account = Current.user.accounts.find(params[:id])
+    @account = find_current_user_account!(params[:id])
   end
 
   def account_params
     params.require(:account).permit(:name)
+  end
+
+  def current_account
+    @current_account ||= @account || find_current_user_account!(params[:id])
   end
 
 end

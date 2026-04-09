@@ -11,7 +11,7 @@ module AccountScoping
 
   def current_account
     @current_account ||= if params[:account_id]
-      Current.user&.accounts&.find(params[:account_id])
+      find_current_user_account!(params[:account_id])
     else
       Current.user&.default_account
     end
@@ -19,12 +19,24 @@ module AccountScoping
 
   def current_membership
     @current_membership ||= if current_account && Current.user
-      Current.user.memberships.confirmed.find_by(account: current_account)
+      Current.user.confirmed_memberships.find_by(account: current_account)
     end
   end
 
   def require_account
-    redirect_to account_required_path unless current_account
+    redirect_to root_path, alert: "You don't have access to an account" unless current_account
+  end
+
+  def require_account_manager!
+    return if current_account&.manageable_by?(Current.user)
+
+    deny_account_access!("You don't have permission to manage this account")
+  end
+
+  def require_account_owner!
+    return if current_account&.owned_by?(Current.user)
+
+    deny_account_access!("You don't have permission to change this account")
   end
 
   def set_current_account
@@ -34,9 +46,27 @@ module AccountScoping
   def authorize_account_resource(resource)
     return unless resource.respond_to?(:account) # Resources without account are not scoped to an account
 
-    unless resource && resource.account.accessible_by?(Current.user)
-      redirect_to unauthorized_path, alert: "You don't have access to this resource"
+    return if resource&.account&.accessible_by?(Current.user)
+
+    deny_account_access!("You don't have access to this resource")
+  end
+
+  def find_current_user_account!(account_id)
+    return unless Current.user
+    return Account.find(account_id) if Current.user.site_admin
+
+    Current.user.confirmed_accounts.find(account_id)
+  end
+
+  def deny_account_access!(message)
+    respond_to do |format|
+      format.json { render json: { error: message }, status: :forbidden }
+      format.any { redirect_back_or_to account_access_denied_path, alert: message }
     end
+  end
+
+  def account_access_denied_path
+    current_account ? account_path(current_account) : root_path
   end
 
 end

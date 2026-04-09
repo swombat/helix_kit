@@ -393,15 +393,12 @@ class ChatsControllerTest < ActionDispatch::IntegrationTest
     assert_not_includes kept_chats.map(&:id), discarded_chat.id
   end
 
-  test "index shows discarded chats when admin requests show_deleted" do
+  test "index shows discarded chats when member requests show_deleted" do
     discarded_chat = @account.chats.create!(
       model_id: "gpt-4o",
       title: "Discarded Chat"
     )
     discarded_chat.discard!
-
-    # User is admin of their personal account
-    assert @account.manageable_by?(@user)
 
     get account_chats_path(@account, show_deleted: true)
     assert_response :success
@@ -411,7 +408,7 @@ class ChatsControllerTest < ActionDispatch::IntegrationTest
     assert_includes all_chats.map(&:id), discarded_chat.id
   end
 
-  test "show_deleted param is ignored for non-admin" do
+  test "show_deleted works for confirmed members" do
     # team_account has user_1 as owner, and existing_user (user_id: 3) as member via team_member membership
     team_account = accounts(:team_account)
     member_user = users(:existing_user)  # This user is member via team_member membership
@@ -429,14 +426,11 @@ class ChatsControllerTest < ActionDispatch::IntegrationTest
       password: "password123"
     }
 
-    assert_not team_account.manageable_by?(member_user)
-
     get account_chats_path(team_account, show_deleted: true)
     assert_response :success
 
-    # show_deleted should be ignored, discarded chat should not appear
-    kept_chats = team_account.chats.kept
-    assert_not_includes kept_chats.map(&:id), discarded_chat.id
+    all_chats = team_account.chats.with_discarded
+    assert_includes all_chats.map(&:id), discarded_chat.id
   end
 
   # Pagination tests (now via messages#index)

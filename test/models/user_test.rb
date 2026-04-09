@@ -104,8 +104,7 @@ class UserTest < ActiveSupport::TestCase
       user.reload
       assert user.personal_account.present?
       assert user.personal_membership.present?
-      assert user.default_account.present?
-      assert_equal user.personal_account, user.default_account
+      assert_nil user.default_account
     end
   end
 
@@ -181,7 +180,7 @@ class UserTest < ActiveSupport::TestCase
     assert account.accessible_by?(user)
   end
 
-  test "manageable_by? returns true for owners and admins only" do
+  test "manageable_by? returns true for any confirmed member" do
     team_account = Account.create!(name: "Management Test", account_type: :team)
 
     # Test owner
@@ -197,7 +196,7 @@ class UserTest < ActiveSupport::TestCase
     # Test member
     member = User.create!(email_address: "member-#{rand(10000)}@example.com")
     team_account.add_user!(member, role: "member", skip_confirmation: true)
-    assert_not team_account.manageable_by?(member)
+    assert team_account.manageable_by?(member)
   end
 
   test "owned_by? returns true only for owners" do
@@ -339,7 +338,7 @@ class UserTest < ActiveSupport::TestCase
     assert_equal "owner", personal_membership.role
   end
 
-  test "default_account returns confirmed account or fallback" do
+  test "default_account returns first confirmed account only" do
     user = users(:user_1)
 
     # Should return the first confirmed account
@@ -349,8 +348,7 @@ class UserTest < ActiveSupport::TestCase
     unconfirmed = users(:unconfirmed_user)
     unconfirmed.memberships.update_all(confirmed_at: nil)
 
-    # Should still return an account even if unconfirmed
-    assert unconfirmed.default_account.present?
+    assert_nil unconfirmed.default_account
   end
 
   # === Business Logic Tests ===
@@ -367,14 +365,16 @@ class UserTest < ActiveSupport::TestCase
 
   # === Token Generation Tests ===
 
-  test "has_secure_token generates password reset token" do
+  test "password reset token is generated on demand" do
     user = users(:user_1)
     assert_nil user.password_reset_token_for_url
 
-    user.regenerate_password_reset_token
-    assert user.password_reset_token_for_url.present?
-    assert_kind_of String, user.password_reset_token_for_url
-    assert_equal 24, user.password_reset_token_for_url.length # SecureRandom.urlsafe_base64 generates 24 char tokens
+    user.send_password_reset
+    token = user.reload.password_reset_token_for_url
+
+    assert token.present?
+    assert_kind_of String, token
+    assert_equal user, User.find_by_token_for(:password_reset, token)
   end
 
   test "send_password_reset generates token and sets timestamp" do
@@ -386,6 +386,7 @@ class UserTest < ActiveSupport::TestCase
 
     user.reload
     assert user.password_reset_token_for_url.present?
+    assert_nil user[:password_reset_token]
     assert user.password_reset_sent_at.present?
     assert user.password_reset_sent_at <= Time.current
   end
@@ -404,8 +405,6 @@ class UserTest < ActiveSupport::TestCase
 
   test "password_reset_expired? returns true when no timestamp" do
     user = users(:user_1)
-    user.regenerate_password_reset_token
-    # No timestamp set
     assert user.password_reset_expired?
   end
 

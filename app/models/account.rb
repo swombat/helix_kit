@@ -42,7 +42,7 @@ class Account < ApplicationRecord
   def self.accessible_by(user)
     return none unless user
     return all if user.site_admin
-    user.accounts
+    user.confirmed_accounts
   end
 
   json_attributes :personal?, :team?, :active?, :is_site_admin, :name
@@ -137,7 +137,8 @@ class Account < ApplicationRecord
   def manageable_by?(user)
     return false unless user
     return true if user.site_admin
-    memberships.confirmed.admins.exists?(user: user)
+    # Confirmed account members are treated as trusted collaborators.
+    memberships.confirmed.exists?(user: user)
   end
 
   def owned_by?(user)

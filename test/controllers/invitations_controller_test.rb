@@ -53,17 +53,19 @@ class InvitationsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Invitation resent", flash[:notice]
   end
 
-  test "members cannot invite" do
+  test "members can invite" do
     member = users(:member)
     sign_in member
 
-    post account_invitations_path(@account), params: {
-      email: "test@example.com",
-      role: "member"
-    }
+    assert_difference "Membership.count", 2 do
+      post account_invitations_path(@account), params: {
+        email: "member-invited@example.com",
+        role: "member"
+      }
+    end
 
     assert_redirected_to account_path(@account)
-    assert_match /don't have permission/, flash[:alert]
+    assert_equal "Invitation sent to member-invited@example.com", flash[:notice]
   end
 
   test "requires account membership" do

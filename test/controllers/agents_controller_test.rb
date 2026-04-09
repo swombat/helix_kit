@@ -172,4 +172,12 @@ class AgentsControllerTest < ActionDispatch::IntegrationTest
     assert_equal @user, audit.user
   end
 
+  test "member can edit team agent" do
+    sign_in users(:existing_user)
+
+    get edit_account_agent_path(accounts(:team_account), agents(:other_account_agent))
+
+    assert_response :success
+  end
+
 end

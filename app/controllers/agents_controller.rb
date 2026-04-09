@@ -17,10 +17,11 @@ class AgentsController < ApplicationController
   end
 
   def create
-    @agent = current_account.agents.new(agent_params)
+    attrs = agent_params
+    @agent = current_account.agents.new(attrs)
 
     if @agent.save
-      audit("create_agent", @agent, **agent_params.to_h)
+      audit("create_agent", @agent, **agent_audit_data(attrs))
       redirect_to account_agents_path(current_account), notice: "Agent created"
     else
       redirect_to account_agents_path(current_account),
@@ -31,7 +32,6 @@ class AgentsController < ApplicationController
   def edit
     render inertia: "agents/edit", props: {
       agent: @agent.as_json.merge(
-        "telegram_bot_token" => @agent.telegram_bot_token,
         "voice_id" => @agent.voice_id
       ),
       telegram_deep_link: @agent.telegram_configured? ? @agent.telegram_deep_link_for(Current.user) : nil,
@@ -47,8 +47,10 @@ class AgentsController < ApplicationController
   end
 
   def update
-    if @agent.update(agent_params)
-      audit("update_agent", @agent, **agent_params.to_h)
+    attrs = agent_params
+
+    if @agent.update(attrs)
+      audit("update_agent", @agent, **agent_audit_data(attrs))
       redirect_to account_agents_path(current_account), notice: "Agent updated"
     else
       redirect_to edit_account_agent_path(current_account, @agent),
@@ -69,7 +71,7 @@ class AgentsController < ApplicationController
   end
 
   def agent_params
-    params.require(:agent).permit(
+    permitted = params.require(:agent).permit(
       :name, :system_prompt, :reflection_prompt, :memory_reflection_prompt,
       :summary_prompt, :refinement_prompt, :refinement_threshold,
       :model_id, :active, :colour, :icon,
@@ -78,6 +80,13 @@ class AgentsController < ApplicationController
       :voice_id,
       enabled_tools: []
     )
+
+    permitted.delete(:telegram_bot_token) if permitted[:telegram_bot_token].blank?
+    permitted
+  end
+
+  def agent_audit_data(attrs)
+    attrs.except(:telegram_bot_token).to_h
   end
 
   def grouped_models

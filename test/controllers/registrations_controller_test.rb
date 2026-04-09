@@ -126,7 +126,7 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
     )
     membership = user.personal_membership
 
-    get email_confirmation_path(token: membership.confirmation_token)
+    get email_confirmation_path(token: membership.confirmation_token_for_url)
     assert_redirected_to set_password_path
     assert_equal "Email confirmed! Please set your password.", flash[:notice]
 
@@ -148,7 +148,7 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
     membership = user.personal_membership
 
     # Simulate email confirmation click
-    get email_confirmation_path(token: membership.confirmation_token)
+    get email_confirmation_path(token: membership.confirmation_token_for_url)
     assert_redirected_to set_password_path
     follow_redirect!
 

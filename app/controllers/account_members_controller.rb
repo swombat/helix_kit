@@ -2,9 +2,20 @@
 class AccountMembersController < ApplicationController
 
   before_action :set_account
+  before_action :require_account_manager!
 
   def destroy
     @member = @account.memberships.find(params[:id])
+    if @member.owner? && @account.last_owner?
+      redirect_to account_path(@account), alert: "Cannot remove the last owner"
+      return
+    end
+
+    if @member.user_id == Current.user.id
+      redirect_to account_path(@account), alert: "You can't remove yourself from this account"
+      return
+    end
+
     member_email = @member.user.email_address
     member_role = @member.role
 
@@ -23,8 +34,7 @@ class AccountMembersController < ApplicationController
   private
 
   def set_account
-    # Association-based authorization - The Rails Way!
-    @account = Current.user.accounts.find(params[:account_id])
+    @account = find_current_user_account!(params[:account_id])
   end
 
 end

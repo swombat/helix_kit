@@ -8,7 +8,7 @@ class MembershipTest < ActiveSupport::TestCase
 
   test "confirm_by_token! finds and confirms Membership with valid token" do
     membership = memberships(:pending_invitation)
-    token = membership.confirmation_token
+    token = membership.confirmation_token_for_url
 
     confirmed = Membership.confirm_by_token!(token)
 
@@ -281,7 +281,8 @@ class MembershipTest < ActiveSupport::TestCase
       # skip_confirmation not set, so token should be generated
     )
 
-    assert membership.confirmation_token.present?
+    assert membership.confirmation_token_for_url.present?
+    assert_nil membership.confirmation_token
     assert membership.confirmation_sent_at.present?
     assert_not membership.confirmed?
   end
@@ -298,6 +299,7 @@ class MembershipTest < ActiveSupport::TestCase
     )
 
     assert_nil membership.confirmation_token
+    assert_nil membership.confirmation_token_for_url
     assert_nil membership.confirmation_sent_at
     assert membership.confirmed?
   end
@@ -341,12 +343,12 @@ class MembershipTest < ActiveSupport::TestCase
       invited_by: users(:user_1)
     )
 
-    # Should be unconfirmed with token
+    # Should be unconfirmed with a signed confirmation token
     assert_not membership.confirmed?
-    assert membership.confirmation_token.present?
+    assert membership.confirmation_token_for_url.present?
 
     # Confirm by token
-    token = membership.confirmation_token
+    token = membership.confirmation_token_for_url
     confirmed = Membership.confirm_by_token!(token)
 
     assert_equal membership, confirmed
@@ -540,9 +542,10 @@ class MembershipTest < ActiveSupport::TestCase
     # Member cannot remove themselves
     assert_not member_membership.removable_by?(member)
 
-    # Non-admin cannot remove
-    other_member = users(:other_member)
-    assert_not member_membership.removable_by?(other_member)
+    # Other confirmed members can remove
+    other_member = User.create!(email_address: "remover-#{SecureRandom.hex(4)}@example.com")
+    account.add_user!(other_member, role: "member", skip_confirmation: true)
+    assert member_membership.removable_by?(other_member)
   end
 
   test "as_json includes can_remove when current_user provided" do
@@ -567,12 +570,12 @@ class MembershipTest < ActiveSupport::TestCase
       invited_by: users(:admin)
     )
 
-    old_token = invitation.confirmation_token
+    old_token = invitation.confirmation_token_for_url
     old_time = invitation.invited_at
 
     travel 1.hour do
       assert invitation.resend_invitation!
-      assert_not_equal old_token, invitation.reload.confirmation_token
+      assert_not_equal old_token, invitation.reload.confirmation_token_for_url
       assert_not_equal old_time, invitation.invited_at
     end
   end

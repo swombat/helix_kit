@@ -30,12 +30,13 @@ class AccountRegistrationFlowTest < ActionDispatch::IntegrationTest
     assert_equal user.id, membership.user_id
     assert_equal "owner", membership.role
     assert_nil membership.confirmed_at
-    assert_not_nil membership.confirmation_token
+    assert_nil membership.confirmation_token
+    assert_not_nil membership.confirmation_token_for_url
     assert_not_nil membership.confirmation_sent_at
     assert_nil membership.invited_by_id
 
     # Step 2: Confirm email using Membership token
-    membership_token = membership.confirmation_token
+    membership_token = membership.confirmation_token_for_url
     assert_not_nil membership_token
 
     get email_confirmation_path(token: membership_token)
@@ -83,7 +84,7 @@ class AccountRegistrationFlowTest < ActionDispatch::IntegrationTest
     membership = Membership.last
     original_account_id = account.id
     original_user_id = user.id
-    original_token = membership.confirmation_token
+    original_token = membership.confirmation_token_for_url
 
     # Re-register same email (should resend confirmation)
     assert_no_difference [ "User.count", "Account.count", "Membership.count" ] do
@@ -100,7 +101,7 @@ class AccountRegistrationFlowTest < ActionDispatch::IntegrationTest
     assert_equal original_account_id, account.id
 
     # Token should be regenerated
-    assert_not_equal original_token, membership.confirmation_token
+    assert_not_equal original_token, membership.confirmation_token_for_url
     assert_not_nil membership.confirmation_sent_at
   end
 
@@ -110,7 +111,7 @@ class AccountRegistrationFlowTest < ActionDispatch::IntegrationTest
     # Create and confirm user
     post signup_path, params: { email_address: email }
     membership = Membership.last
-    get email_confirmation_path(token: membership.confirmation_token)
+    get email_confirmation_path(token: membership.confirmation_token_for_url)
 
     patch set_password_path, params: { password: "password123", password_confirmation: "password123", first_name: "Confirmed", last_name: "User" }
 
@@ -215,7 +216,7 @@ class AccountRegistrationFlowTest < ActionDispatch::IntegrationTest
     assert_equal 1, account.users.count
 
     # After confirmation
-    token = membership.confirmation_token
+    token = membership.confirmation_token_for_url
     get email_confirmation_path(token: token)
 
     user.reload
@@ -245,7 +246,7 @@ class AccountRegistrationFlowTest < ActionDispatch::IntegrationTest
     assert_not membership.confirmed?
 
     # Confirm via Membership
-    token = membership.confirmation_token
+    token = membership.confirmation_token_for_url
     get email_confirmation_path(token: token)
 
     user.reload
@@ -265,7 +266,7 @@ class AccountRegistrationFlowTest < ActionDispatch::IntegrationTest
 
     # Not authenticated during confirmation
     membership = Membership.last
-    get email_confirmation_path(token: membership.confirmation_token)
+    get email_confirmation_path(token: membership.confirmation_token_for_url)
     assert_nil cookies[:session_id]
 
     # Authenticated after setting password
@@ -287,11 +288,12 @@ class AccountRegistrationFlowTest < ActionDispatch::IntegrationTest
     membership = Membership.last
 
     # Only Membership should have confirmation token
-    assert_not_nil membership.confirmation_token
+    assert_nil membership.confirmation_token
+    assert_not_nil membership.confirmation_token_for_url
     assert_not_nil membership.confirmation_sent_at
 
     # Confirm via Membership token
-    get email_confirmation_path(token: membership.confirmation_token)
+    get email_confirmation_path(token: membership.confirmation_token_for_url)
 
     user.reload
     membership.reload
@@ -309,7 +311,7 @@ class AccountRegistrationFlowTest < ActionDispatch::IntegrationTest
 
     user = User.last
     membership = Membership.last
-    original_membership_token = membership.confirmation_token
+    original_membership_token = membership.confirmation_token_for_url
 
     # Wait a moment to ensure timestamps will be different
     sleep 0.01
@@ -327,13 +329,13 @@ class AccountRegistrationFlowTest < ActionDispatch::IntegrationTest
     membership.reload
 
     # Tokens should be regenerated
-    assert_not_equal original_membership_token, membership.confirmation_token
+    assert_not_equal original_membership_token, membership.confirmation_token_for_url
 
     # Timestamps should be updated
     assert membership.confirmation_sent_at > 1.second.ago
 
     # New token should work
-    new_token = membership.confirmation_token
+    new_token = membership.confirmation_token_for_url
     get email_confirmation_path(token: new_token)
     assert_redirected_to set_password_path
   end
@@ -351,7 +353,7 @@ class AccountRegistrationFlowTest < ActionDispatch::IntegrationTest
     user.reload
 
     # Confirm email
-    get email_confirmation_path(token: membership.confirmation_token)
+    get email_confirmation_path(token: membership.confirmation_token_for_url)
 
     user.reload
     membership.reload

@@ -91,4 +91,29 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
     assert_not response.successful?, "Should not have access to isolated account"
   end
 
+  test "confirmed member can manage account settings" do
+    member = users(:existing_user)
+    sign_in(member)
+
+    patch account_path(@team_account), params: { account: { name: "Nope" } }
+
+    assert_redirected_to @team_account
+    assert_equal "Nope", @team_account.reload.read_attribute(:name)
+  end
+
+  test "unconfirmed invitee cannot access invited account" do
+    invited_user = users(:confirmed_user)
+    Membership.create!(
+      account: @team_account,
+      user: invited_user,
+      role: "member",
+      invited_by: @user
+    )
+
+    sign_in(invited_user)
+
+    get account_path(@team_account)
+    assert_response :not_found
+  end
+
 end

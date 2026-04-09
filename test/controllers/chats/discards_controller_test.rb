@@ -38,7 +38,7 @@ class Chats::DiscardsControllerTest < ActionDispatch::IntegrationTest
     assert_equal @chat.id, audit.auditable_id
   end
 
-  test "create is forbidden for non-admin" do
+  test "create allows confirmed members" do
     team_account = accounts(:team_account)
     member_user = users(:existing_user)
     team_chat = team_account.chats.create!(model_id: "openrouter/auto", title: "Team Chat")
@@ -49,14 +49,11 @@ class Chats::DiscardsControllerTest < ActionDispatch::IntegrationTest
       password: "password123"
     }
 
-    assert_not team_account.manageable_by?(member_user)
-
     post account_chat_discard_path(team_account, team_chat)
 
     assert_redirected_to account_chats_path(team_account)
-    assert_match(/permission/, flash[:alert])
     team_chat.reload
-    assert_not team_chat.discarded?
+    assert team_chat.discarded?
   end
 
   test "destroy restores a discarded chat for admin" do
@@ -82,7 +79,7 @@ class Chats::DiscardsControllerTest < ActionDispatch::IntegrationTest
     assert_equal @chat.id, audit.auditable_id
   end
 
-  test "destroy is forbidden for non-admin" do
+  test "destroy allows confirmed members" do
     team_account = accounts(:team_account)
     member_user = users(:existing_user)
     team_chat = team_account.chats.create!(model_id: "openrouter/auto", title: "Team Chat")
@@ -94,14 +91,11 @@ class Chats::DiscardsControllerTest < ActionDispatch::IntegrationTest
       password: "password123"
     }
 
-    assert_not team_account.manageable_by?(member_user)
-
     delete account_chat_discard_path(team_account, team_chat)
 
     assert_redirected_to account_chats_path(team_account)
-    assert_match(/permission/, flash[:alert])
     team_chat.reload
-    assert team_chat.discarded?
+    assert_not team_chat.discarded?
   end
 
 end

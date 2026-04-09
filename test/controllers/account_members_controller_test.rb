@@ -46,4 +46,15 @@ class AccountMembersControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
+  test "member can remove another member" do
+    sign_in users(:member)
+
+    assert_difference "@account.memberships.count", -1 do
+      delete account_member_path(@account, memberships(:team_admin_member))
+    end
+
+    assert_redirected_to account_path(@account)
+    assert_equal "Member removed successfully", flash[:notice]
+  end
+
 end

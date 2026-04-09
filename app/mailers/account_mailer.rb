@@ -5,7 +5,7 @@ class AccountMailer < ApplicationMailer
     @membership = membership
     @user = membership.user
     @account = membership.account
-    @confirmation_url = email_confirmation_url(token: membership.confirmation_token)
+    @confirmation_url = email_confirmation_url(token: membership.confirmation_token_for_url)
 
     mail(
       to: @user.email_address,
@@ -18,7 +18,7 @@ class AccountMailer < ApplicationMailer
     @user = membership.user
     @account = membership.account
     @inviter = membership.invited_by
-    @confirmation_url = email_confirmation_url(token: membership.confirmation_token)
+    @confirmation_url = email_confirmation_url(token: membership.confirmation_token_for_url)
 
     mail(
       to: @user.email_address,

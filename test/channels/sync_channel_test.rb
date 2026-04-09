@@ -55,4 +55,11 @@ class SyncChannelTest < ActionCable::Channel::TestCase
     assert subscription.rejected?
   end
 
+  test "rejects unapproved collection subscriptions" do
+    stub_connection current_user: @user
+    subscribe channel: "SyncChannel", model: "Account", id: "#{@account.obfuscated_id}:destroy"
+
+    assert subscription.rejected?
+  end
+
 end

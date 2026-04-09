@@ -95,11 +95,11 @@ class Membership < ApplicationRecord
   def self.confirm_by_token!(token)
     raise ActiveSupport::MessageVerifier::InvalidSignature if token.nil?
 
-    membership = find_by!(confirmation_token: token)
+    membership = find_by_token_for(:email_confirmation, token)
+    raise ActiveSupport::MessageVerifier::InvalidSignature unless membership
+
     membership.confirm!
     membership
-  rescue ActiveRecord::RecordNotFound
-    raise ActiveSupport::MessageVerifier::InvalidSignature
   end
 
   # Instance Methods

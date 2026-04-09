@@ -23,8 +23,8 @@ class PasswordsController < ApplicationController
   private
 
   def set_user_by_token
-    @user = User.find_by(password_reset_token: params[:token])
-    redirect_with_invalid_token unless valid_reset_token?
+    @user = User.find_by_token_for(:password_reset, params[:token])
+    redirect_with_invalid_token unless @user&.password_reset_sent_at.present?
   end
 
   def initiate_password_reset_if_user_exists
@@ -53,10 +53,6 @@ class PasswordsController < ApplicationController
 
   def redirect_with_errors
     redirect_to edit_password_path(params[:token]), inertia: { errors: @user.errors }
-  end
-
-  def valid_reset_token?
-    @user.present? && !@user.password_reset_expired?
   end
 
   def redirect_with_invalid_token

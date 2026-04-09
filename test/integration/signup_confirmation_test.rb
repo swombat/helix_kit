@@ -23,11 +23,12 @@ class SignupConfirmationTest < ActionDispatch::IntegrationTest
 
     # Confirmation token is now on Membership
     membership = user.personal_membership
-    assert_not_nil membership.confirmation_token
+    token = membership.confirmation_token_for_url
+    assert_not_nil token
     assert_not_nil membership.confirmation_sent_at
 
     # Visit confirmation link
-    get email_confirmation_path(token: membership.confirmation_token)
+    get email_confirmation_path(token: token)
     assert_redirected_to set_password_path
     follow_redirect!
     assert_response :success
@@ -79,7 +80,7 @@ class SignupConfirmationTest < ActionDispatch::IntegrationTest
   test "resends confirmation email for existing unconfirmed user" do
     user = users(:unconfirmed_user)
     membership = user.personal_membership
-    old_token = membership.confirmation_token
+    old_token = membership.confirmation_token_for_url
 
     # Try to signup again with same email
     assert_no_difference "User.count" do
@@ -89,7 +90,7 @@ class SignupConfirmationTest < ActionDispatch::IntegrationTest
 
     # Token should be updated
     membership.reload
-    assert_not_equal old_token, membership.confirmation_token
+    assert_not_equal old_token, membership.confirmation_token_for_url
   end
 
   test "prevents signup with confirmed email" do

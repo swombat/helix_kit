@@ -7,8 +7,9 @@ module Authenticatable
     has_secure_password validations: false
     has_many :sessions, dependent: :destroy
 
-    # Use Rails' built-in secure token for password resets
-    has_secure_token :password_reset_token
+    generates_token_for :password_reset, expires_in: 2.hours do
+      password_salt&.last(10)
+    end
 
     # Password validations
     validates :password, presence: true, length: { minimum: 8 },
@@ -19,14 +20,14 @@ module Authenticatable
   end
 
   def send_password_reset
-    regenerate_password_reset_token
-    update_column(:password_reset_sent_at, Time.current)
+    update_columns(password_reset_token: nil, password_reset_sent_at: Time.current)
     PasswordsMailer.reset(self).deliver_later
   end
 
-  # Override to return the actual stored token, not Rails 8's virtual token
   def password_reset_token_for_url
-    read_attribute(:password_reset_token)
+    return unless password_reset_sent_at.present?
+
+    generate_token_for(:password_reset)
   end
 
   def password_reset_expired?

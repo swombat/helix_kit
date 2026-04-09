@@ -13,7 +13,9 @@ class User < ApplicationRecord
 
   # Account associations through memberships
   has_many :memberships, dependent: :destroy
+  has_many :confirmed_memberships, -> { confirmed }, class_name: "Membership"
   has_many :accounts, through: :memberships
+  has_many :confirmed_accounts, through: :confirmed_memberships, source: :account
   has_one :personal_membership, -> { joins(:account).where(accounts: { account_type: 0 }) },
           class_name: "Membership"
   has_one :personal_account, through: :personal_membership, source: :account
@@ -93,7 +95,7 @@ class User < ApplicationRecord
   end
 
   def default_account
-    memberships.confirmed.first&.account || memberships.first&.account
+    memberships.confirmed.includes(:account).first&.account
   end
 
   # For finding or creating invited users
@@ -122,7 +124,7 @@ class User < ApplicationRecord
   def site_admin
     return true if is_site_admin
 
-    accounts.where(is_site_admin: true).exists?
+    confirmed_accounts.where(is_site_admin: true).exists?
   end
 
   # Alias for site_admin method to match common Rails pattern

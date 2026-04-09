@@ -2,7 +2,7 @@
 class InvitationsController < ApplicationController
 
   before_action :set_account
-  before_action :authorize_management!
+  before_action :require_account_manager!
 
   def create
     send_invitation || redirect_with_invitation_errors
@@ -75,18 +75,14 @@ class InvitationsController < ApplicationController
   end
 
   def set_account
-    @account = Current.user.accounts.find(params[:account_id])
-  end
-
-  def authorize_management!
-    raise Account::NotAuthorized unless @account.manageable_by?(Current.user)
-  rescue Account::NotAuthorized
-    redirect_to account_path(@account),
-      alert: "You don't have permission to manage members"
+    @account = find_current_user_account!(params[:account_id])
   end
 
   def invitation_params
-    params.permit(:email, :role)
+    {
+      email: params[:email].to_s,
+      role: params[:role].to_s
+    }
   end
 
 end

@@ -9,7 +9,7 @@ module Confirmable
     scope :unconfirmed, -> { where(confirmed_at: nil) }
 
     generates_token_for :email_confirmation, expires_in: 24.hours do
-      confirmable_attributes_for_token
+      [ confirmable_attributes_for_token, confirmed_at&.to_i, confirmation_sent_at&.to_i ]
     end
   end
 
@@ -26,8 +26,13 @@ module Confirmable
     )
   end
 
+  def confirmation_token_for_url
+    return if confirmed?
+
+    generate_token_for(:email_confirmation)
+  end
+
   def generate_confirmation_token
-    self.confirmation_token = generate_token_for(:email_confirmation)
     self.confirmation_sent_at = Time.current
   end
 
@@ -40,7 +45,7 @@ module Confirmable
   private
 
   def needs_confirmation?
-    confirmation_token.blank? && confirmed_at.blank?
+    confirmed_at.blank?
   end
 
   def confirmable_attributes_for_token

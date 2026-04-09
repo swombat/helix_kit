@@ -18,7 +18,7 @@ module SyncAuthorizable
       # If model has account association, use account-based access
       if reflect_on_association(:account)
         return all if user.site_admin
-        joins(:account).where(account: user.accounts)
+        joins(:account).where(account: user.confirmed_accounts)
       else
         # No account means admin-only
         user.site_admin ? all : none

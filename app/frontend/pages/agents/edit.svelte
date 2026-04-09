@@ -608,7 +608,9 @@
                 type="password"
                 bind:value={$form.agent.telegram_bot_token}
                 placeholder="123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11" />
-              <p class="text-xs text-muted-foreground">The API token provided by BotFather. Stored encrypted.</p>
+              <p class="text-xs text-muted-foreground">
+                The API token provided by BotFather. Leave blank to keep the current token. Stored encrypted.
+              </p>
             </div>
 
             {#if agent.telegram_configured}
