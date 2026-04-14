@@ -102,7 +102,7 @@ Rails.application.routes.draw do
     namespace :v1 do
       resources :key_requests, only: [ :create, :show ]
       resources :conversations, only: [ :index, :show, :create ] do
-        resources :messages, only: :create
+        resources :messages, only: [ :index, :create ]
         resource :agent_trigger, only: :create
         resources :participants, only: :create
       end

@@ -219,6 +219,38 @@ Creates a new conversation. Include `agent_ids` to create a group chat with agen
 
 ---
 
+### List Messages in Conversation
+
+```
+GET /api/v1/conversations/:id/messages
+```
+
+Returns the message transcript for a conversation. This is a convenience endpoint that returns the same transcript data as the conversation show endpoint.
+
+**Response:**
+```json
+{
+  "messages": [
+    {
+      "role": "user",
+      "content": "Let's plan the Q1 roadmap",
+      "author": "Daniel",
+      "timestamp": "2026-01-15T09:00:00Z"
+    },
+    {
+      "role": "assistant",
+      "content": "I'd be happy to help...",
+      "author": "Research Assistant",
+      "timestamp": "2026-01-15T09:00:15Z"
+    }
+  ]
+}
+```
+
+Note: Like the conversation show endpoint, this excludes images, thinking traces, and tool calls.
+
+---
+
 ### Post Message to Conversation
 
 ```

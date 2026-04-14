@@ -2,6 +2,14 @@ module Api
   module V1
     class MessagesController < BaseController
 
+      def index
+        chat = current_api_account.chats.find(params[:conversation_id])
+
+        render json: {
+          messages: chat.transcript_for_api
+        }
+      end
+
       def create
         chat = current_api_account.chats.find(params[:conversation_id])
 
