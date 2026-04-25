@@ -71,7 +71,7 @@ Rails.application.routes.draw do
         resource :refinement, only: :create
         resource :telegram_test, only: :create
         resource :telegram_webhook, only: :create
-        resource :fork, only: :create
+        resource :predecessor, only: :create
         resources :memories, only: [ :create ] do
           resource :discard, only: [ :create, :destroy ], module: :memories
           resource :protection, only: [ :create, :destroy ], module: :memories

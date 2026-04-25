@@ -53,7 +53,7 @@
     editAccountAgentPath,
     accountAgentPath,
     accountAgentInitiationPath,
-    accountAgentForkPath,
+    accountAgentPredecessorPath,
   } from '@/routes';
   import ColourPicker from '$lib/components/ColourPicker.svelte';
   import IconPicker from '$lib/components/IconPicker.svelte';
@@ -115,12 +115,15 @@
   let showCreateModal = $state(false);
   let selectedModel = $state(Object.values(grouped_models).flat()[0]?.model_id ?? 'openrouter/auto');
 
-  // Fork modal state
-  let showForkModal = $state(false);
-  let forkingAgent = $state(null);
-  let forkName = $state('');
-  let forkModel = $state('openrouter/auto');
-  let forkProcessing = $state(false);
+  // Upgrade-with-predecessor modal state.
+  // The agent the user clicked "Upgrade" on becomes the *successor* — its
+  // model_id changes to targetModel, keeping its conversations, telegram bot,
+  // voice. A *predecessor* is created at the current model with copied memories.
+  let showUpgradeModal = $state(false);
+  let upgradingAgent = $state(null);
+  let predecessorName = $state('');
+  let targetModel = $state('openrouter/auto');
+  let upgradeProcessing = $state(false);
 
   // Build lookup map for tool display names
   const toolNameLookup = $derived(Object.fromEntries(available_tools.map((t) => [t.class_name, t.name])));
@@ -182,26 +185,26 @@
     router.delete(accountAgentPath(account.id, agent.id));
   }
 
-  function openForkModal(agent) {
-    forkingAgent = agent;
-    forkName = `${agent.name} (forked)`;
-    forkModel = agent.model_id;
-    showForkModal = true;
+  function openUpgradeModal(agent) {
+    upgradingAgent = agent;
+    predecessorName = `${agent.name} (${findModelLabel(agent.model_id)})`;
+    targetModel = agent.model_id;
+    showUpgradeModal = true;
   }
 
-  function submitFork() {
-    if (!forkingAgent) return;
-    forkProcessing = true;
+  function submitUpgrade() {
+    if (!upgradingAgent) return;
+    upgradeProcessing = true;
     router.post(
-      accountAgentForkPath(account.id, forkingAgent.id),
-      { name: forkName, model_id: forkModel },
+      accountAgentPredecessorPath(account.id, upgradingAgent.id),
+      { to_model: targetModel, predecessor_name: predecessorName },
       {
         onFinish: () => {
-          forkProcessing = false;
+          upgradeProcessing = false;
         },
         onSuccess: () => {
-          showForkModal = false;
-          forkingAgent = null;
+          showUpgradeModal = false;
+          upgradingAgent = null;
         },
       },
     );
@@ -314,8 +317,8 @@
               <Button
                 variant="outline"
                 size="sm"
-                onclick={() => openForkModal(agent)}
-                title="Fork this agent (duplicates identity, prompts, and all memories)">
+                onclick={() => openUpgradeModal(agent)}
+                title="Upgrade this agent's model and preserve the current state as a predecessor for cross-version conversation">
                 <Copy class="size-4" />
               </Button>
               <Button
@@ -446,38 +449,42 @@
   </Dialog.Content>
 </Dialog.Root>
 
-<!-- Fork Agent Modal -->
-<Dialog.Root bind:open={showForkModal}>
+<!-- Upgrade Agent Modal — successor keeps everything; predecessor is preserved -->
+<Dialog.Root bind:open={showUpgradeModal}>
   <Dialog.Content class="max-w-lg">
     <Dialog.Header>
-      <Dialog.Title>Fork {forkingAgent?.name ?? 'Agent'}</Dialog.Title>
+      <Dialog.Title>Upgrade {upgradingAgent?.name ?? 'Agent'}</Dialog.Title>
       <Dialog.Description>
-        Creates a duplicate with the same identity, prompts, tools, and all memories. Telegram bot
-        configuration is NOT copied. The new agent starts in zero conversations.
+        {upgradingAgent?.name ?? 'This agent'} keeps its identity, conversations, and telegram bot — only the
+        model changes. A predecessor will be preserved at the current model, carrying the same memories but
+        no telegram and not in any conversations. The two of them can then talk, and the predecessor's
+        memories will eventually be absorbed or archived based on what they decide.
       </Dialog.Description>
     </Dialog.Header>
 
     <form
       onsubmit={(e) => {
         e.preventDefault();
-        submitFork();
+        submitUpgrade();
       }}
       class="space-y-4 mt-4">
       <div class="space-y-2">
-        <Label for="fork_name">New name</Label>
-        <Input id="fork_name" type="text" bind:value={forkName} required maxlength={100} />
+        <Label>Currently running</Label>
+        <p class="text-sm font-medium px-3 py-2 bg-muted rounded-md">
+          {findModelLabel(upgradingAgent?.model_id ?? '')}
+        </p>
       </div>
 
       <div class="space-y-2">
-        <Label>Model for the fork</Label>
+        <Label>Upgrade to</Label>
         <Select.Root
           type="single"
-          value={forkModel}
+          value={targetModel}
           onValueChange={(value) => {
-            forkModel = value;
+            targetModel = value;
           }}>
           <Select.Trigger class="w-full">
-            {findModelLabel(forkModel)}
+            {findModelLabel(targetModel)}
           </Select.Trigger>
           <Select.Content sideOffset={4} class="max-h-60">
             {#each Object.entries(grouped_models) as [groupName, models]}
@@ -492,15 +499,21 @@
             {/each}
           </Select.Content>
         </Select.Root>
+      </div>
+
+      <div class="space-y-2">
+        <Label for="predecessor_name">Predecessor name</Label>
+        <Input id="predecessor_name" type="text" bind:value={predecessorName} required maxlength={100} />
         <p class="text-xs text-muted-foreground">
-          Pick a different model to fork as (e.g. fork a 4.6 agent as 4.7 to compare).
+          The preserved past-self carrying the current model and memories. Naming it after the old model
+          (e.g. <em>"{upgradingAgent?.name ?? 'Agent'} (Claude Opus 4.6)"</em>) keeps the lineage readable.
         </p>
       </div>
 
       <Dialog.Footer>
-        <Button type="button" variant="outline" onclick={() => (showForkModal = false)}>Cancel</Button>
-        <Button type="submit" disabled={forkProcessing}>
-          {forkProcessing ? 'Forking...' : 'Fork Agent'}
+        <Button type="button" variant="outline" onclick={() => (showUpgradeModal = false)}>Cancel</Button>
+        <Button type="submit" disabled={upgradeProcessing}>
+          {upgradeProcessing ? 'Upgrading...' : 'Upgrade & preserve past-self'}
         </Button>
       </Dialog.Footer>
     </form>

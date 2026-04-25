@@ -400,10 +400,33 @@ class AgentTest < ActiveSupport::TestCase
     assert_equal 10, summaries.length
   end
 
-  # ----- fork! -----
+  # ----- upgrade_with_predecessor! -----
+  # The agent itself (this row) keeps its id, conversations, telegram, voice —
+  # only model_id changes. A predecessor agent is created carrying the OLD
+  # model and a copy of all kept memories.
 
-  test "fork! duplicates identity attributes onto same account" do
-    source = @account.agents.create!(
+  test "upgrade_with_predecessor! changes self's model_id and preserves identity" do
+    successor = @account.agents.create!(
+      name: "Lume",
+      system_prompt: "core prompt",
+      model_id: "anthropic/claude-opus-4.6",
+      thinking_enabled: true,
+      thinking_budget: 12_000
+    )
+    successor_id = successor.id
+
+    successor.upgrade_with_predecessor!(to_model: "anthropic/claude-opus-4.7")
+
+    successor.reload
+    assert_equal successor_id, successor.id
+    assert_equal "Lume", successor.name
+    assert_equal "anthropic/claude-opus-4.7", successor.model_id
+    assert_equal "core prompt", successor.system_prompt
+    assert_equal 12_000, successor.thinking_budget
+  end
+
+  test "upgrade_with_predecessor! creates predecessor with old model and copied prompts" do
+    successor = @account.agents.create!(
       name: "Lume",
       system_prompt: "core prompt",
       reflection_prompt: "reflect",
@@ -412,95 +435,140 @@ class AgentTest < ActiveSupport::TestCase
       refinement_prompt: "refine",
       refinement_threshold: 0.85,
       model_id: "anthropic/claude-opus-4.6",
-      enabled_tools: [],
       colour: "violet",
       icon: "Sparkle",
       thinking_enabled: true,
       thinking_budget: 12_000
     )
 
-    forked = source.fork!
+    predecessor = successor.upgrade_with_predecessor!(to_model: "anthropic/claude-opus-4.7")
 
-    assert forked.persisted?
-    assert_not_equal source.id, forked.id
-    assert_equal source.account_id, forked.account_id
-    assert_equal "Lume (forked)", forked.name
-    assert_equal source.system_prompt, forked.system_prompt
-    assert_equal source.reflection_prompt, forked.reflection_prompt
-    assert_equal source.memory_reflection_prompt, forked.memory_reflection_prompt
-    assert_equal source.summary_prompt, forked.summary_prompt
-    assert_equal source.refinement_prompt, forked.refinement_prompt
-    assert_equal source.refinement_threshold, forked.refinement_threshold
-    assert_equal source.model_id, forked.model_id
-    assert_equal source.colour, forked.colour
-    assert_equal source.icon, forked.icon
-    assert_equal source.thinking_enabled, forked.thinking_enabled
-    assert_equal source.thinking_budget, forked.thinking_budget
+    assert predecessor.persisted?
+    assert_not_equal successor.id, predecessor.id
+    assert_equal successor.account_id, predecessor.account_id
+    assert_equal "anthropic/claude-opus-4.6", predecessor.model_id
+    assert_equal "core prompt", predecessor.system_prompt
+    assert_equal "reflect", predecessor.reflection_prompt
+    assert_equal "memory-reflect", predecessor.memory_reflection_prompt
+    assert_equal "summary", predecessor.summary_prompt
+    assert_equal "refine", predecessor.refinement_prompt
+    assert_equal 0.85, predecessor.refinement_threshold
+    assert_equal "violet", predecessor.colour
+    assert_equal "Sparkle", predecessor.icon
+    assert predecessor.thinking_enabled
+    assert_equal 12_000, predecessor.thinking_budget
   end
 
-  test "fork! accepts an explicit name and model_id" do
-    source = @account.agents.create!(name: "Source", model_id: "anthropic/claude-opus-4.6")
+  test "upgrade_with_predecessor! defaults predecessor name to '<name> (<old model label>)'" do
+    successor = @account.agents.create!(name: "Lume", model_id: "anthropic/claude-opus-4.6")
 
-    forked = source.fork!(name: "Lume 4.7", model_id: "anthropic/claude-opus-4.7")
+    predecessor = successor.upgrade_with_predecessor!(to_model: "anthropic/claude-opus-4.7")
 
-    assert_equal "Lume 4.7", forked.name
-    assert_equal "anthropic/claude-opus-4.7", forked.model_id
+    assert_equal "Lume (Claude Opus 4.6)", predecessor.name
   end
 
-  test "fork! does NOT copy telegram credentials" do
-    source = @account.agents.create!(
+  test "upgrade_with_predecessor! falls back to model_id when label is unknown" do
+    successor = @account.agents.create!(name: "Custom", model_id: "some-unknown/model")
+
+    predecessor = successor.upgrade_with_predecessor!(to_model: "anthropic/claude-opus-4.7")
+
+    assert_equal "Custom (some-unknown/model)", predecessor.name
+  end
+
+  test "upgrade_with_predecessor! accepts an explicit predecessor name" do
+    successor = @account.agents.create!(name: "Lume", model_id: "anthropic/claude-opus-4.6")
+
+    predecessor = successor.upgrade_with_predecessor!(
+      to_model: "anthropic/claude-opus-4.7",
+      predecessor_name: "Lume — pre-4.7 self"
+    )
+
+    assert_equal "Lume — pre-4.7 self", predecessor.name
+  end
+
+  test "upgrade_with_predecessor! does NOT copy telegram credentials onto predecessor" do
+    successor = @account.agents.create!(
       name: "Telegrammed",
-      model_id: "openrouter/auto",
+      model_id: "anthropic/claude-opus-4.6",
       telegram_bot_token: "secret-token",
       telegram_bot_username: "lume_light_bot",
       telegram_webhook_token: SecureRandom.hex(16)
     )
 
-    forked = source.fork!
+    predecessor = successor.upgrade_with_predecessor!(to_model: "anthropic/claude-opus-4.7")
 
-    assert_nil forked.telegram_bot_token
-    assert_nil forked.telegram_bot_username
-    assert_nil forked.telegram_webhook_token
+    assert_nil predecessor.telegram_bot_token
+    assert_nil predecessor.telegram_bot_username
+    assert_nil predecessor.telegram_webhook_token
+
+    # And the successor keeps its telegram config — that's the whole point of succession
+    successor.reload
+    assert_equal "secret-token", successor.telegram_bot_token
+    assert_equal "lume_light_bot", successor.telegram_bot_username
   end
 
-  test "fork! duplicates kept memories with content, type, constitutional flag, created_at" do
-    source = @account.agents.create!(name: "MemSource", model_id: "openrouter/auto")
+  test "upgrade_with_predecessor! duplicates kept memories with metadata preserved" do
+    successor = @account.agents.create!(name: "MemSource", model_id: "anthropic/claude-opus-4.6")
     core_at = 3.days.ago
     journal_at = 2.hours.ago
-    source.memories.create!(content: "core fact", memory_type: :core, constitutional: true, created_at: core_at)
-    source.memories.create!(content: "journal entry", memory_type: :journal, constitutional: false, created_at: journal_at)
+    successor.memories.create!(content: "core fact", memory_type: :core, constitutional: true, created_at: core_at)
+    successor.memories.create!(content: "journal entry", memory_type: :journal, constitutional: false, created_at: journal_at)
 
-    forked = source.fork!
+    predecessor = successor.upgrade_with_predecessor!(to_model: "anthropic/claude-opus-4.7")
 
-    assert_equal 2, forked.memories.kept.count
+    assert_equal 2, predecessor.memories.kept.count
 
-    core = forked.memories.find_by(content: "core fact")
+    core = predecessor.memories.find_by(content: "core fact")
     assert_equal "core", core.memory_type
     assert core.constitutional?
     assert_in_delta core_at.to_f, core.created_at.to_f, 1.0
 
-    journal = forked.memories.find_by(content: "journal entry")
+    journal = predecessor.memories.find_by(content: "journal entry")
     assert_equal "journal", journal.memory_type
     assert_not journal.constitutional?
   end
 
-  test "fork! does not copy discarded memories" do
-    source = @account.agents.create!(name: "DiscardSource", model_id: "openrouter/auto")
-    kept = source.memories.create!(content: "keep me", memory_type: :journal)
-    tombstone = source.memories.create!(content: "discard me", memory_type: :journal)
-    tombstone.discard
+  test "upgrade_with_predecessor! leaves successor's memories intact" do
+    successor = @account.agents.create!(name: "Both", model_id: "anthropic/claude-opus-4.6")
+    successor.memories.create!(content: "shared memory", memory_type: :core)
 
-    forked = source.fork!
+    successor.upgrade_with_predecessor!(to_model: "anthropic/claude-opus-4.7")
 
-    assert_equal 1, forked.memories.count
-    assert_equal "keep me", forked.memories.first.content
+    successor.reload
+    assert_equal 1, successor.memories.kept.count
+    assert_equal "shared memory", successor.memories.kept.first.content
   end
 
-  test "fork! raises when name collides with an existing agent" do
-    @account.agents.create!(name: "Lume", model_id: "openrouter/auto")
-    source = @account.agents.create!(name: "Other", model_id: "openrouter/auto")
+  test "upgrade_with_predecessor! does not copy discarded memories to predecessor" do
+    successor = @account.agents.create!(name: "DiscardSource", model_id: "anthropic/claude-opus-4.6")
+    successor.memories.create!(content: "keep me", memory_type: :journal)
+    tombstone = successor.memories.create!(content: "discard me", memory_type: :journal)
+    tombstone.discard
 
-    assert_raises(ActiveRecord::RecordInvalid) { source.fork!(name: "Lume") }
+    predecessor = successor.upgrade_with_predecessor!(to_model: "anthropic/claude-opus-4.7")
+
+    assert_equal 1, predecessor.memories.count
+    assert_equal "keep me", predecessor.memories.first.content
+  end
+
+  test "upgrade_with_predecessor! raises when to_model is blank" do
+    successor = @account.agents.create!(name: "Source", model_id: "anthropic/claude-opus-4.6")
+
+    assert_raises(ArgumentError) { successor.upgrade_with_predecessor!(to_model: "") }
+    assert_raises(ArgumentError) { successor.upgrade_with_predecessor!(to_model: nil) }
+  end
+
+  test "upgrade_with_predecessor! raises and rolls back when predecessor name collides" do
+    @account.agents.create!(name: "Lume (Claude Opus 4.6)", model_id: "openrouter/auto")
+    successor = @account.agents.create!(name: "Lume", model_id: "anthropic/claude-opus-4.6")
+
+    assert_raises(ActiveRecord::RecordInvalid) do
+      successor.upgrade_with_predecessor!(to_model: "anthropic/claude-opus-4.7")
+    end
+
+    # Successor's model_id MUST NOT have changed — the transaction rolled back
+    successor.reload
+    assert_equal "anthropic/claude-opus-4.6", successor.model_id
   end
 
 end
