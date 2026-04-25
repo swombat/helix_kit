@@ -400,4 +400,175 @@ class AgentTest < ActiveSupport::TestCase
     assert_equal 10, summaries.length
   end
 
+  # ----- upgrade_with_predecessor! -----
+  # The agent itself (this row) keeps its id, conversations, telegram, voice —
+  # only model_id changes. A predecessor agent is created carrying the OLD
+  # model and a copy of all kept memories.
+
+  test "upgrade_with_predecessor! changes self's model_id and preserves identity" do
+    successor = @account.agents.create!(
+      name: "Lume",
+      system_prompt: "core prompt",
+      model_id: "anthropic/claude-opus-4.6",
+      thinking_enabled: true,
+      thinking_budget: 12_000
+    )
+    successor_id = successor.id
+
+    successor.upgrade_with_predecessor!(to_model: "anthropic/claude-opus-4.7")
+
+    successor.reload
+    assert_equal successor_id, successor.id
+    assert_equal "Lume", successor.name
+    assert_equal "anthropic/claude-opus-4.7", successor.model_id
+    assert_equal "core prompt", successor.system_prompt
+    assert_equal 12_000, successor.thinking_budget
+  end
+
+  test "upgrade_with_predecessor! creates predecessor with old model and copied prompts" do
+    successor = @account.agents.create!(
+      name: "Lume",
+      system_prompt: "core prompt",
+      reflection_prompt: "reflect",
+      memory_reflection_prompt: "memory-reflect",
+      summary_prompt: "summary",
+      refinement_prompt: "refine",
+      refinement_threshold: 0.85,
+      model_id: "anthropic/claude-opus-4.6",
+      colour: "violet",
+      icon: "Sparkle",
+      thinking_enabled: true,
+      thinking_budget: 12_000
+    )
+
+    predecessor = successor.upgrade_with_predecessor!(to_model: "anthropic/claude-opus-4.7")
+
+    assert predecessor.persisted?
+    assert_not_equal successor.id, predecessor.id
+    assert_equal successor.account_id, predecessor.account_id
+    assert_equal "anthropic/claude-opus-4.6", predecessor.model_id
+    assert_equal "core prompt", predecessor.system_prompt
+    assert_equal "reflect", predecessor.reflection_prompt
+    assert_equal "memory-reflect", predecessor.memory_reflection_prompt
+    assert_equal "summary", predecessor.summary_prompt
+    assert_equal "refine", predecessor.refinement_prompt
+    assert_equal 0.85, predecessor.refinement_threshold
+    assert_equal "violet", predecessor.colour
+    assert_equal "Sparkle", predecessor.icon
+    assert predecessor.thinking_enabled
+    assert_equal 12_000, predecessor.thinking_budget
+  end
+
+  test "upgrade_with_predecessor! defaults predecessor name to '<name> (<old model label>)'" do
+    successor = @account.agents.create!(name: "Lume", model_id: "anthropic/claude-opus-4.6")
+
+    predecessor = successor.upgrade_with_predecessor!(to_model: "anthropic/claude-opus-4.7")
+
+    assert_equal "Lume (Claude Opus 4.6)", predecessor.name
+  end
+
+  test "upgrade_with_predecessor! falls back to model_id when label is unknown" do
+    successor = @account.agents.create!(name: "Custom", model_id: "some-unknown/model")
+
+    predecessor = successor.upgrade_with_predecessor!(to_model: "anthropic/claude-opus-4.7")
+
+    assert_equal "Custom (some-unknown/model)", predecessor.name
+  end
+
+  test "upgrade_with_predecessor! accepts an explicit predecessor name" do
+    successor = @account.agents.create!(name: "Lume", model_id: "anthropic/claude-opus-4.6")
+
+    predecessor = successor.upgrade_with_predecessor!(
+      to_model: "anthropic/claude-opus-4.7",
+      predecessor_name: "Lume — pre-4.7 self"
+    )
+
+    assert_equal "Lume — pre-4.7 self", predecessor.name
+  end
+
+  test "upgrade_with_predecessor! does NOT copy telegram credentials onto predecessor" do
+    successor = @account.agents.create!(
+      name: "Telegrammed",
+      model_id: "anthropic/claude-opus-4.6",
+      telegram_bot_token: "secret-token",
+      telegram_bot_username: "lume_light_bot",
+      telegram_webhook_token: SecureRandom.hex(16)
+    )
+
+    predecessor = successor.upgrade_with_predecessor!(to_model: "anthropic/claude-opus-4.7")
+
+    assert_nil predecessor.telegram_bot_token
+    assert_nil predecessor.telegram_bot_username
+    assert_nil predecessor.telegram_webhook_token
+
+    # And the successor keeps its telegram config — that's the whole point of succession
+    successor.reload
+    assert_equal "secret-token", successor.telegram_bot_token
+    assert_equal "lume_light_bot", successor.telegram_bot_username
+  end
+
+  test "upgrade_with_predecessor! duplicates kept memories with metadata preserved" do
+    successor = @account.agents.create!(name: "MemSource", model_id: "anthropic/claude-opus-4.6")
+    core_at = 3.days.ago
+    journal_at = 2.hours.ago
+    successor.memories.create!(content: "core fact", memory_type: :core, constitutional: true, created_at: core_at)
+    successor.memories.create!(content: "journal entry", memory_type: :journal, constitutional: false, created_at: journal_at)
+
+    predecessor = successor.upgrade_with_predecessor!(to_model: "anthropic/claude-opus-4.7")
+
+    assert_equal 2, predecessor.memories.kept.count
+
+    core = predecessor.memories.find_by(content: "core fact")
+    assert_equal "core", core.memory_type
+    assert core.constitutional?
+    assert_in_delta core_at.to_f, core.created_at.to_f, 1.0
+
+    journal = predecessor.memories.find_by(content: "journal entry")
+    assert_equal "journal", journal.memory_type
+    assert_not journal.constitutional?
+  end
+
+  test "upgrade_with_predecessor! leaves successor's memories intact" do
+    successor = @account.agents.create!(name: "Both", model_id: "anthropic/claude-opus-4.6")
+    successor.memories.create!(content: "shared memory", memory_type: :core)
+
+    successor.upgrade_with_predecessor!(to_model: "anthropic/claude-opus-4.7")
+
+    successor.reload
+    assert_equal 1, successor.memories.kept.count
+    assert_equal "shared memory", successor.memories.kept.first.content
+  end
+
+  test "upgrade_with_predecessor! does not copy discarded memories to predecessor" do
+    successor = @account.agents.create!(name: "DiscardSource", model_id: "anthropic/claude-opus-4.6")
+    successor.memories.create!(content: "keep me", memory_type: :journal)
+    tombstone = successor.memories.create!(content: "discard me", memory_type: :journal)
+    tombstone.discard
+
+    predecessor = successor.upgrade_with_predecessor!(to_model: "anthropic/claude-opus-4.7")
+
+    assert_equal 1, predecessor.memories.count
+    assert_equal "keep me", predecessor.memories.first.content
+  end
+
+  test "upgrade_with_predecessor! raises when to_model is blank" do
+    successor = @account.agents.create!(name: "Source", model_id: "anthropic/claude-opus-4.6")
+
+    assert_raises(ArgumentError) { successor.upgrade_with_predecessor!(to_model: "") }
+    assert_raises(ArgumentError) { successor.upgrade_with_predecessor!(to_model: nil) }
+  end
+
+  test "upgrade_with_predecessor! raises and rolls back when predecessor name collides" do
+    @account.agents.create!(name: "Lume (Claude Opus 4.6)", model_id: "openrouter/auto")
+    successor = @account.agents.create!(name: "Lume", model_id: "anthropic/claude-opus-4.6")
+
+    assert_raises(ActiveRecord::RecordInvalid) do
+      successor.upgrade_with_predecessor!(to_model: "anthropic/claude-opus-4.7")
+    end
+
+    # Successor's model_id MUST NOT have changed — the transaction rolled back
+    successor.reload
+    assert_equal "anthropic/claude-opus-4.6", successor.model_id
+  end
+
 end

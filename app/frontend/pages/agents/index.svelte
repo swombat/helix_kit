@@ -13,6 +13,7 @@
     Robot,
     PencilSimple,
     Trash,
+    Copy,
     Brain,
     Sparkle,
     Lightning,
@@ -47,7 +48,13 @@
     Leaf,
   } from 'phosphor-svelte';
   import { useSync } from '$lib/use-sync';
-  import { accountAgentsPath, editAccountAgentPath, accountAgentPath, accountAgentInitiationPath } from '@/routes';
+  import {
+    accountAgentsPath,
+    editAccountAgentPath,
+    accountAgentPath,
+    accountAgentInitiationPath,
+    accountAgentPredecessorPath,
+  } from '@/routes';
   import ColourPicker from '$lib/components/ColourPicker.svelte';
   import IconPicker from '$lib/components/IconPicker.svelte';
 
@@ -108,6 +115,16 @@
   let showCreateModal = $state(false);
   let selectedModel = $state(Object.values(grouped_models).flat()[0]?.model_id ?? 'openrouter/auto');
 
+  // Upgrade-with-predecessor modal state.
+  // The agent the user clicked "Upgrade" on becomes the *successor* — its
+  // model_id changes to targetModel, keeping its conversations, telegram bot,
+  // voice. A *predecessor* is created at the current model with copied memories.
+  let showUpgradeModal = $state(false);
+  let upgradingAgent = $state(null);
+  let predecessorName = $state('');
+  let targetModel = $state('openrouter/auto');
+  let upgradeProcessing = $state(false);
+
   // Build lookup map for tool display names
   const toolNameLookup = $derived(Object.fromEntries(available_tools.map((t) => [t.class_name, t.name])));
 
@@ -166,6 +183,31 @@
   function deleteAgent(agent) {
     if (!confirm(`Delete agent "${agent.name}"? This cannot be undone.`)) return;
     router.delete(accountAgentPath(account.id, agent.id));
+  }
+
+  function openUpgradeModal(agent) {
+    upgradingAgent = agent;
+    predecessorName = `${agent.name} (${findModelLabel(agent.model_id)})`;
+    targetModel = agent.model_id;
+    showUpgradeModal = true;
+  }
+
+  function submitUpgrade() {
+    if (!upgradingAgent) return;
+    upgradeProcessing = true;
+    router.post(
+      accountAgentPredecessorPath(account.id, upgradingAgent.id),
+      { to_model: targetModel, predecessor_name: predecessorName },
+      {
+        onFinish: () => {
+          upgradeProcessing = false;
+        },
+        onSuccess: () => {
+          showUpgradeModal = false;
+          upgradingAgent = null;
+        },
+      },
+    );
   }
 </script>
 
@@ -272,6 +314,13 @@
                   Edit
                 </Button>
               </a>
+              <Button
+                variant="outline"
+                size="sm"
+                onclick={() => openUpgradeModal(agent)}
+                title="Upgrade this agent's model and preserve the current state as a predecessor for cross-version conversation">
+                <Copy class="size-4" />
+              </Button>
               <Button
                 variant="outline"
                 size="sm"
@@ -394,6 +443,77 @@
         <Button type="button" variant="outline" onclick={() => (showCreateModal = false)}>Cancel</Button>
         <Button type="submit" disabled={$form.processing}>
           {$form.processing ? 'Creating...' : 'Create Agent'}
+        </Button>
+      </Dialog.Footer>
+    </form>
+  </Dialog.Content>
+</Dialog.Root>
+
+<!-- Upgrade Agent Modal — successor keeps everything; predecessor is preserved -->
+<Dialog.Root bind:open={showUpgradeModal}>
+  <Dialog.Content class="max-w-lg">
+    <Dialog.Header>
+      <Dialog.Title>Upgrade {upgradingAgent?.name ?? 'Agent'}</Dialog.Title>
+      <Dialog.Description>
+        {upgradingAgent?.name ?? 'This agent'} keeps its identity, conversations, and telegram bot — only the
+        model changes. A predecessor will be preserved at the current model, carrying the same memories but
+        no telegram and not in any conversations. The two of them can then talk, and the predecessor's
+        memories will eventually be absorbed or archived based on what they decide.
+      </Dialog.Description>
+    </Dialog.Header>
+
+    <form
+      onsubmit={(e) => {
+        e.preventDefault();
+        submitUpgrade();
+      }}
+      class="space-y-4 mt-4">
+      <div class="space-y-2">
+        <Label>Currently running</Label>
+        <p class="text-sm font-medium px-3 py-2 bg-muted rounded-md">
+          {findModelLabel(upgradingAgent?.model_id ?? '')}
+        </p>
+      </div>
+
+      <div class="space-y-2">
+        <Label>Upgrade to</Label>
+        <Select.Root
+          type="single"
+          value={targetModel}
+          onValueChange={(value) => {
+            targetModel = value;
+          }}>
+          <Select.Trigger class="w-full">
+            {findModelLabel(targetModel)}
+          </Select.Trigger>
+          <Select.Content sideOffset={4} class="max-h-60">
+            {#each Object.entries(grouped_models) as [groupName, models]}
+              <Select.Group>
+                <Select.GroupHeading class="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
+                  {groupName}
+                </Select.GroupHeading>
+                {#each models as model (model.model_id)}
+                  <Select.Item value={model.model_id} label={model.label}>{model.label}</Select.Item>
+                {/each}
+              </Select.Group>
+            {/each}
+          </Select.Content>
+        </Select.Root>
+      </div>
+
+      <div class="space-y-2">
+        <Label for="predecessor_name">Predecessor name</Label>
+        <Input id="predecessor_name" type="text" bind:value={predecessorName} required maxlength={100} />
+        <p class="text-xs text-muted-foreground">
+          The preserved past-self carrying the current model and memories. Naming it after the old model
+          (e.g. <em>"{upgradingAgent?.name ?? 'Agent'} (Claude Opus 4.6)"</em>) keeps the lineage readable.
+        </p>
+      </div>
+
+      <Dialog.Footer>
+        <Button type="button" variant="outline" onclick={() => (showUpgradeModal = false)}>Cancel</Button>
+        <Button type="submit" disabled={upgradeProcessing}>
+          {upgradeProcessing ? 'Upgrading...' : 'Upgrade & preserve past-self'}
         </Button>
       </Dialog.Footer>
     </form>

@@ -179,6 +179,61 @@ class Agent < ApplicationRecord
     core_token_usage > AgentMemory::CORE_TOKEN_BUDGET
   end
 
+  # Attributes copied verbatim onto a predecessor. Telegram credentials and
+  # identity columns (id/timestamps) are intentionally excluded — see
+  # Agent#upgrade_with_predecessor!.
+  PREDECESSOR_COPIED_ATTRIBUTES = %w[
+    account_id active colour enabled_tools icon last_refinement_at
+    memory_reflection_prompt model_id refinement_prompt refinement_threshold
+    reflection_prompt summary_prompt system_prompt thinking_budget
+    thinking_enabled voice_id
+  ].freeze
+
+  # Upgrade this agent to a new model AND preserve the current state as a
+  # predecessor. The agent itself (this row) keeps its id, conversations,
+  # telegram bot, voice, and all relational continuity — only its model_id
+  # changes. A predecessor agent is created on the same account, carrying the
+  # OLD model_id and a copy of all kept memories, but with no telegram, no
+  # conversations.
+  #
+  # The predecessor exists for the cross-version conversation: the upgraded
+  # successor (this agent) and the predecessor can be added to a chat
+  # together, talk it through, and then either merge the predecessor's
+  # memories back, archive the predecessor, or do whatever they decide.
+  #
+  # Returns the predecessor. Raises ActiveRecord::RecordInvalid on failure.
+  # The whole operation is transactional — if predecessor creation fails,
+  # this agent's model_id is NOT updated.
+  #
+  # to_model:          required. The new model_id this agent will adopt
+  # predecessor_name:  defaults to "<this agent's name> (<current model label>)"
+  #                    so the lineage reads cleanly in the agent list.
+  def upgrade_with_predecessor!(to_model:, predecessor_name: nil)
+    raise ArgumentError, "to_model is required" if to_model.blank?
+
+    old_model_id = model_id
+    old_model_label = model_label
+
+    self.class.transaction do
+      predecessor = self.class.new(attributes.slice(*PREDECESSOR_COPIED_ATTRIBUTES))
+      predecessor.name = predecessor_name.presence || "#{name} (#{old_model_label})"
+      predecessor.save!
+
+      memories.kept.find_each do |memory|
+        predecessor.memories.create!(
+          content: memory.content,
+          memory_type: memory.memory_type,
+          constitutional: memory.constitutional,
+          created_at: memory.created_at
+        )
+      end
+
+      update!(model_id: to_model)
+
+      predecessor
+    end
+  end
+
   private
 
   def clean_enabled_tools
