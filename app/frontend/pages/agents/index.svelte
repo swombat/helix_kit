@@ -13,6 +13,7 @@
     Robot,
     PencilSimple,
     Trash,
+    Copy,
     Brain,
     Sparkle,
     Lightning,
@@ -47,7 +48,13 @@
     Leaf,
   } from 'phosphor-svelte';
   import { useSync } from '$lib/use-sync';
-  import { accountAgentsPath, editAccountAgentPath, accountAgentPath, accountAgentInitiationPath } from '@/routes';
+  import {
+    accountAgentsPath,
+    editAccountAgentPath,
+    accountAgentPath,
+    accountAgentInitiationPath,
+    accountAgentForkPath,
+  } from '@/routes';
   import ColourPicker from '$lib/components/ColourPicker.svelte';
   import IconPicker from '$lib/components/IconPicker.svelte';
 
@@ -108,6 +115,13 @@
   let showCreateModal = $state(false);
   let selectedModel = $state(Object.values(grouped_models).flat()[0]?.model_id ?? 'openrouter/auto');
 
+  // Fork modal state
+  let showForkModal = $state(false);
+  let forkingAgent = $state(null);
+  let forkName = $state('');
+  let forkModel = $state('openrouter/auto');
+  let forkProcessing = $state(false);
+
   // Build lookup map for tool display names
   const toolNameLookup = $derived(Object.fromEntries(available_tools.map((t) => [t.class_name, t.name])));
 
@@ -166,6 +180,31 @@
   function deleteAgent(agent) {
     if (!confirm(`Delete agent "${agent.name}"? This cannot be undone.`)) return;
     router.delete(accountAgentPath(account.id, agent.id));
+  }
+
+  function openForkModal(agent) {
+    forkingAgent = agent;
+    forkName = `${agent.name} (forked)`;
+    forkModel = agent.model_id;
+    showForkModal = true;
+  }
+
+  function submitFork() {
+    if (!forkingAgent) return;
+    forkProcessing = true;
+    router.post(
+      accountAgentForkPath(account.id, forkingAgent.id),
+      { name: forkName, model_id: forkModel },
+      {
+        onFinish: () => {
+          forkProcessing = false;
+        },
+        onSuccess: () => {
+          showForkModal = false;
+          forkingAgent = null;
+        },
+      },
+    );
   }
 </script>
 
@@ -272,6 +311,13 @@
                   Edit
                 </Button>
               </a>
+              <Button
+                variant="outline"
+                size="sm"
+                onclick={() => openForkModal(agent)}
+                title="Fork this agent (duplicates identity, prompts, and all memories)">
+                <Copy class="size-4" />
+              </Button>
               <Button
                 variant="outline"
                 size="sm"
@@ -394,6 +440,67 @@
         <Button type="button" variant="outline" onclick={() => (showCreateModal = false)}>Cancel</Button>
         <Button type="submit" disabled={$form.processing}>
           {$form.processing ? 'Creating...' : 'Create Agent'}
+        </Button>
+      </Dialog.Footer>
+    </form>
+  </Dialog.Content>
+</Dialog.Root>
+
+<!-- Fork Agent Modal -->
+<Dialog.Root bind:open={showForkModal}>
+  <Dialog.Content class="max-w-lg">
+    <Dialog.Header>
+      <Dialog.Title>Fork {forkingAgent?.name ?? 'Agent'}</Dialog.Title>
+      <Dialog.Description>
+        Creates a duplicate with the same identity, prompts, tools, and all memories. Telegram bot
+        configuration is NOT copied. The new agent starts in zero conversations.
+      </Dialog.Description>
+    </Dialog.Header>
+
+    <form
+      onsubmit={(e) => {
+        e.preventDefault();
+        submitFork();
+      }}
+      class="space-y-4 mt-4">
+      <div class="space-y-2">
+        <Label for="fork_name">New name</Label>
+        <Input id="fork_name" type="text" bind:value={forkName} required maxlength={100} />
+      </div>
+
+      <div class="space-y-2">
+        <Label>Model for the fork</Label>
+        <Select.Root
+          type="single"
+          value={forkModel}
+          onValueChange={(value) => {
+            forkModel = value;
+          }}>
+          <Select.Trigger class="w-full">
+            {findModelLabel(forkModel)}
+          </Select.Trigger>
+          <Select.Content sideOffset={4} class="max-h-60">
+            {#each Object.entries(grouped_models) as [groupName, models]}
+              <Select.Group>
+                <Select.GroupHeading class="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
+                  {groupName}
+                </Select.GroupHeading>
+                {#each models as model (model.model_id)}
+                  <Select.Item value={model.model_id} label={model.label}>{model.label}</Select.Item>
+                {/each}
+              </Select.Group>
+            {/each}
+          </Select.Content>
+        </Select.Root>
+        <p class="text-xs text-muted-foreground">
+          Pick a different model to fork as (e.g. fork a 4.6 agent as 4.7 to compare).
+        </p>
+      </div>
+
+      <Dialog.Footer>
+        <Button type="button" variant="outline" onclick={() => (showForkModal = false)}>Cancel</Button>
+        <Button type="submit" disabled={forkProcessing}>
+          {forkProcessing ? 'Forking...' : 'Fork Agent'}
         </Button>
       </Dialog.Footer>
     </form>

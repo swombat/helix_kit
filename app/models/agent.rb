@@ -179,6 +179,46 @@ class Agent < ApplicationRecord
     core_token_usage > AgentMemory::CORE_TOKEN_BUDGET
   end
 
+  # Attributes copied verbatim when forking. Telegram credentials and identity
+  # columns (id/timestamps) are intentionally excluded — see Agent#fork!.
+  FORK_COPIED_ATTRIBUTES = %w[
+    account_id active colour enabled_tools icon last_refinement_at
+    memory_reflection_prompt model_id refinement_prompt refinement_threshold
+    reflection_prompt summary_prompt system_prompt thinking_budget
+    thinking_enabled voice_id
+  ].freeze
+
+  # Duplicate this agent — identity, prompts, tools, and all kept memories —
+  # into a new agent on the same account. Telegram bot configuration is NOT
+  # copied (one bot per agent). Conversations / chat memberships are NOT copied
+  # (the fork starts in zero conversations).
+  #
+  # The new agent is returned. Raises ActiveRecord::RecordInvalid on failure.
+  #
+  # name:     defaults to "<original name> (forked)" — caller is responsible
+  #           for ensuring uniqueness within the account
+  # model_id: defaults to the source agent's model_id; pass to fork as a
+  #           different model (e.g. forking a 4.6 agent as 4.7)
+  def fork!(name: nil, model_id: nil)
+    self.class.transaction do
+      forked = self.class.new(attributes.slice(*FORK_COPIED_ATTRIBUTES))
+      forked.name = name.presence || "#{self.name} (forked)"
+      forked.model_id = model_id if model_id.present?
+      forked.save!
+
+      memories.kept.find_each do |memory|
+        forked.memories.create!(
+          content: memory.content,
+          memory_type: memory.memory_type,
+          constitutional: memory.constitutional,
+          created_at: memory.created_at
+        )
+      end
+
+      forked
+    end
+  end
+
   private
 
   def clean_enabled_tools

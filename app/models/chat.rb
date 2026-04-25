@@ -91,6 +91,13 @@ class Chat < ApplicationRecord
   MODELS = [
     # Top Models - Flagship from each major provider
     {
+      model_id: "openai/gpt-5.5",
+      label: "GPT-5.5",
+      group: "Top Models",
+      provider_model_id: "gpt-5.5",
+      thinking: { supported: true }
+    },
+    {
       model_id: "openai/gpt-5.4",
       label: "GPT-5.4",
       group: "Top Models",
@@ -98,10 +105,24 @@ class Chat < ApplicationRecord
       thinking: { supported: true }
     },
     {
+      model_id: "anthropic/claude-opus-4.7",
+      label: "Claude Opus 4.7",
+      group: "Top Models",
+      provider_model_id: "claude-opus-4-7",
+      thinking: { supported: true, requires_direct_api: true }
+    },
+    {
       model_id: "anthropic/claude-opus-4.6",
       label: "Claude Opus 4.6",
       group: "Top Models",
       provider_model_id: "claude-opus-4-6",
+      thinking: { supported: true, requires_direct_api: true }
+    },
+    {
+      model_id: "deepseek/deepseek-v4-pro",
+      label: "DeepSeek V4 Pro",
+      group: "Top Models",
+      provider_model_id: "deepseek-v4-pro",
       thinking: { supported: true, requires_direct_api: true }
     },
     {
@@ -122,6 +143,13 @@ class Chat < ApplicationRecord
     { model_id: "deepseek/deepseek-v3.2", label: "DeepSeek V3.2", group: "Top Models" },
 
     # OpenAI
+    {
+      model_id: "openai/gpt-5.5-pro",
+      label: "GPT-5.5 Pro",
+      group: "OpenAI",
+      provider_model_id: "gpt-5.5-pro",
+      thinking: { supported: true, requires_direct_api: true }
+    },
     {
       model_id: "openai/gpt-5.2",
       label: "GPT-5.2",
@@ -350,6 +378,12 @@ class Chat < ApplicationRecord
     },
 
     # DeepSeek
+    {
+      model_id: "deepseek/deepseek-v4-flash",
+      label: "DeepSeek V4 Flash",
+      group: "DeepSeek",
+      provider_model_id: "deepseek-v4-flash"
+    },
     { model_id: "deepseek/deepseek-r1", label: "DeepSeek R1", group: "DeepSeek" },
     { model_id: "deepseek/deepseek-v3", label: "DeepSeek V3", group: "DeepSeek" }
   ].freeze

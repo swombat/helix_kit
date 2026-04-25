@@ -400,4 +400,107 @@ class AgentTest < ActiveSupport::TestCase
     assert_equal 10, summaries.length
   end
 
+  # ----- fork! -----
+
+  test "fork! duplicates identity attributes onto same account" do
+    source = @account.agents.create!(
+      name: "Lume",
+      system_prompt: "core prompt",
+      reflection_prompt: "reflect",
+      memory_reflection_prompt: "memory-reflect",
+      summary_prompt: "summary",
+      refinement_prompt: "refine",
+      refinement_threshold: 0.85,
+      model_id: "anthropic/claude-opus-4.6",
+      enabled_tools: [],
+      colour: "violet",
+      icon: "Sparkle",
+      thinking_enabled: true,
+      thinking_budget: 12_000
+    )
+
+    forked = source.fork!
+
+    assert forked.persisted?
+    assert_not_equal source.id, forked.id
+    assert_equal source.account_id, forked.account_id
+    assert_equal "Lume (forked)", forked.name
+    assert_equal source.system_prompt, forked.system_prompt
+    assert_equal source.reflection_prompt, forked.reflection_prompt
+    assert_equal source.memory_reflection_prompt, forked.memory_reflection_prompt
+    assert_equal source.summary_prompt, forked.summary_prompt
+    assert_equal source.refinement_prompt, forked.refinement_prompt
+    assert_equal source.refinement_threshold, forked.refinement_threshold
+    assert_equal source.model_id, forked.model_id
+    assert_equal source.colour, forked.colour
+    assert_equal source.icon, forked.icon
+    assert_equal source.thinking_enabled, forked.thinking_enabled
+    assert_equal source.thinking_budget, forked.thinking_budget
+  end
+
+  test "fork! accepts an explicit name and model_id" do
+    source = @account.agents.create!(name: "Source", model_id: "anthropic/claude-opus-4.6")
+
+    forked = source.fork!(name: "Lume 4.7", model_id: "anthropic/claude-opus-4.7")
+
+    assert_equal "Lume 4.7", forked.name
+    assert_equal "anthropic/claude-opus-4.7", forked.model_id
+  end
+
+  test "fork! does NOT copy telegram credentials" do
+    source = @account.agents.create!(
+      name: "Telegrammed",
+      model_id: "openrouter/auto",
+      telegram_bot_token: "secret-token",
+      telegram_bot_username: "lume_light_bot",
+      telegram_webhook_token: SecureRandom.hex(16)
+    )
+
+    forked = source.fork!
+
+    assert_nil forked.telegram_bot_token
+    assert_nil forked.telegram_bot_username
+    assert_nil forked.telegram_webhook_token
+  end
+
+  test "fork! duplicates kept memories with content, type, constitutional flag, created_at" do
+    source = @account.agents.create!(name: "MemSource", model_id: "openrouter/auto")
+    core_at = 3.days.ago
+    journal_at = 2.hours.ago
+    source.memories.create!(content: "core fact", memory_type: :core, constitutional: true, created_at: core_at)
+    source.memories.create!(content: "journal entry", memory_type: :journal, constitutional: false, created_at: journal_at)
+
+    forked = source.fork!
+
+    assert_equal 2, forked.memories.kept.count
+
+    core = forked.memories.find_by(content: "core fact")
+    assert_equal "core", core.memory_type
+    assert core.constitutional?
+    assert_in_delta core_at.to_f, core.created_at.to_f, 1.0
+
+    journal = forked.memories.find_by(content: "journal entry")
+    assert_equal "journal", journal.memory_type
+    assert_not journal.constitutional?
+  end
+
+  test "fork! does not copy discarded memories" do
+    source = @account.agents.create!(name: "DiscardSource", model_id: "openrouter/auto")
+    kept = source.memories.create!(content: "keep me", memory_type: :journal)
+    tombstone = source.memories.create!(content: "discard me", memory_type: :journal)
+    tombstone.discard
+
+    forked = source.fork!
+
+    assert_equal 1, forked.memories.count
+    assert_equal "keep me", forked.memories.first.content
+  end
+
+  test "fork! raises when name collides with an existing agent" do
+    @account.agents.create!(name: "Lume", model_id: "openrouter/auto")
+    source = @account.agents.create!(name: "Other", model_id: "openrouter/auto")
+
+    assert_raises(ActiveRecord::RecordInvalid) { source.fork!(name: "Lume") }
+  end
+
 end
