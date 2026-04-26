@@ -267,9 +267,18 @@
                 </div>
                 <div>
                   <CardTitle class="text-lg">{agent.name}</CardTitle>
-                  {#if !agent.active}
-                    <Badge variant="secondary" class="mt-1">Inactive</Badge>
-                  {/if}
+                  <div class="flex flex-wrap gap-1 mt-1">
+                    {#if !agent.active}
+                      <Badge variant="secondary">Inactive</Badge>
+                    {/if}
+                    {#if agent.paused}
+                      <Badge
+                        variant="outline"
+                        title="Excluded from cron sweeps. Manual triggers still work.">
+                        Paused
+                      </Badge>
+                    {/if}
+                  </div>
                 </div>
               </div>
             </div>

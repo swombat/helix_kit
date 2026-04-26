@@ -81,6 +81,31 @@ class AgentTest < ActiveSupport::TestCase
     assert_equal names.sort, names
   end
 
+  # ----- paused -----
+
+  test "defaults paused to false" do
+    agent = @account.agents.create!(name: "Default Paused")
+    assert_not agent.paused?
+  end
+
+  test "unpaused scope excludes paused agents" do
+    active_one = @account.agents.create!(name: "Active One")
+    paused = @account.agents.create!(name: "Paused One", paused: true)
+    assert_includes @account.agents.unpaused, active_one
+    assert_not_includes @account.agents.unpaused, paused
+  end
+
+  test "paused is independent of active" do
+    paused_active = @account.agents.create!(name: "Paused but Active", paused: true, active: true)
+    assert paused_active.active?
+    assert paused_active.paused?
+    # The agent still appears in active scope (because active is about availability,
+    # not auto-trigger behavior)
+    assert_includes @account.agents.active, paused_active
+    # But not in unpaused
+    assert_not_includes @account.agents.unpaused, paused_active
+  end
+
   test "validates system_prompt length" do
     agent = @account.agents.build(
       name: "Test",

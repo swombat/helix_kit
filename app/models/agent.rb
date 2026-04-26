@@ -77,11 +77,12 @@ class Agent < ApplicationRecord
   broadcasts_to :account
 
   scope :active, -> { where(active: true) }
+  scope :unpaused, -> { where(paused: false) }
   scope :by_name, -> { order(:name) }
 
   json_attributes :name, :system_prompt, :reflection_prompt, :memory_reflection_prompt,
                   :summary_prompt, :refinement_prompt, :refinement_threshold,
-                  :model_id, :model_label, :enabled_tools, :active?, :colour, :icon,
+                  :model_id, :model_label, :enabled_tools, :active?, :paused?, :colour, :icon,
                   :memories_count, :memory_token_summary, :thinking_enabled, :thinking_budget,
                   :telegram_bot_username, :telegram_configured?,
                   :voiced?, :voice_id

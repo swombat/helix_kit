@@ -74,7 +74,7 @@ class AgentsController < ApplicationController
     permitted = params.require(:agent).permit(
       :name, :system_prompt, :reflection_prompt, :memory_reflection_prompt,
       :summary_prompt, :refinement_prompt, :refinement_threshold,
-      :model_id, :active, :colour, :icon,
+      :model_id, :active, :paused, :colour, :icon,
       :thinking_enabled, :thinking_budget,
       :telegram_bot_token, :telegram_bot_username,
       :voice_id,

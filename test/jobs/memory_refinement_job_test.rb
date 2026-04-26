@@ -24,6 +24,36 @@ class MemoryRefinementJobTest < ActiveSupport::TestCase
     assert_no_llm_calls { MemoryRefinementJob.perform_now }
   end
 
+  test "sweep skips paused agents" do
+    @agent.update!(paused: true)
+    @agent.memories.create!(content: "Something", memory_type: :core)
+    assert_no_llm_calls { MemoryRefinementJob.perform_now }
+  end
+
+  test "by-id call skips paused agent without force" do
+    @agent.update!(paused: true)
+    @agent.memories.create!(content: "Core memory", memory_type: :core)
+
+    refinement_called = false
+    stub_consent_and_refinement("YES", on_refinement: -> { refinement_called = true }) do
+      MemoryRefinementJob.perform_now(@agent.id)
+    end
+
+    assert_not refinement_called, "Cron-style by-id should skip paused agents"
+  end
+
+  test "by-id call with force: true runs refinement on paused agent" do
+    @agent.update!(paused: true)
+    @agent.memories.create!(content: "Core memory", memory_type: :core)
+
+    refinement_called = false
+    stub_consent_and_refinement("YES", on_refinement: -> { refinement_called = true }) do
+      MemoryRefinementJob.perform_now(@agent.id, force: true)
+    end
+
+    assert refinement_called, "Manual force: true should bypass paused check"
+  end
+
   test "runs refinement when agent consents" do
     @agent.memories.create!(content: "Core memory", memory_type: :core)
 

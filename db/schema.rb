@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_01_073429) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_26_093000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -79,6 +79,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_01_073429) do
     t.text "memory_reflection_prompt"
     t.string "model_id", default: "openrouter/auto", null: false
     t.string "name", null: false
+    t.boolean "paused", default: false, null: false
     t.text "refinement_prompt"
     t.float "refinement_threshold"
     t.text "reflection_prompt"
@@ -93,6 +94,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_01_073429) do
     t.string "voice_id"
     t.index ["account_id", "active"], name: "index_agents_on_account_id_and_active"
     t.index ["account_id", "name"], name: "index_agents_on_account_id_and_name", unique: true
+    t.index ["account_id", "paused"], name: "index_agents_on_account_id_and_paused"
     t.index ["account_id"], name: "index_agents_on_account_id"
     t.index ["telegram_webhook_token"], name: "index_agents_on_telegram_webhook_token", unique: true
   end

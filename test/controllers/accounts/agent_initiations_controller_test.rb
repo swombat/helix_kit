@@ -16,12 +16,26 @@ class Accounts::AgentInitiationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "create triggers initiation for all active agents" do
-    assert_enqueued_jobs @account.agents.active.count, only: AgentInitiationDecisionJob do
+    assert_enqueued_jobs @account.agents.active.unpaused.count, only: AgentInitiationDecisionJob do
       post account_agent_initiation_path(@account)
     end
 
     assert_redirected_to account_agents_path(@account)
     assert_match(/Initiation triggered/, flash[:notice])
+  end
+
+  test "create skips paused agents" do
+    paused = @account.agents.create!(name: "Paused Agent", model_id: "openrouter/auto", paused: true)
+    expected_count = @account.agents.active.unpaused.count
+
+    assert_enqueued_jobs expected_count, only: AgentInitiationDecisionJob do
+      post account_agent_initiation_path(@account)
+    end
+
+    enqueued = queue_adapter.enqueued_jobs.select { |j| j["job_class"] == "AgentInitiationDecisionJob" }
+    agent_globalids = enqueued.map { |j| j["arguments"].first["_aj_globalid"] }
+    refute agent_globalids.any? { |gid| gid.include?("/#{paused.id}") },
+           "Paused agent should not have a decision job enqueued"
   end
 
   test "requires authentication" do
