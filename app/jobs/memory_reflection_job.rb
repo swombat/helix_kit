@@ -20,7 +20,8 @@ class MemoryReflectionJob < ApplicationJob
   private
 
   def agents_with_recent_journal
-    Agent.joins(:memories)
+    Agent.unpaused
+         .joins(:memories)
          .merge(AgentMemory.active_journal)
          .distinct
   end

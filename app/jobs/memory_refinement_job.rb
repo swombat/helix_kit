@@ -10,9 +10,17 @@ class MemoryRefinementJob < ApplicationJob
   def perform(*args)
     agent_ids, options = extract_args(args)
     mode = options.fetch(:mode, :full).to_sym
+    # `force: true` from manual triggers (refinements_controller) bypasses the
+    # paused check so a user can still refine a paused agent on demand. Cron
+    # paths (recurring.yml, sweep) leave `force` unset and respect paused.
+    force = options.fetch(:force, false)
 
     if agent_ids.any?
       Agent.where(id: agent_ids).find_each do |agent|
+        if agent.paused? && !force
+          Rails.logger.info "[Refinement] Skipping paused agent #{agent.id} (#{agent.name})"
+          next
+        end
         Rails.logger.info "[Refinement] Starting for agent #{agent.id} (#{agent.name}), mode: #{mode}"
         refine_agent(agent, mode:)
       rescue => e
@@ -20,7 +28,7 @@ class MemoryRefinementJob < ApplicationJob
       end
     else
       Rails.logger.info "[Refinement] Sweep starting, mode: #{mode}"
-      Agent.active.find_each do |agent|
+      Agent.active.unpaused.find_each do |agent|
         next unless agent.needs_refinement?
         Rails.logger.info "[Refinement] Agent #{agent.id} (#{agent.name}) needs refinement"
         refine_agent(agent, mode:)

@@ -93,6 +93,7 @@
       refinement_threshold: agent.refinement_threshold ?? 0.9,
       model_id: agent.model_id,
       active: agent.active,
+      paused: agent.paused || false,
       enabled_tools: agent.enabled_tools || [],
       colour: agent.colour || null,
       icon: agent.icon || null,
@@ -423,6 +424,22 @@
                 id="active"
                 checked={$form.agent.active}
                 onCheckedChange={(checked) => ($form.agent.active = checked)} />
+            </div>
+
+            <div class="flex items-center justify-between">
+              <div class="space-y-1">
+                <Label for="paused">Paused</Label>
+                <p class="text-sm text-muted-foreground">
+                  Excludes this agent from cron-driven sweeps (memory refinement, reflection, conversation
+                  initiation, "Trigger Initiation"). Manual triggers — replying in chats, the agent_trigger
+                  endpoint, the API — still work. Use this for retired predecessors or any agent that should
+                  remain reachable but not act on its own.
+                </p>
+              </div>
+              <Switch
+                id="paused"
+                checked={$form.agent.paused}
+                onCheckedChange={(checked) => ($form.agent.paused = checked)} />
             </div>
 
             <div class="space-y-2">

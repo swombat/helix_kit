@@ -16,8 +16,8 @@ class Agents::RefinementsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
   end
 
-  test "create queues full refinement job by default" do
-    assert_enqueued_with(job: MemoryRefinementJob, args: [ @agent.id, { mode: "full" } ]) do
+  test "create queues full refinement job by default with force: true" do
+    assert_enqueued_with(job: MemoryRefinementJob, args: [ @agent.id, { mode: "full", force: true } ]) do
       post account_agent_refinement_path(@account, @agent)
     end
 
@@ -25,8 +25,8 @@ class Agents::RefinementsControllerTest < ActionDispatch::IntegrationTest
     assert_match(/Full refinement session queued/, flash[:notice])
   end
 
-  test "create queues dedup_only refinement job" do
-    assert_enqueued_with(job: MemoryRefinementJob, args: [ @agent.id, { mode: "dedup_only" } ]) do
+  test "create queues dedup_only refinement job with force: true" do
+    assert_enqueued_with(job: MemoryRefinementJob, args: [ @agent.id, { mode: "dedup_only", force: true } ]) do
       post account_agent_refinement_path(@account, @agent), params: { mode: "dedup_only" }
     end
 
@@ -35,9 +35,19 @@ class Agents::RefinementsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "create ignores invalid mode" do
-    assert_enqueued_with(job: MemoryRefinementJob, args: [ @agent.id, { mode: "full" } ]) do
+    assert_enqueued_with(job: MemoryRefinementJob, args: [ @agent.id, { mode: "full", force: true } ]) do
       post account_agent_refinement_path(@account, @agent), params: { mode: "bogus" }
     end
+  end
+
+  test "create can refine paused agents (manual trigger bypasses paused check)" do
+    @agent.update!(paused: true)
+
+    assert_enqueued_with(job: MemoryRefinementJob, args: [ @agent.id, { mode: "full", force: true } ]) do
+      post account_agent_refinement_path(@account, @agent)
+    end
+
+    assert_redirected_to edit_account_agent_path(@account, @agent)
   end
 
   test "requires authentication" do
