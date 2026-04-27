@@ -64,6 +64,10 @@
   }
 </script>
 
+{#snippet expressionTag({ token })}
+  <span class="expression-tag">{token.text}</span>
+{/snippet}
+
 <div class="space-y-1">
   {#if message.role === 'user'}
     <div class="flex justify-end group">
@@ -100,6 +104,7 @@
               {/if}
               <Streamdown
                 content={message.content}
+                inlineCitation={expressionTag}
                 parseIncompleteMarkdown
                 baseTheme="shadcn"
                 {shikiTheme}
@@ -167,6 +172,7 @@
 
               <Streamdown
                 content={message.content}
+                inlineCitation={expressionTag}
                 parseIncompleteMarkdown
                 baseTheme="shadcn"
                 {shikiTheme}

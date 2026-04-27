@@ -149,3 +149,10 @@
   background-color: transparent;
   color: inherit;
 }
+
+/* ElevenLabs expression tags (e.g. [whispers], [laughs]) — visible but unobtrusive */
+.expression-tag {
+  opacity: 0.5;
+  font-style: italic;
+  font-size: 0.9em;
+}
