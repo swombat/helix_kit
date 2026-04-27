@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_26_093000) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_27_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -249,6 +249,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_26_093000) do
     t.bigint "agent_id"
     t.bigint "ai_model_id"
     t.boolean "audio_source", default: false, null: false
+    t.integer "cache_creation_tokens"
+    t.integer "cached_tokens"
     t.bigint "chat_id", null: false
     t.text "content"
     t.datetime "created_at", null: false
@@ -257,9 +259,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_26_093000) do
     t.datetime "moderated_at"
     t.jsonb "moderation_scores"
     t.integer "output_tokens"
+    t.string "reasoning_skip_reason"
+    t.jsonb "replay_payload"
     t.string "role", null: false
     t.boolean "streaming", default: false, null: false
-    t.text "thinking_signature"
     t.text "thinking_text"
     t.integer "thinking_tokens"
     t.bigint "tool_call_id"
@@ -271,6 +274,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_26_093000) do
     t.index ["ai_model_id"], name: "index_messages_on_ai_model_id"
     t.index ["chat_id", "created_at"], name: "index_messages_on_chat_id_and_created_at"
     t.index ["chat_id"], name: "index_messages_on_chat_id"
+    t.index ["reasoning_skip_reason"], name: "index_messages_on_reasoning_skip_reason", where: "(reasoning_skip_reason IS NOT NULL)"
     t.index ["streaming"], name: "index_messages_on_streaming"
     t.index ["tool_call_id"], name: "index_messages_on_tool_call_id"
     t.index ["tools_used"], name: "index_messages_on_tools_used", using: :gin
@@ -352,6 +356,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_26_093000) do
     t.bigint "message_id", null: false
     t.jsonb "metadata", default: {}
     t.string "name", null: false
+    t.jsonb "replay_payload"
     t.string "tool_call_id", null: false
     t.datetime "updated_at", null: false
     t.index ["message_id"], name: "index_tool_calls_on_message_id"

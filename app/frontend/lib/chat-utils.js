@@ -14,3 +14,19 @@ export function formatTokenCount(count) {
   }
   return count.toString();
 }
+
+/**
+ * Lookup a human-readable tooltip for a reasoning skip reason.
+ * Prefer the backend-provided `reasoning_skip_reason_label` on the message JSON
+ * when available; this helper exists as a fallback.
+ */
+const REASONING_SKIP_LABELS = {
+  legacy_no_signature: 'Thinking unavailable: this turn was created before signed thinking blocks were stored.',
+  tool_continuity_missing: 'Thinking degraded: an earlier tool call is missing continuity metadata.',
+  provider_unsupported: 'Thinking unavailable for this turn.',
+  anthropic_key_unavailable: 'Thinking unavailable: Anthropic API key not configured.',
+};
+
+export function reasoningSkipTooltip(reason) {
+  return REASONING_SKIP_LABELS[reason] || 'Thinking was unavailable for this message.';
+}

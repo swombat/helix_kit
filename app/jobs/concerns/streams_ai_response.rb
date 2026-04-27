@@ -27,70 +27,48 @@ module StreamsAiResponse
 
     flush_all_buffers
 
-    # Use RubyLLM's thinking attribute (authoritative source) with buffer fallback
-    # Extract .text from RubyLLM::Thinking objects (RubyLLM 1.10+ returns objects, not strings)
-    raw_thinking = ruby_llm_message.thinking
-    thinking_content = (raw_thinking.respond_to?(:text) ? raw_thinking.text : raw_thinking).presence || @thinking_accumulated.presence
-
-    # Use RubyLLM's content with fallback to accumulated streaming content or existing DB content
-    # This prevents the update! from overwriting content that was already saved during streaming
-    content = extract_message_content(ruby_llm_message.content)
-    if content.blank?
-      # First try accumulated content (in-memory copy of what was streamed)
-      # Then fall back to what's already in the database (which was saved during streaming)
-      fallback_content = @content_accumulated.presence || @ai_message.reload.content
-      if fallback_content.present?
-        Rails.logger.warn "⚠️ RubyLLM content was blank, using fallback content (#{fallback_content.length} chars)"
-        content = fallback_content
-      end
+    if rlm_content_blank?(ruby_llm_message)
+      composed = compose_finalized_content(ruby_llm_message)
+      @ai_message.content = composed if composed.present?
     end
 
-    # Check for empty response which may indicate content filtering
-    if content.blank? && ruby_llm_message.output_tokens.to_i == 0
-      Rails.logger.warn "⚠️ LLM returned empty response (0 output tokens)"
-      Rails.logger.warn "⚠️ Raw response: #{ruby_llm_message.raw.inspect}"
-
-      # Check for Gemini-specific block reasons in the raw response
-      # raw might be a Faraday::Response or a Hash depending on the provider
-      raw = ruby_llm_message.raw
-      raw = raw.is_a?(Hash) ? raw : {}
-
-      finish_reason = raw.dig("candidates", 0, "finishReason") ||
-                      raw.dig("choices", 0, "finish_reason")
-      block_reason = raw.dig("promptFeedback", "blockReason") ||
-                     raw.dig("candidates", 0, "finishReason")
-
-      if block_reason == "SAFETY" || finish_reason == "SAFETY"
-        Rails.logger.warn "⚠️ Response blocked due to safety filters"
-        content = "_The AI was unable to respond due to content safety filters. Try rephrasing your message or starting a new conversation._"
-      elsif finish_reason.present? && finish_reason != "STOP"
-        Rails.logger.warn "⚠️ Unusual finish reason: #{finish_reason}"
-        content = "_The AI was unable to complete its response (reason: #{finish_reason}). Please try again._"
-      else
-        content = "_The AI returned an empty response. This may be due to content filtering or a temporary issue. Please try again._"
-      end
-    end
-
-    # Strip hallucinated timestamps that models sometimes add
-    content = Message.strip_leading_timestamp(content)
-
-    @ai_message.update!({
-      content: content,
-      thinking: thinking_content,
-      model_id_string: ruby_llm_message.model_id,
-      input_tokens: ruby_llm_message.input_tokens,
-      output_tokens: ruby_llm_message.output_tokens,
-      tools_used: @tools_used.uniq
-    })
+    @ai_message.record_provider_response!(ruby_llm_message, provider: @provider, tool_names: @tools_used)
 
     deduplicate_message!
     @message_finalized = true
 
-    # Queue content moderation for the completed assistant message
-    ModerateMessageJob.perform_later(@ai_message) if @ai_message.content.present?
-
-    # Auto-fix hallucinated tool calls (JSON blocks at start of message)
+    ModerateMessageJob.perform_later(@ai_message)         if @ai_message.content.present?
     FixHallucinatedToolCallsJob.perform_later(@ai_message) if @ai_message.fixable
+  end
+
+  def rlm_content_blank?(rlm)
+    extract_message_content(rlm.content).to_s.strip.empty?
+  end
+
+  def compose_finalized_content(rlm)
+    raw = extract_message_content(rlm.content)
+    return raw if raw.present?
+
+    fallback = @content_accumulated.presence || @ai_message.reload.content
+    return fallback if fallback.present?
+
+    empty_response_fallback(rlm)
+  end
+
+  def empty_response_fallback(rlm)
+    return nil if rlm.output_tokens.to_i > 0
+
+    raw = rlm.raw.is_a?(Hash) ? rlm.raw : {}
+    finish_reason = raw.dig("candidates", 0, "finishReason") || raw.dig("choices", 0, "finish_reason")
+    block_reason  = raw.dig("promptFeedback", "blockReason") || finish_reason
+
+    if block_reason == "SAFETY" || finish_reason == "SAFETY"
+      "_The AI was unable to respond due to content safety filters. Try rephrasing your message or starting a new conversation._"
+    elsif finish_reason.present? && finish_reason != "STOP"
+      "_The AI was unable to complete its response (reason: #{finish_reason}). Please try again._"
+    else
+      "_The AI returned an empty response. This may be due to content filtering or a temporary issue. Please try again._"
+    end
   end
 
   # After tool use, models often repeat the same text in a new message.

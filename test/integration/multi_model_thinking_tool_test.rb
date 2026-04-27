@@ -122,12 +122,7 @@ class MultiModelThinkingToolTest < ActiveSupport::TestCase
     assert grok_memories.any?, "Grok should have saved a memory"
   end
 
-  test "thinking compatibility detects messages without thinking blocks" do
-    # This tests that when a thinking-enabled agent has old assistant messages
-    # without thinking blocks, thinking_compatible_for? returns false to prevent
-    # API errors (Anthropic requires valid cryptographic signatures on thinking blocks).
-
-    # Create a thinking-enabled agent
+  test "legacy unsigned assistant turn replays without thinking; new turn keeps thinking enabled" do
     opus_agent = @account.agents.create!(
       name: "Claude Opus",
       model_id: "anthropic/claude-opus-4.5",
@@ -136,45 +131,31 @@ class MultiModelThinkingToolTest < ActiveSupport::TestCase
       thinking_budget: 5000
     )
 
-    # Create chat with the agent
     chat = @account.chats.new(
       model_id: "openai/gpt-4o",
       manual_responses: true,
-      title: "Thinking Compatibility Test"
+      title: "Legacy Replay Test"
     )
     chat.agents = [ opus_agent ]
     chat.save!
 
-    # Initially, with no messages, thinking should be compatible
-    assert chat.thinking_compatible_for?(opus_agent), "Should be compatible with no messages"
-
-    # Add user message
     chat.messages.create!(role: "user", user: @user, content: "Hello!")
 
-    # Still compatible (no assistant messages yet)
-    assert chat.thinking_compatible_for?(opus_agent), "Should be compatible with only user messages"
-
-    # Add Opus's OLD response (created before thinking was enabled - no thinking block)
     chat.messages.create!(
       role: "assistant",
       agent: opus_agent,
       content: "Hello! I'm Claude Opus from the past.",
-      thinking: nil # No thinking - this simulates a message from before thinking was enabled
+      thinking: "Old thinking text without a signature."
     )
 
-    # Now NOT compatible - assistant message lacks thinking/signature
-    refute chat.thinking_compatible_for?(opus_agent),
-      "Should NOT be compatible when assistant message lacks thinking and signature"
-
-    # Build context - thinking should NOT be included for the old message
-    context = chat.build_context_for_agent(opus_agent, thinking_enabled: true)
-    opus_old_context_msg = context.find { |m| m[:role] == "assistant" && m[:content]&.include?("from the past") }
-    assert_not_nil opus_old_context_msg, "Opus's old message should be in context"
-    assert_nil opus_old_context_msg[:thinking], "No thinking should be added (would cause API error)"
+    context = chat.build_context_for_agent(opus_agent, thinking_enabled: true, provider: :anthropic)
+    legacy_msg = context.find { |m| m[:role] == "assistant" && m[:content].to_s.include?("from the past") }
+    assert_not_nil legacy_msg, "Opus's legacy message should be in context"
+    assert_nil legacy_msg[:thinking], "Legacy unsigned thinking must not be replayed"
+    assert_nil legacy_msg[:thinking_signature]
   end
 
-  test "thinking messages preserve original thinking content" do
-    # Create a thinking-enabled agent
+  test "signed Anthropic thinking is preserved across replay" do
     opus_agent = @account.agents.create!(
       name: "Claude Opus",
       model_id: "anthropic/claude-opus-4.5",
@@ -191,28 +172,26 @@ class MultiModelThinkingToolTest < ActiveSupport::TestCase
     chat.agents = [ opus_agent ]
     chat.save!
 
-    # Add user message
     chat.messages.create!(role: "user", user: @user, content: "Hello!")
 
-    # Add Opus's response WITH thinking
     chat.messages.create!(
       role: "assistant",
       agent: opus_agent,
       content: "Hello! I'm Claude Opus.",
       thinking: "This is my original thinking content.",
-      thinking_signature: "sig123"
+      replay_payload: {
+        "provider" => "anthropic",
+        "thinking" => { "text" => "This is my original thinking content.", "signature" => "sig123" }
+      }
     )
 
-    # Build context for Opus (with thinking enabled)
-    context = chat.build_context_for_agent(opus_agent, thinking_enabled: true)
+    context = chat.build_context_for_agent(opus_agent, thinking_enabled: true, provider: :anthropic)
+    opus_context_msg = context.find { |m| m[:content].to_s.include?("I'm Claude Opus") }
+    assert_not_nil opus_context_msg
 
-    # Find Opus's message in the context
-    opus_context_msg = context.find { |m| m[:content]&.include?("I'm Claude Opus") }
-    assert_not_nil opus_context_msg, "Opus's message should be in context"
-
-    # Verify original thinking is preserved
-    assert_equal "This is my original thinking content.", opus_context_msg[:thinking]
-    assert_equal "sig123", opus_context_msg[:thinking_signature]
+    assert_kind_of RubyLLM::Thinking, opus_context_msg[:thinking]
+    assert_equal "This is my original thinking content.", opus_context_msg[:thinking].text
+    assert_equal "sig123", opus_context_msg[:thinking].signature
   end
 
   test "thinking agent can join conversation with non-thinking agent messages" do
@@ -264,9 +243,7 @@ class MultiModelThinkingToolTest < ActiveSupport::TestCase
       assert_not_nil grok_msg
       assert grok_msg.thinking.blank?, "Grok should not have thinking"
 
-      # Verify Opus is still thinking-compatible (Grok's messages don't affect it)
-      assert chat.thinking_compatible_for?(opus_agent),
-        "Opus should be thinking-compatible (other agents' messages don't affect compatibility)"
+      # Other agents' messages replay as user-shaped, so they don't affect Opus's thinking.
 
       # User asks Opus to remember something
       chat.messages.create!(

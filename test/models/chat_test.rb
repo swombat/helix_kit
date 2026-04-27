@@ -500,46 +500,83 @@ class ChatTest < ActiveSupport::TestCase
     assert_equal "Message 49", page.last.content
   end
 
-  test "total_tokens sums input and output tokens" do
-    chat = Chat.create!(account: @account)
-    chat.messages.create!(content: "Hello", role: "user", user: @user, input_tokens: 10, output_tokens: 0)
-    chat.messages.create!(content: "Hi there", role: "assistant", input_tokens: 0, output_tokens: 20)
+test "cost_tokens sums input and output tokens separately" do
+  chat = Chat.create!(account: @account)
+  chat.messages.create!(content: "Hello", role: "user", user: @user, input_tokens: 10, output_tokens: 0)
+  chat.messages.create!(content: "Hi there", role: "assistant", input_tokens: 0, output_tokens: 20)
 
-    assert_equal 30, chat.total_tokens
-  end
+  assert_equal({ input: 10, output: 20 }, chat.cost_tokens)
+end
 
-  test "total_tokens handles nil values" do
-    chat = Chat.create!(account: @account)
-    chat.messages.create!(content: "Hello", role: "user", user: @user, input_tokens: nil, output_tokens: nil)
+test "cost_tokens handles nil values" do
+  chat = Chat.create!(account: @account)
+  chat.messages.create!(content: "Hello", role: "user", user: @user, input_tokens: nil, output_tokens: nil)
 
-    assert_equal 0, chat.total_tokens
-  end
+  assert_equal({ input: 0, output: 0 }, chat.cost_tokens)
+end
 
-  test "total_tokens returns zero for chat with no messages" do
-    chat = Chat.create!(account: @account)
+test "cost_tokens returns zero for chat with no messages" do
+  chat = Chat.create!(account: @account)
 
-    assert_equal 0, chat.total_tokens
-  end
+  assert_equal({ input: 0, output: 0 }, chat.cost_tokens)
+end
 
-  test "total_tokens sums all message tokens correctly" do
-    chat = Chat.create!(account: @account)
-    chat.messages.create!(content: "Message 1", role: "user", user: @user, input_tokens: 100, output_tokens: 50)
-    chat.messages.create!(content: "Message 2", role: "assistant", input_tokens: 200, output_tokens: 300)
-    chat.messages.create!(content: "Message 3", role: "user", user: @user, input_tokens: 150, output_tokens: nil)
+test "cost_tokens sums all message tokens correctly" do
+  chat = Chat.create!(account: @account)
+  chat.messages.create!(content: "Message 1", role: "user", user: @user, input_tokens: 100, output_tokens: 50)
+  chat.messages.create!(content: "Message 2", role: "assistant", input_tokens: 200, output_tokens: 300)
+  chat.messages.create!(content: "Message 3", role: "user", user: @user, input_tokens: 150, output_tokens: nil)
 
-    # 100 + 50 + 200 + 300 + 150 + 0 = 800
-    assert_equal 800, chat.total_tokens
-  end
+  assert_equal({ input: 450, output: 350 }, chat.cost_tokens)
+end
 
-  test "as_json includes total_tokens" do
-    chat = Chat.create!(account: @account)
-    chat.messages.create!(content: "Hello", role: "user", user: @user, input_tokens: 100, output_tokens: 50)
+test "context_tokens returns max input_tokens across last 10 assistant turns" do
+  chat = Chat.create!(account: @account)
+  chat.messages.create!(content: "User msg", role: "user", user: @user, input_tokens: 999)
+  chat.messages.create!(content: "A", role: "assistant", input_tokens: 100, output_tokens: 10)
+  chat.messages.create!(content: "B", role: "assistant", input_tokens: 250, output_tokens: 10)
+  chat.messages.create!(content: "C", role: "assistant", input_tokens: 175, output_tokens: 10)
 
-    json = chat.as_json
+  assert_equal 250, chat.context_tokens
+end
 
-    assert_includes json.keys, "total_tokens"
-    assert_equal 150, json["total_tokens"]
-  end
+test "context_tokens returns 0 when no assistant turns exist" do
+  chat = Chat.create!(account: @account)
+  chat.messages.create!(content: "Hi", role: "user", user: @user, input_tokens: 50)
+
+  assert_equal 0, chat.context_tokens
+end
+
+test "reasoning_tokens sums thinking_tokens, treating nils as zero" do
+  chat = Chat.create!(account: @account)
+  chat.messages.create!(content: "A", role: "assistant", thinking_tokens: 100)
+  chat.messages.create!(content: "B", role: "assistant", thinking_tokens: nil)
+  chat.messages.create!(content: "C", role: "assistant", thinking_tokens: 250)
+
+  assert_equal 350, chat.reasoning_tokens
+end
+
+test "as_json includes context_tokens, cost_tokens, reasoning_tokens but not total_tokens" do
+  chat = Chat.create!(account: @account)
+  chat.messages.create!(content: "Hello", role: "user", user: @user, input_tokens: 100, output_tokens: 50)
+  chat.messages.create!(content: "Reply", role: "assistant", input_tokens: 200, output_tokens: 75, thinking_tokens: 30)
+
+  json = chat.as_json
+
+  assert_includes json.keys, "context_tokens"
+  assert_includes json.keys, "cost_tokens"
+  assert_includes json.keys, "reasoning_tokens"
+  refute_includes json.keys, "total_tokens"
+
+  assert_equal 200, json["context_tokens"]
+  assert_equal 30, json["reasoning_tokens"]
+end
+
+test "Chat does not respond to :thinking_compatible_for? or :total_tokens" do
+  chat = Chat.create!(account: @account)
+  refute chat.respond_to?(:thinking_compatible_for?)
+  refute chat.respond_to?(:total_tokens)
+end
 
   # Auto-trigger mentioned agents tests
 

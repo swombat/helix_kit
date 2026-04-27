@@ -145,6 +145,70 @@ class AllAgentsResponseJobTest < ActiveJob::TestCase
     assert_includes second_agent_context[2][:content], "Research Assistant"
   end
 
+  test "queues remaining agents when an anthropic thinking agent is skipped for missing API key" do
+    anthropic_agent = @account.agents.create!(
+      name: "Claude",
+      model_id: "anthropic/claude-opus-4.5",
+      system_prompt: "You are Claude.",
+      thinking_enabled: true,
+      thinking_budget: 5000
+    )
+
+    @chat.agent_ids = [ anthropic_agent.id, @agent2.id ]
+    @chat.save!
+
+    api_key_available = ->(provider) { provider == :anthropic ? false : true }
+
+    ResolvesProvider.stub(:api_key_available?, api_key_available) do
+      assert_enqueued_with(job: AllAgentsResponseJob, args: [ @chat, [ @agent2.id ] ]) do
+        AllAgentsResponseJob.perform_now(@chat, [ anthropic_agent.id, @agent2.id ])
+      end
+    end
+
+    skipped_message = @chat.messages.where(role: "assistant", agent: anthropic_agent).last
+    assert_not_nil skipped_message
+    assert_equal "anthropic_key_unavailable", skipped_message.reasoning_skip_reason
+  end
+
+  test "persists tool call continuity metadata from tool-call end messages" do
+    @agent1.update!(
+      model_id: "google/gemini-3-pro-preview",
+      enabled_tools: [ "WebTool" ],
+      thinking_enabled: true,
+      thinking_budget: 4000
+    )
+
+    tool_call = OpenStruct.new(
+      id: "call_1",
+      name: "WebTool",
+      arguments: { action: "fetch", url: "https://example.com" },
+      thought_signature: "gemini-tool-sig-1"
+    )
+
+    tool_call_end_message = OpenStruct.new(
+      tool_calls: [ tool_call ],
+      'tool_call?': true,
+      'tool_result?': false
+    )
+
+    mock_llm = MockLlm.new(
+      final_content: "I fetched the webpage and here is the summary...",
+      model_id: "gemini-3-pro-preview",
+      simulate_tool_call: true,
+      tool_call_end_message: tool_call_end_message
+    )
+
+    RubyLLM.stub(:chat, ->(*args, **kwargs) { mock_llm }) do
+      AllAgentsResponseJob.perform_now(@chat, [ @agent1.id ])
+    end
+
+    ai_message = @chat.messages.where(role: "assistant", agent: @agent1).last
+    assert_not_nil ai_message
+
+    persisted_tool_call = ai_message.tool_calls.find_by!(tool_call_id: "call_1")
+    assert_equal "gemini-tool-sig-1", persisted_tool_call.replay_payload["thought_signature"]
+  end
+
   # Helper class to mock RubyLLM chat behavior
   class MockLlm
 
@@ -158,6 +222,7 @@ class AllAgentsResponseJobTest < ActiveJob::TestCase
       @on_add_message = options[:on_add_message]
       @on_complete = options[:on_complete]
       @on_tool_call_invoked = options[:on_tool_call_invoked]
+      @tool_call_end_message = options[:tool_call_end_message]
       @tools = {}
       @on_callbacks = {}
     end
@@ -165,6 +230,14 @@ class AllAgentsResponseJobTest < ActiveJob::TestCase
     def with_tool(tool)
       tool_instance = tool.is_a?(Class) ? tool.new : tool
       @tools[tool_instance.name.to_sym] = tool_instance
+      self
+    end
+
+    def with_thinking(...)
+      self
+    end
+
+    def with_params(...)
       self
     end
 
@@ -198,11 +271,14 @@ class AllAgentsResponseJobTest < ActiveJob::TestCase
       # Simulate tool call if configured
       if @simulate_tool_call
         tool_call = OpenStruct.new(
+          id: "tool_call_1",
           name: "WebTool",
-          arguments: { action: "fetch", url: "https://example.com" }
+          arguments: { action: "fetch", url: "https://example.com" },
+          thought_signature: nil
         )
         @on_callbacks[:tool_call]&.call(tool_call)
         @on_tool_call_invoked&.call
+        @on_callbacks[:end_message]&.call(@tool_call_end_message) if @tool_call_end_message
       end
 
       # Simulate streaming chunk
@@ -213,7 +289,10 @@ class AllAgentsResponseJobTest < ActiveJob::TestCase
         content: @final_content,
         model_id: @model_id,
         input_tokens: 10,
-        output_tokens: 20
+        output_tokens: 20,
+        tool_calls: [],
+        'tool_call?': false,
+        'tool_result?': false
       )
       @on_callbacks[:end_message]&.call(final_message)
 

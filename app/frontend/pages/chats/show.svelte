@@ -85,16 +85,17 @@
   // Token thresholds from server
   const thresholds = $derived($page.props.token_thresholds || { amber: 100_000, red: 150_000, critical: 200_000 });
 
-  // Use server-provided total tokens from chat
-  const totalTokens = $derived(chat?.total_tokens || 0);
+  // Server-provided context (active replayed prompt) and cost (lifetime billed) tokens
+  const contextTokens = $derived(chat?.context_tokens || 0);
+  const costTokens = $derived(chat?.cost_tokens || { input: 0, output: 0 });
 
-  // Direct ternary expression for token warning level
+  // Token warning level — driven by active context size, not lifetime cost
   const tokenWarningLevel = $derived(
-    totalTokens >= thresholds.critical
+    contextTokens >= thresholds.critical
       ? 'critical'
-      : totalTokens >= thresholds.red
+      : contextTokens >= thresholds.red
         ? 'red'
-        : totalTokens >= thresholds.amber
+        : contextTokens >= thresholds.amber
           ? 'amber'
           : null
   );
@@ -726,7 +727,8 @@
       {account}
       {agents}
       {allMessages}
-      {totalTokens}
+      {contextTokens}
+      {costTokens}
       {thresholds}
       availableAgents={available_agents}
       addableAgents={addable_agents}
@@ -750,7 +752,7 @@
       <div
         class="bg-red-100 dark:bg-red-900/50 border-b border-red-200 dark:border-red-800 px-4 py-2 text-sm text-red-800 dark:text-red-200">
         <WarningCircle size={16} class="inline mr-2" weight="fill" />
-        This conversation is very long ({formatTokenCount(totalTokens)} tokens). Consider starting a new conversation.
+        This conversation is very long ({formatTokenCount(contextTokens)} tokens of context). Consider starting a new conversation.
       </div>
     {/if}
 

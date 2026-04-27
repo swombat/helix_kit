@@ -16,6 +16,7 @@ class AiResponseJob < ApplicationJob
 
     @chat = chat
     @ai_message = nil
+    @provider = chat.class.resolve_provider(chat.model_id)[:provider]
     setup_streaming_state
 
     chat.available_tools.each { |tool| chat = chat.with_tool(tool) }
