@@ -31,6 +31,7 @@ class Chat < ApplicationRecord
         "updated_at",
         "updated_at_short",
         "message_count",
+        "context_tokens",
         "manual_responses",
         "participants_json",
         "archived",
@@ -49,7 +50,6 @@ class Chat < ApplicationRecord
       :model_label,
       :ai_model_name,
       :updated_at_formatted,
-      :context_tokens,
       :cost_tokens,
       :reasoning_tokens,
       :web_access,
@@ -580,9 +580,12 @@ class Chat < ApplicationRecord
     scope.reorder(id: :desc).limit(limit).reverse
   end
 
-  # Worst-case input-token pressure across recent assistant turns. Surfaces context-window risk in the chat header.
-  def context_tokens
-    messages.where(role: "assistant").reorder(created_at: :desc).limit(10).maximum(:input_tokens) || 0
+  # Worst-case input-token pressure across recent assistant turns. Cached on the row so the chats
+  # sidebar can include it without N+1 queries; refreshed by Message after_save_commit.
+  def recalculate_context_tokens!
+    value = messages.where(role: "assistant").reorder(created_at: :desc).limit(10).maximum(:input_tokens) || 0
+    return if value == context_tokens
+    update_columns(context_tokens: value, updated_at: Time.current)
   end
 
   # Lifetime billed input/output tokens for this chat.

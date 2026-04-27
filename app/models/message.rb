@@ -109,6 +109,7 @@ class Message < ApplicationRecord
   after_commit :queue_moderation, on: :create, if: :user_message_with_content?
   after_create :reopen_all_agents_for_initiation, if: :human_message_in_group_chat?
   after_create_commit :queue_agent_summaries, if: -> { role.in?(%w[user assistant]) && content.present? }
+  after_save_commit :refresh_chat_context_tokens, if: -> { role == "assistant" && saved_change_to_input_tokens? }
 
   json_attributes :role, :content, :thinking, :thinking_preview, :user_name, :user_avatar_url,
                   :completed, :created_at_formatted, :created_at_hour, :streaming,
@@ -520,6 +521,10 @@ class Message < ApplicationRecord
       next unless chat_agent.summary_stale?
       GenerateAgentSummaryJob.perform_later(chat, chat_agent.agent)
     end
+  end
+
+  def refresh_chat_context_tokens
+    chat.recalculate_context_tokens!
   end
 
   def format_tool_status(tool_name, tool_args)
