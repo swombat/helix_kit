@@ -48,9 +48,9 @@ class ChatTokenDisplayTest < ActiveSupport::TestCase
     assert_equal 60, json["reasoning_tokens"]
   end
 
-  test "sidebar JSON omits context, cost, and reasoning tokens" do
+  test "sidebar JSON includes context_tokens for hover display but omits cost and reasoning" do
     json = @chat.as_json(as: :sidebar_json)
-    refute_includes json.keys, "context_tokens"
+    assert_includes json.keys, "context_tokens"
     refute_includes json.keys, "cost_tokens"
     refute_includes json.keys, "reasoning_tokens"
     refute_includes json.keys, "total_tokens"
