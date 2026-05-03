@@ -24,6 +24,12 @@
   import 'svelte-highlight/styles/atom-one-dark.css';
   import Avatar from '$lib/components/Avatar.svelte';
   import * as logging from '$lib/logging';
+  import {
+    auditLogFilterParams,
+    compactAuditLogParams,
+    initialAuditLogFilters,
+    withoutSelectedAuditLog,
+  } from '$lib/admin-audit-log-filters';
 
   let { audit_logs = [], selected_log = null, pagination = {}, filters = {}, current_filters = {} } = $props();
 
@@ -32,19 +38,11 @@
   // Create a reactive page state that syncs with pagination
   let currentPage = $state(pagination.page || 1);
 
-  // Initialize filter arrays from current_filters
-  let userFilter = $state(typeof current_filters.user_id === 'string' ? current_filters.user_id.split(',') : undefined);
-  let accountFilter = $state(
-    typeof current_filters.filter_account_id === 'string' ? current_filters.filter_account_id.split(',') : undefined
-  );
-  let actionFilter = $state(
-    typeof current_filters.audit_action === 'string' ? current_filters.audit_action.split(',') : undefined
-  );
-  let typeFilter = $state(
-    typeof current_filters.auditable_type === 'string' ? current_filters.auditable_type.split(',') : undefined
-  );
-
-  logging.debug('pagination', pagination, !pagination.prev);
+  const initialFilters = initialAuditLogFilters(current_filters);
+  let userFilter = $state(initialFilters.userFilter);
+  let accountFilter = $state(initialFilters.accountFilter);
+  let actionFilter = $state(initialFilters.actionFilter);
+  let typeFilter = $state(initialFilters.typeFilter);
 
   // Date picker setup
   const df = new DateFormatter('en-US', { dateStyle: 'medium' });
@@ -81,10 +79,7 @@
   });
 
   function updateUrl(params) {
-    const searchParams = new URLSearchParams();
-    Object.entries(params).forEach(([key, value]) => {
-      if (value) searchParams.set(key, value);
-    });
+    const searchParams = compactAuditLogParams(params);
 
     router.visit(`/admin/audit_logs?${searchParams}`, {
       preserveState: false,
@@ -93,16 +88,7 @@
   }
 
   function applyFilters() {
-    const params = {
-      user_id: userFilter ? userFilter.join(',') : undefined,
-      filter_account_id: accountFilter ? accountFilter.join(',') : undefined,
-      audit_action: actionFilter ? actionFilter.join(',') : undefined,
-      auditable_type: typeFilter ? typeFilter.join(',') : undefined,
-      date_from: dateFrom ? dateFrom.toString() : undefined,
-      date_to: dateTo ? dateTo.toString() : undefined,
-      page: 1,
-    };
-    updateUrl(params);
+    updateUrl(auditLogFilterParams({ userFilter, accountFilter, actionFilter, typeFilter, dateFrom, dateTo }));
   }
 
   function clearFilters() {
@@ -120,13 +106,11 @@
   }
 
   function closeDrawer() {
-    const params = { ...current_filters };
-    delete params.log_id;
-    updateUrl(params);
+    updateUrl(withoutSelectedAuditLog(current_filters));
   }
 
   function goToPage(page) {
-    router.visit(`/admin/audit_logs?${new URLSearchParams({ ...current_filters, page })}`, {
+    router.visit(`/admin/audit_logs?${compactAuditLogParams({ ...current_filters, page })}`, {
       preserveState: false,
       preserveScroll: true, // Preserve scroll position
     });

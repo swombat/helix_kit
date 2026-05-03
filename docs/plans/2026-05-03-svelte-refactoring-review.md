@@ -1174,3 +1174,31 @@ Last verified test baseline for this slice:
 Next sensible slice:
 
 - Move to the next P0 page: `admin/audit-logs.svelte`, starting with pure audit-log filter parsing/serialization helpers and tests.
+
+## Progress Checkpoint: 2026-05-03 Audit Log Filter Helpers
+
+Status: The first `admin/audit-logs.svelte` extraction is implemented and green.
+
+Completed after commit `81b1b4b Extract chat token warning`:
+
+- Added `admin-audit-log-filters.js` for query param parsing, filter serialization, compact URL params, and selected-log removal.
+- Added `admin-audit-log-filters.test.js`.
+- Removed the leftover pagination debug log from `admin/audit-logs.svelte`.
+- Kept router navigation, date-picker objects, sync subscriptions, and page orchestration in the page.
+
+Current size notes:
+
+- `app/frontend/pages/admin/audit-logs.svelte`: 462 lines, down from 478 lines.
+- `admin-audit-log-filters.js`: 43 lines.
+- `admin-audit-log-filters.test.js`: 61 lines.
+
+Last verified test baseline for this slice:
+
+- `yarn test:unit`: 12 files, 37 tests passed.
+- `bin/vite build --mode test`: passed, with existing Svelte warnings unrelated to this slice.
+- `yarn test`: 6 Playwright tests passed.
+- `bin/rails test`: 1815 tests, 7329 assertions, 0 failures, 0 errors.
+
+Next sensible slice:
+
+- Continue `admin/audit-logs.svelte` by extracting the repeated multi-select filter markup into an `AuditLogMultiSelectFilter.svelte` component, then consider table and drawer components.
