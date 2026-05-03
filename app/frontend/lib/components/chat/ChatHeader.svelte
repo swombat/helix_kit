@@ -25,7 +25,7 @@
     accountChatDiscardPath,
   } from '@/routes';
   import * as logging from '$lib/logging';
-  import { formatTokenCount } from '$lib/chat-utils';
+  import { formatTokenCount, tokenWarningLevel as getTokenWarningLevel } from '$lib/chat-utils';
 
   let {
     chat,
@@ -57,15 +57,7 @@
   const canDeleteChat = $derived(isAccountAdmin || isSiteAdmin);
 
   // Token warning level — based on active context, not lifetime cost
-  const tokenWarningLevel = $derived(
-    contextTokens >= thresholds.critical
-      ? 'critical'
-      : contextTokens >= thresholds.red
-        ? 'red'
-        : contextTokens >= thresholds.amber
-          ? 'amber'
-          : null
-  );
+  const tokenWarningLevel = $derived(getTokenWarningLevel(contextTokens, thresholds));
 
   // Header class computed based on token warning level
   const headerClass = $derived(

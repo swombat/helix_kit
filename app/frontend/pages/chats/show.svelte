@@ -4,9 +4,9 @@
   import { createDynamicSync, streamingSync } from '$lib/use-sync';
   import { router } from '@inertiajs/svelte';
   import { onMount, onDestroy } from 'svelte';
-  import { WarningCircle } from 'phosphor-svelte';
   import ChatList from './ChatList.svelte';
   import ChatHeader from '$lib/components/chat/ChatHeader.svelte';
+  import TokenWarningBanner from '$lib/components/chat/TokenWarningBanner.svelte';
   import ImageLightbox from '$lib/components/chat/ImageLightbox.svelte';
   import AgentTriggerBar from '$lib/components/chat/AgentTriggerBar.svelte';
   import AgentPickerDialog from '$lib/components/chat/AgentPickerDialog.svelte';
@@ -27,7 +27,7 @@
   } from '@/routes';
   import * as logging from '$lib/logging';
   import { formatTime, formatDate } from '$lib/utils';
-  import { formatTokenCount } from '$lib/chat-utils';
+  import { tokenWarningLevel as getTokenWarningLevel } from '$lib/chat-utils';
   import {
     isChatResponseTimedOut,
     lastMessageIsHiddenThinking as messageStateLastMessageIsHiddenThinking,
@@ -90,15 +90,7 @@
   const costTokens = $derived(chat?.cost_tokens || { input: 0, output: 0 });
 
   // Token warning level — driven by active context size, not lifetime cost
-  const tokenWarningLevel = $derived(
-    contextTokens >= thresholds.critical
-      ? 'critical'
-      : contextTokens >= thresholds.red
-        ? 'red'
-        : contextTokens >= thresholds.amber
-          ? 'amber'
-          : null
-  );
+  const tokenWarningLevel = $derived(getTokenWarningLevel(contextTokens, thresholds));
 
   // Explicit chat reset tracking
   let previousChatId = null;
@@ -626,14 +618,7 @@
         setTimeout(() => (successMessage = null), 3000);
       }} />
 
-    <!-- Critical token warning banner -->
-    {#if tokenWarningLevel === 'critical'}
-      <div
-        class="bg-red-100 dark:bg-red-900/50 border-b border-red-200 dark:border-red-800 px-4 py-2 text-sm text-red-800 dark:text-red-200">
-        <WarningCircle size={16} class="inline mr-2" weight="fill" />
-        This conversation is very long ({formatTokenCount(contextTokens)} tokens of context). Consider starting a new conversation.
-      </div>
-    {/if}
+    <TokenWarningBanner level={tokenWarningLevel} {contextTokens} />
 
     <!-- Telegram notification banner -->
     <TelegramBanner {telegramDeepLink} {agents} chatId={chat?.id} />

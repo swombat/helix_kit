@@ -1146,3 +1146,31 @@ Last verified test baseline for this slice:
 Next sensible slice:
 
 - Continue with either `TokenWarningBanner.svelte` and token-warning helper coverage, or move to the next P0 page: `admin/audit-logs.svelte`.
+
+## Progress Checkpoint: 2026-05-03 Chat Token Warning
+
+Status: Token warning logic and rendering extraction is implemented and green.
+
+Completed after commit `eead63c Extract chat pagination helpers`:
+
+- Added `TokenWarningBanner.svelte` for the critical conversation-length banner.
+- Added `tokenWarningLevel` to `chat-utils.js`.
+- Reused the helper from both `pages/chats/show.svelte` and `ChatHeader.svelte` to remove duplicated threshold logic.
+- Added unit coverage for token warning thresholds.
+
+Current size notes:
+
+- `app/frontend/pages/chats/show.svelte`: 772 lines, down from 791 lines after the pagination helper slice and 870 lines before chat refactoring.
+- `ChatHeader.svelte`: 377 lines, down from 385 lines.
+- `TokenWarningBanner.svelte`: 14 lines.
+
+Last verified test baseline for this slice:
+
+- `yarn test:unit`: 11 files, 33 tests passed.
+- `bin/vite build --mode test`: passed, with existing Svelte warnings unrelated to this slice.
+- `yarn test`: 6 Playwright tests passed.
+- `bin/rails test`: 1815 tests, 7329 assertions, 0 failures, 0 errors.
+
+Next sensible slice:
+
+- Move to the next P0 page: `admin/audit-logs.svelte`, starting with pure audit-log filter parsing/serialization helpers and tests.

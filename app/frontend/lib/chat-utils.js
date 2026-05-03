@@ -15,6 +15,13 @@ export function formatTokenCount(count) {
   return count.toString();
 }
 
+export function tokenWarningLevel(contextTokens = 0, thresholds = {}) {
+  if (contextTokens >= thresholds.critical) return 'critical';
+  if (contextTokens >= thresholds.red) return 'red';
+  if (contextTokens >= thresholds.amber) return 'amber';
+  return null;
+}
+
 /**
  * Lookup a human-readable tooltip for a reasoning skip reason.
  * Prefer the backend-provided `reasoning_skip_reason_label` on the message JSON
