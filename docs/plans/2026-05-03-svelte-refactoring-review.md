@@ -1956,3 +1956,30 @@ Notes:
 Next sensible slice:
 
 - Finish with `whiteboards/index.svelte` by extracting the selected whiteboard viewer/editor/conflict panel while keeping sync, routing, save, and conflict orchestration in the page.
+
+## Progress Checkpoint: 2026-05-03 Whiteboard Viewer Component
+
+Status: The `whiteboards/index.svelte` selected-viewer extraction is implemented and green.
+
+Completed after commit `862542b Extract chat sidebar components`:
+
+- Added `WhiteboardViewer.svelte` for the selected whiteboard card, edit/save/cancel controls, optimistic-conflict banner, markdown rendering, and edit textarea.
+- Kept `whiteboards/index.svelte` responsible for URL selection, dynamic sync subscriptions, edit/conflict/saving state, PATCH requests, revision conflict handling, and page reload orchestration.
+- Left the existing `WhiteboardList`, `WhiteboardEmptyState`, and `WhiteboardPlaceholder` components intact.
+
+Current size notes:
+
+- `app/frontend/pages/whiteboards/index.svelte`: 146 lines, down from 216 lines.
+- `WhiteboardViewer.svelte`: 96 lines.
+
+Last verified test baseline:
+
+- `yarn test:unit`: 13 files, 40 tests passed.
+- `RAILS_ENV=test bin/vite build --clear`: passed and populated `public/vite-test` for Rails.
+- `bin/rails test test/controllers/whiteboards_controller_test.rb test/controllers/api/v1/whiteboards_controller_test.rb`: 23 tests, 68 assertions, 0 failures, 0 errors.
+- `bin/rails test`: 1815 tests, 7329 assertions, 0 failures, 0 errors.
+- `yarn test`: 6 Playwright tests passed.
+
+Final status:
+
+- The chat and whiteboard refactoring items are complete. The remaining Svelte files are below the original high-risk threshold from this plan, so this is a good stopping point unless a future pass wants to polish smaller component internals or address the pre-existing Svelte build warnings.
