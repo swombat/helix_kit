@@ -1,4 +1,5 @@
 class CreateGithubIntegrations < ActiveRecord::Migration[8.1]
+
   def change
     create_table :github_integrations do |t|
       t.references :account, null: false, foreign_key: true, index: { unique: true }
@@ -11,4 +12,5 @@ class CreateGithubIntegrations < ActiveRecord::Migration[8.1]
       t.timestamps
     end
   end
+
 end

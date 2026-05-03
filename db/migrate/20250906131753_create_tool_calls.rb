@@ -1,4 +1,5 @@
 class CreateToolCalls < ActiveRecord::Migration[8.0]
+
   def change
     create_table :tool_calls do |t|
       t.references :message, null: false, foreign_key: true
@@ -10,4 +11,5 @@ class CreateToolCalls < ActiveRecord::Migration[8.0]
 
     add_index :tool_calls, :tool_call_id
   end
+
 end

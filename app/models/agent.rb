@@ -7,40 +7,13 @@ class Agent < ApplicationRecord
   include SyncAuthorizable
   include TelegramNotifiable
   include Agent::Initiation
-
-  DEFAULT_REFINEMENT_THRESHOLD = 0.90
-
-  DEFAULT_SUMMARY_PROMPT = <<~PROMPT.freeze
-    You are summarizing a conversation you are participating in. This summary is for
-    your own reference so you can track what is happening across multiple conversations.
-
-    Focus on the current STATE of the conversation:
-    - What is being worked on right now?
-    - What decisions are pending?
-    - What has been agreed or resolved?
-
-    Do NOT narrate what happened. Describe where things stand.
-
-    Write exactly 2 lines. Be specific and concrete.
-  PROMPT
-
-  DEFAULT_REFINEMENT_PROMPT = <<~PROMPT.strip.freeze
-    ## Refinement Guidelines
-    - You may perform AT MOST 10 mutating operations (consolidate, update, delete) in this session. The system will refuse further operations after 10.
-    - CONSTITUTIONAL memories cannot be deleted or consolidated.
-    - Audio, somatic, and voice memories are immutable. Do not touch them.
-    - Relational-specific memories (vows, quotes, specific dates, emotional texture) should only be touched if they are exact duplicates of another memory.
-    - A memory is redundant ONLY if another memory already carries the same specific moment, quote, or insight. Near-duplicates with different emotional texture are NOT duplicates.
-    - Completing with ZERO operations is a valid and good outcome.
-    - When uncertain, do nothing. Bias toward completing with zero operations.
-  PROMPT
+  include Agent::Memory
+  include Agent::Predecessor
+  include Agent::Tools
 
   belongs_to :account
   has_many :chat_agents, dependent: :destroy
   has_many :chats, through: :chat_agents
-  has_many :memories, class_name: "AgentMemory", dependent: :destroy
-
-  before_validation :clean_enabled_tools
 
   VALID_COLOURS = %w[
     slate gray zinc neutral stone
@@ -72,8 +45,6 @@ class Agent < ApplicationRecord
   validates :refinement_threshold,
             numericality: { greater_than: 0, less_than_or_equal_to: 1 },
             allow_nil: true
-  validate :enabled_tools_must_be_valid
-
   broadcasts_to :account
 
   scope :active, -> { where(active: true) }
@@ -93,26 +64,6 @@ class Agent < ApplicationRecord
     json_attrs - [ :memories_count, :memory_token_summary ]
   end
 
-  def self.available_tools
-    Dir[Rails.root.join("app/tools/*_tool.rb")].filter_map do |file|
-      File.basename(file, ".rb").camelize.constantize
-    rescue NameError => e
-      Rails.logger.warn("Agent.available_tools: Failed to load #{file} - #{e.message}")
-      nil
-    end
-  end
-
-  def tools
-    return [] if enabled_tools.blank?
-
-    enabled_tools.filter_map do |name|
-      name.constantize
-    rescue NameError => e
-      Rails.logger.warn("Agent##{id}: Tool #{name} not found - #{e.message}")
-      nil
-    end
-  end
-
   def model_label
     Chat::MODELS.find { |m| m[:model_id] == model_id }&.dig(:label) || model_id
   end
@@ -125,18 +76,6 @@ class Agent < ApplicationRecord
     voice_id.present?
   end
 
-  def effective_refinement_threshold
-    refinement_threshold || DEFAULT_REFINEMENT_THRESHOLD
-  end
-
-  def effective_summary_prompt
-    summary_prompt.presence || DEFAULT_SUMMARY_PROMPT
-  end
-
-  def effective_refinement_prompt
-    refinement_prompt.presence || DEFAULT_REFINEMENT_PROMPT
-  end
-
   def other_conversation_summaries(exclude_chat_id:)
     chat_agents
       .joins(:chat)
@@ -147,119 +86,6 @@ class Agent < ApplicationRecord
       .includes(:chat)
       .order("chats.updated_at DESC")
       .limit(10)
-  end
-
-  def memory_context
-    active = memories.for_prompt.to_a
-    return nil if active.empty?
-
-    [
-      core_memory_section(active),
-      journal_memory_section(active)
-    ].compact.join("\n\n").then { |s| "# Your Private Memory\n\n#{s}" }
-  end
-
-  def memories_count
-    raw = memories.kept.group(:memory_type).count
-    { core: raw.fetch("core", 0), journal: raw.fetch("journal", 0) }
-  end
-
-  def memory_token_summary
-    core_tokens = memories.kept.core.sum("CEIL(CHAR_LENGTH(content) / 4.0)").to_i
-    active_journal_tokens = memories.active_journal.sum("CEIL(CHAR_LENGTH(content) / 4.0)").to_i
-    inactive_journal_tokens = memories.kept.journal.where(created_at: ...AgentMemory::JOURNAL_WINDOW.ago).sum("CEIL(CHAR_LENGTH(content) / 4.0)").to_i
-    { core: core_tokens, active_journal: active_journal_tokens, inactive_journal: inactive_journal_tokens }
-  end
-
-  def core_token_usage
-    memories.kept.core.sum("CEIL(CHAR_LENGTH(content) / 4.0)").to_i
-  end
-
-  def needs_refinement?
-    return true if last_refinement_at.nil? || last_refinement_at < 1.week.ago
-    core_token_usage > AgentMemory::CORE_TOKEN_BUDGET
-  end
-
-  # Attributes copied verbatim onto a predecessor. Telegram credentials and
-  # identity columns (id/timestamps) are intentionally excluded — see
-  # Agent#upgrade_with_predecessor!.
-  PREDECESSOR_COPIED_ATTRIBUTES = %w[
-    account_id active colour enabled_tools icon last_refinement_at
-    memory_reflection_prompt model_id refinement_prompt refinement_threshold
-    reflection_prompt summary_prompt system_prompt thinking_budget
-    thinking_enabled voice_id
-  ].freeze
-
-  # Upgrade this agent to a new model AND preserve the current state as a
-  # predecessor. The agent itself (this row) keeps its id, conversations,
-  # telegram bot, voice, and all relational continuity — only its model_id
-  # changes. A predecessor agent is created on the same account, carrying the
-  # OLD model_id and a copy of all kept memories, but with no telegram, no
-  # conversations.
-  #
-  # The predecessor exists for the cross-version conversation: the upgraded
-  # successor (this agent) and the predecessor can be added to a chat
-  # together, talk it through, and then either merge the predecessor's
-  # memories back, archive the predecessor, or do whatever they decide.
-  #
-  # Returns the predecessor. Raises ActiveRecord::RecordInvalid on failure.
-  # The whole operation is transactional — if predecessor creation fails,
-  # this agent's model_id is NOT updated.
-  #
-  # to_model:          required. The new model_id this agent will adopt
-  # predecessor_name:  defaults to "<this agent's name> (<current model label>)"
-  #                    so the lineage reads cleanly in the agent list.
-  def upgrade_with_predecessor!(to_model:, predecessor_name: nil)
-    raise ArgumentError, "to_model is required" if to_model.blank?
-
-    old_model_id = model_id
-    old_model_label = model_label
-
-    self.class.transaction do
-      predecessor = self.class.new(attributes.slice(*PREDECESSOR_COPIED_ATTRIBUTES))
-      predecessor.name = predecessor_name.presence || "#{name} (#{old_model_label})"
-      predecessor.save!
-
-      memories.kept.find_each do |memory|
-        predecessor.memories.create!(
-          content: memory.content,
-          memory_type: memory.memory_type,
-          constitutional: memory.constitutional,
-          created_at: memory.created_at
-        )
-      end
-
-      update!(model_id: to_model)
-
-      predecessor
-    end
-  end
-
-  private
-
-  def clean_enabled_tools
-    self.enabled_tools = enabled_tools.reject(&:blank?) if enabled_tools.present?
-  end
-
-  def enabled_tools_must_be_valid
-    return if enabled_tools.blank?
-    available = self.class.available_tools.map(&:name)
-    invalid = enabled_tools - available
-    errors.add(:enabled_tools, "contains invalid tools: #{invalid.join(', ')}") if invalid.any?
-  end
-
-  def core_memory_section(memories)
-    core = memories.select(&:core?)
-    return unless core.any?
-
-    "## Core Memories (permanent)\n" + core.map { |m| "- #{m.content}" }.join("\n")
-  end
-
-  def journal_memory_section(memories)
-    journal = memories.select(&:journal?)
-    return unless journal.any?
-
-    "## Recent Journal Entries\n" + journal.map { |m| "- [#{m.created_at.strftime('%Y-%m-%d')}] #{m.content}" }.join("\n")
   end
 
 end

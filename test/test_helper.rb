@@ -1,7 +1,9 @@
 ENV["RAILS_ENV"] ||= "test"
 
 module Warning
+
   class << self
+
     unless method_defined?(:helix_original_warn)
       alias_method :helix_original_warn, :warn
     end
@@ -16,7 +18,9 @@ module Warning
         helix_original_warn(message)
       end
     end
+
   end
+
 end
 
 require_relative "../config/environment"

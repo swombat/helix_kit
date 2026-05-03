@@ -27,7 +27,7 @@ class SyncGithubCommitsJobTest < ActiveJob::TestCase
   end
 
   test "enqueues with integration id" do
-    assert_enqueued_with(job: SyncGithubCommitsJob, args: [@integration.id]) do
+    assert_enqueued_with(job: SyncGithubCommitsJob, args: [ @integration.id ]) do
       SyncGithubCommitsJob.perform_later(@integration.id)
     end
   end

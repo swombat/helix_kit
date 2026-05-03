@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class GenerateTitlePrompt < Prompt
+
   MAX_MESSAGES = 12
   MAX_MESSAGE_LENGTH = 240
 
@@ -57,4 +58,5 @@ class GenerateTitlePrompt < Prompt
       response
     end
   end
+
 end

@@ -16,7 +16,7 @@ class GithubIntegrationTest < ActiveSupport::TestCase
   end
 
   test "validates repository_full_name format with valid names" do
-    valid_names = ["owner/repo", "my-org/my-repo", "user.name/repo.name", "org/repo-with-dashes"]
+    valid_names = [ "owner/repo", "my-org/my-repo", "user.name/repo.name", "org/repo-with-dashes" ]
     valid_names.each do |name|
       @integration.repository_full_name = name
       assert @integration.valid?, "Expected '#{name}' to be valid"
@@ -24,7 +24,7 @@ class GithubIntegrationTest < ActiveSupport::TestCase
   end
 
   test "validates repository_full_name format rejects invalid names" do
-    invalid_names = ["noslash", "owner/", "/repo", "owner/repo/extra", "owner repo", "owner//repo"]
+    invalid_names = [ "noslash", "owner/", "/repo", "owner/repo/extra", "owner repo", "owner//repo" ]
     invalid_names.each do |name|
       @integration.repository_full_name = name
       assert_not @integration.valid?, "Expected '#{name}' to be invalid"
@@ -149,7 +149,7 @@ class GithubIntegrationTest < ActiveSupport::TestCase
   test "commits_context returns nil when disabled" do
     @integration.update!(
       enabled: false,
-      recent_commits: [{ "sha" => "abc", "date" => "2026-02-05", "message" => "Test", "author" => "Dev" }]
+      recent_commits: [ { "sha" => "abc", "date" => "2026-02-05", "message" => "Test", "author" => "Dev" } ]
     )
 
     assert_nil @integration.commits_context
@@ -182,7 +182,7 @@ class GithubIntegrationTest < ActiveSupport::TestCase
       access_token: "token",
       github_username: "testuser",
       repository_full_name: "owner/repo",
-      recent_commits: [{ "sha" => "abc" }],
+      recent_commits: [ { "sha" => "abc" } ],
       commits_synced_at: Time.current
     )
 
@@ -287,7 +287,7 @@ class GithubIntegrationTest < ActiveSupport::TestCase
   end
 
   test "formatted_commits returns empty array when disabled" do
-    @integration.update!(enabled: false, recent_commits: [{ "sha" => "a", "date" => "2026-01-01", "message" => "x", "author" => "y" }])
+    @integration.update!(enabled: false, recent_commits: [ { "sha" => "a", "date" => "2026-01-01", "message" => "x", "author" => "y" } ])
     assert_equal [], @integration.formatted_commits(limit: 10)
   end
 
