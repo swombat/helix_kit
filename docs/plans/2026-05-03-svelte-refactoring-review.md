@@ -1229,3 +1229,29 @@ Last verified test baseline for this slice:
 Next sensible slice:
 
 - Continue `admin/audit-logs.svelte` by extracting `AuditLogTable.svelte`, then `AuditLogDrawer.svelte` and detail sections.
+
+## Progress Checkpoint: 2026-05-03 Audit Log Table
+
+Status: The audit-log table extraction is implemented and green.
+
+Completed after commit `f8eed5f Extract audit log filter selects`:
+
+- Added `AuditLogTable.svelte`.
+- Moved table rendering, empty state, row formatting, row selection callback, and pagination rendering out of `admin/audit-logs.svelte`.
+- Kept filter state, date pickers, URL navigation, sync subscriptions, and detail drawer ownership in the page.
+
+Current size notes:
+
+- `app/frontend/pages/admin/audit-logs.svelte`: 318 lines, down from 371 lines after the multi-select extraction and 478 lines originally.
+- `AuditLogTable.svelte`: 62 lines.
+
+Last verified test baseline for this slice:
+
+- `yarn test:unit`: 12 files, 37 tests passed.
+- `bin/vite build --mode test`: passed, with existing Svelte warnings unrelated to this slice.
+- `yarn test`: 6 Playwright tests passed.
+- `bin/rails test`: 1815 tests, 7329 assertions, 0 failures, 0 errors.
+
+Next sensible slice:
+
+- Extract `AuditLogDrawer.svelte`, then smaller drawer detail sections if that component is still too long.

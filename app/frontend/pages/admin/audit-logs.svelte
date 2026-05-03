@@ -8,13 +8,10 @@
     DrawerTitle,
     DrawerClose,
   } from '$lib/components/shadcn/drawer/index.js';
-  import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '$lib/components/shadcn/table/index.js';
   import AuditLogMultiSelectFilter from '$lib/components/admin/AuditLogMultiSelectFilter.svelte';
-  import PaginationNav from '$lib/components/navigation/PaginationNav.svelte';
+  import AuditLogTable from '$lib/components/admin/AuditLogTable.svelte';
   import InfoCard from '$lib/components/InfoCard.svelte';
   import { Button } from '$lib/components/shadcn/button/index.js';
-  import { Badge } from '$lib/components/shadcn/badge/index.js';
-  import { formatDistanceToNow } from 'date-fns';
   import { Calendar as CalendarIcon } from 'phosphor-svelte';
   import { DateFormatter, getLocalTimeZone, parseDate, CalendarDate } from '@internationalized/date';
   import { Calendar } from '$lib/components/shadcn/calendar/index.js';
@@ -128,10 +125,6 @@
       preserveScroll: true, // Preserve scroll position
     });
   }
-
-  function formatTime(dateString) {
-    return formatDistanceToNow(new Date(dateString), { addSuffix: true });
-  }
 </script>
 
 <div class="container mx-auto px-4 py-6">
@@ -176,54 +169,7 @@
     </div>
   </div>
 
-  <!-- List -->
-  <div class="rounded-lg overflow-hidden shadow">
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Time</TableHead>
-          <TableHead>Action</TableHead>
-          <TableHead>User</TableHead>
-          <TableHead>Account</TableHead>
-          <TableHead class="w-20"></TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {#if audit_logs.length === 0}
-          <TableRow>
-            <TableCell colspan="6" class="text-center py-8 text-base-content/60">
-              No audit logs found matching your filters
-            </TableCell>
-          </TableRow>
-        {:else}
-          {#each audit_logs as log}
-            <TableRow class="hover cursor-pointer" onclick={() => selectLog(log.id)}>
-              <TableCell class="font-mono text-xs">{formatTime(log.created_at)}</TableCell>
-              <TableCell>
-                <Badge>
-                  {log.display_action}
-                </Badge>
-              </TableCell>
-              <TableCell>
-                <div class="flex items-center gap-2">
-                  {#if log.user}
-                    <Avatar user={log.user} size="small" />
-                  {/if}
-                  <span>{log.actor_name}</span>
-                </div>
-              </TableCell>
-              <TableCell>{log.target_name}</TableCell>
-              <TableCell>
-                <Button size="sm" variant="ghost">View</Button>
-              </TableCell>
-            </TableRow>
-          {/each}
-        {/if}
-      </TableBody>
-    </Table>
-
-    <PaginationNav {pagination} bind:currentPage onPageChange={goToPage} />
-  </div>
+  <AuditLogTable auditLogs={audit_logs} {pagination} bind:currentPage onSelectLog={selectLog} onPageChange={goToPage} />
 
   <!-- Detail Drawer -->
   <Drawer open={drawerOpen} onOpenChange={(open) => !open && closeDrawer()}>
