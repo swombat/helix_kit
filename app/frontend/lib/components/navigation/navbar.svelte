@@ -2,23 +2,14 @@
   // grab page props from inertia
   import { page, Link, router } from '@inertiajs/svelte';
   import Logo from '$lib/components/misc/HelixKitLogo.svelte';
-  import {
-    UserCircle,
-    List,
-    Moon,
-    Sun,
-    ShieldWarning,
-    Buildings,
-    Gear,
-    ClockClockwise,
-    MagnifyingGlass,
-    Play,
-  } from 'phosphor-svelte';
+  import { UserCircle, Moon, Sun, MagnifyingGlass } from 'phosphor-svelte';
   import * as DropdownMenu from '$lib/components/shadcn/dropdown-menu/index.js';
   import { Button, buttonVariants } from '$lib/components/shadcn/button/index.js';
   import { cn } from '$lib/utils.js';
-  import { rootPath, loginPath, signupPath, logoutPath, searchAccountChatsPath } from '@/routes';
+  import { loginPath, signupPath, logoutPath, searchAccountChatsPath } from '@/routes';
   import { setMode, resetMode } from 'mode-watcher';
+  import MobileNavMenu from '$lib/components/navigation/MobileNavMenu.svelte';
+  import SiteAdminMenu from '$lib/components/navigation/SiteAdminMenu.svelte';
   import UserAccountMenu from '$lib/components/navigation/UserAccountMenu.svelte';
   import * as logging from '$lib/logging';
 
@@ -163,59 +154,10 @@
     {/if}
 
     {#if currentUser}
-      <!-- Mobile hamburger menu -->
-      <DropdownMenu.Root>
-        <DropdownMenu.Trigger class={cn(buttonVariants({ variant: 'outline', size: 'icon' }), 'md:hidden')}>
-          <List size={20} />
-          <span class="sr-only">Menu</span>
-        </DropdownMenu.Trigger>
-        <DropdownMenu.Content align="end">
-          {#each links as link}
-            {#if link.show}
-              <DropdownMenu.Item onclick={() => router.visit(link.href)}>{link.label}</DropdownMenu.Item>
-            {/if}
-          {/each}
-          {#if siteSettings?.allow_agents && currentAccount?.id}
-            <DropdownMenu.Item onclick={() => router.visit(`/accounts/${currentAccount.id}/agents`)}>
-              Identities
-            </DropdownMenu.Item>
-            <DropdownMenu.Item onclick={() => router.visit(`/accounts/${currentAccount.id}/whiteboards`)}>
-              Whiteboards
-            </DropdownMenu.Item>
-          {/if}
-          {#if siteSettings?.allow_chats && currentAccount?.id}
-            <DropdownMenu.Item onclick={() => router.visit(searchAccountChatsPath(currentAccount.id))}>
-              Search Messages
-            </DropdownMenu.Item>
-          {/if}
-        </DropdownMenu.Content>
-      </DropdownMenu.Root>
+      <MobileNavMenu {links} {siteSettings} {currentAccount} />
 
       {#if currentUser?.site_admin}
-        <DropdownMenu.Root>
-          <DropdownMenu.Trigger class={cn(buttonVariants({ variant: 'outline' }), 'rounded-full px-2.5 gap-1')}>
-            <ShieldWarning class="text-red-500" />
-            <span class="text-xs font-normal text-muted-foreground text-red-500 hidden md:inline"> Site Admin </span>
-          </DropdownMenu.Trigger>
-          <DropdownMenu.Content align="end">
-            <DropdownMenu.Item onclick={() => router.visit('/admin/settings')}>
-              <Gear class="mr-2 size-4" />
-              <span>Site Settings</span>
-            </DropdownMenu.Item>
-            <DropdownMenu.Item onclick={() => router.visit('/admin/accounts')}>
-              <Buildings class="mr-2 size-4" />
-              <span>Manage Accounts</span>
-            </DropdownMenu.Item>
-            <DropdownMenu.Item onclick={() => router.visit('/admin/audit_logs')}>
-              <ClockClockwise class="mr-2 size-4" />
-              <span>Audit Logs</span>
-            </DropdownMenu.Item>
-            <DropdownMenu.Item onclick={() => router.visit('/admin/jobs')}>
-              <Play class="mr-2 size-4" />
-              <span>Background Jobs</span>
-            </DropdownMenu.Item>
-          </DropdownMenu.Content>
-        </DropdownMenu.Root>
+        <SiteAdminMenu />
       {/if}
       <UserAccountMenu
         {currentUser}

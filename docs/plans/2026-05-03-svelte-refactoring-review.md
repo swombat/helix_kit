@@ -1335,3 +1335,30 @@ Last verified test baseline for this slice:
 Next sensible slice:
 
 - Continue `navbar.svelte` by extracting the admin menu and mobile menu, or switch to `ChatHeader.svelte` for the next P0 component.
+
+## Progress Checkpoint: 2026-05-03 Navbar Mobile And Admin Menus
+
+Status: The second navigation extraction is implemented and green.
+
+Completed after commit `e0cbe76 Extract navbar account menu`:
+
+- Added `MobileNavMenu.svelte` for the authenticated mobile hamburger menu.
+- Added `SiteAdminMenu.svelte` for site-admin navigation.
+- Kept `navbar.svelte` responsible for page props, brand/desktop links, guest theme/login menu, chat search, and theme persistence.
+
+Current size notes:
+
+- `app/frontend/lib/components/navigation/navbar.svelte`: 198 lines, down from 256 lines after the account menu extraction and 397 lines originally.
+- `MobileNavMenu.svelte`: 37 lines.
+- `SiteAdminMenu.svelte`: 32 lines.
+
+Last verified test baseline for this slice:
+
+- `yarn test:unit`: 12 files, 37 tests passed.
+- `bin/vite build --mode test`: passed, with existing Svelte warnings unrelated to this slice.
+- `yarn test`: 6 Playwright tests passed.
+- `bin/rails test`: 1815 tests, 7329 assertions, 0 failures, 0 errors.
+
+Next sensible slice:
+
+- Move to `ChatHeader.svelte`, which is now the largest remaining P0 component after `chats/show.svelte`.
