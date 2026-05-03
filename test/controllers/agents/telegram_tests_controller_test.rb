@@ -24,7 +24,7 @@ class Agents::TelegramTestsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "create redirects with error when no subscribers" do
-    @agent.update!(telegram_bot_token: "123:ABC", telegram_bot_username: "test_bot")
+    configure_telegram_agent!
 
     post account_agent_telegram_test_path(@account, @agent)
 
@@ -33,11 +33,10 @@ class Agents::TelegramTestsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "create sends to subscribers and redirects with success" do
-    @agent.update!(telegram_bot_token: "123:ABC", telegram_bot_username: "test_bot")
-    @agent.telegram_subscriptions.create!(user: @user, telegram_chat_id: 12345)
+    configure_telegram_agent!
+    @agent.telegram_subscriptions.create!(user: @user, telegram_chat_id: telegram_test_chat_id)
 
-    fake_response = Struct.new(:body).new({ "ok" => true, "result" => {} }.to_json)
-    Net::HTTP.stub(:post, fake_response) do
+    VCR.use_cassette("controllers/agents/telegram_tests/send_test_notification_success") do
       post account_agent_telegram_test_path(@account, @agent)
     end
 
@@ -46,11 +45,10 @@ class Agents::TelegramTestsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "create handles telegram API error" do
-    @agent.update!(telegram_bot_token: "123:ABC", telegram_bot_username: "test_bot")
-    @agent.telegram_subscriptions.create!(user: @user, telegram_chat_id: 12345)
+    configure_telegram_agent!
+    @agent.telegram_subscriptions.create!(user: @user, telegram_chat_id: -1)
 
-    fake_response = Struct.new(:body).new({ "ok" => false, "description" => "Bot was blocked" }.to_json)
-    Net::HTTP.stub(:post, fake_response) do
+    VCR.use_cassette("controllers/agents/telegram_tests/send_test_notification_error") do
       post account_agent_telegram_test_path(@account, @agent)
     end
 
@@ -70,6 +68,27 @@ class Agents::TelegramTestsControllerTest < ActionDispatch::IntegrationTest
 
     post account_agent_telegram_test_path(@account, other_agent)
     assert_response :not_found
+  end
+
+  private
+
+  def configure_telegram_agent!
+    @agent.update!(
+      telegram_bot_token: telegram_test_bot_token,
+      telegram_bot_username: telegram_test_bot_username
+    )
+  end
+
+  def telegram_test_bot_token
+    ENV.fetch("TELEGRAM_TEST_BOT_TOKEN", "telegram-test-bot-token")
+  end
+
+  def telegram_test_bot_username
+    ENV.fetch("TELEGRAM_TEST_BOT_USERNAME", "test_bot")
+  end
+
+  def telegram_test_chat_id
+    ENV.fetch("TELEGRAM_TEST_CHAT_ID", "12345").to_i
   end
 
 end

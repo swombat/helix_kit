@@ -4,6 +4,9 @@ require "ostruct"
 
 class DatabaseBackupJobTest < ActiveJob::TestCase
 
+  # Approved carve-out: these stubs exercise local credentials, ENV, and pg_dump
+  # command construction. There is no HTTP provider boundary for VCR to cover.
+
   test "raises ArgumentError when postgres_bucket not configured" do
     empty_credentials = OpenStruct.new(aws: {})
 

@@ -1,4 +1,24 @@
 ENV["RAILS_ENV"] ||= "test"
+
+module Warning
+  class << self
+    unless method_defined?(:helix_original_warn)
+      alias_method :helix_original_warn, :warn
+    end
+
+    def warn(message, category: nil)
+      return if message.include?("gems/marcel-1.1.0/lib/marcel/magic.rb:120: warning: literal string will be frozen")
+      return if message.include?("gems/ruby-openai-") && message.include?("warning: ::Ruby is reserved for Ruby 3.5")
+
+      if category
+        helix_original_warn(message, category: category)
+      else
+        helix_original_warn(message)
+      end
+    end
+  end
+end
+
 require_relative "../config/environment"
 require "rails/test_help"
 require "minitest/mock"

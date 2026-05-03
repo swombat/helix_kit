@@ -1,6 +1,5 @@
 require "test_helper"
 require "support/vcr_setup"
-require "ostruct"
 
 class GenerateTitleJobTest < ActiveSupport::TestCase
 
@@ -33,16 +32,6 @@ class GenerateTitleJobTest < ActiveSupport::TestCase
     chat.messages.create!(role: "assistant", content: "Welcome! How can I help?")
 
     GenerateTitleJob.perform_now(chat)
-
-    assert_nil chat.reload.title
-  end
-
-  test "does not update when prompt returns blank" do
-    chat = build_chat_with_conversation(model_id: "openai/gpt-5-mini")
-
-    GenerateTitlePrompt.stub(:new, ->(*) { OpenStruct.new(generate_title: nil) }) do
-      GenerateTitleJob.perform_now(chat)
-    end
 
     assert_nil chat.reload.title
   end

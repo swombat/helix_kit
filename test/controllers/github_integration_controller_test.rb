@@ -90,26 +90,16 @@ class GithubIntegrationControllerTest < ActionDispatch::IntegrationTest
 
   test "select_repo with connection renders repo picker" do
     @account.create_github_integration!(
-      access_token: "token",
+      access_token: github_test_access_token,
       github_username: "testuser"
     )
 
-    mock_body = [
-      { "full_name" => "org/repo1", "private" => false },
-      { "full_name" => "org/repo2", "private" => true }
-    ].to_json
-    mock_response = Net::HTTPSuccess.new("1.1", "200", "OK")
-    mock_response.instance_variable_set(:@body, mock_body)
-    mock_response.instance_variable_set(:@read, true)
-
-    mock_http = Minitest::Mock.new
-    mock_http.expect(:request, mock_response, [Net::HTTP::Get])
-
-    Net::HTTP.stub(:start, ->(hostname, port, **opts, &block) { block.call(mock_http) }) do
+    VCR.use_cassette("controllers/github_integration/select_repo") do
       get select_repo_github_integration_path
-      assert_response :success
-      assert_equal "settings/github_select_repo", inertia_component
     end
+
+    assert_response :success
+    assert_equal "settings/github_select_repo", inertia_component
   end
 
   test "save_repo without connection redirects" do
@@ -200,6 +190,12 @@ class GithubIntegrationControllerTest < ActionDispatch::IntegrationTest
     post sync_github_integration_path
 
     assert_redirected_to github_integration_path
+  end
+
+  private
+
+  def github_test_access_token
+    ENV.fetch("GITHUB_TEST_ACCESS_TOKEN", "ghp_test_token")
   end
 
 end

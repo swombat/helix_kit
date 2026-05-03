@@ -1,378 +1,212 @@
 # Testing Strategy
 
-## ⚠️ CRITICAL: Pre-Commit Testing Requirements
+Helix Kit's test suite should protect the behavior that matters while staying cheap enough to run and maintain. The strategy is:
 
-**Before ANY change can be considered complete, you MUST run:**
+1. Thorough Rails tests for backend behavior and server-rendered contracts.
+2. Vitest only for focused frontend logic where it gives clear value.
+3. Playwright E2E tests for critical product flows and real browser synchronization.
+
+Avoid tests that merely duplicate implementation details. If a test fails during a good refactor without catching a user-visible or business-relevant regression, it probably belongs in the bin.
+
+## What To Run
+
+For everyday backend or non-visual changes:
 
 ```bash
-# 1. Run Rails backend tests
-rails test
-
-# 2. Run Playwright component tests (REAL backend - NO mocking!)
-yarn test
-
-# 3. Run Vitest unit tests
-yarn test:unit
-
-# All three test suites MUST pass before committing changes!
+bin/rails test
 ```
 
-## Overview
+For focused frontend logic changes:
 
-The testing strategy for Helix Kit follows a multi-layered approach to ensure reliability across the full stack. Rails uses Minitest for backend testing, and Playwright Component Testing for frontend testing.
+```bash
+yarn test:unit
+```
 
-## Current Testing Setup
+For major refactors, synchronization changes, chat/agent changes, or deployment confidence after significant work:
 
-### Rails Testing (Minitest)
+```bash
+yarn test
+```
 
-The application uses Rails' default Minitest framework for backend testing.
+Run narrower commands while iterating, then the relevant full suite before considering the work complete. Playwright is intentionally a rarer, heavier confidence check; Rails tests should remain the default safety net.
 
-## ⚠️ CRITICAL: NO MOCKING IN RUBY TESTS - EVER!
+## Rails Tests
 
-**NEVER use mocks, stubs, or fake objects in Ruby tests!**
+Rails tests are the foundation. They should thoroughly cover models, controllers, integration flows, authorization, Inertia responses, jobs, Action Cable channels, and the server-side behavior behind chat, agents, accounts, whiteboards, and sync.
 
-This includes:
-- ❌ `Minitest::Mock`
-- ❌ `stub` or `stub_any_instance`
-- ❌ Custom mock/fake classes that simulate API behavior
-- ❌ Any pattern where you create a fake object to simulate real behavior
+Use Rails' default Minitest framework:
 
-**Why?** Mocks only test that your understanding of an API matches your implementation. They don't test that your code actually works with the real API. If your code has a bug, a mock will hide it because the mock reflects your (potentially flawed) assumptions.
+```bash
+# Run all Rails tests
+bin/rails test
 
-### External API Testing: Use VCR
+# Run a specific file
+bin/rails test test/controllers/chats_controller_test.rb
 
-For external API calls (LLM APIs, webhooks, etc.), use VCR to record REAL API responses:
+# Run a specific test by line
+bin/rails test test/models/user_test.rb:15
+```
+
+### Ruby Mocking Policy
+
+Do not use mocks, stubs, or fake objects in Ruby tests.
+
+Avoid:
+
+- `Minitest::Mock`
+- `stub` and `stub_any_instance`
+- Custom fake objects that simulate real API behavior
+- Tests that only prove our fake matches our assumptions
+
+Mocks hide integration mistakes. Prefer real records, real requests, real jobs where practical, and recorded real external API responses where direct calls would be too slow or expensive.
+
+### External APIs
+
+Use VCR for external API calls such as LLM APIs and webhooks:
 
 ```ruby
 VCR.use_cassette("my_api_call") do
-  # This makes a REAL API call the first time
-  # and replays the recorded response on subsequent runs
   result = SomeService.call_api(params)
   assert_equal expected_value, result
 end
 ```
 
-**VCR benefits:**
-- Tests real API behavior (recorded from actual calls)
-- Fast replay on subsequent runs
-- Catches API changes when cassettes are re-recorded
-- Documents actual API responses in cassette files
+VCR should record real responses first, then replay them quickly. If streaming or another API shape does not work cleanly with VCR, solve that explicitly rather than falling back to mocks.
 
-**If VCR doesn't work for a specific case** (e.g., streaming responses), find a real solution:
-1. Configure VCR/Faraday to handle the case
-2. Use non-streaming mode in tests if available
-3. Run against real API (slower but tests real behavior)
-4. Ask for help - don't resort to mocks!
+### Rails Coverage Priorities
 
-NEVER skip tests or delete tests without the user's explicit approval.
+Prioritize Rails tests for:
 
-**Run all tests:**
-```bash
-rails test
-```
+- Authorization and account scoping.
+- Controller and integration flows.
+- Inertia response props and redirects.
+- Model invariants and callbacks.
+- Job behavior and side effects.
+- Action Cable channel authorization and broadcasts.
+- Chat, agent, message, thinking-mode, tool-use, and sync server contracts.
 
-**Run specific test files:**
-```bash
-rails test test/models/user_test.rb
-rails test test/controllers/sessions_controller_test.rb
-```
+Use fixtures for stable test data. Do not use factories unless the project explicitly changes direction later.
 
-**Run specific test methods:**
-```bash
-rails test test/models/user_test.rb:15  # Run test at line 15
-```
+## Vitest
 
-**Reset database and run tests:**
-```bash
-rails test:db
-```
+Vitest is not a broad component/page testing layer. Use it only where it tests stable behavior more cheaply and clearly than Rails or Playwright.
 
-### Test Organization
+Good Vitest candidates:
 
-```
-test/
-├── application_system_test_case.rb  # Base class for system tests
-├── test_helper.rb                   # Test configuration
-├── controllers/                     # Controller tests
-├── models/                          # Model tests  
-├── mailers/                         # Mailer tests
-├── integration/                     # Integration tests
-├── system/                          # System/browser tests
-├── fixtures/                        # Test data
-└── helpers/                         # Helper tests
-```
+- Pure utility functions and frontend data transforms.
+- Small state machines extracted from large Svelte components.
+- Message streaming/chunk-merging logic.
+- Markdown or formatting behavior with important edge cases.
+- Keyboard decision logic such as Enter versus Shift+Enter.
+- Sync debounce logic, if extracted into testable JavaScript.
+- Regression tests for frontend bugs we actually hit.
 
-## Testing Layers
+Poor Vitest candidates:
 
-### 1. Unit Tests (Models)
+- Checking that a page has a heading.
+- Checking Tailwind classes or DOM wrappers.
+- Checking exact placeholder text or marketing copy.
+- Duplicating Svelte implementation structure.
+- Tests that need a mocked Inertia world to pretend a real flow happened.
 
-Only test model logic if it's requested by the user (e.g. for very complex models or services/utilities). Otherwise, let the controller tests cover it.
+Tailwind classes should only be tested when the class itself is the meaningful failure mode, for example a class controlling visibility, accessibility, or a state that users cannot recover from. Otherwise, styling belongs in visual review or E2E coverage of the actual behavior.
 
-```ruby
-# test/models/user_test.rb
-class UserTest < ActiveSupport::TestCase
-  test "should not save user without email" do
-    user = User.new
-    assert_not user.save
-  end
-  
-  test "should hash password on save" do
-    user = User.new(email: "test@example.com", password: "password")
-    user.save
-    assert user.password_digest.present?
-    assert_not_equal "password", user.password_digest
-  end
-end
-```
-
-### 2. Controller Tests
-
-Test request/response cycle, authentication, and authorization. DO NOT USE MOCKS OR STUBS.
-
-```ruby
-# test/controllers/sessions_controller_test.rb
-class SessionsControllerTest < ActionDispatch::IntegrationTest
-  test "should get login page" do
-    get login_path
-    assert_response :success
-  end
-  
-  test "should redirect after successful login" do
-    user = users(:one)
-    post login_path, params: { email: user.email, password: "password" }
-    assert_redirected_to root_path
-  end
-end
-```
-
-## Frontend Testing
-
-### Playwright Component Testing (IMPLEMENTED)
-
-We use Playwright Component Testing to test Svelte components in real browsers. **ALL tests MUST run against the real Rails backend. Backend mocking is FORBIDDEN.**
+Run Vitest with:
 
 ```bash
-# Run all component tests (REAL backend required)
-yarn test  # Automatically starts Rails, runs tests, cleans up
-
-# Debug tests with UI
-yarn test:ui
+yarn test:unit
+yarn test:unit:ui
 ```
 
-Test files are located in `playwright/tests/pages/`:
-- `*.pw.js` - ALL tests hit the real Rails API (no mocking allowed!)
+When a Svelte file grows complicated, prefer extracting behavior into a plain JavaScript module and testing that module. Keep the component test surface small.
 
-### Vitest Unit Testing
+## Playwright E2E
 
-For testing application-specific Svelte components and JavaScript utilities in isolation.
+Playwright E2E is the critical browser confidence layer. It should test a small number of high-value journeys against the real Rails app, not a large inventory of component details.
 
-**IMPORTANT: Testing Strategy for UI Components**
+Use Playwright for flows that only a real browser can prove:
 
-#### What We Test
-- **Application components** (in `/app/frontend/pages/`, `/app/frontend/lib/components/`)
-- **Custom utilities and helpers**
-- **Application-specific business logic**
+- A user can log in and reach the app.
+- A user can create a conversation with multiple agents.
+- A user can chat with agents and see messages appear correctly.
+- Thinking mode is used and represented correctly in the UI.
+- Streaming and final message states behave correctly.
+- UI sync works across multiple browser contexts, such as another user or another window seeing updates through Action Cable and Inertia.
+- Account scoping prevents users from seeing data they should not see.
+- Core mobile/responsive flows remain usable when that is a real product risk.
 
-#### What We DON'T Test
-- **Shadcn-svelte components** (in `/app/frontend/lib/components/ui/`)
-  - These are third-party components that we assume work correctly
-  - We do NOT edit these components directly
-  - If customization is needed: create a new component that wraps or extends the shadcn component, then test the wrapper
-  - Example: Instead of modifying `/ui/button/button.svelte`, create `/lib/components/CustomButton.svelte` and test that
+These tests should be deterministic. Avoid real external AI calls in E2E. Prefer test-only server setup/mutation hooks, VCR-backed behavior, or dedicated test models/routes that let the browser exercise the real app without waiting on unpredictable providers.
 
-#### Testing Philosophy: Functionality Over Text
+### Sync Testing
 
-**We test FUNCTIONALITY, not CONTENT**
+UI sync is one of the most important reasons to keep Playwright E2E.
 
-❌ **DON'T test for specific text:**
-```javascript
-// BAD - Tests break when copy changes
-expect(screen.getByText('Enter your email below to create your account')).toBeInTheDocument();
-expect(screen.getByText('Update your password')).toBeInTheDocument();
-```
+The desired pattern is:
 
-✅ **DO test for functional elements and behavior:**
-```javascript
-// GOOD - Tests functionality regardless of text changes
-// Test that form has required fields
-expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
-expect(screen.getByRole('button', { name: /submit|sign up|continue/i })).toBeInTheDocument();
+1. Create deterministic test users, accounts, agents, and conversations.
+2. Open two isolated Playwright browser contexts.
+3. Log in as the relevant users.
+4. Navigate both contexts through the real app.
+5. Trigger a real server-side change through the UI or a test-only endpoint.
+6. Assert the other context updates via Action Cable and Inertia reloads.
 
-// Test that form validates
-await fireEvent.input(emailField, { target: { value: 'invalid-email' } });
-await fireEvent.submit(form);
-expect(emailField).toHaveAttribute('aria-invalid', 'true');
+This is more valuable than testing whether `useSync` has a particular internal shape. The contract is that another real browser sees the right updated UI.
 
-// Test that form submits successfully
-await fireEvent.input(emailField, { target: { value: 'valid@email.com' } });
-await fireEvent.submit(form);
-expect(mockSubmit).toHaveBeenCalledWith({ email: 'valid@email.com' });
-```
+### Frequency
 
-**What to test in components:**
-- Presence of required form fields (by role/label, not exact text)
-- Form validation behavior
-- Button functionality (submission, cancellation)
-- Error state handling
-- Success state handling
-- User interactions produce expected outcomes
-- Data flows correctly through the component
+Playwright E2E should run:
 
-**What NOT to test:**
-- Exact wording of labels, descriptions, or error messages
-- Specific placeholder text
-- Marketing copy or instructional text
-- CSS classes or styling (unless functionally important)
+- Before deployments after significant changes.
+- Before or during major refactors.
+- After changing sync, chat, agents, Action Cable, Inertia props, or authentication/session behavior.
+- In CI if runtime is acceptable, or as a manually triggered CI job if it is too expensive for every push.
 
-**Run tests:**
-```bash
-yarn test:unit     # Run unit tests
-yarn test:unit:ui  # Open Vitest UI for debugging
-```
+It does not need to be the default command for every small code edit.
 
-```javascript
-// Example: Testing an application component (NOT a shadcn component)
-// app/frontend/lib/components/signup-form.test.js
-import { render, fireEvent } from '@testing-library/svelte';
-import SignupForm from './signup-form.svelte';
+## Agent Browser
 
-test('signup form submits with email', async () => {
-  const { getByLabelText, getByRole } = render(SignupForm);
-  
-  const emailInput = getByLabelText('Email');
-  await fireEvent.input(emailInput, { target: { value: 'test@example.com' } });
-  
-  const submitButton = getByRole('button', { name: 'Sign up' });
-  await fireEvent.click(submitButton);
-  
-  // Assert expected behavior
-});
-```
+`agent-browser` remains useful for exploratory manual verification during development. It is not the automated E2E strategy.
 
-#### 2. Browser Testing with agent-browser
-
-For testing complete user journeys in a real browser, use the `agent-browser` skill — **NOT raw Playwright or Playwright MCP**.
-
-Invoke with `/agent-browser`. See `docs/playwright-testing.md` for the full guide.
+Use it to inspect the running app, debug flows, and verify what a user would see:
 
 ```bash
-# Basic flow: open → snapshot → interact → snapshot to verify
 agent-browser open http://localhost:3100
-agent-browser snapshot -i          # See refs like @e1, @e2...
+agent-browser snapshot -i
 agent-browser fill @e2 "test@example.com"
 agent-browser click @e5
-agent-browser snapshot -i          # Verify result
+agent-browser snapshot -i
 ```
 
-## Testing Best Practices
+For automated regression coverage, encode the important journey in Playwright instead.
 
-### 1. Test Pyramid
-- Many integration tests (component interactions)
-- Few system/E2E tests (full workflows)
+## Test Data
 
-### 2. Test Data Management
-- Use fixtures for consistent test data
-- Do not use Factories. Use fixtures instead.
-- Clean database between tests
+Use fixtures and deterministic setup. Tests should be isolated, repeatable, and safe for the long-lived development database.
 
-### 3. Test Coverage Goals
-- Controllers: Cover all actions and edge cases
-- System: Cover critical user paths
-- Frontend: Test component behavior and interactions
+Rules:
+
+- Do not run destructive database commands against development data.
+- Keep test setup explicit and readable.
+- Prefer fixtures for Rails tests.
+- Use unique emails or deterministic test records for browser flows.
+- Clean test data in the test environment, not in development.
 
 ## Writing Effective Tests
 
-### Good Test Principles
-1. **Isolated** - Tests should not depend on each other
-2. **Repeatable** - Same result every time
-3. **Fast** - Quick feedback loop
-4. **Clear** - Easy to understand what failed and why
-5. **Complete** - Cover happy paths and edge cases
+Good tests:
 
-NEVER use mocks and stubs in Ruby tests!
+- Describe behavior, not implementation.
+- Fail for a real regression.
+- Are clear about the user or business outcome being protected.
+- Use the cheapest layer that can prove the behavior.
+- Stay stable across reasonable refactors.
 
-### Test Naming Conventions
-```ruby
-# Rails/Minitest
-test "should [expected behavior] when [condition]" do
-  # test implementation
-end
+Bad tests:
 
-# JavaScript/Vitest
-describe('Component', () => {
-  it('should [expected behavior] when [condition]', () => {
-    // test implementation
-  });
-});
-```
+- Assert private structure.
+- Mirror the implementation line by line.
+- Require extensive mocks to make the world believable.
+- Fail because copy, wrappers, or Tailwind classes changed harmlessly.
+- Give confidence in an isolated component while the real app flow is broken.
 
-## Running Tests in Different Environments
-
-### Development
-```bash
-# Run all tests
-rails test
-
-# Run with verbose output
-rails test -v
-
-# Run specific test suite
-rails test:models
-rails test:controllers
-```
-
-### CI/CD Pipeline
-```bash
-# Setup test database
-RAILS_ENV=test rails db:setup
-
-# Run tests with coverage
-COVERAGE=true rails test
-
-# Run system tests headlessly
-HEADLESS=true rails test:system
-```
-
-### Debugging Tests
-
-#### Rails Tests
-```ruby
-# Add byebug for debugging
-require 'byebug'
-
-test "debugging example" do
-  user = User.create(email: "test@example.com")
-  byebug  # Execution stops here
-  assert user.valid?
-end
-```
-
-#### Frontend Tests (Future)
-```javascript
-// Add debug statements
-test('component state', () => {
-  const component = render(MyComponent);
-  console.log(component.debug());  // Print component tree
-});
-```
-
-## Test Database Management
-
-### Database Cleaner Strategy
-- Transactions for unit tests (automatic rollback)
-- Truncation for system tests (clean slate)
-- Seeds for consistent test data
-
-### Fixtures
-Located in `test/fixtures/`, provide static test data:
-
-```yaml
-# test/fixtures/users.yml
-one:
-  email: user1@example.com
-  password_digest: <%= BCrypt::Password.create("password") %>
-
-two:
-  email: user2@example.com
-  password_digest: <%= BCrypt::Password.create("password") %>
-```
+When in doubt, ask: "Would this test still be valuable if we rewrote the component in a clearer way tomorrow?" If not, move the assertion to a better layer or delete it.

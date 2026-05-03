@@ -23,24 +23,18 @@ class Agents::TelegramWebhooksControllerTest < ActionDispatch::IntegrationTest
     assert_match(/not configured/, flash[:alert])
   end
 
-  test "create registers and redirects with success" do
-    @agent.update!(telegram_bot_token: "123:ABC", telegram_bot_username: "test_bot")
+  test "create attempts registration and surfaces Telegram failure" do
+    @agent.update!(
+      telegram_bot_token: telegram_test_bot_token,
+      telegram_bot_username: telegram_test_bot_username
+    )
 
-    fake_set_response = Struct.new(:body).new({ "ok" => true }.to_json)
-    fake_info_response = Struct.new(:body).new({ "ok" => true, "result" => { "url" => "https://example.com/webhook" } }.to_json)
-
-    call_count = 0
-    fake_post = lambda do |_uri, _body, _headers|
-      call_count += 1
-      call_count == 1 ? fake_set_response : fake_info_response
-    end
-
-    Net::HTTP.stub(:post, fake_post) do
+    VCR.use_cassette("controllers/agents/telegram_webhooks/register_webhook_failure") do
       post account_agent_telegram_webhook_path(@account, @agent)
     end
 
     assert_redirected_to edit_account_agent_path(@account, @agent)
-    assert_match(/Webhook registered/, flash[:notice])
+    assert_match(/Webhook registration may have failed/, flash[:alert])
   end
 
   test "requires authentication" do
@@ -55,6 +49,16 @@ class Agents::TelegramWebhooksControllerTest < ActionDispatch::IntegrationTest
 
     post account_agent_telegram_webhook_path(@account, other_agent)
     assert_response :not_found
+  end
+
+  private
+
+  def telegram_test_bot_token
+    ENV.fetch("TELEGRAM_TEST_BOT_TOKEN", "telegram-test-bot-token")
+  end
+
+  def telegram_test_bot_username
+    ENV.fetch("TELEGRAM_TEST_BOT_USERNAME", "test_bot")
   end
 
 end

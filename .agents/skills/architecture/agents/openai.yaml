@@ -1,0 +1,6 @@
+interface:
+  display_name: "Architecture Review"
+  short_description: "Audit a final plan against its requirements"
+  default_prompt: "Use $architecture <requirements-file> to review the latest plan in docs/plans against the original requirements in docs/requirements, write an architecture review artifact, and summarize the key findings."
+policy:
+  allow_implicit_invocation: false

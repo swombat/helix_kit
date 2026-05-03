@@ -59,39 +59,7 @@ class AnthropicDirectThinkingTest < ActiveSupport::TestCase
         }
       )
 
-      puts "\n=== Claude 3.7 Sonnet Direct API (Thinking Enabled) ==="
-      puts "Response keys: #{response.keys}"
-
-      if response["error"]
-        puts "Error: #{response["error"]}"
-      else
-        content_blocks = response["content"] || []
-        puts "Content blocks count: #{content_blocks.size}"
-
-        content_blocks.each_with_index do |block, i|
-          puts "Block #{i}: type=#{block['type']}"
-          if block["type"] == "thinking"
-            puts "  THINKING FOUND!"
-            puts "  Thinking content (first 300 chars): #{block['thinking'][0..300]}..."
-          elsif block["type"] == "text"
-            puts "  Text content (first 200 chars): #{block['text'][0..200]}..."
-          end
-        end
-
-        # Check usage for reasoning tokens
-        usage = response["usage"] || {}
-        puts "Usage: #{usage}"
-      end
-      puts "=== End Analysis ===\n"
-
-      # Assertions
-      assert_not_nil response
-      refute response["error"], "Should not have an error: #{response['error']}"
-
-      # Check for thinking block
-      content_blocks = response["content"] || []
-      thinking_blocks = content_blocks.select { |b| b["type"] == "thinking" }
-      assert thinking_blocks.any?, "Expected to find a thinking block in the response"
+      assert_thinking_response(response)
     end
   end
 
@@ -109,30 +77,7 @@ class AnthropicDirectThinkingTest < ActiveSupport::TestCase
         }
       )
 
-      puts "\n=== Claude Sonnet 4 Direct API (Thinking Enabled) ==="
-      puts "Response keys: #{response.keys}"
-
-      if response["error"]
-        puts "Error: #{response["error"]}"
-        puts "This model may not support extended thinking"
-      else
-        content_blocks = response["content"] || []
-        puts "Content blocks count: #{content_blocks.size}"
-
-        content_blocks.each_with_index do |block, i|
-          puts "Block #{i}: type=#{block['type']}"
-          if block["type"] == "thinking"
-            puts "  THINKING FOUND!"
-            puts "  Thinking content (first 300 chars): #{block['thinking'][0..300]}..."
-          elsif block["type"] == "text"
-            puts "  Text content (first 200 chars): #{block['text'][0..200]}..."
-          end
-        end
-
-        usage = response["usage"] || {}
-        puts "Usage: #{usage}"
-      end
-      puts "=== End Analysis ===\n"
+      assert_thinking_response(response)
     end
   end
 
@@ -150,30 +95,7 @@ class AnthropicDirectThinkingTest < ActiveSupport::TestCase
         }
       )
 
-      puts "\n=== Claude Opus 4 Direct API (Thinking Enabled) ==="
-      puts "Response keys: #{response.keys}"
-
-      if response["error"]
-        puts "Error: #{response["error"]}"
-        puts "This model may not support extended thinking"
-      else
-        content_blocks = response["content"] || []
-        puts "Content blocks count: #{content_blocks.size}"
-
-        content_blocks.each_with_index do |block, i|
-          puts "Block #{i}: type=#{block['type']}"
-          if block["type"] == "thinking"
-            puts "  THINKING FOUND!"
-            puts "  Thinking content (first 300 chars): #{block['thinking'][0..300]}..."
-          elsif block["type"] == "text"
-            puts "  Text content (first 200 chars): #{block['text'][0..200]}..."
-          end
-        end
-
-        usage = response["usage"] || {}
-        puts "Usage: #{usage}"
-      end
-      puts "=== End Analysis ===\n"
+      assert_thinking_response(response)
     end
   end
 
@@ -191,30 +113,7 @@ class AnthropicDirectThinkingTest < ActiveSupport::TestCase
         }
       )
 
-      puts "\n=== Claude Opus 4.1 Direct API (Thinking Enabled) ==="
-      puts "Response keys: #{response.keys}"
-
-      if response["error"]
-        puts "Error: #{response["error"]}"
-        puts "This model may not support extended thinking"
-      else
-        content_blocks = response["content"] || []
-        puts "Content blocks count: #{content_blocks.size}"
-
-        content_blocks.each_with_index do |block, i|
-          puts "Block #{i}: type=#{block['type']}"
-          if block["type"] == "thinking"
-            puts "  THINKING FOUND!"
-            puts "  Thinking content (first 300 chars): #{block['thinking'][0..300]}..."
-          elsif block["type"] == "text"
-            puts "  Text content (first 200 chars): #{block['text'][0..200]}..."
-          end
-        end
-
-        usage = response["usage"] || {}
-        puts "Usage: #{usage}"
-      end
-      puts "=== End Analysis ===\n"
+      assert_thinking_response(response)
     end
   end
 
@@ -233,8 +132,6 @@ class AnthropicDirectThinkingTest < ActiveSupport::TestCase
         stream: true
       )
 
-      puts "\n=== Claude 3.7 Sonnet Streaming with Thinking ==="
-
       thinking_chunks = []
       text_chunks = []
 
@@ -248,11 +145,6 @@ class AnthropicDirectThinkingTest < ActiveSupport::TestCase
           event_type = event["type"]
 
           case event_type
-          when "content_block_start"
-            block = event.dig("content_block")
-            if block && block["type"] == "thinking"
-              puts "Thinking block started!"
-            end
           when "content_block_delta"
             delta = event.dig("delta")
             if delta
@@ -268,18 +160,21 @@ class AnthropicDirectThinkingTest < ActiveSupport::TestCase
         end
       end
 
-      puts "Thinking chunks received: #{thinking_chunks.size}"
-      puts "Text chunks received: #{text_chunks.size}"
-
-      if thinking_chunks.any?
-        full_thinking = thinking_chunks.join
-        puts "Full thinking (first 500 chars): #{full_thinking[0..500]}..."
-      end
-
-      puts "=== End Analysis ===\n"
-
       assert thinking_chunks.any?, "Expected to receive thinking chunks in streaming"
+      assert text_chunks.any?, "Expected to receive text chunks in streaming"
     end
+  end
+
+  private
+
+  def assert_thinking_response(response)
+    assert_not_nil response
+    refute response["error"], "Should not have an error: #{response['error']}"
+
+    content_blocks = response["content"] || []
+    assert content_blocks.any? { |block| block["type"] == "thinking" }, "Expected a thinking block"
+    assert content_blocks.any? { |block| block["type"] == "text" }, "Expected a text block"
+    assert response["usage"].present?, "Expected usage metadata"
   end
 
 end

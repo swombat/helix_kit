@@ -5,8 +5,11 @@
   "scripts": {
     "format": "prettier --write \"app/frontend/**/*.{js,svelte,css}\"",
     "format:check": "prettier --check \"app/frontend/**/*.{js,svelte,css}\"",
-    "test": "./playwright/run-tests-with-backend.sh",
-    "test:ui": "./playwright/run-tests-with-backend.sh --ui",
+    "test": "yarn test:e2e",
+    "test:e2e": "./playwright/run-e2e.sh",
+    "test:e2e:ui": "./playwright/run-e2e.sh --ui",
+    "test:ct": "npx playwright test -c playwright-ct.config.js",
+    "test:ct:ui": "npx playwright test -c playwright-ct.config.js --ui",
     "test:backend-setup": "./playwright/setup-test-server.sh",
     "test:unit": "vitest",
     "test:unit:ui": "vitest --ui"

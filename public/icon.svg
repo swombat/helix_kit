@@ -1,3 +1,45 @@
-<svg width="512" height="512" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="256" cy="256" r="256" fill="red"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title id="title">Helix Kit app icon</title>
+  <desc id="desc">Helix logo with a red KIT badge</desc>
+
+  <polygon
+    fill="#ffffff"
+    stroke="#307c85"
+    stroke-linejoin="round"
+    stroke-width="16"
+    points="128,18 220,74 220,182 128,238 36,182 36,74"
+  />
+
+  <path
+    d="M96,40 C64,96 192,160 160,216"
+    fill="none"
+    stroke="#307c85"
+    stroke-linecap="round"
+    stroke-width="14"
+  />
+  <path
+    d="M160,40 C192,96 64,160 96,216"
+    fill="none"
+    stroke="#307c85"
+    stroke-linecap="round"
+    stroke-width="14"
+  />
+
+  <line x1="100" y1="56" x2="156" y2="56" stroke="#307c85" stroke-width="8" />
+  <line x1="112" y1="92" x2="144" y2="92" stroke="#307c85" stroke-width="8" />
+  <line x1="112" y1="168" x2="144" y2="168" stroke="#307c85" stroke-width="8" />
+  <line x1="100" y1="200" x2="156" y2="200" stroke="#307c85" stroke-width="8" />
+
+  <rect x="132" y="138" rx="10" ry="10" width="108" height="68" fill="#f15d61" />
+  <text
+    x="186"
+    y="174"
+    fill="#ffffff"
+    font-family="Arial, Helvetica, sans-serif"
+    font-size="44"
+    font-weight="700"
+    letter-spacing="0.02em"
+    text-anchor="middle"
+    dominant-baseline="middle"
+  >KIT</text>
 </svg>

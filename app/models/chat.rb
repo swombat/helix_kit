@@ -20,7 +20,7 @@ class Chat < ApplicationRecord
   validates :agents, length: { minimum: 1, message: "must include at least one agent" }, if: :manual_responses?
 
   json_attributes :title_or_default, :model_id, :model_label, :ai_model_name, :updated_at_formatted,
-                  :updated_at_short, :message_count, :total_tokens, :web_access, :manual_responses,
+                  :updated_at_short, :message_count, :context_tokens, :cost_tokens, :reasoning_tokens, :web_access, :manual_responses,
                   :participants_json, :archived_at, :discarded_at, :archived, :discarded, :respondable, :agent_only, :summary do |hash, options|
     # For sidebar format, only include attributes used by the chat list UI.
     if options&.dig(:as) == :sidebar_json
@@ -31,6 +31,7 @@ class Chat < ApplicationRecord
         "updated_at",
         "updated_at_short",
         "message_count",
+        "context_tokens",
         "manual_responses",
         "participants_json",
         "archived",
@@ -49,7 +50,8 @@ class Chat < ApplicationRecord
       :model_label,
       :ai_model_name,
       :updated_at_formatted,
-      :total_tokens,
+      :cost_tokens,
+      :reasoning_tokens,
       :web_access,
       :archived_at,
       :discarded_at,
@@ -578,10 +580,25 @@ class Chat < ApplicationRecord
     scope.reorder(id: :desc).limit(limit).reverse
   end
 
-  # Returns total token count for all messages in this chat
-  # Uses COALESCE to handle nil values in the database
-  def total_tokens
-    messages.sum("COALESCE(input_tokens, 0) + COALESCE(output_tokens, 0)")
+  # Worst-case input-token pressure across recent assistant turns. Cached on the row so the chats
+  # sidebar can include it without N+1 queries; refreshed by Message after_save_commit.
+  def recalculate_context_tokens!
+    value = messages.where(role: "assistant").reorder(created_at: :desc).limit(10).maximum(:input_tokens) || 0
+    return if value == context_tokens
+    update_columns(context_tokens: value, updated_at: Time.current)
+  end
+
+  # Lifetime billed input/output tokens for this chat.
+  def cost_tokens
+    {
+      input:  messages.sum(:input_tokens),
+      output: messages.sum(:output_tokens)
+    }
+  end
+
+  # Lifetime reasoning tokens for this chat.
+  def reasoning_tokens
+    messages.sum(:thinking_tokens)
   end
 
   # Archive/unarchive methods
@@ -721,7 +738,7 @@ class Chat < ApplicationRecord
       forked.save!
 
       # Copy all messages with attachments
-      messages.includes(:user, :agent, attachments_attachments: :blob).order(:created_at).each do |msg|
+      messages.includes(:user, :agent, :tool_calls, attachments_attachments: :blob).order(:created_at).each do |msg|
         new_msg = forked.messages.create!(
           content: msg.content,
           role: msg.role,
@@ -729,9 +746,24 @@ class Chat < ApplicationRecord
           agent_id: msg.agent_id,
           input_tokens: msg.input_tokens,
           output_tokens: msg.output_tokens,
+          cached_tokens: msg.cached_tokens,
+          cache_creation_tokens: msg.cache_creation_tokens,
+          thinking_text: msg.thinking_text,
+          thinking_tokens: msg.thinking_tokens,
+          replay_payload: msg.replay_payload,
+          reasoning_skip_reason: msg[:reasoning_skip_reason],
           tools_used: msg.tools_used,
           skip_content_validation: msg.content.blank?
         )
+
+        msg.tool_calls.each do |tc|
+          new_msg.tool_calls.create!(
+            tool_call_id: tc.tool_call_id,
+            name: tc.name,
+            arguments: tc.arguments,
+            replay_payload: tc.replay_payload
+          )
+        end
 
         # Duplicate attachments
         msg.attachments.each do |attachment|
@@ -757,23 +789,14 @@ class Chat < ApplicationRecord
     self.class.supports_audio_input?(model_id) && messages.where(audio_source: true).exists?
   end
 
-  def build_context_for_agent(agent, thinking_enabled: false, initiation_reason: nil)
+  def build_context_for_agent(agent, thinking_enabled: false, provider: nil, initiation_reason: nil)
+    provider ||= self.class.resolve_provider(agent.model_id)[:provider]
     [ system_message_for(agent, initiation_reason: initiation_reason) ] +
       messages_context_for(agent,
+        provider: provider,
         thinking_enabled: thinking_enabled,
         audio_tools_enabled: audio_tools_available_for?(agent.model_id),
         pdf_input_supported: self.class.supports_pdf_input?(agent.model_id))
-  end
-
-  # Checks if extended thinking can be used for this agent in this conversation.
-  # Returns false if any of the agent's historical assistant messages lack
-  # thinking content AND signature (Anthropic requires valid signed thinking blocks).
-  def thinking_compatible_for?(agent)
-    agent_messages = messages.where(role: "assistant", agent_id: agent.id)
-    agent_messages.all? do |msg|
-      # Message is compatible if it has both thinking content and signature
-      msg.thinking.present? && msg.thinking_signature.present?
-    end
   end
 
   # Summary generation for API
@@ -950,12 +973,12 @@ class Chat < ApplicationRecord
     "This context is provided for reference only and will not appear in future activations."
   end
 
-  def messages_context_for(agent, thinking_enabled: false, audio_tools_enabled: false, pdf_input_supported: true)
+  def messages_context_for(agent, provider:, thinking_enabled: false, audio_tools_enabled: false, pdf_input_supported: true)
     tz = user_timezone
     messages.includes(:user, :agent).order(:created_at)
-      .reject { |msg| msg.content.blank? }  # Filter out empty messages (e.g., before tool calls)
-      .reject { |msg| msg.used_tools? && msg.agent_id != agent.id }  # Exclude other agents' tool results
-      .map { |msg| format_message_for_context(msg, agent, tz, thinking_enabled: thinking_enabled, audio_tools_enabled: audio_tools_enabled, pdf_input_supported: pdf_input_supported) }
+      .reject { |msg| msg.content.blank? }
+      .reject { |msg| msg.used_tools? && msg.agent_id != agent.id }
+      .map { |msg| format_message_for_context(msg, agent, tz, provider: provider, thinking_enabled: thinking_enabled, audio_tools_enabled: audio_tools_enabled, pdf_input_supported: pdf_input_supported) }
   end
 
   def participant_description(current_agent)
@@ -982,7 +1005,7 @@ class Chat < ApplicationRecord
             .pick("profiles.timezone")
   end
 
-  def format_message_for_context(message, current_agent, timezone, thinking_enabled: false, audio_tools_enabled: false, pdf_input_supported: true)
+  def format_message_for_context(message, current_agent, timezone, provider:, thinking_enabled: false, audio_tools_enabled: false, pdf_input_supported: true)
     timestamp = message.created_at.in_time_zone(timezone).strftime("[%Y-%m-%d %H:%M]")
 
     text_content = if message.agent_id == current_agent.id
@@ -998,7 +1021,6 @@ class Chat < ApplicationRecord
       text_content += " [voice message, audio_id: #{message.obfuscated_id}]"
     end
 
-    # When the model doesn't support native PDF input, extract text and include inline
     unless pdf_input_supported
       pdf_text = message.pdf_text_for_llm
       text_content += "\n\n#{pdf_text}" if pdf_text.present?
@@ -1006,9 +1028,6 @@ class Chat < ApplicationRecord
 
     role = message.agent_id == current_agent.id ? "assistant" : "user"
 
-    # Include file attachments if present using RubyLLM::Content
-    # Exclude audio files when the model doesn't support audio input
-    # Exclude PDFs when the model doesn't support native PDF input (text already extracted above)
     file_paths = message.file_paths_for_llm(include_audio: audio_tools_enabled, include_pdf: pdf_input_supported)
     content = if file_paths.present?
       RubyLLM::Content.new(text_content, file_paths)
@@ -1018,12 +1037,11 @@ class Chat < ApplicationRecord
 
     result = { role: role, content: content }
 
-    # Include thinking for assistant messages when thinking mode is enabled.
-    # Only include if both thinking content AND signature are present (Anthropic
-    # requires valid cryptographic signatures on thinking blocks).
-    if role == "assistant" && thinking_enabled && message.thinking.present?
-      result[:thinking] = message.thinking
-      result[:thinking_signature] = message.thinking_signature if message.thinking_signature.present?
+    return result unless role == "assistant" && thinking_enabled && message.role == "assistant"
+
+    replay = message.replay_for(provider, current_agent: current_agent)
+    [ :thinking, :reasoning_details, :tool_calls ].each do |key|
+      result[key] = replay[key] if replay[key]
     end
 
     result

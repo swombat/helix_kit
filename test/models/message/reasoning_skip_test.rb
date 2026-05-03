@@ -1,0 +1,67 @@
+require "test_helper"
+
+class Message::ReasoningSkipTest < ActiveSupport::TestCase
+
+  setup do
+    @user = User.create!(email_address: "rsk-#{SecureRandom.hex(4)}@example.com", password: "password123")
+    @user.profile.update!(first_name: "Rsk", last_name: "User")
+    @account = @user.personal_account
+    @chat = @account.chats.create!(model_id: "openrouter/auto")
+  end
+
+  test "stored reasoning_skip_reason takes precedence over inferred" do
+    msg = @chat.messages.create!(
+      role: "assistant", content: "Reply",
+      thinking: "thinking text but no signature stored",
+      reasoning_skip_reason: "tool_continuity_missing"
+    )
+
+    assert_equal "tool_continuity_missing", msg.reasoning_skip_reason
+  end
+
+  test "inferred legacy_no_signature when thinking_text present and replay_payload blank" do
+    msg = @chat.messages.create!(role: "assistant", content: "Old reply", thinking: "Some legacy thinking")
+
+    assert_nil msg[:reasoning_skip_reason]
+    assert_equal "legacy_no_signature", msg.reasoning_skip_reason
+  end
+
+  test "no skip reason when thinking_text blank" do
+    msg = @chat.messages.create!(role: "assistant", content: "Reply")
+
+    assert_nil msg.reasoning_skip_reason
+  end
+
+  test "no skip reason when replay_payload present" do
+    msg = @chat.messages.create!(
+      role: "assistant", content: "Reply",
+      thinking: "Reasoning text",
+      replay_payload: { "provider" => "anthropic", "thinking" => { "text" => "Reasoning text", "signature" => "sig" } }
+    )
+
+    assert_nil msg.reasoning_skip_reason
+  end
+
+  test "user messages never get inferred legacy_no_signature" do
+    msg = @chat.messages.create!(role: "user", user: @user, content: "Hello")
+    assert_nil msg.reasoning_skip_reason
+  end
+
+  test "reasoning_skip_reason_label returns human-readable text" do
+    msg = @chat.messages.create!(role: "assistant", content: "Reply", reasoning_skip_reason: "anthropic_key_unavailable")
+    assert_match(/Anthropic API key/, msg.reasoning_skip_reason_label)
+  end
+
+  test "reasoning_skip_reason_label is nil when no reason" do
+    msg = @chat.messages.create!(role: "assistant", content: "Reply")
+    assert_nil msg.reasoning_skip_reason_label
+  end
+
+  test "json includes reasoning_skip_reason and reasoning_skip_reason_label" do
+    msg = @chat.messages.create!(role: "assistant", content: "Reply", reasoning_skip_reason: "tool_continuity_missing")
+    json = msg.as_json
+    assert_equal "tool_continuity_missing", json["reasoning_skip_reason"]
+    assert_match(/Thinking degraded/, json["reasoning_skip_reason_label"])
+  end
+
+end

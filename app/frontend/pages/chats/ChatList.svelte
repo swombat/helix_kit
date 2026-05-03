@@ -285,9 +285,14 @@
               <div class="text-xs text-muted-foreground flex-1/3 flex items-end justify-end hidden group-hover:block">
                 {chat.updated_at_short || formatDate(chat.updated_at)}
               </div>
-              <div class="text-xs text-muted-foreground flex-1/3 flex items-end justify-end gap-1">
-                <ChatText size={12} />
-                {chat.message_count}
+              <div class="text-xs text-muted-foreground flex-1/3 flex items-end justify-end gap-2">
+                {#if chat.context_tokens > 0}
+                  <span class="hidden group-hover:inline">{Math.round(chat.context_tokens / 1000)}k</span>
+                {/if}
+                <span class="flex items-center gap-1">
+                  <ChatText size={12} />
+                  {chat.message_count}
+                </span>
               </div>
             </div>
           </Link>

@@ -32,7 +32,8 @@
     account,
     agents = [],
     allMessages = [],
-    totalTokens = 0,
+    contextTokens = 0,
+    costTokens = { input: 0, output: 0 },
     thresholds = { amber: 100_000, red: 150_000, critical: 200_000 },
     availableAgents = [],
     addableAgents = [],
@@ -55,13 +56,13 @@
   // Check if user can delete chats (account admin or site admin)
   const canDeleteChat = $derived(isAccountAdmin || isSiteAdmin);
 
-  // Token warning level
+  // Token warning level — based on active context, not lifetime cost
   const tokenWarningLevel = $derived(
-    totalTokens >= thresholds.critical
+    contextTokens >= thresholds.critical
       ? 'critical'
-      : totalTokens >= thresholds.red
+      : contextTokens >= thresholds.red
         ? 'red'
-        : totalTokens >= thresholds.amber
+        : contextTokens >= thresholds.amber
           ? 'amber'
           : null
   );
@@ -266,10 +267,18 @@
       <div class="text-sm text-muted-foreground flex items-center gap-2 flex-wrap">
         {#if chat?.manual_responses}
           <ParticipantAvatars {agents} messages={allMessages} />
-          <span class="ml-2">{formatTokenCount(totalTokens)} tokens</span>
+          <span class="ml-2 text-xs">
+            Context: {formatTokenCount(contextTokens)} · Cost: {formatTokenCount(costTokens.input)} in / {formatTokenCount(
+              costTokens.output
+            )} out
+          </span>
         {:else}
           {chat?.model_label || chat?.model_id || 'Auto'}
-          <span class="ml-2 text-xs">({formatTokenCount(totalTokens)} tokens)</span>
+          <span class="ml-2 text-xs">
+            Context: {formatTokenCount(contextTokens)} · Cost: {formatTokenCount(costTokens.input)} in / {formatTokenCount(
+              costTokens.output
+            )} out
+          </span>
         {/if}
 
         {#if tokenWarningLevel === 'amber'}

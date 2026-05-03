@@ -2,6 +2,10 @@ require "test_helper"
 
 class Chats::TranscriptionsControllerTest < ActionDispatch::IntegrationTest
 
+  # Approved carve-out: keep this controller at the ElevenLabs service seam.
+  # VCR-recording realistic STT requests would commit large binary audio cassettes;
+  # controller value here is upload/storage/error behavior, not provider payload shape.
+
   setup do
     Setting.instance.update!(allow_chats: true)
 

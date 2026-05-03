@@ -2,13 +2,24 @@
   import { Button } from '$lib/components/shadcn/button/index.js';
   import { Badge } from '$lib/components/shadcn/badge/index.js';
   import * as Card from '$lib/components/shadcn/card/index.js';
-  import { ArrowClockwise, Spinner, Globe, PencilSimple, SpeakerSimpleHigh, Trash, Wrench } from 'phosphor-svelte';
+  import {
+    ArrowClockwise,
+    Spinner,
+    Globe,
+    PencilSimple,
+    SpeakerSimpleHigh,
+    Trash,
+    Wrench,
+    LightbulbFilament,
+  } from 'phosphor-svelte';
   import FileAttachment from '$lib/components/chat/FileAttachment.svelte';
   import ThinkingBlock from '$lib/components/chat/ThinkingBlock.svelte';
   import ModerationIndicator from '$lib/components/chat/ModerationIndicator.svelte';
   import AudioPlayer from '$lib/components/chat/AudioPlayer.svelte';
   import { Streamdown } from 'svelte-streamdown';
   import { formatTime, formatDateTime } from '$lib/utils';
+  import { reasoningSkipTooltip } from '$lib/chat-utils';
+  import { formatToolsUsed } from '$lib/chat-message-formatting';
 
   let {
     message,
@@ -31,28 +42,11 @@
     if (!colour) return '';
     return `bg-${colour}-100 dark:bg-${colour}-900`;
   }
-
-  // Format tools_used for display - extracts domain from URLs or cleans up legacy format
-  function formatToolsUsed(toolsUsed) {
-    if (!toolsUsed || toolsUsed.length === 0) return [];
-
-    return toolsUsed.map((tool) => {
-      // Handle legacy Ruby object strings like "#<RubyLLM/tool call:0x...>"
-      if (tool.startsWith('#<')) {
-        return 'Web access';
-      }
-
-      // Try to extract domain from URL
-      try {
-        const url = new URL(tool);
-        return url.hostname;
-      } catch {
-        // Not a valid URL, return as-is
-        return tool;
-      }
-    });
-  }
 </script>
+
+{#snippet expressionTag({ token })}
+  <span class="expression-tag">{token.text}</span>
+{/snippet}
 
 <div class="space-y-1">
   {#if message.role === 'user'}
@@ -90,6 +84,7 @@
               {/if}
               <Streamdown
                 content={message.content}
+                inlineCitation={expressionTag}
                 parseIncompleteMarkdown
                 baseTheme="shadcn"
                 {shikiTheme}
@@ -157,6 +152,7 @@
 
               <Streamdown
                 content={message.content}
+                inlineCitation={expressionTag}
                 parseIncompleteMarkdown
                 baseTheme="shadcn"
                 {shikiTheme}
@@ -197,6 +193,14 @@
             {formatTime(message.created_at)}
             <span class="hidden group-hover:inline-block">({formatDateTime(message.created_at, true)})</span>
           </span>
+          {#if message.reasoning_skip_reason}
+            <span
+              title={message.reasoning_skip_reason_label || reasoningSkipTooltip(message.reasoning_skip_reason)}
+              class="text-muted-foreground inline-flex items-center"
+              aria-label="Thinking unavailable for this message">
+              <LightbulbFilament size={14} />
+            </span>
+          {/if}
           {#if message.status === 'pending'}
             <span class="ml-2 text-blue-600">...</span>
           {:else if message.streaming}

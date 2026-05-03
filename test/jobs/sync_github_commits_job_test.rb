@@ -6,22 +6,19 @@ class SyncGithubCommitsJobTest < ActiveJob::TestCase
     @account = accounts(:team_account)
     @integration = GithubIntegration.create!(
       account: @account,
-      access_token: "ghp_test_token",
+      access_token: github_test_access_token,
       github_username: "testuser",
-      repository_full_name: "owner/repo"
+      repository_full_name: "rails/rails"
     )
   end
 
   test "syncs commits on the integration" do
-    fake_commits = [{ "sha" => "abc12345", "message" => "Test", "author" => "Dev", "date" => "2026-02-05" }]
-
-    GithubIntegration.stub(:find, @integration) do
-      @integration.stub(:fetch_recent_commits, fake_commits) do
-        SyncGithubCommitsJob.perform_now(@integration.id)
-      end
+    VCR.use_cassette("jobs/sync_github_commits_job/syncs_rails_commits") do
+      SyncGithubCommitsJob.perform_now(@integration.id)
     end
 
-    assert_equal fake_commits, @integration.recent_commits
+    @integration.reload
+    assert_not_empty @integration.recent_commits
     assert_not_nil @integration.commits_synced_at
   end
 
@@ -41,14 +38,6 @@ class SyncGithubCommitsJobTest < ActiveJob::TestCase
     end
   end
 
-  test "retries on GithubApi::Error" do
-    GithubIntegration.stub(:find, ->(_id) { raise GithubApi::Error, "token revoked" }) do
-      assert_enqueued_with(job: SyncGithubCommitsJob) do
-        SyncGithubCommitsJob.perform_now(@integration.id)
-      end
-    end
-  end
-
   test "does nothing when integration is not ready to sync" do
     @integration.update!(access_token: nil, repository_full_name: nil)
 
@@ -56,6 +45,12 @@ class SyncGithubCommitsJobTest < ActiveJob::TestCase
 
     @integration.reload
     assert_nil @integration.commits_synced_at
+  end
+
+  private
+
+  def github_test_access_token
+    ENV.fetch("GITHUB_TEST_ACCESS_TOKEN", "ghp_test_token")
   end
 
 end

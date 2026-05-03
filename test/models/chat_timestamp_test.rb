@@ -81,7 +81,7 @@ class ChatTimestampTest < ActiveSupport::TestCase
     message = @chat.messages.create!(role: "user", content: "Hello world", user: @user)
     tz = ActiveSupport::TimeZone["UTC"]
 
-    formatted = @chat.send(:format_message_for_context, message, @agent, tz)
+    formatted = @chat.send(:format_message_for_context, message, @agent, tz, provider: :openrouter)
 
     assert_match(/\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}\] \[.+\]: Hello world/, formatted[:content])
   end
@@ -90,7 +90,7 @@ class ChatTimestampTest < ActiveSupport::TestCase
     message = @chat.messages.create!(role: "assistant", content: "Hi there", agent: @agent)
     tz = ActiveSupport::TimeZone["UTC"]
 
-    formatted = @chat.send(:format_message_for_context, message, @agent, tz)
+    formatted = @chat.send(:format_message_for_context, message, @agent, tz, provider: :openrouter)
 
     # Agent's own messages don't have the name prefix, just the timestamp
     assert_match(/\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}\] Hi there/, formatted[:content])
@@ -107,7 +107,7 @@ class ChatTimestampTest < ActiveSupport::TestCase
     message = @chat.messages.create!(role: "assistant", content: "Hello from other", agent: other_agent)
     tz = ActiveSupport::TimeZone["UTC"]
 
-    formatted = @chat.send(:format_message_for_context, message, @agent, tz)
+    formatted = @chat.send(:format_message_for_context, message, @agent, tz, provider: :openrouter)
 
     # Other agent's messages should have the agent name prefix
     assert_match(/\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}\] \[Other Agent\]: Hello from other/, formatted[:content])
@@ -117,7 +117,7 @@ class ChatTimestampTest < ActiveSupport::TestCase
     @chat.messages.create!(role: "user", content: "Question", user: @user)
     @chat.messages.create!(role: "assistant", content: "Answer", agent: @agent)
 
-    context = @chat.send(:messages_context_for, @agent)
+    context = @chat.send(:messages_context_for, @agent, provider: :openrouter)
 
     assert_equal 2, context.length
     context.each do |msg|
@@ -135,7 +135,7 @@ class ChatTimestampTest < ActiveSupport::TestCase
     # Clear memoized timezone
     @chat.instance_variable_set(:@user_timezone, nil)
 
-    context = @chat.send(:messages_context_for, @agent)
+    context = @chat.send(:messages_context_for, @agent, provider: :openrouter)
 
     # 18:30 UTC on Jan 24 should be 13:30 EST (UTC-5)
     assert_match(/\[2026-01-24 13:30\]/, context.first[:content].to_s)

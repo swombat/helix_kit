@@ -20,26 +20,23 @@ class ManualAgentResponseJob < ApplicationJob
 
     debug_info "Starting response for agent '#{agent.name}' (model: #{agent.model_id})"
 
-    # Check if thinking is enabled AND compatible with this conversation.
-    # Anthropic requires all assistant messages to have valid thinking blocks with
-    # cryptographic signatures. If any historical messages lack these, we disable thinking.
-    @use_thinking = agent.uses_thinking? && chat.thinking_compatible_for?(agent)
-    if agent.uses_thinking? && !@use_thinking
-      debug_info "Thinking: disabled (conversation has messages without valid thinking blocks)"
-    else
-      debug_info "Thinking: #{@use_thinking ? 'enabled' : 'disabled'}"
-    end
+    @use_thinking = agent.uses_thinking? && Chat.supports_thinking?(agent.model_id)
+    debug_info "Thinking: #{@use_thinking ? 'enabled' : 'disabled'}"
 
-    # Check for missing API key upfront for thinking-enabled agents
+    provider_config = llm_provider_for(agent.model_id, thinking_enabled: @use_thinking)
+    @provider = provider_config[:provider]
+
     if @use_thinking && Chat.requires_direct_api_for_thinking?(agent.model_id) && !anthropic_api_available?
-      broadcast_error("Extended thinking requires Anthropic API access, but the API key is not configured.")
+      record_thinking_skip!("anthropic_key_unavailable",
+        content: "_Extended thinking requires Anthropic API access, but the API key is not configured. Configure ANTHROPIC_API_KEY to enable signed reasoning blocks._")
       return
     end
 
-    context = chat.build_context_for_agent(agent, thinking_enabled: @use_thinking, initiation_reason: initiation_reason)
+    @pending_skip_reason = "tool_continuity_missing" if @use_thinking && @provider == :gemini && missing_gemini_tool_continuity?(chat, agent)
+
+    context = chat.build_context_for_agent(agent, thinking_enabled: @use_thinking, provider: @provider, initiation_reason: initiation_reason)
     debug_info "Built context with #{context.length} messages"
 
-    provider_config = llm_provider_for(agent.model_id, thinking_enabled: @use_thinking)
     debug_info "Using provider: #{provider_config[:provider]}, model: #{provider_config[:model_id]}"
 
     llm = RubyLLM.chat(
@@ -97,10 +94,15 @@ class ManualAgentResponseJob < ApplicationJob
     end
 
     llm.on_end_message do |msg|
-      next if msg.tool_call? || msg.tool_result?
+      if msg.tool_call?
+        @ai_message&.sync_tool_calls_from(msg)
+        next
+      end
+      next if msg.tool_result?
 
       debug_info "Response complete - #{msg.content&.length || 0} chars"
       finalize_message!(msg)
+      stamp_pending_skip_reason!
       @agent.notify_subscribers!(@ai_message, @chat) if @ai_message&.persisted? && initiation_reason.present?
 
       # Clear after finalize_message! succeeds -- if finalize raises, context survives for retry
@@ -171,7 +173,9 @@ class ManualAgentResponseJob < ApplicationJob
     else
       llm.with_thinking(budget: budget)
     end
-  rescue RubyLLM::UnsupportedFeatureError
+  rescue StandardError => e
+    raise unless unsupported_thinking_feature_error?(e)
+
     # Model registry may be outdated - fall back to direct params for known providers
     case provider
     when :anthropic
@@ -192,6 +196,10 @@ class ManualAgentResponseJob < ApplicationJob
     end
   end
 
+  def unsupported_thinking_feature_error?(error)
+    error.class.name == "RubyLLM::UnsupportedFeatureError"
+  end
+
   # Converts token budget to OpenAI reasoning effort level
   def budget_to_effort(budget)
     case budget
@@ -201,8 +209,27 @@ class ManualAgentResponseJob < ApplicationJob
     end
   end
 
+  def record_thinking_skip!(reason, content:)
+    debug_info "Recording reasoning skip: #{reason}"
+    @ai_message ||= @chat.messages.create!(role: "assistant", agent: @agent, content: content)
+    @ai_message.update!(reasoning_skip_reason: reason)
+    @message_finalized = true
+  end
+
+  def missing_gemini_tool_continuity?(chat, agent)
+    chat.messages.where(agent_id: agent.id).joins(:tool_calls)
+        .where("tool_calls.replay_payload IS NULL OR NOT (tool_calls.replay_payload ? 'thought_signature')")
+        .exists?
+  end
+
+  def stamp_pending_skip_reason!
+    return unless @pending_skip_reason && @ai_message&.persisted?
+    @ai_message.update_columns(reasoning_skip_reason: @pending_skip_reason)
+    @pending_skip_reason = nil
+  end
+
   def broadcast_error(message)
-    @chat.broadcast_marker(
+    ActionCable.server.broadcast(
       "Chat:#{@chat.to_param}",
       { action: "error", message: message }
     )
