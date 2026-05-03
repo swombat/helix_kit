@@ -1920,3 +1920,39 @@ Last verified test baseline:
 Next sensible slice:
 
 - Either keep reducing audit-log admin presentation around the table/drawer components, add focused whiteboard coverage and continue `whiteboards/index.svelte`, or move to `chats/ChatList.svelte`.
+
+## Progress Checkpoint: 2026-05-03 Chat Sidebar Components
+
+Status: The `chats/ChatList.svelte` sidebar extraction is implemented and green.
+
+Completed after commit `26efd5c Extract audit log filter toolbar`:
+
+- Added `ChatSidebarHeader.svelte` for the new-chat/close controls and admin filter toggles.
+- Added `ChatSidebarEmptyState.svelte` for the empty chat list.
+- Added `ChatSidebarItem.svelte` for each chat link, status icon, model/date metadata, and preview text.
+- Added `ChatParticipantAvatars.svelte` for grouped participant avatars.
+- Added `chat-display.js` for shared initials and short-date formatting helpers.
+- Kept `ChatList.svelte` responsible for sidebar open state, permissions from `$page`, URL query toggle state, navigation, and list iteration.
+
+Current size notes:
+
+- `app/frontend/pages/chats/ChatList.svelte`: 86 lines, down from 227 lines.
+- `ChatSidebarHeader.svelte`: 57 lines.
+- `ChatSidebarItem.svelte`: 56 lines.
+- `ChatParticipantAvatars.svelte`: 47 lines.
+- `ChatSidebarEmptyState.svelte`: 8 lines.
+- `chat-display.js`: 21 lines.
+
+Last verified test baseline:
+
+- `yarn test:unit`: 13 files, 40 tests passed.
+- `RAILS_ENV=test bin/vite build --clear`: passed and populated `public/vite-test` for Rails.
+- `bin/rails test test/controllers/chats_controller_test.rb test/integration/chat_flow_test.rb`: 47 tests, 291 assertions, 0 failures, 0 errors.
+
+Notes:
+
+- Stale rows from interrupted test/browser runs in the test database caused fixture foreign-key validation failures in `chat_agents`, `messages`, and `sessions`. The affected `RAILS_ENV=test` volatile rows were cleaned before rerunning the focused chat suite.
+
+Next sensible slice:
+
+- Finish with `whiteboards/index.svelte` by extracting the selected whiteboard viewer/editor/conflict panel while keeping sync, routing, save, and conflict orchestration in the page.
