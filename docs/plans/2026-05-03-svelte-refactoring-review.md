@@ -1309,3 +1309,29 @@ Last verified test baseline for this slice:
 Next sensible slice:
 
 - Continue with `navbar.svelte` or `ChatHeader.svelte`, both of which are now larger than the remaining new-chat page.
+
+## Progress Checkpoint: 2026-05-03 Navbar Account Menu
+
+Status: The first navigation extraction is implemented and green.
+
+Completed after commit `f2aec59 Extract new chat target picker`:
+
+- Added `UserAccountMenu.svelte` for the logged-in account dropdown.
+- Moved account switching, logged-in identity display, integrations, account/API/password links, per-user theme menu, and logout menu item out of `navbar.svelte`.
+- Kept the navbar responsible for current page props, public/mobile nav, admin menu, guest menu, search form, and theme persistence.
+
+Current size notes:
+
+- `app/frontend/lib/components/navigation/navbar.svelte`: 256 lines, down from 397 lines.
+- `UserAccountMenu.svelte`: 156 lines.
+
+Last verified test baseline for this slice:
+
+- `yarn test:unit`: 12 files, 37 tests passed.
+- `bin/vite build --mode test`: passed, with existing Svelte warnings unrelated to this slice.
+- `yarn test`: 6 Playwright tests passed.
+- `bin/rails test`: 1815 tests, 7329 assertions, 0 failures, 0 errors.
+
+Next sensible slice:
+
+- Continue `navbar.svelte` by extracting the admin menu and mobile menu, or switch to `ChatHeader.svelte` for the next P0 component.
