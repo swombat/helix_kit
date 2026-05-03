@@ -988,3 +988,30 @@ Last verified test baseline for this slice:
 Next sensible slice:
 
 - Extract documentation section shells such as quick navigation and the three large topic cards, while keeping the documentation page responsible for ordering the sections.
+
+## Progress Checkpoint: 2026-05-03 Documentation Structure
+
+Status: The documentation shell extraction is implemented and green.
+
+Completed after commit `bc42500 Extract documentation examples`:
+
+- Extracted `DocumentationQuickNavigation.svelte`.
+- Extracted `DocumentationTopicCard.svelte` for the repeated section card/header/content shell.
+- Kept `documentation.svelte` responsible for the page title, section order, and the substantive section content.
+
+Current size notes:
+
+- `app/frontend/pages/documentation.svelte`: 682 lines, down from 735 lines after the examples extraction and 1030 lines originally.
+- `DocumentationQuickNavigation.svelte`: 43 lines.
+- `DocumentationTopicCard.svelte`: 15 lines.
+
+Last verified test baseline for this slice:
+
+- `yarn test:unit`: 10 files, 29 tests passed.
+- `bin/vite build --mode test`: passed, with existing Svelte warnings unrelated to this slice.
+- `yarn test`: 6 Playwright tests passed.
+- `bin/rails test`: 1815 tests, 7329 assertions, 0 failures, 0 errors.
+
+Next sensible slice:
+
+- Extract each large documentation topic body one at a time, starting with the real-time synchronization section.
