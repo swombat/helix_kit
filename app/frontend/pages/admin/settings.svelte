@@ -1,11 +1,9 @@
 <script>
   import { router } from '@inertiajs/svelte';
   import { useSync } from '$lib/use-sync';
-  import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '$lib/components/shadcn/card';
   import { Button } from '$lib/components/shadcn/button';
-  import { Input } from '$lib/components/shadcn/input';
-  import { Label } from '$lib/components/shadcn/label';
-  import { Switch } from '$lib/components/shadcn/switch';
+  import FeatureToggleSettingsCard from '$lib/components/admin/FeatureToggleSettingsCard.svelte';
+  import SiteIdentitySettingsCard from '$lib/components/admin/SiteIdentitySettingsCard.svelte';
 
   let { setting = {} } = $props();
 
@@ -61,92 +59,8 @@
       handleSubmit();
     }}>
     <div class="space-y-6">
-      <!-- Site Identity -->
-      <Card>
-        <CardHeader>
-          <CardTitle>Site Identity</CardTitle>
-          <CardDescription>Customize your site's name and branding</CardDescription>
-        </CardHeader>
-        <CardContent class="space-y-4">
-          <div class="space-y-2">
-            <Label for="site_name">Site Name</Label>
-            <Input id="site_name" type="text" bind:value={form.site_name} placeholder="HelixKit" required />
-          </div>
-
-          <div class="space-y-2">
-            <Label for="logo">Site Logo</Label>
-
-            {#if setting.logo_url && !logoFile}
-              <div class="flex items-center gap-4">
-                <img src={setting.logo_url} alt="Site logo" class="h-16 w-auto border rounded" />
-                <div class="flex gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onclick={() => document.getElementById('logo').click()}>
-                    Change
-                  </Button>
-                  <Button type="button" variant="destructive" size="sm" onclick={handleRemoveLogo}>Remove</Button>
-                </div>
-              </div>
-            {/if}
-
-            <Input
-              id="logo"
-              type="file"
-              accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml"
-              onchange={handleLogoChange}
-              class={setting.logo_url && !logoFile ? 'hidden' : ''} />
-
-            {#if logoFile}
-              <p class="text-sm text-muted-foreground">New: {logoFile.name}</p>
-            {/if}
-          </div>
-        </CardContent>
-      </Card>
-
-      <!-- Feature Toggles -->
-      <Card>
-        <CardHeader>
-          <CardTitle>Feature Toggles</CardTitle>
-          <CardDescription>Control which features are available</CardDescription>
-        </CardHeader>
-        <CardContent class="space-y-6">
-          <div class="flex items-center justify-between">
-            <div class="space-y-1">
-              <Label for="allow_signups">Allow New User Signups</Label>
-              <p class="text-sm text-muted-foreground">When disabled, signup page returns 403</p>
-            </div>
-            <Switch
-              id="allow_signups"
-              checked={form.allow_signups}
-              onCheckedChange={(checked) => (form.allow_signups = checked)} />
-          </div>
-
-          <div class="flex items-center justify-between">
-            <div class="space-y-1">
-              <Label for="allow_chats">Allow Chats</Label>
-              <p class="text-sm text-muted-foreground">When disabled, chat pages return 403</p>
-            </div>
-            <Switch
-              id="allow_chats"
-              checked={form.allow_chats}
-              onCheckedChange={(checked) => (form.allow_chats = checked)} />
-          </div>
-
-          <div class="flex items-center justify-between">
-            <div class="space-y-1">
-              <Label for="allow_agents">Allow Agents</Label>
-              <p class="text-sm text-muted-foreground">When disabled, agent management is hidden</p>
-            </div>
-            <Switch
-              id="allow_agents"
-              checked={form.allow_agents}
-              onCheckedChange={(checked) => (form.allow_agents = checked)} />
-          </div>
-        </CardContent>
-      </Card>
+      <SiteIdentitySettingsCard {setting} {form} {logoFile} onLogoChange={handleLogoChange} onRemoveLogo={handleRemoveLogo} />
+      <FeatureToggleSettingsCard {form} />
 
       <div class="flex justify-end">
         <Button type="submit" disabled={submitting}>

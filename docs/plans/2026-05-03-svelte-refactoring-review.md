@@ -1864,3 +1864,32 @@ Last verified test baseline:
 Next sensible slice:
 
 - Either add focused whiteboard coverage and continue `whiteboards/index.svelte`, or reduce another medium page/component such as `admin/settings.svelte`, `admin/audit-logs.svelte`, or `chats/ChatList.svelte`.
+
+## Progress Checkpoint: 2026-05-03 Admin Settings Cards
+
+Status: The `admin/settings.svelte` card extraction is implemented and green.
+
+Completed after commit `3f0aa9d Extract integration settings components`:
+
+- Added `SiteIdentitySettingsCard.svelte` for site name, logo preview/change/remove controls, file input, and selected-file display.
+- Added `FeatureToggleSettingsCard.svelte` for the repeated global feature toggles.
+- Kept `admin/settings.svelte` responsible for setting sync, form state, selected logo file state, FormData construction, submit state, logo removal, and route mutations.
+- Left existing route helper changes in the worktree untouched because they were pre-existing/user-generated changes.
+
+Current size notes:
+
+- `app/frontend/pages/admin/settings.svelte`: 72 lines, down from 158 lines.
+- `SiteIdentitySettingsCard.svelte`: 48 lines.
+- `FeatureToggleSettingsCard.svelte`: 46 lines.
+
+Last verified test baseline:
+
+- `yarn test:unit`: 13 files, 40 tests passed.
+- `RAILS_ENV=test bin/vite build --clear`: passed and populated `public/vite-test` for Rails.
+- `bin/rails test test/controllers/admin/settings_controller_test.rb`: 3 tests, 7 assertions, 0 failures, 0 errors.
+- `bin/rails test`: 1815 tests, 7329 assertions, 0 failures, 0 errors.
+- `yarn test`: 6 Playwright tests passed.
+
+Next sensible slice:
+
+- Continue with `admin/audit-logs.svelte` by extracting the filter toolbar/date filter controls, or add focused whiteboard coverage and continue `whiteboards/index.svelte`.
