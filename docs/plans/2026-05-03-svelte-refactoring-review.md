@@ -929,3 +929,24 @@ Known notes:
 - The VCR cassette append cleanup from commit `25acae3 Prevent VCR cassette appends` held during this pass; the full Rails suite did not leave cassette churn in the worktree.
 - `AgentMemoryPanel.svelte` is still the largest extracted agent component and remains the next obvious candidate for a smaller split if the agent area needs more refinement.
 - The `appearance` tab is already thin and currently delegates to `AgentAppearanceFields.svelte`; it does not need a separate panel unless future behavior is added.
+
+## Progress Checkpoint: 2026-05-03 Memory Panel Split
+
+Status: The first smaller `AgentMemoryPanel.svelte` extraction is in progress.
+
+Completed after commit `3b6553c Extract agent edit panels`:
+
+- Extracted `AgentMemoryCard.svelte` from `AgentMemoryPanel.svelte`.
+- Kept `AgentMemoryPanel.svelte` responsible for memory filtering, the add-memory form, refinement actions, and list orchestration.
+
+Last verified test baseline for this slice:
+
+- `yarn test:unit`: 10 files, 29 tests passed.
+- `bin/vite build --mode test`: passed, with existing Svelte warnings unrelated to this slice.
+- `yarn test`: 5 Playwright tests passed.
+- `bin/rails test`: 1815 tests, 7329 assertions, 0 failures, 0 errors.
+
+Next sensible slice:
+
+- Extract the new-memory form from `AgentMemoryPanel.svelte`.
+- Extract the memory filter/search/summary controls after that, if the first extraction remains clean.
