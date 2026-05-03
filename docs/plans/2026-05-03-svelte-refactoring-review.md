@@ -1548,3 +1548,33 @@ Last verified test baseline for this slice:
 Next sensible slice:
 
 - Continue `accounts/show.svelte` with smaller extractions such as shared flash messages and account type/summary cards, or move on to `home.svelte`, `whiteboards/index.svelte`, and `admin/accounts.svelte`.
+
+## Progress Checkpoint: 2026-05-03 Account Page Cards
+
+Status: The remaining high-value `accounts/show.svelte` card extractions are implemented and green.
+
+Completed after commit `938aa3e Extract account team sections`:
+
+- Added `FlashMessages.svelte` as a small reusable wrapper for success, notice, and alert flash rendering.
+- Added `AccountSummaryCards.svelte` for account information and account usage display.
+- Added `AccountTypeCard.svelte` for personal/team conversion messaging and conversion action rendering.
+- Kept `accounts/show.svelte` responsible for account props, realtime sync, local invite form state, date formatting, and Inertia route actions.
+- Left existing route helper changes in the worktree untouched because they were pre-existing/user-generated changes.
+
+Current size notes:
+
+- `app/frontend/pages/accounts/show.svelte`: 109 lines, down from 339 lines before the account refactor.
+- `FlashMessages.svelte`: 17 lines.
+- `AccountSummaryCards.svelte`: 50 lines.
+- `AccountTypeCard.svelte`: 40 lines.
+
+Last verified test baseline for this slice:
+
+- `yarn test:unit`: 13 files, 40 tests passed.
+- `bin/vite build --mode test`: passed, with existing Svelte warnings unrelated to this slice.
+- `yarn test`: 6 Playwright tests passed, including the account invitation journey.
+- `bin/rails test`: 1815 tests, 7329 assertions, 0 failures, 0 errors.
+
+Next sensible slice:
+
+- Treat `accounts/show.svelte` as effectively done for now and move to the remaining P1 pages: `home.svelte`, `whiteboards/index.svelte`, or `admin/accounts.svelte`.
