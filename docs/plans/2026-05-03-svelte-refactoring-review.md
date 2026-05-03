@@ -1041,3 +1041,29 @@ Last verified test baseline for this slice:
 Next sensible slice:
 
 - Extract `JsonAttributesDocumentation.svelte`, then `PromptSystemDocumentation.svelte`, leaving `documentation.svelte` as a short page that composes the documentation topics.
+
+## Progress Checkpoint: 2026-05-03 Documentation JSON Section
+
+Status: The JSON attributes documentation topic extraction is implemented and green.
+
+Completed after commit `313dd7b Extract realtime documentation section`:
+
+- Extracted `JsonAttributesDocumentation.svelte`.
+- Moved JSON attributes-specific example imports out of `documentation.svelte`.
+- Kept `documentation.svelte` as the page-level ordering layer for the documentation topics.
+
+Current size notes:
+
+- `app/frontend/pages/documentation.svelte`: 262 lines, down from 446 lines after the realtime section extraction and 1030 lines originally.
+- `JsonAttributesDocumentation.svelte`: 192 lines.
+
+Last verified test baseline for this slice:
+
+- `yarn test:unit`: 10 files, 29 tests passed.
+- `bin/vite build --mode test`: passed, with existing Svelte warnings unrelated to this slice.
+- `yarn test`: 6 Playwright tests passed.
+- `bin/rails test`: 1815 tests, 7329 assertions, 0 failures, 0 errors.
+
+Next sensible slice:
+
+- Extract `PromptSystemDocumentation.svelte`, leaving `documentation.svelte` as a short page that composes the documentation topics.
