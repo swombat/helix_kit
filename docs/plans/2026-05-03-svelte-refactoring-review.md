@@ -1638,3 +1638,33 @@ Last verified test baseline for this slice:
 Next sensible slice:
 
 - Continue `whiteboards/index.svelte` with viewer/editor/conflict components, but only alongside a small whiteboard journey or focused component coverage; otherwise move to `admin/accounts.svelte`.
+
+## Progress Checkpoint: 2026-05-03 Admin Account Split View
+
+Status: The planned `admin/accounts.svelte` split-view extraction is implemented and green.
+
+Completed after commit `4ba59f3 Extract whiteboard presentation components`:
+
+- Added `AdminAccountList.svelte` for the account search field, filtered list rendering, selected-state styling, inactive account styling, owner display, and empty search state.
+- Added `AdminAccountDetails.svelte` for selected account header, account information/statistics cards, and users table.
+- Added `AdminAccountPlaceholder.svelte` for the unselected right-hand pane.
+- Kept `admin/accounts.svelte` responsible for props, search state, filtering semantics, dynamic sync, account selection routing, and date formatting.
+- Left existing route helper changes in the worktree untouched because they were pre-existing/user-generated changes.
+
+Current size notes:
+
+- `app/frontend/pages/admin/accounts.svelte`: 68 lines, down from 238 lines.
+- `AdminAccountList.svelte`: 45 lines.
+- `AdminAccountDetails.svelte`: 113 lines.
+- `AdminAccountPlaceholder.svelte`: 11 lines.
+
+Last verified test baseline for this slice:
+
+- `yarn test:unit`: 13 files, 40 tests passed.
+- `bin/vite build --mode test`: passed, with existing Svelte warnings unrelated to this slice.
+- `yarn test`: 6 Playwright tests passed.
+- `bin/rails test`: 1815 tests, 7329 assertions, 0 failures, 0 errors.
+
+Next sensible slice:
+
+- Either add focused coverage before extracting whiteboard editor/save/conflict behavior, or pick the next medium page such as `accounts/convert_confirmation.svelte`, `agents/edit.svelte`, or `chats/new.svelte`.
