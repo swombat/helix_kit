@@ -1797,3 +1797,35 @@ Notes from verification:
 Next sensible slice:
 
 - Treat `agents/edit.svelte` as effectively done for now and move to a remaining P1/P2 page such as `whiteboards/index.svelte`, `api_keys/index.svelte`, or the integration settings pages.
+
+## Progress Checkpoint: 2026-05-03 API Key Page Components
+
+Status: The `api_keys/index.svelte` presentation extraction is implemented and green.
+
+Completed after commit `7c01e25 Extract agent edit shell`:
+
+- Added `ApiKeyHeader.svelte` for the title and create-key action.
+- Added `ApiKeyCreateForm.svelte` for the temporary key-name form.
+- Added `ApiKeyList.svelte` for the empty state and repeated API key rows.
+- Added `ApiUsageCard.svelte` for the API usage instructions and endpoint list.
+- Kept `api_keys/index.svelte` responsible for show/hide form state, key-name state, create POST, and revoke DELETE.
+- Left existing route helper changes in the worktree untouched because they were pre-existing/user-generated changes.
+
+Current size notes:
+
+- `app/frontend/pages/api_keys/index.svelte`: 34 lines, down from 117 lines.
+- `ApiKeyCreateForm.svelte`: 18 lines.
+- `ApiKeyHeader.svelte`: 17 lines.
+- `ApiKeyList.svelte`: 38 lines.
+- `ApiUsageCard.svelte`: 42 lines.
+
+Last verified test baseline:
+
+- `yarn test:unit`: 13 files, 40 tests passed.
+- `RAILS_ENV=test bin/vite build --clear`: passed and populated `public/vite-test` for Rails.
+- `bin/rails test`: 1815 tests, 7329 assertions, 0 failures, 0 errors.
+- `yarn test`: 6 Playwright tests passed.
+
+Next sensible slice:
+
+- Move to the repeated integration settings pages (`github_integration.svelte`, `oura_integration.svelte`, `x_integration.svelte`) and extract shared status/settings components, or return to `whiteboards/index.svelte` with focused whiteboard coverage.
