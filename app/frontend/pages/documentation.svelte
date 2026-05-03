@@ -1,323 +1,28 @@
 <script>
   import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/shadcn/card';
   import { Badge } from '$lib/components/shadcn/badge';
-  import Highlight from 'svelte-highlight';
-  import ruby from 'svelte-highlight/languages/ruby';
-  import javascript from 'svelte-highlight/languages/javascript';
-  import 'svelte-highlight/styles/atom-one-dark.css';
+  import DocumentationCodeBlock from '$lib/components/documentation/DocumentationCodeBlock.svelte';
 
-  // Code examples as constants for better readability
-  const syncModelExample = `class Account < ApplicationRecord
-  include SyncAuthorizable
-  include Broadcastable
-  
-  # Broadcast to admin collection (for index pages)
-  broadcasts_to :all
-end
-
-class AccountUser < ApplicationRecord
-  include Broadcastable
-  belongs_to :account
-  
-  # Broadcast changes to parent account
-  broadcasts_to :account
-end
-
-class User < ApplicationRecord
-  include Broadcastable
-  has_many :accounts, through: :account_users
-  
-  # Broadcast to all associated accounts (auto-detected as collection)
-  broadcasts_to :accounts
-end`;
-
-  const syncSvelteExample = `<script>
-  import { useSync } from '$lib/use-sync';
-  
-  let { accounts = [], selected_account = null } = $props();
-  
-  // Subscribe to real-time updates
-  useSync({
-    'Account:all': 'accounts',  // Updates when any account changes
-    [\`Account:\${selected_account?.id}\`]: 'selected_account' // Updates specific account
-  });
-<\/script>`;
-
-  const broadcastsToExample = `# Controller provides props
-class AccountsController < ApplicationController
-  def show
-    @account = current_user.accounts.find(params[:id])
-    render inertia: "accounts/show", props: {
-      account: @account.as_json,
-      members: @account.account_users.as_json
-    }
-  end
-end
-
-# Models broadcast their identity
-class AccountUser < ApplicationRecord
-  include Broadcastable
-  belongs_to :account
-  
-  # When AccountUser changes, broadcast to its account
-  broadcasts_to :account
-end`;
-
-  const svelteChannelMapping = `// Svelte component maps channels to props
-<script>
-  import { useSync } from '$lib/use-sync';
-  
-  let { account, members } = $props();
-  
-  // When Account:123 broadcasts, reload both props
-  useSync({
-    [\`Account:\${account.id}\`]: ['account', 'members']
-  });
-<\/script>`;
-
-  const multipleSyncExample = `useSync({
-  'Account:all': 'accounts',
-  [\`Account:\${account.id}\`]: 'account',
-  [\`User:\${user.id}\`]: 'current_user',
-  'SystemSetting:all': 'settings' // Admin only
-});`;
-
-  const parentChildExample = `class AccountUser < ApplicationRecord
-  include Broadcastable
-  
-  belongs_to :account
-  belongs_to :user
-  
-  # When AccountUser changes, broadcast to parent account
-  broadcasts_to :account
-end
-
-class User < ApplicationRecord
-  include Broadcastable
-  
-  has_many :account_users
-  has_many :accounts, through: :account_users
-  
-  # When user changes, broadcast to all their accounts
-  broadcasts_to :accounts
-end`;
-
-  const dynamicSyncExample = `import { createDynamicSync } from '$lib/use-sync';
-
-let { accounts = [], selected_account = null } = $props();
-
-// Create dynamic sync handler
-const updateSync = createDynamicSync();
-
-// Update subscriptions when selected_account changes
-$effect(() => {
-  const subs = { 'Account:all': 'accounts' };
-  
-  if (selected_account) {
-    subs[\`Account:\${selected_account.id}\`] = 'selected_account';
-  }
-  
-  updateSync(subs);
-});`;
-
-  const jsonAttributesBasic = `class User < ApplicationRecord
-  include JsonAttributes
-  
-  # Specify what to include in JSON, excluding sensitive fields
-  json_attributes :full_name, :site_admin, except: [:password_digest]
-end
-
-class Account < ApplicationRecord
-  include JsonAttributes
-  
-  # Include boolean methods (the ? will be stripped in JSON)
-  json_attributes :personal?, :team?, :active?, :is_site_admin, :name
-end
-
-class AccountUser < ApplicationRecord
-  include JsonAttributes
-  
-  # Include associations with their json_attributes
-  json_attributes :role, :confirmed_at, include: { user: {}, account: {} }
-end`;
-
-  const jsonAttributesController = `class AccountsController < ApplicationController
-  def show
-    @account = current_user.accounts.find(params[:id])
-    
-    render inertia: "accounts/show", props: {
-      # as_json automatically uses json_attributes configuration
-      account: @account.as_json,
-      # Pass current_user context for authorization in nested associations
-      members: @account.account_users.as_json(current_user: current_user)
-    }
-  end
-end`;
-
-  const jsonAttributesAdvanced = `class User < ApplicationRecord
-  include JsonAttributes
-  
-  json_attributes :email_address, :full_name do |hash, options|
-    # Add computed properties
-    hash[:initials] = full_name.split.map(&:first).join
-    
-    # Conditional attributes based on context
-    if options[:current_user]&.admin?
-      hash[:last_login_at] = last_login_at
-    end
-    
-    hash
-  end
-end`;
-
-  const jsonAttributesOutput = `# Ruby model
-user = User.find(1)
-user.id          # => 1
-user.to_param    # => "usr_abc123xyz"
-user.site_admin? # => true
-
-# JSON output
-user.as_json
-# => {
-#   "id": "usr_abc123xyz",    # Automatically obfuscated
-#   "full_name": "Jane Doe",
-#   "email_address": "jane@example.com",
-#   "site_admin": true         # Note: no "?" in key
-#   # password_digest is excluded
-# }`;
-
-  // Prompt.rb examples
-  const promptBasicExample = `# Create a prompt with a template
-prompt = Prompt.new(template: "summarize_text")
-
-# Or specify a model
-prompt = Prompt.new(
-  model: "openai/gpt-5",
-  template: "analyze_user_feedback"
-)
-
-# Available model constants
-Prompt::DEFAULT_MODEL # "openai/gpt-5"
-Prompt::SMART_MODEL   # "openai/gpt-5"
-Prompt::LIGHT_MODEL   # "openai/gpt-5-mini"
-Prompt::CHAT_MODEL    # "openai/gpt-5-chat"`;
-
-  const promptTemplateStructure = `# File structure for prompts
-app/prompts/
-└── my_prompt_type/
-    ├── system.prompt.erb  # System message template (optional)
-    └── user.prompt.erb    # User message template (optional)
-
-# Example: app/prompts/summarize_text/system.prompt.erb
-You are a helpful assistant that summarizes text concisely.
-Focus on key points and maintain clarity.
-
-# Example: app/prompts/summarize_text/user.prompt.erb
-Please summarize the following text:
-
-<%= text %>
-
-Provide a summary in <%= max_words %> words or less.`;
-
-  const promptExecutionMethods = `# Execute to get a string response
-response = prompt.execute_to_string
-
-# Execute with streaming (yields incremental responses)
-prompt.execute_to_string do |incremental_response, delta|
-  puts incremental_response  # Full response so far
-  puts delta                  # Just the new chunk
-end
-
-# Execute to get JSON response(s)
-json_response = prompt.execute_to_json
-
-# Execute with JSON streaming
-prompt.execute_to_json do |json_object|
-  # Each complete JSON object is yielded as parsed
-  process_json(json_object)
-end
-
-# Execute and save to a model (PromptOutput or similar)
-prompt.execute(
-  output_class: "PromptOutput",
-  output_id: prompt_output.id,
-  output_property: :ai_summary  # Property to update
-)`;
-
-  const promptRenderingExample = `# Render template with arguments
-prompt = Prompt.new(template: "summarize_text")
-
-params = prompt.render(
-  text: "Long article text here...",
-  max_words: 100
-)
-# Returns: { system: "...", user: "...", model: "openai/gpt-5" }
-
-# Templates use ERB with hash arguments
-# In user.prompt.erb:
-# <%= text %>        # Inserts the text variable
-# <%= max_words %>   # Inserts the max_words variable`;
-
-  const promptSubclassExample = `# Create a specialized prompt class
-class SummarizePrompt < Prompt
-  def initialize(text:, max_words: 100)
-    super(model: Prompt::LIGHT_MODEL, template: "summarize")
-    
-    @text = text
-    @max_words = max_words
-  end
-  
-  def render(**args)
-    super(
-      text: @text,
-      max_words: @max_words
-    )
-  end
-end
-
-# Usage
-prompt = SummarizePrompt.new(
-  text: article.content,
-  max_words: 150
-)
-summary = prompt.execute_to_string`;
-
-  const promptConversationExample = `# For conversation-based prompts
-prompt = Prompt.new(
-  model: "openai/gpt-5",
-  template: "conversation"  # Special template type
-)
-
-# Render conversation from messages
-params = prompt.render(
-  conversation: conversation  # Must have .messages association
-)
-# Returns messages in OpenRouter format:
-# {
-#   messages: [
-#     { role: "user", content: "Hello" },
-#     { role: "assistant", content: "Hi there!" }
-#   ],
-#   model: "openai/gpt-5"
-# }`;
-
-  const promptErrorHandling = `# Built-in retry logic for API errors
-
-# Automatically retries on rate limiting:
-# - Up to 6 attempts with exponential backoff (2^n seconds)
-# - Logs retry attempts for debugging
-
-# Automatically retries on timeout:
-# - Up to 3 attempts
-# - Useful for long-running requests
-
-# All other errors bubble up immediately
-try
-  response = prompt.execute_to_string
-rescue StandardError => e
-  # Handle non-retryable errors
-  Rails.logger.error "Prompt failed: #{e.message}"
-end`;
+  import {
+    broadcastsToExample,
+    dynamicSyncExample,
+    jsonAttributesAdvanced,
+    jsonAttributesBasic,
+    jsonAttributesController,
+    jsonAttributesOutput,
+    multipleSyncExample,
+    parentChildExample,
+    promptBasicExample,
+    promptConversationExample,
+    promptErrorHandling,
+    promptExecutionMethods,
+    promptRenderingExample,
+    promptSubclassExample,
+    promptTemplateStructure,
+    svelteChannelMapping,
+    syncModelExample,
+    syncSvelteExample,
+  } from '$lib/documentation-examples';
 </script>
 
 <div class="container mx-auto py-8 px-4 max-w-5xl">
@@ -390,12 +95,12 @@ end`;
         <div class="space-y-4">
           <div>
             <h4 class="font-medium mb-2">1. Add to your Rails model:</h4>
-            <Highlight language={ruby} code={syncModelExample} />
+            <DocumentationCodeBlock language="ruby" code={syncModelExample} />
           </div>
 
           <div>
             <h4 class="font-medium mb-2">2. Use in your Svelte component:</h4>
-            <Highlight language={javascript} code={syncSvelteExample} />
+            <DocumentationCodeBlock language="javascript" code={syncSvelteExample} />
           </div>
         </div>
       </div>
@@ -535,9 +240,9 @@ end`;
 
           <div>
             <h4 class="font-medium mb-2">Complete Working Example:</h4>
-            <Highlight language={ruby} code={broadcastsToExample} />
+            <DocumentationCodeBlock language="ruby" code={broadcastsToExample} />
             <div class="mt-4">
-              <Highlight language={javascript} code={svelteChannelMapping} />
+              <DocumentationCodeBlock language="javascript" code={svelteChannelMapping} />
             </div>
           </div>
 
@@ -559,17 +264,17 @@ end`;
         <div class="space-y-4">
           <div>
             <h4 class="font-medium mb-2">Multiple Model Subscriptions:</h4>
-            <Highlight language={javascript} code={multipleSyncExample} />
+            <DocumentationCodeBlock language="javascript" code={multipleSyncExample} />
           </div>
 
           <div>
             <h4 class="font-medium mb-2">Parent-Child Broadcasting:</h4>
-            <Highlight language={ruby} code={parentChildExample} />
+            <DocumentationCodeBlock language="ruby" code={parentChildExample} />
           </div>
 
           <div>
             <h4 class="font-medium mb-2">Dynamic Subscriptions:</h4>
-            <Highlight language={javascript} code={dynamicSyncExample} />
+            <DocumentationCodeBlock language="javascript" code={dynamicSyncExample} />
             <p class="text-sm text-muted-foreground mt-2">
               Use <code class="text-xs bg-muted px-1 rounded">createDynamicSync</code> when subscriptions need to change
               based on reactive state. It properly cleans up old subscriptions before creating new ones.
@@ -582,8 +287,8 @@ end`;
       <div>
         <h3 class="text-lg font-semibold mb-3">Testing</h3>
         <p class="text-muted-foreground mb-2">Run the synchronization tests to ensure everything is working:</p>
-        <Highlight
-          language={ruby}
+        <DocumentationCodeBlock
+          language="ruby"
           code={`rails test test/channels/sync_channel_test.rb
 rails test test/models/concerns/broadcastable_test.rb`} />
       </div>
@@ -633,17 +338,17 @@ rails test test/models/concerns/broadcastable_test.rb`} />
         <div class="space-y-4">
           <div>
             <h4 class="font-medium mb-2">1. Define in your models:</h4>
-            <Highlight language={ruby} code={jsonAttributesBasic} />
+            <DocumentationCodeBlock language="ruby" code={jsonAttributesBasic} />
           </div>
 
           <div>
             <h4 class="font-medium mb-2">2. Use in controllers:</h4>
-            <Highlight language={ruby} code={jsonAttributesController} />
+            <DocumentationCodeBlock language="ruby" code={jsonAttributesController} />
           </div>
 
           <div>
             <h4 class="font-medium mb-2">3. Resulting JSON output:</h4>
-            <Highlight language={ruby} code={jsonAttributesOutput} />
+            <DocumentationCodeBlock language="ruby" code={jsonAttributesOutput} />
           </div>
         </div>
       </div>
@@ -710,7 +415,7 @@ rails test test/models/concerns/broadcastable_test.rb`} />
         <div class="space-y-4">
           <div>
             <h4 class="font-medium mb-2">Custom Enhancement Block:</h4>
-            <Highlight language={ruby} code={jsonAttributesAdvanced} />
+            <DocumentationCodeBlock language="ruby" code={jsonAttributesAdvanced} />
             <p class="text-sm text-muted-foreground mt-2">
               Use the block form to add computed properties or conditional attributes based on who's viewing the data.
             </p>
@@ -823,12 +528,12 @@ rails test test/models/concerns/broadcastable_test.rb`} />
         <div class="space-y-4">
           <div>
             <h4 class="font-medium mb-2">1. Creating a Prompt:</h4>
-            <Highlight language={ruby} code={promptBasicExample} />
+            <DocumentationCodeBlock language="ruby" code={promptBasicExample} />
           </div>
 
           <div>
             <h4 class="font-medium mb-2">2. Template File Structure:</h4>
-            <Highlight language={ruby} code={promptTemplateStructure} />
+            <DocumentationCodeBlock language="ruby" code={promptTemplateStructure} />
             <p class="text-sm text-muted-foreground mt-2">
               Templates use ERB syntax and can access any variables passed to the <code
                 class="text-xs bg-muted px-1 rounded">render</code> method. Both system and user templates are optional -
@@ -838,7 +543,7 @@ rails test test/models/concerns/broadcastable_test.rb`} />
 
           <div>
             <h4 class="font-medium mb-2">3. Rendering Templates:</h4>
-            <Highlight language={ruby} code={promptRenderingExample} />
+            <DocumentationCodeBlock language="ruby" code={promptRenderingExample} />
           </div>
         </div>
       </div>
@@ -850,7 +555,7 @@ rails test test/models/concerns/broadcastable_test.rb`} />
         <div class="space-y-4">
           <div>
             <h4 class="font-medium mb-2">Available Execution Methods:</h4>
-            <Highlight language={ruby} code={promptExecutionMethods} />
+            <DocumentationCodeBlock language="ruby" code={promptExecutionMethods} />
           </div>
 
           <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
@@ -871,7 +576,7 @@ rails test test/models/concerns/broadcastable_test.rb`} />
         <div class="space-y-4">
           <div>
             <h4 class="font-medium mb-2">Creating Specialized Prompt Classes:</h4>
-            <Highlight language={ruby} code={promptSubclassExample} />
+            <DocumentationCodeBlock language="ruby" code={promptSubclassExample} />
             <p class="text-sm text-muted-foreground mt-2">
               Subclassing <code class="text-xs bg-muted px-1 rounded">Prompt</code> allows you to create reusable, domain-specific
               prompt classes with their own logic and defaults.
@@ -880,7 +585,7 @@ rails test test/models/concerns/broadcastable_test.rb`} />
 
           <div>
             <h4 class="font-medium mb-2">Conversation-Based Prompts:</h4>
-            <Highlight language={ruby} code={promptConversationExample} />
+            <DocumentationCodeBlock language="ruby" code={promptConversationExample} />
             <p class="text-sm text-muted-foreground mt-2">
               The special <code class="text-xs bg-muted px-1 rounded">"conversation"</code> template type formats messages
               from a conversation object for chat-based interactions.
@@ -889,7 +594,7 @@ rails test test/models/concerns/broadcastable_test.rb`} />
 
           <div>
             <h4 class="font-medium mb-2">Error Handling & Retries:</h4>
-            <Highlight language={ruby} code={promptErrorHandling} />
+            <DocumentationCodeBlock language="ruby" code={promptErrorHandling} />
           </div>
         </div>
       </div>
@@ -989,8 +694,8 @@ rails test test/models/concerns/broadcastable_test.rb`} />
           The system uses VCR to record and replay API responses in tests. This allows for fast, deterministic testing
           without hitting the API:
         </p>
-        <Highlight
-          language={ruby}
+        <DocumentationCodeBlock
+          language="ruby"
           code={`rails test test/prompts/  # Run all prompt tests
 
 # VCR cassettes are stored in test/vcr_cassettes/

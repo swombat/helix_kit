@@ -74,6 +74,14 @@ test.describe('browser contracts', () => {
     await expect(page.getByText(/I will compare both deterministic test agents/)).toBeVisible();
   });
 
+  test('documentation page renders code examples', async ({ page }) => {
+    await page.goto('/documentation');
+
+    await expect(page.getByRole('heading', { name: 'Documentation' })).toBeVisible();
+    await expect(page.getByRole('link', { name: /Real-time Synchronization System/ })).toBeVisible();
+    await expect(page.locator('code').filter({ hasText: 'include SyncAuthorizable' })).toBeVisible();
+  });
+
   test('chat messages sync between two logged-in browser windows', async ({ browser, page }) => {
     await login(page, setup.primary_user, setup.password);
     await startGroupChat(page, setup.account_id, 'Initial message from the primary user.');

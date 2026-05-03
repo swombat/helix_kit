@@ -961,3 +961,30 @@ Last verified test baseline for this slice:
 Next sensible slice:
 
 - Move to the next P0 target in this plan: `documentation.svelte`, which is mostly structural/content extraction rather than interactive behavior.
+
+## Progress Checkpoint: 2026-05-03 Documentation Examples
+
+Status: The first `documentation.svelte` extraction is implemented and green.
+
+Completed:
+
+- Moved large inline code example strings from `documentation.svelte` to `app/frontend/lib/documentation-examples.js`.
+- Added `DocumentationCodeBlock.svelte` so the page no longer imports `svelte-highlight` languages directly.
+- Added a small Playwright smoke assertion for `/documentation` so this public page renders and shows a highlighted code example.
+
+Current size notes:
+
+- `app/frontend/pages/documentation.svelte`: 735 lines, down from 1030 lines.
+- `app/frontend/lib/documentation-examples.js`: 310 lines.
+- `DocumentationCodeBlock.svelte`: 12 lines.
+
+Last verified test baseline for this slice:
+
+- `yarn test:unit`: 10 files, 29 tests passed.
+- `bin/vite build --mode test`: passed, with existing Svelte warnings unrelated to this slice.
+- `yarn test`: 6 Playwright tests passed.
+- `bin/rails test`: 1815 tests, 7329 assertions, 0 failures, 0 errors.
+
+Next sensible slice:
+
+- Extract documentation section shells such as quick navigation and the three large topic cards, while keeping the documentation page responsible for ordering the sections.
