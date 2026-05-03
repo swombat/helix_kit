@@ -1764,3 +1764,36 @@ Notes from verification:
 Next sensible slice:
 
 - `agents/edit.svelte` is already reasonably componentized; consider extracting only the page header/form shell if it buys clarity, otherwise move to `whiteboards/index.svelte` with focused coverage or a smaller settings/API page.
+
+## Progress Checkpoint: 2026-05-03 Agent Edit Shell Components
+
+Status: A small `agents/edit.svelte` shell extraction is implemented and green.
+
+Completed after commit `943ce3c Extract agent index sections`:
+
+- Added `AgentEditHeader.svelte` for the back link, edit title, and agent-specific subtitle.
+- Added `AgentAppearancePanel.svelte` so the appearance tab now follows the same panel pattern as Identity, Model, Integrations, and Memory.
+- Kept `agents/edit.svelte` responsible for Inertia props, sync subscriptions, form initialization, route mutations, tab selection, submit/cancel actions, and memory/Telegram side effects.
+- Left existing route helper changes in the worktree untouched because they were pre-existing/user-generated changes.
+
+Current size notes:
+
+- `app/frontend/pages/agents/edit.svelte`: 225 lines, down from 240 lines.
+- `AgentEditHeader.svelte`: 14 lines.
+- `AgentAppearancePanel.svelte`: 14 lines.
+
+Last verified test baseline:
+
+- `yarn test:unit`: 13 files, 40 tests passed.
+- `bin/vite build --mode test`: passed, with existing Svelte warnings unrelated to this slice.
+- `RAILS_ENV=test bin/vite build --clear`: passed and populated `public/vite-test` for Rails.
+- `bin/rails test`: 1815 tests, 7329 assertions, 0 failures, 0 errors.
+- `yarn test`: 6 Playwright tests passed, including the agent settings journey.
+
+Notes from verification:
+
+- Rails parallel workers can race while auto-building missing Vite test assets. Building with `RAILS_ENV=test bin/vite build --clear` first produced a stable `public/vite-test` manifest, after which the full Rails suite passed.
+
+Next sensible slice:
+
+- Treat `agents/edit.svelte` as effectively done for now and move to a remaining P1/P2 page such as `whiteboards/index.svelte`, `api_keys/index.svelte`, or the integration settings pages.

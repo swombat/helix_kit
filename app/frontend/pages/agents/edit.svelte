@@ -1,7 +1,7 @@
 <script>
   import { useForm, router } from '@inertiajs/svelte';
   import { Button } from '$lib/components/shadcn/button/index.js';
-  import { ArrowLeft, IdentificationCard, Palette, Cpu, Plug, Notebook } from 'phosphor-svelte';
+  import { IdentificationCard, Palette, Cpu, Plug, Notebook } from 'phosphor-svelte';
   import {
     accountAgentsPath,
     accountAgentPath,
@@ -13,7 +13,8 @@
     accountAgentMemoryProtectionPath,
   } from '@/routes';
   import { useSync } from '$lib/use-sync';
-  import AgentAppearanceFields from '$lib/components/agents/AgentAppearanceFields.svelte';
+  import AgentAppearancePanel from '$lib/components/agents/AgentAppearancePanel.svelte';
+  import AgentEditHeader from '$lib/components/agents/AgentEditHeader.svelte';
   import AgentIdentityPanel from '$lib/components/agents/AgentIdentityPanel.svelte';
   import AgentIntegrationsPanel from '$lib/components/agents/AgentIntegrationsPanel.svelte';
   import AgentMemoryPanel from '$lib/components/agents/AgentMemoryPanel.svelte';
@@ -166,16 +167,7 @@
 </svelte:head>
 
 <div class="p-8 max-w-5xl mx-auto">
-  <div class="mb-8">
-    <a
-      href={accountAgentsPath(account.id)}
-      class="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-4">
-      <ArrowLeft class="mr-1 size-4" />
-      Back to Agents
-    </a>
-    <h1 class="text-3xl font-bold">Edit Agent</h1>
-    <p class="text-muted-foreground mt-1">Update {agent.name}'s configuration</p>
-  </div>
+  <AgentEditHeader backHref={accountAgentsPath(account.id)} agentName={agent.name} />
 
   <form
     onsubmit={(e) => {
@@ -190,18 +182,11 @@
         {#if activeTab === 'identity'}
           <AgentIdentityPanel {form} availableVoices={available_voices} />
         {:else if activeTab === 'appearance'}
-          <div class="space-y-6">
-            <div>
-              <h2 class="text-lg font-semibold">Chat Appearance</h2>
-              <p class="text-sm text-muted-foreground">Customise how this agent appears in group chats</p>
-            </div>
-
-            <AgentAppearanceFields
-              bind:colour={$form.agent.colour}
-              bind:icon={$form.agent.icon}
-              colourOptions={colour_options}
-              iconOptions={icon_options} />
-          </div>
+          <AgentAppearancePanel
+            bind:colour={$form.agent.colour}
+            bind:icon={$form.agent.icon}
+            colourOptions={colour_options}
+            iconOptions={icon_options} />
         {:else if activeTab === 'model'}
           <AgentModelPanel {form} groupedModels={grouped_models} availableTools={available_tools} bind:selectedModel />
         {:else if activeTab === 'integrations'}
