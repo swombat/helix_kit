@@ -1119,3 +1119,30 @@ Last verified test baseline for this slice:
 Next sensible slice:
 
 - Continue inside `chats/show.svelte` with a similarly narrow extraction, likely `TokenWarningBanner.svelte` plus a small chat status/banner grouping, or move pure pagination helpers into `chat-pagination-state.js` with Vitest coverage.
+
+## Progress Checkpoint: 2026-05-03 Chat Pagination Helpers
+
+Status: The first pure pagination helper extraction from `chats/show.svelte` is implemented and green.
+
+Completed after commit `5d0877d Extract chat message list`:
+
+- Added `chat-pagination-state.js` for message deduping, load-more decisions, and prepending fetched pages.
+- Added `chat-pagination-state.test.js`.
+- Kept actual fetching, DOM scroll preservation, and route ownership in `pages/chats/show.svelte`.
+
+Current size notes:
+
+- `app/frontend/pages/chats/show.svelte`: 791 lines. This slice adds imports but moves pagination decisions into tested helpers.
+- `chat-pagination-state.js`: 24 lines.
+- `chat-pagination-state.test.js`: 45 lines.
+
+Last verified test baseline for this slice:
+
+- `yarn test:unit`: 11 files, 32 tests passed.
+- `bin/vite build --mode test`: passed, with existing Svelte warnings unrelated to this slice.
+- `yarn test`: 6 Playwright tests passed.
+- `bin/rails test`: 1815 tests, 7329 assertions, 0 failures, 0 errors.
+
+Next sensible slice:
+
+- Continue with either `TokenWarningBanner.svelte` and token-warning helper coverage, or move to the next P0 page: `admin/audit-logs.svelte`.

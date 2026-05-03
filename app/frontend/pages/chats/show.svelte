@@ -39,6 +39,7 @@
     timestampLabelForMessages,
     visibleChatMessages,
   } from '$lib/chat-message-state';
+  import { combinePaginatedMessages, prependOlderMessages, shouldLoadMoreMessages } from '$lib/chat-pagination-state';
   import { applyStreamingEnd, applyStreamingUpdate } from '$lib/chat-streaming-state';
   import { buildChatSubscriptions, chatSyncSignature } from '$lib/chat-sync-subscriptions';
   import { mode } from 'mode-watcher';
@@ -47,9 +48,6 @@
 
   // Browser check for event listeners
   const browser = typeof window !== 'undefined';
-
-  // Scroll threshold for loading more messages
-  const SCROLL_THRESHOLD = 200;
 
   // CSRF token helper
   function csrfToken() {
@@ -82,15 +80,7 @@
   let oldestId = $state(serverOldestId);
   let loadingMore = $state(false);
 
-  // Combined messages for display (deduplicated - recentMessages wins on overlap)
-  const allMessages = $derived.by(() => {
-    const seen = new Set();
-    return [...olderMessages, ...recentMessages].filter((m) => {
-      if (seen.has(m.id)) return false;
-      seen.add(m.id);
-      return true;
-    });
-  });
+  const allMessages = $derived(combinePaginatedMessages(olderMessages, recentMessages));
 
   // Token thresholds from server
   const thresholds = $derived($page.props.token_thresholds || { amber: 100_000, red: 150_000, critical: 200_000 });
@@ -231,7 +221,14 @@
   // Handle scroll for loading more messages
   function handleScroll() {
     if (!messagesContainer) return;
-    if (messagesContainer.scrollTop < SCROLL_THRESHOLD && hasMore && !loadingMore && oldestId) {
+    if (
+      shouldLoadMoreMessages({
+        scrollTop: messagesContainer.scrollTop,
+        hasMore,
+        loadingMore,
+        oldestId,
+      })
+    ) {
       loadMoreMessages();
     }
   }
@@ -254,9 +251,15 @@
 
       if (response.ok) {
         const data = await response.json();
-        olderMessages = [...data.messages, ...olderMessages];
-        hasMore = data.has_more;
-        oldestId = data.oldest_id;
+        const pagination = prependOlderMessages({
+          olderMessages,
+          newMessages: data.messages,
+          hasMore: data.has_more,
+          oldestId: data.oldest_id,
+        });
+        olderMessages = pagination.olderMessages;
+        hasMore = pagination.hasMore;
+        oldestId = pagination.oldestId;
 
         // Simple scroll preservation with requestAnimationFrame
         requestAnimationFrame(() => {
