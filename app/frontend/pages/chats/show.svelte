@@ -4,16 +4,14 @@
   import { createDynamicSync, streamingSync } from '$lib/use-sync';
   import { router } from '@inertiajs/svelte';
   import { onMount, onDestroy } from 'svelte';
-  import { Button } from '$lib/components/shadcn/button/index.js';
-  import { ArrowClockwise, Spinner, WarningCircle } from 'phosphor-svelte';
-  import * as Card from '$lib/components/shadcn/card/index.js';
+  import { WarningCircle } from 'phosphor-svelte';
   import ChatList from './ChatList.svelte';
   import ChatHeader from '$lib/components/chat/ChatHeader.svelte';
   import ImageLightbox from '$lib/components/chat/ImageLightbox.svelte';
   import AgentTriggerBar from '$lib/components/chat/AgentTriggerBar.svelte';
   import AgentPickerDialog from '$lib/components/chat/AgentPickerDialog.svelte';
   import WhiteboardDrawer from '$lib/components/chat/WhiteboardDrawer.svelte';
-  import MessageBubble from '$lib/components/chat/MessageBubble.svelte';
+  import ChatMessageList from '$lib/components/chat/ChatMessageList.svelte';
   import MessageComposer from '$lib/components/chat/MessageComposer.svelte';
   import EditMessageDrawer from '$lib/components/chat/EditMessageDrawer.svelte';
   import TelegramBanner from '$lib/components/chat/TelegramBanner.svelte';
@@ -44,7 +42,6 @@
   import { applyStreamingEnd, applyStreamingUpdate } from '$lib/chat-streaming-state';
   import { buildChatSubscriptions, chatSyncSignature } from '$lib/chat-sync-subscriptions';
   import { mode } from 'mode-watcher';
-  import { fade } from 'svelte/transition';
 
   const shikiTheme = $derived(mode.current === 'dark' ? 'catppuccin-mocha' : 'catppuccin-latte');
 
@@ -133,7 +130,7 @@
     }
   });
 
-  let messagesContainer;
+  let messagesContainer = $state();
   let waitingForResponse = $state(false);
   let messageSentAt = $state(null);
   let currentTime = $state(Date.now());
@@ -643,117 +640,34 @@
       <DebugPanel logs={debugLogs} onclear={() => (debugLogs = [])} />
     {/if}
 
-    <!-- Messages container -->
-    <div
-      bind:this={messagesContainer}
-      onscroll={handleScroll}
-      class="flex-1 overflow-y-auto px-3 md:px-6 py-4 space-y-4">
-      {#if loadingMore}
-        <div class="flex justify-center py-4">
-          <Spinner size={24} class="animate-spin text-muted-foreground" />
-        </div>
-      {:else if hasMore && oldestId}
-        <div class="flex justify-center py-2">
-          <button onclick={loadMoreMessages} class="text-sm text-muted-foreground hover:text-foreground">
-            Load earlier messages
-          </button>
-        </div>
-      {/if}
-
-      {#if !Array.isArray(visibleMessages) || visibleMessages.length === 0}
-        <div class="flex items-center justify-center h-full">
-          <div class="text-center text-muted-foreground">
-            <p>Start the conversation by sending a message below.</p>
-          </div>
-        </div>
-      {:else}
-        {#each visibleMessages as message, index (message.id)}
-          {#if shouldShowTimestamp(index)}
-            <div class="flex items-center gap-4 my-6">
-              <div class="flex-1 border-t border-border"></div>
-              <div class="px-3 py-1 bg-muted rounded-full text-xs font-medium text-muted-foreground">
-                {timestampLabel(index)}
-              </div>
-              <div class="flex-1 border-t border-border"></div>
-            </div>
-          {/if}
-
-          <MessageBubble
-            {message}
-            isLastVisible={index === visibleMessages.length - 1}
-            isGroupChat={chat?.manual_responses}
-            showResend={index === visibleMessages.length - 1 &&
-              lastUserMessageNeedsResend &&
-              !waitingForResponse &&
-              !chat?.manual_responses}
-            streamingThinking={streamingThinking[message.id] || ''}
-            {shikiTheme}
-            onedit={startEditingMessage}
-            ondelete={deleteMessage}
-            onretry={retryMessage}
-            onfix={fixHallucinatedToolCalls}
-            onresend={resendLastMessage}
-            onimagelightbox={openImageLightbox}
-            onvoice={requestVoice} />
-        {/each}
-
-        <!-- Thinking bubble when last message is hidden (tool call or empty assistant) - only shown when not showing all messages -->
-        {#if !showAllMessages && lastMessageIsHiddenThinking}
-          {@const lastMessage = allMessages[allMessages.length - 1]}
-          <div class="flex justify-start">
-            <div class="max-w-[85%] md:max-w-[70%]">
-              <Card.Root>
-                <Card.Content class="p-4">
-                  <div class="flex items-center gap-2 text-muted-foreground">
-                    <Spinner size={16} class="animate-spin" />
-                    <span class="text-sm">{lastMessage?.tool_status || 'Thinking...'}</span>
-                  </div>
-                </Card.Content>
-              </Card.Root>
-            </div>
-          </div>
-        {/if}
-
-        <!-- Sending message placeholder (show while waiting for assistant response) -->
-        {#if shouldShowSendingPlaceholder}
-          <div class="flex justify-start">
-            <div class="max-w-[85%] md:max-w-[70%]">
-              <Card.Root>
-                <Card.Content class="p-4">
-                  {#if isTimedOut}
-                    <div class="text-red-600 text-sm mb-2">
-                      It appears there might have been an error while sending the message.
-                    </div>
-                    <Button variant="outline" size="sm" onclick={resendLastMessage}>
-                      <ArrowClockwise size={14} class="mr-2" />
-                      Try again
-                    </Button>
-                  {:else}
-                    <div class="flex items-center gap-2 text-muted-foreground">
-                      <Spinner size={16} class="animate-spin" />
-                      <span class="text-sm">Sending message...</span>
-                    </div>
-                  {/if}
-                </Card.Content>
-              </Card.Root>
-            </div>
-          </div>
-        {/if}
-
-        <!-- Agent prompt for group chats after sending a message -->
-        {#if showAgentPrompt && chat?.manual_responses}
-          <div class="flex justify-start" transition:fade={{ duration: 200 }}>
-            <div class="max-w-[85%] md:max-w-[70%]">
-              <Card.Root class="border-dashed border-2 border-muted-foreground/30 bg-muted/20">
-                <Card.Content class="p-4">
-                  <div class="text-muted-foreground text-sm">Please select an agent to respond</div>
-                </Card.Content>
-              </Card.Root>
-            </div>
-          </div>
-        {/if}
-      {/if}
-    </div>
+    <ChatMessageList
+      bind:messagesContainer
+      {loadingMore}
+      {hasMore}
+      {oldestId}
+      {visibleMessages}
+      {allMessages}
+      {chat}
+      {showAllMessages}
+      {lastMessageIsHiddenThinking}
+      {shouldShowSendingPlaceholder}
+      {isTimedOut}
+      {lastUserMessageNeedsResend}
+      {waitingForResponse}
+      {streamingThinking}
+      {shikiTheme}
+      {showAgentPrompt}
+      {handleScroll}
+      {loadMoreMessages}
+      {shouldShowTimestamp}
+      {timestampLabel}
+      {startEditingMessage}
+      {deleteMessage}
+      {retryMessage}
+      {fixHallucinatedToolCalls}
+      {resendLastMessage}
+      {openImageLightbox}
+      {requestVoice} />
 
     <!-- Agent trigger bar for group chats -->
     {#if chat?.manual_responses && agents?.length > 0}

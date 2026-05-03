@@ -1093,3 +1093,29 @@ Last verified test baseline for this slice:
 Next sensible slice:
 
 - Return to the P1 component list: review the largest remaining Svelte files and extract one focused component from the next most sprawling page without changing the page orchestration role.
+
+## Progress Checkpoint: 2026-05-03 Chat Message List
+
+Status: The first `chats/show.svelte` extraction is implemented and green.
+
+Completed after commit `971755c Extract prompt documentation section`:
+
+- Extracted `ChatMessageList.svelte` from `pages/chats/show.svelte`.
+- Kept pagination state, scrolling decisions, sync, retry/delete/edit actions, and route ownership in the chat page.
+- Changed the parent `messagesContainer` binding to `$state()` so the extraction does not introduce a new Svelte compiler warning.
+
+Current size notes:
+
+- `app/frontend/pages/chats/show.svelte`: 784 lines, down from 870 lines.
+- `ChatMessageList.svelte`: 146 lines.
+
+Last verified test baseline for this slice:
+
+- `yarn test:unit`: 10 files, 29 tests passed.
+- `bin/vite build --mode test`: passed, with existing Svelte warnings unrelated to this slice.
+- `yarn test`: 6 Playwright tests passed.
+- `bin/rails test`: 1815 tests, 7329 assertions, 0 failures, 0 errors.
+
+Next sensible slice:
+
+- Continue inside `chats/show.svelte` with a similarly narrow extraction, likely `TokenWarningBanner.svelte` plus a small chat status/banner grouping, or move pure pagination helpers into `chat-pagination-state.js` with Vitest coverage.
