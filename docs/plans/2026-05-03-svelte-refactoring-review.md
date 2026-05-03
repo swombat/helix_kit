@@ -1362,3 +1362,29 @@ Last verified test baseline for this slice:
 Next sensible slice:
 
 - Move to `ChatHeader.svelte`, which is now the largest remaining P0 component after `chats/show.svelte`.
+
+## Progress Checkpoint: 2026-05-03 Chat Header Token Status
+
+Status: The first `ChatHeader.svelte` extraction is implemented and green.
+
+Completed after commit `9d5be70 Extract navbar menus`:
+
+- Added `ChatTokenStatus.svelte` for the model/participant token status row and warning badges.
+- Kept title editing, chat actions, moderation, archive/delete, fork, web access, and dialog callbacks in `ChatHeader.svelte`.
+- Reused the existing `chat-utils.js` formatting and token-warning helper coverage.
+
+Current size notes:
+
+- `app/frontend/lib/components/chat/ChatHeader.svelte`: 344 lines, down from 377 lines.
+- `ChatTokenStatus.svelte`: 48 lines.
+
+Last verified test baseline for this slice:
+
+- `yarn test:unit`: 12 files, 37 tests passed.
+- `bin/vite build --mode test`: passed, with existing Svelte warnings unrelated to this slice.
+- `yarn test`: 6 Playwright tests passed.
+- `bin/rails test`: 1815 tests, 7329 assertions, 0 failures, 0 errors.
+
+Next sensible slice:
+
+- Continue `ChatHeader.svelte` by extracting the action dropdown, then consider a focused title-edit component that can also address the current Svelte a11y warning.
