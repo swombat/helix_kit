@@ -8,8 +8,8 @@
     DrawerTitle,
     DrawerClose,
   } from '$lib/components/shadcn/drawer/index.js';
-  import * as Select from '$lib/components/shadcn/select/index.js';
   import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '$lib/components/shadcn/table/index.js';
+  import AuditLogMultiSelectFilter from '$lib/components/admin/AuditLogMultiSelectFilter.svelte';
   import PaginationNav from '$lib/components/navigation/PaginationNav.svelte';
   import InfoCard from '$lib/components/InfoCard.svelte';
   import { Button } from '$lib/components/shadcn/button/index.js';
@@ -23,7 +23,6 @@
   import json from 'svelte-highlight/languages/json';
   import 'svelte-highlight/styles/atom-one-dark.css';
   import Avatar from '$lib/components/Avatar.svelte';
-  import * as logging from '$lib/logging';
   import {
     auditLogFilterParams,
     compactAuditLogParams,
@@ -55,7 +54,21 @@
   );
   let dateToDisplay = $derived(dateTo && dateTo.toDate ? df.format(dateTo.toDate(getLocalTimeZone())) : 'To date');
 
-  // No longer needed - we'll pass dates directly in applyFilters
+  const userFilterItems = $derived(
+    (filters.users || []).map((user) => ({
+      value: user.id.toString(),
+      label: `${user.full_name} <${user.email_address}>`,
+      selectedLabel: user.full_name || user.email_address,
+    }))
+  );
+  const accountFilterItems = $derived(
+    (filters.accounts || []).map((account) => ({
+      value: account.id.toString(),
+      label: account.name,
+    }))
+  );
+  const actionFilterItems = $derived((filters.actions || []).map((action) => ({ value: action, label: action })));
+  const typeFilterItems = $derived((filters.types || []).map((type) => ({ value: type, label: type })));
 
   // Set up real-time synchronization
   const updateSync = createDynamicSync();
@@ -127,114 +140,10 @@
   <!-- Filters -->
   <div class="rounded-lg p-4 mb-6">
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-4">
-      <Select.Root
-        type="multiple"
-        value={userFilter}
-        onValueChange={(v) => {
-          logging.debug('User filter changed to:', v);
-          userFilter = v;
-        }}>
-        <Select.Trigger class="w-full">
-          <span class="truncate text-clip">
-            {#if userFilter && userFilter.length > 0}
-              {#each userFilter as id}
-                <span class="text-xs mx-1 border-1 px-1 py-0.5 rounded-md bg-accent">
-                  {filters.users?.find((u) => u.id.toString() === id)?.full_name ||
-                    filters.users?.find((u) => u.id.toString() === id)?.email_address}
-                </span>
-              {/each}
-            {:else}
-              All Users
-            {/if}
-          </span>
-        </Select.Trigger>
-        <Select.Content>
-          {#each filters.users || [] as user}
-            <Select.Item value={user.id.toString()}>{user.full_name} &lt;{user.email_address}&gt;</Select.Item>
-          {/each}
-        </Select.Content>
-      </Select.Root>
-
-      <Select.Root
-        type="multiple"
-        value={accountFilter}
-        onValueChange={(v) => {
-          logging.debug('Account filter changed to:', v);
-          accountFilter = v;
-        }}>
-        <Select.Trigger class="w-full">
-          <span class="truncate text-clip">
-            {#if accountFilter && accountFilter.length > 0}
-              {#each accountFilter as id}
-                <span class="text-xs mx-1 border-1 px-1 py-0.5 rounded-md bg-accent">
-                  {filters.accounts?.find((u) => u.id.toString() === id)?.name}
-                </span>
-              {/each}
-            {:else}
-              All Accounts
-            {/if}
-          </span>
-        </Select.Trigger>
-        <Select.Content>
-          {#each filters.accounts || [] as account}
-            <Select.Item value={account.id.toString()}>{account.name}</Select.Item>
-          {/each}
-        </Select.Content>
-      </Select.Root>
-
-      <Select.Root
-        type="multiple"
-        value={actionFilter}
-        onValueChange={(v) => {
-          logging.debug('Action changed to:', v);
-          actionFilter = v;
-        }}>
-        <Select.Trigger class="w-full">
-          <span class="truncate text-clip">
-            {#if actionFilter && actionFilter.length > 0}
-              {#each actionFilter as id}
-                <span class="text-xs mx-1 border-1 px-1 py-0.5 rounded-md bg-accent">
-                  {filters.actions?.find((u) => u.toString() === id)}
-                </span>
-              {/each}
-            {:else}
-              All Actions
-            {/if}
-          </span>
-        </Select.Trigger>
-        <Select.Content>
-          {#each filters.actions || [] as action}
-            <Select.Item value={action}>{action}</Select.Item>
-          {/each}
-        </Select.Content>
-      </Select.Root>
-
-      <Select.Root
-        type="multiple"
-        value={typeFilter}
-        onValueChange={(v) => {
-          logging.debug('Type filter changed to:', v);
-          typeFilter = v;
-        }}>
-        <Select.Trigger class="w-full">
-          <span class="truncate text-clip">
-            {#if typeFilter && typeFilter.length > 0}
-              {#each typeFilter as id}
-                <span class="text-xs mx-1 border-1 px-1 py-0.5 rounded-md bg-accent">
-                  {filters.types?.find((u) => u.toString() === id)}
-                </span>
-              {/each}
-            {:else}
-              All Types
-            {/if}
-          </span>
-        </Select.Trigger>
-        <Select.Content>
-          {#each filters.types || [] as type}
-            <Select.Item value={type}>{type}</Select.Item>
-          {/each}
-        </Select.Content>
-      </Select.Root>
+      <AuditLogMultiSelectFilter bind:value={userFilter} items={userFilterItems} placeholder="All Users" />
+      <AuditLogMultiSelectFilter bind:value={accountFilter} items={accountFilterItems} placeholder="All Accounts" />
+      <AuditLogMultiSelectFilter bind:value={actionFilter} items={actionFilterItems} placeholder="All Actions" />
+      <AuditLogMultiSelectFilter bind:value={typeFilter} items={typeFilterItems} placeholder="All Types" />
 
       <Popover.Root>
         <Popover.Trigger class="w-full">

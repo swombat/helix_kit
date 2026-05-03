@@ -1202,3 +1202,30 @@ Last verified test baseline for this slice:
 Next sensible slice:
 
 - Continue `admin/audit-logs.svelte` by extracting the repeated multi-select filter markup into an `AuditLogMultiSelectFilter.svelte` component, then consider table and drawer components.
+
+## Progress Checkpoint: 2026-05-03 Audit Log Multi-Select Filters
+
+Status: The repeated audit-log multi-select filter extraction is implemented and green.
+
+Completed after commit `8ccfca8 Extract audit log filter helpers`:
+
+- Added `AuditLogMultiSelectFilter.svelte`.
+- Replaced the four inline user/account/action/type filter select blocks with the shared component.
+- Removed filter-change debug logging from the page.
+- Kept filter state, date picker state, navigation, table, and drawer orchestration in `admin/audit-logs.svelte`.
+
+Current size notes:
+
+- `app/frontend/pages/admin/audit-logs.svelte`: 371 lines, down from 462 lines after the filter-helper slice and 478 lines originally.
+- `AuditLogMultiSelectFilter.svelte`: 33 lines.
+
+Last verified test baseline for this slice:
+
+- `yarn test:unit`: 12 files, 37 tests passed.
+- `bin/vite build --mode test`: passed, with existing Svelte warnings unrelated to this slice.
+- `yarn test`: 6 Playwright tests passed.
+- `bin/rails test`: 1815 tests, 7329 assertions, 0 failures, 0 errors.
+
+Next sensible slice:
+
+- Continue `admin/audit-logs.svelte` by extracting `AuditLogTable.svelte`, then `AuditLogDrawer.svelte` and detail sections.
