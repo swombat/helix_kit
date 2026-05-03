@@ -2,12 +2,11 @@
   import { router } from '@inertiajs/svelte';
   import { Button } from '$lib/components/shadcn/button/index.js';
   import { ArrowUp, Globe, UsersThree, List } from 'phosphor-svelte';
-  import * as Select from '$lib/components/shadcn/select/index.js';
   import ChatList from './ChatList.svelte';
   import FileUploadInput from '$lib/components/chat/FileUploadInput.svelte';
+  import ChatTargetSelect from '$lib/components/chat/ChatTargetSelect.svelte';
+  import GroupChatAgentPicker from '$lib/components/chat/GroupChatAgentPicker.svelte';
   import { accountChatsPath } from '@/routes';
-  import { agentIconFor } from '$lib/agent-icons';
-  import { groupModelsByProvider } from '$lib/agent-models';
 
   let { chats = [], account, models = [], agents = [], file_upload_config = null } = $props();
 
@@ -23,38 +22,10 @@
       ? 'Did you know? Press shift-enter for a new line...'
       : 'Type your message to start the chat...';
 
-  // Group models by their group property
-  const groupedModels = $derived(() => groupModelsByProvider(models));
   let selectedFiles = $state([]);
   let webAccess = $state(false);
   let message = $state('');
   let processing = $state(false);
-
-  function toggleAgent(agentId) {
-    if (selectedAgentIds.includes(agentId)) {
-      selectedAgentIds = selectedAgentIds.filter((id) => id !== agentId);
-    } else {
-      selectedAgentIds = [...selectedAgentIds, agentId];
-    }
-  }
-
-  // Handle selection from the combined dropdown (agents + models)
-  function handleSelection(value) {
-    if (value.startsWith('agent:')) {
-      const agentId = value.replace('agent:', '');
-      selectedAgent = agents.find((a) => a.id === agentId) || null;
-      // Use the agent's model_id for the chat
-      if (selectedAgent) {
-        selectedModel = selectedAgent.model_id;
-        // Clear group chat mode since we're using the dropdown shortcut
-        isGroupChat = false;
-        selectedAgentIds = [];
-      }
-    } else {
-      selectedAgent = null;
-      selectedModel = value;
-    }
-  }
 
   // When enabling group chat mode, clear the dropdown agent selection
   function toggleGroupChat() {
@@ -66,16 +37,10 @@
     }
   }
 
-  // Get the current selection value for the dropdown
-  const selectionValue = $derived(selectedAgent ? `agent:${selectedAgent.id}` : selectedModel);
-
-  // Get display label for current selection
-  const selectionLabel = $derived(() => {
-    if (selectedAgent) {
-      return selectedAgent.name;
-    }
-    return models.find((model) => model.model_id === selectedModel)?.label || 'Select AI model';
-  });
+  function clearGroupChatSelection() {
+    isGroupChat = false;
+    selectedAgentIds = [];
+  }
 
   function handleKeydown(event) {
     if (event.key === 'Enter' && !event.shiftKey) {
@@ -159,61 +124,12 @@
         <h1 class="text-lg font-semibold">New Chat</h1>
       </div>
       <div class="mt-2 ml-0 md:ml-0">
-        {#if Array.isArray(models) && models.length > 0}
-          <Select.Root type="single" value={selectionValue} onValueChange={handleSelection}>
-            <Select.Trigger class="w-56">
-              {#if selectedAgent}
-                {@const IconComponent = agentIconFor(selectedAgent.icon)}
-                <span class="flex items-center gap-2">
-                  <IconComponent
-                    size={14}
-                    weight="duotone"
-                    class={selectedAgent.colour
-                      ? `text-${selectedAgent.colour}-600 dark:text-${selectedAgent.colour}-400`
-                      : ''} />
-                  {selectedAgent.name}
-                </span>
-              {:else}
-                {selectionLabel()}
-              {/if}
-            </Select.Trigger>
-            <Select.Content sideOffset={4} class="max-h-80">
-              <!-- Agents section (if any exist) -->
-              {#if agents.length > 0}
-                <Select.Group>
-                  <Select.GroupHeading class="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
-                    Agents
-                  </Select.GroupHeading>
-                  {#each agents as agent (agent.id)}
-                    {@const IconComponent = agentIconFor(agent.icon)}
-                    <Select.Item value={`agent:${agent.id}`} label={agent.name}>
-                      <span class="flex items-center gap-2">
-                        <IconComponent
-                          size={14}
-                          weight="duotone"
-                          class={agent.colour ? `text-${agent.colour}-600 dark:text-${agent.colour}-400` : ''} />
-                        {agent.name}
-                      </span>
-                    </Select.Item>
-                  {/each}
-                </Select.Group>
-              {/if}
-              <!-- Models section -->
-              {#each groupedModels().groupOrder as groupName}
-                <Select.Group>
-                  <Select.GroupHeading class="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
-                    {groupName}
-                  </Select.GroupHeading>
-                  {#each groupedModels().groups[groupName] as model (model.model_id)}
-                    <Select.Item value={model.model_id} label={model.label}>
-                      {model.label}
-                    </Select.Item>
-                  {/each}
-                </Select.Group>
-              {/each}
-            </Select.Content>
-          </Select.Root>
-        {/if}
+        <ChatTargetSelect
+          {models}
+          {agents}
+          bind:selectedModel
+          bind:selectedAgent
+          onAgentSelected={clearGroupChatSelection} />
       </div>
     </header>
 
@@ -243,35 +159,7 @@
 
     <!-- Agent selection for group chat -->
     {#if isGroupChat && agents.length > 0}
-      <div class="border-b border-border px-4 md:px-6 py-3 bg-muted/5">
-        <div class="text-sm font-medium mb-2">Select agents to participate:</div>
-        <div class="flex flex-wrap gap-2">
-          {#each agents as agent (agent.id)}
-            {@const IconComponent = agentIconFor(agent.icon)}
-            {@const isSelected = selectedAgentIds.includes(agent.id)}
-            <button
-              type="button"
-              onclick={() => toggleAgent(agent.id)}
-              class="inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-sm border transition-colors
-                     {isSelected
-                ? agent.colour
-                  ? `bg-${agent.colour}-100 dark:bg-${agent.colour}-900 border-${agent.colour}-400 dark:border-${agent.colour}-600 text-${agent.colour}-700 dark:text-${agent.colour}-300`
-                  : 'bg-primary text-primary-foreground border-primary'
-                : agent.colour
-                  ? `bg-transparent border-${agent.colour}-300 dark:border-${agent.colour}-700 hover:bg-${agent.colour}-50 dark:hover:bg-${agent.colour}-950 text-${agent.colour}-600 dark:text-${agent.colour}-400`
-                  : 'bg-muted hover:bg-muted/80 text-muted-foreground border-border'}">
-              <IconComponent
-                size={14}
-                weight="duotone"
-                class={agent.colour && !isSelected ? `text-${agent.colour}-600 dark:text-${agent.colour}-400` : ''} />
-              {agent.name}
-            </button>
-          {/each}
-        </div>
-        {#if selectedAgentIds.length === 0}
-          <p class="text-xs text-amber-600 mt-2">Select at least one agent to start a group chat</p>
-        {/if}
-      </div>
+      <GroupChatAgentPicker {agents} bind:selectedAgentIds />
     {/if}
 
     <!-- Empty state -->

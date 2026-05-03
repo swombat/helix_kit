@@ -1281,3 +1281,31 @@ Last verified test baseline for this slice:
 Next sensible slice:
 
 - If staying in audit logs, split `AuditLogDrawer.svelte` into smaller drawer detail sections; otherwise move to the next P0 target, `chats/new.svelte` or `navbar.svelte`.
+
+## Progress Checkpoint: 2026-05-03 New Chat Target Picker
+
+Status: The first `chats/new.svelte` extraction is implemented and green.
+
+Completed after commit `5e32804 Extract audit log drawer`:
+
+- Added `ChatTargetSelect.svelte` for the combined model/agent selector.
+- Added `GroupChatAgentPicker.svelte` for manual multi-agent selection.
+- Reused `agent-icons.js` and `agent-models.js` from the earlier agent refactors.
+- Kept the page responsible for sidebar state, web access, group-chat mode, textarea/file state, `FormData` construction, and `accountChatsPath` posting.
+
+Current size notes:
+
+- `app/frontend/pages/chats/new.svelte`: 207 lines, down from 319 lines after earlier shared-helper work and 403 lines originally.
+- `ChatTargetSelect.svelte`: 92 lines.
+- `GroupChatAgentPicker.svelte`: 46 lines.
+
+Last verified test baseline for this slice:
+
+- `yarn test:unit`: 12 files, 37 tests passed.
+- `bin/vite build --mode test`: passed, with existing Svelte warnings unrelated to this slice.
+- `yarn test`: 6 Playwright tests passed.
+- `bin/rails test`: 1815 tests, 7329 assertions, 0 failures, 0 errors.
+
+Next sensible slice:
+
+- Continue with `navbar.svelte` or `ChatHeader.svelte`, both of which are now larger than the remaining new-chat page.
