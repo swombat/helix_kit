@@ -1829,3 +1829,38 @@ Last verified test baseline:
 Next sensible slice:
 
 - Move to the repeated integration settings pages (`github_integration.svelte`, `oura_integration.svelte`, `x_integration.svelte`) and extract shared status/settings components, or return to `whiteboards/index.svelte` with focused whiteboard coverage.
+
+## Progress Checkpoint: 2026-05-03 Integration Settings Components
+
+Status: The repeated integration settings page structure is extracted and green.
+
+Completed after commit `0bae807 Extract API key page components`:
+
+- Added `IntegrationPageHeader.svelte` for common settings page title/description layout.
+- Added `IntegrationStatusCard.svelte` for the shared connection-status card shell, with provider-specific status/actions supplied as Svelte snippets.
+- Added `IntegrationSettingsCard.svelte` for the repeated enabled switch, label, and explanatory copy.
+- Added `integration-forms.js` to centralize native POST form submission for OAuth-style connect actions.
+- Updated GitHub, Oura, and X/Twitter integration pages to use the shared components while keeping provider-specific routes, copy, sync state, repository selection, and disconnect confirmations in their pages.
+- Left existing route helper changes in the worktree untouched because they were pre-existing/user-generated changes.
+
+Current size notes:
+
+- `app/frontend/pages/settings/github_integration.svelte`: 109 lines, down from 139 lines.
+- `app/frontend/pages/settings/oura_integration.svelte`: 95 lines, down from 126 lines.
+- `app/frontend/pages/settings/x_integration.svelte`: 70 lines, down from 100 lines.
+- `IntegrationPageHeader.svelte`: 8 lines.
+- `IntegrationStatusCard.svelte`: 23 lines.
+- `IntegrationSettingsCard.svelte`: 19 lines.
+- `integration-forms.js`: 14 lines.
+
+Last verified test baseline:
+
+- `yarn test:unit`: 13 files, 40 tests passed.
+- `RAILS_ENV=test bin/vite build --clear`: passed and populated `public/vite-test` for Rails.
+- `bin/rails test test/controllers/github_integration_controller_test.rb test/controllers/oura_integration_controller_test.rb`: 27 tests, 69 assertions, 0 failures, 0 errors.
+- `bin/rails test`: 1815 tests, 7329 assertions, 0 failures, 0 errors.
+- `yarn test`: 6 Playwright tests passed.
+
+Next sensible slice:
+
+- Either add focused whiteboard coverage and continue `whiteboards/index.svelte`, or reduce another medium page/component such as `admin/settings.svelte`, `admin/audit-logs.svelte`, or `chats/ChatList.svelte`.
