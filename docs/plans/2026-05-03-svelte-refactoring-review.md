@@ -1893,3 +1893,30 @@ Last verified test baseline:
 Next sensible slice:
 
 - Continue with `admin/audit-logs.svelte` by extracting the filter toolbar/date filter controls, or add focused whiteboard coverage and continue `whiteboards/index.svelte`.
+
+## Progress Checkpoint: 2026-05-03 Audit Log Filter Toolbar
+
+Status: The `admin/audit-logs.svelte` filter toolbar extraction is implemented and green.
+
+Completed after commit `2d7e977 Extract admin settings cards`:
+
+- Added `AuditLogFilterToolbar.svelte` for the multi-select filters, date picker controls, date display formatting, and apply/clear buttons.
+- Kept `admin/audit-logs.svelte` responsible for Inertia props, dynamic sync subscriptions, current URL/filter state, parameter normalization, selected log routing, pagination routing, and drawer state.
+- Left existing route helper changes in the worktree untouched because they were pre-existing/user-generated changes.
+
+Current size notes:
+
+- `app/frontend/pages/admin/audit-logs.svelte`: 127 lines, down from 164 lines.
+- `AuditLogFilterToolbar.svelte`: 70 lines.
+
+Last verified test baseline:
+
+- `yarn test:unit`: 13 files, 40 tests passed.
+- `RAILS_ENV=test bin/vite build --clear`: passed and populated `public/vite-test` for Rails.
+- `bin/rails test test/controllers/admin/audit_logs_controller_test.rb`: 18 tests, 87 assertions, 0 failures, 0 errors.
+- `bin/rails test`: 1815 tests, 7329 assertions, 0 failures, 0 errors.
+- `yarn test`: 6 Playwright tests passed.
+
+Next sensible slice:
+
+- Either keep reducing audit-log admin presentation around the table/drawer components, add focused whiteboard coverage and continue `whiteboards/index.svelte`, or move to `chats/ChatList.svelte`.
