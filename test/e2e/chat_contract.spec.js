@@ -160,6 +160,14 @@ test.describe('browser contracts', () => {
 
     await page.getByRole('button', { name: 'Memory' }).click();
     await expect(page.getByRole('heading', { name: 'Agent Memory' })).toBeVisible();
+    await page.getByRole('button', { name: 'Add Memory' }).click();
+    await expect(page.getByLabel('Memory Content')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Save Memory' })).toBeDisabled();
+    await page
+      .getByRole('button', { name: 'Save Memory' })
+      .locator('..')
+      .getByRole('button', { name: 'Cancel' })
+      .click();
     await page.getByRole('button', { name: 'Identity' }).click();
 
     await page.getByLabel('Name').fill('E2E Refactor Sentinel');

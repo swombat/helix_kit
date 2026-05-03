@@ -932,12 +932,24 @@ Known notes:
 
 ## Progress Checkpoint: 2026-05-03 Memory Panel Split
 
-Status: The first smaller `AgentMemoryPanel.svelte` extraction is in progress.
+Status: The `AgentMemoryPanel.svelte` split is implemented and green.
 
 Completed after commit `3b6553c Extract agent edit panels`:
 
 - Extracted `AgentMemoryCard.svelte` from `AgentMemoryPanel.svelte`.
-- Kept `AgentMemoryPanel.svelte` responsible for memory filtering, the add-memory form, refinement actions, and list orchestration.
+- Extracted `AgentNewMemoryForm.svelte`.
+- Extracted `AgentMemoryFilters.svelte`.
+- Extracted `AgentMemorySummary.svelte`.
+- Kept `AgentMemoryPanel.svelte` responsible for refinement actions, filter state, the filtered-memory derivation, and list orchestration.
+- Extended the agent settings Playwright smoke test to open the memory form and assert the empty form cannot be submitted.
+
+Current size notes:
+
+- `AgentMemoryPanel.svelte`: 124 lines, down from about 300 lines when first extracted from `agents/edit.svelte`.
+- `AgentMemoryCard.svelte`: 89 lines.
+- `AgentNewMemoryForm.svelte`: 64 lines.
+- `AgentMemoryFilters.svelte`: 41 lines.
+- `AgentMemorySummary.svelte`: 28 lines.
 
 Last verified test baseline for this slice:
 
@@ -948,5 +960,4 @@ Last verified test baseline for this slice:
 
 Next sensible slice:
 
-- Extract the new-memory form from `AgentMemoryPanel.svelte`.
-- Extract the memory filter/search/summary controls after that, if the first extraction remains clean.
+- Move to the next P0 target in this plan: `documentation.svelte`, which is mostly structural/content extraction rather than interactive behavior.
