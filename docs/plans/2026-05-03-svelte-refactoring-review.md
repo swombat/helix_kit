@@ -898,3 +898,34 @@ Known notes:
 - Rails tests can dirty VCR cassettes during this work; restore generated cassette churn before committing unless a cassette was intentionally changed.
 - The Vite build still reports pre-existing warnings in areas such as `chats/index.svelte`, `InfoCard.svelte`, `ChatHeader.svelte`, `ColourPicker.svelte`, `IconPicker.svelte`, `FileAttachment.svelte`, and `AudioPlayer.svelte`.
 - The next sensible Phase 1 slice is to continue reducing `agents/edit.svelte`, probably by extracting the Identity, Model, and Integrations panels one at a time with tests between each extraction.
+
+## Progress Checkpoint: 2026-05-03 Continued
+
+Status: The remaining large `agents/edit.svelte` tabs have been extracted and the test suite remains green.
+
+Completed after commit `3381029 Refactor agent Svelte components`:
+
+- Extracted `AgentIdentityPanel.svelte` from `agents/edit.svelte`.
+- Extracted `AgentModelPanel.svelte` from `agents/edit.svelte`.
+- Extracted `AgentIntegrationsPanel.svelte` from `agents/edit.svelte`.
+- Kept `agents/edit.svelte` responsible for Inertia props, form initialization, route mutations, tab selection, and submit/cancel actions.
+
+Current size notes:
+
+- `app/frontend/pages/agents/edit.svelte`: 244 lines after the Identity, Model, and Integrations panel extractions.
+- `AgentIdentityPanel.svelte`: 171 lines.
+- `AgentModelPanel.svelte`: 69 lines.
+- `AgentIntegrationsPanel.svelte`: 101 lines.
+
+Last verified test baseline:
+
+- `yarn test:unit`: 10 files, 29 tests passed.
+- `bin/vite build --mode test`: passed, with existing Svelte warnings unrelated to this slice.
+- `yarn test`: 5 Playwright tests passed.
+- `bin/rails test`: 1815 tests, 7329 assertions, 0 failures, 0 errors.
+
+Known notes:
+
+- The VCR cassette append cleanup from commit `25acae3 Prevent VCR cassette appends` held during this pass; the full Rails suite did not leave cassette churn in the worktree.
+- `AgentMemoryPanel.svelte` is still the largest extracted agent component and remains the next obvious candidate for a smaller split if the agent area needs more refinement.
+- The `appearance` tab is already thin and currently delegates to `AgentAppearanceFields.svelte`; it does not need a separate panel unless future behavior is added.
