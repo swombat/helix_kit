@@ -1466,3 +1466,29 @@ Last verified test baseline for this slice:
 Next sensible slice:
 
 - Continue `chats/show.svelte` by extracting scroll/pagination orchestration or moving more retry/voice/message action behavior behind focused helpers/components.
+
+## Progress Checkpoint: 2026-05-03 Chat Input Area
+
+Status: The chat input-area extraction is implemented and green.
+
+Completed after commit `9132aca Extract chat overlays`:
+
+- Added `ChatInputArea.svelte` for the group-chat agent trigger bar, archived/deleted respondability banner, and message composer.
+- Kept `chats/show.svelte` responsible for message insertion, waiting state, streaming refresh scheduling, scroll-to-bottom behavior, and agent prompt timing.
+- Left existing route helper changes in the worktree untouched because they were pre-existing/user-generated changes.
+
+Current size notes:
+
+- `app/frontend/pages/chats/show.svelte`: 723 lines, down from 745 lines after the overlay extraction and 870 lines originally.
+- `ChatInputArea.svelte`: 48 lines.
+
+Last verified test baseline for this slice:
+
+- `yarn test:unit`: 12 files, 37 tests passed.
+- `bin/vite build --mode test`: passed, with existing Svelte warnings unrelated to this slice.
+- `yarn test`: 6 Playwright tests passed.
+- `bin/rails test`: 1815 tests, 7329 assertions, 0 failures, 0 errors.
+
+Next sensible slice:
+
+- Continue `chats/show.svelte` by extracting pagination/scroll orchestration, or move to the P1 pages if we decide the remaining chat-room orchestration is acceptable for an Inertia page.

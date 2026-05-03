@@ -7,9 +7,8 @@
   import ChatList from './ChatList.svelte';
   import ChatHeader from '$lib/components/chat/ChatHeader.svelte';
   import TokenWarningBanner from '$lib/components/chat/TokenWarningBanner.svelte';
-  import AgentTriggerBar from '$lib/components/chat/AgentTriggerBar.svelte';
   import ChatMessageList from '$lib/components/chat/ChatMessageList.svelte';
-  import MessageComposer from '$lib/components/chat/MessageComposer.svelte';
+  import ChatInputArea from '$lib/components/chat/ChatInputArea.svelte';
   import TelegramBanner from '$lib/components/chat/TelegramBanner.svelte';
   import DebugPanel from '$lib/components/chat/DebugPanel.svelte';
   import ChatOverlays from '$lib/components/chat/ChatOverlays.svelte';
@@ -653,35 +652,14 @@
       {openImageLightbox}
       {requestVoice} />
 
-    <!-- Agent trigger bar for group chats -->
-    {#if chat?.manual_responses && agents?.length > 0}
-      <AgentTriggerBar
-        {agents}
-        accountId={account.id}
-        chatId={chat.id}
-        disabled={agentIsResponding || !chat?.respondable}
-        onTrigger={scheduleStreamingRefresh} />
-    {/if}
-
-    <!-- Not respondable banner -->
-    {#if chat && !chat.respondable}
-      <div
-        class="border-t border-amber-500 bg-amber-50 dark:bg-amber-950/30 px-4 py-2 text-center text-amber-700 dark:text-amber-400 text-sm">
-        {#if chat.discarded}
-          This conversation has been deleted.
-        {:else}
-          This conversation has been archived.
-        {/if}
-      </div>
-    {/if}
-
-    <MessageComposer
+    <ChatInputArea
+      {chat}
+      {agents}
       accountId={account.id}
-      chatId={chat?.id}
-      disabled={!chat?.respondable}
-      manualResponses={chat?.manual_responses}
+      {agentIsResponding}
       fileUploadConfig={file_upload_config}
-      onsent={(data) => {
+      onAgentTrigger={scheduleStreamingRefresh}
+      onSent={(data) => {
         if (data?.id) {
           const seen = new Set(recentMessages.map((m) => m.id));
           if (!seen.has(data.id)) {
@@ -691,19 +669,19 @@
         if (!chat?.manual_responses) scheduleStreamingRefresh();
         setTimeout(() => scrollToBottom(), 50);
       }}
-      onwaiting={() => {
+      onWaiting={() => {
         if (!chat?.manual_responses) {
           waitingForResponse = true;
           messageSentAt = Date.now();
         }
       }}
-      onerror={(msg) => {
+      onError={(msg) => {
         errorMessage = msg;
         setTimeout(() => (errorMessage = null), 5000);
         waitingForResponse = false;
         messageSentAt = null;
       }}
-      onagentprompt={() => {
+      onAgentPrompt={() => {
         showAgentPrompt = true;
         setTimeout(() => {
           showAgentPrompt = false;
