@@ -3,7 +3,10 @@
   import { createDynamicSync } from '$lib/use-sync';
   import { Button } from '$lib/components/shadcn/button/index.js';
   import * as Card from '$lib/components/shadcn/card/index.js';
-  import { Notepad, ChatCircle, PencilSimple, FloppyDisk, X, Spinner } from 'phosphor-svelte';
+  import WhiteboardEmptyState from '$lib/components/whiteboards/WhiteboardEmptyState.svelte';
+  import WhiteboardList from '$lib/components/whiteboards/WhiteboardList.svelte';
+  import WhiteboardPlaceholder from '$lib/components/whiteboards/WhiteboardPlaceholder.svelte';
+  import { PencilSimple, FloppyDisk, X, Spinner } from 'phosphor-svelte';
   import { Streamdown } from 'svelte-streamdown';
   import { mode } from 'mode-watcher';
 
@@ -121,53 +124,10 @@
   </div>
 
   {#if whiteboards.length === 0}
-    <Card.Root>
-      <Card.Content class="py-16 text-center">
-        <Notepad class="mx-auto size-16 text-muted-foreground mb-4" weight="duotone" />
-        <h2 class="text-xl font-semibold mb-2">No whiteboards yet</h2>
-        <p class="text-muted-foreground">
-          Whiteboards are created by agents during conversations. Start a chat with an agent to create one.
-        </p>
-      </Card.Content>
-    </Card.Root>
+    <WhiteboardEmptyState />
   {:else}
     <div class="grid gap-6 lg:grid-cols-3">
-      <!-- Whiteboards list -->
-      <div class="space-y-3">
-        {#each whiteboards as wb (wb.id)}
-          <button onclick={() => selectWhiteboard(wb.id)} class="w-full text-left">
-            <Card.Root
-              class="hover:border-primary/50 transition-colors {selected?.id === wb.id
-                ? 'border-primary ring-1 ring-primary'
-                : ''}">
-              <Card.Content class="p-4">
-                <div class="flex items-start justify-between gap-2">
-                  <div class="flex-1 min-w-0">
-                    <h3 class="font-semibold truncate">{wb.name}</h3>
-                    {#if wb.summary}
-                      <p class="text-sm text-muted-foreground line-clamp-2 mt-1">{wb.summary}</p>
-                    {/if}
-                  </div>
-                  <Notepad class="size-5 text-muted-foreground shrink-0" weight="duotone" />
-                </div>
-
-                <div class="flex items-center gap-3 mt-3 text-xs text-muted-foreground">
-                  <span
-                    >{wb.content_length >= 1000 ? `${(wb.content_length / 1000).toFixed(1)}k` : wb.content_length} chars</span>
-                  <span>Rev {wb.revision}</span>
-                  {#if wb.active_chat_count > 0}
-                    <span class="flex items-center gap-1">
-                      <ChatCircle class="size-3" />
-                      {wb.active_chat_count}
-                      {wb.active_chat_count === 1 ? 'chat' : 'chats'}
-                    </span>
-                  {/if}
-                </div>
-              </Card.Content>
-            </Card.Root>
-          </button>
-        {/each}
-      </div>
+      <WhiteboardList {whiteboards} {selected} onSelect={selectWhiteboard} />
 
       <!-- Selected whiteboard viewer -->
       <div class="lg:col-span-2">
@@ -248,14 +208,7 @@
             </div>
           </Card.Root>
         {:else}
-          <Card.Root class="h-[calc(100vh-16rem)]">
-            <Card.Content class="h-full flex items-center justify-center">
-              <div class="text-center text-muted-foreground">
-                <Notepad class="mx-auto size-12 mb-4" weight="duotone" />
-                <p>Select a whiteboard to view its contents</p>
-              </div>
-            </Card.Content>
-          </Card.Root>
+          <WhiteboardPlaceholder />
         {/if}
       </div>
     </div>

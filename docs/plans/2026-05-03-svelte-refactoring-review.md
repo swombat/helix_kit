@@ -1608,3 +1608,33 @@ Last verified test baseline for this slice:
 Next sensible slice:
 
 - Move to `whiteboards/index.svelte` for list/detail/editor extraction, or `admin/accounts.svelte` for admin split-view components.
+
+## Progress Checkpoint: 2026-05-03 Whiteboard Presentation Components
+
+Status: The first low-risk `whiteboards/index.svelte` presentation extraction is implemented and green.
+
+Completed after commit `e3b80b2 Extract home feature cards`:
+
+- Added `WhiteboardEmptyState.svelte` for the no-whiteboards card.
+- Added `WhiteboardList.svelte` for list item rendering, selected-state styling, character count formatting, revision display, and active chat count display.
+- Added `WhiteboardPlaceholder.svelte` for the empty right-hand detail pane.
+- Kept `whiteboards/index.svelte` responsible for selected whiteboard URL parsing, dynamic sync, routing, edit state, save state, and conflict state.
+- Left existing route helper changes in the worktree untouched because they were pre-existing/user-generated changes.
+
+Current size notes:
+
+- `app/frontend/pages/whiteboards/index.svelte`: 216 lines, down from 263 lines.
+- `WhiteboardEmptyState.svelte`: 14 lines.
+- `WhiteboardList.svelte`: 49 lines.
+- `WhiteboardPlaceholder.svelte`: 13 lines.
+
+Last verified test baseline for this slice:
+
+- `yarn test:unit`: 13 files, 40 tests passed.
+- `bin/vite build --mode test`: passed, with existing Svelte warnings unrelated to this slice.
+- `yarn test`: 6 Playwright tests passed.
+- `bin/rails test`: 1815 tests, 7329 assertions, 0 failures, 0 errors.
+
+Next sensible slice:
+
+- Continue `whiteboards/index.svelte` with viewer/editor/conflict components, but only alongside a small whiteboard journey or focused component coverage; otherwise move to `admin/accounts.svelte`.
