@@ -1255,3 +1255,29 @@ Last verified test baseline for this slice:
 Next sensible slice:
 
 - Extract `AuditLogDrawer.svelte`, then smaller drawer detail sections if that component is still too long.
+
+## Progress Checkpoint: 2026-05-03 Audit Log Drawer
+
+Status: The audit-log drawer extraction is implemented and green.
+
+Completed after commit `25cc3d4 Extract audit log table`:
+
+- Added `AuditLogDrawer.svelte`.
+- Moved detail drawer rendering, JSON highlighting, actor/object/additional/technical detail cards, and close button rendering out of `admin/audit-logs.svelte`.
+- Kept selected-log URL ownership, drawer-open state, filter state, sync subscriptions, and table selection in the page.
+
+Current size notes:
+
+- `app/frontend/pages/admin/audit-logs.svelte`: 171 lines, down from 318 lines after the table extraction and 478 lines originally.
+- `AuditLogDrawer.svelte`: 159 lines.
+
+Last verified test baseline for this slice:
+
+- `yarn test:unit`: 12 files, 37 tests passed.
+- `bin/vite build --mode test`: passed, with existing Svelte warnings unrelated to this slice.
+- `yarn test`: 6 Playwright tests passed.
+- `bin/rails test`: 1815 tests, 7329 assertions, 0 failures, 0 errors.
+
+Next sensible slice:
+
+- If staying in audit logs, split `AuditLogDrawer.svelte` into smaller drawer detail sections; otherwise move to the next P0 target, `chats/new.svelte` or `navbar.svelte`.

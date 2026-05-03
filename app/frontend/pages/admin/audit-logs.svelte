@@ -1,25 +1,14 @@
 <script>
   import { router } from '@inertiajs/svelte';
   import { createDynamicSync } from '$lib/use-sync';
-  import {
-    Drawer,
-    DrawerContent,
-    DrawerHeader,
-    DrawerTitle,
-    DrawerClose,
-  } from '$lib/components/shadcn/drawer/index.js';
   import AuditLogMultiSelectFilter from '$lib/components/admin/AuditLogMultiSelectFilter.svelte';
   import AuditLogTable from '$lib/components/admin/AuditLogTable.svelte';
-  import InfoCard from '$lib/components/InfoCard.svelte';
+  import AuditLogDrawer from '$lib/components/admin/AuditLogDrawer.svelte';
   import { Button } from '$lib/components/shadcn/button/index.js';
   import { Calendar as CalendarIcon } from 'phosphor-svelte';
-  import { DateFormatter, getLocalTimeZone, parseDate, CalendarDate } from '@internationalized/date';
+  import { DateFormatter, getLocalTimeZone, parseDate } from '@internationalized/date';
   import { Calendar } from '$lib/components/shadcn/calendar/index.js';
   import * as Popover from '$lib/components/shadcn/popover/index.js';
-  import Highlight from 'svelte-highlight';
-  import json from 'svelte-highlight/languages/json';
-  import 'svelte-highlight/styles/atom-one-dark.css';
-  import Avatar from '$lib/components/Avatar.svelte';
   import {
     auditLogFilterParams,
     compactAuditLogParams,
@@ -171,147 +160,5 @@
 
   <AuditLogTable auditLogs={audit_logs} {pagination} bind:currentPage onSelectLog={selectLog} onPageChange={goToPage} />
 
-  <!-- Detail Drawer -->
-  <Drawer open={drawerOpen} onOpenChange={(open) => !open && closeDrawer()}>
-    <DrawerContent class="h-[85vh] max-w-3xl mx-auto">
-      {#if selected_log}
-        <DrawerHeader class="border-b pb-4">
-          <DrawerTitle class="text-xl font-semibold flex items-center gap-3">
-            <span>Audit Log Details - {selected_log.display_action}</span>
-          </DrawerTitle>
-        </DrawerHeader>
-
-        <div class="overflow-y-auto flex-1 p-6">
-          <div class="space-y-6">
-            <!-- Primary Information Section -->
-            <InfoCard title="Event Information" icon="Info">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <dt class="text-xs font-medium text-muted-foreground uppercase tracking-wider">Timestamp</dt>
-                  <dd class="mt-1 text-sm font-medium">
-                    {new Date(selected_log.created_at).toLocaleString('en-US', {
-                      dateStyle: 'medium',
-                      timeStyle: 'medium',
-                    })}
-                  </dd>
-                </div>
-
-                <div>
-                  <dt class="text-xs font-medium text-muted-foreground uppercase tracking-wider">Event ID</dt>
-                  <dd class="mt-1 text-sm font-mono bg-muted px-2 py-1 rounded inline-block">
-                    #{selected_log.id}
-                  </dd>
-                </div>
-              </div>
-            </InfoCard>
-
-            <!-- Actor Information -->
-            {#if selected_log.user || selected_log.account}
-              <InfoCard title="Actor Information" icon="User">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {#if selected_log.user}
-                    <div>
-                      <dt class="text-xs font-medium text-muted-foreground uppercase tracking-wider">User</dt>
-                      <dd class="mt-1 text-sm">
-                        <div class="flex items-center gap-2">
-                          <Avatar user={selected_log.user} size="small" />
-                          <div>
-                            <div class="font-medium">{selected_log.user.email_address}</div>
-                            {#if selected_log.user.id}
-                              <div class="text-xs text-muted-foreground">ID: {selected_log.user.id}</div>
-                            {/if}
-                          </div>
-                        </div>
-                      </dd>
-                    </div>
-                  {/if}
-
-                  {#if selected_log.account}
-                    <div>
-                      <dt class="text-xs font-medium text-muted-foreground uppercase tracking-wider">Account</dt>
-                      <dd class="mt-1 text-sm">
-                        <div class="font-medium">{selected_log.account.name}</div>
-                        {#if selected_log.account.id}
-                          <div class="text-xs text-muted-foreground">ID: {selected_log.account.id}</div>
-                        {/if}
-                      </dd>
-                    </div>
-                  {/if}
-                </div>
-              </InfoCard>
-            {/if}
-
-            <!-- Affected Object -->
-            {#if selected_log.auditable_type || selected_log.auditable}
-              <InfoCard title="Affected Object" icon="Target">
-                <div class="space-y-4">
-                  <div>
-                    <dt class="text-xs font-medium text-muted-foreground uppercase tracking-wider">Object Type</dt>
-                    <dd class="mt-1 text-sm font-medium">
-                      <span class="bg-primary/10 text-primary px-2 py-1 rounded">
-                        {selected_log.auditable_type} #{selected_log.auditable_id}
-                      </span>
-                    </dd>
-                  </div>
-
-                  {#if selected_log.auditable}
-                    <div>
-                      <dt class="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
-                        Object Data
-                      </dt>
-                      <dd>
-                        <div class="rounded-lg overflow-x-auto text-xs select-text">
-                          <Highlight language={json} code={JSON.stringify(selected_log.auditable, null, 2)} />
-                        </div>
-                      </dd>
-                    </div>
-                  {/if}
-                </div>
-              </InfoCard>
-            {/if}
-
-            <!-- Additional Data -->
-            {#if selected_log.data && Object.keys(selected_log.data).length > 0}
-              <InfoCard title="Additional Data" icon="Database">
-                <div class="rounded-lg overflow-x-auto text-xs select-text">
-                  <Highlight language={json} code={JSON.stringify(selected_log.data, null, 2)} />
-                </div>
-              </InfoCard>
-            {/if}
-
-            <!-- Technical Details -->
-            {#if selected_log.ip_address || selected_log.user_agent}
-              <InfoCard title="Technical Details" icon="GearSix">
-                <div class="space-y-3">
-                  {#if selected_log.ip_address}
-                    <div>
-                      <dt class="text-xs font-medium text-muted-foreground uppercase tracking-wider">IP Address</dt>
-                      <dd class="mt-1 text-sm font-mono bg-muted px-2 py-1 rounded inline-block">
-                        {selected_log.ip_address}
-                      </dd>
-                    </div>
-                  {/if}
-
-                  {#if selected_log.user_agent}
-                    <div>
-                      <dt class="text-xs font-medium text-muted-foreground uppercase tracking-wider">User Agent</dt>
-                      <dd class="mt-1 text-xs bg-muted p-2 rounded break-words font-mono">
-                        {selected_log.user_agent}
-                      </dd>
-                    </div>
-                  {/if}
-                </div>
-              </InfoCard>
-            {/if}
-          </div>
-        </div>
-
-        <div class="p-4 border-t bg-background">
-          <DrawerClose asChild>
-            <Button variant="outline" class="w-full sm:w-auto">Close</Button>
-          </DrawerClose>
-        </div>
-      {/if}
-    </DrawerContent>
-  </Drawer>
+  <AuditLogDrawer bind:open={drawerOpen} selectedLog={selected_log} onClose={closeDrawer} />
 </div>
