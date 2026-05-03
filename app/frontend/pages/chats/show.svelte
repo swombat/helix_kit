@@ -35,6 +35,11 @@
     visibleChatMessages,
   } from '$lib/chat-message-state';
   import { combinePaginatedMessages, prependOlderMessages, shouldLoadMoreMessages } from '$lib/chat-pagination-state';
+  import {
+    appendMessageIfMissing,
+    patchMessageInCollections,
+    removeMessageFromCollections,
+  } from '$lib/chat-message-collections';
   import { applyStreamingEnd, applyStreamingUpdate } from '$lib/chat-streaming-state';
   import { buildChatSubscriptions, chatSyncSignature } from '$lib/chat-sync-subscriptions';
   import { mode } from 'mode-watcher';
@@ -262,8 +267,9 @@
 
   // Helper to update a message in both recentMessages and olderMessages
   function updateMessage(messageId, patch) {
-    recentMessages = recentMessages.map((m) => (m.id === messageId ? { ...m, ...patch } : m));
-    olderMessages = olderMessages.map((m) => (m.id === messageId ? { ...m, ...patch } : m));
+    const result = patchMessageInCollections({ recentMessages, olderMessages, messageId, patch });
+    recentMessages = result.recentMessages;
+    olderMessages = result.olderMessages;
   }
 
   // Request voice synthesis for a message
@@ -548,9 +554,9 @@
       });
 
       if (response.ok) {
-        // Remove from local state immediately
-        recentMessages = recentMessages.filter((m) => m.id !== messageId);
-        olderMessages = olderMessages.filter((m) => m.id !== messageId);
+        const result = removeMessageFromCollections({ recentMessages, olderMessages, messageId });
+        recentMessages = result.recentMessages;
+        olderMessages = result.olderMessages;
         // Reload to get proper server state
         router.reload({ only: ['messages'], preserveScroll: true });
       } else {
@@ -660,12 +666,7 @@
       fileUploadConfig={file_upload_config}
       onAgentTrigger={scheduleStreamingRefresh}
       onSent={(data) => {
-        if (data?.id) {
-          const seen = new Set(recentMessages.map((m) => m.id));
-          if (!seen.has(data.id)) {
-            recentMessages = [...recentMessages, data];
-          }
-        }
+        recentMessages = appendMessageIfMissing(recentMessages, data);
         if (!chat?.manual_responses) scheduleStreamingRefresh();
         setTimeout(() => scrollToBottom(), 50);
       }}

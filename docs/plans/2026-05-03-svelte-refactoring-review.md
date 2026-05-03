@@ -1492,3 +1492,31 @@ Last verified test baseline for this slice:
 Next sensible slice:
 
 - Continue `chats/show.svelte` by extracting pagination/scroll orchestration, or move to the P1 pages if we decide the remaining chat-room orchestration is acceptable for an Inertia page.
+
+## Progress Checkpoint: 2026-05-03 Chat Message Collection Helpers
+
+Status: The message collection helper extraction is implemented and green.
+
+Completed after commit `e889e54 Extract chat input area`:
+
+- Added `chat-message-collections.js` for patching, removing, and append-if-missing behavior across recent/older message arrays.
+- Added Vitest coverage for the new helper module.
+- Updated `chats/show.svelte` to use the helpers for local edit, delete, voice, and send-state updates.
+- Left existing route helper changes in the worktree untouched because they were pre-existing/user-generated changes.
+
+Current size notes:
+
+- `app/frontend/pages/chats/show.svelte`: 724 lines.
+- `chat-message-collections.js`: 20 lines.
+- `chat-message-collections.test.js`: 46 lines.
+
+Last verified test baseline for this slice:
+
+- `yarn test:unit`: 13 files, 40 tests passed.
+- `bin/vite build --mode test`: passed, with existing Svelte warnings unrelated to this slice.
+- `yarn test`: 6 Playwright tests passed.
+- `bin/rails test`: 1815 tests, 7329 assertions, 0 failures, 0 errors.
+
+Next sensible slice:
+
+- Continue reducing `chats/show.svelte` only where behavior can remain obvious, otherwise move on to the P1 pages: `accounts/show.svelte`, `home.svelte`, `whiteboards/index.svelte`, or `admin/accounts.svelte`.
