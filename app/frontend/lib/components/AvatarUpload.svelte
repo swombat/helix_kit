@@ -100,6 +100,7 @@
   <Avatar
     {user}
     size="xl"
+    aria-label="Update profile picture"
     class="cursor-pointer hover:opacity-80 transition-opacity outline-ring outline-4 outline-solid outline-offset-4"
     onClick={openDialog} />
 </div>

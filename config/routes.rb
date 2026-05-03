@@ -4,6 +4,8 @@ Rails.application.routes.draw do
       namespace :e2e do
         post :setup, to: "/test_support/e2e#setup"
         post :assistant_message, to: "/test_support/e2e#assistant_message"
+        post :invitation_url, to: "/test_support/e2e#invitation_url"
+        post :state, to: "/test_support/e2e#state"
         post :cleanup, to: "/test_support/e2e#cleanup"
       end
     end
