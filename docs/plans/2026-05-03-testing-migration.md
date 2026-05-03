@@ -333,3 +333,37 @@ Only after the new safety net is in place, we are ready to begin the Svelte clea
 9. Add remaining E2E sync/thinking coverage.
 10. Confirm new status so we an start discussing the Svelte refactor.
 
+## Implementation Progress
+
+This section records progress against the plan without rewriting the original observations above.
+
+### 2026-05-03 Initial Implementation Pass
+
+- Rails baseline is green after fixing the chats index `Select.Value` build issue and updating the `Agent#as_json` memory stats assertion.
+- `bin/rails test` passes with `1834 runs, 7324 assertions, 0 failures, 0 errors`.
+- Noisy Vitest page/layout/form render tests have been removed.
+- Focused Vitest tests now cover message visibility, streaming state, sync maps, upload rules, cable event classification, token helpers, and tool label formatting.
+- `yarn test:unit --run` passes with 7 files and 23 tests.
+- A dedicated Playwright E2E config and runner now exist.
+- `yarn test:e2e` runs real browser journeys through `playwright/run-e2e.sh`.
+- `yarn test` now aliases to the E2E suite, while the old Playwright CT harness remains available as `yarn test:ct`.
+- The E2E suite currently covers login, multi-agent chat creation, deterministic thinking output, and cross-window message sync.
+- `yarn test:e2e` passes with 2 browser contract tests.
+- Ruby mock audit status moved to `docs/plans/2026-05-03-ruby-mock-audit.md`.
+
+### 2026-05-03 Ruby Mock/VCR Conversion Pass
+
+- RubyLLM moderation, manual agent response, all-agent response, conversation consolidation, memory reflection, memory refinement consent, and agent initiation decision coverage now use VCR-backed provider calls where the provider boundary is part of the behavior.
+- GitHub integration, sync job, controller repo loading, and GitHub commits tool tests now use VCR-backed GitHub API calls instead of method or `Net::HTTP` stubs.
+- Oura disconnect now records the revoke-token HTTP request through VCR instead of stubbing `revoke_token`.
+- Prompt/string construction and parsing edge cases were moved to direct Ruby tests where provider calls would only inspect our own code rather than an external integration boundary.
+- Focused converted Rails subset passes with `139 runs, 364 assertions, 0 failures, 0 errors`.
+- Full Rails suite passes with `1815 runs, 7295 assertions, 0 failures, 0 errors`.
+- `yarn test:unit --run` passes with 7 files and 23 tests.
+- `yarn test:e2e` passes with 2 browser contract tests.
+- Telegram bot send and webhook controller tests now use VCR-backed Telegram API calls. The one live send was confirmed delivered, and cassettes scrub bot tokens, chat ids, user/bot metadata, and webhook secrets.
+- Remaining stubs are now limited to approved carve-outs: ElevenLabs transcription/controller stubs and database backup config/ENV stubs.
+
+### 2026-05-03 Progress Note
+
+This pass has shifted the test suite toward the agreed strategy: Rails tests now cover real application behavior and external integration boundaries through VCR wherever practical; Vitest has been narrowed to frontend state/logic seams that are useful before Svelte refactoring; and Playwright now provides a small, high-value browser contract suite for login, multi-agent chat, thinking display, and cross-window sync. The remaining mock/stub usage is intentionally limited to the approved ElevenLabs audio and database-backup configuration carve-outs.

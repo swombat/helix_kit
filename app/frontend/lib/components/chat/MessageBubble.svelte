@@ -19,6 +19,7 @@
   import { Streamdown } from 'svelte-streamdown';
   import { formatTime, formatDateTime } from '$lib/utils';
   import { reasoningSkipTooltip } from '$lib/chat-utils';
+  import { formatToolsUsed } from '$lib/chat-message-formatting';
 
   let {
     message,
@@ -40,27 +41,6 @@
   function getBubbleClass(colour) {
     if (!colour) return '';
     return `bg-${colour}-100 dark:bg-${colour}-900`;
-  }
-
-  // Format tools_used for display - extracts domain from URLs or cleans up legacy format
-  function formatToolsUsed(toolsUsed) {
-    if (!toolsUsed || toolsUsed.length === 0) return [];
-
-    return toolsUsed.map((tool) => {
-      // Handle legacy Ruby object strings like "#<RubyLLM/tool call:0x...>"
-      if (tool.startsWith('#<')) {
-        return 'Web access';
-      }
-
-      // Try to extract domain from URL
-      try {
-        const url = new URL(tool);
-        return url.hostname;
-      } catch {
-        // Not a valid URL, return as-is
-        return tool;
-      }
-    });
   }
 </script>
 

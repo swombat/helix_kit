@@ -1,0 +1,45 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://api.telegram.org/bottelegram-test-bot-token/sendMessage
+    body:
+      encoding: UTF-8
+      string: '{"chat_id":12345,"text":"Test notification from Research Assistant.\n\nIf
+        you see this, Telegram notifications are working!","parse_mode":"HTML"}'
+    headers:
+      Content-Type:
+      - application/json
+      Host:
+      - api.telegram.org
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx/1.18.0
+      Date:
+      - Sun, 03 May 2026 11:39:34 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '370'
+      Connection:
+      - keep-alive
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET, POST, OPTIONS
+      Access-Control-Expose-Headers:
+      - Content-Length,Content-Type,Date,Server,Connection
+    body:
+      encoding: UTF-8
+      string: '{"ok":true,"result":{"message_id":1,"from":{"id":67890,"is_bot":true,"first_name":"Test
+        Bot","username":"test_bot"},"chat":{"id":12345,"first_name":"Test","last_name":"User","username":"test_user","type":"private"},"date":1777808374,"text":"Test
+        notification from Research Assistant.\n\nIf you see this, Telegram notifications
+        are working!"}}'
+  recorded_at: Sun, 03 May 2026 11:39:34 GMT
+recorded_with: VCR 6.3.1

@@ -1,4 +1,14 @@
 Rails.application.routes.draw do
+  if Rails.env.test?
+    namespace :test_support, path: "test" do
+      namespace :e2e do
+        post :setup, to: "/test_support/e2e#setup"
+        post :assistant_message, to: "/test_support/e2e#assistant_message"
+        post :cleanup, to: "/test_support/e2e#cleanup"
+      end
+    end
+  end
+
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Public favicon files are served directly from /public when present.

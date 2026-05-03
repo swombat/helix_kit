@@ -1,0 +1,68 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://api.ouraring.com/oauth/revoke?access_token=token
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Host:
+      - api.ouraring.com
+  response:
+    status:
+      code: 405
+      message: Method Not Allowed
+    headers:
+      Content-Type:
+      - application/json; charset=UTF-8
+      Content-Length:
+      - '46'
+      Connection:
+      - keep-alive
+      Date:
+      - Sun, 03 May 2026 11:28:41 GMT
+      Content-Security-Policy:
+      - 'default-src ''self''; script-src ''self'' ''unsafe-inline'' https://code.jquery.com
+        https://stackpath.bootstrapcdn.com https://www.google-analytics.com https://static.zdassets.com
+        https://ekr.zdassets.com https://ouraringhelp.zendesk.com https://static.ouraring.com
+        wss://ouraringhelp.zendesk.com wss://*.zopim.com; style-src ''self'' ''unsafe-inline''
+        https://stackpath.bootstrapcdn.com https://static.ouraring.com; font-src ''self''
+        https://stackpath.bootstrapcdn.com https://static.ouraring.com; img-src ''self''
+        data: https:; connect-src ''self'' https://www.google-analytics.com https://stats.g.doubleclick.net
+        https://static.zdassets.com https://ekr.zdassets.com https://ouraringhelp.zendesk.com
+        https://*.ingest.sentry.io wss://ouraringhelp.zendesk.com wss://*.zopim.com;
+        frame-ancestors ''none'''
+      Cache-Control:
+      - no-cache, no-store, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      X-Envoy-Upstream-Service-Time:
+      - '16'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+      X-Trace-Id:
+      - 363f8df7d87affef5b03124b6f87641b
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Cache:
+      - Error from cloudfront
+      Via:
+      - 1.1 54342e89962b6c8be584d45b90f85b10.cloudfront.net (CloudFront)
+      X-Amz-Cf-Pop:
+      - LHR61-P7
+      X-Amz-Cf-Id:
+      - DRpGRETn01loXlzuYg0XXmKi99N2T5lt2JtEIo06HU7MVKawFXMw0A==
+    body:
+      encoding: UTF-8
+      string: '{"status": 405, "title": "Method Not Allowed"}'
+  recorded_at: Sun, 03 May 2026 11:28:41 GMT
+recorded_with: VCR 6.3.1

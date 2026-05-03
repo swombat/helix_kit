@@ -1,0 +1,294 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://api.telegram.org/bottelegram-test-bot-token/setWebhook
+    body:
+      encoding: UTF-8
+      string: '{"url":"/telegram/webhook/telegram-webhook-token","allowed_updates":["message"],"secret_token":"telegram-webhook-secret"}'
+    headers:
+      Content-Type:
+      - application/json
+      Host:
+      - api.telegram.org
+  response:
+    status:
+      code: 400
+      message: Bad Request
+    headers:
+      Server:
+      - nginx/1.18.0
+      Date:
+      - Sun, 03 May 2026 11:39:36 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '88'
+      Connection:
+      - keep-alive
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Expose-Headers:
+      - Content-Length,Content-Type,Date,Server,Connection
+    body:
+      encoding: UTF-8
+      string: '{"ok":false,"error_code":400,"description":"Bad Request: invalid webhook
+        URL specified"}'
+  recorded_at: Sun, 03 May 2026 11:39:36 GMT
+- request:
+    method: post
+    uri: https://api.telegram.org/bottelegram-test-bot-token/getWebhookInfo
+    body:
+      encoding: UTF-8
+      string: "{}"
+    headers:
+      Content-Type:
+      - application/json
+      Host:
+      - api.telegram.org
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx/1.18.0
+      Date:
+      - Sun, 03 May 2026 11:39:36 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '117'
+      Connection:
+      - keep-alive
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET, POST, OPTIONS
+      Access-Control-Expose-Headers:
+      - Content-Length,Content-Type,Date,Server,Connection
+    body:
+      encoding: UTF-8
+      string: '{"ok":true,"result":{"url":"","has_custom_certificate":false,"pending_update_count":0,"allowed_updates":["message"]}}'
+  recorded_at: Sun, 03 May 2026 11:39:36 GMT
+- request:
+    method: post
+    uri: https://api.telegram.org/bottelegram-test-bot-token/setWebhook
+    body:
+      encoding: UTF-8
+      string: '{"url":"/telegram/webhook/telegram-webhook-token","allowed_updates":["message"],"secret_token":"telegram-webhook-secret"}'
+    headers:
+      Content-Type:
+      - application/json
+      Host:
+      - api.telegram.org
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      Server:
+      - nginx/1.18.0
+      Date:
+      - Sun, 03 May 2026 11:40:22 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '55'
+      Connection:
+      - keep-alive
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Expose-Headers:
+      - Content-Length,Content-Type,Date,Server,Connection
+    body:
+      encoding: UTF-8
+      string: '{"ok":false,"error_code":404,"description":"Not Found"}'
+  recorded_at: Sun, 03 May 2026 11:40:22 GMT
+- request:
+    method: post
+    uri: https://api.telegram.org/bottelegram-test-bot-token/setWebhook
+    body:
+      encoding: UTF-8
+      string: '{"url":"/telegram/webhook/telegram-webhook-token","allowed_updates":["message"],"secret_token":"telegram-webhook-secret"}'
+    headers:
+      Content-Type:
+      - application/json
+      Host:
+      - api.telegram.org
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      Server:
+      - nginx/1.18.0
+      Date:
+      - Sun, 03 May 2026 11:41:11 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '55'
+      Connection:
+      - keep-alive
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Expose-Headers:
+      - Content-Length,Content-Type,Date,Server,Connection
+    body:
+      encoding: UTF-8
+      string: '{"ok":false,"error_code":404,"description":"Not Found"}'
+  recorded_at: Sun, 03 May 2026 11:41:11 GMT
+- request:
+    method: post
+    uri: https://api.telegram.org/bottelegram-test-bot-token/setWebhook
+    body:
+      encoding: UTF-8
+      string: '{"url":"/telegram/webhook/telegram-webhook-token","allowed_updates":["message"],"secret_token":"telegram-webhook-secret"}'
+    headers:
+      Content-Type:
+      - application/json
+      Host:
+      - api.telegram.org
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      Server:
+      - nginx/1.18.0
+      Date:
+      - Sun, 03 May 2026 11:43:12 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '55'
+      Connection:
+      - keep-alive
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Expose-Headers:
+      - Content-Length,Content-Type,Date,Server,Connection
+    body:
+      encoding: UTF-8
+      string: '{"ok":false,"error_code":404,"description":"Not Found"}'
+  recorded_at: Sun, 03 May 2026 11:43:12 GMT
+- request:
+    method: post
+    uri: https://api.telegram.org/bottelegram-test-bot-token/setWebhook
+    body:
+      encoding: UTF-8
+      string: '{"url":"/telegram/webhook/telegram-webhook-token","allowed_updates":["message"],"secret_token":"telegram-webhook-secret"}'
+    headers:
+      Content-Type:
+      - application/json
+      Host:
+      - api.telegram.org
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      Server:
+      - nginx/1.18.0
+      Date:
+      - Sun, 03 May 2026 11:49:45 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '55'
+      Connection:
+      - keep-alive
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Expose-Headers:
+      - Content-Length,Content-Type,Date,Server,Connection
+    body:
+      encoding: UTF-8
+      string: '{"ok":false,"error_code":404,"description":"Not Found"}'
+  recorded_at: Sun, 03 May 2026 11:49:45 GMT
+- request:
+    method: post
+    uri: https://api.telegram.org/bottelegram-test-bot-token/setWebhook
+    body:
+      encoding: UTF-8
+      string: '{"url":"/telegram/webhook/telegram-webhook-token","allowed_updates":["message"],"secret_token":"telegram-webhook-secret"}'
+    headers:
+      Content-Type:
+      - application/json
+      Host:
+      - api.telegram.org
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      Server:
+      - nginx/1.18.0
+      Date:
+      - Sun, 03 May 2026 11:50:53 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '55'
+      Connection:
+      - keep-alive
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Expose-Headers:
+      - Content-Length,Content-Type,Date,Server,Connection
+    body:
+      encoding: UTF-8
+      string: '{"ok":false,"error_code":404,"description":"Not Found"}'
+  recorded_at: Sun, 03 May 2026 11:50:53 GMT
+- request:
+    method: post
+    uri: https://api.telegram.org/bottelegram-test-bot-token/setWebhook
+    body:
+      encoding: UTF-8
+      string: '{"url":"/telegram/webhook/telegram-webhook-token","allowed_updates":["message"],"secret_token":"telegram-webhook-secret"}'
+    headers:
+      Content-Type:
+      - application/json
+      Host:
+      - api.telegram.org
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      Server:
+      - nginx/1.18.0
+      Date:
+      - Sun, 03 May 2026 11:51:48 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '55'
+      Connection:
+      - keep-alive
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Expose-Headers:
+      - Content-Length,Content-Type,Date,Server,Connection
+    body:
+      encoding: UTF-8
+      string: '{"ok":false,"error_code":404,"description":"Not Found"}'
+  recorded_at: Sun, 03 May 2026 11:51:48 GMT
+recorded_with: VCR 6.3.1

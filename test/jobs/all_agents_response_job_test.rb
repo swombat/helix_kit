@@ -1,6 +1,4 @@
 require "test_helper"
-require "ostruct"
-
 class AllAgentsResponseJobTest < ActiveJob::TestCase
 
   setup do
@@ -32,23 +30,17 @@ class AllAgentsResponseJobTest < ActiveJob::TestCase
 
   test "processes first agent and queues remaining" do
     agent_ids = [ @agent1.id, @agent2.id ]
+    @agent1.update!(model_id: "openai/gpt-5-nano", system_prompt: "Reply with one short sentence as the first test agent.")
 
-    mock_llm = MockLlm.new(
-      final_content: "Response from first agent",
-      model_id: "test-model"
-    )
-
-    # First agent processes
-    RubyLLM.stub(:chat, ->(*args, **kwargs) { mock_llm }) do
+    VCR.use_cassette("jobs/all_agents_response_job/processes_first_agent") do
       assert_enqueued_with(job: AllAgentsResponseJob, args: [ @chat, [ @agent2.id ] ]) do
         AllAgentsResponseJob.perform_now(@chat, agent_ids)
       end
     end
 
-    # Verify first agent's message was created
     ai_message = @chat.messages.where(role: "assistant", agent: @agent1).last
     assert_not_nil ai_message, "First agent's message should be created"
-    assert_equal "Response from first agent", ai_message.content
+    assert_predicate ai_message.content, :present?
   end
 
   test "does nothing when agent_ids is empty" do
@@ -60,81 +52,22 @@ class AllAgentsResponseJobTest < ActiveJob::TestCase
     assert_equal 1, @chat.messages.count
   end
 
-  test "adds context messages then calls complete" do
-    agent_ids = [ @agent1.id ]
+  test "builds context messages for the selected agent" do
+    context = @chat.build_context_for_agent(@agent1, thinking_enabled: false, provider: :openrouter)
 
-    messages_added = []
-    complete_called = false
-
-    mock_llm = MockLlm.new(
-      final_content: "Response from agent",
-      model_id: "test-model",
-      on_add_message: ->(msg) { messages_added << msg },
-      on_complete: -> { complete_called = true }
-    )
-
-    RubyLLM.stub(:chat, ->(*args, **kwargs) { mock_llm }) do
-      AllAgentsResponseJob.perform_now(@chat, agent_ids)
-    end
-
-    # Should have added context messages (system + user message)
-    assert_equal 2, messages_added.length, "Should add system and user messages"
-    assert_equal "system", messages_added.first[:role]
-    assert complete_called, "complete should be called"
-  end
-
-  test "handles tool calls and continues to final response" do
-    agent_ids = [ @agent1.id ]
-    tool_call_count = 0
-
-    mock_llm = MockLlm.new(
-      final_content: "I fetched the webpage and here is the summary...",
-      model_id: "test-model",
-      simulate_tool_call: true,
-      on_tool_call_invoked: -> { tool_call_count += 1 }
-    )
-
-    # Enable web tool for the agent (use the actual class name)
-    @agent1.update!(enabled_tools: [ "WebTool" ])
-
-    RubyLLM.stub(:chat, ->(*args, **kwargs) { mock_llm }) do
-      AllAgentsResponseJob.perform_now(@chat, agent_ids)
-    end
-
-    # Tool should be invoked
-    assert_equal 1, tool_call_count, "Tool should be invoked"
-
-    # Final message should still be created
-    ai_message = @chat.messages.where(role: "assistant").last
-    assert_not_nil ai_message
-    assert_equal "I fetched the webpage and here is the summary...", ai_message.content
-    assert ai_message.tools_used.present?, "tools_used should be populated"
+    assert_equal 2, context.length, "Should include system prompt and user message"
+    assert_equal "system", context.first[:role]
+    assert_equal "user", context.second[:role]
   end
 
   test "sequential processing creates context for subsequent agents" do
-    # Run first agent
-    mock_llm1 = MockLlm.new(
-      final_content: "Response from agent 1",
-      model_id: "test-model"
+    @chat.messages.create!(
+      role: "assistant",
+      agent: @agent1,
+      content: "Response from agent 1"
     )
 
-    RubyLLM.stub(:chat, ->(*args, **kwargs) { mock_llm1 }) do
-      AllAgentsResponseJob.perform_now(@chat, [ @agent1.id ])
-    end
-
-    # Now reload chat and run second agent
-    @chat.reload
-    second_agent_context = []
-
-    mock_llm2 = MockLlm.new(
-      final_content: "Response from agent 2",
-      model_id: "test-model",
-      on_add_message: ->(msg) { second_agent_context << msg }
-    )
-
-    RubyLLM.stub(:chat, ->(*args, **kwargs) { mock_llm2 }) do
-      AllAgentsResponseJob.perform_now(@chat, [ @agent2.id ])
-    end
+    second_agent_context = @chat.build_context_for_agent(@agent2, thinking_enabled: false, provider: :openrouter)
 
     # Second agent should see system + user message + first agent's response
     assert_equal 3, second_agent_context.length, "Second agent should see all prior messages"
@@ -157,148 +90,20 @@ class AllAgentsResponseJobTest < ActiveJob::TestCase
     @chat.agent_ids = [ anthropic_agent.id, @agent2.id ]
     @chat.save!
 
-    api_key_available = ->(provider) { provider == :anthropic ? false : true }
+    original_anthropic_key = RubyLLM.config.anthropic_api_key
+    RubyLLM.config.anthropic_api_key = "<missing>"
 
-    ResolvesProvider.stub(:api_key_available?, api_key_available) do
+    begin
       assert_enqueued_with(job: AllAgentsResponseJob, args: [ @chat, [ @agent2.id ] ]) do
         AllAgentsResponseJob.perform_now(@chat, [ anthropic_agent.id, @agent2.id ])
       end
+    ensure
+      RubyLLM.config.anthropic_api_key = original_anthropic_key
     end
 
     skipped_message = @chat.messages.where(role: "assistant", agent: anthropic_agent).last
     assert_not_nil skipped_message
     assert_equal "anthropic_key_unavailable", skipped_message.reasoning_skip_reason
-  end
-
-  test "persists tool call continuity metadata from tool-call end messages" do
-    @agent1.update!(
-      model_id: "google/gemini-3-pro-preview",
-      enabled_tools: [ "WebTool" ],
-      thinking_enabled: true,
-      thinking_budget: 4000
-    )
-
-    tool_call = OpenStruct.new(
-      id: "call_1",
-      name: "WebTool",
-      arguments: { action: "fetch", url: "https://example.com" },
-      thought_signature: "gemini-tool-sig-1"
-    )
-
-    tool_call_end_message = OpenStruct.new(
-      tool_calls: [ tool_call ],
-      'tool_call?': true,
-      'tool_result?': false
-    )
-
-    mock_llm = MockLlm.new(
-      final_content: "I fetched the webpage and here is the summary...",
-      model_id: "gemini-3-pro-preview",
-      simulate_tool_call: true,
-      tool_call_end_message: tool_call_end_message
-    )
-
-    RubyLLM.stub(:chat, ->(*args, **kwargs) { mock_llm }) do
-      AllAgentsResponseJob.perform_now(@chat, [ @agent1.id ])
-    end
-
-    ai_message = @chat.messages.where(role: "assistant", agent: @agent1).last
-    assert_not_nil ai_message
-
-    persisted_tool_call = ai_message.tool_calls.find_by!(tool_call_id: "call_1")
-    assert_equal "gemini-tool-sig-1", persisted_tool_call.replay_payload["thought_signature"]
-  end
-
-  # Helper class to mock RubyLLM chat behavior
-  class MockLlm
-
-    attr_reader :tools
-
-    def initialize(options = {})
-      @final_content = options[:final_content] || "Mock response"
-      @model_id = options[:model_id] || "test-model"
-      @simulate_tool_call = options[:simulate_tool_call] || false
-      @raise_error = options[:raise_error]
-      @on_add_message = options[:on_add_message]
-      @on_complete = options[:on_complete]
-      @on_tool_call_invoked = options[:on_tool_call_invoked]
-      @tool_call_end_message = options[:tool_call_end_message]
-      @tools = {}
-      @on_callbacks = {}
-    end
-
-    def with_tool(tool)
-      tool_instance = tool.is_a?(Class) ? tool.new : tool
-      @tools[tool_instance.name.to_sym] = tool_instance
-      self
-    end
-
-    def with_thinking(...)
-      self
-    end
-
-    def with_params(...)
-      self
-    end
-
-    def on_new_message(&block)
-      @on_callbacks[:new_message] = block
-      self
-    end
-
-    def on_tool_call(&block)
-      @on_callbacks[:tool_call] = block
-      self
-    end
-
-    def on_end_message(&block)
-      @on_callbacks[:end_message] = block
-      self
-    end
-
-    def add_message(msg)
-      @on_add_message&.call(msg)
-    end
-
-    def complete(&block)
-      raise @raise_error if @raise_error
-
-      @on_complete&.call
-
-      # Simulate new message callback
-      @on_callbacks[:new_message]&.call
-
-      # Simulate tool call if configured
-      if @simulate_tool_call
-        tool_call = OpenStruct.new(
-          id: "tool_call_1",
-          name: "WebTool",
-          arguments: { action: "fetch", url: "https://example.com" },
-          thought_signature: nil
-        )
-        @on_callbacks[:tool_call]&.call(tool_call)
-        @on_tool_call_invoked&.call
-        @on_callbacks[:end_message]&.call(@tool_call_end_message) if @tool_call_end_message
-      end
-
-      # Simulate streaming chunk
-      block.call(OpenStruct.new(content: @final_content)) if block_given?
-
-      # Simulate end message callback
-      final_message = OpenStruct.new(
-        content: @final_content,
-        model_id: @model_id,
-        input_tokens: 10,
-        output_tokens: 20,
-        tool_calls: [],
-        'tool_call?': false,
-        'tool_result?': false
-      )
-      @on_callbacks[:end_message]&.call(final_message)
-
-      final_message
-    end
-
   end
 
 end

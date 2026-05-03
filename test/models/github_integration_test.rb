@@ -217,15 +217,13 @@ class GithubIntegrationTest < ActiveSupport::TestCase
   end
 
   test "sync_commits! fetches and stores commits when ready" do
-    @integration.update!(access_token: "token", repository_full_name: "owner/repo")
+    @integration.update!(access_token: github_test_access_token, repository_full_name: "rails/rails")
 
-    fake_commits = [{ "sha" => "abc12345", "message" => "Test", "author" => "Dev", "date" => "2026-02-05" }]
-
-    @integration.stub(:fetch_recent_commits, fake_commits) do
+    VCR.use_cassette("models/github_integration/syncs_rails_commits") do
       @integration.sync_commits!
     end
 
-    assert_equal fake_commits, @integration.recent_commits
+    assert_not_empty @integration.recent_commits
     assert_not_nil @integration.commits_synced_at
   end
 
@@ -314,6 +312,12 @@ class GithubIntegrationTest < ActiveSupport::TestCase
 
   test "belongs to account" do
     assert_equal @account, @integration.account
+  end
+
+  private
+
+  def github_test_access_token
+    ENV.fetch("GITHUB_TEST_ACCESS_TOKEN", "ghp_test_token")
   end
 
 end

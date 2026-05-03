@@ -91,8 +91,7 @@ class OuraIntegrationTest < ActiveSupport::TestCase
       health_data: { "sleep" => [] }
     )
 
-    # Stub revoke_token to avoid HTTP call
-    @integration.stub(:revoke_token, nil) do
+    VCR.use_cassette("models/oura_integration/revoke_token_on_disconnect") do
       @integration.disconnect!
     end
 

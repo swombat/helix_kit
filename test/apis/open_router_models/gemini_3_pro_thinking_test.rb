@@ -60,18 +60,7 @@ class OpenRouterGemini3ProThinkingTest < ActiveSupport::TestCase
       assert_operator received_chunks.size, :>, 0, "Expected to receive stream chunks"
       assert full_response.present?, "Expected non-empty response"
 
-      # Check if any reasoning was streamed
-      has_reasoning = reasoning_chunks.any?(&:present?)
-
-      puts "\n=== Gemini 3 Pro Streaming Analysis ==="
-      puts "Total chunks received: #{received_chunks.size}"
-      puts "Reasoning chunks found: #{reasoning_chunks.size}"
-      puts "Has streaming reasoning: #{has_reasoning}"
-      if has_reasoning
-        puts "Sample reasoning: #{reasoning_chunks.first(3).join}"
-      end
-      puts "Final response length: #{full_response.length}"
-      puts "=== End Analysis ===\n"
+      assert reasoning_chunks.any?(&:present?), "Expected Gemini 3 Pro to stream reasoning chunks"
     end
   end
 
@@ -98,13 +87,8 @@ class OpenRouterGemini3ProThinkingTest < ActiveSupport::TestCase
       content = message["content"]
       reasoning = message["reasoning"]
 
-      puts "\n=== Gemini 3 Pro Non-Streaming Analysis ==="
-      puts "Content present: #{content.present?}"
-      puts "Reasoning field present: #{reasoning.present?}"
-      if reasoning.present?
-        puts "Reasoning sample: #{reasoning[0..200]}..."
-      end
-      puts "=== End Analysis ===\n"
+      assert content.present?, "Expected Gemini 3 Pro non-streaming content"
+      assert reasoning.present?, "Expected Gemini 3 Pro non-streaming reasoning field"
     end
   end
 

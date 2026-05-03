@@ -58,17 +58,7 @@ class OpenRouterGrok4ThinkingTest < ActiveSupport::TestCase
       assert_operator received_chunks.size, :>, 0, "Expected to receive stream chunks"
       assert full_response.present?, "Expected non-empty response"
 
-      has_reasoning = reasoning_chunks.any?(&:present?)
-
-      puts "\n=== Grok 4 Streaming Analysis ==="
-      puts "Total chunks received: #{received_chunks.size}"
-      puts "Reasoning chunks found: #{reasoning_chunks.size}"
-      puts "Has streaming reasoning: #{has_reasoning}"
-      if has_reasoning
-        puts "Sample reasoning: #{reasoning_chunks.first(3).join}"
-      end
-      puts "Note: Grok 4 docs say 'reasoning is not exposed'"
-      puts "=== End Analysis ===\n"
+      assert_empty reasoning_chunks, "Grok 4 should not expose streaming reasoning chunks through OpenRouter"
     end
   end
 
@@ -129,16 +119,8 @@ class OpenRouterGrok4ThinkingTest < ActiveSupport::TestCase
 
       assert_operator received_chunks.size, :>, 0, "Expected to receive stream chunks"
 
-      has_reasoning = reasoning_chunks.any?(&:present?)
-
-      puts "\n=== Grok 4 Fast (reasoning: enabled) Streaming Analysis ==="
-      puts "Total chunks received: #{received_chunks.size}"
-      puts "Reasoning chunks found: #{reasoning_chunks.size}"
-      puts "Has streaming reasoning: #{has_reasoning}"
-      if has_reasoning
-        puts "Sample reasoning: #{reasoning_chunks.first(5).join}"
-      end
-      puts "=== End Analysis ===\n"
+      assert full_response.present?, "Expected non-empty response"
+      assert_empty reasoning_chunks, "Grok 4 Fast currently should not expose streaming reasoning chunks through OpenRouter"
     end
   end
 
@@ -177,13 +159,9 @@ class OpenRouterGrok4ThinkingTest < ActiveSupport::TestCase
 
       client.chat(parameters: parameters)
 
-      has_reasoning = reasoning_chunks.any?(&:present?)
-
-      puts "\n=== Grok 4 Fast (no reasoning param) Streaming Analysis ==="
-      puts "Total chunks received: #{received_chunks.size}"
-      puts "Reasoning chunks found: #{reasoning_chunks.size}"
-      puts "Has streaming reasoning: #{has_reasoning}"
-      puts "=== End Analysis ===\n"
+      assert_operator received_chunks.size, :>, 0, "Expected to receive stream chunks"
+      assert full_response.present?, "Expected non-empty response"
+      assert_empty reasoning_chunks, "Baseline Grok 4 Fast should not expose reasoning chunks"
     end
   end
 

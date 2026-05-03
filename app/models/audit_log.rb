@@ -47,10 +47,10 @@ class AuditLog < ApplicationRecord
 
   def as_json(options = {})
     super(options).merge(
-      display_action: display_action,
-      actor_name: actor_name,
-      target_name: target_name,
-      user: user&.as_json
+      "display_action" => display_action,
+      "actor_name" => actor_name,
+      "target_name" => target_name,
+      "user" => user&.as_json
     )
   end
 

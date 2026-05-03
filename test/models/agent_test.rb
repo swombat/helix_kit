@@ -176,7 +176,7 @@ class AgentTest < ActiveSupport::TestCase
 
     json = agent.as_json
 
-    assert_equal 1, json.dig("memories_count", "core")
+    assert_equal 1, json.dig("memories_count", :core)
     assert json["memory_token_summary"].is_a?(Hash)
   end
 

@@ -9,7 +9,7 @@
 
   let { chats = [], account, models = [] } = $props();
 
-  let selectedModel = $state(models?.[0]?.value ?? models?.[0] ?? 'openrouter/auto');
+  let selectedModel = $state(models?.[0]?.model_id ?? models?.[0]?.value ?? models?.[0] ?? 'openrouter/auto');
   let sidebarOpen = $state(false);
 
   const createChatForm = useForm({
@@ -23,6 +23,18 @@
       $createChatForm.data.chat.model_id = selectedModel;
     }
     $createChatForm.post(accountChatsPath(account.id));
+  }
+
+  function modelValue(model) {
+    return model?.model_id ?? model?.value ?? model;
+  }
+
+  function modelLabel(model) {
+    return model?.label ?? modelValue(model);
+  }
+
+  function selectedModelLabel() {
+    return modelLabel(models.find((model) => modelValue(model) === selectedModel)) || 'Select AI model';
   }
 </script>
 
@@ -78,12 +90,12 @@
                   }
                 }}>
                 <Select.Trigger class="w-48" id="model-select">
-                  <Select.Value placeholder="Select AI model" />
+                  {selectedModelLabel()}
                 </Select.Trigger>
                 <Select.Content sideOffset={4}>
-                  {#each models as model (model?.value ?? model)}
-                    <Select.Item value={model?.value ?? model}>
-                      {model?.label ?? model?.value ?? model}
+                  {#each models as model (modelValue(model))}
+                    <Select.Item value={modelValue(model)} label={modelLabel(model)}>
+                      {modelLabel(model)}
                     </Select.Item>
                   {/each}
                 </Select.Content>

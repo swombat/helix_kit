@@ -30,6 +30,19 @@
   import * as logging from '$lib/logging';
   import { formatTime, formatDate } from '$lib/utils';
   import { formatTokenCount } from '$lib/chat-utils';
+  import {
+    isChatResponseTimedOut,
+    lastMessageIsHiddenThinking as messageStateLastMessageIsHiddenThinking,
+    lastMessageIsUserWithoutResponse as messageStateLastMessageIsUserWithoutResponse,
+    lastUserMessageNeedsResend as messageStateLastUserMessageNeedsResend,
+    lastUserMessageTime as messageStateLastUserMessageTime,
+    shouldShowSendingPlaceholder as messageStateShouldShowSendingPlaceholder,
+    shouldShowTimestampForMessages,
+    timestampLabelForMessages,
+    visibleChatMessages,
+  } from '$lib/chat-message-state';
+  import { applyStreamingEnd, applyStreamingUpdate } from '$lib/chat-streaming-state';
+  import { buildChatSubscriptions, chatSyncSignature } from '$lib/chat-sync-subscriptions';
   import { mode } from 'mode-watcher';
   import { fade } from 'svelte/transition';
 
@@ -289,31 +302,7 @@
   }
 
   // Filter out tool messages and empty assistant messages unless admin has enabled "show all messages"
-  const visibleMessages = $derived(
-    showAllMessages
-      ? allMessages
-      : allMessages.filter((m) => {
-          // Hide tool messages
-          if (m.role === 'tool') return false;
-          // Hide empty assistant messages (these appear before tool calls)
-          if (m.role === 'assistant' && (!m.content || m.content.trim() === '') && !m.streaming) return false;
-          // Hide assistant messages that are PURE JSON tool results (no text content after the JSON)
-          // Some messages may have JSON prefix followed by actual text - those should be shown
-          if (m.role === 'assistant' && m.content && !m.streaming) {
-            const trimmed = m.content.trim();
-            if (trimmed.startsWith('{')) {
-              // Only hide if it looks like pure JSON (ends with } and nothing substantial after)
-              // This allows messages like "{...}Actual response text" to be shown
-              const lastBrace = trimmed.lastIndexOf('}');
-              if (lastBrace !== -1) {
-                const afterJson = trimmed.substring(lastBrace + 1).trim();
-                if (afterJson === '') return false; // Pure JSON, hide it
-              }
-            }
-          }
-          return true;
-        })
-  );
+  const visibleMessages = $derived(visibleChatMessages(allMessages, showAllMessages));
 
   // Count unique human participants in group chats
   const uniqueHumanCount = $derived.by(() => {
@@ -324,34 +313,12 @@
 
   // Check if the last actual message is hidden (tool call or empty assistant) - model is still thinking
   const lastMessageIsHiddenThinking = $derived.by(() => {
-    if (!allMessages || allMessages.length === 0) return false;
-    const lastMessage = allMessages[allMessages.length - 1];
-    if (!lastMessage) return false;
-    // Tool message means model is processing tool results
-    if (lastMessage.role === 'tool') return true;
-    // Empty assistant message (not streaming) means waiting for tool call
-    if (
-      lastMessage.role === 'assistant' &&
-      (!lastMessage.content || lastMessage.content.trim() === '') &&
-      !lastMessage.streaming
-    )
-      return true;
-    // JSON tool result message (not streaming) means tool just completed
-    if (
-      lastMessage.role === 'assistant' &&
-      lastMessage.content &&
-      lastMessage.content.trim().startsWith('{') &&
-      !lastMessage.streaming
-    )
-      return true;
-    return false;
+    return messageStateLastMessageIsHiddenThinking(allMessages);
   });
 
   // Check if the last message is a user message without a response
   const lastMessageIsUserWithoutResponse = $derived.by(() => {
-    if (!allMessages || allMessages.length === 0) return false;
-    const lastMessage = allMessages[allMessages.length - 1];
-    return lastMessage && lastMessage.role === 'user';
+    return messageStateLastMessageIsUserWithoutResponse(allMessages);
   });
 
   // Check if any agent is currently responding (streaming)
@@ -360,34 +327,22 @@
   // Auto-detect waiting state based on messages
   // Don't show for manual_responses chats (group chats) since they don't auto-respond
   const shouldShowSendingPlaceholder = $derived(
-    !chat?.manual_responses && (waitingForResponse || lastMessageIsUserWithoutResponse)
+    messageStateShouldShowSendingPlaceholder({ chat, messages: allMessages, waitingForResponse })
   );
 
   // Get the timestamp of when the last user message was sent
   const lastUserMessageTime = $derived.by(() => {
-    if (!allMessages || allMessages.length === 0) return null;
-    const lastMessage = allMessages[allMessages.length - 1];
-    if (lastMessage && lastMessage.role === 'user') {
-      return new Date(lastMessage.created_at).getTime();
-    }
-    return null;
+    return messageStateLastUserMessageTime(allMessages);
   });
 
   // Check if we've been waiting too long (over 1 minute)
   const isTimedOut = $derived.by(() => {
-    const messageTime = messageSentAt || lastUserMessageTime;
-    return shouldShowSendingPlaceholder && messageTime && currentTime - messageTime > 60000;
+    return isChatResponseTimedOut({ chat, messages: allMessages, waitingForResponse, messageSentAt, currentTime });
   });
 
   // Check if last message needs resend option
   const lastUserMessageNeedsResend = $derived.by(() => {
-    if (!allMessages || allMessages.length === 0) return false;
-    const lastMessage = allMessages[allMessages.length - 1];
-    if (!lastMessage || lastMessage.role !== 'user') return false;
-
-    // Check if there's been more than 1 minute since message was created
-    const createdAt = new Date(lastMessage.created_at).getTime();
-    return currentTime - createdAt > 60000;
+    return messageStateLastUserMessageNeedsResend(allMessages, currentTime);
   });
 
   // Create dynamic sync for real-time updates
@@ -435,20 +390,8 @@
 
   // Set up real-time subscriptions - SIMPLIFIED (no message count comparison)
   $effect(() => {
-    const subs = {};
-    subs[`Account:${account.id}:chats`] = 'chats';
-
-    if (chat) {
-      subs[`Chat:${chat.id}`] = ['chat', 'messages']; // Both chat and messages when chat broadcasts
-      subs[`Chat:${chat.id}:messages`] = 'messages'; // Individual message updates
-
-      if (chat.active_whiteboard) {
-        subs[`Whiteboard:${chat.active_whiteboard.id}`] = ['chat', 'messages'];
-      }
-    }
-
-    const messageSignature = Array.isArray(recentMessages) ? recentMessages.map((message) => message.id).join(':') : '';
-    const nextSignature = `${account.id}|${chat?.id ?? 'none'}|${messageSignature}`;
+    const subs = buildChatSubscriptions({ account, chat });
+    const nextSignature = chatSyncSignature({ account, chat, recentMessages });
 
     if (nextSignature !== syncSignature) {
       syncSignature = nextSignature;
@@ -482,23 +425,10 @@
       if (data.id) {
         const index = recentMessages.findIndex((m) => m.id === data.id);
         if (index !== -1) {
-          if (data.action === 'thinking_update') {
-            // Handle thinking updates
-            streamingThinking[data.id] = (streamingThinking[data.id] || '') + (data.chunk || '');
-          } else if (data.action === 'streaming_update') {
-            // Handle content streaming
-            logging.debug('Updating message via streaming:', data.id, data.chunk);
-            const currentMessage = recentMessages[index] || {};
-            const updatedMessage = {
-              ...currentMessage,
-              content: `${currentMessage.content || ''}${data.chunk || ''}`,
-              streaming: true,
-            };
-
-            recentMessages = recentMessages.map((message, messageIndex) =>
-              messageIndex === index ? updatedMessage : message
-            );
-            logging.debug('Message updated:', updatedMessage);
+          const result = applyStreamingUpdate({ messages: recentMessages, streamingThinking }, data);
+          if (result.handled) {
+            streamingThinking = result.streamingThinking;
+            recentMessages = result.messages;
 
             // Scroll to bottom if user is near the bottom during streaming
             setTimeout(() => {
@@ -519,18 +449,12 @@
     },
     (data) => {
       if (data.id) {
-        // Clear streaming thinking on stream end
-        if (streamingThinking[data.id]) {
-          delete streamingThinking[data.id];
-          streamingThinking = { ...streamingThinking };
-        }
+        const result = applyStreamingEnd({ messages: recentMessages, streamingThinking }, data);
+        streamingThinking = result.streamingThinking;
+        recentMessages = result.messages;
 
-        const index = recentMessages.findIndex((m) => m.id === data.id);
-        if (index !== -1) {
+        if (result.handled) {
           logging.debug('Updating message via streaming end:', data.id);
-          recentMessages = recentMessages.map((message, messageIndex) =>
-            messageIndex === index ? { ...message, streaming: false } : message
-          );
         }
       } else {
         logging.warn('No id found in streaming end:', data);
@@ -653,56 +577,11 @@
   }
 
   function shouldShowTimestamp(index) {
-    if (
-      !Array.isArray(visibleMessages) ||
-      visibleMessages.length === 0 ||
-      visibleMessages[index] === undefined ||
-      Number.isNaN(new Date(visibleMessages[index].created_at))
-    ) {
-      return false;
-    }
-
-    const message = visibleMessages[index];
-    const currentCreatedAt = new Date(message.created_at);
-
-    if (index === 0) return true;
-
-    const previousMessage = visibleMessages[index - 1];
-    if (!previousMessage) return true;
-
-    const previousCreatedAt = new Date(previousMessage.created_at);
-    if (Number.isNaN(previousCreatedAt)) return true;
-
-    const sameDay = currentCreatedAt.toDateString() === previousCreatedAt.toDateString();
-    if (!sameDay) return true;
-
-    const timeDifference = currentCreatedAt.getTime() - previousCreatedAt.getTime();
-    const hourInMs = 60 * 60 * 1000;
-
-    return timeDifference >= hourInMs;
+    return shouldShowTimestampForMessages(visibleMessages, index);
   }
 
   function timestampLabel(index) {
-    const message = visibleMessages[index];
-    if (!message) return '';
-
-    const createdAt = new Date(message.created_at);
-    if (Number.isNaN(createdAt)) return '';
-
-    if (index === 0) return formatDate(createdAt);
-
-    const previousMessage = visibleMessages[index - 1];
-    const previousCreatedAt = previousMessage ? new Date(previousMessage.created_at) : null;
-
-    if (!previousCreatedAt || Number.isNaN(previousCreatedAt)) {
-      return formatDate(createdAt);
-    }
-
-    if (createdAt.toDateString() !== previousCreatedAt.toDateString()) {
-      return formatDate(createdAt);
-    }
-
-    return formatTime(createdAt);
+    return timestampLabelForMessages(visibleMessages, index, { formatDate, formatTime });
   }
 </script>
 

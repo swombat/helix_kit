@@ -9,7 +9,7 @@ const browser = typeof window !== 'undefined';
 const consumer = browser ? createConsumer() : null;
 
 // Pure debounce function
-function debounce(fn, delay) {
+export function debounce(fn, delay) {
   let timeoutId;
   let pendingProps = new Set();
 
@@ -77,23 +77,29 @@ export function subscribeToModel(model, id, props) {
   return () => subscription.unsubscribe();
 }
 
+export function streamingEventName(data) {
+  if (data.action === 'streaming_update' || data.action === 'thinking_update' || data.action === 'error') {
+    return 'streaming-update';
+  }
+
+  if (data.action === 'streaming_end') {
+    return 'streaming-end';
+  }
+
+  if (data.action === 'debug_log') {
+    return 'debug-log';
+  }
+
+  return null;
+}
+
 function handleStreamingUpdate(data) {
-  if (data.action === 'streaming_update') {
+  const eventName = streamingEventName(data);
+
+  if (eventName) {
     // Dispatch a custom event that the chat component can listen to
     if (browser) {
-      window.dispatchEvent(new CustomEvent('streaming-update', { detail: data }));
-    }
-    return true;
-  } else if (data.action === 'streaming_end') {
-    // Dispatch a custom event that the chat component can listen to
-    if (browser) {
-      window.dispatchEvent(new CustomEvent('streaming-end', { detail: data }));
-    }
-    return true;
-  } else if (data.action === 'debug_log') {
-    // Dispatch debug log event for site admins
-    if (browser) {
-      window.dispatchEvent(new CustomEvent('debug-log', { detail: data }));
+      window.dispatchEvent(new CustomEvent(eventName, { detail: data }));
     }
     return true;
   }

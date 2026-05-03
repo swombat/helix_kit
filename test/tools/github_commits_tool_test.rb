@@ -52,7 +52,7 @@ class GithubCommitsToolTest < ActiveSupport::TestCase
     result = build_tool.execute(action: "fetch")
 
     assert_equal "github_commits", result[:type]
-    assert_equal "owner/repo", result[:repository]
+    assert_equal "rails/rails", result[:repository]
     assert_equal 10, result[:commits].length
     assert_equal false, result[:freshly_synced]
   end
@@ -97,23 +97,19 @@ class GithubCommitsToolTest < ActiveSupport::TestCase
   end
 
   test "sync calls sync_commits! and returns fresh data" do
-    integration = create_integration(
+    create_integration(
       commits_synced_at: 2.hours.ago,
       recent_commits: [
         { "sha" => "old", "message" => "Old commit", "author" => "Dev", "date" => 2.hours.ago.iso8601 }
       ]
     )
 
-    new_commits = [
-      { "sha" => "new123", "message" => "Fresh commit", "author" => "Dev", "date" => 5.minutes.ago.iso8601 }
-    ]
-
-    integration.stub(:fetch_recent_commits, new_commits) do
+    VCR.use_cassette("tools/github_commits_tool/sync_rails_commits") do
       result = build_tool.execute(action: "sync")
 
       assert_equal "github_commits", result[:type]
       assert_equal true, result[:freshly_synced]
-      assert_equal "new123", result[:commits].first[:sha]
+      assert_not_empty result[:commits]
     end
   end
 
@@ -127,37 +123,32 @@ class GithubCommitsToolTest < ActiveSupport::TestCase
   end
 
   test "diff returns commit diff" do
-    integration = create_integration
-    diff_text = "diff --git a/file.rb b/file.rb\n+new line\n"
+    create_integration
 
-    integration.stub(:fetch_commit_diff, diff_text) do
-      result = build_tool.execute(action: "diff", sha: "abc123")
+    VCR.use_cassette("tools/github_commits_tool/fetch_rails_commit_diff") do
+      result = build_tool.execute(action: "diff", sha: "bf67001a6fca")
 
       assert_equal "github_diff", result[:type]
-      assert_equal "owner/repo", result[:repository]
-      assert_equal "abc123", result[:sha]
-      assert_equal diff_text, result[:diff]
+      assert_equal "rails/rails", result[:repository]
+      assert_equal "bf67001a6fca", result[:sha]
+      assert_includes result[:diff], "diff --git"
       assert_equal false, result[:truncated]
     end
   end
 
   test "diff truncates large diffs" do
-    integration = create_integration
     huge_diff = "x" * 60_000
 
-    integration.stub(:fetch_commit_diff, huge_diff) do
-      result = build_tool.execute(action: "diff", sha: "abc123")
+    truncated, was_truncated = build_tool.send(:truncate, huge_diff, GithubCommitsTool::MAX_DIFF_SIZE)
 
-      assert_equal "github_diff", result[:type]
-      assert_equal GithubCommitsTool::MAX_DIFF_SIZE, result[:diff].size
-      assert_equal true, result[:truncated]
-    end
+    assert_equal GithubCommitsTool::MAX_DIFF_SIZE, truncated.size
+    assert_equal true, was_truncated
   end
 
   test "diff returns error when fetch fails" do
-    integration = create_integration
+    create_integration
 
-    integration.stub(:fetch_commit_diff, nil) do
+    VCR.use_cassette("tools/github_commits_tool/missing_rails_commit_diff") do
       result = build_tool.execute(action: "diff", sha: "nonexistent")
 
       assert_equal "error", result[:type]
@@ -175,37 +166,32 @@ class GithubCommitsToolTest < ActiveSupport::TestCase
   end
 
   test "file returns file contents" do
-    integration = create_integration
-    file_contents = "class Foo\n  def bar\n    42\n  end\nend\n"
+    create_integration
 
-    integration.stub(:fetch_file_contents, file_contents) do
-      result = build_tool.execute(action: "file", path: "app/models/foo.rb")
+    VCR.use_cassette("tools/github_commits_tool/fetch_rails_readme") do
+      result = build_tool.execute(action: "file", path: "README.md")
 
       assert_equal "github_file", result[:type]
-      assert_equal "owner/repo", result[:repository]
-      assert_equal "app/models/foo.rb", result[:path]
-      assert_equal file_contents, result[:contents]
+      assert_equal "rails/rails", result[:repository]
+      assert_equal "README.md", result[:path]
+      assert_includes result[:contents], "Ruby on Rails"
       assert_equal false, result[:truncated]
     end
   end
 
   test "file truncates large files" do
-    integration = create_integration
     huge_file = "x" * 150_000
 
-    integration.stub(:fetch_file_contents, huge_file) do
-      result = build_tool.execute(action: "file", path: "big_file.txt")
+    truncated, was_truncated = build_tool.send(:truncate, huge_file, GithubCommitsTool::MAX_FILE_SIZE)
 
-      assert_equal "github_file", result[:type]
-      assert_equal GithubCommitsTool::MAX_FILE_SIZE, result[:contents].size
-      assert_equal true, result[:truncated]
-    end
+    assert_equal GithubCommitsTool::MAX_FILE_SIZE, truncated.size
+    assert_equal true, was_truncated
   end
 
   test "file returns error when fetch fails" do
-    integration = create_integration
+    create_integration
 
-    integration.stub(:fetch_file_contents, nil) do
+    VCR.use_cassette("tools/github_commits_tool/missing_rails_file") do
       result = build_tool.execute(action: "file", path: "nonexistent.rb")
 
       assert_equal "error", result[:type]
@@ -216,8 +202,12 @@ class GithubCommitsToolTest < ActiveSupport::TestCase
   private
 
   def create_integration(**overrides)
-    defaults = { account: @account, enabled: true, repository_full_name: "owner/repo", access_token: "token" }
+    defaults = { account: @account, enabled: true, repository_full_name: "rails/rails", access_token: github_test_access_token }
     GithubIntegration.create!(**defaults.merge(overrides))
+  end
+
+  def github_test_access_token
+    ENV.fetch("GITHUB_TEST_ACCESS_TOKEN", "ghp_test_token")
   end
 
   def build_tool

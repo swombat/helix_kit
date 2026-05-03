@@ -1,6 +1,7 @@
 <script>
   import { Paperclip, X } from 'phosphor-svelte';
   import { Button } from '$lib/components/shadcn/button/index.js';
+  import { acceptAttributeFor, addUploadFiles, formatFileSize, removeUploadFile } from '$lib/file-upload-rules';
 
   let {
     files = $bindable([]),
@@ -15,57 +16,7 @@
   let error = $state(null);
   let dragActive = $state(false);
 
-  const mimeToExtension = {
-    'image/png': '.png',
-    'image/jpeg': '.jpg,.jpeg',
-    'image/jpg': '.jpg',
-    'image/gif': '.gif',
-    'image/webp': '.webp',
-    'image/bmp': '.bmp',
-    'audio/mpeg': '.mp3',
-    'audio/wav': '.wav',
-    'audio/m4a': '.m4a',
-    'audio/ogg': '.ogg',
-    'audio/flac': '.flac',
-    'video/mp4': '.mp4',
-    'video/quicktime': '.mov',
-    'video/x-msvideo': '.avi',
-    'video/webm': '.webm',
-    'application/pdf': '.pdf',
-    'application/msword': '.doc',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '.docx',
-    'text/plain': '.txt',
-    'text/markdown': '.md',
-    'text/csv': '.csv',
-  };
-
-  const acceptAttribute = $derived(() => {
-    const fromMimeTypes = allowedTypes.map((type) => mimeToExtension[type] || '').filter(Boolean);
-    const allExtensions = [...new Set([...fromMimeTypes, ...allowedExtensions])];
-    return allExtensions.join(',');
-  });
-
-  function getFileExtension(filename) {
-    const lastDot = filename.lastIndexOf('.');
-    return lastDot !== -1 ? filename.slice(lastDot).toLowerCase() : '';
-  }
-
-  function validateFile(file) {
-    const extension = getFileExtension(file.name);
-    const typeAllowed = allowedTypes.includes(file.type);
-    const extensionAllowed = allowedExtensions.includes(extension);
-
-    // Accept if either MIME type or extension matches
-    if (!typeAllowed && !extensionAllowed) {
-      return 'File type not supported. Please upload images, audio, video, or documents.';
-    }
-
-    if (file.size > maxSize) {
-      return `File too large. Maximum size is ${maxSize / (1024 * 1024)}MB.`;
-    }
-
-    return null;
-  }
+  const acceptAttribute = $derived(acceptAttributeFor({ allowedTypes, allowedExtensions }));
 
   function handleFileSelect(event) {
     const selectedFiles = Array.from(event.target.files || []);
@@ -73,26 +24,13 @@
   }
 
   function processFiles(selectedFiles) {
-    error = null;
-
-    if (files.length + selectedFiles.length > maxFiles) {
-      error = `Maximum ${maxFiles} files allowed.`;
-      return;
-    }
-
-    for (const file of selectedFiles) {
-      const validationError = validateFile(file);
-      if (validationError) {
-        error = validationError;
-        return;
-      }
-    }
-
-    files = [...files, ...selectedFiles];
+    const result = addUploadFiles(files, selectedFiles, { maxFiles, maxSize, allowedTypes, allowedExtensions });
+    files = result.files;
+    error = result.error;
   }
 
   function removeFile(index) {
-    files = files.filter((_, i) => i !== index);
+    files = removeUploadFile(files, index);
     error = null;
   }
 
@@ -111,12 +49,6 @@
 
     const droppedFiles = Array.from(event.dataTransfer.files || []);
     processFiles(droppedFiles);
-  }
-
-  function formatFileSize(bytes) {
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   }
 </script>
 
