@@ -1440,3 +1440,29 @@ Last verified test baseline for this slice:
 Next sensible slice:
 
 - Return to `chats/show.svelte`, the largest remaining P0 page, or move into the P1 page/component list now that `ChatHeader.svelte` and `navbar.svelte` are below 200 lines.
+
+## Progress Checkpoint: 2026-05-03 Chat Overlays
+
+Status: The first renewed `chats/show.svelte` extraction is implemented and green.
+
+Completed after commit `62f27ab Extract chat title editor`:
+
+- Added `ChatOverlays.svelte` for the whiteboard drawer, edit-message drawer, error/success toasts, assign-agent dialog, add-agent dialog, and image lightbox.
+- Kept the page responsible for overlay state, selected edit/lightbox data, route callbacks, and local message updates.
+- Reduced the bottom of `chats/show.svelte` to a single overlay composition block.
+
+Current size notes:
+
+- `app/frontend/pages/chats/show.svelte`: 745 lines, down from 772 lines after the previous chat extractions and 870 lines originally.
+- `ChatOverlays.svelte`: 73 lines.
+
+Last verified test baseline for this slice:
+
+- `yarn test:unit`: 12 files, 37 tests passed.
+- `bin/vite build --mode test`: passed, with existing Svelte warnings unrelated to this slice.
+- `yarn test`: 6 Playwright tests passed.
+- `bin/rails test`: 1815 tests, 7329 assertions, 0 failures, 0 errors.
+
+Next sensible slice:
+
+- Continue `chats/show.svelte` by extracting scroll/pagination orchestration or moving more retry/voice/message action behavior behind focused helpers/components.

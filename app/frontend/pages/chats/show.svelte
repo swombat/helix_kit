@@ -7,16 +7,12 @@
   import ChatList from './ChatList.svelte';
   import ChatHeader from '$lib/components/chat/ChatHeader.svelte';
   import TokenWarningBanner from '$lib/components/chat/TokenWarningBanner.svelte';
-  import ImageLightbox from '$lib/components/chat/ImageLightbox.svelte';
   import AgentTriggerBar from '$lib/components/chat/AgentTriggerBar.svelte';
-  import AgentPickerDialog from '$lib/components/chat/AgentPickerDialog.svelte';
-  import WhiteboardDrawer from '$lib/components/chat/WhiteboardDrawer.svelte';
   import ChatMessageList from '$lib/components/chat/ChatMessageList.svelte';
   import MessageComposer from '$lib/components/chat/MessageComposer.svelte';
-  import EditMessageDrawer from '$lib/components/chat/EditMessageDrawer.svelte';
   import TelegramBanner from '$lib/components/chat/TelegramBanner.svelte';
   import DebugPanel from '$lib/components/chat/DebugPanel.svelte';
-  import ToastNotification from '$lib/components/chat/ToastNotification.svelte';
+  import ChatOverlays from '$lib/components/chat/ChatOverlays.svelte';
   import {
     accountChatMessagesPath,
     messageRetryPath,
@@ -716,57 +712,34 @@
   </main>
 </div>
 
-{#if chat?.active_whiteboard}
-  <WhiteboardDrawer
-    bind:open={whiteboardOpen}
-    whiteboard={chat.active_whiteboard}
-    accountId={account.id}
-    {agentIsResponding}
-    {shikiTheme} />
-{/if}
-
-<!-- Edit Message Drawer -->
-<EditMessageDrawer
-  bind:open={editDrawerOpen}
-  messageId={editingMessageId}
-  initialContent={editingContent}
-  onsaved={(messageId, trimmedContent) => {
+<ChatOverlays
+  {chat}
+  {account}
+  availableAgents={available_agents}
+  addableAgents={addable_agents}
+  {shikiTheme}
+  {agentIsResponding}
+  bind:whiteboardOpen
+  bind:editDrawerOpen
+  {editingMessageId}
+  {editingContent}
+  {errorMessage}
+  {successMessage}
+  bind:assignAgentOpen
+  {assigningAgent}
+  bind:addAgentOpen
+  {addAgentProcessing}
+  bind:lightboxOpen
+  {lightboxImage}
+  onEditSaved={(messageId, trimmedContent) => {
     updateMessage(messageId, { content: trimmedContent, editable: false });
     editDrawerOpen = false;
     editingMessageId = null;
     editingContent = '';
   }}
-  onerror={(msg) => {
+  onError={(msg) => {
     errorMessage = msg;
     setTimeout(() => (errorMessage = null), 3000);
-  }} />
-
-<!-- Error toast -->
-<ToastNotification message={errorMessage} variant="error" />
-
-<!-- Success toast -->
-<ToastNotification message={successMessage} variant="success" />
-
-<!-- Assign Agent Dialog -->
-<AgentPickerDialog
-  bind:open={assignAgentOpen}
-  agents={available_agents}
-  title="Assign to Agent"
-  description="Select an agent to take over this conversation. The agent will be informed that previous messages were with a model that had no identity or memories."
-  confirmLabel="Assign"
-  confirmingLabel="Assigning..."
-  processing={assigningAgent}
-  onconfirm={assignToAgent} />
-
-<!-- Add Agent Dialog -->
-<AgentPickerDialog
-  bind:open={addAgentOpen}
-  agents={addable_agents}
-  title="Add Agent to Conversation"
-  description="Select an agent to add to this group chat."
-  confirmLabel="Add"
-  confirmingLabel="Adding..."
-  processing={addAgentProcessing}
-  onconfirm={addAgentToChat} />
-
-<ImageLightbox bind:open={lightboxOpen} file={lightboxImage} />
+  }}
+  onAssignAgent={assignToAgent}
+  onAddAgent={addAgentToChat} />
