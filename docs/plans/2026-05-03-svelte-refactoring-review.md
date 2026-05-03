@@ -1668,3 +1668,33 @@ Last verified test baseline for this slice:
 Next sensible slice:
 
 - Either add focused coverage before extracting whiteboard editor/save/conflict behavior, or pick the next medium page such as `accounts/convert_confirmation.svelte`, `agents/edit.svelte`, or `chats/new.svelte`.
+
+## Progress Checkpoint: 2026-05-03 Account Conversion Cards
+
+Status: The account conversion confirmation page extraction is implemented and green.
+
+Completed after commit `efa9cb4 Extract admin account split view`:
+
+- Added `ConversionBenefitList.svelte` for repeated check-mark benefit lists.
+- Added `PersonalToTeamConversionCard.svelte` for personal-to-team explanation, team name input, important notes, and actions.
+- Added `TeamToPersonalConversionCard.svelte` for team-to-personal explanation, eligibility warning, important notes, and actions.
+- Kept `accounts/convert_confirmation.svelte` responsible for page props, team name validation, conversion PATCH requests, navigation, and conversion state.
+- Left existing route helper changes in the worktree untouched because they were pre-existing/user-generated changes.
+
+Current size notes:
+
+- `app/frontend/pages/accounts/convert_confirmation.svelte`: 109 lines, down from 251 lines.
+- `ConversionBenefitList.svelte`: 21 lines.
+- `PersonalToTeamConversionCard.svelte`: 70 lines.
+- `TeamToPersonalConversionCard.svelte`: 66 lines.
+
+Last verified test baseline for this slice:
+
+- `yarn test:unit`: 13 files, 40 tests passed.
+- `bin/vite build --mode test`: passed, with existing Svelte warnings unrelated to this slice.
+- `yarn test`: 6 Playwright tests passed.
+- `bin/rails test`: 1815 tests, 7329 assertions, 0 failures, 0 errors.
+
+Next sensible slice:
+
+- Move to `chats/new.svelte` for composer/header/settings extraction, or `agents/edit.svelte` if the agent edit page has a similarly clean component boundary.
