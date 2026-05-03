@@ -2,20 +2,8 @@
   import { page } from '@inertiajs/svelte';
   import { router } from '@inertiajs/svelte';
   import { Button } from '$lib/components/shadcn/button/index.js';
-  import * as DropdownMenu from '$lib/components/shadcn/dropdown-menu/index.js';
-  import {
-    List,
-    Spinner,
-    Globe,
-    GitFork,
-    Notepad,
-    DotsThreeVertical,
-    Robot,
-    ShieldCheck,
-    Archive,
-    Trash,
-    ArrowCounterClockwise,
-  } from 'phosphor-svelte';
+  import { List, Spinner } from 'phosphor-svelte';
+  import ChatActionsMenu from '$lib/components/chat/ChatActionsMenu.svelte';
   import ChatTokenStatus from '$lib/components/chat/ChatTokenStatus.svelte';
   import {
     accountChatForkPath,
@@ -258,87 +246,21 @@
       <ChatTokenStatus {chat} {agents} {allMessages} {contextTokens} {costTokens} {tokenWarningLevel} />
     </div>
 
-    <!-- Actions dropdown menu -->
-    {#if chat}
-      <DropdownMenu.Root>
-        <DropdownMenu.Trigger
-          class="inline-flex items-center justify-center h-8 w-8 rounded-md text-sm font-medium ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-          <DotsThreeVertical size={20} weight="bold" />
-        </DropdownMenu.Trigger>
-        <DropdownMenu.Content align="end" class="w-48">
-          {#if !chat.manual_responses}
-            <DropdownMenu.CheckboxItem checked={chat.web_access} onCheckedChange={toggleWebAccess}>
-              <Globe size={16} class="mr-2" weight="duotone" />
-              Allow web access
-            </DropdownMenu.CheckboxItem>
-            {#if availableAgents.length > 0}
-              <DropdownMenu.Item onclick={() => onassignagent?.()}>
-                <Robot size={16} class="mr-2" weight="duotone" />
-                Assign to Agent
-              </DropdownMenu.Item>
-            {/if}
-            <DropdownMenu.Separator />
-          {/if}
-          {#if chat.manual_responses && addableAgents.length > 0}
-            <DropdownMenu.Item onclick={() => onaddagent?.()}>
-              <Robot size={16} class="mr-2" weight="duotone" />
-              Add Agent
-            </DropdownMenu.Item>
-          {/if}
-
-          <DropdownMenu.Item onclick={forkConversation}>
-            <GitFork size={16} class="mr-2" weight="duotone" />
-            Fork
-          </DropdownMenu.Item>
-
-          {#if chat?.active_whiteboard}
-            <DropdownMenu.Item onclick={() => onwhiteboardopen?.()}>
-              <Notepad size={16} class="mr-2" weight="duotone" />
-              Whiteboard
-            </DropdownMenu.Item>
-          {/if}
-
-          <DropdownMenu.Separator />
-
-          <DropdownMenu.Item onclick={archiveChat}>
-            <Archive size={16} class="mr-2" weight="duotone" />
-            {chat.archived ? 'Unarchive' : 'Archive'}
-          </DropdownMenu.Item>
-
-          {#if canDeleteChat}
-            <DropdownMenu.Item
-              onclick={deleteChat}
-              class={chat.discarded ? '' : 'text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400'}>
-              {#if chat.discarded}
-                <ArrowCounterClockwise size={16} class="mr-2" weight="duotone" />
-                Restore
-              {:else}
-                <Trash size={16} class="mr-2" weight="duotone" />
-                Delete
-              {/if}
-            </DropdownMenu.Item>
-          {/if}
-
-          {#if isSiteAdmin}
-            <DropdownMenu.Separator />
-            <DropdownMenu.Item onclick={moderateAllMessages}>
-              <ShieldCheck size={16} class="mr-2" weight="duotone" />
-              Moderate All Messages
-            </DropdownMenu.Item>
-            <DropdownMenu.CheckboxItem
-              checked={showAllMessages}
-              onCheckedChange={(checked) => (showAllMessages = checked)}>
-              Show all messages
-            </DropdownMenu.CheckboxItem>
-            <DropdownMenu.CheckboxItem
-              checked={debugMode}
-              onCheckedChange={(checked) => (debugMode = checked)}
-              class="text-orange-600 focus:text-orange-600">
-              Debug mode
-            </DropdownMenu.CheckboxItem>
-          {/if}
-        </DropdownMenu.Content>
-      </DropdownMenu.Root>
-    {/if}
+    <ChatActionsMenu
+      {chat}
+      {availableAgents}
+      {addableAgents}
+      {canDeleteChat}
+      {isSiteAdmin}
+      bind:showAllMessages
+      bind:debugMode
+      onToggleWebAccess={toggleWebAccess}
+      onAssignAgent={() => onassignagent?.()}
+      onAddAgent={() => onaddagent?.()}
+      onFork={forkConversation}
+      onWhiteboardOpen={() => onwhiteboardopen?.()}
+      onArchive={archiveChat}
+      onDelete={deleteChat}
+      onModerateAll={moderateAllMessages} />
   </div>
 </header>

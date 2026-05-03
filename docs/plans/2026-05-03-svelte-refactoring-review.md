@@ -1388,3 +1388,29 @@ Last verified test baseline for this slice:
 Next sensible slice:
 
 - Continue `ChatHeader.svelte` by extracting the action dropdown, then consider a focused title-edit component that can also address the current Svelte a11y warning.
+
+## Progress Checkpoint: 2026-05-03 Chat Header Actions Menu
+
+Status: The `ChatHeader.svelte` action dropdown extraction is implemented and green.
+
+Completed after commit `e29e4fb Extract chat token status`:
+
+- Added `ChatActionsMenu.svelte` for the web-access toggle, agent actions, fork, whiteboard, archive/delete, and site-admin controls.
+- Kept the actual route mutations and moderation request in `ChatHeader.svelte`, passing them into the menu as callbacks.
+- Preserved the existing bindable `showAllMessages` and `debugMode` state ownership.
+
+Current size notes:
+
+- `app/frontend/lib/components/chat/ChatHeader.svelte`: 266 lines, down from 344 lines after token status extraction and 385 lines originally.
+- `ChatActionsMenu.svelte`: 112 lines.
+
+Last verified test baseline for this slice:
+
+- `yarn test:unit`: 12 files, 37 tests passed.
+- `bin/vite build --mode test`: passed, with existing Svelte warnings unrelated to this slice.
+- `yarn test`: 6 Playwright tests passed.
+- `bin/rails test`: 1815 tests, 7329 assertions, 0 failures, 0 errors.
+
+Next sensible slice:
+
+- Extract the title-editing display/state into a focused component and address the current Svelte a11y warning around the clickable `<h1>`.
