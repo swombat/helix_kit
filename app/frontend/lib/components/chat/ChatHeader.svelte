@@ -2,8 +2,9 @@
   import { page } from '@inertiajs/svelte';
   import { router } from '@inertiajs/svelte';
   import { Button } from '$lib/components/shadcn/button/index.js';
-  import { List, Spinner } from 'phosphor-svelte';
+  import { List } from 'phosphor-svelte';
   import ChatActionsMenu from '$lib/components/chat/ChatActionsMenu.svelte';
+  import ChatTitleEditor from '$lib/components/chat/ChatTitleEditor.svelte';
   import ChatTokenStatus from '$lib/components/chat/ChatTokenStatus.svelte';
   import {
     accountChatForkPath,
@@ -56,44 +57,10 @@
   // Check if title is loading (no title yet but has messages) - cosmetic only
   const titleIsLoading = $derived(chat && !chat.title && allMessages?.length > 0);
 
-  // Title editing state
-  let titleEditing = $state(false);
-  let titleEditValue = $state('');
-  let titleInputRef = $state(null);
-  let originalTitle = $state('');
-
-  // Focus title input when editing starts
-  $effect(() => {
-    if (titleEditing && titleInputRef) {
-      titleInputRef.focus();
-      titleInputRef.select();
-    }
-  });
-
-  function startEditingTitle() {
+  function saveTitle(newTitle, previousTitle) {
     if (!chat) return;
-    originalTitle = chat.title || 'New Chat';
-    titleEditValue = originalTitle;
-    titleEditing = true;
-  }
-
-  function cancelEditingTitle() {
-    titleEditing = false;
-    titleEditValue = '';
-  }
-
-  function saveTitle() {
-    if (!chat || !titleEditValue.trim()) {
-      cancelEditingTitle();
-      return;
-    }
-
-    const newTitle = titleEditValue.trim();
-
     // Optimistically update the UI
-    const previousTitle = chat.title;
     chat.title = newTitle;
-    titleEditing = false;
 
     router.patch(
       `/accounts/${account.id}/chats/${chat.id}`,
@@ -114,34 +81,6 @@
         },
       }
     );
-  }
-
-  function handleTitleKeydown(event) {
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      saveTitle();
-    } else if (event.key === 'Escape') {
-      event.preventDefault();
-      cancelEditingTitle();
-    }
-  }
-
-  function handleTitleBlur() {
-    saveTitle();
-  }
-
-  function handleTitleClick(event) {
-    // Single tap on mobile
-    if ('ontouchstart' in window) {
-      startEditingTitle();
-    }
-  }
-
-  function handleTitleDoubleClick(event) {
-    // Double-click on desktop
-    if (!('ontouchstart' in window)) {
-      startEditingTitle();
-    }
   }
 
   function toggleWebAccess() {
@@ -223,26 +162,7 @@
       <List size={20} />
     </Button>
     <div class="flex-1 min-w-0">
-      {#if titleEditing}
-        <input
-          bind:this={titleInputRef}
-          bind:value={titleEditValue}
-          onkeydown={handleTitleKeydown}
-          onblur={handleTitleBlur}
-          type="text"
-          class="text-lg font-semibold bg-background border border-primary rounded px-2 py-1 w-full focus:outline-none focus:ring-2 focus:ring-ring" />
-      {:else}
-        <h1
-          class="text-lg font-semibold cursor-pointer hover:opacity-70 transition-opacity flex items-center gap-2 min-w-0"
-          onclick={handleTitleClick}
-          ondblclick={handleTitleDoubleClick}
-          title="Click to edit (double-click on desktop, single tap on mobile)">
-          <span class="truncate">{chat?.title || 'New Chat'}</span>
-          {#if titleIsLoading}
-            <Spinner size={14} class="animate-spin text-muted-foreground flex-shrink-0" />
-          {/if}
-        </h1>
-      {/if}
+      <ChatTitleEditor {chat} {titleIsLoading} onSaveTitle={saveTitle} />
       <ChatTokenStatus {chat} {agents} {allMessages} {contextTokens} {costTokens} {tokenWarningLevel} />
     </div>
 

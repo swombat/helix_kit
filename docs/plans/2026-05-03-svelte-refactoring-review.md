@@ -1414,3 +1414,29 @@ Last verified test baseline for this slice:
 Next sensible slice:
 
 - Extract the title-editing display/state into a focused component and address the current Svelte a11y warning around the clickable `<h1>`.
+
+## Progress Checkpoint: 2026-05-03 Chat Header Title Editor
+
+Status: The `ChatHeader.svelte` title editor extraction is implemented and green.
+
+Completed after commit `c80132d Extract chat actions menu`:
+
+- Added `ChatTitleEditor.svelte` for title display, edit mode, keyboard handling, blur save, focus/select behavior, and loading spinner.
+- Kept title persistence and optimistic route mutation in `ChatHeader.svelte`.
+- Replaced the clickable `<h1>` with an actual button inside the heading, removing the `ChatHeader.svelte` Svelte a11y warning from the Vite build.
+
+Current size notes:
+
+- `app/frontend/lib/components/chat/ChatHeader.svelte`: 186 lines, down from 266 lines after the action-menu extraction and 385 lines originally.
+- `ChatTitleEditor.svelte`: 71 lines.
+
+Last verified test baseline for this slice:
+
+- `yarn test:unit`: 12 files, 37 tests passed.
+- `bin/vite build --mode test`: passed; the previous `ChatHeader.svelte` clickable-heading warning is gone.
+- `yarn test`: 6 Playwright tests passed.
+- `bin/rails test`: 1815 tests, 7329 assertions, 0 failures, 0 errors.
+
+Next sensible slice:
+
+- Return to `chats/show.svelte`, the largest remaining P0 page, or move into the P1 page/component list now that `ChatHeader.svelte` and `navbar.svelte` are below 200 lines.
