@@ -31,10 +31,14 @@ class AllAgentsResponseJobTest < ActiveJob::TestCase
   test "processes first agent and queues remaining" do
     agent_ids = [ @agent1.id, @agent2.id ]
     @agent1.update!(model_id: "openai/gpt-5-nano", system_prompt: "Reply with one short sentence as the first test agent.")
+    recorded_at = Time.zone.parse("2026-05-03 11:52 UTC")
+    @user_message.update!(created_at: recorded_at)
 
-    VCR.use_cassette("jobs/all_agents_response_job/processes_first_agent") do
-      assert_enqueued_with(job: AllAgentsResponseJob, args: [ @chat, [ @agent2.id ] ]) do
-        AllAgentsResponseJob.perform_now(@chat, agent_ids)
+    travel_to recorded_at do
+      VCR.use_cassette("jobs/all_agents_response_job/processes_first_agent") do
+        assert_enqueued_with(job: AllAgentsResponseJob, args: [ @chat, [ @agent2.id ] ]) do
+          AllAgentsResponseJob.perform_now(@chat, agent_ids)
+        end
       end
     end
 

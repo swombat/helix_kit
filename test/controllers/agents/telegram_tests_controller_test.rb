@@ -46,9 +46,9 @@ class Agents::TelegramTestsControllerTest < ActionDispatch::IntegrationTest
 
   test "create handles telegram API error" do
     configure_telegram_agent!
-    @agent.telegram_subscriptions.create!(user: @user, telegram_chat_id: -1)
+    @agent.telegram_subscriptions.create!(user: @user, telegram_chat_id: telegram_test_chat_id)
 
-    VCR.use_cassette("controllers/agents/telegram_tests/send_test_notification_error") do
+    VCR.use_cassette("controllers/agents/telegram_tests/send_test_notification_error", match_requests_on: [ :method, :uri ]) do
       post account_agent_telegram_test_path(@account, @agent)
     end
 

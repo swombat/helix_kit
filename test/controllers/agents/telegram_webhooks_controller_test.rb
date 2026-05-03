@@ -29,7 +29,7 @@ class Agents::TelegramWebhooksControllerTest < ActionDispatch::IntegrationTest
       telegram_bot_username: telegram_test_bot_username
     )
 
-    VCR.use_cassette("controllers/agents/telegram_webhooks/register_webhook_failure") do
+    VCR.use_cassette("controllers/agents/telegram_webhooks/register_webhook_failure", match_requests_on: [ :method, :uri ]) do
       post account_agent_telegram_webhook_path(@account, @agent)
     end
 

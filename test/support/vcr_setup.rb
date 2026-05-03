@@ -9,6 +9,8 @@ IGNORED_HEADERS = [
   "X-Auth-Token"
 ]
 
+VCR_RECORD_MODE = ENV["RECORD_CASSETTES"] == "1" ? :new_episodes : :none
+
 VCR.configure do |config|
   config.cassette_library_dir = "test/vcr_cassettes"
   config.hook_into :faraday, :webmock
@@ -26,16 +28,17 @@ VCR.configure do |config|
     !http_message.body.valid_encoding?
   end
 
-  # Use existing cassettes, allow new ones if needed
+  # Use existing cassettes by default. Set RECORD_CASSETTES=1 when intentionally
+  # refreshing or adding cassette interactions.
   # config.default_cassette_options = {
-  #   record: :new_episodes,  # Use existing cassettes but allow recording new interactions
+  #   record: :new_episodes,
   #   match_requests_on: [:method, :uri, :body],  # Match on method, URI and body for more accurate matches
   #   serialize_with: :yaml,
   #   persist_with: :file_system
   # }
 
   config.default_cassette_options = {
-    record: :new_episodes,
+    record: VCR_RECORD_MODE,
     match_requests_on: [ :method, :uri, :body ],
     serialize_with: :yaml,
     persist_with: :file_system

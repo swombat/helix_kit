@@ -29,9 +29,13 @@ class ManualAgentResponseJobTest < ActiveJob::TestCase
   test "creates message attributed to agent through RubyLLM" do
     @agent.update!(model_id: "openai/gpt-5-nano")
     @agent.update!(system_prompt: "Reply with one short sentence as a research assistant.")
+    recorded_at = Time.zone.parse("2026-05-03 11:51 UTC")
+    @user_message.update!(created_at: recorded_at)
 
-    VCR.use_cassette("jobs/manual_agent_response_job/creates_agent_message") do
-      ManualAgentResponseJob.perform_now(@chat, @agent)
+    travel_to recorded_at do
+      VCR.use_cassette("jobs/manual_agent_response_job/creates_agent_message") do
+        ManualAgentResponseJob.perform_now(@chat, @agent)
+      end
     end
 
     ai_message = @chat.messages.where(role: "assistant").last
