@@ -1520,3 +1520,31 @@ Last verified test baseline for this slice:
 Next sensible slice:
 
 - Continue reducing `chats/show.svelte` only where behavior can remain obvious, otherwise move on to the P1 pages: `accounts/show.svelte`, `home.svelte`, `whiteboards/index.svelte`, or `admin/accounts.svelte`.
+
+## Progress Checkpoint: 2026-05-03 Account Team Sections
+
+Status: The first `accounts/show.svelte` extraction is implemented and green.
+
+Completed after commit `a1f1d3a Extract chat message collection helpers`:
+
+- Added `TeamMembersCard.svelte` for the team member card, invite form placement, active member table, current-user badge, and remove action affordance.
+- Added `PendingInvitationsCard.svelte` for the pending invitation table, invited-by rendering, resend action, and cancel action affordance.
+- Kept `accounts/show.svelte` responsible for account props, realtime sync, invite/remove/resend Inertia actions, account summary cards, and account type conversion navigation.
+- Left existing route helper changes in the worktree untouched because they were pre-existing/user-generated changes.
+
+Current size notes:
+
+- `app/frontend/pages/accounts/show.svelte`: 197 lines, down from 339 lines.
+- `TeamMembersCard.svelte`: 105 lines.
+- `PendingInvitationsCard.svelte`: 77 lines.
+
+Last verified test baseline for this slice:
+
+- `yarn test:unit`: 13 files, 40 tests passed.
+- `bin/vite build --mode test`: passed, with existing Svelte warnings unrelated to this slice.
+- `yarn test`: 6 Playwright tests passed, including the account invitation journey.
+- `bin/rails test`: 1815 tests, 7329 assertions, 0 failures, 0 errors.
+
+Next sensible slice:
+
+- Continue `accounts/show.svelte` with smaller extractions such as shared flash messages and account type/summary cards, or move on to `home.svelte`, `whiteboards/index.svelte`, and `admin/accounts.svelte`.
