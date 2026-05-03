@@ -1067,3 +1067,29 @@ Last verified test baseline for this slice:
 Next sensible slice:
 
 - Extract `PromptSystemDocumentation.svelte`, leaving `documentation.svelte` as a short page that composes the documentation topics.
+
+## Progress Checkpoint: 2026-05-03 Documentation Prompt Section
+
+Status: The prompt system documentation topic extraction is implemented and green.
+
+Completed after commit `ccb03aa Extract JSON documentation section`:
+
+- Extracted `PromptSystemDocumentation.svelte`.
+- Moved prompt-specific example imports out of `documentation.svelte`.
+- Reduced `documentation.svelte` to the page title and topic component ordering.
+
+Current size notes:
+
+- `app/frontend/pages/documentation.svelte`: 19 lines, down from 262 lines after the JSON section extraction and 1030 lines originally.
+- `PromptSystemDocumentation.svelte`: 244 lines.
+
+Last verified test baseline for this slice:
+
+- `yarn test:unit`: 10 files, 29 tests passed.
+- `bin/vite build --mode test`: passed, with existing Svelte warnings unrelated to this slice.
+- `yarn test`: 6 Playwright tests passed.
+- `bin/rails test`: 1815 tests, 7329 assertions, 0 failures, 0 errors.
+
+Next sensible slice:
+
+- Return to the P1 component list: review the largest remaining Svelte files and extract one focused component from the next most sprawling page without changing the page orchestration role.
