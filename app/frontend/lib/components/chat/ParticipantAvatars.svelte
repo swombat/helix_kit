@@ -1,75 +1,5 @@
 <script>
-  import {
-    Robot,
-    Brain,
-    Sparkle,
-    Lightning,
-    Star,
-    Heart,
-    Sun,
-    Moon,
-    Eye,
-    Globe,
-    Compass,
-    Rocket,
-    Atom,
-    Lightbulb,
-    Crown,
-    Shield,
-    Fire,
-    Target,
-    Trophy,
-    Flask,
-    Code,
-    Cube,
-    PuzzlePiece,
-    Cat,
-    Dog,
-    Bird,
-    Alien,
-    Ghost,
-    Detective,
-    Butterfly,
-    Flower,
-    Tree,
-    Leaf,
-  } from 'phosphor-svelte';
-
-  const iconComponents = {
-    Robot,
-    Brain,
-    Sparkle,
-    Lightning,
-    Star,
-    Heart,
-    Sun,
-    Moon,
-    Eye,
-    Globe,
-    Compass,
-    Rocket,
-    Atom,
-    Lightbulb,
-    Crown,
-    Shield,
-    Fire,
-    Target,
-    Trophy,
-    Flask,
-    Code,
-    Cube,
-    PuzzlePiece,
-    Cat,
-    Dog,
-    Bird,
-    Alien,
-    Ghost,
-    Detective,
-    Butterfly,
-    Flower,
-    Tree,
-    Leaf,
-  };
+  import { agentIconFor } from '$lib/agent-icons';
 
   let { agents = [], messages = [] } = $props();
 
@@ -107,7 +37,7 @@
 <div class="flex items-center -space-x-1.5">
   <!-- AI Agent avatars -->
   {#each agents as agent (agent.id)}
-    {@const IconComponent = iconComponents[agent.icon] || Robot}
+    {@const IconComponent = agentIconFor(agent.icon)}
     <div
       class="w-6 h-6 rounded-full flex items-center justify-center border-2 border-background {agent.colour
         ? `bg-${agent.colour}-100 dark:bg-${agent.colour}-900`

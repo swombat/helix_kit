@@ -856,3 +856,45 @@ For each refactoring slice:
 - Route mutations remain obvious from the page or from clearly named action components.
 - No broad visual redesign is mixed into the refactor.
 
+## Progress Checkpoint: 2026-05-03
+
+Status: Phase 1 is partially implemented and green. This is a good commit checkpoint before continuing with the remaining `agents/edit.svelte` tabs.
+
+Completed:
+
+- Added shared agent helper modules with Vitest coverage:
+  - `app/frontend/lib/agent-icons.js`
+  - `app/frontend/lib/agent-models.js`
+  - `app/frontend/lib/agent-memory.js`
+- Extracted shared agent UI components:
+  - `AgentModelSelect.svelte`
+  - `AgentToolChecklist.svelte`
+  - `AgentAppearanceFields.svelte`
+  - `AgentCard.svelte`
+  - `CreateAgentDialog.svelte`
+  - `AgentUpgradeDialog.svelte`
+  - `AgentSettingsTabs.svelte`
+  - `AgentMemoryPanel.svelte`
+- Refactored `agents/index.svelte` to keep page orchestration while moving card and dialog UI into components.
+- Refactored `agents/edit.svelte` to move tab navigation and the memory panel into components.
+- Updated `chats/new.svelte`, `ChatList.svelte`, `AgentTriggerBar.svelte`, and `ParticipantAvatars.svelte` to reuse shared agent model/icon helpers.
+- Added a small Playwright assertion to the existing agent settings smoke test so the extracted Memory tab is rendered during E2E coverage.
+
+Current size notes:
+
+- `app/frontend/pages/agents/index.svelte`: 182 lines after extraction.
+- `app/frontend/pages/agents/edit.svelte`: 555 lines after extraction, down from 878 lines before the memory/tab split.
+- `AgentMemoryPanel.svelte` is intentionally still a substantial component at about 300 lines; it is a clearer boundary than keeping the whole memory workflow inside the page, but it remains a candidate for a later split into memory filters, new memory form, and memory list/card components.
+
+Last verified test baseline:
+
+- `yarn test:unit`: 10 files, 29 tests passed.
+- `bin/vite build --mode test`: passed, with existing Svelte warnings unrelated to this slice.
+- `yarn test`: 5 Playwright tests passed.
+- `bin/rails test`: 1815 tests, 7329 assertions, 0 failures, 0 errors.
+
+Known notes:
+
+- Rails tests can dirty VCR cassettes during this work; restore generated cassette churn before committing unless a cassette was intentionally changed.
+- The Vite build still reports pre-existing warnings in areas such as `chats/index.svelte`, `InfoCard.svelte`, `ChatHeader.svelte`, `ColourPicker.svelte`, `IconPicker.svelte`, `FileAttachment.svelte`, and `AudioPlayer.svelte`.
+- The next sensible Phase 1 slice is to continue reducing `agents/edit.svelte`, probably by extracting the Identity, Model, and Integrations panels one at a time with tests between each extraction.

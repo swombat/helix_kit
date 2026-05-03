@@ -1,81 +1,9 @@
 <script>
   import { router } from '@inertiajs/svelte';
   import { Button } from '$lib/components/shadcn/button/index.js';
-  import {
-    Robot,
-    Spinner,
-    UsersThree,
-    Brain,
-    Sparkle,
-    Lightning,
-    Star,
-    Heart,
-    Sun,
-    Moon,
-    Eye,
-    Globe,
-    Compass,
-    Rocket,
-    Atom,
-    Lightbulb,
-    Crown,
-    Shield,
-    Fire,
-    Target,
-    Trophy,
-    Flask,
-    Code,
-    Cube,
-    PuzzlePiece,
-    Cat,
-    Dog,
-    Bird,
-    Alien,
-    Ghost,
-    Detective,
-    Butterfly,
-    Flower,
-    Tree,
-    Leaf,
-  } from 'phosphor-svelte';
+  import { Spinner, UsersThree } from 'phosphor-svelte';
   import { accountChatAgentTriggerPath } from '@/routes';
-
-  // Map icon names to components
-  const iconComponents = {
-    Robot,
-    Brain,
-    Sparkle,
-    Lightning,
-    Star,
-    Heart,
-    Sun,
-    Moon,
-    Eye,
-    Globe,
-    Compass,
-    Rocket,
-    Atom,
-    Lightbulb,
-    Crown,
-    Shield,
-    Fire,
-    Target,
-    Trophy,
-    Flask,
-    Code,
-    Cube,
-    PuzzlePiece,
-    Cat,
-    Dog,
-    Bird,
-    Alien,
-    Ghost,
-    Detective,
-    Butterfly,
-    Flower,
-    Tree,
-    Leaf,
-  };
+  import { agentIconFor } from '$lib/agent-icons';
 
   let { agents = [], accountId, chatId, disabled = false, onTrigger = null } = $props();
   let triggeringAgent = $state(null);
@@ -139,7 +67,7 @@
     <div class="flex items-center gap-2 flex-wrap">
       <span class="text-xs text-muted-foreground mr-2 hidden md:inline">Ask agent:</span>
       {#each agents as agent (agent.id)}
-        {@const IconComponent = iconComponents[agent.icon] || Robot}
+        {@const IconComponent = agentIconFor(agent.icon)}
         <Button
           variant="outline"
           size="sm"

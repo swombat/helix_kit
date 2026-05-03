@@ -1,85 +1,13 @@
 <script>
   import { router } from '@inertiajs/svelte';
   import { Button } from '$lib/components/shadcn/button/index.js';
-  import {
-    ArrowUp,
-    Globe,
-    Robot,
-    UsersThree,
-    List,
-    Brain,
-    Sparkle,
-    Lightning,
-    Star,
-    Heart,
-    Sun,
-    Moon,
-    Eye,
-    Compass,
-    Rocket,
-    Atom,
-    Lightbulb,
-    Crown,
-    Shield,
-    Fire,
-    Target,
-    Trophy,
-    Flask,
-    Code,
-    Cube,
-    PuzzlePiece,
-    Cat,
-    Dog,
-    Bird,
-    Alien,
-    Ghost,
-    Detective,
-    Butterfly,
-    Flower,
-    Tree,
-    Leaf,
-  } from 'phosphor-svelte';
-
-  // Map icon names to components
-  const iconComponents = {
-    Robot,
-    Brain,
-    Sparkle,
-    Lightning,
-    Star,
-    Heart,
-    Sun,
-    Moon,
-    Eye,
-    Globe,
-    Compass,
-    Rocket,
-    Atom,
-    Lightbulb,
-    Crown,
-    Shield,
-    Fire,
-    Target,
-    Trophy,
-    Flask,
-    Code,
-    Cube,
-    PuzzlePiece,
-    Cat,
-    Dog,
-    Bird,
-    Alien,
-    Ghost,
-    Detective,
-    Butterfly,
-    Flower,
-    Tree,
-    Leaf,
-  };
+  import { ArrowUp, Globe, UsersThree, List } from 'phosphor-svelte';
   import * as Select from '$lib/components/shadcn/select/index.js';
   import ChatList from './ChatList.svelte';
   import FileUploadInput from '$lib/components/chat/FileUploadInput.svelte';
   import { accountChatsPath } from '@/routes';
+  import { agentIconFor } from '$lib/agent-icons';
+  import { groupModelsByProvider } from '$lib/agent-models';
 
   let { chats = [], account, models = [], agents = [], file_upload_config = null } = $props();
 
@@ -96,19 +24,7 @@
       : 'Type your message to start the chat...';
 
   // Group models by their group property
-  const groupedModels = $derived(() => {
-    const groups = {};
-    const groupOrder = [];
-    for (const model of models) {
-      const group = model.group || 'Other';
-      if (!groups[group]) {
-        groups[group] = [];
-        groupOrder.push(group);
-      }
-      groups[group].push(model);
-    }
-    return { groups, groupOrder };
-  });
+  const groupedModels = $derived(() => groupModelsByProvider(models));
   let selectedFiles = $state([]);
   let webAccess = $state(false);
   let message = $state('');
@@ -247,7 +163,7 @@
           <Select.Root type="single" value={selectionValue} onValueChange={handleSelection}>
             <Select.Trigger class="w-56">
               {#if selectedAgent}
-                {@const IconComponent = iconComponents[selectedAgent.icon] || Robot}
+                {@const IconComponent = agentIconFor(selectedAgent.icon)}
                 <span class="flex items-center gap-2">
                   <IconComponent
                     size={14}
@@ -269,7 +185,7 @@
                     Agents
                   </Select.GroupHeading>
                   {#each agents as agent (agent.id)}
-                    {@const IconComponent = iconComponents[agent.icon] || Robot}
+                    {@const IconComponent = agentIconFor(agent.icon)}
                     <Select.Item value={`agent:${agent.id}`} label={agent.name}>
                       <span class="flex items-center gap-2">
                         <IconComponent
@@ -331,7 +247,7 @@
         <div class="text-sm font-medium mb-2">Select agents to participate:</div>
         <div class="flex flex-wrap gap-2">
           {#each agents as agent (agent.id)}
-            {@const IconComponent = iconComponents[agent.icon] || Robot}
+            {@const IconComponent = agentIconFor(agent.icon)}
             {@const isSelected = selectedAgentIds.includes(agent.id)}
             <button
               type="button"

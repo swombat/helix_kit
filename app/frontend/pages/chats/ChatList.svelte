@@ -1,85 +1,9 @@
 <script>
   import { Link, router, page } from '@inertiajs/svelte';
   import { Button } from '$lib/components/shadcn/button/index.js';
-  import {
-    Plus,
-    ChatCircle,
-    ChatText,
-    X,
-    Spinner,
-    Robot,
-    Brain,
-    Sparkle,
-    Lightning,
-    Star,
-    Heart,
-    Sun,
-    Moon,
-    Eye,
-    Globe,
-    Compass,
-    Rocket,
-    Atom,
-    Lightbulb,
-    Crown,
-    Shield,
-    Fire,
-    Target,
-    Trophy,
-    Flask,
-    Code,
-    Cube,
-    PuzzlePiece,
-    Cat,
-    Dog,
-    Bird,
-    Alien,
-    Ghost,
-    Detective,
-    Butterfly,
-    Flower,
-    Tree,
-    Leaf,
-    Archive,
-    Trash,
-  } from 'phosphor-svelte';
+  import { Plus, ChatCircle, ChatText, X, Spinner, Robot, Archive, Trash } from 'phosphor-svelte';
   import { accountChatsPath, accountChatPath, newAccountChatPath } from '@/routes';
-
-  const iconComponents = {
-    Robot,
-    Brain,
-    Sparkle,
-    Lightning,
-    Star,
-    Heart,
-    Sun,
-    Moon,
-    Eye,
-    Globe,
-    Compass,
-    Rocket,
-    Atom,
-    Lightbulb,
-    Crown,
-    Shield,
-    Fire,
-    Target,
-    Trophy,
-    Flask,
-    Code,
-    Cube,
-    PuzzlePiece,
-    Cat,
-    Dog,
-    Bird,
-    Alien,
-    Ghost,
-    Detective,
-    Butterfly,
-    Flower,
-    Tree,
-    Leaf,
-  };
+  import { agentIconFor } from '$lib/agent-icons';
 
   function getInitials(name) {
     if (!name) return '?';
@@ -239,7 +163,7 @@
                 <div class="flex items-center -space-x-1 opacity-20 group-hover:opacity-100 transition-opacity">
                   {#each chat.participants_json.slice(0, 7) as participant, i (participant.name + i)}
                     {#if participant.type === 'agent'}
-                      {@const IconComponent = iconComponents[participant.icon] || Robot}
+                      {@const IconComponent = agentIconFor(participant.icon)}
                       <div
                         class="w-5 h-5 rounded-full flex items-center justify-center border border-background {participant.colour
                           ? `bg-${participant.colour}-100 dark:bg-${participant.colour}-900`

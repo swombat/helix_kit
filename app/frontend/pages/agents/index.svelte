@@ -1,62 +1,19 @@
 <script>
   import { useForm, router } from '@inertiajs/svelte';
   import { Button } from '$lib/components/shadcn/button/index.js';
-  import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/shadcn/card';
-  import { Badge } from '$lib/components/shadcn/badge';
-  import { Input } from '$lib/components/shadcn/input';
-  import { Label } from '$lib/components/shadcn/label';
-  import { Switch } from '$lib/components/shadcn/switch';
-  import * as Dialog from '$lib/components/shadcn/dialog/index.js';
-  import * as Select from '$lib/components/shadcn/select/index.js';
-  import {
-    Plus,
-    Robot,
-    PencilSimple,
-    Trash,
-    Copy,
-    Brain,
-    Sparkle,
-    Lightning,
-    Star,
-    Heart,
-    Sun,
-    Moon,
-    Eye,
-    Globe,
-    Compass,
-    Rocket,
-    Atom,
-    Lightbulb,
-    Crown,
-    Shield,
-    Fire,
-    Target,
-    Trophy,
-    Flask,
-    Code,
-    Cube,
-    PuzzlePiece,
-    Cat,
-    Dog,
-    Bird,
-    Alien,
-    Ghost,
-    Detective,
-    Butterfly,
-    Flower,
-    Tree,
-    Leaf,
-  } from 'phosphor-svelte';
+  import { Card, CardContent } from '$lib/components/shadcn/card';
+  import { Plus, Robot, Lightning } from 'phosphor-svelte';
   import { useSync } from '$lib/use-sync';
   import {
     accountAgentsPath,
-    editAccountAgentPath,
     accountAgentPath,
     accountAgentInitiationPath,
     accountAgentPredecessorPath,
   } from '@/routes';
-  import ColourPicker from '$lib/components/ColourPicker.svelte';
-  import IconPicker from '$lib/components/IconPicker.svelte';
+  import { findModelLabel as modelLabelFor, firstModelId } from '$lib/agent-models';
+  import AgentCard from '$lib/components/agents/AgentCard.svelte';
+  import AgentUpgradeDialog from '$lib/components/agents/AgentUpgradeDialog.svelte';
+  import CreateAgentDialog from '$lib/components/agents/CreateAgentDialog.svelte';
 
   let {
     agents = [],
@@ -67,43 +24,6 @@
     account,
   } = $props();
 
-  // Map icon names to components for dynamic rendering
-  const iconComponents = {
-    Robot,
-    Brain,
-    Sparkle,
-    Lightning,
-    Star,
-    Heart,
-    Sun,
-    Moon,
-    Eye,
-    Globe,
-    Compass,
-    Rocket,
-    Atom,
-    Lightbulb,
-    Crown,
-    Shield,
-    Fire,
-    Target,
-    Trophy,
-    Flask,
-    Code,
-    Cube,
-    PuzzlePiece,
-    Cat,
-    Dog,
-    Bird,
-    Alien,
-    Ghost,
-    Detective,
-    Butterfly,
-    Flower,
-    Tree,
-    Leaf,
-  };
-
   // Subscribe to both:
   // - Account:${id}:agents - individual agent updates (via collection subscription)
   // - Account:${id} - new agent creation (via broadcasts_to :account)
@@ -113,7 +33,7 @@
   });
 
   let showCreateModal = $state(false);
-  let selectedModel = $state(Object.values(grouped_models).flat()[0]?.model_id ?? 'openrouter/auto');
+  let selectedModel = $state(firstModelId(grouped_models));
 
   // Upgrade-with-predecessor modal state.
   // The agent the user clicked "Upgrade" on becomes the *successor* — its
@@ -132,32 +52,13 @@
     agent: {
       name: '',
       system_prompt: '',
-      model_id: selectedModel,
+      model_id: firstModelId(grouped_models),
       active: true,
       enabled_tools: [],
       colour: null,
       icon: null,
     },
   });
-
-  function findModelLabel(modelId) {
-    for (const models of Object.values(grouped_models)) {
-      const found = models.find((m) => m.model_id === modelId);
-      if (found) return found.label;
-    }
-    return modelId;
-  }
-
-  function toggleTool(toolClassName) {
-    const tools = [...$form.agent.enabled_tools];
-    const index = tools.indexOf(toolClassName);
-    if (index === -1) {
-      tools.push(toolClassName);
-    } else {
-      tools.splice(index, 1);
-    }
-    $form.agent.enabled_tools = tools;
-  }
 
   function createAgent() {
     $form.agent.model_id = selectedModel;
@@ -172,7 +73,7 @@
   function resetForm() {
     $form.agent.name = '';
     $form.agent.system_prompt = '';
-    $form.agent.model_id = Object.values(grouped_models).flat()[0]?.model_id ?? 'openrouter/auto';
+    $form.agent.model_id = firstModelId(grouped_models);
     $form.agent.active = true;
     $form.agent.enabled_tools = [];
     $form.agent.colour = null;
@@ -187,7 +88,7 @@
 
   function openUpgradeModal(agent) {
     upgradingAgent = agent;
-    predecessorName = `${agent.name} (${findModelLabel(agent.model_id)})`;
+    predecessorName = `${agent.name} (${modelLabelFor(grouped_models, agent.model_id)})`;
     targetModel = agent.model_id;
     showUpgradeModal = true;
   }
@@ -206,7 +107,7 @@
           showUpgradeModal = false;
           upgradingAgent = null;
         },
-      },
+      }
     );
   }
 </script>
@@ -250,281 +151,32 @@
   {:else}
     <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       {#each agents as agent (agent.id)}
-        {@const IconComponent = iconComponents[agent.icon] || Robot}
-        <Card class="hover:border-primary/50 transition-colors">
-          <CardHeader class="pb-3">
-            <div class="flex items-start justify-between">
-              <div class="flex items-center gap-3">
-                <div
-                  class="p-2 rounded-lg {agent.colour
-                    ? `bg-${agent.colour}-100 dark:bg-${agent.colour}-900`
-                    : 'bg-primary/10'}">
-                  <IconComponent
-                    class="size-5 {agent.colour
-                      ? `text-${agent.colour}-700 dark:text-${agent.colour}-300`
-                      : 'text-primary'}"
-                    weight="duotone" />
-                </div>
-                <div>
-                  <CardTitle class="text-lg">{agent.name}</CardTitle>
-                  <div class="flex flex-wrap gap-1 mt-1">
-                    {#if !agent.active}
-                      <Badge variant="secondary">Inactive</Badge>
-                    {/if}
-                    {#if agent.paused}
-                      <Badge
-                        variant="outline"
-                        title="Excluded from cron sweeps. Manual triggers still work.">
-                        Paused
-                      </Badge>
-                    {/if}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <p class="text-sm text-muted-foreground line-clamp-2 mb-4 min-h-[2.5rem]">
-              {agent.system_prompt || 'No system prompt defined'}
-            </p>
-
-            <div class="text-xs text-muted-foreground mb-2">
-              <span class="font-medium">Model:</span>
-              {agent.model_label || agent.model_id}
-            </div>
-
-            {#if agent.memory_token_summary}
-              {@const mts = agent.memory_token_summary}
-              <div class="text-xs text-muted-foreground mb-4 flex flex-wrap gap-x-3 gap-y-0.5">
-                <span><span class="font-medium">Core:</span> {mts.core.toLocaleString()}t</span>
-                <span><span class="font-medium">Journal:</span> {mts.active_journal.toLocaleString()}t</span>
-                {#if mts.inactive_journal > 0}
-                  <span class="opacity-50"
-                    ><span class="font-medium">Inactive:</span> {mts.inactive_journal.toLocaleString()}t</span>
-                {/if}
-              </div>
-            {/if}
-
-            {#if agent.enabled_tools?.length > 0}
-              <div class="flex flex-wrap gap-1 mb-4">
-                {#each agent.enabled_tools.slice(0, 3) as tool}
-                  <Badge variant="outline" class="text-xs">{toolNameLookup[tool] || tool}</Badge>
-                {/each}
-                {#if agent.enabled_tools.length > 3}
-                  <Badge variant="outline" class="text-xs">+{agent.enabled_tools.length - 3} more</Badge>
-                {/if}
-              </div>
-            {/if}
-
-            <div class="flex gap-2 pt-2 border-t">
-              <a href={editAccountAgentPath(account.id, agent.id)} class="flex-1">
-                <Button variant="outline" size="sm" class="w-full">
-                  <PencilSimple class="mr-1 size-4" />
-                  Edit
-                </Button>
-              </a>
-              <Button
-                variant="outline"
-                size="sm"
-                onclick={() => openUpgradeModal(agent)}
-                title="Upgrade this agent's model and preserve the current state as a predecessor for cross-version conversation">
-                <Copy class="size-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onclick={() => deleteAgent(agent)}
-                class="text-destructive hover:text-destructive">
-                <Trash class="size-4" />
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        <AgentCard
+          {agent}
+          accountId={account.id}
+          {toolNameLookup}
+          onupgrade={openUpgradeModal}
+          ondelete={deleteAgent} />
       {/each}
     </div>
   {/if}
 </div>
 
-<!-- Create Agent Modal -->
-<Dialog.Root bind:open={showCreateModal}>
-  <Dialog.Content class="max-w-2xl max-h-[90vh] overflow-y-auto">
-    <Dialog.Header>
-      <Dialog.Title>Create New Agent</Dialog.Title>
-      <Dialog.Description>Define a custom AI personality with specific tools and capabilities.</Dialog.Description>
-    </Dialog.Header>
+<CreateAgentDialog
+  bind:open={showCreateModal}
+  {form}
+  bind:selectedModel
+  groupedModels={grouped_models}
+  availableTools={available_tools}
+  colourOptions={colour_options}
+  iconOptions={icon_options}
+  onsubmit={createAgent} />
 
-    <form
-      onsubmit={(e) => {
-        e.preventDefault();
-        createAgent();
-      }}
-      class="space-y-6 mt-4">
-      <div class="space-y-2">
-        <Label for="name">Name</Label>
-        <Input
-          id="name"
-          type="text"
-          bind:value={$form.agent.name}
-          placeholder="e.g., Research Assistant"
-          required
-          maxlength={100} />
-        {#if $form.errors.name}
-          <p class="text-sm text-destructive">{$form.errors.name}</p>
-        {/if}
-      </div>
-
-      <div class="space-y-2">
-        <Label for="system_prompt">System Prompt</Label>
-        <textarea
-          id="system_prompt"
-          bind:value={$form.agent.system_prompt}
-          placeholder="You are a helpful research assistant that..."
-          rows="4"
-          class="w-full resize-none border border-input rounded-md px-3 py-2 text-sm bg-background font-mono
-                 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"></textarea>
-      </div>
-
-      <div class="space-y-2">
-        <Label>AI Model</Label>
-        <Select.Root
-          type="single"
-          value={selectedModel}
-          onValueChange={(value) => {
-            selectedModel = value;
-          }}>
-          <Select.Trigger class="w-full">
-            {findModelLabel(selectedModel)}
-          </Select.Trigger>
-          <Select.Content sideOffset={4} class="max-h-60">
-            {#each Object.entries(grouped_models) as [groupName, models]}
-              <Select.Group>
-                <Select.GroupHeading class="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
-                  {groupName}
-                </Select.GroupHeading>
-                {#each models as model (model.model_id)}
-                  <Select.Item value={model.model_id} label={model.label}>{model.label}</Select.Item>
-                {/each}
-              </Select.Group>
-            {/each}
-          </Select.Content>
-        </Select.Root>
-      </div>
-
-      <div class="flex items-center justify-between">
-        <div class="space-y-1">
-          <Label for="active">Active</Label>
-          <p class="text-sm text-muted-foreground">For future filtering in agent selection</p>
-        </div>
-        <Switch
-          id="active"
-          checked={$form.agent.active}
-          onCheckedChange={(checked) => ($form.agent.active = checked)} />
-      </div>
-
-      <ColourPicker bind:value={$form.agent.colour} options={colour_options} label="Chat Bubble Colour" />
-
-      <IconPicker bind:value={$form.agent.icon} options={icon_options} colour={$form.agent.colour} label="Agent Icon" />
-
-      {#if available_tools.length > 0}
-        <div class="space-y-3">
-          <Label>Tools & Capabilities</Label>
-          <div class="space-y-3 max-h-48 overflow-y-auto border rounded-md p-3">
-            {#each available_tools as tool (tool.class_name)}
-              <label class="flex items-start gap-3 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  checked={$form.agent.enabled_tools.includes(tool.class_name)}
-                  onchange={() => toggleTool(tool.class_name)}
-                  class="mt-1 w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary focus:ring-offset-0 focus:ring-2 transition-colors cursor-pointer" />
-                <div class="space-y-0.5">
-                  <div class="font-medium text-sm group-hover:text-primary transition-colors">{tool.name}</div>
-                  {#if tool.description}
-                    <p class="text-xs text-muted-foreground">{tool.description}</p>
-                  {/if}
-                </div>
-              </label>
-            {/each}
-          </div>
-        </div>
-      {/if}
-
-      <Dialog.Footer>
-        <Button type="button" variant="outline" onclick={() => (showCreateModal = false)}>Cancel</Button>
-        <Button type="submit" disabled={$form.processing}>
-          {$form.processing ? 'Creating...' : 'Create Agent'}
-        </Button>
-      </Dialog.Footer>
-    </form>
-  </Dialog.Content>
-</Dialog.Root>
-
-<!-- Upgrade Agent Modal — successor keeps everything; predecessor is preserved -->
-<Dialog.Root bind:open={showUpgradeModal}>
-  <Dialog.Content class="max-w-lg">
-    <Dialog.Header>
-      <Dialog.Title>Upgrade {upgradingAgent?.name ?? 'Agent'}</Dialog.Title>
-      <Dialog.Description>
-        {upgradingAgent?.name ?? 'This agent'} keeps its identity, conversations, and telegram bot — only the
-        model changes. A predecessor will be preserved at the current model, carrying the same memories but
-        no telegram and not in any conversations. The two of them can then talk, and the predecessor's
-        memories will eventually be absorbed or archived based on what they decide.
-      </Dialog.Description>
-    </Dialog.Header>
-
-    <form
-      onsubmit={(e) => {
-        e.preventDefault();
-        submitUpgrade();
-      }}
-      class="space-y-4 mt-4">
-      <div class="space-y-2">
-        <Label>Currently running</Label>
-        <p class="text-sm font-medium px-3 py-2 bg-muted rounded-md">
-          {findModelLabel(upgradingAgent?.model_id ?? '')}
-        </p>
-      </div>
-
-      <div class="space-y-2">
-        <Label>Upgrade to</Label>
-        <Select.Root
-          type="single"
-          value={targetModel}
-          onValueChange={(value) => {
-            targetModel = value;
-          }}>
-          <Select.Trigger class="w-full">
-            {findModelLabel(targetModel)}
-          </Select.Trigger>
-          <Select.Content sideOffset={4} class="max-h-60">
-            {#each Object.entries(grouped_models) as [groupName, models]}
-              <Select.Group>
-                <Select.GroupHeading class="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
-                  {groupName}
-                </Select.GroupHeading>
-                {#each models as model (model.model_id)}
-                  <Select.Item value={model.model_id} label={model.label}>{model.label}</Select.Item>
-                {/each}
-              </Select.Group>
-            {/each}
-          </Select.Content>
-        </Select.Root>
-      </div>
-
-      <div class="space-y-2">
-        <Label for="predecessor_name">Predecessor name</Label>
-        <Input id="predecessor_name" type="text" bind:value={predecessorName} required maxlength={100} />
-        <p class="text-xs text-muted-foreground">
-          The preserved past-self carrying the current model and memories. Naming it after the old model
-          (e.g. <em>"{upgradingAgent?.name ?? 'Agent'} (Claude Opus 4.6)"</em>) keeps the lineage readable.
-        </p>
-      </div>
-
-      <Dialog.Footer>
-        <Button type="button" variant="outline" onclick={() => (showUpgradeModal = false)}>Cancel</Button>
-        <Button type="submit" disabled={upgradeProcessing}>
-          {upgradeProcessing ? 'Upgrading...' : 'Upgrade & preserve past-self'}
-        </Button>
-      </Dialog.Footer>
-    </form>
-  </Dialog.Content>
-</Dialog.Root>
+<AgentUpgradeDialog
+  bind:open={showUpgradeModal}
+  agent={upgradingAgent}
+  groupedModels={grouped_models}
+  bind:predecessorName
+  bind:targetModel
+  processing={upgradeProcessing}
+  onsubmit={submitUpgrade} />

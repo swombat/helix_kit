@@ -4,27 +4,7 @@
   import { Input } from '$lib/components/shadcn/input';
   import { Label } from '$lib/components/shadcn/label';
   import { Switch } from '$lib/components/shadcn/switch';
-  import * as Select from '$lib/components/shadcn/select/index.js';
-  import {
-    ArrowLeft,
-    Brain,
-    BookOpen,
-    Warning,
-    Trash,
-    Plus,
-    Shield,
-    ShieldCheck,
-    Lightning,
-    ArrowCounterClockwise,
-    MagnifyingGlass,
-    IdentificationCard,
-    Palette,
-    Cpu,
-    Plug,
-    Notebook,
-    Hourglass,
-    CaretDown,
-  } from 'phosphor-svelte';
+  import { ArrowLeft, IdentificationCard, Palette, Cpu, Plug, Notebook } from 'phosphor-svelte';
   import {
     accountAgentsPath,
     accountAgentPath,
@@ -35,9 +15,13 @@
     accountAgentMemoryDiscardPath,
     accountAgentMemoryProtectionPath,
   } from '@/routes';
-  import ColourPicker from '$lib/components/ColourPicker.svelte';
-  import IconPicker from '$lib/components/IconPicker.svelte';
   import { useSync } from '$lib/use-sync';
+  import { modelSupportsThinking as modelCanThink } from '$lib/agent-models';
+  import AgentAppearanceFields from '$lib/components/agents/AgentAppearanceFields.svelte';
+  import AgentMemoryPanel from '$lib/components/agents/AgentMemoryPanel.svelte';
+  import AgentModelSelect from '$lib/components/agents/AgentModelSelect.svelte';
+  import AgentSettingsTabs from '$lib/components/agents/AgentSettingsTabs.svelte';
+  import AgentToolChecklist from '$lib/components/agents/AgentToolChecklist.svelte';
 
   let {
     agent,
@@ -60,7 +44,6 @@
   let sendingTestNotification = $state(false);
   let registeringWebhook = $state(false);
   let triggeringRefinement = $state(false);
-  let showRefinementMenu = $state(false);
   let activeTab = $state('identity');
   let customVoiceId = $state('');
 
@@ -73,14 +56,6 @@
     { id: 'integrations', label: 'Integrations', icon: Plug },
     { id: 'memory', label: 'Memory', icon: Notebook },
   ];
-
-  function modelSupportsThinking(modelId) {
-    for (const models of Object.values(grouped_models)) {
-      const found = models.find((m) => m.model_id === modelId);
-      if (found) return found.supports_thinking === true;
-    }
-    return false;
-  }
 
   let form = useForm({
     agent: {
@@ -104,25 +79,6 @@
       voice_id: agent.voice_id || '',
     },
   });
-
-  function findModelLabel(modelId) {
-    for (const models of Object.values(grouped_models)) {
-      const found = models.find((m) => m.model_id === modelId);
-      if (found) return found.label;
-    }
-    return modelId;
-  }
-
-  function toggleTool(toolClassName) {
-    const tools = [...$form.agent.enabled_tools];
-    const index = tools.indexOf(toolClassName);
-    if (index === -1) {
-      tools.push(toolClassName);
-    } else {
-      tools.splice(index, 1);
-    }
-    $form.agent.enabled_tools = tools;
-  }
 
   function updateAgent() {
     $form.agent.model_id = selectedModel;
@@ -195,52 +151,19 @@
     );
   }
 
-  let showNewMemoryForm = $state(false);
-  let newMemoryContent = $state('');
-  let newMemoryType = $state('core');
-  let memorySearch = $state('');
-  let showCore = $state(true);
-  let showJournal = $state(true);
-  let showProtected = $state(true);
-  let showDiscarded = $state(false);
-
-  let filteredMemories = $derived.by(() => {
-    const search = memorySearch.toLowerCase();
-    return memories.filter((m) => {
-      if (m.discarded && !showDiscarded) return false;
-      if (m.memory_type === 'core' && !m.constitutional && !showCore) return false;
-      if (m.memory_type === 'journal' && !showJournal) return false;
-      if (m.constitutional && !showProtected) return false;
-      if (search && !m.content.toLowerCase().includes(search)) return false;
-      return true;
-    });
-  });
-
-  function getJournalOpacity(memory) {
-    if (memory.memory_type !== 'journal') return 1;
-    if (memory.expired) return 0.3;
-    return Math.max(0.3, 1 - memory.age_in_days * 0.1);
-  }
-
-  function createMemory() {
-    if (!newMemoryContent.trim()) return;
-
+  function createMemory({ content, memoryType }) {
     router.post(
       accountAgentMemoriesPath(account.id, agent.id),
       {
         memory: {
-          content: newMemoryContent,
-          memory_type: newMemoryType,
+          content,
+          memory_type: memoryType,
         },
       },
       {
         preserveScroll: true,
       }
     );
-
-    newMemoryContent = '';
-    newMemoryType = 'core';
-    showNewMemoryForm = false;
   }
 </script>
 
@@ -266,38 +189,7 @@
       updateAgent();
     }}>
     <div class="flex flex-col md:flex-row gap-6 md:gap-8">
-      <!-- Tabs: dropdown on small, horizontal scroll on medium, vertical sidebar on large -->
-      <nav class="md:w-48 md:flex-shrink-0">
-        <!-- Small: dropdown selector -->
-        <div class="sm:hidden">
-          <Select.Root type="single" value={activeTab} onValueChange={(value) => (activeTab = value)}>
-            <Select.Trigger class="w-full">
-              {tabs.find((t) => t.id === activeTab)?.label}
-            </Select.Trigger>
-            <Select.Content>
-              {#each tabs as tab (tab.id)}
-                <Select.Item value={tab.id} label={tab.label}>{tab.label}</Select.Item>
-              {/each}
-            </Select.Content>
-          </Select.Root>
-        </div>
-        <!-- Medium: horizontal scroll -->
-        <div
-          class="hidden sm:flex md:flex-col md:sticky md:top-8 gap-1 overflow-x-auto pb-2 md:pb-0 border-b md:border-b-0 border-border">
-          {#each tabs as tab (tab.id)}
-            <button
-              type="button"
-              onclick={() => (activeTab = tab.id)}
-              class="flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors whitespace-nowrap
-                {activeTab === tab.id
-                ? 'bg-primary text-primary-foreground font-medium'
-                : 'text-muted-foreground hover:text-foreground hover:bg-muted'}">
-              <tab.icon size={18} weight={activeTab === tab.id ? 'fill' : 'regular'} />
-              {tab.label}
-            </button>
-          {/each}
-        </div>
-      </nav>
+      <AgentSettingsTabs {tabs} bind:activeTab />
 
       <!-- Content area -->
       <div class="flex-1 min-w-0 space-y-6">
@@ -430,10 +322,10 @@
               <div class="space-y-1">
                 <Label for="paused">Paused</Label>
                 <p class="text-sm text-muted-foreground">
-                  Excludes this agent from cron-driven sweeps (memory refinement, reflection, conversation
-                  initiation, "Trigger Initiation"). Manual triggers — replying in chats, the agent_trigger
-                  endpoint, the API — still work. Use this for retired predecessors or any agent that should
-                  remain reachable but not act on its own.
+                  Excludes this agent from cron-driven sweeps (memory refinement, reflection, conversation initiation,
+                  "Trigger Initiation"). Manual triggers — replying in chats, the agent_trigger endpoint, the API —
+                  still work. Use this for retired predecessors or any agent that should remain reachable but not act on
+                  its own.
                 </p>
               </div>
               <Switch
@@ -482,12 +374,11 @@
               <p class="text-sm text-muted-foreground">Customise how this agent appears in group chats</p>
             </div>
 
-            <ColourPicker bind:value={$form.agent.colour} options={colour_options} label="Chat Bubble Colour" />
-            <IconPicker
-              bind:value={$form.agent.icon}
-              options={icon_options}
-              colour={$form.agent.colour}
-              label="Agent Icon" />
+            <AgentAppearanceFields
+              bind:colour={$form.agent.colour}
+              bind:icon={$form.agent.icon}
+              colourOptions={colour_options}
+              iconOptions={icon_options} />
           </div>
         {:else if activeTab === 'model'}
           <div class="space-y-8">
@@ -496,28 +387,7 @@
                 <h2 class="text-lg font-semibold">AI Model</h2>
                 <p class="text-sm text-muted-foreground">Choose which AI model powers this agent</p>
               </div>
-              <Select.Root
-                type="single"
-                value={selectedModel}
-                onValueChange={(value) => {
-                  selectedModel = value;
-                }}>
-                <Select.Trigger class="w-full max-w-md">
-                  {findModelLabel(selectedModel)}
-                </Select.Trigger>
-                <Select.Content sideOffset={4} class="max-h-80">
-                  {#each Object.entries(grouped_models) as [groupName, models]}
-                    <Select.Group>
-                      <Select.GroupHeading class="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
-                        {groupName}
-                      </Select.GroupHeading>
-                      {#each models as model (model.model_id)}
-                        <Select.Item value={model.model_id} label={model.label}>{model.label}</Select.Item>
-                      {/each}
-                    </Select.Group>
-                  {/each}
-                </Select.Content>
-              </Select.Root>
+              <AgentModelSelect groupedModels={grouped_models} bind:value={selectedModel} />
             </div>
 
             <div class="space-y-4">
@@ -527,7 +397,7 @@
                   Allow the model to show its reasoning process before responding
                 </p>
               </div>
-              {#if modelSupportsThinking(selectedModel)}
+              {#if modelCanThink(grouped_models, selectedModel)}
                 <div class="flex items-center justify-between">
                   <div class="space-y-1">
                     <Label for="thinking_enabled">Enable Thinking</Label>
@@ -568,29 +438,7 @@
                   Select which tools this agent can use. New tools will be disabled by default.
                 </p>
               </div>
-              {#if available_tools.length === 0}
-                <p class="text-sm text-muted-foreground">
-                  No tools are currently available. Tools will appear here as they are added to the system.
-                </p>
-              {:else}
-                <div class="space-y-4">
-                  {#each available_tools as tool (tool.class_name)}
-                    <label class="flex items-start gap-3 cursor-pointer group">
-                      <input
-                        type="checkbox"
-                        checked={$form.agent.enabled_tools.includes(tool.class_name)}
-                        onchange={() => toggleTool(tool.class_name)}
-                        class="mt-1 w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary focus:ring-offset-0 focus:ring-2 transition-colors cursor-pointer" />
-                      <div class="space-y-1">
-                        <div class="font-medium group-hover:text-primary transition-colors">{tool.name}</div>
-                        {#if tool.description}
-                          <p class="text-sm text-muted-foreground">{tool.description}</p>
-                        {/if}
-                      </div>
-                    </label>
-                  {/each}
-                </div>
-              {/if}
+              <AgentToolChecklist tools={available_tools} bind:enabledTools={$form.agent.enabled_tools} />
             </div>
           </div>
         {:else if activeTab === 'integrations'}
@@ -682,257 +530,15 @@
             {/if}
           </div>
         {:else if activeTab === 'memory'}
-          <div class="space-y-6">
-            <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-              <div>
-                <h2 class="text-lg font-semibold">Agent Memory</h2>
-                <p class="text-sm text-muted-foreground">
-                  Review and manage this agent's memories. Core memories are permanent; journal entries fade after a
-                  week.
-                </p>
-              </div>
-              <div class="flex flex-col sm:flex-row gap-2">
-                <div class="relative">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    disabled={triggeringRefinement}
-                    onclick={() => (showRefinementMenu = !showRefinementMenu)}>
-                    <Lightning class="size-4 mr-1" />
-                    {triggeringRefinement ? 'Queuing...' : 'Refine'}
-                    <CaretDown class="size-3.5 ml-1" />
-                  </Button>
-                  {#if showRefinementMenu}
-                    <!-- svelte-ignore a11y_no_static_element_interactions -->
-                    <div
-                      class="fixed inset-0 z-10"
-                      onclick={() => (showRefinementMenu = false)}
-                      onkeydown={(e) => e.key === 'Escape' && (showRefinementMenu = false)}>
-                    </div>
-                    <div
-                      class="absolute right-0 top-full mt-1 bg-popover border border-border rounded-md shadow-md z-20 py-1 min-w-[160px]">
-                      <button
-                        type="button"
-                        class="w-full text-left px-3 py-1.5 text-sm hover:bg-muted transition-colors"
-                        onclick={() => {
-                          showRefinementMenu = false;
-                          triggerRefinement('full');
-                        }}>
-                        Full Refinement
-                      </button>
-                      <button
-                        type="button"
-                        class="w-full text-left px-3 py-1.5 text-sm hover:bg-muted transition-colors"
-                        onclick={() => {
-                          showRefinementMenu = false;
-                          triggerRefinement('dedup_only');
-                        }}>
-                        Dedup Only
-                      </button>
-                    </div>
-                  {/if}
-                </div>
-                {#if !showNewMemoryForm}
-                  <Button type="button" variant="outline" size="sm" onclick={() => (showNewMemoryForm = true)}>
-                    <Plus class="size-4 mr-1" />
-                    Add Memory
-                  </Button>
-                {/if}
-              </div>
-            </div>
-
-            {#if showNewMemoryForm}
-              <div class="p-4 border rounded-lg bg-muted/30 space-y-4">
-                <div class="space-y-2">
-                  <Label for="new_memory_content">Memory Content</Label>
-                  <textarea
-                    id="new_memory_content"
-                    bind:value={newMemoryContent}
-                    placeholder="Enter the memory content..."
-                    rows="3"
-                    class="w-full resize-none border border-input rounded-md px-3 py-2 text-sm bg-background
-                           focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"></textarea>
-                </div>
-                <div class="space-y-2">
-                  <Label>Memory Type</Label>
-                  <div class="flex gap-4">
-                    <label class="flex items-center gap-2 cursor-pointer">
-                      <input type="radio" name="memory_type" value="core" bind:group={newMemoryType} class="w-4 h-4" />
-                      <Brain size={16} class="text-primary" weight="duotone" />
-                      <span class="text-sm">Core (permanent)</span>
-                    </label>
-                    <label class="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="memory_type"
-                        value="journal"
-                        bind:group={newMemoryType}
-                        class="w-4 h-4" />
-                      <BookOpen size={16} class="text-muted-foreground" weight="duotone" />
-                      <span class="text-sm">Journal (expires in 1 week)</span>
-                    </label>
-                  </div>
-                </div>
-                <div class="flex gap-2 justify-end">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onclick={() => {
-                      showNewMemoryForm = false;
-                      newMemoryContent = '';
-                      newMemoryType = 'core';
-                    }}>
-                    Cancel
-                  </Button>
-                  <Button type="button" size="sm" onclick={createMemory} disabled={!newMemoryContent.trim()}>
-                    Save Memory
-                  </Button>
-                </div>
-              </div>
-            {/if}
-
-            {#if memories.length === 0 && !showNewMemoryForm}
-              <p class="text-sm text-muted-foreground">
-                This agent has no memories yet. Click "Add Memory" to create one manually, or memories will appear here
-                as the agent creates them using the save_memory tool.
-              </p>
-            {:else if memories.length > 0}
-              <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-                <div class="relative flex-1 w-full sm:w-auto">
-                  <MagnifyingGlass size={16} class="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                  <Input type="text" placeholder="Search memories..." bind:value={memorySearch} class="pl-8" />
-                </div>
-                <div class="flex gap-3">
-                  <label class="flex items-center gap-1.5 cursor-pointer text-sm" title="Core">
-                    <input type="checkbox" bind:checked={showCore} class="w-3.5 h-3.5 rounded" />
-                    <Brain size={14} weight="duotone" class="lg:hidden text-primary" />
-                    <span class="hidden lg:inline">Core</span>
-                  </label>
-                  <label class="flex items-center gap-1.5 cursor-pointer text-sm" title="Journal">
-                    <input type="checkbox" bind:checked={showJournal} class="w-3.5 h-3.5 rounded" />
-                    <BookOpen size={14} weight="duotone" class="lg:hidden text-muted-foreground" />
-                    <span class="hidden lg:inline">Journal</span>
-                  </label>
-                  <label class="flex items-center gap-1.5 cursor-pointer text-sm" title="Protected">
-                    <input type="checkbox" bind:checked={showProtected} class="w-3.5 h-3.5 rounded" />
-                    <ShieldCheck size={14} weight="duotone" class="lg:hidden text-primary" />
-                    <span class="hidden lg:inline">Protected</span>
-                  </label>
-                  <label class="flex items-center gap-1.5 cursor-pointer text-sm" title="Discarded">
-                    <input type="checkbox" bind:checked={showDiscarded} class="w-3.5 h-3.5 rounded" />
-                    <Trash size={14} weight="duotone" class="lg:hidden text-destructive" />
-                    <span class="hidden lg:inline">Discarded</span>
-                  </label>
-                </div>
-              </div>
-
-              {#if filteredMemories.length === 0}
-                <p class="text-sm text-muted-foreground py-4">No memories match your filters.</p>
-              {:else}
-                <div class="text-xs text-muted-foreground flex flex-wrap items-center gap-x-3 gap-y-0.5">
-                  <span>Showing {filteredMemories.length} of {memories.length} memories</span>
-                  {#if agent.memory_token_summary}
-                    {@const mts = agent.memory_token_summary}
-                    <span class="flex items-center gap-1">
-                      <Brain size={12} weight="duotone" class="lg:hidden text-primary" />
-                      <span class="hidden lg:inline font-medium">Core:</span>
-                      {mts.core.toLocaleString()}t
-                    </span>
-                    <span class="flex items-center gap-1">
-                      <BookOpen size={12} weight="duotone" class="lg:hidden text-muted-foreground" />
-                      <span class="hidden lg:inline font-medium">Journal:</span>
-                      {mts.active_journal.toLocaleString()}t
-                    </span>
-                    {#if mts.inactive_journal > 0}
-                      <span class="flex items-center gap-1 opacity-50">
-                        <Hourglass size={12} weight="duotone" class="lg:hidden" />
-                        <span class="hidden lg:inline font-medium">Inactive:</span>
-                        {mts.inactive_journal.toLocaleString()}t
-                      </span>
-                    {/if}
-                  {/if}
-                </div>
-              {/if}
-
-              <div class="space-y-3 max-h-[32rem] overflow-y-auto">
-                {#each filteredMemories as memory (memory.id)}
-                  <div
-                    class="memory-card flex items-start gap-3 p-3 rounded-lg border
-                      {memory.expired ? 'border-dashed' : 'border-border'}
-                      {memory.discarded ? 'border-l-4 border-l-destructive opacity-60' : ''}"
-                    style="--memory-opacity: {memory.discarded ? 0.6 : getJournalOpacity(memory)}">
-                    <div class="flex-shrink-0 mt-0.5">
-                      {#if memory.memory_type === 'core'}
-                        <Brain size={18} class="text-primary" weight="duotone" />
-                      {:else}
-                        <BookOpen size={18} class="text-muted-foreground" weight="duotone" />
-                      {/if}
-                    </div>
-                    <div class="flex-1 min-w-0">
-                      <div class="flex items-center gap-2 mb-1">
-                        <span
-                          class="text-xs font-medium uppercase {memory.memory_type === 'core'
-                            ? 'text-primary'
-                            : 'text-muted-foreground'}">
-                          {memory.memory_type}
-                        </span>
-                        {#if memory.constitutional}
-                          <span class="text-xs font-medium uppercase text-primary flex items-center gap-0.5">
-                            <ShieldCheck size={10} weight="fill" /> protected
-                          </span>
-                        {/if}
-                        {#if memory.discarded}
-                          <span class="text-xs font-medium uppercase text-destructive">discarded</span>
-                        {/if}
-                        <span class="text-xs text-muted-foreground">{memory.created_at}</span>
-                        {#if memory.expired}
-                          <span class="text-xs text-warning flex items-center gap-1">
-                            <Warning size={12} /> expired
-                          </span>
-                        {/if}
-                      </div>
-                      <p class="text-sm whitespace-pre-wrap break-words">{memory.content}</p>
-                    </div>
-                    {#if memory.discarded}
-                      <button
-                        type="button"
-                        onclick={() => undiscardMemory(memory.id)}
-                        class="flex-shrink-0 p-1 text-muted-foreground hover:text-primary transition-colors"
-                        title="Restore memory">
-                        <ArrowCounterClockwise size={16} />
-                      </button>
-                    {:else}
-                      <button
-                        type="button"
-                        onclick={() => toggleConstitutional(memory.id, memory.constitutional)}
-                        class="flex-shrink-0 p-1 transition-colors {memory.constitutional
-                          ? 'text-primary'
-                          : 'text-muted-foreground hover:text-primary'}"
-                        title={memory.constitutional
-                          ? 'Constitutional (protected from deletion)'
-                          : 'Mark as constitutional'}>
-                        {#if memory.constitutional}
-                          <ShieldCheck size={16} weight="fill" />
-                        {:else}
-                          <Shield size={16} />
-                        {/if}
-                      </button>
-                      {#if !memory.constitutional}
-                        <button
-                          type="button"
-                          onclick={() => deleteMemory(memory.id)}
-                          class="flex-shrink-0 p-1 text-muted-foreground hover:text-destructive transition-colors">
-                          <Trash size={16} />
-                        </button>
-                      {/if}
-                    {/if}
-                  </div>
-                {/each}
-              </div>
-            {/if}
-          </div>
+          <AgentMemoryPanel
+            {agent}
+            {memories}
+            {triggeringRefinement}
+            onrefine={triggerRefinement}
+            oncreate={createMemory}
+            ondelete={deleteMemory}
+            onundiscard={undiscardMemory}
+            ontoggleProtected={toggleConstitutional} />
         {/if}
 
         <div class="flex justify-end gap-3">
@@ -947,14 +553,3 @@
     </div>
   </form>
 </div>
-
-<style>
-  .memory-card {
-    opacity: var(--memory-opacity, 1);
-    transition: opacity 150ms ease-in-out;
-  }
-
-  .memory-card:hover {
-    opacity: 1;
-  }
-</style>
