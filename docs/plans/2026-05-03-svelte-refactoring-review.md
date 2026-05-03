@@ -1578,3 +1578,33 @@ Last verified test baseline for this slice:
 Next sensible slice:
 
 - Treat `accounts/show.svelte` as effectively done for now and move to the remaining P1 pages: `home.svelte`, `whiteboards/index.svelte`, or `admin/accounts.svelte`.
+
+## Progress Checkpoint: 2026-05-03 Home Feature Components
+
+Status: The planned `home.svelte` feature-data and feature-card extraction is implemented and green.
+
+Completed after commit `340bc91 Extract account page cards`:
+
+- Added `home-features.js` for completed and todo feature data.
+- Added `FeatureGrid.svelte` and `FeatureCard.svelte` for repeated feature section/card rendering.
+- Kept `home.svelte` responsible for the page title, hero, GitHub CTA, and feature section ordering.
+- Replaced the home page's deprecated `<svelte:component>` feature-icon rendering with Svelte 5 dynamic component usage inside `FeatureCard.svelte`.
+- Left existing route helper changes in the worktree untouched because they were pre-existing/user-generated changes.
+
+Current size notes:
+
+- `app/frontend/pages/home.svelte`: 44 lines, down from 299 lines.
+- `home-features.js`: 190 lines.
+- `FeatureCard.svelte`: 35 lines.
+- `FeatureGrid.svelte`: 14 lines.
+
+Last verified test baseline for this slice:
+
+- `yarn test:unit`: 13 files, 40 tests passed.
+- `bin/vite build --mode test`: passed, with existing Svelte warnings unrelated to this slice.
+- `yarn test`: 6 Playwright tests passed.
+- `bin/rails test`: 1815 tests, 7329 assertions, 0 failures, 0 errors.
+
+Next sensible slice:
+
+- Move to `whiteboards/index.svelte` for list/detail/editor extraction, or `admin/accounts.svelte` for admin split-view components.
