@@ -1698,3 +1698,35 @@ Last verified test baseline for this slice:
 Next sensible slice:
 
 - Move to `chats/new.svelte` for composer/header/settings extraction, or `agents/edit.svelte` if the agent edit page has a similarly clean component boundary.
+
+## Progress Checkpoint: 2026-05-03 New Chat Layout Components
+
+Status: The `chats/new.svelte` layout and composer-shell extraction is implemented and green.
+
+Completed after commit `f5c4fa2 Extract account conversion cards`:
+
+- Added `NewChatHeader.svelte` for the mobile sidebar trigger, page title, and model/agent target picker.
+- Added `NewChatSettingsBar.svelte` for web access and group-chat toggles.
+- Added `NewChatEmptyState.svelte` for the centered new-conversation prompt.
+- Added `NewChatComposer.svelte` for file selection, textarea binding, submit affordance, and disabled-state rules.
+- Kept `chats/new.svelte` responsible for sidebar state, selected target state, group-chat selection state, textarea resizing, validation gates, FormData construction, and the Inertia chat creation POST.
+- Left existing route helper changes in the worktree untouched because they were pre-existing/user-generated changes.
+
+Current size notes:
+
+- `app/frontend/pages/chats/new.svelte`: 148 lines, down from 207 lines.
+- `NewChatHeader.svelte`: 20 lines.
+- `NewChatSettingsBar.svelte`: 28 lines.
+- `NewChatEmptyState.svelte`: 6 lines.
+- `NewChatComposer.svelte`: 49 lines.
+
+Last verified test baseline for this slice:
+
+- `yarn test:unit`: 13 files, 40 tests passed.
+- `bin/vite build --mode test`: passed, with existing Svelte warnings unrelated to this slice.
+- `yarn test`: 6 Playwright tests passed, including the new-chat creation journey.
+- `bin/rails test`: 1815 tests, 7329 assertions, 0 failures, 0 errors.
+
+Next sensible slice:
+
+- Move to `agents/edit.svelte`, `agents/index.svelte`, or a small covered `chats/show.svelte` helper extraction.
