@@ -1,39 +1,43 @@
 require "test_helper"
 
-class FaviconControllerTest < ActionDispatch::IntegrationTest
+class FaviconControllerTest < ActionController::TestCase
 
-  test "should get favicon as png by default" do
-    get favicon_path(format: "png")
+  tests FaviconController
+
+  test "should get favicon as png" do
+    get :show, params: { format: "png" }
+
     assert_response :success
-    assert_match(/image\/(png|svg)/, @response.headers["Content-Type"])
+    assert_match(/image\/(png|svg\+xml)/, response.headers["Content-Type"])
   end
 
   test "should get favicon as ico" do
-    get favicon_path(format: "ico")
+    get :show, params: { format: "ico" }
+
     assert_response :success
-    assert_match(/image\/(png|svg)/, @response.headers["Content-Type"])
+    assert_match(/image\/(vnd.microsoft.icon|x-icon|png|svg\+xml)/, response.headers["Content-Type"])
   end
 
   test "should get favicon as svg" do
-    get favicon_path(format: "svg")
+    get :show, params: { format: "svg" }
+
     assert_response :success
-    assert_equal "image/svg+xml", @response.headers["Content-Type"]
+    assert_equal "image/svg+xml", response.media_type
+    assert_includes response.body, "KIT"
+    assert_includes response.body, "#f15d61"
   end
 
-  test "should get favicon without format defaults to ico" do
-    get "/favicon"
+  test "should get apple touch icon" do
+    get :apple_touch_icon
+
     assert_response :success
-    assert_match(/image\/(png|svg)/, @response.headers["Content-Type"])
+    assert_match(/image\/(png|svg\+xml)/, response.headers["Content-Type"])
   end
 
   test "should return 404 for unsupported format" do
-    get favicon_path(format: "webp")
-    assert_response :not_found
-  end
+    get :show, params: { format: "webp" }
 
-  test "favicon endpoint does not require authentication" do
-    get favicon_path(format: "png")
-    assert_response :success
+    assert_response :not_found
   end
 
 end

@@ -13,9 +13,9 @@
     <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
     <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
 
-    <link rel="icon" type="image/png" href="<%= favicon_path(format: 'png') %>">
-    <link rel="icon" type="image/svg+xml" href="<%= favicon_path(format: 'svg') %>">
-    <link rel="apple-touch-icon" href="<%= favicon_path(format: 'png') %>">
+    <%= favicon_link_tag "/favicon.ico", type: "image/x-icon" %>
+    <%= favicon_link_tag "/favicon.svg", type: "image/svg+xml" %>
+    <%= favicon_link_tag "/apple-touch-icon.png", rel: "apple-touch-icon", type: "image/png" %>
 
     <%= vite_stylesheet_tag "application" %>
     <%= vite_client_tag %>

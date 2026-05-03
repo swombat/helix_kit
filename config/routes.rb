@@ -1,9 +1,11 @@
 Rails.application.routes.draw do
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
-  # Favicon routes
+  # Public favicon files are served directly from /public when present.
+  # These routes only run as a fallback when those files are missing.
   get "favicon.:format", to: "favicon#show", as: :favicon, defaults: { format: "ico" }
   get "favicon", to: "favicon#show", defaults: { format: "ico" }
+  get "apple-touch-icon.png", to: "favicon#apple_touch_icon"
 
   # Documentation
   get "documentation" => "documentation#index", as: :documentation
