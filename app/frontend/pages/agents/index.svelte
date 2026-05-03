@@ -1,8 +1,5 @@
 <script>
   import { useForm, router } from '@inertiajs/svelte';
-  import { Button } from '$lib/components/shadcn/button/index.js';
-  import { Card, CardContent } from '$lib/components/shadcn/card';
-  import { Plus, Robot, Lightning } from 'phosphor-svelte';
   import { useSync } from '$lib/use-sync';
   import {
     accountAgentsPath,
@@ -11,7 +8,9 @@
     accountAgentPredecessorPath,
   } from '@/routes';
   import { findModelLabel as modelLabelFor, firstModelId } from '$lib/agent-models';
-  import AgentCard from '$lib/components/agents/AgentCard.svelte';
+  import AgentEmptyState from '$lib/components/agents/AgentEmptyState.svelte';
+  import AgentGrid from '$lib/components/agents/AgentGrid.svelte';
+  import AgentIndexHeader from '$lib/components/agents/AgentIndexHeader.svelte';
   import AgentUpgradeDialog from '$lib/components/agents/AgentUpgradeDialog.svelte';
   import CreateAgentDialog from '$lib/components/agents/CreateAgentDialog.svelte';
 
@@ -117,48 +116,14 @@
 </svelte:head>
 
 <div class="p-8 max-w-6xl mx-auto">
-  <div class="flex items-center justify-between mb-8">
-    <div>
-      <h1 class="text-3xl font-bold">Agents</h1>
-      <p class="text-muted-foreground mt-1">Create and manage AI agents with custom personalities</p>
-    </div>
-    <div class="flex gap-2">
-      <Button variant="outline" onclick={() => router.post(accountAgentInitiationPath(account.id))}>
-        <Lightning class="mr-2 size-4" />
-        Trigger Initiation
-      </Button>
-      <Button onclick={() => (showCreateModal = true)}>
-        <Plus class="mr-2 size-4" />
-        New Agent
-      </Button>
-    </div>
-  </div>
+  <AgentIndexHeader
+    onInitiate={() => router.post(accountAgentInitiationPath(account.id))}
+    onCreate={() => (showCreateModal = true)} />
 
   {#if agents.length === 0}
-    <Card>
-      <CardContent class="py-16 text-center">
-        <Robot class="mx-auto size-16 text-muted-foreground mb-4" weight="duotone" />
-        <h2 class="text-xl font-semibold mb-2">No agents yet</h2>
-        <p class="text-muted-foreground mb-6">
-          Create your first agent to define a custom AI personality with specific tools and capabilities.
-        </p>
-        <Button onclick={() => (showCreateModal = true)}>
-          <Plus class="mr-2 size-4" />
-          Create Your First Agent
-        </Button>
-      </CardContent>
-    </Card>
+    <AgentEmptyState onCreate={() => (showCreateModal = true)} />
   {:else}
-    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      {#each agents as agent (agent.id)}
-        <AgentCard
-          {agent}
-          accountId={account.id}
-          {toolNameLookup}
-          onupgrade={openUpgradeModal}
-          ondelete={deleteAgent} />
-      {/each}
-    </div>
+    <AgentGrid {agents} accountId={account.id} {toolNameLookup} onUpgrade={openUpgradeModal} onDelete={deleteAgent} />
   {/if}
 </div>
 

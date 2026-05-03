@@ -1730,3 +1730,37 @@ Last verified test baseline for this slice:
 Next sensible slice:
 
 - Move to `agents/edit.svelte`, `agents/index.svelte`, or a small covered `chats/show.svelte` helper extraction.
+
+## Progress Checkpoint: 2026-05-03 Agent Index Sections
+
+Status: The `agents/index.svelte` presentation extraction is implemented and green.
+
+Completed after commit `1864c0f Extract new chat layout components`:
+
+- Added `AgentIndexHeader.svelte` for page title, initiation action, and create action.
+- Added `AgentEmptyState.svelte` for the no-agents card.
+- Added `AgentGrid.svelte` for repeated agent card layout.
+- Kept `agents/index.svelte` responsible for sync, form state, create/reset/delete, initiation, upgrade modal state, model labels, and route actions.
+- Left existing route helper changes in the worktree untouched because they were pre-existing/user-generated changes.
+
+Current size notes:
+
+- `app/frontend/pages/agents/index.svelte`: 152 lines, down from 182 lines.
+- `AgentIndexHeader.svelte`: 23 lines.
+- `AgentEmptyState.svelte`: 21 lines.
+- `AgentGrid.svelte`: 11 lines.
+
+Last verified test baseline:
+
+- `yarn test:unit`: 13 files, 40 tests passed.
+- `bin/vite build --clear --mode=test`: passed, with existing Svelte warnings unrelated to this slice.
+- `bin/rails test`: 1815 tests, 7329 assertions, 0 failures, 0 errors.
+- `yarn test`: 6 Playwright tests passed.
+
+Notes from verification:
+
+- A concurrent Rails/Playwright run caused Vite test asset races (`ENOTEMPTY` and one transient manifest parse error). Rebuilding test assets and rerunning the affected Rails test, full Rails suite, and Playwright sequentially passed.
+
+Next sensible slice:
+
+- `agents/edit.svelte` is already reasonably componentized; consider extracting only the page header/form shell if it buys clarity, otherwise move to `whiteboards/index.svelte` with focused coverage or a smaller settings/API page.
