@@ -2,3 +2,4 @@
 vite: bin/vite dev
 web: bin/rails s
 jobs: bundle exec rake solid_queue:start
+mcp: bin/mcp

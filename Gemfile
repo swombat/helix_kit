@@ -9,6 +9,9 @@ gem "puma", ">= 6.6.0"
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 gem "jbuilder"
 
+# MCP server endpoint for external agent harnesses
+gem "actionmcp"
+
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 # gem "bcrypt", "~> 3.1.7"
 

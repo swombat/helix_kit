@@ -1,0 +1,90 @@
+# ActionMCP Configuration
+
+shared:
+  # Authentication configuration - array of methods to try in order
+  authentication: ["api_key"]
+
+  # Session store configuration
+  # Global session store type used by both client and server (default: volatile in dev/test, active_record in production)
+  # session_store_type: volatile
+
+  # Client-specific session store type (falls back to session_store_type if not specified)
+  # client_session_store_type: volatile
+
+  # Server-specific session store type (falls back to session_store_type if not specified)
+  # server_session_store_type: active_record
+
+  # Server instructions - helps LLMs understand the server's purpose
+  # Describe what the server is for, not technical details (tools are self-documented)
+  # server_instructions:
+  #   - "Use this server to manage project tickets and workflows"
+  #   - "Helpful for tracking bugs, features, and sprint planning"
+
+  # MCP capability profiles
+  profiles:
+    primary:
+      tools:
+        - all
+      prompts:
+        - all
+      resources:
+        - all
+      options:
+        list_changed: false
+        logging_enabled: true
+        resources_subscribe: false
+
+    minimal:
+      tools: []
+      prompts: []
+      resources: []
+      options:
+        list_changed: false
+        logging_enabled: false
+        logging_level: warn
+        resources_subscribe: false
+
+# Development environment
+development:
+  # Development-specific purpose description
+  # server_instructions:
+  #   - "Development server for testing your MCP integration"
+  #   - "Use for prototyping and experimenting with tools"
+
+  # Session store examples for development
+  # Use volatile client sessions for faster development
+  # client_session_store_type: volatile
+  # Use persistent server sessions to maintain state across restarts
+  # server_session_store_type: active_record
+
+  # Thread pool configuration (optional)
+  # min_threads: 5     # Minimum number of threads in the pool
+  # max_threads: 10    # Maximum number of threads in the pool
+  # max_queue: 100     # Maximum number of tasks that can be queued
+
+# Test environment
+test:
+  authentication: ["api_key"]
+
+  # Use volatile sessions for testing (fast cleanup)
+  # session_store_type: volatile
+
+# Production environment
+production:
+  authentication: ["api_key"]
+
+  # Additional production profiles for external clients
+  profiles:
+    external_clients:
+      tools: ["WeatherForecastTool"]  # Limited tool access for external clients
+      prompts: []
+      resources: []
+
+  # session_store_type: active_record
+  # client_session_store_type: active_record
+  # server_session_store_type: active_record
+
+  # Thread pool configuration (optional)
+  # min_threads: 10
+  # max_threads: 20
+  # max_queue: 500
