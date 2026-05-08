@@ -715,7 +715,7 @@ class JsonAttributesTest < ActiveSupport::TestCase
 
   test "class accessors return correct configuration" do
     # Test Account configuration
-    assert_equal [ :personal?, :team?, :active?, :is_site_admin, :name ], Account.json_attrs
+    assert_equal [ :personal?, :team?, :active?, :is_site_admin, :name, :github_login ], Account.json_attrs
     assert_equal({}, Account.json_includes)
     assert Account.json_options.key?(:except) || Account.json_options.empty?
     assert_nil Account.json_enhancer

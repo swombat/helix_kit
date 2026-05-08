@@ -28,6 +28,36 @@ module Api
         assert json["ai_response_triggered"]
       end
 
+      test "agent-scoped key posts assistant message as agent" do
+        agent = agents(:research_assistant)
+        agent_key = ApiKey.generate_for(@user, name: "Agent postback", agent: agent)
+        @chat.agents << agent
+        @chat.update!(manual_responses: true)
+
+        assert_difference "Message.count", 1 do
+          post api_v1_conversation_messages_url(@chat),
+            params: { content: "External reply" },
+            headers: { "Authorization" => "Bearer #{agent_key.raw_token}" }
+        end
+
+        assert_response :created
+        message = @chat.messages.order(:created_at).last
+        assert_equal "assistant", message.role
+        assert_equal agent, message.agent
+        assert_nil message.user
+      end
+
+      test "agent-scoped key cannot post to conversation without agent" do
+        agent = agents(:research_assistant)
+        agent_key = ApiKey.generate_for(@user, name: "Agent postback", agent: agent)
+
+        post api_v1_conversation_messages_url(@chat),
+          params: { content: "External reply" },
+          headers: { "Authorization" => "Bearer #{agent_key.raw_token}" }
+
+        assert_response :not_found
+      end
+
       test "rejects archived conversations" do
         @chat.archive!
 

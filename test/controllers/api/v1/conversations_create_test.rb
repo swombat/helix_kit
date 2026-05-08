@@ -57,6 +57,46 @@ module Api
         assert_equal "Empty Chat", json["conversation"]["title"]
       end
 
+      test "agent-scoped key creates conversation as that agent" do
+        agent_key = ApiKey.generate_for(@user, name: "Agent key", agent: @agent1)
+
+        post api_v1_conversations_url,
+             params: {
+               title: "Agent Started",
+               message: "I am opening this thread.",
+               agent_ids: [ @agent2.to_param ]
+             },
+             headers: { "Authorization" => "Bearer #{agent_key.raw_token}" }
+        assert_response :created
+
+        json = JSON.parse(response.body)
+        assert_equal "Agent Started", json["conversation"]["title"]
+        assert_equal true, json["conversation"]["group_chat"]
+
+        chat = Chat.find(json["conversation"]["id"])
+        assert_equal @agent1, chat.initiated_by_agent
+        assert_equal [ @agent1.id, @agent2.id ].sort, chat.agent_ids.sort
+        assert_equal "I am opening this thread.", chat.messages.last.content
+        assert_equal @agent1, chat.messages.last.agent
+        assert_equal "assistant", chat.messages.last.role
+      end
+
+      test "agent-scoped key creates conversation without initial message" do
+        agent_key = ApiKey.generate_for(@user, name: "Agent key", agent: @agent1)
+
+        post api_v1_conversations_url,
+             params: { title: "Agent Empty" },
+             headers: { "Authorization" => "Bearer #{agent_key.raw_token}" }
+        assert_response :created
+
+        json = JSON.parse(response.body)
+        chat = Chat.find(json["conversation"]["id"])
+        assert_equal "Agent Empty", json["conversation"]["title"]
+        assert_equal @agent1, chat.initiated_by_agent
+        assert_equal [ @agent1.id ], chat.agent_ids
+        assert_empty chat.messages
+      end
+
       test "returns 404 when agent_ids include invalid agent" do
         post api_v1_conversations_url,
              params: {

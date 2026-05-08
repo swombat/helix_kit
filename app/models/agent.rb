@@ -12,6 +12,7 @@ class Agent < ApplicationRecord
   include Agent::Tools
 
   belongs_to :account
+  belongs_to :outbound_api_key, class_name: "ApiKey", optional: true
   has_many :chat_agents, dependent: :destroy
   has_many :chats, through: :chat_agents
 
@@ -45,18 +46,28 @@ class Agent < ApplicationRecord
   validates :refinement_threshold,
             numericality: { greater_than: 0, less_than_or_equal_to: 1 },
             allow_nil: true
+  validates :runtime, inclusion: { in: %w[inline migrating external offline] }
+  validates :health_state, inclusion: { in: %w[healthy unhealthy unknown] }
+  validate :identity_fields_are_read_only_when_external
   broadcasts_to :account
+
+  encrypts :trigger_bearer_token
+  encrypts :github_deploy_key_priv
 
   scope :active, -> { where(active: true) }
   scope :unpaused, -> { where(paused: false) }
   scope :by_name, -> { order(:name) }
+  scope :externally_hosted, -> { where(runtime: %w[external offline]) }
 
   json_attributes :name, :system_prompt, :reflection_prompt, :memory_reflection_prompt,
                   :summary_prompt, :refinement_prompt, :refinement_threshold,
                   :model_id, :model_label, :enabled_tools, :active?, :paused?, :colour, :icon,
                   :memories_count, :memory_token_summary, :thinking_enabled, :thinking_budget,
                   :telegram_bot_username, :telegram_configured?,
-                  :voiced?, :voice_id
+                  :voiced?, :voice_id, :runtime, :endpoint_url, :last_announced_at,
+                  :last_health_check_at, :health_state, :consecutive_health_failures,
+                  :github_repo_url, :github_repo_owner, :github_repo_name,
+                  :github_deploy_key_id
 
   def self.json_attrs_for(options = nil)
     return json_attrs unless options&.dig(:as) == :list
@@ -76,6 +87,18 @@ class Agent < ApplicationRecord
     voice_id.present?
   end
 
+  def inline? = runtime == "inline"
+
+  def migrating? = runtime == "migrating"
+
+  def external? = runtime == "external"
+
+  def offline? = runtime == "offline"
+
+  def externally_hosted?
+    external? || offline?
+  end
+
   def other_conversation_summaries(exclude_chat_id:)
     chat_agents
       .joins(:chat)
@@ -86,6 +109,20 @@ class Agent < ApplicationRecord
       .includes(:chat)
       .order("chats.updated_at DESC")
       .limit(10)
+  end
+
+  private
+
+  def identity_fields_are_read_only_when_external
+    return unless persisted? && externally_hosted?
+
+    protected_fields = %w[
+      system_prompt reflection_prompt memory_reflection_prompt
+      summary_prompt refinement_prompt
+    ]
+    return unless protected_fields.any? { |field| will_save_change_to_attribute?(field) }
+
+    errors.add(:base, "Identity fields are read-only for external agents")
   end
 
 end

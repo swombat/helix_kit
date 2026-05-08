@@ -38,6 +38,8 @@ class Account < ApplicationRecord
   scope :personal, -> { where(account_type: :personal) }
   scope :team, -> { where(account_type: :team) }
 
+  encrypts :github_pat
+
   # Authorization scope for SyncChannel - Account is special, it IS the account
   def self.accessible_by(user)
     return none unless user
@@ -45,7 +47,7 @@ class Account < ApplicationRecord
     user.confirmed_accounts
   end
 
-  json_attributes :personal?, :team?, :active?, :is_site_admin, :name
+  json_attributes :personal?, :team?, :active?, :is_site_admin, :name, :github_login
 
   # Business Logic Methods
   def add_user!(user, role: "member", skip_confirmation: false)

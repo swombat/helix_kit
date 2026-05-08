@@ -1,4 +1,5 @@
 require "test_helper"
+require "webmock/minitest"
 class AllAgentsResponseJobTest < ActiveJob::TestCase
 
   setup do
@@ -108,6 +109,28 @@ class AllAgentsResponseJobTest < ActiveJob::TestCase
     skipped_message = @chat.messages.where(role: "assistant", agent: anthropic_agent).last
     assert_not_nil skipped_message
     assert_equal "anthropic_key_unavailable", skipped_message.reasoning_skip_reason
+  end
+
+  test "external first agent receives trigger and remaining agents are queued" do
+    @agent1.update!(
+      runtime: "external",
+      uuid: SecureRandom.uuid_v7,
+      endpoint_url: "https://agent.example.com",
+      trigger_bearer_token: "tr_valid",
+      health_state: "healthy",
+      consecutive_health_failures: 0
+    )
+    trigger = stub_request(:post, "https://agent.example.com/trigger")
+      .with(headers: { "Authorization" => "Bearer tr_valid" })
+      .to_return(status: 200, body: { status: "accepted" }.to_json)
+
+    assert_enqueued_with(job: AllAgentsResponseJob, args: [ @chat, [ @agent2.id ] ]) do
+      assert_no_difference "Message.count" do
+        AllAgentsResponseJob.perform_now(@chat, [ @agent1.id, @agent2.id ])
+      end
+    end
+
+    assert_requested trigger
   end
 
 end

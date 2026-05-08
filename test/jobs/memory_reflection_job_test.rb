@@ -44,6 +44,7 @@ class MemoryReflectionJobTest < ActiveSupport::TestCase
         %{journal_entries}
       PROMPT
     )
+    @agent.memories.journal.update_all(created_at: Time.zone.parse("2026-05-03 11:24 UTC"))
 
     VCR.use_cassette("jobs/memory_reflection_job/promotes_selected_entries") do
       MemoryReflectionJob.perform_now

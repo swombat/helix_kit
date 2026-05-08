@@ -3,12 +3,12 @@ module Api
     class ConversationsController < BaseController
 
       def index
-        chats = current_api_account.chats.kept.active.latest.limit(100)
+        chats = conversations_scope.kept.active.latest.limit(100)
         render json: { conversations: chats.map { |c| conversation_json(c) } }
       end
 
       def show
-        chat = current_api_account.chats.find(params[:id])
+        chat = conversations_scope.find(params[:id])
         render json: {
           conversation: {
             id: chat.to_param,
@@ -24,6 +24,21 @@ module Api
       end
 
       def create
+        if current_api_agent
+          chat = create_agent_scoped_conversation!
+
+          render json: {
+            conversation: {
+              id: chat.to_param,
+              title: chat.title_or_default,
+              group_chat: chat.group_chat?,
+              agents: chat.agents.map { |a| { id: a.to_param, name: a.name } },
+              created_at: chat.created_at.iso8601
+            }
+          }, status: :created
+          return
+        end
+
         agent_ids = resolve_agent_ids
         is_group = agent_ids.present?
 
@@ -53,6 +68,38 @@ module Api
       end
 
       private
+
+      def conversations_scope
+        return current_api_agent.chats if current_api_agent
+
+        current_api_account.chats
+      end
+
+      def create_agent_scoped_conversation!
+        agent_ids = ([ current_api_agent.id ] + Array(resolve_agent_ids)).uniq
+
+        current_api_account.chats.transaction do
+          chat = current_api_account.chats.new(
+            model_id: params[:model_id] || current_api_agent.model_id || "openrouter/auto",
+            title: params[:title],
+            manual_responses: true,
+            initiated_by_agent: current_api_agent,
+            initiation_reason: params[:reason]
+          )
+          chat.agent_ids = agent_ids
+          chat.save!
+
+          if params[:message].present?
+            chat.messages.create!(
+              role: "assistant",
+              agent: current_api_agent,
+              content: params[:message]
+            )
+          end
+
+          chat
+        end
+      end
 
       def resolve_agent_ids
         return nil if params[:agent_ids].blank?

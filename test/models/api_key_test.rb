@@ -24,6 +24,14 @@ class ApiKeyTest < ActiveSupport::TestCase
     assert_equal key, ApiKey.authenticate(raw_token)
   end
 
+  test "can be scoped to a single agent" do
+    agent = agents(:research_assistant)
+    key = ApiKey.generate_for(@user, name: "Agent Key", agent: agent)
+
+    assert_equal agent, key.agent
+    assert_equal key, ApiKey.authenticate(key.raw_token)
+  end
+
   test "rejects invalid token" do
     assert_nil ApiKey.authenticate("invalid")
     assert_nil ApiKey.authenticate(nil)

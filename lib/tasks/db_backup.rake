@@ -223,4 +223,10 @@ namespace :db_backup do
     DbBackupHelpers.ensure_not_production!
     DbBackupHelpers.create_test_agents!
   end
+
+  desc "Create test agents in the Nexus account"
+  task test_agents: :environment do
+    DbBackupHelpers.ensure_not_production!
+    DbBackupHelpers.create_test_agents!
+  end
 end

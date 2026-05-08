@@ -45,3 +45,13 @@ production:
   sync_github_commits:
     command: "GithubIntegration.sync_all_due!"
     schedule: every hour at minute 15
+
+  agent_health_check:
+    class: AgentHealthCheckJob
+    queue: default
+    schedule: every 5 minutes
+
+  agent_migration_sweeper:
+    class: AgentMigrationSweeperJob
+    queue: default
+    schedule: every hour at minute 20

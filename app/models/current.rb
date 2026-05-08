@@ -2,6 +2,8 @@ class Current < ActiveSupport::CurrentAttributes
 
   attribute :session
   attribute :account
+  attribute :api_key
+  attribute :api_agent
   attribute :api_user
 
   # User can come from either session (web) or api_user (API)

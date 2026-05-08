@@ -3,7 +3,7 @@
   import { Label } from '$lib/components/shadcn/label';
   import { Switch } from '$lib/components/shadcn/switch';
 
-  let { form, availableVoices = [] } = $props();
+  let { form, availableVoices = [], identityLocked = false } = $props();
 
   const isCustomVoice = $derived(
     $form.agent.voice_id && !availableVoices.some((voice) => voice.id === $form.agent.voice_id)
@@ -13,7 +13,11 @@
 <div class="space-y-6">
   <div>
     <h2 class="text-lg font-semibold">Agent Identity</h2>
-    <p class="text-sm text-muted-foreground">Define the agent's name and personality</p>
+    <p class="text-sm text-muted-foreground">
+      {identityLocked
+        ? 'HelixKit keeps this identity as a backup. The running external agent reads identity from its repo.'
+        : "Define the agent's name and personality"}
+    </p>
   </div>
 
   <div class="space-y-2">
@@ -37,6 +41,7 @@
       bind:value={$form.agent.system_prompt}
       placeholder="You are a helpful research assistant that..."
       rows="6"
+      readonly={identityLocked}
       class="w-full resize-none border border-input rounded-md px-3 py-2 text-sm bg-background font-mono
              focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"></textarea>
     <p class="text-xs text-muted-foreground">Define the agent's personality, expertise, and behavior guidelines.</p>
@@ -49,6 +54,7 @@
       bind:value={$form.agent.reflection_prompt}
       placeholder="Leave empty to use default reflection prompt"
       rows="8"
+      readonly={identityLocked}
       class="w-full resize-none border border-input rounded-md px-3 py-2 text-sm bg-background font-mono
              focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"></textarea>
     <p class="text-xs text-muted-foreground">
@@ -64,6 +70,7 @@
       bind:value={$form.agent.memory_reflection_prompt}
       placeholder="Leave empty to use default memory reflection prompt"
       rows="8"
+      readonly={identityLocked}
       class="w-full resize-none border border-input rounded-md px-3 py-2 text-sm bg-background font-mono
              focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"></textarea>
     <p class="text-xs text-muted-foreground">
@@ -79,6 +86,7 @@
       bind:value={$form.agent.summary_prompt}
       placeholder="Leave empty to use default summary prompt (focus on state, 2 lines)"
       rows="6"
+      readonly={identityLocked}
       class="w-full resize-none border border-input rounded-md px-3 py-2 text-sm bg-background font-mono
              focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"></textarea>
     <p class="text-xs text-muted-foreground">
@@ -94,6 +102,7 @@
       bind:value={$form.agent.refinement_prompt}
       placeholder="Leave empty to use default refinement guidelines"
       rows="6"
+      readonly={identityLocked}
       class="w-full resize-none border border-input rounded-md px-3 py-2 text-sm bg-background font-mono
              focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"></textarea>
     <p class="text-xs text-muted-foreground">

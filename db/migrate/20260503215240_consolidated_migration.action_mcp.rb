@@ -2,6 +2,7 @@
 
 # This migration comes from action_mcp (originally 20250512154359)
 class ConsolidatedMigration < ActiveRecord::Migration[8.1]
+
   def up
     create_table :action_mcp_sessions, id: :string, if_not_exists: true do |t|
       t.string :role, null: false, default: "server", comment: "The role of the session"
@@ -100,4 +101,5 @@ class ConsolidatedMigration < ActiveRecord::Migration[8.1]
     remove_column :action_mcp_sessions, :oauth_user_context if column_exists?(:action_mcp_sessions, :oauth_user_context)
     remove_column :action_mcp_sessions, :sse_event_counter if column_exists?(:action_mcp_sessions, :sse_event_counter)
   end
+
 end

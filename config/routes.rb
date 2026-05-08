@@ -81,6 +81,15 @@ Rails.application.routes.draw do
     end
 
     resources :agents, except: [ :show, :new ] do
+      member do
+        get :promote, to: "agents/promote#show"
+        post "promote/github_access", to: "agents/promote#github_access", as: :github_access_promote
+        post "promote/begin", to: "agents/promote#begin", as: :begin_promote
+        post "promote/cancel", to: "agents/promote#cancel", as: :cancel_promote
+        get "promote/identity_export", to: "agents/promote#identity_export", as: :identity_export
+        post "promote/send_test_request", to: "agents/promote#send_test_request", as: :send_test_request
+      end
+
       scope module: :agents do
         resource :refinement, only: :create
         resource :telegram_test, only: :create
@@ -116,6 +125,8 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       resources :key_requests, only: [ :create, :show ]
+      post "agents/:uuid/announce", to: "agents#announce", as: :agent_announce
+      get "agents/:uuid/health", to: "agents#health", as: :agent_health
       resources :conversations, only: [ :index, :show, :create ] do
         resources :messages, only: :create
         resource :agent_trigger, only: :create

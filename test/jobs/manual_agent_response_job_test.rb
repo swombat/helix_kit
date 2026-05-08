@@ -1,4 +1,5 @@
 require "test_helper"
+require "webmock/minitest"
 class ManualAgentResponseJobTest < ActiveJob::TestCase
 
   setup do
@@ -52,6 +53,45 @@ class ManualAgentResponseJobTest < ActiveJob::TestCase
     assert_equal "system", context.first[:role]
     assert_equal "user", context.second[:role]
     assert_includes context.second[:content], "Hello, agents!"
+  end
+
+  test "external agent receives trigger request instead of local llm response" do
+    @agent.update!(
+      runtime: "external",
+      uuid: SecureRandom.uuid_v7,
+      endpoint_url: "https://agent.example.com",
+      trigger_bearer_token: "tr_valid",
+      health_state: "healthy",
+      consecutive_health_failures: 0
+    )
+    trigger = stub_request(:post, "https://agent.example.com/trigger")
+      .with(headers: { "Authorization" => "Bearer tr_valid" })
+      .to_return(status: 200, body: { status: "accepted" }.to_json)
+
+    assert_no_difference "Message.count" do
+      ManualAgentResponseJob.perform_now(@chat, @agent)
+    end
+
+    assert_requested trigger
+  end
+
+  test "offline external agent records unreachable message" do
+    @agent.update!(
+      runtime: "offline",
+      uuid: SecureRandom.uuid_v7,
+      endpoint_url: "https://agent.example.com",
+      trigger_bearer_token: "tr_valid",
+      health_state: "unhealthy",
+      consecutive_health_failures: 6
+    )
+
+    assert_difference "Message.count", 1 do
+      ManualAgentResponseJob.perform_now(@chat, @agent)
+    end
+
+    message = @chat.messages.order(:created_at).last
+    assert_equal @agent, message.agent
+    assert_includes message.content, "currently unreachable"
   end
 
 end

@@ -13,6 +13,16 @@ class ManualAgentResponseJob < ApplicationJob
   retry_on Faraday::Error, wait: :polynomially_longer, attempts: 3
 
   def perform(chat, agent, initiation_reason: nil)
+    if agent.external? || agent.offline?
+      ExternalAgentResponseRequest.new(
+        agent: agent,
+        chat: chat,
+        requested_by: "HelixKit",
+        initiation_reason: initiation_reason
+      ).call
+      return
+    end
+
     @chat = chat
     @agent = agent
     @ai_message = nil

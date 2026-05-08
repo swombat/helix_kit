@@ -10,13 +10,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_03_215240) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_08_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
   create_table "accounts", force: :cascade do |t|
     t.integer "account_type", default: 0, null: false
     t.datetime "created_at", null: false
+    t.string "github_login"
+    t.text "github_pat"
     t.boolean "is_site_admin", default: false, null: false
     t.string "name", null: false
     t.jsonb "settings", default: {}
@@ -138,17 +140,30 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_03_215240) do
     t.bigint "account_id", null: false
     t.boolean "active", default: true, null: false
     t.string "colour"
+    t.integer "consecutive_health_failures", default: 0, null: false
     t.datetime "created_at", null: false
     t.jsonb "enabled_tools", default: [], null: false
+    t.string "endpoint_url"
+    t.string "github_deploy_key_id"
+    t.text "github_deploy_key_priv"
+    t.string "github_repo_name"
+    t.string "github_repo_owner"
+    t.string "github_repo_url"
+    t.string "health_state", default: "unknown", null: false
     t.string "icon"
+    t.datetime "last_announced_at"
+    t.datetime "last_health_check_at"
     t.datetime "last_refinement_at"
     t.text "memory_reflection_prompt"
+    t.datetime "migration_started_at"
     t.string "model_id", default: "openrouter/auto", null: false
     t.string "name", null: false
+    t.bigint "outbound_api_key_id"
     t.boolean "paused", default: false, null: false
     t.text "refinement_prompt"
     t.float "refinement_threshold"
     t.text "reflection_prompt"
+    t.string "runtime", default: "inline", null: false
     t.text "summary_prompt"
     t.text "system_prompt"
     t.string "telegram_bot_token"
@@ -156,13 +171,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_03_215240) do
     t.string "telegram_webhook_token"
     t.integer "thinking_budget", default: 10000
     t.boolean "thinking_enabled", default: false, null: false
+    t.string "trigger_bearer_token"
     t.datetime "updated_at", null: false
+    t.uuid "uuid"
     t.string "voice_id"
     t.index ["account_id", "active"], name: "index_agents_on_account_id_and_active"
     t.index ["account_id", "name"], name: "index_agents_on_account_id_and_name", unique: true
     t.index ["account_id", "paused"], name: "index_agents_on_account_id_and_paused"
     t.index ["account_id"], name: "index_agents_on_account_id"
+    t.index ["outbound_api_key_id"], name: "index_agents_on_outbound_api_key_id"
+    t.index ["runtime"], name: "index_agents_on_runtime"
     t.index ["telegram_webhook_token"], name: "index_agents_on_telegram_webhook_token", unique: true
+    t.index ["uuid"], name: "index_agents_on_uuid", unique: true
   end
 
   create_table "ai_models", force: :cascade do |t|
@@ -200,6 +220,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_03_215240) do
   end
 
   create_table "api_keys", force: :cascade do |t|
+    t.bigint "agent_id"
     t.datetime "created_at", null: false
     t.datetime "last_used_at"
     t.string "last_used_ip"
@@ -208,6 +229,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_03_215240) do
     t.string "token_prefix", limit: 8, null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.index ["agent_id"], name: "index_api_keys_on_agent_id", unique: true, where: "(agent_id IS NOT NULL)"
     t.index ["token_digest"], name: "index_api_keys_on_token_digest", unique: true
     t.index ["user_id"], name: "index_api_keys_on_user_id"
   end
@@ -493,7 +515,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_03_215240) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "agent_memories", "agents"
   add_foreign_key "agents", "accounts"
+  add_foreign_key "agents", "api_keys", column: "outbound_api_key_id"
   add_foreign_key "api_key_requests", "api_keys"
+  add_foreign_key "api_keys", "agents"
   add_foreign_key "api_keys", "users"
   add_foreign_key "audit_logs", "accounts"
   add_foreign_key "audit_logs", "users"

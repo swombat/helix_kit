@@ -22,6 +22,12 @@ class AllAgentsResponseJob < ApplicationJob
 
     agent = chat.agents.find(agent_id)
 
+    if agent.external? || agent.offline?
+      ExternalAgentResponseRequest.new(agent: agent, chat: chat, requested_by: "HelixKit").call
+      enqueue_remaining_agents(chat, remaining_agent_ids)
+      return
+    end
+
     # Process this agent (same logic as ManualAgentResponseJob)
     @chat = chat
     @agent = agent

@@ -18,7 +18,9 @@ module ApiAuthentication
     end
 
     @current_api_key.touch_usage!(request.remote_ip)
+    Current.api_key = @current_api_key
     Current.api_user = @current_api_key.user
+    Current.api_agent = @current_api_key.agent
   end
 
   def current_api_user
@@ -26,9 +28,15 @@ module ApiAuthentication
   end
 
   def current_api_account
+    return Current.api_agent.account if Current.api_agent
+
     # Use the user's first account (personal or team)
     # In future, could scope keys to specific accounts
     current_api_user&.accounts&.first
+  end
+
+  def current_api_agent
+    Current.api_agent
   end
 
 end

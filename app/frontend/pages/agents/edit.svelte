@@ -1,7 +1,7 @@
 <script>
   import { useForm, router } from '@inertiajs/svelte';
   import { Button } from '$lib/components/shadcn/button/index.js';
-  import { IdentificationCard, Palette, Cpu, Plug, Notebook } from 'phosphor-svelte';
+  import { IdentificationCard, Palette, Cpu, Plug, Notebook, CloudArrowUp } from 'phosphor-svelte';
   import {
     accountAgentsPath,
     accountAgentPath,
@@ -11,6 +11,7 @@
     accountAgentMemoriesPath,
     accountAgentMemoryDiscardPath,
     accountAgentMemoryProtectionPath,
+    promoteAccountAgentPath,
   } from '@/routes';
   import { useSync } from '$lib/use-sync';
   import AgentAppearancePanel from '$lib/components/agents/AgentAppearancePanel.svelte';
@@ -43,6 +44,7 @@
   let registeringWebhook = $state(false);
   let triggeringRefinement = $state(false);
   let activeTab = $state('identity');
+  let identityLocked = $derived(agent.runtime === 'external' || agent.runtime === 'offline');
 
   const tabs = [
     { id: 'identity', label: 'Identity', icon: IdentificationCard },
@@ -50,7 +52,10 @@
     { id: 'model', label: 'Model', icon: Cpu },
     { id: 'integrations', label: 'Integrations', icon: Plug },
     { id: 'memory', label: 'Memory', icon: Notebook },
+    { id: 'hosting', label: 'Hosting', icon: CloudArrowUp },
   ];
+
+  let promotePath = $derived(promoteAccountAgentPath(account.id, agent.id));
 
   let form = useForm({
     agent: {
@@ -180,7 +185,13 @@
       <!-- Content area -->
       <div class="flex-1 min-w-0 space-y-6">
         {#if activeTab === 'identity'}
-          <AgentIdentityPanel {form} availableVoices={available_voices} />
+          <AgentIdentityPanel {form} availableVoices={available_voices} {identityLocked} />
+          {#if identityLocked}
+            <div class="border rounded-lg p-4 text-sm text-muted-foreground">
+              These prompt fields are HelixKit backups from before external promotion. Update the agent's repo to change
+              the identity used by the running VM.
+            </div>
+          {/if}
         {:else if activeTab === 'appearance'}
           <AgentAppearancePanel
             bind:colour={$form.agent.colour}
@@ -209,6 +220,50 @@
             ondelete={deleteMemory}
             onundiscard={undiscardMemory}
             ontoggleProtected={toggleConstitutional} />
+        {:else if activeTab === 'hosting'}
+          <div class="border rounded-lg p-6 space-y-5">
+            <div class="space-y-1">
+              <h2 class="text-xl font-semibold">Hosting</h2>
+              <p class="text-sm text-muted-foreground">
+                Current runtime: <span class="font-medium text-foreground">{agent.runtime || 'inline'}</span>
+              </p>
+            </div>
+
+            {#if agent.runtime === 'external' || agent.runtime === 'offline'}
+              <div class="space-y-2 text-sm">
+                {#if agent.endpoint_url}
+                  <p>Endpoint: <span class="font-mono">{agent.endpoint_url}</span></p>
+                {/if}
+                <p>Health: <span class="font-medium">{agent.health_state || 'unknown'}</span></p>
+                <p class="text-muted-foreground">
+                  Identity fields in HelixKit are now read-only backups. The running agent's identity lives in its
+                  external repo.
+                </p>
+              </div>
+              <a href={promotePath}>
+                <Button type="button" variant="outline">Open hosting status</Button>
+              </a>
+            {:else if agent.runtime === 'migrating'}
+              <div class="space-y-3">
+                <p class="text-sm text-muted-foreground">
+                  Promotion is in progress. Continue the setup wizard to finish deployment.
+                </p>
+                <a href={promotePath}>
+                  <Button type="button">Continue promotion</Button>
+                </a>
+              </div>
+            {:else}
+              <div class="space-y-3">
+                <p class="text-sm text-muted-foreground">
+                  Run this agent on your own Docker host. HelixKit will send requests; the external agent decides
+                  whether to answer.
+                </p>
+                <a href={promotePath}>
+                  <Button type="button">Promote to external runtime</Button>
+                </a>
+              </div>
+            {/if}
+          </div>
         {/if}
 
         <div class="flex justify-end gap-3">
