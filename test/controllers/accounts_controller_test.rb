@@ -26,10 +26,58 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "should get new" do
+    get new_account_path
+    assert_response :success
+  end
+
+  test "should create personal account" do
+    assert_difference -> { Account.count }, 1 do
+      assert_difference -> { Membership.count }, 1 do
+        post accounts_path, params: {
+          account: {
+            name: "Writing Room",
+            account_type: "personal",
+            default_conversation_mode: "agents"
+          }
+        }
+      end
+    end
+
+    account = Account.order(:created_at).last
+    assert_redirected_to account_chats_path(account)
+    assert account.personal?
+    assert_equal "Writing Room", account.name
+    assert_equal "agents", account.default_conversation_mode
+    assert account.owned_by?(@user)
+  end
+
+  test "should create team account" do
+    assert_difference -> { Account.team.count }, 1 do
+      post accounts_path, params: {
+        account: {
+          name: "New Team",
+          account_type: "team"
+        }
+      }
+    end
+
+    account = Account.order(:created_at).last
+    assert_redirected_to account_chats_path(account)
+    assert_equal "New Team", account.name
+    assert account.owned_by?(@user)
+  end
+
   test "should update account name" do
     patch account_path(@team_account), params: { account: { name: "Updated Name" } }
     assert_redirected_to @team_account
     assert_equal "Updated Name", @team_account.reload.read_attribute(:name)
+  end
+
+  test "should update personal account name" do
+    patch account_path(@personal_account), params: { account: { name: "Focused Work" } }
+    assert_redirected_to @personal_account
+    assert_equal "Focused Work", @personal_account.reload.name
   end
 
   test "should update default conversation mode" do

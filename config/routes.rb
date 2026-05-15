@@ -53,7 +53,7 @@ Rails.application.routes.draw do
   # Telegram webhook (called by Telegram, no auth)
   post "telegram/webhook/:token", to: "telegram_webhooks#receive", as: :telegram_webhook
 
-  resources :accounts, only: [ :show, :edit, :update ] do
+  resources :accounts, only: [ :new, :create, :show, :edit, :update ] do
     resources :members, controller: "account_members", only: [ :destroy ]
     resources :invitations, only: [ :create ] do
       member do

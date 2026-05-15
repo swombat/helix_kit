@@ -120,7 +120,7 @@ class Account < ApplicationRecord
   end
 
   def name
-    if personal? && owner&.full_name.present?
+    if personal? && default_personal_name? && owner&.full_name.present?
       "#{owner.full_name}'s Account"
     else
       super()
@@ -184,6 +184,14 @@ class Account < ApplicationRecord
 
   def can_invite_members
     errors.add(:base, "Personal accounts cannot invite members") if personal?
+  end
+
+  def default_personal_name?
+    stored_name = read_attribute(:name).to_s
+    return true if stored_name.blank?
+    return true if owner&.email_address.present? && stored_name == "#{owner.email_address}'s Account"
+
+    stored_name.end_with?("'s Account")
   end
 
   def set_default_name

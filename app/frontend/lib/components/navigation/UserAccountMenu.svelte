@@ -10,6 +10,7 @@
     Palette,
     Gear,
     Check,
+    Plus,
     Heartbeat,
     GithubLogo,
     XLogo,
@@ -19,7 +20,7 @@
   import * as DropdownMenu from '$lib/components/shadcn/dropdown-menu/index.js';
   import { buttonVariants } from '$lib/components/shadcn/button/index.js';
   import { cn } from '$lib/utils.js';
-  import { editUserPath, editUserPasswordPath, accountPath, apiKeysPath } from '@/routes';
+  import { editUserPath, editUserPasswordPath, accountPath, newAccountPath, apiKeysPath } from '@/routes';
   import Avatar from '$lib/components/Avatar.svelte';
 
   let {
@@ -52,7 +53,7 @@
             <div class="flex flex-col items-start">
               <div class="text-xs font-normal text-muted-foreground">Account</div>
               <div class="text-sm font-semibold truncate">
-                {currentAccount?.personal ? 'Personal' : currentAccount?.name}
+                {currentAccount?.name}
               </div>
             </div>
           </DropdownMenu.SubTrigger>
@@ -62,16 +63,21 @@
                 onclick={() => router.visit(`/accounts/${account.id}/chats`)}
                 class={account.id === currentAccount?.id ? 'bg-accent' : ''}>
                 <Check class="mr-2 size-4 {account.id === currentAccount?.id ? 'opacity-100' : 'opacity-0'}" />
-                <span class="truncate">{account.personal ? 'Personal' : account.name}</span>
+                <span class="truncate">{account.name}</span>
               </DropdownMenu.Item>
             {/each}
+            <DropdownMenu.Separator />
+            <DropdownMenu.Item onclick={() => router.visit(newAccountPath())}>
+              <Plus class="mr-2 size-4" />
+              <span>New Account</span>
+            </DropdownMenu.Item>
           </DropdownMenu.SubContent>
         </DropdownMenu.Sub>
       {:else}
         <DropdownMenu.GroupHeading>
           <div class="text-xs font-normal text-muted-foreground">Account</div>
           <div class="text-sm font-semibold truncate">
-            {currentAccount?.personal ? 'Personal' : currentAccount?.name}
+            {currentAccount?.name}
           </div>
         </DropdownMenu.GroupHeading>
       {/if}
@@ -116,6 +122,10 @@
           <span>Account Settings</span>
         </DropdownMenu.Item>
       {/if}
+      <DropdownMenu.Item onclick={() => router.visit(newAccountPath())}>
+        <Plus class="mr-2 size-4" />
+        <span>New Account</span>
+      </DropdownMenu.Item>
       <DropdownMenu.Item onclick={() => router.visit(apiKeysPath())}>
         <Key class="mr-2 size-4" />
         <span>API Keys</span>

@@ -8,7 +8,7 @@
 
   const { account } = $page.props;
 
-  let accountName = $state(account.personal ? '' : account.name || '');
+  let accountName = $state(account.name || '');
   let defaultConversationMode = $state(account.default_conversation_mode || 'model');
 
   function getFormData() {
@@ -16,7 +16,7 @@
       default_conversation_mode: defaultConversationMode,
     };
 
-    if (!account.personal) accountData.name = accountName;
+    accountData.name = accountName;
 
     return {
       account: accountData,
@@ -30,26 +30,17 @@
 
 <Form
   title="Edit Account"
-  description={account.personal ? "Personal accounts don't have custom names" : 'Update your account name'}
+  description="Update your account settings"
   action={accountPath(account.id)}
   method="put"
   data={getFormData}
   submitLabel="Save Changes"
   onCancel={handleCancel}>
-  {#if !account.personal}
-    <div class="space-y-2">
-      <Label for="name">Account Name</Label>
-      <Input type="text" id="name" bind:value={accountName} placeholder="Enter account name" required />
-      <p class="text-sm text-muted-foreground">This name will be displayed across your account and to team members.</p>
-    </div>
-  {:else}
-    <div class="p-4 bg-muted rounded-lg">
-      <p class="text-sm">
-        Personal accounts use your name and cannot be renamed. To use a custom account name, convert to a team account
-        from the account settings page.
-      </p>
-    </div>
-  {/if}
+  <div class="space-y-2">
+    <Label for="name">Account Name</Label>
+    <Input type="text" id="name" bind:value={accountName} placeholder="Enter account name" required />
+    <p class="text-sm text-muted-foreground">This name is shown in the account switcher and account settings.</p>
+  </div>
 
   <div class="space-y-3">
     <Label>New Conversation Default</Label>

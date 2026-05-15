@@ -413,6 +413,14 @@ class AccountTest < ActiveSupport::TestCase
     assert_equal "Updated Name's Account", account.name
   end
 
+  test "personal account can use custom stored name" do
+    account = accounts(:personal_account)
+
+    account.update!(name: "Writing Room")
+
+    assert_equal "Writing Room", account.name
+  end
+
   # === Critical Update Method Safety Tests (For the bug we fixed) ===
 
   test "update! methods work correctly on Account model" do

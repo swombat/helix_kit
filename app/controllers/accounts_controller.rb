@@ -1,6 +1,24 @@
 class AccountsController < ApplicationController
 
-  before_action :set_account
+  before_action :set_account, except: %i[new create]
+
+  def new
+    render inertia: "accounts/new"
+  end
+
+  def create
+    account = nil
+
+    Account.transaction do
+      account = Account.create!(create_account_params)
+      account.add_user!(Current.user, role: "owner", skip_confirmation: true)
+    end
+
+    audit(:create_account, account, name: account.name, account_type: account.account_type)
+    redirect_to account_chats_path(account), notice: "Account created"
+  rescue ActiveRecord::RecordInvalid => e
+    redirect_to new_account_path, inertia: { errors: e.record.errors.to_hash.presence || e.message }
+  end
 
   def show
     render inertia: "accounts/show", props: account_show_props
@@ -95,8 +113,12 @@ class AccountsController < ApplicationController
     params.require(:account).permit(:name, :default_conversation_mode)
   end
 
+  def create_account_params
+    params.require(:account).permit(:name, :account_type, :default_conversation_mode)
+  end
+
   def current_account
-    @current_account ||= @account || find_current_user_account!(params[:id])
+    @current_account ||= @account || (params[:id] ? find_current_user_account!(params[:id]) : super)
   end
 
 end

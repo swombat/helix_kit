@@ -11,7 +11,7 @@
       <div>
         <dt class="text-sm font-medium text-muted-foreground">Account Name</dt>
         <dd class="text-lg font-semibold">
-          {account.personal ? 'Personal Account' : account.name}
+          {account.name}
         </dd>
       </div>
       <div>
