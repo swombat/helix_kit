@@ -67,6 +67,16 @@ class AgentRepoCreatorTest < ActiveSupport::TestCase
     assert_requested :put, "https://api.github.com/repos/octocat/research-agent/contents/deploy.yml"
   end
 
+  test "generated deploy yml uses runtime-compatible image tag and model key" do
+    deploy = YAML.safe_load(creator.deploy_yml(repo_result))
+
+    assert_equal "research-assistant", deploy.fetch("agent_id")
+    assert_equal "anthropic", deploy.fetch("provider")
+    assert_equal "claude-haiku-4-5", deploy.fetch("model")
+    assert_equal "research-agent-latest", deploy.fetch("image_tag")
+    refute_match ":", deploy.fetch("image_tag"), "compose prefixes image_tag as a Docker tag, so it must not contain ':'"
+  end
+
   private
 
   def creator

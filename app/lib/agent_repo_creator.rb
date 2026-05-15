@@ -81,7 +81,7 @@ class AgentRepoCreator
       endpoint_url: http://localhost:4000
       provider: anthropic
       model: claude-haiku-4-5
-      image_tag: #{repo.name}:latest
+      image_tag: #{repo.name.parameterize.presence || "agent"}-latest
       shim_port: 4000
       mem_limit: 8g
     YAML
