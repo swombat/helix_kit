@@ -7,7 +7,7 @@ class ChaosTriggerClient
     @trigger_bearer_token = trigger_bearer_token
   end
 
-  def request_response(conversation_id:, requested_by:, session_id:, request:)
+  def request_response(conversation_id:, requested_by:, session_id:, request:, trigger_kind: "conversation")
     raise ArgumentError, "endpoint_url is missing" if endpoint_url.blank?
     raise ArgumentError, "trigger bearer token is missing" if trigger_bearer_token.blank?
 
@@ -16,6 +16,7 @@ class ChaosTriggerClient
     http_request["Authorization"] = "Bearer #{trigger_bearer_token}"
     http_request["Content-Type"] = "application/json"
     http_request.body = {
+      trigger_kind: trigger_kind,
       conversation_id: conversation_id,
       requested_by: requested_by,
       session_id: session_id,

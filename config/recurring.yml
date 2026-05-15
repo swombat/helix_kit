@@ -31,6 +31,11 @@ production:
     class: ConversationInitiationJob
     schedule: every hour at minute 0
 
+  external_agent_wake:
+    class: ExternalAgentWakeJob
+    queue: default
+    schedule: every hour at minute 5
+
   memory_refinement:
     class: MemoryRefinementJob
     queue: default

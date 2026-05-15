@@ -88,4 +88,24 @@ class ConversationInitiationJobTest < ActiveSupport::TestCase
            "Should not schedule job for paused agent"
   end
 
+  test "skips external agents because they receive their own wake invitations" do
+    @agent.update!(
+      runtime: "external",
+      uuid: SecureRandom.uuid_v7,
+      endpoint_url: "https://agent.example.com",
+      trigger_bearer_token: "tr_valid"
+    )
+
+    daytime = Time.utc(2026, 1, 28, 12, 0, 0)
+    travel_to daytime do
+      ConversationInitiationJob.perform_now
+    end
+
+    enqueued = queue_adapter.enqueued_jobs.select { |j| j["job_class"] == "AgentInitiationDecisionJob" }
+    agent_ids = enqueued.map { |j| j["arguments"].first["_aj_globalid"] }
+
+    refute agent_ids.any? { |gid| gid.include?("/#{@agent.id}") },
+           "External agents should decide what to do from ExternalAgentWakeJob instead"
+  end
+
 end

@@ -19,6 +19,7 @@ class ConversationInitiationJob < ApplicationJob
   def eligible_agents
     Agent.active
          .unpaused
+         .where(runtime: "inline")
          .joins(:account)
          .where(accounts: { id: active_account_ids })
          .distinct
