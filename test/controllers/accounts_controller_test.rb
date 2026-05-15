@@ -32,6 +32,27 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Updated Name", @team_account.reload.read_attribute(:name)
   end
 
+  test "should update default conversation mode" do
+    patch account_path(@team_account), params: {
+      account: {
+        name: @team_account.read_attribute(:name),
+        default_conversation_mode: "agents"
+      }
+    }
+
+    assert_redirected_to @team_account
+    assert_equal "agents", @team_account.reload.default_conversation_mode
+  end
+
+  test "should update default conversation mode without name" do
+    patch account_path(@personal_account), params: {
+      account: { default_conversation_mode: "agents" }
+    }
+
+    assert_redirected_to @personal_account
+    assert_equal "agents", @personal_account.reload.default_conversation_mode
+  end
+
   test "should convert personal to team" do
     patch account_path(@personal_account), params: {
       convert_to: "team",

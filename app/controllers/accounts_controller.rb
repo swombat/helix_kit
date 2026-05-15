@@ -92,7 +92,7 @@ class AccountsController < ApplicationController
   end
 
   def account_params
-    params.require(:account).permit(:name)
+    params.require(:account).permit(:name, :default_conversation_mode)
   end
 
   def current_account

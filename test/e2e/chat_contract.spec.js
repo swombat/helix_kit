@@ -29,9 +29,13 @@ async function startGroupChat(page, accountId, firstMessage) {
   await page.goto(`/accounts/${accountId}/chats`);
   await expect(page.getByRole('heading', { name: 'New Chat' })).toBeVisible();
 
-  await page.getByLabel(/group chat with agents/i).check();
-  await page.getByRole('button', { name: /E2E Researcher/i }).click();
-  await page.getByRole('button', { name: /E2E Critic/i }).click();
+  const chatForm = page.locator('main');
+  await expect(chatForm.getByRole('button', { name: /^Model$/i })).toBeVisible();
+  await expect(page.getByLabel(/allow web access/i)).toBeVisible();
+  await chatForm.getByRole('button', { name: /^Agents$/i }).click();
+  await expect(page.getByLabel(/allow web access/i)).toBeHidden();
+  await expect(chatForm.getByRole('button', { name: /E2E Researcher/i })).toBeVisible();
+  await expect(chatForm.getByRole('button', { name: /E2E Critic/i })).toBeVisible();
 
   const composer = page.locator('main textarea').last();
   await composer.fill(firstMessage);
@@ -39,6 +43,8 @@ async function startGroupChat(page, accountId, firstMessage) {
 
   await expect(page).toHaveURL(/\/accounts\/[^/]+\/chats\/[^/]+$/);
   await expect(page.getByText(firstMessage)).toBeVisible();
+
+  return page.url().split('/').pop();
 }
 
 test.describe('browser contracts', () => {
@@ -57,9 +63,18 @@ test.describe('browser contracts', () => {
     request,
   }) => {
     await login(page, setup.primary_user, setup.password);
-    await startGroupChat(page, setup.account_id, 'Please compare the two test agents.');
+    const chatId = await startGroupChat(page, setup.account_id, 'Please compare the two test agents.');
 
-    const chatId = page.url().split('/').pop();
+    const state = await getRunState(request, setup.run_id);
+    expect(state.account.chats).toContainEqual(
+      expect.objectContaining({
+        id: chatId,
+        manual_responses: true,
+        web_access: false,
+        agent_names: expect.arrayContaining(['E2E Researcher', 'E2E Critic']),
+      })
+    );
+
     const response = await request.post('/test/e2e/assistant_message', {
       data: {
         chat_id: chatId,
@@ -98,6 +113,26 @@ test.describe('browser contracts', () => {
 
     await expect(page.getByText('Synced message from another browser.')).toBeVisible();
     await secondContext.close();
+  });
+
+  test('account default can open new conversations in agents mode', async ({ page, request }) => {
+    await login(page, setup.primary_user, setup.password);
+    await page.goto(`/accounts/${setup.account_id}/edit`);
+    await expect(page.getByRole('heading', { name: 'Edit Account' })).toBeVisible();
+
+    await page.locator('#default-conversation-agents').click();
+    await page.getByRole('button', { name: 'Save Changes' }).click();
+    await expect(page).toHaveURL(/\/accounts\/[^/]+$/);
+
+    const state = await getRunState(request, setup.run_id);
+    expect(state.account.default_conversation_mode).toBe('agents');
+
+    await page.goto(`/accounts/${setup.account_id}/chats`);
+    const chatForm = page.locator('main');
+    await expect(chatForm.getByRole('button', { name: /^Agents$/i })).toHaveClass(/bg-primary/);
+    await expect(page.getByLabel(/allow web access/i)).toBeHidden();
+    await expect(chatForm.getByRole('button', { name: /E2E Researcher/i })).toBeVisible();
+    await expect(chatForm.getByRole('button', { name: /E2E Critic/i })).toBeVisible();
   });
 
   test('user can update profile details, timezone, and avatar', async ({ page, request }) => {

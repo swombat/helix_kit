@@ -10,10 +10,15 @@
 
   let { chats = [], account, models = [], agents = [], file_upload_config = null } = $props();
 
+  const defaultConversationMode =
+    account?.default_conversation_mode === 'agents' && agents.length > 0 ? 'agents' : 'model';
+  const allAgentIds = () => agents.map((agent) => agent.id);
+
   let selectedModel = $state(models?.[0]?.model_id ?? '');
-  let selectedAgent = $state(null); // Will hold the agent object if an agent is selected from dropdown
-  let isGroupChat = $state(false);
-  let selectedAgentIds = $state([]);
+  let conversationMode = $state(defaultConversationMode);
+  let previousConversationMode = $state(defaultConversationMode);
+  let selectedAgentIds = $state(defaultConversationMode === 'agents' ? allAgentIds() : []);
+  let isGroupChat = $derived(conversationMode === 'agents');
   let sidebarOpen = $state(false);
   let textareaRef = $state(null);
   // Random placeholder (10% chance for the tip)
@@ -27,20 +32,20 @@
   let message = $state('');
   let processing = $state(false);
 
-  // When enabling group chat mode, clear the dropdown agent selection
-  function toggleGroupChat() {
-    isGroupChat = !isGroupChat;
-    if (isGroupChat) {
-      selectedAgent = null;
-    } else {
-      selectedAgentIds = [];
-    }
-  }
+  $effect(() => {
+    if (conversationMode === previousConversationMode) return;
 
-  function clearGroupChatSelection() {
-    isGroupChat = false;
-    selectedAgentIds = [];
-  }
+    if (conversationMode === 'agents') {
+      selectedAgentIds = allAgentIds();
+    }
+
+    if (conversationMode === 'model') {
+      selectedAgentIds = [];
+      webAccess = false;
+    }
+
+    previousConversationMode = conversationMode;
+  });
 
   function handleKeydown(event) {
     if (event.key === 'Enter' && !event.shiftKey) {
@@ -73,12 +78,7 @@
       formData.append('files[]', file);
     });
 
-    // If an agent is selected from dropdown, create a group chat with that single agent
-    if (selectedAgent) {
-      formData.append('agent_ids[]', selectedAgent.id);
-    }
-    // If group chat mode with manually selected agents
-    else if (isGroupChat) {
+    if (isGroupChat) {
       selectedAgentIds.forEach((agentId) => {
         formData.append('agent_ids[]', agentId);
       });
@@ -115,15 +115,9 @@
 
   <!-- Right side: New chat form -->
   <main class="flex-1 flex flex-col bg-background">
-    <NewChatHeader
-      {models}
-      {agents}
-      bind:selectedModel
-      bind:selectedAgent
-      onAgentSelected={clearGroupChatSelection}
-      onMenuOpen={() => (sidebarOpen = true)} />
+    <NewChatHeader onMenuOpen={() => (sidebarOpen = true)} />
 
-    <NewChatSettingsBar {agents} bind:webAccess {isGroupChat} onGroupChatToggle={toggleGroupChat} />
+    <NewChatSettingsBar {models} {agents} bind:selectedModel bind:conversationMode bind:webAccess />
 
     <!-- Agent selection for group chat -->
     {#if isGroupChat && agents.length > 0}

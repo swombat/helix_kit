@@ -69,11 +69,20 @@ module TestSupport
       render json: {
         account: {
           id: account.id,
+          default_conversation_mode: account.default_conversation_mode,
           members: account.memberships.includes(:user).map { |membership|
             {
               email: membership.user.email_address,
               role: membership.role,
               confirmed: membership.confirmed?
+            }
+          },
+          chats: account.chats.includes(:agents).order(created_at: :desc).map { |chat|
+            {
+              id: chat.to_param,
+              manual_responses: chat.manual_responses?,
+              web_access: chat.web_access?,
+              agent_names: chat.agents.map(&:name)
             }
           }
         },

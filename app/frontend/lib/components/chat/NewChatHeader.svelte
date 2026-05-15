@@ -1,16 +1,8 @@
 <script>
   import { Button } from '$lib/components/shadcn/button/index.js';
-  import ChatTargetSelect from '$lib/components/chat/ChatTargetSelect.svelte';
   import { List } from 'phosphor-svelte';
 
-  let {
-    models = [],
-    agents = [],
-    selectedModel = $bindable(''),
-    selectedAgent = $bindable(null),
-    onAgentSelected,
-    onMenuOpen,
-  } = $props();
+  let { onMenuOpen } = $props();
 </script>
 
 <header class="border-b border-border bg-muted/30 px-4 md:px-6 py-3 md:py-4">
@@ -19,8 +11,5 @@
       <List size={20} />
     </Button>
     <h1 class="text-lg font-semibold">New Chat</h1>
-  </div>
-  <div class="mt-2 ml-0 md:ml-0">
-    <ChatTargetSelect {models} {agents} bind:selectedModel bind:selectedAgent {onAgentSelected} />
   </div>
 </header>

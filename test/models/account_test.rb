@@ -685,4 +685,43 @@ class AccountTest < ActiveSupport::TestCase
     assert_not account.owned_by?(nil)
   end
 
+  test "default conversation mode defaults to model" do
+    account = Account.create!(name: "Conversation Defaults", account_type: :team)
+
+    assert_equal "model", account.default_conversation_mode
+    assert_equal "model", account.as_json["default_conversation_mode"]
+  end
+
+  test "default conversation mode can be set to agents" do
+    account = Account.create!(
+      name: "Group Defaults",
+      account_type: :team,
+      default_conversation_mode: "agents"
+    )
+
+    assert_equal "agents", account.default_conversation_mode
+    assert_equal "agents", account.settings["default_conversation_mode"]
+  end
+
+  test "default conversation mode maps legacy values" do
+    account = Account.create!(name: "Legacy Defaults", account_type: :team)
+
+    account.update_column(:settings, { "default_conversation_mode" => "single" })
+    assert_equal "model", account.reload.default_conversation_mode
+
+    account.update_column(:settings, { "default_conversation_mode" => "group" })
+    assert_equal "agents", account.reload.default_conversation_mode
+  end
+
+  test "default conversation mode rejects unknown values" do
+    account = Account.new(
+      name: "Bad Defaults",
+      account_type: :team,
+      default_conversation_mode: "surprise"
+    )
+
+    assert_not account.valid?
+    assert_includes account.errors[:default_conversation_mode], "is not included in the list"
+  end
+
 end

@@ -11,6 +11,8 @@ class Account < ApplicationRecord
   # Enums
   enum :account_type, { personal: 0, team: 1 }
 
+  DEFAULT_CONVERSATION_MODES = %w[model agents].freeze
+
   # Associations
   has_many :memberships, dependent: :destroy
   has_many :users, through: :memberships
@@ -26,6 +28,7 @@ class Account < ApplicationRecord
   # Validations (Rails-only, no SQL constraints!)
   validates :name, presence: true
   validates :account_type, presence: true
+  validates :default_conversation_mode, inclusion: { in: DEFAULT_CONVERSATION_MODES }
   validate :enforce_personal_account_limit, if: :personal?
   validate :can_invite_members, if: -> { memberships.any?(&:invitation?) }
 
@@ -40,6 +43,8 @@ class Account < ApplicationRecord
 
   encrypts :github_pat
 
+  store_accessor :settings, :default_conversation_mode
+
   # Authorization scope for SyncChannel - Account is special, it IS the account
   def self.accessible_by(user)
     return none unless user
@@ -47,7 +52,8 @@ class Account < ApplicationRecord
     user.confirmed_accounts
   end
 
-  json_attributes :personal?, :team?, :active?, :is_site_admin, :name, :github_login
+  json_attributes :personal?, :team?, :active?, :is_site_admin, :name, :github_login,
+                  :default_conversation_mode
 
   # Business Logic Methods
   def add_user!(user, role: "member", skip_confirmation: false)
@@ -131,6 +137,16 @@ class Account < ApplicationRecord
 
   def github_commits_context
     github_integration&.commits_context
+  end
+
+  def default_conversation_mode
+    raw_mode = super.presence
+
+    case raw_mode
+    when "single" then "model"
+    when "group" then "agents"
+    else raw_mode || "model"
+    end
   end
 
   alias_method :active, :active?
