@@ -12,6 +12,9 @@ class ChatThinkingTest < ActiveSupport::TestCase
     assert Chat.supports_thinking?("openai/gpt-5.1")
     assert Chat.supports_thinking?("openai/gpt-5")
     assert Chat.supports_thinking?("google/gemini-3-pro-preview")
+    assert Chat.supports_thinking?("x-ai/grok-4.3")
+    assert Chat.supports_thinking?("x-ai/grok-4.20")
+    assert Chat.supports_thinking?("x-ai/grok-4.20-multi-agent")
   end
 
   test "supports_thinking? returns false for non-capable models" do
@@ -78,6 +81,12 @@ class ChatThinkingTest < ActiveSupport::TestCase
     assert_equal "gemini-2.5-pro", Chat.provider_model_id("google/gemini-2.5-pro")
   end
 
+  test "provider_model_id returns current direct xAI model IDs for Grok models" do
+    assert_equal "grok-4.3", Chat.provider_model_id("x-ai/grok-4.3")
+    assert_equal "grok-4.20-0309-reasoning", Chat.provider_model_id("x-ai/grok-4.20")
+    assert_equal "grok-4.20-multi-agent-0309", Chat.provider_model_id("x-ai/grok-4.20-multi-agent")
+  end
+
   test "provider_model_id handles models without provider prefix" do
     assert_equal "gpt-5", Chat.provider_model_id("gpt-5")
     assert_equal "claude-opus-4", Chat.provider_model_id("claude-opus-4")
@@ -106,6 +115,21 @@ class ChatThinkingTest < ActiveSupport::TestCase
     assert_nil Chat.model_config("unknown/model")
     assert_nil Chat.model_config("fake/gpt-100")
     assert_nil Chat.model_config(nil)
+  end
+
+  test "MODELS constant uses stable Grok 4.20 entries instead of beta slugs" do
+    model_ids = Chat::MODELS.map { |model| model[:model_id] }
+
+    assert_includes model_ids, "x-ai/grok-4.20"
+    assert_includes model_ids, "x-ai/grok-4.20-multi-agent"
+    refute model_ids.any? { |model_id| model_id.include?("grok-4.20") && model_id.include?("beta") }
+  end
+
+  test "Top Models uses Grok 4.3 as the xAI recommendation" do
+    top_xai_model = Chat::MODELS.find { |model| model[:group] == "Top Models" && model[:model_id].start_with?("x-ai/") }
+
+    assert_equal "x-ai/grok-4.3", top_xai_model[:model_id]
+    assert_equal "grok-4.3", top_xai_model[:provider_model_id]
   end
 
   test "MODELS constant includes thinking metadata for all thinking-capable models" do

@@ -51,10 +51,10 @@ module Chat::ModelSelection
       audio_input: true
     },
     {
-      model_id: "x-ai/grok-4.1-fast",
-      label: "Grok 4.1 Fast",
+      model_id: "x-ai/grok-4.3",
+      label: "Grok 4.3",
       group: "Top Models",
-      provider_model_id: "grok-4.1-fast",
+      provider_model_id: "grok-4.3",
       thinking: { supported: true }
     },
     { model_id: "deepseek/deepseek-v3.2", label: "DeepSeek V3.2", group: "Top Models" },
@@ -252,9 +252,29 @@ module Chat::ModelSelection
     },
 
     # xAI - Grok models with reasoning support
-    # grok-3-mini: Shows thinking traces, uses reasoning_effort parameter
-    # grok-4-fast/4.1-fast: Can toggle reasoning on/off
+    # grok-4.3/4.20: Support configurable reasoning on the direct xAI API
     # grok-4/grok-3: Built-in reasoning but not exposed/configurable
+    {
+      model_id: "x-ai/grok-4.3",
+      label: "Grok 4.3",
+      group: "xAI",
+      provider_model_id: "grok-4.3",
+      thinking: { supported: true }
+    },
+    {
+      model_id: "x-ai/grok-4.20",
+      label: "Grok 4.20",
+      group: "xAI",
+      provider_model_id: "grok-4.20-0309-reasoning",
+      thinking: { supported: true }
+    },
+    {
+      model_id: "x-ai/grok-4.20-multi-agent",
+      label: "Grok 4.20 Multi-Agent",
+      group: "xAI",
+      provider_model_id: "grok-4.20-multi-agent-0309",
+      thinking: { supported: true }
+    },
     {
       model_id: "x-ai/grok-3-mini",
       label: "Grok 3 Mini",
@@ -280,18 +300,6 @@ module Chat::ModelSelection
       label: "Grok 3",
       group: "xAI",
       provider_model_id: "grok-3"
-    },
-    {
-      model_id: "x-ai/grok-4.20-experimental-beta-0304-reasoning",
-      label: "Grok 4.20 Beta (Reasoning)",
-      group: "xAI",
-      provider_model_id: "grok-4.20-experimental-beta-0304-reasoning"
-    },
-    {
-      model_id: "x-ai/grok-4.20-experimental-beta-0304-non-reasoning",
-      label: "Grok 4.20 Beta",
-      group: "xAI",
-      provider_model_id: "grok-4.20-experimental-beta-0304-non-reasoning"
     },
 
     # DeepSeek
