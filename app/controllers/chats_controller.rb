@@ -9,7 +9,7 @@ class ChatsController < ApplicationController
     render inertia: "chats/new", props: {
       chats: Chat.cached_json_for(Array(@chats), as: :sidebar_json),
       models: available_models,
-      agents: available_agents(as: :list, include_inactive: true),
+      agents: available_agents(as: :list),
       account: current_account.as_json,
       file_upload_config: file_upload_config
     }
@@ -22,7 +22,7 @@ class ChatsController < ApplicationController
       chats: Chat.cached_json_for(@chats, as: :sidebar_json),
       account: current_account.as_json,
       models: available_models,
-      agents: available_agents(as: :list, include_inactive: true),
+      agents: available_agents(as: :list),
       file_upload_config: file_upload_config
     }
   end
@@ -147,8 +147,8 @@ class ChatsController < ApplicationController
     }
   end
 
-  def available_agents(as: nil, include_inactive: false)
-    scope = include_inactive ? current_account.agents : current_account.agents.active
+  def available_agents(as: nil)
+    scope = current_account.agents.active.order(:paused, :name)
 
     if as.present?
       scope.as_json(as: as)

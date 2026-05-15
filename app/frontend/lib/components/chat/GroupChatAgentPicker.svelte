@@ -31,14 +31,14 @@
             : agent.colour
               ? `bg-transparent border-${agent.colour}-300 dark:border-${agent.colour}-700 hover:bg-${agent.colour}-50 dark:hover:bg-${agent.colour}-950 text-${agent.colour}-600 dark:text-${agent.colour}-400`
               : 'bg-muted hover:bg-muted/80 text-muted-foreground border-border'}
-                 {agent.active === false ? 'opacity-60' : ''}">
+                 {agent.paused === true ? 'opacity-60' : ''}">
           <IconComponent
             size={14}
             weight="duotone"
             class={agent.colour && !isSelected ? `text-${agent.colour}-600 dark:text-${agent.colour}-400` : ''} />
           {agent.name}
-          {#if agent.active === false}
-            <span class="text-[10px] uppercase tracking-wide text-muted-foreground">Inactive</span>
+          {#if agent.paused === true}
+            <span class="text-[10px] uppercase tracking-wide text-muted-foreground">Paused</span>
           {/if}
         </button>
       {/each}

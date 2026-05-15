@@ -36,7 +36,8 @@ async function startGroupChat(page, accountId, firstMessage) {
   await expect(page.getByLabel(/allow web access/i)).toBeHidden();
   await expect(chatForm.getByRole('button', { name: /E2E Researcher/i })).toBeVisible();
   await expect(chatForm.getByRole('button', { name: /E2E Critic/i })).toBeVisible();
-  await expect(chatForm.getByRole('button', { name: /E2E Deprecated Fork/i })).toBeVisible();
+  await expect(chatForm.getByRole('button', { name: /E2E Paused Fork/i })).toBeVisible();
+  await expect(chatForm.getByRole('button', { name: /E2E Inactive Fork/i })).toBeHidden();
 
   const composer = page.locator('main textarea').last();
   await composer.fill(firstMessage);
@@ -75,7 +76,7 @@ test.describe('browser contracts', () => {
         agent_names: expect.arrayContaining(['E2E Researcher', 'E2E Critic']),
       })
     );
-    expect(state.account.chats.find((chat) => chat.id === chatId).agent_names).not.toContain('E2E Deprecated Fork');
+    expect(state.account.chats.find((chat) => chat.id === chatId).agent_names).not.toContain('E2E Paused Fork');
 
     const response = await request.post('/test/e2e/assistant_message', {
       data: {
@@ -135,7 +136,13 @@ test.describe('browser contracts', () => {
     await expect(page.getByLabel(/allow web access/i)).toBeHidden();
     await expect(chatForm.getByRole('button', { name: /E2E Researcher/i })).toBeVisible();
     await expect(chatForm.getByRole('button', { name: /E2E Critic/i })).toBeVisible();
-    await expect(chatForm.getByRole('button', { name: /E2E Deprecated Fork/i })).toBeVisible();
+    await expect(chatForm.getByRole('button', { name: /E2E Paused Fork/i })).toBeVisible();
+    await expect(chatForm.getByRole('button', { name: /E2E Inactive Fork/i })).toBeHidden();
+
+    const agentButtonLabels = await chatForm.getByRole('button').filter({ hasText: /E2E/ }).allTextContents();
+    expect(agentButtonLabels.findIndex((label) => label.includes('E2E Paused Fork'))).toBeGreaterThan(
+      agentButtonLabels.findIndex((label) => label.includes('E2E Critic'))
+    );
   });
 
   test('user can update profile details, timezone, and avatar', async ({ page, request }) => {

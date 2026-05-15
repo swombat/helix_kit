@@ -22,7 +22,8 @@ module TestSupport
       agents = [
         create_agent!(account, "E2E Researcher", "slate"),
         create_agent!(account, "E2E Critic", "teal"),
-        create_agent!(account, "E2E Deprecated Fork", "zinc", active: false)
+        create_agent!(account, "E2E Paused Fork", "zinc", paused: true),
+        create_agent!(account, "E2E Inactive Fork", "gray", active: false)
       ]
 
       render json: {
@@ -130,7 +131,7 @@ module TestSupport
       User.create!(email_address: email, password: PASSWORD, password_confirmation: PASSWORD)
     end
 
-    def create_agent!(account, name, colour, active: true)
+    def create_agent!(account, name, colour, active: true, paused: false)
       account.agents.create!(
         name: name,
         system_prompt: "You are #{name}, a deterministic E2E test agent.",
@@ -138,6 +139,7 @@ module TestSupport
         colour: colour,
         icon: "Robot",
         active: active,
+        paused: paused,
         enabled_tools: []
       )
     end

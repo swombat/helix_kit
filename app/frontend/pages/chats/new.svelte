@@ -12,12 +12,12 @@
 
   const defaultConversationMode =
     account?.default_conversation_mode === 'agents' && agents.length > 0 ? 'agents' : 'model';
-  const activeAgentIds = () => agents.filter((agent) => agent.active !== false).map((agent) => agent.id);
+  const unpausedAgentIds = () => agents.filter((agent) => agent.paused !== true).map((agent) => agent.id);
 
   let selectedModel = $state(models?.[0]?.model_id ?? '');
   let conversationMode = $state(defaultConversationMode);
   let previousConversationMode = $state(defaultConversationMode);
-  let selectedAgentIds = $state(defaultConversationMode === 'agents' ? activeAgentIds() : []);
+  let selectedAgentIds = $state(defaultConversationMode === 'agents' ? unpausedAgentIds() : []);
   let isGroupChat = $derived(conversationMode === 'agents');
   let sidebarOpen = $state(false);
   let textareaRef = $state(null);
@@ -36,7 +36,7 @@
     if (conversationMode === previousConversationMode) return;
 
     if (conversationMode === 'agents') {
-      selectedAgentIds = activeAgentIds();
+      selectedAgentIds = unpausedAgentIds();
     }
 
     if (conversationMode === 'model') {
