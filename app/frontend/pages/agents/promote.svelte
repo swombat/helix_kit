@@ -243,19 +243,15 @@ cd {repo?.name || agent.github_repo_name}</pre>
       </div>
 
       <div class="space-y-2">
-        <h3 class="font-medium">Deploy after you have the master key</h3>
+        <h3 class="font-medium">Deploy to the agent VM after you have the master key</h3>
         <pre class="overflow-x-auto rounded bg-muted p-3 text-sm">printf '%s' '&lt;master-key-from-this-page&gt;' &gt; master.key
 chmod 600 master.key
 
-export ANTHROPIC_API_KEY=...
-# or: export OPENAI_API_KEY=...
-
-bin/deploy --local
-# later, for a production host:
-bin/deploy --host your-docker-host</pre>
+bin/deploy --vm</pre>
         <p class="text-sm text-muted-foreground">
-          The deploy script decrypts credentials, builds and starts the runtime, checks health, and announces the endpoint
-          back to HelixKit.
+          Provider API keys are encrypted into credentials.yml.enc by HelixKit. The deploy script uploads the master key
+          to the agent VM, decrypts credentials there, builds and starts the runtime, checks health, and announces the
+          endpoint back to HelixKit.
         </p>
       </div>
 
@@ -289,18 +285,12 @@ cd {repo?.name}</pre>
     </section>
 
     <section class="space-y-4 rounded-lg border p-5">
-      <h2 class="text-lg font-medium">5. Set environment and deploy</h2>
-      <pre class="overflow-x-auto rounded bg-muted p-3 text-sm">export ANTHROPIC_API_KEY=...
-# or: export OPENAI_API_KEY=...
-# macOS certificate fallback, only if announce fails with CERTIFICATE_VERIFY_FAILED:
-export SSL_CERT_FILE=$(python3 -m certifi)
-
-bin/deploy --local
-# later, for a production host:
-bin/deploy --host your-docker-host</pre>
+      <h2 class="text-lg font-medium">5. Deploy to the agent VM</h2>
+      <pre class="overflow-x-auto rounded bg-muted p-3 text-sm">bin/deploy --vm</pre>
       <p class="text-sm text-muted-foreground">
-        The deploy script rsyncs the repo, decrypts credentials, builds the image, starts the container, checks health,
-        and announces the runtime back to HelixKit.
+        The deploy script uploads master.key to the agent VM, rsyncs the repo, decrypts credentials, builds the image,
+        starts the container, checks health, and announces the runtime back to HelixKit. Provider API keys are already in
+        the encrypted credentials.
       </p>
     </section>
   {/if}

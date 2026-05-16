@@ -1,11 +1,21 @@
 class AgentCredentialsEncryptor
 
-  def initialize(agent, master_key_b64, outbound_token:, github_deploy_key: nil)
+  PROVIDER_KEYS = {
+    "ANTHROPIC_API_KEY" => [ :anthropic_api_key, [ :ai, :claude, :api_token ], "ANTHROPIC_API_KEY" ],
+    "OPENAI_API_KEY" => [ :openai_api_key, [ :ai, :open_ai, :api_token ], "OPENAI_API_KEY" ],
+    "OPENROUTER_API_KEY" => [ :openrouter_api_key, [ :ai, :openrouter, :api_token ], "OPENROUTER_API_KEY" ],
+    "GEMINI_API_KEY" => [ :gemini_api_key, [ :ai, :gemini, :api_token ], "GEMINI_API_KEY" ],
+    "GOOGLE_API_KEY" => [ :gemini_api_key, [ :ai, :gemini, :api_token ], "GOOGLE_API_KEY" ],
+    "XAI_API_KEY" => [ :xai_api_key, [ :ai, :xai, :api_token ], "XAI_API_KEY" ]
+  }.freeze
+
+  def initialize(agent, master_key_b64, outbound_token:, github_deploy_key: nil, provider_keys: nil)
     require "base64"
 
     @agent = agent
     @outbound_token = outbound_token
     @github_deploy_key = github_deploy_key
+    @provider_keys = provider_keys
     @master_key = Base64.strict_decode64(master_key_b64)
     raise ArgumentError, "master key must be 32 bytes" unless @master_key.bytesize == 32
   end
@@ -34,7 +44,7 @@ class AgentCredentialsEncryptor
 
   private
 
-  attr_reader :agent, :master_key, :outbound_token, :github_deploy_key
+  attr_reader :agent, :master_key, :outbound_token, :github_deploy_key, :provider_keys
 
   def plaintext_yaml
     credentials = {
@@ -55,7 +65,28 @@ class AgentCredentialsEncryptor
       }
     end
 
+    llm_provider_keys = provider_keys || self.class.provider_keys_from_helixkit
+    credentials["llm_provider_keys"] = llm_provider_keys if llm_provider_keys.present?
+
     credentials.to_yaml
+  end
+
+  def self.provider_keys_from_helixkit
+    PROVIDER_KEYS.filter_map do |env_name, (ruby_llm_method, credentials_path, fallback_env_name)|
+      value = provider_key_value(ruby_llm_method, credentials_path, fallback_env_name)
+      [ env_name, value ] if usable_provider_key?(value)
+    end.to_h
+  end
+
+  def self.provider_key_value(ruby_llm_method, credentials_path, env_name)
+    configured = RubyLLM.config.public_send(ruby_llm_method) if defined?(RubyLLM)
+    configured.presence ||
+      Rails.application.credentials.dig(*credentials_path).presence ||
+      ENV[env_name].presence
+  end
+
+  def self.usable_provider_key?(value)
+    value.present? && !value.start_with?("<")
   end
 
   def agent_slug

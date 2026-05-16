@@ -15,7 +15,7 @@ Use this to test the current per-agent GitHub repo promotion flow end to end.
 - `swombat/helix-kit-agents` is marked as a GitHub template repository.
 - The current `helix-kit-agents` template changes have been pushed before you create a new agent repo.
 - You have a GitHub PAT with `repo` scope.
-- You have `ANTHROPIC_API_KEY` or `OPENAI_API_KEY` available in the shell where you deploy.
+- HelixKit has the relevant LLM provider key configured; promotion encrypts it into `credentials.yml.enc`.
 
 ## Phase 1 - Prepare HelixKit
 
@@ -63,29 +63,16 @@ Save the one-time key:
 printf '%s' '<master-key-from-wizard>' > master.key
 ```
 
-Set model provider credentials:
+Deploy to the standard agent VM:
 
 ```bash
-export ANTHROPIC_API_KEY=...
-# or:
-export OPENAI_API_KEY=...
-```
-
-If macOS Python certificate discovery fails during announce:
-
-```bash
-export SSL_CERT_FILE=$(python3 -m certifi)
-```
-
-Deploy locally:
-
-```bash
-bin/deploy --local
+bin/deploy --vm
 ```
 
 Expected results:
 
 - `bin/generate-env` decrypts `credentials.yml.enc`.
+- Provider API keys are written to `.env` from encrypted credentials.
 - `.agent-deploy-key` is written with mode `0600`.
 - Docker starts the runtime and health checks pass.
 - The runtime announces to HelixKit.

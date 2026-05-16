@@ -14,7 +14,11 @@ class AgentCredentialsEncryptorTest < ActiveSupport::TestCase
       agent,
       master_key,
       outbound_token: "hx_test",
-      github_deploy_key: "PRIVATE KEY"
+      github_deploy_key: "PRIVATE KEY",
+      provider_keys: {
+        "ANTHROPIC_API_KEY" => "sk-ant-test",
+        "OPENROUTER_API_KEY" => "sk-or-test"
+      }
     ).encrypt
     wrapper = YAML.safe_load(encrypted)
 
@@ -28,6 +32,19 @@ class AgentCredentialsEncryptorTest < ActiveSupport::TestCase
     assert_equal %w[app_url bearer_token], creds.fetch("helix_kit").keys.sort
     assert_equal "tr_test", creds.dig("trigger", "bearer_token")
     assert_equal "PRIVATE KEY", creds.dig("github", "deploy_key")
+    assert_equal "sk-ant-test", creds.dig("llm_provider_keys", "ANTHROPIC_API_KEY")
+    assert_equal "sk-or-test", creds.dig("llm_provider_keys", "OPENROUTER_API_KEY")
+  end
+
+  test "omits placeholder provider keys" do
+    provider_keys = AgentCredentialsEncryptor.stub(
+      :provider_key_value,
+      ->(_method, _credentials_path, _env_name) { "<PLACEHOLDER>" }
+    ) do
+      AgentCredentialsEncryptor.provider_keys_from_helixkit
+    end
+
+    assert_empty provider_keys
   end
 
   private
