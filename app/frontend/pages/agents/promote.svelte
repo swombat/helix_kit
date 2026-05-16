@@ -35,9 +35,7 @@
   let beginPath = $derived(beginPromoteAccountAgentPath(account.id, agent.id));
   let githubAccessPath = $derived(githubAccessPromoteAccountAgentPath(account.id, agent.id));
   let cancelPath = $derived(cancelPromoteAccountAgentPath(account.id, agent.id));
-  let regenerateCredentialsPath = $derived(
-    `/accounts/${account.id}/agents/${agent.id}/promote/regenerate_credentials`
-  );
+  let regenerateCredentialsPath = $derived(`/accounts/${account.id}/agents/${agent.id}/promote/regenerate_credentials`);
   let testRequestPath = $derived(sendTestRequestAccountAgentPath(account.id, agent.id));
   let repo = $derived(generatedCredentials?.repo || githubRepo);
   let sshCloneUrl = $derived(repo?.ssh_url || cloneUrl);
@@ -161,6 +159,57 @@
 
   <section class="space-y-4 rounded-lg border p-5">
     <div class="space-y-2">
+      <h2 class="text-lg font-medium">One-time deploy setup</h2>
+      <p class="text-sm text-muted-foreground">
+        Do this once on your local machine / DNS setup, then each future agent should only need its master key and
+        <span class="font-mono">bin/deploy --vm</span>. This assumes the Hetzner/Kamal host or VM already exists and can
+        run Docker Compose workloads.
+      </p>
+    </div>
+
+    <div class="space-y-2">
+      <h3 class="font-medium">1. Choose the shared agent domain</h3>
+      <p class="text-sm text-muted-foreground">
+        Point the base name and wildcard to the public entrypoint for the agent VM/reverse proxy.
+      </p>
+      <pre class="overflow-x-auto rounded bg-muted p-3 text-sm">helixagents.swombat.io
+*.helixagents.swombat.io</pre>
+      <p class="text-sm text-muted-foreground">
+        HelixKit uses <span class="font-mono">HELIXKIT_AGENT_RUNTIME_DOMAIN</span> when it generates new agent repos. If
+        you change the domain, set that env var on the HelixKit app before creating/promoting more agents.
+      </p>
+    </div>
+
+    <div class="space-y-2">
+      <h3 class="font-medium">2. Add a stable SSH alias</h3>
+      <p class="text-sm text-muted-foreground">
+        The generated repos default to <span class="font-mono">vm_host: helix-agents</span>. Make that alias reach the
+        VM that will run the agent containers.
+      </p>
+      <pre class="overflow-x-auto rounded bg-muted p-3 text-sm">Host helix-agents
+  HostName misc.granttree.co.uk
+  User &lt;deploy-user&gt;</pre>
+      <p class="text-sm text-muted-foreground">
+        If the agents run inside a VM behind the Hetzner host, make this alias target that VM access path, for example
+        with your usual proxy/jump-host setup. If you prefer another alias, set
+        <span class="font-mono">HELIXKIT_AGENT_RUNTIME_VM_HOST</span> in HelixKit before repo generation.
+      </p>
+    </div>
+
+    <div class="space-y-2">
+      <h3 class="font-medium">3. Make the VM agent-ready</h3>
+      <p class="text-sm text-muted-foreground">
+        The deploy script expects SSH, Docker with Compose v2, Python 3 with <span class="font-mono">cryptography</span>
+        and
+        <span class="font-mono">yaml</span>, <span class="font-mono">rsync</span>, and routing from each agent subdomain
+        to that agent's shim port. You do not need to paste provider API keys per agent; HelixKit encrypts them into the
+        repo credentials.
+      </p>
+    </div>
+  </section>
+
+  <section class="space-y-4 rounded-lg border p-5">
+    <div class="space-y-2">
       <h2 class="text-lg font-medium">1. GitHub access</h2>
       {#if githubConfigured}
         <p class="text-sm text-muted-foreground">Connected as <span class="font-medium">@{githubLogin}</span>.</p>
@@ -222,8 +271,8 @@
         The repo has been prepared. Deploy the runtime, then keep this page open until the status changes to external.
       </p>
       <div class="rounded-md border border-amber-300 bg-amber-50 p-3 text-sm text-amber-950">
-        If the repo creation request timed out before you saw the one-time master key, regenerate credentials below. This
-        will write a fresh <span class="font-mono">credentials.yml.enc</span> to the existing repo and show a new master
+        If the repo creation request timed out before you saw the one-time master key, regenerate credentials below.
+        This will write a fresh <span class="font-mono">credentials.yml.enc</span> to the existing repo and show a new master
         key.
       </div>
 
@@ -244,7 +293,8 @@ cd {repo?.name || agent.github_repo_name}</pre>
 
       <div class="space-y-2">
         <h3 class="font-medium">Deploy to the agent VM after you have the master key</h3>
-        <pre class="overflow-x-auto rounded bg-muted p-3 text-sm">printf '%s' '&lt;master-key-from-this-page&gt;' &gt; master.key
+        <pre
+          class="overflow-x-auto rounded bg-muted p-3 text-sm">printf '%s' '&lt;master-key-from-this-page&gt;' &gt; master.key
 chmod 600 master.key
 
 bin/deploy --vm</pre>
@@ -273,7 +323,8 @@ cd {repo?.name}</pre>
       </p>
       {#if generatedCredentials.regenerated}
         <div class="rounded-md border border-amber-300 bg-amber-50 p-3 text-sm text-amber-950">
-          Credentials were regenerated for the existing repo. Use this new master key; any earlier missing key is obsolete.
+          Credentials were regenerated for the existing repo. Use this new master key; any earlier missing key is
+          obsolete.
         </div>
       {/if}
       <a class="inline-flex" href={masterKeyHref} download="master.key">
@@ -289,8 +340,8 @@ cd {repo?.name}</pre>
       <pre class="overflow-x-auto rounded bg-muted p-3 text-sm">bin/deploy --vm</pre>
       <p class="text-sm text-muted-foreground">
         The deploy script uploads master.key to the agent VM, rsyncs the repo, decrypts credentials, builds the image,
-        starts the container, checks health, and announces the runtime back to HelixKit. Provider API keys are already in
-        the encrypted credentials.
+        starts the container, checks health, and announces the runtime back to HelixKit. Provider API keys are already
+        in the encrypted credentials.
       </p>
     </section>
   {/if}
