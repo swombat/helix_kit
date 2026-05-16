@@ -125,6 +125,34 @@ class ChatThinkingTest < ActiveSupport::TestCase
     refute model_ids.any? { |model_id| model_id.include?("grok-4.20") && model_id.include?("beta") }
   end
 
+  test "MODELS constant includes contemplative essayist probe OpenRouter models" do
+    model_ids = Chat::MODELS.map { |model| model[:model_id] }
+
+    [
+      "anthropic/claude-sonnet-4.6",
+      "minimax/minimax-m2",
+      "minimax/minimax-m2.7",
+      "moonshotai/kimi-k2-0905",
+      "moonshotai/kimi-k2-thinking",
+      "moonshotai/kimi-k2.5",
+      "moonshotai/kimi-k2.6",
+      "openai/gpt-4o-2024-08-06",
+      "openai/gpt-5-codex",
+      "openai/gpt-5.1-codex",
+      "openai/gpt-5.2-codex",
+      "openai/gpt-5.3-chat",
+      "openai/gpt-5.3-codex",
+      "qwen/qwen3-coder-plus",
+      "qwen/qwen3.6-plus",
+      "z-ai/glm-4.5",
+      "z-ai/glm-4.6",
+      "z-ai/glm-4.7",
+      "z-ai/glm-5.1"
+    ].each do |model_id|
+      assert_includes model_ids, model_id
+    end
+  end
+
   test "Top Models uses Grok 4.3 as the xAI recommendation" do
     top_xai_model = Chat::MODELS.find { |model| model[:group] == "Top Models" && model[:model_id].start_with?("x-ai/") }
 

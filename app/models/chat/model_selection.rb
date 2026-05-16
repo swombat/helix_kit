@@ -75,6 +75,24 @@ module Chat::ModelSelection
       thinking: { supported: true }
     },
     {
+      model_id: "openai/gpt-5.3-chat",
+      label: "GPT-5.3 Chat",
+      group: "OpenAI",
+      thinking: { supported: true }
+    },
+    {
+      model_id: "openai/gpt-5.3-codex",
+      label: "GPT-5.3 Codex",
+      group: "OpenAI",
+      thinking: { supported: true }
+    },
+    {
+      model_id: "openai/gpt-5.2-codex",
+      label: "GPT-5.2 Codex",
+      group: "OpenAI",
+      thinking: { supported: true }
+    },
+    {
       model_id: "openai/gpt-5.1",
       label: "GPT-5.1",
       group: "OpenAI",
@@ -82,10 +100,22 @@ module Chat::ModelSelection
       thinking: { supported: true }
     },
     {
+      model_id: "openai/gpt-5.1-codex",
+      label: "GPT-5.1 Codex",
+      group: "OpenAI",
+      thinking: { supported: true }
+    },
+    {
       model_id: "openai/gpt-5",
       label: "GPT-5",
       group: "OpenAI",
       provider_model_id: "gpt-5",
+      thinking: { supported: true }
+    },
+    {
+      model_id: "openai/gpt-5-codex",
+      label: "GPT-5 Codex",
+      group: "OpenAI",
       thinking: { supported: true }
     },
     {
@@ -144,6 +174,11 @@ module Chat::ModelSelection
       provider_model_id: "gpt-4o"
     },
     {
+      model_id: "openai/gpt-4o-2024-08-06",
+      label: "GPT-4o (2024-08-06)",
+      group: "OpenAI"
+    },
+    {
       model_id: "openai/gpt-4o-mini",
       label: "GPT-4o Mini",
       group: "OpenAI",
@@ -164,6 +199,11 @@ module Chat::ModelSelection
       group: "Anthropic",
       provider_model_id: "claude-sonnet-4-5-20250929",
       thinking: { supported: true, requires_direct_api: true }
+    },
+    {
+      model_id: "anthropic/claude-sonnet-4.6",
+      label: "Claude Sonnet 4.6",
+      group: "Anthropic"
     },
     {
       model_id: "anthropic/claude-haiku-4.5",
@@ -310,7 +350,27 @@ module Chat::ModelSelection
       provider_model_id: "deepseek-v4-flash"
     },
     { model_id: "deepseek/deepseek-r1", label: "DeepSeek R1", group: "DeepSeek" },
-    { model_id: "deepseek/deepseek-v3", label: "DeepSeek V3", group: "DeepSeek" }
+    { model_id: "deepseek/deepseek-v3", label: "DeepSeek V3", group: "DeepSeek" },
+
+    # Moonshot / Kimi
+    { model_id: "moonshotai/kimi-k2.6", label: "Kimi K2.6", group: "Moonshot / Kimi", thinking: { supported: true } },
+    { model_id: "moonshotai/kimi-k2.5", label: "Kimi K2.5", group: "Moonshot / Kimi", thinking: { supported: true } },
+    { model_id: "moonshotai/kimi-k2-thinking", label: "Kimi K2 Thinking", group: "Moonshot / Kimi", thinking: { supported: true } },
+    { model_id: "moonshotai/kimi-k2-0905", label: "Kimi K2 0905", group: "Moonshot / Kimi" },
+
+    # MiniMax
+    { model_id: "minimax/minimax-m2.7", label: "MiniMax M2.7", group: "MiniMax", thinking: { supported: true } },
+    { model_id: "minimax/minimax-m2", label: "MiniMax M2", group: "MiniMax", thinking: { supported: true } },
+
+    # Qwen
+    { model_id: "qwen/qwen3.6-plus", label: "Qwen3.6 Plus", group: "Qwen", thinking: { supported: true } },
+    { model_id: "qwen/qwen3-coder-plus", label: "Qwen3 Coder Plus", group: "Qwen" },
+
+    # Z.ai
+    { model_id: "z-ai/glm-5.1", label: "GLM 5.1", group: "Z.ai", thinking: { supported: true } },
+    { model_id: "z-ai/glm-4.7", label: "GLM 4.7", group: "Z.ai", thinking: { supported: true } },
+    { model_id: "z-ai/glm-4.6", label: "GLM 4.6", group: "Z.ai", thinking: { supported: true } },
+    { model_id: "z-ai/glm-4.5", label: "GLM 4.5", group: "Z.ai", thinking: { supported: true } }
   ].freeze
 
   included do
