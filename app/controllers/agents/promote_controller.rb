@@ -87,6 +87,57 @@ class Agents::PromoteController < ApplicationController
     redirect_to promote_account_agent_path(current_account, @agent), alert: e.message
   end
 
+  def regenerate_credentials
+    unless @agent.migrating?
+      redirect_to promote_account_agent_path(current_account, @agent), alert: "Agent is not waiting for runtime deployment"
+      return
+    end
+
+    if current_account.github_pat.blank?
+      redirect_to promote_account_agent_path(current_account, @agent), alert: "Add GitHub access before regenerating credentials"
+      return
+    end
+
+    if @agent.github_repo_owner.blank? || @agent.github_repo_name.blank? || @agent.github_deploy_key_priv.blank?
+      redirect_to promote_account_agent_path(current_account, @agent), alert: "Agent repo metadata is incomplete; cancel and restart promotion"
+      return
+    end
+
+    repo_creator = AgentRepoCreator.new(
+      account: current_account,
+      agent: @agent,
+      repo_name: @agent.github_repo_name
+    )
+    repo = repo_creator.fetch_repo!(owner: @agent.github_repo_owner, name: @agent.github_repo_name)
+    outbound_api_key = refresh_outbound_api_key!
+    master_key = SecureRandom.base64(32)
+    encrypted_credentials = AgentCredentialsEncryptor.new(
+      @agent,
+      master_key,
+      outbound_token: outbound_api_key.raw_token,
+      github_deploy_key: @agent.github_deploy_key_priv
+    ).encrypt
+    deploy_yml = repo_creator.deploy_yml(repo)
+    repo_creator.commit_runtime_files!(
+      repo,
+      identity_files: { "memory/.keep" => "" },
+      credentials_yml_enc: encrypted_credentials,
+      deploy_yml: deploy_yml
+    )
+
+    render inertia: "agents/promote", props: promotion_props.merge(
+      generated_credentials: {
+        master_key: master_key,
+        credentials_yml_enc: encrypted_credentials,
+        deploy_yml: deploy_yml,
+        repo: repo.to_h,
+        regenerated: true
+      }
+    )
+  rescue AgentRepoCreator::GitHubError => e
+    redirect_to promote_account_agent_path(current_account, @agent), alert: e.message
+  end
+
   def identity_export
     send_data AgentIdentityExporter.new(@agent).build,
       filename: "#{agent_slug}-identity.tar.gz",
@@ -173,6 +224,26 @@ class Agents::PromoteController < ApplicationController
 
   def agent_slug
     @agent.name.to_s.parameterize.presence || "agent-#{@agent.id}"
+  end
+
+  def refresh_outbound_api_key!
+    old_api_key = @agent.outbound_api_key
+    outbound_api_key = nil
+
+    @agent.transaction do
+      @agent.uuid ||= SecureRandom.uuid_v7
+      @agent.trigger_bearer_token ||= "tr_#{SecureRandom.hex(24)}"
+      @agent.update!(outbound_api_key: nil) if old_api_key
+      old_api_key&.destroy!
+      outbound_api_key = ApiKey.generate_for(
+        @agent.account.owner || Current.user,
+        name: "agent:#{agent_slug}:outbound",
+        agent: @agent
+      )
+      @agent.update!(outbound_api_key: outbound_api_key)
+    end
+
+    outbound_api_key
   end
 
 end

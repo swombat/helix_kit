@@ -90,6 +90,46 @@ class Agents::PromoteControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to promote_account_agent_path(@account, @agent)
   end
 
+  test "regenerate credentials recovers master key for prepared migrating repo" do
+    @account.update!(github_pat: "ghp_test", github_login: "octocat")
+    old_key = ApiKey.generate_for(@user, name: "old agent key", agent: @agent)
+    @agent.update!(
+      runtime: "migrating",
+      uuid: SecureRandom.uuid_v7,
+      trigger_bearer_token: "tr_existing",
+      outbound_api_key: old_key,
+      github_repo_url: "https://github.com/octocat/research-assistant-agent",
+      github_repo_owner: "octocat",
+      github_repo_name: "research-assistant-agent",
+      github_deploy_key_priv: "PRIVATE KEY"
+    )
+    repo = AgentRepoCreator::Result.new(
+      owner: "octocat",
+      name: "research-assistant-agent",
+      html_url: "https://github.com/octocat/research-assistant-agent",
+      ssh_url: "git@github.com:octocat/research-assistant-agent.git",
+      clone_url: "https://github.com/octocat/research-assistant-agent.git",
+      default_branch: "main"
+    )
+    repo_creator = FakeRepoCreator.new(repo, nil)
+
+    assert_no_difference "ApiKey.count" do
+      AgentRepoCreator.stub(:new, repo_creator) do
+        post regenerate_credentials_promote_account_agent_path(@account, @agent),
+          headers: { "X-Inertia" => true }
+      end
+    end
+
+    assert_response :success
+    assert repo_creator.committed?
+    assert_not ApiKey.exists?(old_key.id)
+    props = JSON.parse(response.body)["props"]
+    generated = props.fetch("generated_credentials")
+    assert_predicate generated.fetch("master_key"), :present?
+    assert_equal true, generated.fetch("regenerated")
+    assert_equal "git@github.com:octocat/research-assistant-agent.git", generated.dig("repo", "ssh_url")
+  end
+
   test "cancel returns agent to inline and revokes scoped key" do
     key = ApiKey.generate_for(@user, name: "agent key", agent: @agent)
     @agent.update!(
@@ -147,6 +187,10 @@ class Agents::PromoteControllerTest < ActionDispatch::IntegrationTest
 
     def create_deploy_key!(_repo)
       @deploy_key
+    end
+
+    def fetch_repo!(owner:, name:)
+      @repo
     end
 
     def deploy_yml(_repo)

@@ -26,6 +26,7 @@
   let privateRepo = $state(true);
   let creatingRepo = $state(false);
   let savingGithub = $state(false);
+  let regeneratingCredentials = $state(false);
   let sendingTestRequest = $state(false);
   let testResult = $state(null);
   let pollTimer = null;
@@ -34,6 +35,9 @@
   let beginPath = $derived(beginPromoteAccountAgentPath(account.id, agent.id));
   let githubAccessPath = $derived(githubAccessPromoteAccountAgentPath(account.id, agent.id));
   let cancelPath = $derived(cancelPromoteAccountAgentPath(account.id, agent.id));
+  let regenerateCredentialsPath = $derived(
+    `/accounts/${account.id}/agents/${agent.id}/promote/regenerate_credentials`
+  );
   let testRequestPath = $derived(sendTestRequestAccountAgentPath(account.id, agent.id));
   let repo = $derived(generatedCredentials?.repo || githubRepo);
   let sshCloneUrl = $derived(repo?.ssh_url || cloneUrl);
@@ -74,6 +78,20 @@
 
   function cancelPromotion() {
     router.post(cancelPath);
+  }
+
+  function regenerateCredentials() {
+    regeneratingCredentials = true;
+    router.post(
+      regenerateCredentialsPath,
+      {},
+      {
+        preserveScroll: true,
+        onFinish: () => {
+          regeneratingCredentials = false;
+        },
+      }
+    );
   }
 
   function sendTestRequest() {
@@ -198,11 +216,49 @@
   {/if}
 
   {#if agent.runtime === 'migrating' && !generatedCredentials}
-    <section class="space-y-3 rounded-lg border p-5">
+    <section class="space-y-4 rounded-lg border p-5">
       <h2 class="text-lg font-medium">Waiting for runtime</h2>
       <p class="text-sm text-muted-foreground">
         The repo has been prepared. Deploy the runtime, then keep this page open until the status changes to external.
       </p>
+      <div class="rounded-md border border-amber-300 bg-amber-50 p-3 text-sm text-amber-950">
+        If the repo creation request timed out before you saw the one-time master key, regenerate credentials below. This
+        will write a fresh <span class="font-mono">credentials.yml.enc</span> to the existing repo and show a new master
+        key.
+      </div>
+
+      {#if sshCloneUrl}
+        <div class="space-y-2">
+          <h3 class="font-medium">Clone the prepared repo</h3>
+          <pre class="overflow-x-auto rounded bg-muted p-3 text-sm">git clone {sshCloneUrl}
+cd {repo?.name || agent.github_repo_name}</pre>
+        </div>
+      {/if}
+
+      <div class="space-y-2">
+        <h3 class="font-medium">Recover the master key if needed</h3>
+        <Button onclick={regenerateCredentials} disabled={regeneratingCredentials || !repoHtmlUrl}>
+          {regeneratingCredentials ? 'Regenerating...' : 'Regenerate credentials and show master key'}
+        </Button>
+      </div>
+
+      <div class="space-y-2">
+        <h3 class="font-medium">Deploy after you have the master key</h3>
+        <pre class="overflow-x-auto rounded bg-muted p-3 text-sm">printf '%s' '&lt;master-key-from-this-page&gt;' &gt; master.key
+chmod 600 master.key
+
+export ANTHROPIC_API_KEY=...
+# or: export OPENAI_API_KEY=...
+
+bin/deploy --local
+# later, for a production host:
+bin/deploy --host your-docker-host</pre>
+        <p class="text-sm text-muted-foreground">
+          The deploy script decrypts credentials, builds and starts the runtime, checks health, and announces the endpoint
+          back to HelixKit.
+        </p>
+      </div>
+
       <Button variant="outline" onclick={cancelPromotion}>Cancel promotion</Button>
     </section>
   {/if}
@@ -219,6 +275,11 @@ cd {repo?.name}</pre>
       <p class="text-sm text-muted-foreground">
         The repo already contains identity files, deploy.yml, and credentials.yml.enc. This key is shown once.
       </p>
+      {#if generatedCredentials.regenerated}
+        <div class="rounded-md border border-amber-300 bg-amber-50 p-3 text-sm text-amber-950">
+          Credentials were regenerated for the existing repo. Use this new master key; any earlier missing key is obsolete.
+        </div>
+      {/if}
       <a class="inline-flex" href={masterKeyHref} download="master.key">
         <Button variant="outline">Download master.key</Button>
       </a>

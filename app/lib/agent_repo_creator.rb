@@ -42,6 +42,19 @@ class AgentRepoCreator
     )
   end
 
+  def fetch_repo!(owner:, name:)
+    response = github_request(:get, "/repos/#{owner}/#{name}")
+
+    Result.new(
+      owner: response.dig("owner", "login") || owner,
+      name: response.fetch("name"),
+      html_url: response.fetch("html_url"),
+      ssh_url: response.fetch("ssh_url"),
+      clone_url: response.fetch("clone_url"),
+      default_branch: response["default_branch"].presence || "main"
+    )
+  end
+
   def create_deploy_key!(repo)
     private_key, public_key = generate_deploy_key
     body = {
@@ -101,10 +114,20 @@ class AgentRepoCreator
       content: Base64.strict_encode64(content),
       branch: repo.default_branch
     }
+    sha = existing_file_sha(repo, encoded_path)
+    body[:sha] = sha if sha.present?
 
     with_repo_retry do
       github_request(:put, "/repos/#{repo.owner}/#{repo.name}/contents/#{encoded_path}", body: body)
     end
+  end
+
+  def existing_file_sha(repo, encoded_path)
+    response = github_request(:get, "/repos/#{repo.owner}/#{repo.name}/contents/#{encoded_path}")
+    response["sha"]
+  rescue GitHubError => e
+    raise unless e.message.match?(/404|Not Found/i)
+    nil
   end
 
   def generate_deploy_key

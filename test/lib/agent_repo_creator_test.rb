@@ -48,6 +48,8 @@ class AgentRepoCreatorTest < ActiveSupport::TestCase
 
   test "commits identity, credentials, and deploy files" do
     repo = repo_result
+    stub_request(:get, %r{\Ahttps://api\.github\.com/repos/octocat/research-agent/contents/})
+      .to_return(status: 404, body: { message: "Not Found" }.to_json)
     requests = stub_request(:put, %r{\Ahttps://api\.github\.com/repos/octocat/research-agent/contents/})
       .to_return(status: 201, body: { content: { path: "file" } }.to_json)
 
@@ -65,6 +67,19 @@ class AgentRepoCreatorTest < ActiveSupport::TestCase
     assert_requested :put, "https://api.github.com/repos/octocat/research-agent/contents/identity/soul.md"
     assert_requested :put, "https://api.github.com/repos/octocat/research-agent/contents/credentials.yml.enc"
     assert_requested :put, "https://api.github.com/repos/octocat/research-agent/contents/deploy.yml"
+  end
+
+  test "updates existing runtime files by sending current sha" do
+    repo = repo_result
+    stub_request(:get, "https://api.github.com/repos/octocat/research-agent/contents/credentials.yml.enc")
+      .to_return(status: 200, body: { sha: "existing-sha" }.to_json)
+    put = stub_request(:put, "https://api.github.com/repos/octocat/research-agent/contents/credentials.yml.enc")
+      .with(body: hash_including(sha: "existing-sha"))
+      .to_return(status: 200, body: { content: { path: "credentials.yml.enc" } }.to_json)
+
+    creator.send(:put_file, repo, "credentials.yml.enc", "encrypted", message: "Update credentials")
+
+    assert_requested put
   end
 
   test "generated deploy yml uses runtime-compatible image tag and model key" do
