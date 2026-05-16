@@ -130,6 +130,38 @@ class Agents::PromoteControllerTest < ActionDispatch::IntegrationTest
     assert_equal "git@github.com:octocat/research-assistant-agent.git", generated.dig("repo", "ssh_url")
   end
 
+  test "regenerate credentials also accepts get for timeout recovery page" do
+    @account.update!(github_pat: "ghp_test", github_login: "octocat")
+    old_key = ApiKey.generate_for(@user, name: "old agent key", agent: @agent)
+    @agent.update!(
+      runtime: "migrating",
+      uuid: SecureRandom.uuid_v7,
+      trigger_bearer_token: "tr_existing",
+      outbound_api_key: old_key,
+      github_repo_url: "https://github.com/octocat/research-assistant-agent",
+      github_repo_owner: "octocat",
+      github_repo_name: "research-assistant-agent",
+      github_deploy_key_priv: "PRIVATE KEY"
+    )
+    repo = AgentRepoCreator::Result.new(
+      owner: "octocat",
+      name: "research-assistant-agent",
+      html_url: "https://github.com/octocat/research-assistant-agent",
+      ssh_url: "git@github.com:octocat/research-assistant-agent.git",
+      clone_url: "https://github.com/octocat/research-assistant-agent.git",
+      default_branch: "main"
+    )
+    repo_creator = FakeRepoCreator.new(repo, nil)
+
+    AgentRepoCreator.stub(:new, repo_creator) do
+      get regenerate_credentials_promote_account_agent_path(@account, @agent)
+    end
+
+    assert_response :success
+    assert repo_creator.committed?
+    assert_includes response.body, "generated_credentials"
+  end
+
   test "cancel returns agent to inline and revokes scoped key" do
     key = ApiKey.generate_for(@user, name: "agent key", agent: @agent)
     @agent.update!(

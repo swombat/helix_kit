@@ -85,6 +85,7 @@ Rails.application.routes.draw do
         get :promote, to: "agents/promote#show"
         post "promote/github_access", to: "agents/promote#github_access", as: :github_access_promote
         post "promote/begin", to: "agents/promote#begin", as: :begin_promote
+        get "promote/regenerate_credentials", to: "agents/promote#regenerate_credentials"
         post "promote/regenerate_credentials", to: "agents/promote#regenerate_credentials", as: :regenerate_credentials_promote
         post "promote/cancel", to: "agents/promote#cancel", as: :cancel_promote
         get "promote/identity_export", to: "agents/promote#identity_export", as: :identity_export
