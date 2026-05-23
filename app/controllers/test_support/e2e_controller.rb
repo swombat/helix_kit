@@ -15,6 +15,7 @@ module TestSupport
 
       primary_user = create_user!("e2e-#{run_id}-primary@example.com")
       secondary_user = create_user!("e2e-#{run_id}-secondary@example.com")
+      admin_user = create_user!("e2e-#{run_id}-admin@example.com", site_admin: true)
       account = Account.create!(name: "E2E #{run_id} Team", account_type: :team)
       account.add_user!(primary_user, role: "owner", skip_confirmation: true)
       account.add_user!(secondary_user, role: "member", skip_confirmation: true)
@@ -32,6 +33,7 @@ module TestSupport
         account_id: account.id,
         primary_user: user_json(primary_user),
         secondary_user: user_json(secondary_user),
+        admin_user: user_json(admin_user),
         agents: agents.map { |agent|
           { id: agent.to_param, name: agent.name, edit_url: edit_account_agent_path(account, agent) }
         }
@@ -65,12 +67,15 @@ module TestSupport
 
     def state
       run_id = params.fetch(:run_id)
-      account = Account.find_by!(name: "E2E #{run_id} Team")
+      account = params[:account_id].present? ? Account.find(params[:account_id]) : Account.find_by!(name: "E2E #{run_id} Team")
       primary_user = User.find_by!(email_address: "e2e-#{run_id}-primary@example.com")
 
       render json: {
         account: {
           id: account.id,
+          account_type: account.account_type,
+          disabled: account.disabled?,
+          active: account.active?,
           default_conversation_mode: account.default_conversation_mode,
           members: account.memberships.includes(:user).map { |membership|
             {
@@ -119,16 +124,21 @@ module TestSupport
     end
 
     def cleanup_run(run_id)
-      accounts = Account.where("name LIKE ?", "E2E #{run_id}%")
       users = User.where("email_address LIKE ?", "e2e-#{run_id}-%@example.com")
+      member_account_ids = Membership.where(user_id: users.select(:id)).select(:account_id)
+      accounts = Account.where("name LIKE ?", "E2E #{run_id}%")
+        .or(Account.where(id: member_account_ids))
 
       AuditLog.where(account: accounts).or(AuditLog.where(user: users)).destroy_all
+      Session.where(user: users).destroy_all
       accounts.find_each(&:destroy!)
       users.find_each(&:destroy!)
     end
 
-    def create_user!(email)
-      User.create!(email_address: email, password: PASSWORD, password_confirmation: PASSWORD)
+    def create_user!(email, site_admin: false)
+      User.create!(email_address: email, password: PASSWORD, password_confirmation: PASSWORD, is_site_admin: site_admin).tap do |user|
+        user.memberships.update_all(confirmed_at: Time.current)
+      end
     end
 
     def create_agent!(account, name, colour, active: true, paused: false)

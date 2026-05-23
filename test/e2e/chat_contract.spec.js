@@ -67,7 +67,11 @@ test.describe('browser contracts', () => {
     await login(page, setup.primary_user, setup.password);
     const chatId = await startGroupChat(page, setup.account_id, 'Please compare the two test agents.');
 
-    const state = await getRunState(request, setup.run_id);
+    const stateResponse = await request.post('/test/e2e/state', {
+      data: { run_id: setup.run_id, account_id: setup.account_id },
+    });
+    expect(stateResponse.ok()).toBe(true);
+    const state = await stateResponse.json();
     expect(state.account.chats).toContainEqual(
       expect.objectContaining({
         id: chatId,
@@ -127,7 +131,11 @@ test.describe('browser contracts', () => {
     await page.getByRole('button', { name: 'Save Changes' }).click();
     await expect(page).toHaveURL(/\/accounts\/[^/]+$/);
 
-    const state = await getRunState(request, setup.run_id);
+    const stateResponse = await request.post('/test/e2e/state', {
+      data: { run_id: setup.run_id, account_id: setup.account_id },
+    });
+    expect(stateResponse.ok()).toBe(true);
+    const state = await stateResponse.json();
     expect(state.account.default_conversation_mode).toBe('agents');
 
     await page.goto(`/accounts/${setup.account_id}/chats`);
@@ -162,7 +170,11 @@ test.describe('browser contracts', () => {
     await page.locator('#avatar-upload').setInputFiles('test/fixtures/files/test_avatar.png');
     await expect(page.getByRole('dialog')).not.toBeVisible();
 
-    const state = await getRunState(request, setup.run_id);
+    const stateResponse = await request.post('/test/e2e/state', {
+      data: { run_id: setup.run_id, account_id: setup.account_id },
+    });
+    expect(stateResponse.ok()).toBe(true);
+    const state = await stateResponse.json();
     expect(state.primary_user.full_name).toBe('E2E Profile Tester');
     expect(state.primary_user.timezone).toBe('London');
     expect(state.primary_user.avatar_attached).toBe(true);
@@ -241,5 +253,53 @@ test.describe('browser contracts', () => {
         refinement_threshold: 0.85,
       })
     );
+  });
+});
+
+test.describe('admin account management', () => {
+  let setup;
+
+  test.beforeEach(async ({ request }) => {
+    setup = await setupRun(request);
+  });
+
+  test.afterEach(async ({ request }) => {
+    await cleanupRun(request, setup.run_id);
+  });
+
+  test('site admin can remove members, convert account type, and disable an account', async ({ page, request }) => {
+    page.on('dialog', (dialog) => dialog.accept());
+
+    await login(page, setup.admin_user, setup.password);
+    await page.goto(`/admin/accounts?account_id=${setup.account_id}`);
+    const details = page.locator('main');
+    await expect(details.getByRole('heading', { name: `E2E ${setup.run_id} Team` })).toBeVisible();
+
+    const secondaryRow = details.getByRole('row').filter({ hasText: setup.secondary_user.email });
+    await expect(secondaryRow).toBeVisible();
+    await secondaryRow.getByRole('button', { name: /remove/i }).click();
+    await expect(secondaryRow).toBeHidden();
+
+    await details.getByRole('button', { name: 'Convert to Personal' }).click();
+    await expect(details.getByRole('button', { name: 'Convert to Team' })).toBeVisible();
+
+    await details.getByRole('button', { name: 'Convert to Team' }).click();
+    await expect(details.getByRole('button', { name: 'Convert to Personal' })).toBeVisible();
+
+    await details.getByRole('button', { name: 'Disable Account' }).click();
+    await expect(details.getByRole('button', { name: 'Enable Account' })).toBeVisible();
+
+    const stateResponse = await request.post('/test/e2e/state', {
+      data: { run_id: setup.run_id, account_id: setup.account_id },
+    });
+    expect(stateResponse.ok()).toBe(true);
+    const state = await stateResponse.json();
+    expect(state.account.members).toHaveLength(1);
+    expect(state.account.members[0]).toEqual(
+      expect.objectContaining({ email: setup.primary_user.email, role: 'owner', confirmed: true })
+    );
+    expect(state.account.account_type).toBe('team');
+    expect(state.account.disabled).toBe(true);
+    expect(state.account.active).toBe(false);
   });
 });

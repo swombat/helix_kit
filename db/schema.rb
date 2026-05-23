@@ -10,13 +10,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_08_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_23_084500) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
   create_table "accounts", force: :cascade do |t|
     t.integer "account_type", default: 0, null: false
     t.datetime "created_at", null: false
+    t.datetime "disabled_at"
     t.string "github_login"
     t.text "github_pat"
     t.boolean "is_site_admin", default: false, null: false
@@ -25,6 +26,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_08_120000) do
     t.string "slug"
     t.datetime "updated_at", null: false
     t.index ["account_type"], name: "index_accounts_on_account_type"
+    t.index ["disabled_at"], name: "index_accounts_on_disabled_at"
     t.index ["slug"], name: "index_accounts_on_slug", unique: true
   end
 

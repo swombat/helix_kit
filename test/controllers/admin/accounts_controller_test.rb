@@ -359,3 +359,110 @@ class Admin::AccountsControllerTest < ActionDispatch::IntegrationTest
   end
 
 end
+
+class Admin::AccountManagementActionsTest < ActionDispatch::IntegrationTest
+
+  setup do
+    @site_admin_user = users(:site_admin_user)
+    @regular_user = users(:regular_user)
+    post login_path, params: { email_address: @site_admin_user.email_address, password: "password123" }
+  end
+
+  test "site admin can disable and enable an account" do
+    account = accounts(:team_account)
+
+    patch disable_admin_account_path(account)
+    assert_redirected_to admin_accounts_path(account_id: account)
+    assert account.reload.disabled?
+    assert_not account.active?
+
+    patch enable_admin_account_path(account)
+    assert_redirected_to admin_accounts_path(account_id: account)
+    assert_not account.reload.disabled?
+    assert account.active?
+  end
+
+  test "disabled accounts are hidden from regular account access" do
+    account = accounts(:regular_user_account)
+    account.disable!
+
+    delete logout_path
+    post login_path, params: { email_address: @regular_user.email_address, password: "password123" }
+
+    get account_path(account)
+    assert_response :not_found
+  end
+
+  test "site admin can remove a member from an account" do
+    account = accounts(:team_account)
+    membership = memberships(:team_member)
+
+    assert_difference "account.memberships.count", -1 do
+      delete admin_account_membership_path(account, membership)
+    end
+
+    assert_redirected_to admin_accounts_path(account_id: account)
+    assert_raises(ActiveRecord::RecordNotFound) { membership.reload }
+  end
+
+  test "site admin cannot remove the last owner" do
+    account = accounts(:team_single_user)
+    membership = memberships(:team_single_user_member)
+
+    assert_no_difference "account.memberships.count" do
+      delete admin_account_membership_path(account, membership)
+    end
+
+    assert_redirected_to admin_accounts_path(account_id: account)
+    assert_match /Cannot remove the last owner/, flash[:alert]
+  end
+
+  test "site admin can convert a personal account to a team account" do
+    account = accounts(:personal_account)
+
+    patch convert_admin_account_path(account), params: {
+      account_type: "team",
+      account: { name: "Admin Converted Team" }
+    }
+
+    assert_redirected_to admin_accounts_path(account_id: account)
+    assert account.reload.team?
+    assert_equal "Admin Converted Team", account.name
+  end
+
+  test "site admin can convert a single-member team to a personal account" do
+    account = accounts(:team_single_user)
+
+    patch convert_admin_account_path(account), params: { account_type: "personal" }
+
+    assert_redirected_to admin_accounts_path(account_id: account)
+    assert account.reload.personal?
+    assert_equal "owner", account.memberships.first.role
+  end
+
+  test "site admin cannot convert multi-member team to personal account" do
+    account = accounts(:team_account)
+
+    patch convert_admin_account_path(account), params: { account_type: "personal" }
+
+    assert_redirected_to admin_accounts_path(account_id: account)
+    assert account.reload.team?
+    assert_match /exactly one member/, flash[:alert]
+  end
+
+  test "selected account props include admin management fields" do
+    account = accounts(:team_account)
+
+    get admin_accounts_path, params: { account_id: account.id }
+    assert_response :success
+
+    selected = inertia_shared_props["selected_account"]
+    assert_equal false, selected["disabled"]
+    assert selected["memberships"].any?
+    member = selected["memberships"].first
+    assert member.key?("status")
+    assert member.key?("email_address")
+    assert member.key?("confirmed")
+  end
+
+end

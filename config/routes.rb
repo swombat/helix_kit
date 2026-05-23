@@ -117,7 +117,14 @@ Rails.application.routes.draw do
   end
 
   namespace :admin do
-    resources :accounts, only: [ :index ]
+    resources :accounts, only: [ :index ] do
+      member do
+        patch :disable
+        patch :enable
+        patch :convert
+      end
+      resources :memberships, only: [ :destroy ], controller: "account_memberships"
+    end
     resources :audit_logs, only: [ :index ]
     resources :jobs, only: [ :index, :create ]
     resource :settings, only: [ :show, :update ]

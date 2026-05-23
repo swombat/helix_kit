@@ -40,6 +40,8 @@ class Account < ApplicationRecord
   # Scopes
   scope :personal, -> { where(account_type: :personal) }
   scope :team, -> { where(account_type: :team) }
+  scope :enabled, -> { where(disabled_at: nil) }
+  scope :disabled, -> { where.not(disabled_at: nil) }
 
   encrypts :github_pat
 
@@ -49,10 +51,10 @@ class Account < ApplicationRecord
   def self.accessible_by(user)
     return none unless user
     return all if user.site_admin
-    user.confirmed_accounts
+    user.confirmed_accounts.enabled
   end
 
-  json_attributes :personal?, :team?, :active?, :is_site_admin, :name, :github_login,
+  json_attributes :personal?, :team?, :active?, :disabled, :is_site_admin, :name, :github_login,
                   :default_conversation_mode
 
   # Business Logic Methods
@@ -88,7 +90,19 @@ class Account < ApplicationRecord
   end
 
   def active?
-    members_count > 0
+    !disabled? && members_count > 0
+  end
+
+  def disabled?
+    disabled_at.present?
+  end
+
+  def disable!
+    update!(disabled_at: Time.current) unless disabled?
+  end
+
+  def enable!
+    update!(disabled_at: nil) if disabled?
   end
 
   def pending_invitations_count
@@ -106,8 +120,12 @@ class Account < ApplicationRecord
 
   def make_personal!
     return unless team? && memberships.count == 1
-    update!(account_type: :personal)
-    memberships.first.update!(role: :owner)
+
+    membership = memberships.first
+    transaction do
+      membership.update!(role: :owner)
+      update!(account_type: :personal, name: "#{membership.user.email_address}'s Account")
+    end
   end
 
   def make_team!(name)
@@ -150,6 +168,7 @@ class Account < ApplicationRecord
   end
 
   alias_method :active, :active?
+  alias_method :disabled, :disabled?
 
   # Authorization methods - following DHH's "fat models, skinny controllers" principle
   def manageable_by?(user)

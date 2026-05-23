@@ -15,7 +15,7 @@ class User < ApplicationRecord
   has_many :memberships, dependent: :destroy
   has_many :confirmed_memberships, -> { confirmed }, class_name: "Membership"
   has_many :accounts, through: :memberships
-  has_many :confirmed_accounts, through: :confirmed_memberships, source: :account
+  has_many :confirmed_accounts, -> { enabled }, through: :confirmed_memberships, source: :account
   has_one :personal_membership, -> { joins(:account).where(accounts: { account_type: 0 }) },
           class_name: "Membership"
   has_one :personal_account, through: :personal_membership, source: :account
