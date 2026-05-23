@@ -3,6 +3,9 @@
   import { Badge } from '$lib/components/shadcn/badge';
   import { Button } from '$lib/components/shadcn/button/index.js';
   import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/shadcn/card';
+  import { Input } from '$lib/components/shadcn/input/index.js';
+  import { Label } from '$lib/components/shadcn/label/index.js';
+  import { RadioGroup, RadioGroupItem } from '$lib/components/shadcn/radio-group/index.js';
   import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '$lib/components/shadcn/table';
   import InfoCard from '$lib/components/InfoCard.svelte';
   import Avatar from '$lib/components/Avatar.svelte';
@@ -10,9 +13,13 @@
 
   let { account, formatDate } = $props();
   let teamName = $state(account.name || '');
+  let newMemberEmail = $state('');
+  let newMemberRole = $state('member');
 
   $effect(() => {
     teamName = account.name || '';
+    newMemberEmail = '';
+    newMemberRole = 'member';
   });
 
   const members = $derived(account.memberships || []);
@@ -42,6 +49,27 @@
     if (!confirm(`Remove ${member.email_address || member.user?.email_address} from ${account.name}?`)) return;
 
     router.delete(`/admin/accounts/${account.id}/memberships/${member.id}`);
+  }
+
+  function addMember(event) {
+    event.preventDefault();
+    if (!newMemberEmail) return;
+
+    router.post(
+      `/admin/accounts/${account.id}/memberships`,
+      {
+        membership: {
+          email: newMemberEmail,
+          role: newMemberRole,
+        },
+      },
+      {
+        onSuccess: () => {
+          newMemberEmail = '';
+          newMemberRole = 'member';
+        },
+      }
+    );
   }
 </script>
 
@@ -144,8 +172,55 @@
   <Card>
     <CardHeader>
       <CardTitle class="mb-2">Users ({members.length})</CardTitle>
+      <CardDescription>Add existing users to this account or remove current members.</CardDescription>
     </CardHeader>
-    <CardContent>
+    <CardContent class="space-y-6">
+      <form onsubmit={addMember} class="rounded-lg border bg-muted/20 p-4">
+        <div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+          <div class="grid gap-4 md:grid-cols-[minmax(0,1fr)_auto]">
+            <div class="space-y-2">
+              <Label for={`admin-add-member-email-${account.id}`}>Existing user email</Label>
+              <Input
+                id={`admin-add-member-email-${account.id}`}
+                type="email"
+                placeholder="user@example.com"
+                bind:value={newMemberEmail}
+                disabled={account.account_type === 'personal'}
+                required />
+            </div>
+
+            <div class="space-y-2">
+              <Label>Role</Label>
+              <RadioGroup
+                bind:value={newMemberRole}
+                class="flex flex-col gap-2 md:flex-row md:items-center md:gap-4"
+                disabled={account.account_type === 'personal'}>
+                <div class="flex items-center space-x-2">
+                  <RadioGroupItem value="member" id={`admin-add-member-role-member-${account.id}`} />
+                  <Label for={`admin-add-member-role-member-${account.id}`} class="font-normal cursor-pointer"
+                    >Member</Label>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <RadioGroupItem value="admin" id={`admin-add-member-role-admin-${account.id}`} />
+                  <Label for={`admin-add-member-role-admin-${account.id}`} class="font-normal cursor-pointer"
+                    >Admin</Label>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <RadioGroupItem value="owner" id={`admin-add-member-role-owner-${account.id}`} />
+                  <Label for={`admin-add-member-role-owner-${account.id}`} class="font-normal cursor-pointer"
+                    >Owner</Label>
+                </div>
+              </RadioGroup>
+            </div>
+          </div>
+
+          <Button type="submit" disabled={account.account_type === 'personal' || !newMemberEmail}>Add User</Button>
+        </div>
+        {#if account.account_type === 'personal'}
+          <p class="mt-3 text-sm text-muted-foreground">Convert this account to a team before adding more users.</p>
+        {/if}
+      </form>
+
       {#if members.length > 0}
         <Table>
           <TableHeader>

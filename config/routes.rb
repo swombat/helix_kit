@@ -123,7 +123,7 @@ Rails.application.routes.draw do
         patch :enable
         patch :convert
       end
-      resources :memberships, only: [ :destroy ], controller: "account_memberships"
+      resources :memberships, only: [ :create, :destroy ], controller: "account_memberships"
     end
     resources :audit_logs, only: [ :index ]
     resources :jobs, only: [ :index, :create ]

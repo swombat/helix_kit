@@ -242,7 +242,7 @@ test.describe('browser contracts', () => {
     await page.getByRole('button', { name: 'Update Agent' }).click();
 
     await expect(page).toHaveURL(/\/accounts\/[^/]+\/agents$/);
-    await expect(page.getByText(/Agent updated/)).toBeVisible();
+    await expect(page.getByText(/Agent updated/).first()).toBeVisible();
 
     const state = await getRunState(request, setup.run_id);
     expect(state.agents).toContainEqual(
@@ -267,7 +267,10 @@ test.describe('admin account management', () => {
     await cleanupRun(request, setup.run_id);
   });
 
-  test('site admin can remove members, convert account type, and disable an account', async ({ page, request }) => {
+  test('site admin can add and remove members, convert account type, and disable an account', async ({
+    page,
+    request,
+  }) => {
     page.on('dialog', (dialog) => dialog.accept());
 
     await login(page, setup.admin_user, setup.password);
@@ -286,6 +289,11 @@ test.describe('admin account management', () => {
     await details.getByRole('button', { name: 'Convert to Team' }).click();
     await expect(details.getByRole('button', { name: 'Convert to Personal' })).toBeVisible();
 
+    await details.getByLabel('Existing user email').fill(setup.secondary_user.email);
+    await details.getByRole('button', { name: 'Add User' }).click();
+    const readdedSecondaryRow = details.getByRole('row').filter({ hasText: setup.secondary_user.email });
+    await expect(readdedSecondaryRow).toBeVisible();
+
     await details.getByRole('button', { name: 'Disable Account' }).click();
     await expect(details.getByRole('button', { name: 'Enable Account' })).toBeVisible();
 
@@ -294,9 +302,12 @@ test.describe('admin account management', () => {
     });
     expect(stateResponse.ok()).toBe(true);
     const state = await stateResponse.json();
-    expect(state.account.members).toHaveLength(1);
-    expect(state.account.members[0]).toEqual(
-      expect.objectContaining({ email: setup.primary_user.email, role: 'owner', confirmed: true })
+    expect(state.account.members).toHaveLength(2);
+    expect(state.account.members).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ email: setup.primary_user.email, role: 'owner', confirmed: true }),
+        expect.objectContaining({ email: setup.secondary_user.email, role: 'member', confirmed: true }),
+      ])
     );
     expect(state.account.account_type).toBe('team');
     expect(state.account.disabled).toBe(true);

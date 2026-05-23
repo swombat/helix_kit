@@ -4,7 +4,36 @@ class Admin::AccountMembershipsController < ApplicationController
 
   before_action :require_site_admin
   before_action :set_account
-  before_action :set_membership
+  before_action :set_membership, only: :destroy
+
+  def create
+    user = User.find_by(email_address: membership_params[:email].to_s.strip.downcase)
+
+    unless user
+      redirect_to admin_accounts_path(account_id: @account), alert: "No user found with that email address"
+      return
+    end
+
+    if @account.memberships.exists?(user: user)
+      redirect_to admin_accounts_path(account_id: @account), alert: "User already belongs to this account"
+      return
+    end
+
+    membership = @account.memberships.build(user: user, role: membership_params[:role])
+    membership.skip_confirmation = true
+
+    if membership.save
+      audit(:admin_add_account_member, @account,
+        account_id: @account.id,
+        membership_id: membership.id,
+        added_user_id: user.id,
+        added_email: user.email_address,
+        role: membership.role)
+      redirect_to admin_accounts_path(account_id: @account), notice: "Member added"
+    else
+      redirect_to admin_accounts_path(account_id: @account), alert: membership.errors.full_messages.to_sentence
+    end
+  end
 
   def destroy
     if @membership.destroy
@@ -27,6 +56,10 @@ class Admin::AccountMembershipsController < ApplicationController
 
   def set_membership
     @membership = @account.memberships.includes(:user).find(params[:id])
+  end
+
+  def membership_params
+    params.fetch(:membership, {}).permit(:email, :role)
   end
 
   def require_site_admin

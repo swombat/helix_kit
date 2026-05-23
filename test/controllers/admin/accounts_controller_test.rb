@@ -405,6 +405,58 @@ class Admin::AccountManagementActionsTest < ActionDispatch::IntegrationTest
     assert_raises(ActiveRecord::RecordNotFound) { membership.reload }
   end
 
+  test "site admin can add an existing user to an account" do
+    account = accounts(:team_single_user)
+    user = users(:regular_user)
+
+    assert_difference "account.memberships.count", 1 do
+      post admin_account_memberships_path(account), params: {
+        membership: {
+          email: user.email_address,
+          role: "admin"
+        }
+      }
+    end
+
+    assert_redirected_to admin_accounts_path(account_id: account)
+    membership = account.memberships.find_by!(user: user)
+    assert_equal "admin", membership.role
+    assert membership.confirmed?
+  end
+
+  test "site admin cannot add a missing user to an account" do
+    account = accounts(:team_single_user)
+
+    assert_no_difference "account.memberships.count" do
+      post admin_account_memberships_path(account), params: {
+        membership: {
+          email: "missing@example.com",
+          role: "member"
+        }
+      }
+    end
+
+    assert_redirected_to admin_accounts_path(account_id: account)
+    assert_match /No user found/, flash[:alert]
+  end
+
+  test "site admin cannot add a duplicate member to an account" do
+    account = accounts(:team_account)
+    user = users(:existing_user)
+
+    assert_no_difference "account.memberships.count" do
+      post admin_account_memberships_path(account), params: {
+        membership: {
+          email: user.email_address,
+          role: "member"
+        }
+      }
+    end
+
+    assert_redirected_to admin_accounts_path(account_id: account)
+    assert_match /already belongs/, flash[:alert]
+  end
+
   test "site admin cannot remove the last owner" do
     account = accounts(:team_single_user)
     membership = memberships(:team_single_user_member)
