@@ -130,8 +130,17 @@ class ChatThinkingTest < ActiveSupport::TestCase
 
     [
       "anthropic/claude-sonnet-4.6",
+      "deepseek/deepseek-chat",
+      "google/gemini-2.0-flash-001",
+      "google/gemini-2.0-flash-lite-001",
+      "google/gemini-2.5-flash-lite",
+      "google/gemini-3.1-flash-lite",
+      "google/gemini-3.5-flash",
+      "google/gemma-4-26b-a4b-it",
+      "google/gemma-4-31b-it",
       "minimax/minimax-m2",
       "minimax/minimax-m2.7",
+      "moonshotai/kimi-coding",
       "moonshotai/kimi-k2-0905",
       "moonshotai/kimi-k2-thinking",
       "moonshotai/kimi-k2.5",
@@ -142,12 +151,25 @@ class ChatThinkingTest < ActiveSupport::TestCase
       "openai/gpt-5.2-codex",
       "openai/gpt-5.3-chat",
       "openai/gpt-5.3-codex",
+      "qwen/qwen3-coder-flash",
       "qwen/qwen3-coder-plus",
+      "qwen/qwen3-max",
+      "qwen/qwen3-max-thinking",
+      "qwen/qwen3.5-flash-02-23",
+      "qwen/qwen3.5-plus-20260420",
+      "qwen/qwen3.6-flash",
+      "qwen/qwen3.6-max-preview",
       "qwen/qwen3.6-plus",
+      "qwen/qwen3.7-max",
+      "x-ai/grok-4-1-fast-non-reasoning",
+      "x-ai/grok-4-1-fast-reasoning",
+      "x-ai/grok-4.2",
       "z-ai/glm-4.5",
       "z-ai/glm-4.6",
+      "z-ai/glm-4.6-coding",
       "z-ai/glm-4.7",
-      "z-ai/glm-5.1"
+      "z-ai/glm-5.1",
+      "z-ai/glm-5.1-coding"
     ].each do |model_id|
       assert_includes model_ids, model_id
     end

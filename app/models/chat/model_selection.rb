@@ -262,6 +262,22 @@ module Chat::ModelSelection
       audio_input: true
     },
     {
+      model_id: "google/gemini-3.5-flash",
+      label: "Gemini 3.5 Flash",
+      group: "Google",
+      provider_model_id: "gemini-3.5-flash",
+      thinking: { supported: true },
+      audio_input: true
+    },
+    {
+      model_id: "google/gemini-3.1-flash-lite",
+      label: "Gemini 3.1 Flash Lite",
+      group: "Google",
+      provider_model_id: "gemini-3.1-flash-lite",
+      thinking: { supported: true },
+      audio_input: true
+    },
+    {
       model_id: "google/gemini-3-pro-preview",
       label: "Gemini 3 Pro",
       group: "Google",
@@ -290,6 +306,42 @@ module Chat::ModelSelection
       provider_model_id: "gemini-2.5-flash",
       audio_input: true
     },
+    {
+      model_id: "google/gemini-2.5-flash-lite",
+      label: "Gemini 2.5 Flash Lite",
+      group: "Google",
+      provider_model_id: "gemini-2.5-flash-lite",
+      thinking: { supported: true },
+      audio_input: true
+    },
+    {
+      model_id: "google/gemini-2.0-flash-001",
+      label: "Gemini 2.0 Flash",
+      group: "Google",
+      provider_model_id: "gemini-2.0-flash-001",
+      audio_input: true
+    },
+    {
+      model_id: "google/gemini-2.0-flash-lite-001",
+      label: "Gemini 2.0 Flash Lite",
+      group: "Google",
+      provider_model_id: "gemini-2.0-flash-lite-001",
+      audio_input: true
+    },
+    {
+      model_id: "google/gemma-4-31b-it",
+      label: "Gemma 4 31B",
+      group: "Google",
+      provider_model_id: "gemma-4-31b-it",
+      thinking: { supported: true }
+    },
+    {
+      model_id: "google/gemma-4-26b-a4b-it",
+      label: "Gemma 4 26B A4B",
+      group: "Google",
+      provider_model_id: "gemma-4-26b-a4b-it",
+      thinking: { supported: true }
+    },
 
     # xAI - Grok models with reasoning support
     # grok-4.3/4.20: Support configurable reasoning on the direct xAI API
@@ -307,6 +359,26 @@ module Chat::ModelSelection
       group: "xAI",
       provider_model_id: "grok-4.20-0309-reasoning",
       thinking: { supported: true }
+    },
+    {
+      model_id: "x-ai/grok-4.2",
+      label: "Grok 4.2",
+      group: "xAI",
+      provider_model_id: "grok-4.2",
+      thinking: { supported: true }
+    },
+    {
+      model_id: "x-ai/grok-4-1-fast-reasoning",
+      label: "Grok 4.1 Fast Reasoning",
+      group: "xAI",
+      provider_model_id: "grok-4-1-fast-reasoning",
+      thinking: { supported: true }
+    },
+    {
+      model_id: "x-ai/grok-4-1-fast-non-reasoning",
+      label: "Grok 4.1 Fast Non-Reasoning",
+      group: "xAI",
+      provider_model_id: "grok-4-1-fast-non-reasoning"
     },
     {
       model_id: "x-ai/grok-4.20-multi-agent",
@@ -343,6 +415,7 @@ module Chat::ModelSelection
     },
 
     # DeepSeek
+    { model_id: "deepseek/deepseek-chat", label: "DeepSeek Chat", group: "DeepSeek" },
     {
       model_id: "deepseek/deepseek-v4-flash",
       label: "DeepSeek V4 Flash",
@@ -353,6 +426,7 @@ module Chat::ModelSelection
     { model_id: "deepseek/deepseek-v3", label: "DeepSeek V3", group: "DeepSeek" },
 
     # Moonshot / Kimi
+    { model_id: "moonshotai/kimi-coding", label: "Kimi Coding", group: "Moonshot / Kimi" },
     { model_id: "moonshotai/kimi-k2.6", label: "Kimi K2.6", group: "Moonshot / Kimi", thinking: { supported: true } },
     { model_id: "moonshotai/kimi-k2.5", label: "Kimi K2.5", group: "Moonshot / Kimi", thinking: { supported: true } },
     { model_id: "moonshotai/kimi-k2-thinking", label: "Kimi K2 Thinking", group: "Moonshot / Kimi", thinking: { supported: true } },
@@ -363,13 +437,23 @@ module Chat::ModelSelection
     { model_id: "minimax/minimax-m2", label: "MiniMax M2", group: "MiniMax", thinking: { supported: true } },
 
     # Qwen
+    { model_id: "qwen/qwen3.7-max", label: "Qwen3.7 Max", group: "Qwen", thinking: { supported: true } },
     { model_id: "qwen/qwen3.6-plus", label: "Qwen3.6 Plus", group: "Qwen", thinking: { supported: true } },
+    { model_id: "qwen/qwen3.6-max-preview", label: "Qwen3.6 Max Preview", group: "Qwen", thinking: { supported: true } },
+    { model_id: "qwen/qwen3.6-flash", label: "Qwen3.6 Flash", group: "Qwen", thinking: { supported: true } },
+    { model_id: "qwen/qwen3.5-plus-20260420", label: "Qwen3.5 Plus (2026-04-20)", group: "Qwen", thinking: { supported: true } },
+    { model_id: "qwen/qwen3.5-flash-02-23", label: "Qwen3.5 Flash (02-23)", group: "Qwen", thinking: { supported: true } },
+    { model_id: "qwen/qwen3-max-thinking", label: "Qwen3 Max Thinking", group: "Qwen", thinking: { supported: true } },
+    { model_id: "qwen/qwen3-max", label: "Qwen3 Max", group: "Qwen" },
+    { model_id: "qwen/qwen3-coder-flash", label: "Qwen3 Coder Flash", group: "Qwen" },
     { model_id: "qwen/qwen3-coder-plus", label: "Qwen3 Coder Plus", group: "Qwen" },
 
     # Z.ai
     { model_id: "z-ai/glm-5.1", label: "GLM 5.1", group: "Z.ai", thinking: { supported: true } },
+    { model_id: "z-ai/glm-5.1-coding", label: "GLM 5.1 Coding", group: "Z.ai", thinking: { supported: true } },
     { model_id: "z-ai/glm-4.7", label: "GLM 4.7", group: "Z.ai", thinking: { supported: true } },
     { model_id: "z-ai/glm-4.6", label: "GLM 4.6", group: "Z.ai", thinking: { supported: true } },
+    { model_id: "z-ai/glm-4.6-coding", label: "GLM 4.6 Coding", group: "Z.ai", thinking: { supported: true } },
     { model_id: "z-ai/glm-4.5", label: "GLM 4.5", group: "Z.ai", thinking: { supported: true } }
   ].freeze
 
