@@ -14,6 +14,7 @@ class Agent < ApplicationRecord
   belongs_to :account
   belongs_to :outbound_api_key, class_name: "ApiKey", optional: true
   has_many :chat_agents, dependent: :destroy
+  has_many :agent_backup_snapshots, dependent: :destroy
   has_many :chats, through: :chat_agents
 
   VALID_COLOURS = %w[
@@ -53,6 +54,8 @@ class Agent < ApplicationRecord
 
   encrypts :trigger_bearer_token
   encrypts :github_deploy_key_priv
+  encrypts :restic_password
+  encrypts :outbound_api_token
 
   scope :active, -> { where(active: true) }
   scope :unpaused, -> { where(paused: false) }
@@ -67,7 +70,7 @@ class Agent < ApplicationRecord
                   :voiced?, :voice_id, :runtime, :endpoint_url, :last_announced_at,
                   :last_health_check_at, :health_state, :consecutive_health_failures,
                   :github_repo_url, :github_repo_owner, :github_repo_name,
-                  :github_deploy_key_id
+                  :github_deploy_key_id, :container_name, :sandbox_host, :container_image
 
   def self.json_attrs_for(options = nil)
     return json_attrs unless options&.dig(:as) == :list

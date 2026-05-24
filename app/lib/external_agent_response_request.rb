@@ -10,7 +10,7 @@ class ExternalAgentResponseRequest
   def call
     return notify_unreachable if agent.offline? || agent_unhealthy?
 
-    ChaosTriggerClient.new(agent.endpoint_url, agent.trigger_bearer_token).request_response(
+    ChaosTriggerClient.new(Agents::Endpoint.url_for(agent), agent.trigger_bearer_token).request_response(
       conversation_id: chat.to_param,
       requested_by: requested_by,
       session_id: "#{agent.uuid}-#{chat.id}",

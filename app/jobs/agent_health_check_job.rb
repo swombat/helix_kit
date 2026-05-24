@@ -13,9 +13,7 @@ class AgentHealthCheckJob < ApplicationJob
   private
 
   def healthy?(agent)
-    return false if agent.endpoint_url.blank?
-
-    uri = URI("#{agent.endpoint_url.to_s.delete_suffix('/')}/health")
+    uri = URI("#{Agents::Endpoint.url_for(agent).to_s.delete_suffix('/')}/health")
     response = Net::HTTP.get_response(uri)
     response.code == "200"
   rescue StandardError

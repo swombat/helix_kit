@@ -23,23 +23,6 @@ class Agents::PromoteController < ApplicationController
       return
     end
 
-    if current_account.github_pat.blank?
-      redirect_to promote_account_agent_path(current_account, @agent), alert: "Add GitHub access before creating the agent repo"
-      return
-    end
-
-    repo_name = params[:repo_name].to_s.parameterize.presence || "#{agent_slug}-agent"
-    private_repo = ActiveModel::Type::Boolean.new.cast(params.fetch(:private_repo, true))
-    repo_creator = AgentRepoCreator.new(
-      account: current_account,
-      agent: @agent,
-      repo_name: repo_name,
-      private_repo: private_repo
-    )
-
-    repo = repo_creator.create_repo!
-    deploy_key = repo_creator.create_deploy_key!(repo)
-
     outbound_api_key = nil
     @agent.transaction do
       @agent.uuid ||= SecureRandom.uuid_v7
@@ -49,42 +32,23 @@ class Agents::PromoteController < ApplicationController
         agent: @agent
       )
       @agent.outbound_api_key = outbound_api_key
+      @agent.outbound_api_token = outbound_api_key.raw_token
       @agent.trigger_bearer_token = "tr_#{SecureRandom.hex(24)}"
+      @agent.restic_password = SecureRandom.hex(32)
+      @agent.container_name = "hk-agent-#{@agent.uuid}"
+      @agent.sandbox_host = Agents::Config.sandbox_host
+      @agent.container_image = Agents::Config.default_image
+      @agent.endpoint_url = nil unless Agents::Config.publish_ports?
       @agent.runtime = "migrating"
       @agent.migration_started_at = Time.current
-      @agent.github_repo_url = repo.html_url
-      @agent.github_repo_owner = repo.owner
-      @agent.github_repo_name = repo.name
-      @agent.github_deploy_key_id = deploy_key.id
-      @agent.github_deploy_key_priv = deploy_key.private_key
+      @agent.health_state = "unknown"
+      @agent.consecutive_health_failures = 0
       @agent.save!
     end
 
-    master_key = SecureRandom.base64(32)
-    encrypted_credentials = AgentCredentialsEncryptor.new(
-      @agent,
-      master_key,
-      outbound_token: outbound_api_key.raw_token,
-      github_deploy_key: deploy_key.private_key
-    ).encrypt
-    deploy_yml = repo_creator.deploy_yml(repo)
-    repo_creator.commit_runtime_files!(
-      repo,
-      identity_files: AgentIdentityExporter.new(@agent).files,
-      credentials_yml_enc: encrypted_credentials,
-      deploy_yml: deploy_yml
-    )
+    PromoteAgentJob.perform_later(@agent.id)
 
-    render inertia: "agents/promote", props: promotion_props.merge(
-      generated_credentials: {
-        master_key: master_key,
-        credentials_yml_enc: encrypted_credentials,
-        deploy_yml: deploy_yml,
-        repo: repo.to_h
-      }
-    )
-  rescue AgentRepoCreator::GitHubError => e
-    redirect_to promote_account_agent_path(current_account, @agent), alert: e.message
+    redirect_to promote_account_agent_path(current_account, @agent), notice: "Promoting #{@agent.name} to a hosted sandbox"
   end
 
   def regenerate_credentials
@@ -150,7 +114,9 @@ class Agents::PromoteController < ApplicationController
       runtime: "inline",
       migration_started_at: nil,
       trigger_bearer_token: nil,
-      outbound_api_key: nil
+      outbound_api_key: nil,
+      outbound_api_token: nil,
+      restic_password: nil
     )
     api_key&.destroy!
 
@@ -196,9 +162,11 @@ class Agents::PromoteController < ApplicationController
     {
       account: current_account.as_json,
       agent: @agent.as_json,
-      github_configured: current_account.github_pat.present?,
-      github_login: current_account.github_login,
+      github_configured: false,
+      github_login: nil,
       default_repo_name: "#{agent_slug}-agent",
+      hosted_agents: true,
+      local_dev_endpoint_mode: Agents::Config.publish_ports?,
       github_repo: github_repo_props,
       clone_url: github_ssh_clone_url,
       identity_export_url: identity_export_account_agent_path(current_account, @agent)

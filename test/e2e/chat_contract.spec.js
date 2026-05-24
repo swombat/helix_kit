@@ -96,6 +96,19 @@ test.describe('browser contracts', () => {
     await expect(page.getByText(/I will compare both deterministic test agents/)).toBeVisible();
   });
 
+  test('hosted agent promotion page explains local sandbox testing', async ({ page }) => {
+    await login(page, setup.primary_user, setup.password);
+    const agentId = setup.agents[0].id;
+
+    await page.goto(`/accounts/${setup.account_id}/agents/${agentId}/promote`);
+
+    await expect(page.getByRole('heading', { name: /Promote E2E Researcher/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Promote to sandbox/ })).toBeVisible();
+    await expect(page.getByText(/without a GitHub repo, master key, DNS, or SSH deploy step/)).toBeVisible();
+    await expect(page.getByText(/published to/)).toBeVisible();
+    await expect(page.getByText(/127.0.0.1/)).toBeVisible();
+  });
+
   test('documentation page renders code examples', async ({ page }) => {
     await page.goto('/documentation');
 

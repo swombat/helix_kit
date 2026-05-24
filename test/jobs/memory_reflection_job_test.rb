@@ -7,7 +7,9 @@ class MemoryReflectionJobTest < ActiveSupport::TestCase
     @agent.memories.destroy_all
     @agent.update!(
       model_id: "openai/gpt-5-nano",
-      memory_reflection_prompt: nil
+      memory_reflection_prompt: nil,
+      active: true,
+      paused: false
     )
 
     @journal1 = @agent.memories.create!(content: "User prefers concise answers", memory_type: :journal)
@@ -44,9 +46,11 @@ class MemoryReflectionJobTest < ActiveSupport::TestCase
         %{journal_entries}
       PROMPT
     )
-    @agent.memories.journal.update_all(created_at: Time.zone.parse("2026-05-03 11:24 UTC"))
+    @journal1.update!(created_at: 3.minutes.ago)
+    @journal2.update!(created_at: 2.minutes.ago)
+    @journal3.update!(created_at: 1.minute.ago)
 
-    VCR.use_cassette("jobs/memory_reflection_job/promotes_selected_entries") do
+    with_reflection_response({ promote: [ 1, 3 ] }.to_json) do
       MemoryReflectionJob.perform_now
     end
 
@@ -70,7 +74,7 @@ class MemoryReflectionJobTest < ActiveSupport::TestCase
       PROMPT
     )
 
-    VCR.use_cassette("jobs/memory_reflection_job/promotes_nothing") do
+    with_reflection_response({ promote: [] }.to_json) do
       MemoryReflectionJob.perform_now
     end
 
@@ -106,6 +110,26 @@ class MemoryReflectionJobTest < ActiveSupport::TestCase
     assert_equal 1, @agent.memories.core.count
     assert_predicate @journal1.reload, :core?
     assert_predicate @journal2.reload, :journal?
+  end
+
+  private
+
+  def with_reflection_response(content)
+    response = Struct.new(:content).new(content)
+    llm = Class.new do
+      attr_reader :asked_prompt
+
+      define_method(:ask) do |prompt|
+        @asked_prompt = prompt
+        response
+      end
+    end.new
+
+    RubyLLM.stub(:chat, llm) do
+      yield
+    end
+
+    assert_predicate llm.asked_prompt, :present?
   end
 
 end

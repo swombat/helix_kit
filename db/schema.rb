@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_23_084500) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_24_160000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -124,6 +124,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_23_084500) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
+  create_table "agent_backup_snapshots", force: :cascade do |t|
+    t.bigint "agent_id", null: false
+    t.datetime "created_at", null: false
+    t.integer "duration_ms"
+    t.boolean "ok", default: false, null: false
+    t.string "restic_snapshot_id", null: false
+    t.bigint "size_bytes"
+    t.text "stderr_tail"
+    t.datetime "taken_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["agent_id", "taken_at"], name: "index_agent_backup_snapshots_on_agent_id_and_taken_at"
+    t.index ["agent_id"], name: "index_agent_backup_snapshots_on_agent_id"
+  end
+
   create_table "agent_memories", force: :cascade do |t|
     t.bigint "agent_id", null: false
     t.boolean "constitutional", default: false, null: false
@@ -141,8 +155,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_23_084500) do
   create_table "agents", force: :cascade do |t|
     t.bigint "account_id", null: false
     t.boolean "active", default: true, null: false
+    t.integer "backup_interval_hours", default: 24, null: false
+    t.integer "backup_keep_daily", default: 7, null: false
+    t.integer "backup_keep_monthly", default: 12, null: false
+    t.integer "backup_keep_weekly", default: 4, null: false
     t.string "colour"
     t.integer "consecutive_health_failures", default: 0, null: false
+    t.integer "container_cpu_shares", default: 1024, null: false
+    t.string "container_image"
+    t.integer "container_memory_mb", default: 8192, null: false
+    t.string "container_name"
     t.datetime "created_at", null: false
     t.jsonb "enabled_tools", default: [], null: false
     t.string "endpoint_url"
@@ -161,11 +183,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_23_084500) do
     t.string "model_id", default: "openrouter/auto", null: false
     t.string "name", null: false
     t.bigint "outbound_api_key_id"
+    t.string "outbound_api_token"
     t.boolean "paused", default: false, null: false
     t.text "refinement_prompt"
     t.float "refinement_threshold"
     t.text "reflection_prompt"
+    t.string "restic_password"
     t.string "runtime", default: "inline", null: false
+    t.string "sandbox_host"
     t.text "summary_prompt"
     t.text "system_prompt"
     t.string "telegram_bot_token"
@@ -181,8 +206,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_23_084500) do
     t.index ["account_id", "name"], name: "index_agents_on_account_id_and_name", unique: true
     t.index ["account_id", "paused"], name: "index_agents_on_account_id_and_paused"
     t.index ["account_id"], name: "index_agents_on_account_id"
+    t.index ["container_name"], name: "index_agents_on_container_name", unique: true
     t.index ["outbound_api_key_id"], name: "index_agents_on_outbound_api_key_id"
     t.index ["runtime"], name: "index_agents_on_runtime"
+    t.index ["sandbox_host"], name: "index_agents_on_sandbox_host"
     t.index ["telegram_webhook_token"], name: "index_agents_on_telegram_webhook_token", unique: true
     t.index ["uuid"], name: "index_agents_on_uuid", unique: true
   end
@@ -515,6 +542,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_23_084500) do
   add_foreign_key "action_mcp_session_tasks", "action_mcp_sessions", column: "session_id", name: "fk_action_mcp_session_tasks_session_id", on_update: :cascade, on_delete: :cascade
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "agent_backup_snapshots", "agents"
   add_foreign_key "agent_memories", "agents"
   add_foreign_key "agents", "accounts"
   add_foreign_key "agents", "api_keys", column: "outbound_api_key_id"
