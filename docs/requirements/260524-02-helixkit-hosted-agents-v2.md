@@ -31,7 +31,7 @@ The shape becomes:
 - Each agent gets a named Docker volume holding its `identity/`; chaos CLI session state lives in a separate non-backed-up volume.
 - The volume is backed up to S3 via **restic**, on a schedule, by HelixKit itself.
 - HelixKit talks to its agents over a private Docker network, using UUID-based container names; no public hostnames.
-- The `helix-kit-agents` runtime image (chaos + `trigger_shim.py`) is reused largely unchanged — the shim **stays**, with only a small logging-label tweak, while everything around it (per-agent repo, deploy keys, master keys, `bin/deploy`, the announce dance) is removed.
+- The agent runtime image source is folded into HelixKit under `agent-runtime/` (chaos + `trigger_shim.py` + entrypoint). The old separate `helix-kit-agents` repo is left intact as a historical/self-host fallback, but it is no longer the primary runtime source.
 
 The trade-off Daniel has explicitly accepted: shared-kernel isolation is weaker than VM-per-agent. This is fine for the single-tenant case (all agents are owned by HelixKit operators / their accounts running their own code). If multi-tenant adversarial workloads ever land, that's a different spec.
 
@@ -164,7 +164,7 @@ identity/
 
 The `.chaos` volume is separate operational state for the chaos CLI: sessions, local config, and resumability data. It is preserved across container restarts, but **not backed up by restic in v1** unless Daniel explicitly chooses to include it later.
 
-The identity volume is the canonical home. There is no per-agent git remote in v1. The agent may run `git init` inside its identity directory if it wants version history (and the `helix-kit-agents` image keeps git installed), but no remote push target is provisioned. **Backups are HelixKit's job, not git's.** This decouples backup-for-recovery from cross-machine-sync (which was the conflation in the current design and Lume's own current arrangement).
+The identity volume is the canonical home. There is no per-agent git remote in v1. The agent may run `git init` inside its identity directory if it wants version history (the folded `agent-runtime/` image keeps git installed), but no remote push target is provisioned. **Backups are HelixKit's job, not git's.** This decouples backup-for-recovery from cross-machine-sync (which was the conflation in the current design and Lume's own current arrangement).
 
 ### 4d. The `helixkit_agents` Docker network
 
@@ -174,7 +174,7 @@ Per-agent network isolation (agent A cannot reach agent B) is **not** provided i
 
 ### 4e. What stays from the current design
 
-- The chaos runtime image (`helix-kit-agents` repo) — Dockerfile unchanged except for trimmings (see §6c).
+- The chaos runtime image — now built from `agent-runtime/` in the HelixKit repo (see §6c).
 - `trigger_shim.py` — **shim verdict: keep** (see §5 for full reasoning), with a small `AGENT_SLUG` logging-label tweak.
 - The agent-scoped HelixKit API key (`hx_…`), bound to one agent via `api_keys.agent_id`.
 - The trigger bearer token (`tr_…`), stored encrypted at rest on `Agent#trigger_bearer_token`.
@@ -193,7 +193,7 @@ Per-agent network isolation (agent A cannot reach agent B) is **not** provided i
 | `AgentRepoCreator` service | No repo to create. |
 | Master key + AES-256-GCM `credentials.yml.enc` flow | Secrets live in HelixKit's existing encrypted DB columns and `Rails.application.credentials`. No need to ferry them through user-readable artifacts. |
 | `AgentCredentialsEncryptor` | Same. |
-| `helix-kit-agents/bin/deploy`, `bin/generate-env`, `bin/announce`, `bin/undeploy`, `bin/update` | Replaced by HelixKit-internal orchestration (`Agents::Sandbox` service, §6). The scripts can remain in the repo as a fallback for users who want to self-host externally, but they are no longer the primary path. |
+| The separate `helix-kit-agents` repo as primary runtime source | Replaced by HelixKit's in-repo `agent-runtime/` directory. The old repo remains as a possible self-host/historical fallback. |
 | `/api/v1/agents/:uuid/announce` endpoint | HelixKit knows the endpoint locally. |
 | The promotion wizard's Steps 2–5 (clone, master-key-save, ssh-and-deploy) | Replaced by a single "Promote" button + progress indicator. |
 | Public per-agent hostnames + DNS records | Agents are not externally reachable. |
@@ -243,7 +243,7 @@ Why not: chaos exec calls can run for minutes (default timeout in the current sh
 - The subprocess invocation: `chaos exec --provider <p> -C <cwd> --skip-git-repo-check -m <model> -` with the prompt on stdin.
 - Output tail-trimming, timeout handling, error response shape.
 
-This means **the existing `helix-kit-agents` image works as-is** modulo dropping the deploy-key bits and the one-line logging-label improvement. We are not changing the chaos execution model; we are only changing how HelixKit talks to it and how its state is backed up.
+This means **the shim contract and chaos execution model stay the same**, but the runtime source now lives in `agent-runtime/` inside HelixKit so app-side orchestration and runtime changes can land atomically.
 
 ---
 
@@ -320,7 +320,7 @@ env:
   clear:
     # ... existing
     HELIXKIT_AGENTS_NETWORK: helixkit_agents
-    HELIXKIT_AGENT_IMAGE_DEFAULT: dtenner/helix-kit-agents:<sha-or-version>
+    HELIXKIT_AGENT_IMAGE_DEFAULT: registry.example.com/helixkit-agent-runtime:<sha-or-version>
     HELIXKIT_AGENT_INTERNAL_URL: http://helix-kit-web:3000   # agents talk to HelixKit at this address
     HELIXKIT_SANDBOX_HOST: helixkit-prod-1                 # stored on agents.sandbox_host
     AWS_REGION: eu-west-1                                     # for restic + aws-sdk
@@ -349,7 +349,7 @@ servers:
       network: helixkit_agents
 ```
 
-Add to the Dockerfile for HelixKit (the Rails app's own Dockerfile, separate from helix-kit-agents):
+Add to the Dockerfile for HelixKit (the Rails app's own Dockerfile, separate from the `agent-runtime/` image):
 
 ```dockerfile
 # Install docker CLI (not daemon — we talk to the host's daemon via socket),
@@ -376,20 +376,26 @@ Preferred v1 shape:
 1. Add a Kamal pre-deploy / host bootstrap step that creates the network idempotently.
 2. Keep `Agents::Network.ensure!` as a runtime sanity check and self-healing guard for agents spawned after boot.
 
-### 6c. `helix-kit-agents` repo changes
+### 6c. `agent-runtime/` in-repo runtime
 
-This repo's runtime image is reused. The changes are subtractive:
+The managed runtime image source lives in the HelixKit repo under `agent-runtime/`:
 
-| File | Change |
+| File | Purpose |
 |---|---|
-| `Dockerfile` | Remove `openssh-client` and the deploy-key handling. No structural change. |
-| `docker-compose.yml.template` | **Deprecated** for HelixKit-internal use. HelixKit will not use docker-compose; it will call `docker run` directly via the docker socket. Keep the file in the repo as a fallback for users who want to self-host externally. |
-| `bin/deploy`, `bin/generate-env`, `bin/announce`, `bin/undeploy`, `bin/update` | **Deprecated** for the HelixKit-managed path. Same fallback note. Move under `bin/self-host/` and document them as the optional "host it on your own VPS" path. |
-| `trigger_shim.py` | Keep behavior; add optional `AGENT_SLUG` for human-readable log prefixes (`AGENT_SLUG || AGENT_ID`). |
-| `entrypoint.sh` | No change. Still chowns the chaos-home volume and gosus into uid 1000. |
-| `README.md` | Add a "Run via HelixKit (preferred)" section pointing back at HelixKit's promotion UX. Keep the existing self-host docs as the alternative path. |
+| `agent-runtime/Dockerfile` | Builds chaos and packages the runtime image. |
+| `agent-runtime/trigger_shim.py` | HTTP shim: `GET /health`, `POST /trigger`, bearer auth, chaos subprocess invocation. Uses `AGENT_SLUG || AGENT_ID` for human-readable log prefixes. |
+| `agent-runtime/entrypoint.sh` | Chowns `/home/agent/identity` and `/home/agent/.chaos`, seeds provider accounts, drops to uid 1000. |
+| `agent-runtime/README.md` | Runtime contract, local build command, env vars, volume paths, production image tagging. |
 
-The image keeps publishing to Docker Hub with immutable tags (`dtenner/helix-kit-agents:<sha>` / version tags). A `:latest` tag may exist for humans, but HelixKit should promote agents with a pinned tag and store that exact value in `agents.container_image`.
+Local build:
+
+```bash
+docker build -t helixkit-agent-runtime:local agent-runtime
+```
+
+Production should publish immutable tags from the HelixKit repo, for example `registry.example.com/helixkit-agent-runtime:<git-sha>`. A `:latest` tag may exist for humans, but HelixKit should promote agents with a pinned tag and store that exact value in `agents.container_image`.
+
+The old separate `helix-kit-agents` repository is **not deleted**. It remains available as a historical/self-host fallback, but HelixKit-managed hosting no longer depends on it.
 
 ### 6d. `Agents::Sandbox` service
 
@@ -399,7 +405,7 @@ The image keeps publishing to Docker Hub with immutable tags (`dtenner/helix-kit
 module Agents
   class Sandbox
     NETWORK = ENV.fetch("HELIXKIT_AGENTS_NETWORK", "helixkit_agents")
-    DEFAULT_IMAGE = ENV.fetch("HELIXKIT_AGENT_IMAGE_DEFAULT", "dtenner/helix-kit-agents:<sha-or-version>")
+    DEFAULT_IMAGE = ENV.fetch("HELIXKIT_AGENT_IMAGE_DEFAULT", "helixkit-agent-runtime:local")
 
     def initialize(agent)
       @agent = agent
@@ -896,7 +902,7 @@ There is currently one external agent in production (claude-test-agent, deployed
 1. Delete `accounts.github_pat`, `accounts.github_login`, `agents.github_*` columns.
 2. Delete `AgentRepoCreator`, `AgentCredentialsEncryptor` (and tests).
 3. Delete `/api/v1/agents/:uuid/announce`.
-4. Move `helix-kit-agents/bin/{deploy,generate-env,announce,undeploy,update}` under `bin/self-host/` with updated README.
+4. Stop treating the separate `helix-kit-agents` repo as the managed runtime source; keep it untouched as a self-host/historical fallback.
 5. Remove the GitHub PAT UI from account settings.
 
 ---
@@ -917,7 +923,7 @@ There is currently one external agent in production (claude-test-agent, deployed
 
 - Multi-tenant adversarial workloads (would push us toward firecracker microVMs).
 - A full snapshot-restore UI (v1 is rails-runner).
-- Per-agent custom Dockerfiles (everyone uses the pinned `helix-kit-agents` image selected at promotion time).
+- Per-agent custom Dockerfiles (everyone uses the pinned image built from `agent-runtime/` selected at promotion time).
 - Per-agent GPU access.
 - Agent-to-agent direct messaging without going through HelixKit.
 - A "migrate from external-VM to on-host sandbox" automation. Phase 3 above is hand-driven for the single existing case.
@@ -977,7 +983,7 @@ Development should provide these defaults via `.env.development`, `bin/dev`, or 
 
 ```bash
 HELIXKIT_AGENTS_NETWORK=helixkit_agents
-HELIXKIT_AGENT_IMAGE_DEFAULT=dtenner/helix-kit-agents:<sha-or-version>
+HELIXKIT_AGENT_IMAGE_DEFAULT=helixkit-agent-runtime:local
 HELIXKIT_AGENT_INTERNAL_URL=http://host.docker.internal:3000
 HELIXKIT_SANDBOX_HOST=local-docker-desktop
 HELIXKIT_AGENT_PUBLISH_PORTS=1
@@ -1013,7 +1019,7 @@ The promotion and restart jobs should be written as reconciliation, not as a bri
 ## 15. Notes for the implementer
 
 - The load-bearing new code is `Agents::Sandbox` + `Agents::Volume` + `PromoteAgentJob`. Build and test these in isolation against a local docker daemon before wiring them to the wizard.
-- The shim stays as the HTTP boundary. Modify `helix-kit-agents/trigger_shim.py` only for the optional `AGENT_SLUG || AGENT_ID` logging prefix; do not change trigger/health semantics.
+- The shim stays as the HTTP boundary. Runtime source lives at `agent-runtime/trigger_shim.py`; do not change trigger/health semantics casually.
 - The Kamal deploy.yml change (docker socket mount + shared network) is the highest-risk Kamal-side edit; test it on a staging host first if one is available, or be ready to ssh in and fix things manually.
 - `docker.io` in the HelixKit Dockerfile pulls in only the client. Verify in a build that the resulting image can talk to the host's daemon over the mounted socket — this has bitten people with permissions/UID-mismatch issues; document the fix in the deploy doc.
 - The S3 bucket + IAM policy need to be created out-of-band before the first promotion in production. Document the IAM policy shape (allow `s3:GetObject`, `s3:PutObject`, `s3:DeleteObject`, `s3:ListBucket` on the bucket; deny everything else).
@@ -1025,11 +1031,11 @@ The promotion and restart jobs should be written as reconciliation, not as a bri
 
 | Artifact | Status |
 |---|---|
-| `helix-kit-agents` Dockerfile | Keep, minor trim |
-| `trigger_shim.py` | Keep; tiny optional `AGENT_SLUG` logging-label tweak |
-| `entrypoint.sh` | Keep, unchanged |
+| `agent-runtime/Dockerfile` | New in-repo managed runtime image source |
+| `agent-runtime/trigger_shim.py` | Keep shim contract; uses optional `AGENT_SLUG` logging label |
+| `agent-runtime/entrypoint.sh` | Chown identity/chaos volumes and drop privileges |
 | `docker-compose.yml.template` | Deprecate (keep for self-host fallback) |
-| `bin/deploy`, `bin/generate-env`, etc. | Deprecate, move to `bin/self-host/` |
+| separate `helix-kit-agents` repo deploy scripts | Not used by managed hosting; leave old repo intact as fallback |
 | `AgentIdentityExporter` | Keep, reuse |
 | `AgentCredentialsEncryptor` | **Remove** |
 | `AgentRepoCreator` | **Remove** |

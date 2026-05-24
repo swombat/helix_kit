@@ -8,7 +8,11 @@ module Agents
     end
 
     def default_image
-      ENV.fetch("HELIXKIT_AGENT_IMAGE_DEFAULT", "dtenner/helix-kit-agents:latest")
+      ENV.fetch("HELIXKIT_AGENT_IMAGE_DEFAULT", default_image_fallback)
+    end
+
+    def default_image_fallback
+      local_development? ? "helixkit-agent-runtime:local" : "helixkit-agent-runtime:latest"
     end
 
     def internal_url
