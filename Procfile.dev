@@ -1,4 +1,4 @@
 
+web: bin/rails s -p ${HELIXKIT_DEV_WEB_PORT:-3100}
 vite: bin/vite dev
-web: bin/rails s
 jobs: bundle exec rake solid_queue:start

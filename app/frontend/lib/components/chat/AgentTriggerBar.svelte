@@ -4,25 +4,55 @@
   import { Spinner, UsersThree } from 'phosphor-svelte';
   import { accountChatAgentTriggerPath } from '@/routes';
   import { agentIconFor } from '$lib/agent-icons';
+  import { onDestroy } from 'svelte';
 
-  let { agents = [], accountId, chatId, disabled = false, onTrigger = null } = $props();
+  let { agents = [], accountId, chatId, disabled = false, responseMarker = null, onTrigger = null } = $props();
   let triggeringAgent = $state(null);
   let triggeringAll = $state(false);
   let waitingForResponse = $state(false);
+  let responseMarkerAtTrigger = $state(null);
+  let timeoutId = null;
+
+  function clearWaitingState() {
+    waitingForResponse = false;
+    triggeringAgent = null;
+    triggeringAll = false;
+    responseMarkerAtTrigger = null;
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+      timeoutId = null;
+    }
+  }
+
+  function beginWaiting() {
+    waitingForResponse = true;
+    responseMarkerAtTrigger = responseMarker;
+    if (timeoutId) clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+      clearWaitingState();
+    }, 120_000);
+  }
 
   // When disabled becomes true (streaming started), clear our waiting state
   $effect(() => {
     if (disabled && waitingForResponse) {
-      waitingForResponse = false;
-      triggeringAgent = null;
-      triggeringAll = false;
+      clearWaitingState();
+    }
+  });
+
+  // External agents post a completed assistant message rather than a streaming
+  // placeholder. Clear the local trigger spinner when the chat receives a new
+  // assistant message marker from ActionCable/Inertia reload.
+  $effect(() => {
+    if (waitingForResponse && responseMarker && responseMarker !== responseMarkerAtTrigger) {
+      clearWaitingState();
     }
   });
 
   function triggerAgent(agent) {
     if (triggeringAgent || triggeringAll || waitingForResponse) return;
     triggeringAgent = agent.id;
-    waitingForResponse = true;
+    beginWaiting();
 
     router.post(
       accountChatAgentTriggerPath(accountId, chatId),
@@ -32,8 +62,7 @@
           onTrigger?.();
         },
         onError: () => {
-          triggeringAgent = null;
-          waitingForResponse = false;
+          clearWaitingState();
         },
       }
     );
@@ -42,7 +71,7 @@
   function triggerAllAgents() {
     if (triggeringAgent || triggeringAll || waitingForResponse) return;
     triggeringAll = true;
-    waitingForResponse = true;
+    beginWaiting();
 
     router.post(
       accountChatAgentTriggerPath(accountId, chatId),
@@ -52,14 +81,17 @@
           onTrigger?.();
         },
         onError: () => {
-          triggeringAll = false;
-          waitingForResponse = false;
+          clearWaitingState();
         },
       }
     );
   }
 
   const isTriggering = $derived(triggeringAgent !== null || triggeringAll || waitingForResponse);
+
+  onDestroy(() => {
+    if (timeoutId) clearTimeout(timeoutId);
+  });
 </script>
 
 {#if agents.length > 0}

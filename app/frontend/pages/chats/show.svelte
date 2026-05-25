@@ -316,6 +316,10 @@
 
   // Check if any agent is currently responding (streaming)
   const agentIsResponding = $derived(allMessages?.some((m) => m.streaming) ?? false);
+  const latestAssistantMessageId = $derived.by(() => {
+    const assistantMessage = [...(allMessages || [])].reverse().find((message) => message.role === 'assistant');
+    return assistantMessage?.id ?? null;
+  });
 
   // Auto-detect waiting state based on messages
   // Don't show for manual_responses chats (group chats) since they don't auto-respond
@@ -663,6 +667,7 @@
       {agents}
       accountId={account.id}
       {agentIsResponding}
+      responseMarker={latestAssistantMessageId}
       fileUploadConfig={file_upload_config}
       onAgentTrigger={scheduleStreamingRefresh}
       onSent={(data) => {

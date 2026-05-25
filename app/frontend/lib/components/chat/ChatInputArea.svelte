@@ -7,6 +7,7 @@
     agents = [],
     accountId,
     agentIsResponding = false,
+    responseMarker = null,
     fileUploadConfig = {},
     onAgentTrigger = () => {},
     onSent = () => {},
@@ -22,6 +23,7 @@
     {accountId}
     chatId={chat.id}
     disabled={agentIsResponding || !chat?.respondable}
+    {responseMarker}
     onTrigger={onAgentTrigger} />
 {/if}
 

@@ -10,12 +10,27 @@ class ExternalAgentResponseRequest
   def call
     return notify_unreachable if agent.offline? || agent_unhealthy?
 
-    ChaosTriggerClient.new(Agents::Endpoint.url_for(agent), agent.trigger_bearer_token).request_response(
+    endpoint_url = Agents::Endpoint.url_for(agent)
+    session_id = "#{agent.uuid}-#{chat.id}"
+    request = request_text
+
+    AgentRuntimeInteraction.record_trigger!(
+      agent: agent,
+      chat: chat,
+      trigger_kind: "conversation",
       conversation_id: chat.to_param,
       requested_by: requested_by,
-      session_id: "#{agent.uuid}-#{chat.id}",
-      request: request_text
-    )
+      session_id: session_id,
+      endpoint_url: endpoint_url,
+      request_text: request
+    ) do
+      ChaosTriggerClient.new(endpoint_url, agent.trigger_bearer_token).request_response(
+        conversation_id: chat.to_param,
+        requested_by: requested_by,
+        session_id: session_id,
+        request: request
+      )
+    end
   rescue StandardError => e
     Rails.logger.warn "[ExternalAgentResponseRequest] #{agent.id} trigger failed: #{e.class}: #{e.message}"
     ActionCable.server.broadcast(
@@ -46,10 +61,32 @@ class ExternalAgentResponseRequest
     parts = [
       "HelixKit received a request for you to consider responding to conversation #{chat.to_param}.",
       "Requested by: #{requested_by}.",
-      "This is an invitation, not a command. To inspect the conversation, see ~/identity/helixkit-api.md (your HelixKit API reference). To respond, use the post-message endpoint described there. If you choose not to respond, do nothing."
+      "This trigger is already Daniel/HelixKit asking you to act. Do not ask for a second confirmation before posting a normal response.",
+      "Decide whether to respond. If you choose to respond, post your response to this conversation now. Prefer the helper command: `helixkit-post-message #{chat.to_param} \"your message\"` (or pipe longer Markdown into it). You may also use the API described in ~/identity/helixkit-api.md with HELIXKIT_APP_URL and HELIXKIT_BEARER_TOKEN.",
+      "HELIXKIT_APP_URL and HELIXKIT_BEARER_TOKEN are already present in your shell environment. The bearer token is already authorized for you to read this conversation and post your own assistant messages; do not ask Daniel to paste it or re-authorize it.",
+      "Do not rely on stdout as the response channel; stdout is diagnostic only. If you choose not to respond, explain your reason briefly on stdout and then exit without posting.",
+      conversation_context
     ]
     parts << "Initiation reason: #{initiation_reason}" if initiation_reason.present?
     parts.join("\n\n")
+  end
+
+  def conversation_context
+    lines = chat.messages.order(:created_at).last(30).map do |message|
+      speaker = if message.agent
+        "#{message.role} (#{message.agent.name})"
+      elsif message.user
+        "#{message.role} (#{message.user.email_address})"
+      else
+        message.role
+      end
+
+      "#{speaker}: #{message.content.to_s.strip}"
+    end
+
+    return "Conversation transcript: _No messages yet._" if lines.empty?
+
+    "Conversation transcript:\n\n#{lines.join("\n\n")}"
   end
 
 end

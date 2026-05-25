@@ -109,6 +109,29 @@ test.describe('browser contracts', () => {
     await expect(page.getByText(/127.0.0.1/)).toBeVisible();
   });
 
+  test('user can promote a hosted agent into a local Docker sandbox', async ({ page, request }) => {
+    await login(page, setup.primary_user, setup.password);
+    const agentId = setup.agents[0].id;
+
+    await page.goto(`/accounts/${setup.account_id}/agents/${agentId}/promote`);
+    await expect(page.getByRole('heading', { name: /Promote E2E Researcher/ })).toBeVisible();
+    await expect(page.getByText(/Docker daemon:/)).toBeVisible();
+    await expect(page.getByText(/Runtime image present:/)).toBeVisible();
+
+    await page.getByRole('button', { name: /Promote to sandbox/ }).click();
+    await expect(page.getByText(/Current runtime:\s*migrating/)).toBeVisible();
+
+    const promoteResponse = await request.post('/test/e2e/perform_promote', {
+      data: { agent_id: agentId },
+    });
+    expect(promoteResponse.ok()).toBe(true);
+
+    await page.reload();
+    await expect(page.getByText(/Current runtime:\s*external/)).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByText(/Health:\s*healthy/)).toBeVisible();
+    await expect(page.getByText(/Container exists:\s*yes/)).toBeVisible();
+  });
+
   test('documentation page renders code examples', async ({ page }) => {
     await page.goto('/documentation');
 

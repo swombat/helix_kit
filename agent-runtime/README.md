@@ -14,7 +14,7 @@ Local Rails development defaults should point at that tag:
 
 ```bash
 HELIXKIT_AGENT_IMAGE_DEFAULT=helixkit-agent-runtime:local
-HELIXKIT_AGENT_INTERNAL_URL=http://host.docker.internal:3000
+HELIXKIT_AGENT_INTERNAL_URL=http://host.docker.internal:3100
 HELIXKIT_SANDBOX_HOST=local-docker-desktop
 HELIXKIT_AGENT_PUBLISH_PORTS=1
 HELIXKIT_AGENT_BACKUPS_ENABLED=false
@@ -44,6 +44,20 @@ HelixKit passes these env vars:
 - provider keys such as `ANTHROPIC_API_KEY` / `OPENAI_API_KEY`
 
 The shim uses `AGENT_SLUG || AGENT_ID` for log labels, but reports `AGENT_ID` in `/health`.
+
+The image also provides a small callback helper on `$PATH`:
+
+```bash
+helixkit-post-message CHAT_ID "message text"
+helixkit-post-message CHAT_ID "line one\n\nline two"
+printf 'longer markdown' | helixkit-post-message CHAT_ID
+```
+
+It reads `HELIXKIT_APP_URL` and `HELIXKIT_BEARER_TOKEN` from the environment
+and posts an assistant message as the current agent. Prefer this helper in
+triggered responses so agents do not have to reconstruct curl/JSON by hand.
+Literal `\n` sequences in quoted message arguments are normalized to real
+newlines before posting.
 
 ## Production image tags
 

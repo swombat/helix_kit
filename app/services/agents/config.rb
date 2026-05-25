@@ -17,8 +17,12 @@ module Agents
 
     def internal_url
       ENV.fetch("HELIXKIT_AGENT_INTERNAL_URL") do
-        local_development? ? "http://host.docker.internal:3000" : raise(KeyError, "HELIXKIT_AGENT_INTERNAL_URL is required")
+        local_development? ? "http://host.docker.internal:#{local_development_port}" : raise(KeyError, "HELIXKIT_AGENT_INTERNAL_URL is required")
       end
+    end
+
+    def local_development_port
+      ENV.fetch("HELIXKIT_DEV_WEB_PORT") { ENV.fetch("PORT", "3100") }
     end
 
     def sandbox_host

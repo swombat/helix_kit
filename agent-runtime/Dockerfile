@@ -57,8 +57,9 @@ RUN useradd --create-home --shell /bin/bash --uid 1000 agent
 
 COPY --from=builder /usr/local/bin/chaos /usr/local/bin/chaos
 COPY --chown=agent:agent trigger_shim.py /home/agent/trigger_shim.py
+COPY helixkit-post-message /usr/local/bin/helixkit-post-message
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod 0755 /usr/local/bin/entrypoint.sh
+RUN chmod 0755 /usr/local/bin/entrypoint.sh /usr/local/bin/helixkit-post-message
 
 # Canonical mounted volumes for hosted agents.
 VOLUME ["/home/agent/identity", "/home/agent/.chaos"]

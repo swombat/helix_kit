@@ -5,6 +5,7 @@ Rails.application.routes.draw do
         post :setup, to: "/test_support/e2e#setup"
         post :assistant_message, to: "/test_support/e2e#assistant_message"
         post :invitation_url, to: "/test_support/e2e#invitation_url"
+        post :perform_promote, to: "/test_support/e2e#perform_promote"
         post :state, to: "/test_support/e2e#state"
         post :cleanup, to: "/test_support/e2e#cleanup"
       end

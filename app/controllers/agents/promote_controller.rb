@@ -23,8 +23,16 @@ class Agents::PromoteController < ApplicationController
       return
     end
 
+    old_api_key = @agent.outbound_api_key
     outbound_api_key = nil
     @agent.transaction do
+      if old_api_key
+        @agent.outbound_api_key = nil
+        @agent.outbound_api_token = nil
+        @agent.save!
+        old_api_key.destroy!
+      end
+
       @agent.uuid ||= SecureRandom.uuid_v7
       outbound_api_key = ApiKey.generate_for(
         @agent.account.owner || Current.user,
@@ -43,6 +51,8 @@ class Agents::PromoteController < ApplicationController
       @agent.migration_started_at = Time.current
       @agent.health_state = "unknown"
       @agent.consecutive_health_failures = 0
+      @agent.sandbox_last_error = nil
+      @agent.sandbox_last_error_at = nil
       @agent.save!
     end
 
@@ -142,7 +152,11 @@ class Agents::PromoteController < ApplicationController
       render json: {
         status: result[:status].to_i.between?(200, 299) ? "runtime_reachable" : "transport_failed",
         transport_status: result[:status],
-        conversation_id: chat.to_param
+        conversation_id: chat.to_param,
+        error: result.dig(:body, "error"),
+        runtime_status: result.dig(:body, "status"),
+        runtime_stderr: result.dig(:body, "stderr"),
+        runtime_stdout: result.dig(:body, "stdout")
       }
     else
       chat.trigger_agent_response!(@agent)
@@ -169,8 +183,18 @@ class Agents::PromoteController < ApplicationController
       local_dev_endpoint_mode: Agents::Config.publish_ports?,
       github_repo: github_repo_props,
       clone_url: github_ssh_clone_url,
-      identity_export_url: identity_export_account_agent_path(current_account, @agent)
+      identity_export_url: identity_export_account_agent_path(current_account, @agent),
+      sandbox_status: sandbox_status,
+      runtime_interactions: runtime_interactions
     }
+  end
+
+  def sandbox_status
+    Agents::Sandbox.new(@agent).status
+  end
+
+  def runtime_interactions
+    @agent.agent_runtime_interactions.recent.limit(10).map(&:as_debug_json)
   end
 
   def github_repo_props

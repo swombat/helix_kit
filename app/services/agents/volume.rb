@@ -37,6 +37,10 @@ module Agents
       system(*cmd, out: File::NULL, err: File::NULL)
     end
 
+    def seeded?
+      !empty?
+    end
+
     def destroy!
       system("docker", "volume", "rm", "-f", volume_name)
     end

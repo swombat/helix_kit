@@ -109,6 +109,11 @@ def trigger():
                 "-C", str(cwd),
                 "--skip-git-repo-check",
                 "-m", model,
+                # Docker is the sandbox boundary for hosted agents. Inside that
+                # boundary the agent must be able to use Bash, write its mounted
+                # identity/state folders, and call HelixKit's API back.
+                "--dangerously-bypass-approvals-and-sandbox",
+                "-c", "shell_environment_policy.inherit=\"all\"",
                 # NOTE: --resume <session_id> only works for an existing session.
                 # For the first turn we omit it; subsequent turns pass it. The shim
                 # does not currently track first-vs-subsequent — chaos will create

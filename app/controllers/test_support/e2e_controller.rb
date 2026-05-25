@@ -65,6 +65,22 @@ module TestSupport
       }
     end
 
+    def perform_promote
+      agent = Agent.find(params.fetch(:agent_id))
+      PromoteAgentJob.perform_now(agent.id)
+      agent.reload
+
+      render json: {
+        id: agent.to_param,
+        runtime: agent.runtime,
+        health_state: agent.health_state,
+        endpoint_url: agent.endpoint_url,
+        sandbox_last_error: agent.sandbox_last_error
+      }
+    rescue StandardError => e
+      render json: { error: "#{e.class}: #{e.message}" }, status: :unprocessable_content
+    end
+
     def state
       run_id = params.fetch(:run_id)
       account = params[:account_id].present? ? Account.find(params[:account_id]) : Account.find_by!(name: "E2E #{run_id} Team")
@@ -126,9 +142,19 @@ module TestSupport
     def cleanup_run(run_id)
       users = User.where("email_address LIKE ?", "e2e-#{run_id}-%@example.com")
       member_account_ids = Membership.where(user_id: users.select(:id)).select(:account_id)
-      accounts = Account.where("name LIKE ?", "E2E #{run_id}%")
+      accounts = Account.where("accounts.name LIKE ?", "E2E #{run_id}%")
         .or(Account.where(id: member_account_ids))
 
+      accounts.includes(:agents).find_each do |account|
+        account.agents.each do |agent|
+          next if agent.container_name.blank?
+          Agents::Sandbox.new(agent).remove!(delete_volume: true)
+        end
+      end
+
+      agent_ids = accounts.joins(:agents).select("agents.id")
+      Agent.where(id: agent_ids).update_all(outbound_api_key_id: nil, outbound_api_token: nil)
+      ApiKey.where(agent_id: agent_ids).destroy_all
       AuditLog.where(account: accounts).or(AuditLog.where(user: users)).destroy_all
       Session.where(user: users).destroy_all
       accounts.find_each(&:destroy!)

@@ -940,7 +940,7 @@ There are two local shapes:
 
 1. **Rails running directly on macOS, agents running in Docker Desktop — default dev path.**
    - Rails can talk to Docker via the local Docker CLI / Docker Desktop socket.
-   - Agent containers call Rails at `http://host.docker.internal:3000`.
+   - Agent containers call Rails at `http://host.docker.internal:3100`.
    - Rails cannot reliably resolve Docker bridge DNS names like `hk-agent-<uuid>`, so development mode publishes each shim port to loopback and stores the mapped localhost URL.
    - This is the default when `Rails.env.local? || Rails.env.development?`.
 2. **HelixKit running in Docker on the same `helixkit_agents` network — production-shaped integration test.**
@@ -984,7 +984,7 @@ Development should provide these defaults via `.env.development`, `bin/dev`, or 
 ```bash
 HELIXKIT_AGENTS_NETWORK=helixkit_agents
 HELIXKIT_AGENT_IMAGE_DEFAULT=helixkit-agent-runtime:local
-HELIXKIT_AGENT_INTERNAL_URL=http://host.docker.internal:3000
+HELIXKIT_AGENT_INTERNAL_URL=http://host.docker.internal:3100
 HELIXKIT_SANDBOX_HOST=local-docker-desktop
 HELIXKIT_AGENT_PUBLISH_PORTS=1
 ```

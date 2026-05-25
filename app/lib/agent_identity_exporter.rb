@@ -152,8 +152,8 @@ class AgentIdentityExporter
               "created_at": "...",
               "updated_at": "...",
               "transcript": [
-                {"role": "user", "content": "Hello both!", "from": "Daniel", "at": "..."},
-                {"role": "assistant", "content": "Hi Daniel...", "from": "GPT Test Agent", "at": "..."}
+                {"role": "user", "content": "Hello both!", "author": "Daniel", "timestamp": "..."},
+                {"role": "assistant", "content": "Hi Daniel...", "author": "GPT Test Agent", "timestamp": "..."}
               ]
             }
           }

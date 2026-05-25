@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_24_160000) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_25_183000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -152,6 +152,35 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_24_160000) do
     t.index ["discarded_at"], name: "index_agent_memories_on_discarded_at"
   end
 
+  create_table "agent_runtime_interactions", force: :cascade do |t|
+    t.bigint "agent_id", null: false
+    t.bigint "chat_id"
+    t.string "conversation_obfuscated_id"
+    t.datetime "created_at", null: false
+    t.integer "duration_ms"
+    t.string "endpoint_url"
+    t.string "error_class"
+    t.text "error_message"
+    t.datetime "finished_at"
+    t.text "request_text"
+    t.string "requested_by"
+    t.jsonb "response_body", default: {}, null: false
+    t.integer "runtime_returncode"
+    t.string "runtime_status"
+    t.string "session_id"
+    t.datetime "started_at", null: false
+    t.text "stderr"
+    t.text "stdout"
+    t.integer "transport_status"
+    t.string "trigger_kind", null: false
+    t.datetime "updated_at", null: false
+    t.index ["agent_id", "created_at"], name: "index_agent_runtime_interactions_on_agent_id_and_created_at"
+    t.index ["agent_id"], name: "index_agent_runtime_interactions_on_agent_id"
+    t.index ["chat_id", "created_at"], name: "index_agent_runtime_interactions_on_chat_id_and_created_at"
+    t.index ["chat_id"], name: "index_agent_runtime_interactions_on_chat_id"
+    t.index ["session_id"], name: "index_agent_runtime_interactions_on_session_id"
+  end
+
   create_table "agents", force: :cascade do |t|
     t.bigint "account_id", null: false
     t.boolean "active", default: true, null: false
@@ -191,6 +220,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_24_160000) do
     t.string "restic_password"
     t.string "runtime", default: "inline", null: false
     t.string "sandbox_host"
+    t.text "sandbox_last_error"
+    t.datetime "sandbox_last_error_at"
     t.text "summary_prompt"
     t.text "system_prompt"
     t.string "telegram_bot_token"
@@ -544,6 +575,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_24_160000) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "agent_backup_snapshots", "agents"
   add_foreign_key "agent_memories", "agents"
+  add_foreign_key "agent_runtime_interactions", "agents"
+  add_foreign_key "agent_runtime_interactions", "chats"
   add_foreign_key "agents", "accounts"
   add_foreign_key "agents", "api_keys", column: "outbound_api_key_id"
   add_foreign_key "api_key_requests", "api_keys"

@@ -8,13 +8,28 @@ class ExternalAgentWakeRequest
   def call
     return { status: 503, error: "external runtime unreachable" } if agent.offline? || agent_unhealthy?
 
-    ChaosTriggerClient.new(Agents::Endpoint.url_for(agent), agent.trigger_bearer_token).request_response(
+    endpoint_url = Agents::Endpoint.url_for(agent)
+    session_id = "#{agent.uuid}-wake"
+    request = request_text
+
+    AgentRuntimeInteraction.record_trigger!(
+      agent: agent,
+      chat: nil,
+      trigger_kind: "wake",
       conversation_id: nil,
       requested_by: requested_by,
-      session_id: "#{agent.uuid}-wake",
-      trigger_kind: "wake",
-      request: request_text
-    )
+      session_id: session_id,
+      endpoint_url: endpoint_url,
+      request_text: request
+    ) do
+      ChaosTriggerClient.new(endpoint_url, agent.trigger_bearer_token).request_response(
+        conversation_id: nil,
+        requested_by: requested_by,
+        session_id: session_id,
+        trigger_kind: "wake",
+        request: request
+      )
+    end
   rescue StandardError => e
     Rails.logger.warn "[ExternalAgentWakeRequest] #{agent.id} wake failed: #{e.class}: #{e.message}"
     { status: 0, error: e.message }

@@ -30,6 +30,64 @@ module Agents
       agent.update!(runtime: "external", health_state: "healthy", consecutive_health_failures: 0)
     end
 
+
+    def status
+      base = {
+        configured: agent.container_name.present?,
+        container_name: agent.container_name,
+        image: agent.container_image,
+        endpoint_url: agent.endpoint_url,
+        configured_helixkit_app_url: Agents::Config.internal_url,
+        volume_name: agent.uuid.present? ? Agents::Volume.new(agent).volume_name : nil,
+        chaos_volume_name: agent.uuid.present? ? "chaos-home-#{agent.uuid}" : nil,
+        docker_available: false,
+        container_exists: false,
+        identity_volume_exists: false,
+        chaos_volume_exists: false
+      }
+
+      docker_info = docker_capture("info", "--format", "{{.ServerVersion}}")
+      unless docker_info[:ok]
+        return base.merge(
+          docker_error: docker_info[:stderr].presence || docker_info[:stdout].presence || "Docker daemon is not reachable"
+        )
+      end
+
+      base[:docker_available] = true
+      base[:docker_version] = docker_info[:stdout].strip
+      base[:identity_volume_exists] = volume_exists?(base[:volume_name])
+      base[:chaos_volume_exists] = volume_exists?(base[:chaos_volume_name])
+      base[:image_present] = image_present?(agent.container_image)
+
+      if agent.container_name.present?
+        inspect = docker_capture("container", "inspect", agent.container_name)
+        if inspect[:ok]
+          container = JSON.parse(inspect[:stdout]).first
+          state = container.fetch("State", {})
+          network = container.fetch("NetworkSettings", {})
+          base.merge!(
+            container_exists: true,
+            container_id: container["Id"].to_s.first(12),
+            container_helixkit_app_url: container_env_value(container, "HELIXKIT_APP_URL"),
+            container_state: state["Status"],
+            container_running: state["Running"],
+            container_exit_code: state["ExitCode"],
+            container_error: state["Error"],
+            container_started_at: state["StartedAt"],
+            container_finished_at: state["FinishedAt"],
+            published_ports: network["Ports"]
+          )
+          base[:log_tail] = logs_tail if base[:container_exists]
+        else
+          base[:container_error] = inspect[:stderr]
+        end
+      end
+
+      base
+    rescue StandardError => e
+      base.merge(docker_error: "#{e.class}: #{e.message}")
+    end
+
     def stop!
       system("docker", "stop", agent.container_name, out: File::NULL, err: File::NULL)
     end
@@ -52,6 +110,32 @@ module Agents
 
     private
 
+
+    def docker_capture(*args)
+      stdout, stderr, status = Open3.capture3("docker", *args)
+      { stdout: stdout, stderr: stderr, ok: status.success? }
+    end
+
+    def volume_exists?(name)
+      return false if name.blank?
+      docker_capture("volume", "inspect", name)[:ok]
+    end
+
+    def image_present?(image)
+      return false if image.blank?
+      docker_capture("image", "inspect", image)[:ok]
+    end
+
+    def container_env_value(container, name)
+      Array(container.dig("Config", "Env")).find { |entry| entry.start_with?("#{name}=") }&.split("=", 2)&.last
+    end
+
+    def logs_tail
+      result = docker_capture("logs", "--tail", "30", agent.container_name)
+      [ result[:stdout], result[:stderr] ].compact.join("
+").strip.presence
+    end
+
     def container_exists?
       system("docker", "container", "inspect", agent.container_name, out: File::NULL, err: File::NULL)
     end
@@ -69,12 +153,12 @@ module Agents
         "-e", "AGENT_ID=#{agent.uuid}",
         "-e", "AGENT_SLUG=#{agent_slug}",
         "-e", "AGENT_PROVIDER=#{agent_provider}",
-        "-e", "AGENT_DEFAULT_MODEL=#{agent.model_id}",
+        "-e", "AGENT_DEFAULT_MODEL=#{agent_model}",
         "-e", "TRIGGER_BEARER_TOKEN=#{agent.trigger_bearer_token}",
         "-e", "HELIXKIT_BEARER_TOKEN=#{agent.outbound_api_token}",
         "-e", "HELIXKIT_APP_URL=#{Agents::Config.internal_url}",
-        "-e", "ANTHROPIC_API_KEY=#{Rails.application.credentials.dig(:anthropic_api_key)}"
       ]
+      args += provider_env_args
       args += [ "-p", "127.0.0.1::4000" ] if Agents::Config.publish_ports?
       args << agent.container_image
 
@@ -108,6 +192,30 @@ module Agents
 
     def agent_provider
       agent.model_id.to_s.split("/").first.presence || "anthropic"
+    end
+
+    def agent_model
+      model_id = agent.model_id.to_s
+      provider, model = model_id.split("/", 2)
+      return model_id if model.blank?
+      provider == "openrouter" ? model_id : model
+    end
+
+    def provider_env_args
+      {
+        "ANTHROPIC_API_KEY" => credential(:anthropic, :claude),
+        "OPENAI_API_KEY" => credential(:openai, :open_ai),
+        "OPENROUTER_API_KEY" => credential(:openrouter, :openrouter),
+        "GEMINI_API_KEY" => credential(:gemini, :gemini),
+        "XAI_API_KEY" => credential(:xai, :xai)
+      }.filter_map do |name, value|
+        value.present? ? [ "-e", "#{name}=#{value}" ] : nil
+      end.flatten
+    end
+
+    def credential(env_name, credential_name)
+      ENV["#{env_name.to_s.upcase}_API_KEY"].presence ||
+        Rails.application.credentials.dig(:ai, credential_name, :api_token).presence
     end
 
   end

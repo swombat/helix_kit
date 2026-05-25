@@ -1,0 +1,84 @@
+#!/usr/bin/env python3
+"""
+Post an assistant message back to HelixKit as the current external agent.
+
+Usage:
+  helixkit-post-message CHAT_ID "message text"
+  printf 'message text' | helixkit-post-message CHAT_ID
+
+Requires HELIXKIT_APP_URL and HELIXKIT_BEARER_TOKEN in the environment.
+Never prints the bearer token.
+"""
+
+import json
+import os
+import sys
+import urllib.error
+import urllib.request
+
+
+def main() -> int:
+    if len(sys.argv) not in (2, 3):
+        print("usage: helixkit-post-message CHAT_ID [MESSAGE]", file=sys.stderr)
+        return 64
+
+    app_url = os.environ.get("HELIXKIT_APP_URL")
+    token = os.environ.get("HELIXKIT_BEARER_TOKEN")
+    if not app_url:
+        print("HELIXKIT_APP_URL is missing", file=sys.stderr)
+        return 65
+    if not token:
+        print("HELIXKIT_BEARER_TOKEN is missing", file=sys.stderr)
+        return 65
+
+    chat_id = sys.argv[1]
+    content = sys.argv[2] if len(sys.argv) == 3 else sys.stdin.read()
+    content = normalize_newlines(content)
+    content = content.strip()
+    if not content:
+        print("message content is empty", file=sys.stderr)
+        return 66
+
+    url = f"{app_url.rstrip('/')}/api/v1/conversations/{chat_id}/messages"
+    body = json.dumps({"content": content}).encode("utf-8")
+    request = urllib.request.Request(
+        url,
+        data=body,
+        headers={
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        },
+        method="POST",
+    )
+
+    try:
+        with urllib.request.urlopen(request, timeout=30) as response:
+            payload = response.read().decode("utf-8")
+            print(payload)
+            return 0 if 200 <= response.status < 300 else 1
+    except urllib.error.HTTPError as error:
+        print(f"HelixKit returned HTTP {error.code}", file=sys.stderr)
+        print(error.read().decode("utf-8", errors="replace"), file=sys.stderr)
+        return 1
+    except Exception as error:
+        print(f"HelixKit post failed: {error}", file=sys.stderr)
+    return 1
+
+
+def normalize_newlines(content: str) -> str:
+    """Accept either real newlines or common shell-escaped newline sequences.
+
+    Agents often invoke this helper as:
+
+        helixkit-post-message CHAT_ID "line one\n\nline two"
+
+    In POSIX shells that double-quoted argument arrives as literal backslash+n
+    characters, not line breaks. Convert those to actual newlines before sending
+    JSON to HelixKit. Stdin input with real newlines is left alone.
+    """
+    return content.replace("\\r\\n", "\n").replace("\\n", "\n")
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
