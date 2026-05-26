@@ -43,7 +43,7 @@
   } = $props();
 
   useSync({
-    [`Agent:${agent.id}`]: ['agent', 'memories'],
+    [`Agent:${agent.id}`]: ['agent', 'memories', 'runtime_interactions'],
   });
 
   let selectedModel = $state(agent.model_id);

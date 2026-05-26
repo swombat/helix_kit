@@ -2,6 +2,7 @@ class AgentRuntimeInteraction < ApplicationRecord
 
   belongs_to :agent
   belongs_to :chat, optional: true
+  after_commit :broadcast_agent_runtime_interactions_refresh, on: [ :create, :update, :destroy ]
 
   validates :trigger_kind, presence: true
   validates :started_at, presence: true
@@ -75,6 +76,13 @@ class AgentRuntimeInteraction < ApplicationRecord
   end
 
   private
+
+  def broadcast_agent_runtime_interactions_refresh
+    ActionCable.server.broadcast(
+      "Agent:#{agent.obfuscated_id}",
+      { action: "refresh", prop: "runtime_interactions" }
+    )
+  end
 
   def elapsed_ms
     return unless started_at
