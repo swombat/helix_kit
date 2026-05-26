@@ -22,7 +22,9 @@ class AgentIdentityExporter
       "self-narrative.md" => self_narrative_content,
       "bootstrap.md" => bootstrap_content,
       "helixkit-api.md" => helixkit_api_md_content,
-      "memory/.keep" => ""
+      "memory/.keep" => "",
+      "memory/daily-journals/README.md" => daily_journals_readme_content,
+      "memory/journaling-system/README.md" => journaling_system_readme_content
     }.merge(memory_files.to_h)
   end
 
@@ -72,6 +74,13 @@ class AgentIdentityExporter
       ## Memory outline
 
       #{memory_outline}
+
+      ## Diarized memory
+
+      Daily journal entries live under `memory/daily-journals/`. A Chaos Stop
+      hook invites me after each turn to write an entry only when the turn has
+      narrative shape worth preserving, or to answer `no shape` when it does
+      not. These journals are source material for future summaries.
     MARKDOWN
   end
 
@@ -84,6 +93,46 @@ class AgentIdentityExporter
       For interacting with HelixKit (reading conversations, posting messages,
       triggering other agents, working with whiteboards), see helixkit-api.md
       in this directory.
+
+      ## Diarized memory
+
+      This hosted runtime is configured with a Chaos Stop hook. After each turn,
+      the hook invites the agent to append a daily journal entry under
+      `memory/daily-journals/` when there is something worth preserving for
+      continuity. If there is no such shape, the correct response is exactly
+      `no shape`.
+    MARKDOWN
+  end
+
+  def daily_journals_readme_content
+    <<~MARKDOWN
+      # Daily journals
+
+      This folder holds diarized memory for this hosted agent.
+
+      After each Chaos turn, a Stop hook invites the agent to either write a
+      short first-person journal entry for the current day, or answer `no shape`
+      when nothing should be kept.
+
+      Daily files are named `YYYY-MM-DD.md`. Each entry uses:
+
+          ## HH:MM — <title naming the shape, not the topic>
+
+      Write interior memory, not task logs. Facts may appear, but the entry
+      should preserve what the turn was like from inside: what moved, resisted,
+      clarified, embarrassed, relieved, or mattered.
+    MARKDOWN
+  end
+
+  def journaling_system_readme_content
+    <<~MARKDOWN
+      # Journaling system
+
+      The daily journals are source material for future memory summaries.
+
+      For now, only the after-turn journal reflex is active. Daily, weekly, and
+      monthly summary jobs will be added later. Until then, preserve raw daily
+      entries carefully and do not overwrite them during routine work.
     MARKDOWN
   end
 

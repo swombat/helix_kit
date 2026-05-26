@@ -18,11 +18,16 @@ class AgentIdentityExporterTest < ActiveSupport::TestCase
     assert_includes files.keys, "self-narrative.md"
     assert_includes files.keys, "bootstrap.md"
     assert_includes files.keys, "helixkit-api.md"
+    assert_includes files.keys, "memory/daily-journals/README.md"
+    assert_includes files.keys, "memory/journaling-system/README.md"
     assert files.keys.any? { |path| path.start_with?("memory/") }
     assert_includes files["soul.md"], agent.system_prompt
+    assert_includes files["self-narrative.md"], "Diarized memory"
     assert_includes files["bootstrap.md"], "helixkit-api.md"
+    assert_includes files["bootstrap.md"], "Stop hook"
     assert_includes files["helixkit-api.md"], "Authorization: Bearer \$HELIXKIT_BEARER_TOKEN"
     assert_includes files["helixkit-api.md"], "$HELIXKIT_APP_URL/api/v1/conversations"
+    assert_includes files["memory/daily-journals/README.md"], "no shape"
     assert_includes files.values.join("\n"), "Remember the important thing"
     assert_not_includes files.values.join("\n"), "do not export this transcript"
   end

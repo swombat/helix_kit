@@ -56,10 +56,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN useradd --create-home --shell /bin/bash --uid 1000 agent
 
 COPY --from=builder /usr/local/bin/chaos /usr/local/bin/chaos
+RUN mkdir -p /usr/local/share/helixkit-agent
 COPY --chown=agent:agent trigger_shim.py /home/agent/trigger_shim.py
+COPY stop_journal_reflex.py /usr/local/share/helixkit-agent/stop_journal_reflex.py
 COPY helixkit-post-message /usr/local/bin/helixkit-post-message
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod 0755 /usr/local/bin/entrypoint.sh /usr/local/bin/helixkit-post-message
+RUN chmod 0755 /usr/local/bin/entrypoint.sh /usr/local/bin/helixkit-post-message \
+    && chmod 0644 /usr/local/share/helixkit-agent/stop_journal_reflex.py
 
 # Canonical mounted volumes for hosted agents.
 VOLUME ["/home/agent/identity", "/home/agent/.chaos"]

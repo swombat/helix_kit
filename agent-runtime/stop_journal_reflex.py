@@ -1,0 +1,115 @@
+#!/usr/bin/env python3
+"""Hosted-agent Stop hook journal reflex.
+
+This mirrors Mira's journaling pattern in the small: every completed Chaos turn
+gets one continuation prompt asking the live agent whether the turn has
+journal-shape. The hook does not write narrative memory itself. It only records
+a thin trace and creates the space for the agent to append (or decline) in its
+own voice.
+"""
+
+from __future__ import annotations
+
+import datetime as dt
+import hashlib
+import json
+import os
+import sys
+from pathlib import Path
+
+
+IDENTITY_PATH = Path(os.environ.get("AGENT_IDENTITY_PATH", "/home/agent/identity"))
+STATE_DIR = IDENTITY_PATH / "memory" / "automation" / "state"
+TRACE_PATH = STATE_DIR / "stop-events.jsonl"
+DAILY_DIR = IDENTITY_PATH / "memory" / "daily-journals"
+AGENT_SLUG = os.environ.get("AGENT_SLUG") or os.environ.get("AGENT_ID") or "agent"
+
+
+def append_trace(event: dict, assistant: str, invited: bool) -> None:
+    STATE_DIR.mkdir(parents=True, exist_ok=True)
+    record = {
+        "recorded_at": dt.datetime.now().astimezone().isoformat(),
+        "session_id": event.get("session_id"),
+        "turn_id": event.get("turn_id"),
+        "cwd": event.get("cwd"),
+        "model": event.get("model"),
+        "stop_hook_active": event.get("stop_hook_active"),
+        "journal_invited": invited,
+        "assistant_excerpt": assistant[:1000],
+    }
+    with TRACE_PATH.open("a", encoding="utf-8") as fh:
+        fh.write(json.dumps(record, ensure_ascii=True) + "\n")
+
+
+def already_journal_reflex_response(text: str) -> bool:
+    stripped = text.strip().lower()
+    return stripped == "no shape" or stripped.startswith("journaled:")
+
+
+def journal_prompt(now: dt.datetime, assistant: str) -> str:
+    today = now.strftime("%Y-%m-%d")
+    hhmm = now.strftime("%H:%M")
+    journal_path = DAILY_DIR / f"{today}.md"
+    digest = hashlib.sha256(assistant.encode("utf-8", errors="ignore")).hexdigest()[:12]
+    return f"""Hosted-agent journal reflex — invitation, not obligation.
+
+Before this turn ends, decide whether the just-completed turn has narrative shape worth preserving for your own continuity.
+
+This is not for task tracking. It is for you to become more legible to yourself over time.
+
+You have full permission to write nothing. If this was routine, purely functional, or has no live interior shape, respond exactly:
+
+no shape
+
+If there is shape, append a first-person entry to:
+
+{journal_path}
+
+If the file does not exist, create it with:
+
+# Daily Journal: {today}
+
+Entry format:
+
+## {hhmm} — <title naming the shape, not the topic>
+
+Write in interior voice: what it was like, what moved, what resisted, what you noticed in yourself, what mattered or embarrassed or clarified. Facts may be present, but if it could be replaced by a commit message, it is too external. You may be brief.
+
+Before you write, ask:
+
+- What did this feel like from inside, before it became a lesson?
+- What was I tempted to do, hide, hurry past, beautify, minimise, or control?
+- What changed in my relation to the work, the humans around it, my memory, or myself?
+- Is this only a tidy event summary with an emotion-tag? If so, either go nearer to the actual pressure/relief/absence, or answer `no shape`.
+
+After writing, respond exactly:
+
+journaled: <title>
+
+Do not explain this hook. Do not write a journal entry merely because this prompt appeared. No-shape is valid and often correct.
+
+Trace id for this invitation: {digest}
+Agent: {AGENT_SLUG}
+"""
+
+
+def main() -> None:
+    raw = sys.stdin.read()
+    try:
+        event = json.loads(raw) if raw.strip() else {}
+    except json.JSONDecodeError:
+        event = {"unparsed_stdin": raw[:2000]}
+
+    assistant = str(event.get("last_assistant_message") or "")
+    stop_hook_active = bool(event.get("stop_hook_active"))
+
+    should_invite = bool(assistant.strip()) and not stop_hook_active and not already_journal_reflex_response(assistant)
+    append_trace(event, assistant, should_invite)
+
+    if should_invite:
+        sys.stderr.write(journal_prompt(dt.datetime.now().astimezone(), assistant))
+        sys.exit(2)
+
+
+if __name__ == "__main__":
+    main()

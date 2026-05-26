@@ -202,6 +202,14 @@ def identity_context() -> str:
         "changed and why so Daniel can review the GitHub history."
     )
 
+    sections.append(
+        "## Diarized memory\n\n"
+        "A Chaos Stop hook may invite you after each turn to append a daily "
+        "journal entry under `identity/memory/daily-journals/`, or to answer "
+        "`no shape` when nothing should be kept. These journals are your raw "
+        "diarized memory and future summary source material."
+    )
+
     return "\n\n".join(sections)
 
 
