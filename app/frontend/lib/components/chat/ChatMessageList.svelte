@@ -2,8 +2,11 @@
   import { Button } from '$lib/components/shadcn/button/index.js';
   import * as Card from '$lib/components/shadcn/card/index.js';
   import MessageBubble from '$lib/components/chat/MessageBubble.svelte';
+  import AgentRuntimeActivityCard from '$lib/components/chat/AgentRuntimeActivityCard.svelte';
   import { ArrowClockwise, Spinner } from 'phosphor-svelte';
   import { fade } from 'svelte/transition';
+  import { formatTime, formatDate } from '$lib/utils';
+  import { shouldShowTimestampForMessages, timestampLabelForMessages } from '$lib/chat-message-state';
 
   let {
     messagesContainer = $bindable(),
@@ -11,6 +14,7 @@
     hasMore = false,
     oldestId = null,
     visibleMessages = [],
+    runtimeInteractions = [],
     allMessages = [],
     chat = null,
     showAllMessages = false,
@@ -34,6 +38,36 @@
     openImageLightbox = () => {},
     requestVoice = () => {},
   } = $props();
+
+  const timelineItems = $derived.by(() => {
+    const messageItems = (visibleMessages || []).map((message) => ({
+      type: 'message',
+      id: `message-${message.id}`,
+      created_at: message.created_at,
+      message,
+    }));
+
+    const runtimeItems = (runtimeInteractions || []).map((interaction) => ({
+      type: 'runtime_interaction',
+      id: `runtime-${interaction.id}`,
+      created_at: interaction.created_at,
+      interaction,
+    }));
+
+    return [...messageItems, ...runtimeItems].sort((a, b) => {
+      const aTime = new Date(a.created_at).getTime();
+      const bTime = new Date(b.created_at).getTime();
+      return aTime - bTime;
+    });
+  });
+
+  function shouldShowTimelineTimestamp(index) {
+    return shouldShowTimestampForMessages(timelineItems, index);
+  }
+
+  function timelineTimestampLabel(index) {
+    return timestampLabelForMessages(timelineItems, index, { formatDate, formatTime });
+  }
 </script>
 
 <!-- Messages container -->
@@ -50,41 +84,46 @@
     </div>
   {/if}
 
-  {#if !Array.isArray(visibleMessages) || visibleMessages.length === 0}
+  {#if !Array.isArray(timelineItems) || timelineItems.length === 0}
     <div class="flex items-center justify-center h-full">
       <div class="text-center text-muted-foreground">
         <p>Start the conversation by sending a message below.</p>
       </div>
     </div>
   {:else}
-    {#each visibleMessages as message, index (message.id)}
-      {#if shouldShowTimestamp(index)}
+    {#each timelineItems as item, index (item.id)}
+      {#if shouldShowTimelineTimestamp(index)}
         <div class="flex items-center gap-4 my-6">
           <div class="flex-1 border-t border-border"></div>
           <div class="px-3 py-1 bg-muted rounded-full text-xs font-medium text-muted-foreground">
-            {timestampLabel(index)}
+            {timelineTimestampLabel(index)}
           </div>
           <div class="flex-1 border-t border-border"></div>
         </div>
       {/if}
 
-      <MessageBubble
-        {message}
-        isLastVisible={index === visibleMessages.length - 1}
-        isGroupChat={chat?.manual_responses}
-        showResend={index === visibleMessages.length - 1 &&
-          lastUserMessageNeedsResend &&
-          !waitingForResponse &&
-          !chat?.manual_responses}
-        streamingThinking={streamingThinking[message.id] || ''}
-        {shikiTheme}
-        onedit={startEditingMessage}
-        ondelete={deleteMessage}
-        onretry={retryMessage}
-        onfix={fixHallucinatedToolCalls}
-        onresend={resendLastMessage}
-        onimagelightbox={openImageLightbox}
-        onvoice={requestVoice} />
+      {#if item.type === 'message'}
+        {@const message = item.message}
+        <MessageBubble
+          {message}
+          isLastVisible={index === timelineItems.length - 1}
+          isGroupChat={chat?.manual_responses}
+          showResend={index === timelineItems.length - 1 &&
+            lastUserMessageNeedsResend &&
+            !waitingForResponse &&
+            !chat?.manual_responses}
+          streamingThinking={streamingThinking[message.id] || ''}
+          {shikiTheme}
+          onedit={startEditingMessage}
+          ondelete={deleteMessage}
+          onretry={retryMessage}
+          onfix={fixHallucinatedToolCalls}
+          onresend={resendLastMessage}
+          onimagelightbox={openImageLightbox}
+          onvoice={requestVoice} />
+      {:else}
+        <AgentRuntimeActivityCard interaction={item.interaction} />
+      {/if}
     {/each}
 
     <!-- Thinking bubble when last message is hidden (tool call or empty assistant) - only shown when not showing all messages -->

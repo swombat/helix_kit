@@ -63,6 +63,7 @@
     chat,
     chats = [],
     messages: recentMessages = [],
+    runtime_interactions: runtimeInteractions = [],
     has_more_messages: serverHasMore = false,
     oldest_message_id: serverOldestId = null,
     account,
@@ -320,6 +321,10 @@
     const assistantMessage = [...(allMessages || [])].reverse().find((message) => message.role === 'assistant');
     return assistantMessage?.id ?? null;
   });
+  const latestRuntimeInteractionId = $derived(runtimeInteractions?.[runtimeInteractions.length - 1]?.id ?? null);
+  const responseMarker = $derived(
+    `${latestAssistantMessageId || 'no-message'}:${latestRuntimeInteractionId || 'no-runtime'}`
+  );
 
   // Auto-detect waiting state based on messages
   // Don't show for manual_responses chats (group chats) since they don't auto-respond
@@ -639,6 +644,7 @@
       {hasMore}
       {oldestId}
       {visibleMessages}
+      {runtimeInteractions}
       {allMessages}
       {chat}
       {showAllMessages}
@@ -667,7 +673,7 @@
       {agents}
       accountId={account.id}
       {agentIsResponding}
-      responseMarker={latestAssistantMessageId}
+      {responseMarker}
       fileUploadConfig={file_upload_config}
       onAgentTrigger={scheduleStreamingRefresh}
       onSent={(data) => {

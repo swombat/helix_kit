@@ -8,6 +8,7 @@ class AgentRuntimeInteraction < ApplicationRecord
   validates :started_at, presence: true
 
   scope :recent, -> { order(created_at: :desc) }
+  scope :timeline_order, -> { order(Arel.sql("COALESCE(finished_at, started_at, created_at) ASC"), :id) }
 
   def self.record_trigger!(agent:, chat:, trigger_kind:, conversation_id:, requested_by:, session_id:, endpoint_url:, request_text:)
     interaction = create!(
@@ -75,11 +76,47 @@ class AgentRuntimeInteraction < ApplicationRecord
     }
   end
 
+  def as_chat_activity_json
+    {
+      id: to_param,
+      agent_id: agent.to_param,
+      agent_name: agent.name,
+      agent_icon: agent.icon,
+      agent_colour: agent.colour,
+      trigger_kind: trigger_kind,
+      status: chat_activity_status,
+      status_label: chat_activity_status_label,
+      conversation_id: conversation_obfuscated_id,
+      transport_status: transport_status,
+      runtime_status: runtime_status,
+      runtime_returncode: runtime_returncode,
+      stdout: stdout,
+      stderr: stderr,
+      error_class: error_class,
+      error_message: error_message,
+      started_at: started_at&.iso8601,
+      finished_at: finished_at&.iso8601,
+      duration_ms: duration_ms,
+      created_at: (finished_at || started_at || created_at)&.iso8601
+    }
+  end
+
+  def visible_in_chat_timeline?
+    !posted_assistant_message?
+  end
+
   private
 
   def broadcast_agent_runtime_interactions_refresh
     ActionCable.server.broadcast(
       "Agent:#{agent.obfuscated_id}",
+      { action: "refresh", prop: "runtime_interactions" }
+    )
+
+    return unless chat
+
+    ActionCable.server.broadcast(
+      "Chat:#{chat.obfuscated_id}",
       { action: "refresh", prop: "runtime_interactions" }
     )
   end
@@ -88,6 +125,38 @@ class AgentRuntimeInteraction < ApplicationRecord
     return unless started_at
 
     ((Time.current - started_at) * 1000).round
+  end
+
+  def running?
+    finished_at.blank?
+  end
+
+  def posted_assistant_message?
+    return false unless chat && agent && started_at
+
+    upper_bound = finished_at || Time.current
+    chat.messages
+      .where(role: "assistant", agent: agent)
+      .where(created_at: started_at..(upper_bound + 30.seconds))
+      .exists?
+  end
+
+  def chat_activity_status
+    return "running" if running?
+    return "failed" if error_message.present? || transport_status.to_i >= 400 || runtime_returncode.to_i.nonzero?
+
+    "completed_without_reply"
+  end
+
+  def chat_activity_status_label
+    case chat_activity_status
+    when "running"
+      "is running"
+    when "failed"
+      "finished with an error"
+    else
+      "completed without posting a reply"
+    end
   end
 
 end

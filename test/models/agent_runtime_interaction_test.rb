@@ -46,19 +46,47 @@ class AgentRuntimeInteractionTest < ActiveSupport::TestCase
     chat = agent.account.chats.create!(model_id: "openrouter/auto", title: "Runtime log")
 
     assert_broadcasts("Agent:#{agent.obfuscated_id}", 2) do
-      AgentRuntimeInteraction.record_trigger!(
-        agent: agent,
-        chat: chat,
-        trigger_kind: "conversation",
-        conversation_id: chat.to_param,
-        requested_by: "test",
-        session_id: "session-1",
-        endpoint_url: "https://agent.example.com",
-        request_text: "Please respond"
-      ) do
-        { status: 200, body: { "status" => "ok" } }
+      assert_broadcasts("Chat:#{chat.obfuscated_id}", 2) do
+        AgentRuntimeInteraction.record_trigger!(
+          agent: agent,
+          chat: chat,
+          trigger_kind: "conversation",
+          conversation_id: chat.to_param,
+          requested_by: "test",
+          session_id: "session-1",
+          endpoint_url: "https://agent.example.com",
+          request_text: "Please respond"
+        ) do
+          { status: 200, body: { "status" => "ok" } }
+        end
       end
     end
+  end
+
+  test "chat timeline activity is visible only when no assistant message was posted" do
+    agent = agents(:research_assistant)
+    chat = agent.account.chats.create!(model_id: "openrouter/auto", title: "Runtime log")
+
+    interaction = AgentRuntimeInteraction.create!(
+      agent: agent,
+      chat: chat,
+      trigger_kind: "conversation",
+      conversation_obfuscated_id: chat.to_param,
+      requested_by: "test",
+      session_id: "session-1",
+      endpoint_url: "https://agent.example.com",
+      request_text: "Please respond",
+      started_at: 1.minute.ago,
+      finished_at: Time.current,
+      stdout: "I chose not to post."
+    )
+
+    assert interaction.visible_in_chat_timeline?
+    assert_equal "completed_without_reply", interaction.as_chat_activity_json[:status]
+
+    chat.messages.create!(role: "assistant", agent: agent, content: "Actually posting.")
+
+    assert_not interaction.visible_in_chat_timeline?
   end
 
 end
