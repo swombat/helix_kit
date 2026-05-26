@@ -120,6 +120,35 @@ class AgentsControllerTest < ActionDispatch::IntegrationTest
     assert_includes @agent.enabled_tools, available_tools.first
   end
 
+  test "external agent update ignores self-managed identity and runtime params" do
+    @agent.update!(
+      name: "Hosted Researcher",
+      model_id: "openrouter/auto",
+      voice_id: "original-voice"
+    )
+    @agent.update!(runtime: "external", uuid: SecureRandom.uuid_v7)
+
+    patch account_agent_path(@account, @agent), params: {
+      agent: {
+        name: "Browser Rename",
+        system_prompt: "Changed prompt",
+        model_id: "openai/gpt-5.2",
+        voice_id: "changed-voice",
+        paused: true,
+        colour: "emerald"
+      }
+    }
+
+    assert_redirected_to account_agents_path(@account)
+    @agent.reload
+    assert_equal "Hosted Researcher", @agent.name
+    assert_not_equal "Changed prompt", @agent.system_prompt
+    assert_equal "openrouter/auto", @agent.model_id
+    assert_equal "original-voice", @agent.voice_id
+    assert_equal "emerald", @agent.colour
+    assert @agent.paused?
+  end
+
   test "should fail with duplicate name in same account" do
     existing = @account.agents.create!(name: "Unique Test Agent")
 

@@ -7,6 +7,7 @@
     value = $bindable(),
     triggerClass = 'w-full max-w-md',
     contentClass = 'max-h-80',
+    disabled = false,
   } = $props();
 </script>
 
@@ -14,9 +15,10 @@
   type="single"
   {value}
   onValueChange={(nextValue) => {
+    if (disabled) return;
     value = nextValue;
   }}>
-  <Select.Trigger class={triggerClass}>
+  <Select.Trigger class={triggerClass} {disabled}>
     {findModelLabel(groupedModels, value)}
   </Select.Trigger>
   <Select.Content sideOffset={4} class={contentClass}>

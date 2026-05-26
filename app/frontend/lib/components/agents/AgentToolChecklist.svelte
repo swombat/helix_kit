@@ -1,7 +1,9 @@
 <script>
-  let { tools = [], enabledTools = $bindable([]), compact = false } = $props();
+  let { tools = [], enabledTools = $bindable([]), compact = false, disabled = false } = $props();
 
   function toggleTool(toolClassName) {
+    if (disabled) return;
+
     const nextTools = [...enabledTools];
     const index = nextTools.indexOf(toolClassName);
 
@@ -22,12 +24,15 @@
 {:else}
   <div class={compact ? 'space-y-3 max-h-48 overflow-y-auto border rounded-md p-3' : 'space-y-4'}>
     {#each tools as tool (tool.class_name)}
-      <label class="flex items-start gap-3 cursor-pointer group">
+      <label class="flex items-start gap-3 group {disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}">
         <input
           type="checkbox"
           checked={enabledTools.includes(tool.class_name)}
+          {disabled}
           onchange={() => toggleTool(tool.class_name)}
-          class="mt-1 w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary focus:ring-offset-0 focus:ring-2 transition-colors cursor-pointer" />
+          class="mt-1 w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary focus:ring-offset-0 focus:ring-2 transition-colors {disabled
+            ? 'cursor-not-allowed'
+            : 'cursor-pointer'}" />
         <div class={compact ? 'space-y-0.5' : 'space-y-1'}>
           <div class="{compact ? 'text-sm ' : ''}font-medium group-hover:text-primary transition-colors">
             {tool.name}

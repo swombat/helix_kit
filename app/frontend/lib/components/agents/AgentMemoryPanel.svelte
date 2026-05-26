@@ -11,6 +11,7 @@
     agent,
     memories = [],
     triggeringRefinement = false,
+    locked = false,
     onrefine,
     oncreate,
     ondelete,
@@ -46,7 +47,9 @@
     <div>
       <h2 class="text-lg font-semibold">Agent Memory</h2>
       <p class="text-sm text-muted-foreground">
-        Review and manage this agent's memories. Core memories are permanent; journal entries fade after a week.
+        {locked
+          ? "This agent's memory is self-managed in its external runtime. HelixKit shows the last synced memory backup read-only."
+          : "Review and manage this agent's memories. Core memories are permanent; journal entries fade after a week."}
       </p>
     </div>
     <div class="flex flex-col sm:flex-row gap-2">
@@ -55,7 +58,7 @@
           type="button"
           variant="outline"
           size="sm"
-          disabled={triggeringRefinement}
+          disabled={triggeringRefinement || locked}
           onclick={() => (showRefinementMenu = !showRefinementMenu)}>
           <Lightning class="size-4 mr-1" />
           {triggeringRefinement ? 'Queuing...' : 'Refine'}
@@ -86,7 +89,7 @@
         {/if}
       </div>
       {#if !showNewMemoryForm}
-        <Button type="button" variant="outline" size="sm" onclick={() => (showNewMemoryForm = true)}>
+        <Button type="button" variant="outline" size="sm" disabled={locked} onclick={() => (showNewMemoryForm = true)}>
           <Plus class="size-4 mr-1" />
           Add Memory
         </Button>
@@ -94,7 +97,11 @@
     </div>
   </div>
 
-  {#if showNewMemoryForm}
+  {#if locked}
+    <div class="rounded-lg border bg-muted/40 p-3 text-sm text-muted-foreground">
+      To change this agent's memory, edit the hosted filesystem or let the external agent update itself.
+    </div>
+  {:else if showNewMemoryForm}
     <AgentNewMemoryForm oncreate={createMemory} oncancel={() => (showNewMemoryForm = false)} />
   {/if}
 
@@ -117,7 +124,7 @@
 
     <div class="space-y-3 max-h-[32rem] overflow-y-auto">
       {#each filteredMemories as memory (memory.id)}
-        <AgentMemoryCard {memory} {ondelete} {onundiscard} {ontoggleProtected} />
+        <AgentMemoryCard {memory} {locked} {ondelete} {onundiscard} {ontoggleProtected} />
       {/each}
     </div>
   {/if}

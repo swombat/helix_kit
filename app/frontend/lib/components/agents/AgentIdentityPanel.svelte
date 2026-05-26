@@ -28,6 +28,7 @@
       bind:value={$form.agent.name}
       placeholder="e.g., Research Assistant"
       required
+      disabled={identityLocked}
       maxlength={100} />
     {#if $form.errors.name}
       <p class="text-sm text-destructive">{$form.errors.name}</p>
@@ -121,6 +122,7 @@
         max={1.0}
         step={0.05}
         bind:value={$form.agent.refinement_threshold}
+        disabled={identityLocked}
         class="w-24" />
       <span class="text-sm text-muted-foreground">{Math.round($form.agent.refinement_threshold * 100)}%</span>
     </div>
@@ -154,6 +156,7 @@
     <Label for="voice_id">Voice</Label>
     <select
       id="voice_id"
+      disabled={identityLocked}
       value={isCustomVoice ? 'custom' : $form.agent.voice_id || ''}
       onchange={(event) => {
         if (event.target.value === 'custom') {
@@ -175,6 +178,7 @@
         type="text"
         bind:value={$form.agent.voice_id}
         placeholder="Paste ElevenLabs voice ID"
+        disabled={identityLocked}
         class="max-w-md mt-2" />
     {/if}
     <p class="text-xs text-muted-foreground">Select a voice for text-to-speech playback, or leave empty to disable.</p>

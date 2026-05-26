@@ -50,6 +50,17 @@ class Agents::RefinementsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to edit_account_agent_path(@account, @agent)
   end
 
+  test "create is blocked for external agents" do
+    @agent.update!(runtime: "external", uuid: SecureRandom.uuid_v7)
+
+    assert_no_enqueued_jobs only: MemoryRefinementJob do
+      post account_agent_refinement_path(@account, @agent)
+    end
+
+    assert_redirected_to edit_account_agent_path(@account, @agent, tab: "memory")
+    assert_match(/self-managed/, flash[:alert])
+  end
+
   test "requires authentication" do
     delete logout_path
 

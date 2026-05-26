@@ -3,6 +3,12 @@ class Agents::RefinementsController < ApplicationController
   include AgentScoped
 
   def create
+    if @agent.externally_hosted?
+      redirect_to edit_account_agent_path(current_account, @agent, tab: "memory"),
+        alert: "Memory refinement is self-managed by the external agent runtime"
+      return
+    end
+
     mode = params[:mode].presence_in(%w[full dedup_only]) || "full"
     # Manual user trigger from the agent edit page — bypass the paused check
     # so refining a paused agent still works on demand. Cron-driven refinement

@@ -32,6 +32,12 @@ class Agent < ApplicationRecord
     Butterfly Flower Tree Leaf
   ].freeze
 
+  EXTERNALLY_MANAGED_ATTRIBUTES = %w[
+    name system_prompt reflection_prompt memory_reflection_prompt
+    summary_prompt refinement_prompt refinement_threshold
+    model_id thinking_enabled thinking_budget enabled_tools voice_id
+  ].freeze
+
   validates :name, presence: true,
                    length: { maximum: 100 },
                    uniqueness: { scope: :account_id }
@@ -121,13 +127,9 @@ class Agent < ApplicationRecord
   def identity_fields_are_read_only_when_external
     return unless persisted? && externally_hosted?
 
-    protected_fields = %w[
-      system_prompt reflection_prompt memory_reflection_prompt
-      summary_prompt refinement_prompt
-    ]
-    return unless protected_fields.any? { |field| will_save_change_to_attribute?(field) }
+    return unless EXTERNALLY_MANAGED_ATTRIBUTES.any? { |field| will_save_change_to_attribute?(field) }
 
-    errors.add(:base, "Identity fields are read-only for external agents")
+    errors.add(:base, "Identity and runtime-managed fields are read-only for external agents")
   end
 
 end

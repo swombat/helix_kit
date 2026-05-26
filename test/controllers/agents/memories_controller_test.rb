@@ -42,6 +42,19 @@ class Agents::MemoriesControllerTest < ActionDispatch::IntegrationTest
     assert_equal "journal", memory.memory_type
   end
 
+  test "create is blocked for external agents" do
+    @agent.update!(runtime: "external", uuid: SecureRandom.uuid_v7)
+
+    assert_no_difference "@agent.memories.count" do
+      post account_agent_memories_path(@account, @agent), params: {
+        memory: { content: "Runtime-owned memory", memory_type: "core" }
+      }
+    end
+
+    assert_redirected_to edit_account_agent_path(@account, @agent, tab: "memory")
+    assert_match(/self-managed/, flash[:alert])
+  end
+
   test "create fails with blank content" do
     assert_no_difference "@agent.memories.count" do
       post account_agent_memories_path(@account, @agent), params: {

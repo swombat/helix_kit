@@ -2,7 +2,7 @@
   import { ArrowCounterClockwise, BookOpen, Brain, Shield, ShieldCheck, Trash, Warning } from 'phosphor-svelte';
   import { journalMemoryOpacity } from '$lib/agent-memory';
 
-  let { memory, ondelete, onundiscard, ontoggleProtected } = $props();
+  let { memory, locked = false, ondelete, onundiscard, ontoggleProtected } = $props();
 </script>
 
 <div
@@ -47,18 +47,20 @@
   {#if memory.discarded}
     <button
       type="button"
+      disabled={locked}
       onclick={() => onundiscard?.(memory.id)}
-      class="flex-shrink-0 p-1 text-muted-foreground hover:text-primary transition-colors"
+      class="flex-shrink-0 p-1 text-muted-foreground hover:text-primary transition-colors disabled:cursor-not-allowed disabled:opacity-40"
       title="Restore memory">
       <ArrowCounterClockwise size={16} />
     </button>
   {:else}
     <button
       type="button"
+      disabled={locked}
       onclick={() => ontoggleProtected?.(memory.id, memory.constitutional)}
       class="flex-shrink-0 p-1 transition-colors {memory.constitutional
         ? 'text-primary'
-        : 'text-muted-foreground hover:text-primary'}"
+        : 'text-muted-foreground hover:text-primary'} disabled:cursor-not-allowed disabled:opacity-40"
       title={memory.constitutional ? 'Constitutional (protected from deletion)' : 'Mark as constitutional'}>
       {#if memory.constitutional}
         <ShieldCheck size={16} weight="fill" />
@@ -69,8 +71,9 @@
     {#if !memory.constitutional}
       <button
         type="button"
+        disabled={locked}
         onclick={() => ondelete?.(memory.id)}
-        class="flex-shrink-0 p-1 text-muted-foreground hover:text-destructive transition-colors">
+        class="flex-shrink-0 p-1 text-muted-foreground hover:text-destructive transition-colors disabled:cursor-not-allowed disabled:opacity-40">
         <Trash size={16} />
       </button>
     {/if}

@@ -6,16 +6,20 @@
   import AgentModelSelect from '$lib/components/agents/AgentModelSelect.svelte';
   import AgentToolChecklist from '$lib/components/agents/AgentToolChecklist.svelte';
 
-  let { form, groupedModels = {}, availableTools = [], selectedModel = $bindable() } = $props();
+  let { form, groupedModels = {}, availableTools = [], selectedModel = $bindable(), locked = false } = $props();
 </script>
 
 <div class="space-y-8">
   <div class="space-y-4">
     <div>
       <h2 class="text-lg font-semibold">AI Model</h2>
-      <p class="text-sm text-muted-foreground">Choose which AI model powers this agent</p>
+      <p class="text-sm text-muted-foreground">
+        {locked
+          ? 'The running external agent manages its runtime model configuration.'
+          : 'Choose which AI model powers this agent'}
+      </p>
     </div>
-    <AgentModelSelect {groupedModels} bind:value={selectedModel} />
+    <AgentModelSelect {groupedModels} bind:value={selectedModel} disabled={locked} />
   </div>
 
   <div class="space-y-4">
@@ -32,6 +36,7 @@
         <Switch
           id="thinking_enabled"
           checked={$form.agent.thinking_enabled}
+          disabled={locked}
           onCheckedChange={(checked) => ($form.agent.thinking_enabled = checked)} />
       </div>
 
@@ -45,6 +50,7 @@
             max={50000}
             step={1000}
             bind:value={$form.agent.thinking_budget}
+            disabled={locked}
             class="max-w-xs" />
           <p class="text-xs text-muted-foreground">Maximum tokens for reasoning (1,000 - 50,000)</p>
         </div>
@@ -64,6 +70,6 @@
         Select which tools this agent can use. New tools will be disabled by default.
       </p>
     </div>
-    <AgentToolChecklist tools={availableTools} bind:enabledTools={$form.agent.enabled_tools} />
+    <AgentToolChecklist tools={availableTools} bind:enabledTools={$form.agent.enabled_tools} disabled={locked} />
   </div>
 </div>

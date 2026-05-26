@@ -69,6 +69,26 @@ class AgentTest < ActiveSupport::TestCase
     assert_equal "unknown/model", agent.model_label
   end
 
+  test "external agents reject runtime-owned setting changes" do
+    agent = agents(:research_assistant)
+    agent.update!(runtime: "external", uuid: SecureRandom.uuid_v7)
+
+    assert_not agent.update(name: "Externally Renamed")
+    assert_includes agent.errors[:base], "Identity and runtime-managed fields are read-only for external agents"
+
+    agent.reload
+    assert_not agent.update(voice_id: "new-voice-id")
+    assert_includes agent.errors[:base], "Identity and runtime-managed fields are read-only for external agents"
+
+    agent.reload
+    assert_not agent.update(model_id: "openai/gpt-5.2")
+    assert_includes agent.errors[:base], "Identity and runtime-managed fields are read-only for external agents"
+
+    agent.reload
+    assert_not agent.update(thinking_enabled: true)
+    assert_includes agent.errors[:base], "Identity and runtime-managed fields are read-only for external agents"
+  end
+
   test "active scope returns only active agents" do
     active_count = @account.agents.active.count
     inactive = agents(:inactive_agent)

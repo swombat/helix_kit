@@ -42,6 +42,13 @@ class AgentsController < ApplicationController
       available_voices: available_voices,
       colour_options: Agent::VALID_COLOURS,
       icon_options: Agent::VALID_ICONS,
+      active_tab: params[:tab],
+      local_dev_endpoint_mode: Agents::Config.publish_ports?,
+      identity_export_url: identity_export_account_agent_path(current_account, @agent),
+      sandbox_status: Agents::Sandbox.new(@agent).status,
+      runtime_interactions: @agent.agent_runtime_interactions.recent.limit(10).map(&:as_debug_json),
+      filesystem_dump: Agents::FilesystemDump.new(@agent).as_json,
+      container_filesystem_dump: Agents::FilesystemDump.new(@agent, target: :container_home).as_json,
       account: current_account.as_json
     }
   end
@@ -82,7 +89,14 @@ class AgentsController < ApplicationController
     )
 
     permitted.delete(:telegram_bot_token) if permitted[:telegram_bot_token].blank?
+    strip_externally_managed_params!(permitted) if @agent&.externally_hosted?
     permitted
+  end
+
+  def strip_externally_managed_params!(permitted)
+    Agent::EXTERNALLY_MANAGED_ATTRIBUTES.each do |attribute|
+      permitted.delete(attribute)
+    end
   end
 
   def agent_audit_data(attrs)

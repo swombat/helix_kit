@@ -19,7 +19,7 @@ class Agents::PromoteController < ApplicationController
 
   def begin
     if @agent.external? || @agent.migrating?
-      redirect_to promote_account_agent_path(current_account, @agent), alert: "Promotion is already in progress"
+      redirect_to hosting_settings_path, alert: "Promotion is already in progress"
       return
     end
 
@@ -58,7 +58,7 @@ class Agents::PromoteController < ApplicationController
 
     PromoteAgentJob.perform_later(@agent.id)
 
-    redirect_to promote_account_agent_path(current_account, @agent), notice: "Promoting #{@agent.name} to a hosted sandbox"
+    redirect_to hosting_settings_path, notice: "Promoting #{@agent.name} to a hosted sandbox"
   end
 
   def regenerate_credentials
@@ -130,7 +130,7 @@ class Agents::PromoteController < ApplicationController
     )
     api_key&.destroy!
 
-    redirect_to edit_account_agent_path(current_account, @agent), notice: "Promotion cancelled"
+    redirect_to hosting_settings_path, notice: "Promotion cancelled"
   end
 
   def send_test_request
@@ -170,6 +170,10 @@ class Agents::PromoteController < ApplicationController
 
   def set_agent
     @agent = current_account.agents.find(params[:id])
+  end
+
+  def hosting_settings_path
+    edit_account_agent_path(current_account, @agent, tab: "hosting")
   end
 
   def promotion_props

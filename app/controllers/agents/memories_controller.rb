@@ -3,6 +3,8 @@ class Agents::MemoriesController < ApplicationController
   include AgentScoped
 
   def create
+    return redirect_locked_agent if @agent.externally_hosted?
+
     memory = @agent.memories.new(memory_params)
 
     if memory.save
@@ -17,6 +19,11 @@ class Agents::MemoriesController < ApplicationController
 
   def memory_params
     params.require(:memory).permit(:content, :memory_type)
+  end
+
+  def redirect_locked_agent
+    redirect_to edit_account_agent_path(current_account, @agent, tab: "memory"),
+      alert: "Memory is self-managed by the external agent runtime"
   end
 
 end
