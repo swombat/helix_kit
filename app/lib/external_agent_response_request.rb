@@ -59,10 +59,10 @@ class ExternalAgentResponseRequest
 
   def request_text
     parts = [
-      "HelixKit received a request for you to consider responding to conversation #{chat.to_param}.",
+      "HelixKit received an explicit user request for you to consider responding to conversation #{chat.to_param}. The user pressed the agent button, so they are normally expecting a visible reply from you.",
       "Requested by: #{requested_by}.",
       "This trigger is already Daniel/HelixKit asking you to act. Do not ask for a second confirmation before posting a normal response.",
-      "Decide whether to respond. If you choose to respond, post your response to this conversation now. Prefer the helper command: `helixkit-post-message #{chat.to_param} \"your message\"` (or pipe longer Markdown into it). You may also use the API described in ~/identity/helixkit-api.md with HELIXKIT_APP_URL and HELIXKIT_BEARER_TOKEN.",
+      "Decide whether to respond. It is still acceptable to choose not to reply if you have a good reason, but the default expectation for this manual trigger is that you will post a normal response. If you choose to respond, post your response to this conversation now. Prefer the helper command: `helixkit-post-message #{chat.to_param} \"your message\"` (or pipe longer Markdown into it). You may also use the API described in ~/identity/helixkit-api.md with HELIXKIT_APP_URL and HELIXKIT_BEARER_TOKEN.",
       "HELIXKIT_APP_URL and HELIXKIT_BEARER_TOKEN are already present in your shell environment. The bearer token is already authorized for you to read this conversation and post your own assistant messages; do not ask Daniel to paste it or re-authorize it.",
       "Do not rely on stdout as the response channel; stdout is diagnostic only. If you choose not to respond, explain your reason briefly on stdout and then exit without posting.",
       conversation_context

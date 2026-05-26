@@ -12,6 +12,9 @@ class ExternalAgentResponseRequestTest < ActiveSupport::TestCase
 
     assert_includes text, "HELIXKIT_BEARER_TOKEN"
     assert_includes text, "helixkit-post-message"
+    assert_includes text, "explicit user request"
+    assert_includes text, "normally expecting a visible reply"
+    assert_includes text, "default expectation for this manual trigger"
     assert_includes text, "Do not ask for a second confirmation"
     assert_includes text, "already authorized"
     assert_includes text, "stdout is diagnostic only"
