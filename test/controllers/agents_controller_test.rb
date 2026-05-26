@@ -61,6 +61,16 @@ class AgentsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "edit does not load docker filesystem diagnostics inline" do
+    Agents::FilesystemDump.stub(:new, ->(*) { raise "filesystem dump should be loaded asynchronously" }) do
+      Agents::Sandbox.stub(:new, ->(*) { raise "sandbox status should be loaded asynchronously" }) do
+        get edit_account_agent_path(@account, @agent)
+      end
+    end
+
+    assert_response :success
+  end
+
   test "should update agent" do
     patch account_agent_path(@account, @agent), params: {
       agent: {

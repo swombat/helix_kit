@@ -37,10 +37,8 @@
     active_tab: activeTabProp = null,
     local_dev_endpoint_mode: localDevEndpointMode = false,
     identity_export_url: identityExportUrl = null,
-    sandbox_status: sandboxStatus = {},
+    hosting_diagnostics_url: hostingDiagnosticsUrl = null,
     runtime_interactions: runtimeInteractions = [],
-    filesystem_dump: filesystemDump = {},
-    container_filesystem_dump: containerFilesystemDump = {},
     account,
   } = $props();
 
@@ -58,6 +56,12 @@
   let promoting = $state(false);
   let sendingTestRequest = $state(false);
   let testResult = $state(null);
+  let sandboxStatus = $state({});
+  let filesystemDump = $state({});
+  let containerFilesystemDump = $state({});
+  let diagnosticsLoading = $state(false);
+  let diagnosticsLoaded = $state(false);
+  let diagnosticsError = $state(null);
   let filesystemSections = $derived([
     {
       title: 'Container home filesystem',
@@ -86,6 +90,12 @@
   let beginPromotePath = $derived(beginPromoteAccountAgentPath(account.id, agent.id));
   let cancelPromotePath = $derived(cancelPromoteAccountAgentPath(account.id, agent.id));
   let testRequestPath = $derived(sendTestRequestAccountAgentPath(account.id, agent.id));
+
+  $effect(() => {
+    if (activeTab === 'hosting' && !diagnosticsLoaded && !diagnosticsLoading) {
+      loadHostingDiagnostics();
+    }
+  });
 
   let form = useForm({
     agent: {
@@ -200,6 +210,36 @@
     return document.querySelector('meta[name="csrf-token"]')?.content || '';
   }
 
+  function loadHostingDiagnostics() {
+    if (!hostingDiagnosticsUrl || diagnosticsLoading) return;
+
+    diagnosticsLoading = true;
+    diagnosticsError = null;
+
+    fetch(hostingDiagnosticsUrl, {
+      headers: {
+        Accept: 'application/json',
+      },
+    })
+      .then((response) => response.json().then((body) => ({ ok: response.ok, body })))
+      .then(({ ok, body }) => {
+        if (!ok) {
+          throw new Error(body.error || 'Could not load hosting diagnostics');
+        }
+
+        sandboxStatus = body.sandbox_status || {};
+        filesystemDump = body.filesystem_dump || {};
+        containerFilesystemDump = body.container_filesystem_dump || {};
+        diagnosticsLoaded = true;
+      })
+      .catch((error) => {
+        diagnosticsError = error.message;
+      })
+      .finally(() => {
+        diagnosticsLoading = false;
+      });
+  }
+
   function beginPromotion() {
     promoting = true;
     router.post(
@@ -232,6 +272,7 @@
       .then((response) => response.json().then((body) => ({ ok: response.ok, body })))
       .then(({ ok, body }) => {
         testResult = ok ? body : { status: 'transport_failed', error: body.error || 'Test request failed' };
+        loadHostingDiagnostics();
       })
       .catch((error) => {
         testResult = { status: 'transport_failed', error: error.message };
@@ -404,7 +445,24 @@
             </div>
 
             <div class="border rounded-lg p-6 space-y-3">
-              <h2 class="text-xl font-semibold">Docker sandbox diagnostics</h2>
+              <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <h2 class="text-xl font-semibold">Docker sandbox diagnostics</h2>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onclick={loadHostingDiagnostics}
+                  disabled={diagnosticsLoading}>
+                  {diagnosticsLoading ? 'Loading...' : 'Refresh diagnostics'}
+                </Button>
+              </div>
+              {#if diagnosticsError}
+                <div class="rounded border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+                  {diagnosticsError}
+                </div>
+              {:else if diagnosticsLoading && !diagnosticsLoaded}
+                <p class="text-sm text-muted-foreground">Loading Docker and filesystem diagnostics…</p>
+              {/if}
               <div class="grid gap-2 text-sm sm:grid-cols-2">
                 <p>
                   Docker daemon:
@@ -477,6 +535,8 @@
                   <div class="rounded border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
                     {section.dump.error}
                   </div>
+                {:else if diagnosticsLoading && !diagnosticsLoaded}
+                  <p class="text-sm text-muted-foreground">Loading filesystem dump…</p>
                 {:else if !section.dump.entries || section.dump.entries.length === 0}
                   <p class="text-sm text-muted-foreground">No files found.</p>
                 {:else}

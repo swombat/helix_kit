@@ -45,10 +45,8 @@ class AgentsController < ApplicationController
       active_tab: params[:tab],
       local_dev_endpoint_mode: Agents::Config.publish_ports?,
       identity_export_url: identity_export_account_agent_path(current_account, @agent),
-      sandbox_status: Agents::Sandbox.new(@agent).status,
+      hosting_diagnostics_url: account_agent_hosting_diagnostics_path(current_account, @agent),
       runtime_interactions: @agent.agent_runtime_interactions.recent.limit(10).map(&:as_debug_json),
-      filesystem_dump: Agents::FilesystemDump.new(@agent).as_json,
-      container_filesystem_dump: Agents::FilesystemDump.new(@agent, target: :container_home).as_json,
       account: current_account.as_json
     }
   end

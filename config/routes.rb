@@ -94,6 +94,7 @@ Rails.application.routes.draw do
       end
 
       scope module: :agents do
+        resource :hosting_diagnostics, only: :show
         resource :refinement, only: :create
         resource :telegram_test, only: :create
         resource :telegram_webhook, only: :create
