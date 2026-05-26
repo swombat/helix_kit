@@ -35,7 +35,7 @@ class Agent < ApplicationRecord
   EXTERNALLY_MANAGED_ATTRIBUTES = %w[
     name system_prompt reflection_prompt memory_reflection_prompt
     summary_prompt refinement_prompt refinement_threshold
-    model_id thinking_enabled thinking_budget enabled_tools voice_id
+    model_id thinking_enabled thinking_budget enabled_tools
   ].freeze
 
   validates :name, presence: true,

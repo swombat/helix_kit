@@ -66,10 +66,19 @@
   <div class="space-y-4">
     <div>
       <h2 class="text-lg font-semibold">Tools & Capabilities</h2>
-      <p class="text-sm text-muted-foreground">
-        Select which tools this agent can use. New tools will be disabled by default.
-      </p>
+      {#if locked}
+        <p class="text-sm text-muted-foreground">
+          This agent is now self-hosted. It runs inside a regular coding harness and can use the command line tools
+          available in that runtime rather than HelixKit's inline tool checklist.
+        </p>
+      {:else}
+        <p class="text-sm text-muted-foreground">
+          Select which tools this agent can use. New tools will be disabled by default.
+        </p>
+      {/if}
     </div>
-    <AgentToolChecklist tools={availableTools} bind:enabledTools={$form.agent.enabled_tools} disabled={locked} />
+    {#if !locked}
+      <AgentToolChecklist tools={availableTools} bind:enabledTools={$form.agent.enabled_tools} />
+    {/if}
   </div>
 </div>

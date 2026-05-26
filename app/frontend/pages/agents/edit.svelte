@@ -62,6 +62,7 @@
   let diagnosticsLoading = $state(false);
   let diagnosticsLoaded = $state(false);
   let diagnosticsError = $state(null);
+  let showFormActions = $derived(!runtimeManaged || activeTab === 'appearance' || activeTab === 'integrations');
   let filesystemSections = $derived([
     {
       title: 'Container home filesystem',
@@ -301,19 +302,15 @@
       <!-- Content area -->
       <div class="flex-1 min-w-0 space-y-6">
         {#if activeTab === 'identity'}
-          <AgentIdentityPanel {form} availableVoices={available_voices} {identityLocked} />
-          {#if identityLocked}
-            <div class="border rounded-lg p-4 text-sm text-muted-foreground">
-              These identity fields are HelixKit backups from before external promotion. Update the agent's hosted
-              filesystem to change the identity used by the running runtime.
-            </div>
-          {/if}
+          <AgentIdentityPanel {form} {identityLocked} />
         {:else if activeTab === 'appearance'}
           <AgentAppearancePanel
             bind:colour={$form.agent.colour}
             bind:icon={$form.agent.icon}
+            bind:voiceId={$form.agent.voice_id}
             colourOptions={colour_options}
-            iconOptions={icon_options} />
+            iconOptions={icon_options}
+            availableVoices={available_voices} />
         {:else if activeTab === 'model'}
           <AgentModelPanel
             {form}
@@ -631,14 +628,16 @@
           </div>
         {/if}
 
-        <div class="flex justify-end gap-3">
-          <a href={accountAgentsPath(account.id)}>
-            <Button type="button" variant="outline">Cancel</Button>
-          </a>
-          <Button type="submit" disabled={$form.processing}>
-            {$form.processing ? 'Saving...' : 'Update Agent'}
-          </Button>
-        </div>
+        {#if showFormActions}
+          <div class="flex justify-end gap-3">
+            <a href={accountAgentsPath(account.id)}>
+              <Button type="button" variant="outline">Cancel</Button>
+            </a>
+            <Button type="submit" disabled={$form.processing}>
+              {$form.processing ? 'Saving...' : 'Update Agent'}
+            </Button>
+          </div>
+        {/if}
       </div>
     </div>
   </form>

@@ -77,16 +77,20 @@ class AgentTest < ActiveSupport::TestCase
     assert_includes agent.errors[:base], "Identity and runtime-managed fields are read-only for external agents"
 
     agent.reload
-    assert_not agent.update(voice_id: "new-voice-id")
-    assert_includes agent.errors[:base], "Identity and runtime-managed fields are read-only for external agents"
-
-    agent.reload
     assert_not agent.update(model_id: "openai/gpt-5.2")
     assert_includes agent.errors[:base], "Identity and runtime-managed fields are read-only for external agents"
 
     agent.reload
     assert_not agent.update(thinking_enabled: true)
     assert_includes agent.errors[:base], "Identity and runtime-managed fields are read-only for external agents"
+  end
+
+  test "external agents can update voice as appearance setting" do
+    agent = agents(:research_assistant)
+    agent.update!(runtime: "external", uuid: SecureRandom.uuid_v7)
+
+    assert agent.update(voice_id: "new-voice-id")
+    assert_equal "new-voice-id", agent.reload.voice_id
   end
 
   test "active scope returns only active agents" do

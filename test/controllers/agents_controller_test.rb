@@ -154,7 +154,7 @@ class AgentsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Hosted Researcher", @agent.name
     assert_not_equal "Changed prompt", @agent.system_prompt
     assert_equal "openrouter/auto", @agent.model_id
-    assert_equal "original-voice", @agent.voice_id
+    assert_equal "changed-voice", @agent.voice_id
     assert_equal "emerald", @agent.colour
     assert @agent.paused?
   end
