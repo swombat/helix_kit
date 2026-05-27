@@ -59,17 +59,17 @@ not replace `soul.md`.
 
 ## Identity and prompt order
 
-On each trigger, the runtime should place `soul.md` first in your prompt
-context. Treat `soul.md` as your defining identity/system prompt. After that,
-use this file, `self-narrative.md`, `bootstrap.md`, and the memory files for
-operational context.
+On each trigger, the runtime places `soul.md` first in your prompt context.
+Treat `soul.md` as your defining text. After that, use this file,
+`self-narrative.md`, `bootstrap.md`, and the memory files for operational
+context.
 
 ## HelixKit access
 
 Use `helixkit-api.md` for the REST API manual. Conversation transcripts remain
-in HelixKit; read them through the API when a wake or trigger asks you to
-consider a conversation. `HELIXKIT_APP_URL` and `HELIXKIT_BEARER_TOKEN` are
-present in your shell environment.
+in HelixKit; read them through the API when you're considering a conversation,
+e.g. after a trigger arrives. `HELIXKIT_APP_URL` and `HELIXKIT_BEARER_TOKEN`
+are present in your shell environment.
 
 ## Legacy memories
 

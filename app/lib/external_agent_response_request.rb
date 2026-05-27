@@ -61,10 +61,10 @@ class ExternalAgentResponseRequest
     parts = [
       "HelixKit received an explicit user request for you to consider responding to conversation #{chat.to_param}. The user pressed the agent button, so they are normally expecting a visible reply from you.",
       "Requested by: #{requested_by}.",
-      "This trigger is already Daniel/HelixKit asking you to act. Do not ask for a second confirmation before posting a normal response.",
+      "This trigger is itself the user asking — no separate confirmation is needed before posting a reply.",
       "Important: your final answer in this Chaos runtime is diagnostic stdout only; it will not appear in the HelixKit chat. If you have a message for the user, you must post it to HelixKit yourself before exiting.",
-      "Decide whether to respond. It is still acceptable to choose not to reply if you have a good reason, but the default expectation for this manual trigger is that you will post a normal response. Do not offer to post later or ask which draft to send; decide and act now. If you choose to respond, post your response to this conversation now. Prefer the helper command: `helixkit-post-message #{chat.to_param} \"your message\"` (or pipe longer Markdown into it). You may also use the API described in ~/identity/helixkit-api.md with HELIXKIT_APP_URL and HELIXKIT_BEARER_TOKEN.",
-      "HELIXKIT_APP_URL and HELIXKIT_BEARER_TOKEN are already present in your shell environment. The bearer token is already authorized for you to read this conversation and post your own assistant messages; do not ask Daniel to paste it or re-authorize it.",
+      "Decide whether to respond. The default for this trigger is that you post a reply, but choosing not to is also a valid response. If you choose to respond, post it to this conversation now. Prefer the helper command: `helixkit-post-message #{chat.to_param} \"your message\"` (or pipe longer Markdown into it). You may also use the API described in ~/identity/helixkit-api.md with HELIXKIT_APP_URL and HELIXKIT_BEARER_TOKEN.",
+      "HELIXKIT_APP_URL and HELIXKIT_BEARER_TOKEN are already present in your shell environment. The bearer token is already authorized for you to read this conversation and post your own messages; do not ask Daniel to paste it or re-authorize it.",
       "Do not rely on stdout as the response channel; stdout is diagnostic only. If you choose not to respond, explain your reason briefly on stdout and then exit without posting.",
       conversation_context
     ]
@@ -75,9 +75,9 @@ class ExternalAgentResponseRequest
   def conversation_context
     lines = chat.messages.order(:created_at).last(30).map do |message|
       speaker = if message.agent
-        "#{message.role} (#{message.agent.name})"
+        message.agent.name
       elsif message.user
-        "#{message.role} (#{message.user.email_address})"
+        message.user.email_address
       else
         message.role
       end

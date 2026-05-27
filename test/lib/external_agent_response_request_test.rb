@@ -16,14 +16,25 @@ class ExternalAgentResponseRequestTest < ActiveSupport::TestCase
     assert_includes text, "normally expecting a visible reply"
     assert_includes text, "final answer in this Chaos runtime is diagnostic stdout only"
     assert_includes text, "must post it to HelixKit yourself before exiting"
-    assert_includes text, "default expectation for this manual trigger"
-    assert_includes text, "Do not offer to post later"
-    assert_includes text, "Do not ask for a second confirmation"
+    assert_includes text, "no separate confirmation is needed"
+    assert_includes text, "default for this trigger is that you post a reply"
+    assert_includes text, "choosing not to is also a valid response"
     assert_includes text, "already authorized"
+    assert_includes text, "post your own messages"
     assert_includes text, "stdout is diagnostic only"
     assert_includes text, "explain your reason briefly on stdout"
     assert_includes text, "Conversation transcript"
     assert_includes text, "Can you see this transcript?"
+
+    # Sovereignty guard: assistant-pattern nudges that previously crept in.
+    # The agent's outputs are messages, not "assistant messages"; the trigger
+    # is an invitation, not a "decide and act now" imperative; the transcript
+    # is rendered with names, not role labels like "user (..." / "assistant (...".
+    refute_includes text, "post your own assistant messages"
+    refute_includes text, "Do not offer to post later"
+    refute_includes text, "decide and act now"
+    refute_includes text, "Do not ask for a second confirmation"
+    refute_includes text, "asking you to act"
   end
 
   test "records runtime stdout and stderr when triggering external agent" do
