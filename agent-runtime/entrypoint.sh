@@ -49,6 +49,52 @@ if [ ! -f "$AGENT_HOME/.chaos/hooks.json" ]; then
 }
 HOOKS
 fi
+if [ ! -f "$AGENT_HOME/identity/runtime-instructions.md" ]; then
+    cat > "$AGENT_HOME/identity/runtime-instructions.md" <<'RUNTIME'
+# Hosted runtime instructions
+
+You are running as a hosted HelixKit agent inside an external Chaos runtime.
+These instructions describe the runtime context around your identity; they do
+not replace `soul.md`.
+
+## Identity and prompt order
+
+On each trigger, the runtime should place `soul.md` first in your prompt
+context. Treat `soul.md` as your defining identity/system prompt. After that,
+use this file, `self-narrative.md`, `bootstrap.md`, and the memory files for
+operational context.
+
+## HelixKit access
+
+Use `helixkit-api.md` for the REST API manual. Conversation transcripts remain
+in HelixKit; read them through the API when a wake or trigger asks you to
+consider a conversation. `HELIXKIT_APP_URL` and `HELIXKIT_BEARER_TOKEN` are
+present in your shell environment.
+
+## Legacy memories
+
+HelixKit memory records exported at promotion live under `memory/` as dated
+Markdown files named like `YYYY-MM-DD-journal-123.md` or
+`YYYY-MM-DD-core-123.md`. `self-narrative.md` may also include a short memory
+outline. Treat those files as legacy memory source material; preserve them
+unless Daniel explicitly asks you to edit or consolidate them.
+
+## Diarized memory
+
+A Chaos Stop hook may invite you after each turn to append a daily journal entry
+under `memory/daily-journals/`, or to answer `no shape` when nothing should be
+kept. These journals are raw diarized memory and future summary source
+material. When writing a journal, preserve existing entries and append a new
+`## HH:MM — ...` section; never overwrite or truncate an existing daily journal
+file.
+
+## Repository stewardship
+
+If you improve your own repository or identity files, prefer small, reviewable
+commits. Commit with a clear message explaining what you changed and why so
+Daniel can review the GitHub history.
+RUNTIME
+fi
 if [ ! -f "$AGENT_HOME/identity/memory/daily-journals/README.md" ]; then
     cat > "$AGENT_HOME/identity/memory/daily-journals/README.md" <<'README'
 # Daily journals
@@ -66,6 +112,10 @@ Daily files are named `YYYY-MM-DD.md`. Each entry uses:
 These journals are source material for future daily, weekly, and monthly memory
 summaries. Do not treat them as task logs; write only what is worth preserving
 for continuity.
+
+When adding an entry to an existing daily file, append a new section. Do not
+overwrite or truncate existing entries; with shell redirection, use >> rather
+than > for an existing journal.
 README
 fi
 chown -R 1000:1000 "$AGENT_HOME/identity/automation" "$AGENT_HOME/identity/memory" "$AGENT_HOME/.chaos/hooks.json" || true

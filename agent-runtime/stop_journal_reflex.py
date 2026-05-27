@@ -65,6 +65,11 @@ If there is shape, append a first-person entry to:
 
 {journal_path}
 
+Append means preserve any existing entries in that file and add your new `## {hhmm} — ...`
+entry after them. Do not replace, truncate, or rewrite the whole journal file.
+When using shell redirection, use append redirection (`>>`) or an equivalent
+append operation, never overwrite redirection (`>`), for an existing journal.
+
 If the file does not exist, create it with:
 
 # Daily Journal: {today}

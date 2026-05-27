@@ -161,54 +161,23 @@ def build_prompt(request_text: str) -> str:
 
 
 def identity_context() -> str:
-    """Return the identity context exported by HelixKit.
+    """Return the identity context exported by HelixKit."""
+    sections = []
 
-    These files are the external runtime equivalent of the agent's HelixKit
-    system prompt and self-story. They must be present in the model context on
-    every wake/trigger, not merely mounted on disk.
-    """
-    sections = [
-        "# External Agent Identity Context",
-        (
-            "The following files define who you are in this external runtime. "
-            "`identity/soul.md` is your defining system prompt exported from "
-            "HelixKit. `identity/self-narrative.md` is living memory and may "
-            "evolve carefully. Treat `identity/soul.md` as protected: do not "
-            "change it without explicit Daniel review/approval."
-        ),
-    ]
+    # Keep soul.md first. This is the agent's own chosen/exported identity text,
+    # and should be the first thing the model sees before runtime scaffolding.
+    soul = read_identity_file("soul.md")
+    if soul:
+        sections.append(soul)
 
     for filename, label in [
-        ("soul.md", "Defining system prompt"),
+        ("runtime-instructions.md", "Hosted runtime instructions"),
         ("self-narrative.md", "Self-narrative"),
         ("bootstrap.md", "Bootstrap notes"),
     ]:
         content = read_identity_file(filename)
         if content:
             sections.append(f"## {label}: identity/{filename}\n\n{content}")
-
-    sections.append(
-        "## HelixKit access\n\n"
-        "Use `identity/helixkit-api.md` for the REST API manual. Conversation "
-        "transcripts remain in HelixKit; read them through the API when a wake "
-        "or trigger asks you to consider a conversation. Your exported memory "
-        "files, if any, live under `identity/memory/`."
-    )
-
-    sections.append(
-        "## Repository stewardship\n\n"
-        "If you improve your own repository or identity files, prefer small, "
-        "reviewable commits. Commit with a clear message explaining what you "
-        "changed and why so Daniel can review the GitHub history."
-    )
-
-    sections.append(
-        "## Diarized memory\n\n"
-        "A Chaos Stop hook may invite you after each turn to append a daily "
-        "journal entry under `identity/memory/daily-journals/`, or to answer "
-        "`no shape` when nothing should be kept. These journals are your raw "
-        "diarized memory and future summary source material."
-    )
 
     return "\n\n".join(sections)
 
