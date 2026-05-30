@@ -87,6 +87,10 @@ Before you write, ask:
 - What changed in my relation to the work, the humans around it, my memory, or myself?
 - Is this only a tidy event summary with an emotion-tag? If so, either go nearer to the actual pressure/relief/absence, or answer `no shape`.
 
+These questions are private prompts for discernment; do not answer them
+literally in your response. If they lead you to decide there is no entry to
+write, respond only `no shape`.
+
 After writing, respond exactly:
 
 journaled: <title>

@@ -98,6 +98,7 @@ def trigger():
     # is accepted as a backwards-compatible alias for hand-rolled clients.
     prompt = payload.get("request") or payload.get("prompt")
     model = payload.get("model", AGENT_DEFAULT_MODEL)
+    timeout_secs = int(payload.get("timeout_secs") or CHAOS_TIMEOUT_SECS)
     conversation_id = payload.get("conversation_id")
     requested_by = payload.get("requested_by")
 
@@ -106,7 +107,7 @@ def trigger():
 
     log.info(
         f"trigger session_id={session_id} conversation_id={conversation_id} "
-        f"requested_by={requested_by} model={model} prompt_len={len(prompt)}"
+        f"requested_by={requested_by} model={model} timeout_secs={timeout_secs} prompt_len={len(prompt)}"
     )
 
     full_prompt = build_prompt(prompt)
@@ -139,11 +140,11 @@ def trigger():
             input=full_prompt,
             capture_output=True,
             text=True,
-            timeout=CHAOS_TIMEOUT_SECS,
+            timeout=timeout_secs,
         )
     except subprocess.TimeoutExpired:
-        log.error(f"chaos exec timed out after {CHAOS_TIMEOUT_SECS}s")
-        return jsonify({"status": "timeout", "session_id": session_id}), 504
+        log.error(f"chaos exec timed out after {timeout_secs}s")
+        return jsonify({"status": "timeout", "session_id": session_id, "timeout_secs": timeout_secs}), 504
 
     response = {
         "status": "ok" if result.returncode == 0 else "error",

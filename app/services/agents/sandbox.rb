@@ -20,7 +20,12 @@ module Agents
       Agents::Volume.new(agent).ensure!
 
       if container_exists?
-        start!
+        if container_image_current?
+          start!
+        else
+          remove_container!
+          run_container!
+        end
       else
         run_container!
       end
@@ -68,6 +73,9 @@ module Agents
           base.merge!(
             container_exists: true,
             container_id: container["Id"].to_s.first(12),
+            container_image_id: container["Image"],
+            configured_image_id: image_id(agent.container_image),
+            container_image_current: image_current?(container["Image"], agent.container_image),
             container_helixkit_app_url: container_env_value(container, "HELIXKIT_APP_URL"),
             container_state: state["Status"],
             container_running: state["Running"],
@@ -97,7 +105,7 @@ module Agents
     end
 
     def remove!(delete_volume: false)
-      system("docker", "rm", "-f", agent.container_name, out: File::NULL, err: File::NULL)
+      remove_container!
       Agents::Volume.new(agent).destroy! if delete_volume
     end
 
@@ -122,8 +130,18 @@ module Agents
     end
 
     def image_present?(image)
-      return false if image.blank?
-      docker_capture("image", "inspect", image)[:ok]
+      image_id(image).present?
+    end
+
+    def image_id(image)
+      return nil if image.blank?
+      result = docker_capture("image", "inspect", "--format", "{{.Id}}", image)
+      result[:ok] ? result[:stdout].strip.presence : nil
+    end
+
+    def image_current?(container_image_id, configured_image)
+      configured_image_id = image_id(configured_image)
+      configured_image_id.present? && container_image_id == configured_image_id
     end
 
     def container_env_value(container, name)
@@ -138,6 +156,20 @@ module Agents
 
     def container_exists?
       system("docker", "container", "inspect", agent.container_name, out: File::NULL, err: File::NULL)
+    end
+
+    def container_image_current?
+      inspect = docker_capture("container", "inspect", agent.container_name)
+      return false unless inspect[:ok]
+
+      container = JSON.parse(inspect[:stdout]).first
+      image_current?(container["Image"], agent.container_image)
+    rescue StandardError
+      false
+    end
+
+    def remove_container!
+      system("docker", "rm", "-f", agent.container_name, out: File::NULL, err: File::NULL)
     end
 
     def run_container!
@@ -194,11 +226,18 @@ module Agents
       agent.model_id.to_s.split("/").first.presence || "anthropic"
     end
 
-    def agent_model
+    def self.chaos_model_for(agent)
       model_id = agent.model_id.to_s
+      model_config = Chat::MODELS.find { |model| model[:model_id] == model_id }
+      return model_config[:provider_model_id] if model_config&.dig(:provider_model_id).present?
+
       provider, model = model_id.split("/", 2)
       return model_id if model.blank?
       provider == "openrouter" ? model_id : model
+    end
+
+    def agent_model
+      self.class.chaos_model_for(agent)
     end
 
     def provider_env_args

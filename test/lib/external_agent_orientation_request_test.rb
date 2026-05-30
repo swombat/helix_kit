@@ -5,6 +5,7 @@ class ExternalAgentOrientationRequestTest < ActiveSupport::TestCase
 
   test "orientation request invites first wake and records oriented_at when journal grows" do
     agent = agents(:research_assistant)
+    agent.update!(model_id: "anthropic/claude-opus-4.7")
     agent.update!(
       runtime: "external",
       uuid: SecureRandom.uuid_v7,
@@ -18,7 +19,12 @@ class ExternalAgentOrientationRequestTest < ActiveSupport::TestCase
     def fake_journal_status.grown_since?(_before) = true
 
     stub_request(:post, "https://agent.example.com/trigger")
-      .with { |request| JSON.parse(request.body).fetch("trigger_kind") == "orientation" }
+      .with do |request|
+        body = JSON.parse(request.body)
+        body.fetch("trigger_kind") == "orientation" &&
+          body.fetch("model") == "claude-opus-4-7" &&
+          body.fetch("timeout_secs") == ExternalAgentOrientationRequest::ORIENTATION_TIMEOUT_SECS
+      end
       .to_return(status: 200, body: { status: "ok", stdout: "oriented" }.to_json)
 
     Agents::DailyJournalStatus.stub :new, fake_journal_status do

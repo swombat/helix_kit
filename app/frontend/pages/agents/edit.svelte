@@ -69,6 +69,7 @@
   let filesystemDump = $state({});
   let containerFilesystemDump = $state({});
   let filePreviews = $state({});
+  let expandedFilesystemDirs = $state({});
   let diagnosticsLoading = $state(false);
   let diagnosticsLoaded = $state(false);
   let diagnosticsError = $state(null);
@@ -254,6 +255,34 @@
       });
   }
 
+
+
+  function directoryKey(section, entryOrPath) {
+    const path = typeof entryOrPath === 'string' ? entryOrPath : entryOrPath.path;
+    return `${section.target}:${path}`;
+  }
+
+  function directoryExpanded(section, entry) {
+    return expandedFilesystemDirs[directoryKey(section, entry)] === true;
+  }
+
+  function toggleDirectory(section, entry) {
+    const key = directoryKey(section, entry);
+    expandedFilesystemDirs = { ...expandedFilesystemDirs, [key]: !expandedFilesystemDirs[key] };
+  }
+
+  function entryVisible(section, entry) {
+    if (entry.depth === 0) return true;
+
+    const parts = entry.path.split('/');
+    let ancestor = '';
+    for (let index = 0; index < parts.length - 1; index += 1) {
+      ancestor = ancestor ? `${ancestor}/${parts[index]}` : parts[index];
+      if (!expandedFilesystemDirs[directoryKey(section, ancestor)]) return false;
+    }
+
+    return true;
+  }
 
   function filePreviewKey(section, entry) {
     return `${section.target}:${entry.path}`;
@@ -599,6 +628,12 @@
                 <p>
                   Container exists: <span class="font-medium">{sandboxStatus.container_exists === null ? 'checking' : sandboxStatus.container_exists ? 'yes' : 'no'}</span>
                 </p>
+                {#if sandboxStatus.container_exists}
+                  <p>
+                    Container image current:
+                    <span class="font-medium">{sandboxStatus.container_image_current === null || sandboxStatus.container_image_current === undefined ? 'checking' : sandboxStatus.container_image_current ? 'yes' : 'no'}</span>
+                  </p>
+                {/if}
                 {#if sandboxStatus.container_state}
                   <p>Container state: <span class="font-mono">{sandboxStatus.container_state}</span></p>
                 {/if}
@@ -618,6 +653,12 @@
                 <div class="rounded border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
                   <div class="font-medium">Docker error</div>
                   <div class="mt-1 font-mono text-xs whitespace-pre-wrap">{sandboxStatus.docker_error}</div>
+                </div>
+              {/if}
+              {#if sandboxStatus.container_exists && sandboxStatus.container_image_current === false}
+                <div class="rounded border border-amber-300/40 bg-amber-50 p-3 text-sm text-amber-900">
+                  This container was created from an older runtime image. Restarting promotion will recreate the container
+                  while preserving its identity and Chaos volumes.
                 </div>
               {/if}
               {#if sandboxStatus.container_error}
@@ -654,39 +695,44 @@
                 {:else}
                   <div class="space-y-2">
                     {#each section.dump.entries as entry}
-                      {#if entry.type === 'directory'}
-                        <div
-                          class="font-mono text-xs text-muted-foreground"
-                          style={`padding-left: ${entry.depth * 1.25}rem`}>
-                          📁 {entry.name}/
-                        </div>
-                      {:else}
-                        <details
-                          class="rounded border bg-muted/40 p-2 text-sm"
-                          style={`margin-left: ${entry.depth * 1.25}rem`}
-                          ontoggle={(event) => loadFilePreview(section, entry, event)}>
-                          <summary class="cursor-pointer font-mono text-xs">
-                            📄 {entry.name}
-                            {#if entry.size_bytes !== null && entry.size_bytes !== undefined}
-                              <span class="text-muted-foreground">({entry.size_bytes} bytes)</span>
+                      {#if entryVisible(section, entry)}
+                        {#if entry.type === 'directory'}
+                          <button
+                            type="button"
+                            class="block w-full rounded px-2 py-1 text-left font-mono text-xs text-muted-foreground hover:bg-muted"
+                            style={`padding-left: ${entry.depth * 1.25 + 0.5}rem`}
+                            onclick={() => toggleDirectory(section, entry)}
+                            aria-expanded={directoryExpanded(section, entry)}>
+                            {directoryExpanded(section, entry) ? '▾' : '▸'} 📁 {entry.name}/
+                          </button>
+                        {:else}
+                          <details
+                            class="rounded border bg-muted/40 p-2 text-sm"
+                            style={`margin-left: ${entry.depth * 1.25}rem`}
+                            ontoggle={(event) => loadFilePreview(section, entry, event)}>
+                            <summary class="cursor-pointer font-mono text-xs">
+                              📄 {entry.name}
+                              {#if entry.size_bytes !== null && entry.size_bytes !== undefined}
+                                <span class="text-muted-foreground">({entry.size_bytes} bytes)</span>
+                              {/if}
+                            </summary>
+                            {#if !entry.previewable}
+                              <p class="mt-2 text-xs text-muted-foreground">Preview unavailable for this file type.</p>
+                            {:else if filePreviews[filePreviewKey(section, entry)]?.loading}
+                              <p class="mt-2 text-xs text-muted-foreground">Loading preview…</p>
+                            {:else if filePreviews[filePreviewKey(section, entry)]?.error}
+                              <p class="mt-2 text-xs text-destructive">{filePreviews[filePreviewKey(section, entry)].error}</p>
+                            {:else if filePreviews[filePreviewKey(section, entry)]?.loaded}
+                              <pre
+                                class="mt-2 max-h-96 overflow-auto whitespace-pre-wrap rounded bg-background p-3 text-xs">{filePreviews[filePreviewKey(section, entry)].content}</pre>
+                              {#if filePreviews[filePreviewKey(section, entry)].truncated}
+                                <p class="mt-1 text-xs text-muted-foreground">Preview truncated.</p>
+                              {/if}
+                            {:else}
+                              <p class="mt-2 text-xs text-muted-foreground">Open to load preview.</p>
                             {/if}
-                          </summary>
-                          {#if !entry.previewable}
-                            <p class="mt-2 text-xs text-muted-foreground">Preview unavailable for this file type.</p>
-                          {:else if filePreviews[filePreviewKey(section, entry)]?.loading}
-                            <p class="mt-2 text-xs text-muted-foreground">Loading preview…</p>
-                          {:else if filePreviews[filePreviewKey(section, entry)]?.error}
-                            <p class="mt-2 text-xs text-destructive">{filePreviews[filePreviewKey(section, entry)].error}</p>
-                          {:else if filePreviews[filePreviewKey(section, entry)]?.loaded}
-                            <pre
-                              class="mt-2 max-h-96 overflow-auto whitespace-pre-wrap rounded bg-background p-3 text-xs">{filePreviews[filePreviewKey(section, entry)].content}</pre>
-                            {#if filePreviews[filePreviewKey(section, entry)].truncated}
-                              <p class="mt-1 text-xs text-muted-foreground">Preview truncated.</p>
-                            {/if}
-                          {:else}
-                            <p class="mt-2 text-xs text-muted-foreground">Open to load preview.</p>
-                          {/if}
-                        </details>
+                          </details>
+                        {/if}
                       {/if}
                     {/each}
                     {#if section.dump.truncated}

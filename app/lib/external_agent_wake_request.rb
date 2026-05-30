@@ -27,7 +27,8 @@ class ExternalAgentWakeRequest
         requested_by: requested_by,
         session_id: session_id,
         trigger_kind: "wake",
-        request: request
+        request: request,
+        model: Agents::Sandbox.chaos_model_for(agent)
       )
     end
   rescue StandardError => e

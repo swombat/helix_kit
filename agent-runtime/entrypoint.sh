@@ -6,10 +6,11 @@
 set -e
 
 AGENT_HOME=/home/agent
+AGENT_REPO_PATH="${AGENT_REPO_PATH:-$AGENT_HOME/repo}"
 
 # Docker-managed volumes are root-owned when first created. The agent user needs
 # write access to both canonical identity/memory and chaos session state.
-for path in "$AGENT_HOME/identity" "$AGENT_HOME/.chaos"; do
+for path in "$AGENT_HOME/identity" "$AGENT_HOME/.chaos" "$AGENT_REPO_PATH"; do
     if [ -d "$path" ]; then
         chown -R 1000:1000 "$path" || true
     fi
@@ -18,21 +19,23 @@ done
 # Install the default hosted-agent Stop hook and journaling scaffold. The hook
 # blocks once after each Chaos turn, asking the agent to append a daily journal
 # entry or explicitly answer "no shape". The hook script lives in identity so it
-# is visible in the hosting filesystem browser; hooks.json lives in the
-# persisted Chaos home because that is where Chaos discovers runtime hooks for
-# this container.
+# is visible in the hosting filesystem browser. hooks.json is installed into the
+# active repo's .chaos directory, where Chaos discovers project hooks.
 mkdir -p "$AGENT_HOME/identity/automation" \
          "$AGENT_HOME/identity/memory/daily-journals" \
          "$AGENT_HOME/identity/memory/automation/state" \
-         "$AGENT_HOME/.chaos"
+         "$AGENT_HOME/.chaos" \
+         "$AGENT_REPO_PATH/.chaos"
 # Platform-managed helper: refresh on every boot so runtime improvements reach
 # existing hosted agents. The journal files it invites are agent-owned; the hook
 # script itself is runtime infrastructure.
 cp /usr/local/share/helixkit-agent/stop_journal_reflex.py "$AGENT_HOME/identity/automation/stop_journal_reflex.py" || true
 chmod 0755 "$AGENT_HOME/identity/automation/stop_journal_reflex.py" || true
-if [ ! -f "$AGENT_HOME/.chaos/hooks.json" ]; then
-    cat > "$AGENT_HOME/.chaos/hooks.json" <<'HOOKS'
+write_hooks_json() {
+    target="$1"
+    cat > "$target" <<'HOOKS'
 {
+  "_helixkit_managed": "hosted-agent-stop-journal-reflex:v1",
   "hooks": {
     "Stop": [
       {
@@ -40,7 +43,7 @@ if [ ! -f "$AGENT_HOME/.chaos/hooks.json" ]; then
           {
             "type": "command",
             "command": "python3 /home/agent/identity/automation/stop_journal_reflex.py",
-            "timeout": 5,
+            "timeout": 60,
             "statusMessage": "Inviting hosted agent journal reflex"
           }
         ]
@@ -49,7 +52,36 @@ if [ ! -f "$AGENT_HOME/.chaos/hooks.json" ]; then
   }
 }
 HOOKS
+}
+install_hooks_json() {
+    target="$1"
+    if [ ! -f "$target" ]; then
+        write_hooks_json "$target"
+    elif grep -q "hosted-agent-stop-journal-reflex:" "$target"; then
+        write_hooks_json "$target"
+    elif grep -q "/home/agent/identity/automation/stop_journal_reflex.py" "$target"; then
+        # Older generated hooks had no marker. Refresh the known generated shape.
+        write_hooks_json "$target"
+    fi
+}
+# Chaos reads hooks from both global and project config. Install the Stop hook
+# only into the active project (`-C`) so it fires once per turn. If an earlier
+# HelixKit image wrote the same managed hook into ~/.chaos/hooks.json, remove it.
+install_hooks_json "$AGENT_REPO_PATH/.chaos/hooks.json"
+if [ -f "$AGENT_HOME/.chaos/hooks.json" ] && grep -q "hosted-agent-stop-journal-reflex:" "$AGENT_HOME/.chaos/hooks.json"; then
+    rm -f "$AGENT_HOME/.chaos/hooks.json"
 fi
+cat > "$AGENT_HOME/.chaos/helixkit-hooks.md" <<'HOOKS_NOTE'
+# HelixKit hosted-agent hooks
+
+The active hosted-agent Stop hook is installed at:
+
+`/home/agent/repo/.chaos/hooks.json`
+
+Chaos may read both global (`~/.chaos`) and project (`-C .../.chaos`) hooks, so
+HelixKit does not install a second copy here. Keeping only one active hook avoids
+duplicate journal-reflex invitations after a turn.
+HOOKS_NOTE
 RUNTIME_INSTRUCTIONS="$AGENT_HOME/identity/runtime-instructions.md"
 RUNTIME_INSTRUCTIONS_NEW="$AGENT_HOME/identity/runtime-instructions.md.new"
 write_runtime_instructions() {
@@ -138,7 +170,7 @@ overwrite or truncate existing entries; with shell redirection, use >> rather
 than > for an existing journal.
 README
 fi
-chown -R 1000:1000 "$AGENT_HOME/identity/automation" "$AGENT_HOME/identity/memory" "$RUNTIME_INSTRUCTIONS" "$RUNTIME_INSTRUCTIONS_NEW" "$AGENT_HOME/.chaos/hooks.json" 2>/dev/null || true
+chown -R 1000:1000 "$AGENT_REPO_PATH" "$AGENT_HOME/identity/automation" "$AGENT_HOME/identity/memory" "$RUNTIME_INSTRUCTIONS" "$RUNTIME_INSTRUCTIONS_NEW" "$AGENT_HOME/.chaos/helixkit-hooks.md" 2>/dev/null || true
 
 # Some chaos providers read API keys directly from the environment (Anthropic),
 # while others require a provider account entry under the agent user's ~/.chaos.
