@@ -56,7 +56,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
       build-essential git openssh-client pkg-config \
       libvips libpq-dev libicu-dev libyaml-dev libssl-dev libreadline-dev zlib1g-dev \
       passwd vim neovim \
-      postgresql-client-16 ffmpeg poppler-utils; \
+      postgresql-client-16 ffmpeg poppler-utils docker.io; \
     rm -rf /var/lib/apt/lists/*
 
 # 5) Pin Node + enable Corepack (cache mount again)

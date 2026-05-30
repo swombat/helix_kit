@@ -17,6 +17,10 @@ env:
     RAILS_SERVE_STATIC_FILES: true # Let Rails serve static files (since no external proxy in production)
     RAILS_LOG_TO_STDOUT: true # Log to STDOUT for Docker logging
     RAILS_ENV: production
+    HELIXKIT_AGENTS_NETWORK: kamal # Agent containers join Kamal's private Docker network.
+    HELIXKIT_AGENT_INTERNAL_URL: http://helix-kit-web:3000 # Agent callbacks hit Rails over Docker DNS.
+    HELIXKIT_SANDBOX_HOST: 95.217.118.47 # Stored on promoted agents for operator diagnostics.
+    HELIXKIT_AGENT_BACKUPS_ENABLED: false # Enable once S3/restic credentials are configured.
   secret:
     - RAILS_MASTER_KEY # Rails master key (provide in .kamal/secrets)
     - DATABASE_URL # Database connection string (provided per env in secrets)
@@ -25,10 +29,17 @@ servers:
   web:
     hosts:
       - 95.217.118.47
+    options:
+      volume: /var/run/docker.sock:/var/run/docker.sock
+      group-add: 988 # Host docker group; lets the non-root rails user use the mounted socket.
+      network-alias: helix-kit-web
   jobs:
     hosts:
       - 95.217.118.47
     cmd: "./bin/rails solid_queue:start"
+    options:
+      volume: /var/run/docker.sock:/var/run/docker.sock
+      group-add: 988 # Host docker group; needed for PromoteAgentJob to spawn agent containers.
 
 proxy:
   ssl: true
