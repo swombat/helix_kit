@@ -107,7 +107,7 @@
   let orientationPath = $derived(sendOrientationAccountAgentPath(account.id, agent.id));
 
   $effect(() => {
-    if (activeTab === 'hosting' && !diagnosticsLoaded && !diagnosticsLoading) {
+    if (activeTab === 'hosting' && !diagnosticsLoaded && !diagnosticsLoading && !diagnosticsError) {
       loadHostingDiagnostics();
     }
   });
@@ -653,6 +653,12 @@
                 <div class="rounded border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
                   <div class="font-medium">Docker error</div>
                   <div class="mt-1 font-mono text-xs whitespace-pre-wrap">{sandboxStatus.docker_error}</div>
+                </div>
+              {/if}
+              {#if sandboxStatus.configuration_error}
+                <div class="rounded border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+                  <div class="font-medium">Hosting configuration error</div>
+                  <div class="mt-1 font-mono text-xs whitespace-pre-wrap">{sandboxStatus.configuration_error}</div>
                 </div>
               {/if}
               {#if sandboxStatus.container_exists && sandboxStatus.container_image_current === false}

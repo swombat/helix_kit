@@ -39,6 +39,16 @@ class Agents::HostingDiagnosticsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "/home/agent", body.dig("container_filesystem_dump", "root")
   end
 
+  test "show reports missing hosting config instead of raising" do
+    Agents::Config.stub(:internal_url, -> { raise KeyError, "HELIXKIT_AGENT_INTERNAL_URL is required" }) do
+      get account_agent_hosting_diagnostics_path(@account, @agent), as: :json
+    end
+
+    assert_response :success
+    body = JSON.parse(response.body)
+    assert_includes body.dig("sandbox_status", "configuration_error"), "HELIXKIT_AGENT_INTERNAL_URL is required"
+  end
+
   test "show marks external agent oriented when daily journals already exist" do
     @agent.update!(runtime: "external", uuid: SecureRandom.uuid_v7, container_name: "hk-agent-test", health_state: "healthy")
     sandbox = Struct.new(:status).new({ docker_available: true })

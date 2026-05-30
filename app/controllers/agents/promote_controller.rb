@@ -23,6 +23,12 @@ class Agents::PromoteController < ApplicationController
       return
     end
 
+    configuration_error = hosted_runtime_configuration_error
+    if configuration_error.present?
+      redirect_to hosting_settings_path, alert: configuration_error
+      return
+    end
+
     old_api_key = @agent.outbound_api_key
     outbound_api_key = nil
     @agent.transaction do
@@ -264,6 +270,15 @@ class Agents::PromoteController < ApplicationController
     end
 
     outbound_api_key
+  end
+
+  def hosted_runtime_configuration_error
+    Agents::Config.sandbox_host
+    Agents::Config.internal_url
+    Agents::Config.default_image
+    nil
+  rescue KeyError => e
+    "Hosted agent runtime is not configured: #{e.message}"
   end
 
 end

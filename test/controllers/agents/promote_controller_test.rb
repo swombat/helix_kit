@@ -53,6 +53,26 @@ class Agents::PromoteControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to edit_account_agent_path(@account, @agent, tab: "hosting")
   end
 
+  test "begin reports missing hosted runtime configuration without mutating agent" do
+    original_runtime = @agent.runtime
+    original_uuid = @agent.uuid
+    original_container_name = @agent.container_name
+
+    Agents::Config.stub(:internal_url, -> { raise KeyError, "HELIXKIT_AGENT_INTERNAL_URL is required" }) do
+      assert_no_difference "ApiKey.count" do
+        assert_no_enqueued_jobs only: PromoteAgentJob do
+          post begin_promote_account_agent_path(@account, @agent)
+        end
+      end
+    end
+
+    assert_redirected_to edit_account_agent_path(@account, @agent, tab: "hosting")
+    assert_match "Hosted agent runtime is not configured", flash[:alert]
+    @agent.reload
+    assert_equal original_runtime, @agent.runtime
+    assert_equal [ original_uuid, original_container_name ], [ @agent.uuid, @agent.container_name ]
+  end
+
   test "cancel returns agent to inline and revokes scoped key" do
     key = ApiKey.generate_for(@user, name: "agent key", agent: @agent)
     @agent.update!(

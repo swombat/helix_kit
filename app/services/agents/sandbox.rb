@@ -37,12 +37,13 @@ module Agents
 
 
     def status
+      @configuration_error = nil
       base = {
         configured: agent.container_name.present?,
         container_name: agent.container_name,
         image: agent.container_image,
         endpoint_url: agent.endpoint_url,
-        configured_helixkit_app_url: Agents::Config.internal_url,
+        configured_helixkit_app_url: safe_config_value(:internal_url),
         volume_name: agent.uuid.present? ? Agents::Volume.new(agent).volume_name : nil,
         chaos_volume_name: agent.uuid.present? ? "chaos-home-#{agent.uuid}" : nil,
         docker_available: false,
@@ -50,6 +51,7 @@ module Agents
         identity_volume_exists: false,
         chaos_volume_exists: false
       }
+      base[:configuration_error] = @configuration_error if @configuration_error.present?
 
       docker_info = docker_capture("info", "--format", "{{.ServerVersion}}")
       unless docker_info[:ok]
@@ -93,7 +95,7 @@ module Agents
 
       base
     rescue StandardError => e
-      base.merge(docker_error: "#{e.class}: #{e.message}")
+      (defined?(base) && base ? base : fallback_status).merge(docker_error: "#{e.class}: #{e.message}")
     end
 
     def stop!
@@ -122,6 +124,29 @@ module Agents
     def docker_capture(*args)
       stdout, stderr, status = Open3.capture3("docker", *args)
       { stdout: stdout, stderr: stderr, ok: status.success? }
+    end
+
+    def safe_config_value(name)
+      Agents::Config.public_send(name)
+    rescue KeyError => e
+      @configuration_error = "#{e.class}: #{e.message}"
+      nil
+    end
+
+    def fallback_status
+      {
+        configured: agent.container_name.present?,
+        container_name: agent.container_name,
+        image: agent.container_image,
+        endpoint_url: agent.endpoint_url,
+        configured_helixkit_app_url: nil,
+        volume_name: nil,
+        chaos_volume_name: nil,
+        docker_available: false,
+        container_exists: false,
+        identity_volume_exists: false,
+        chaos_volume_exists: false
+      }
     end
 
     def volume_exists?(name)
