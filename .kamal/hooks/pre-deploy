@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Ensure the hosted-agent runtime image exists on misc before deploying code
+# that may try to promote or restart agent sandboxes.
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+exec "${ROOT}/scripts/build-agent-runtime"

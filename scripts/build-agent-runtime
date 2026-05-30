@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Build the hosted-agent runtime image on the Docker host that will run the
+# promoted agents. This deliberately leaves the image on that host rather than
+# relying on Docker Hub: promoted sandboxes are sibling containers on the same
+# machine as HelixKit.
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+IMAGE="${HELIXKIT_AGENT_RUNTIME_IMAGE:-helixkit-agent-runtime}"
+COMPAT_IMAGE="${HELIXKIT_AGENT_RUNTIME_COMPAT_IMAGE:-dtenner/helix-kit-agent-runtime}"
+SHA_TAG="${1:-$(git -C "${ROOT}" rev-parse --short HEAD)}"
+DOCKER_HOST="${HELIXKIT_AGENT_RUNTIME_DOCKER_HOST:-ssh://misc}"
+
+echo "Building hosted-agent runtime on Docker host: ${DOCKER_HOST}"
+echo "Tags:"
+echo "  ${IMAGE}:${SHA_TAG}"
+echo "  ${IMAGE}:latest"
+echo "  ${COMPAT_IMAGE}:${SHA_TAG}"
+echo "  ${COMPAT_IMAGE}:latest"
+
+docker --host "${DOCKER_HOST}" build \
+  -t "${IMAGE}:${SHA_TAG}" \
+  -t "${IMAGE}:latest" \
+  -t "${COMPAT_IMAGE}:${SHA_TAG}" \
+  -t "${COMPAT_IMAGE}:latest" \
+  "${ROOT}/agent-runtime"

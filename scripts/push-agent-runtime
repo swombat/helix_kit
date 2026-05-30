@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Build the hosted-agent runtime image used by production promotions.
+#
+# This script is kept for compatibility with earlier notes that referred to
+# "pushing" the runtime. In the current deployment model the runtime image is
+# built directly on misc, because promoted agents run as sibling Docker
+# containers on that host and do not need the image to exist in Docker Hub.
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+exec "${ROOT}/scripts/build-agent-runtime" "$@"
