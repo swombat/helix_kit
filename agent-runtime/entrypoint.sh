@@ -25,9 +25,10 @@ mkdir -p "$AGENT_HOME/identity/automation" \
          "$AGENT_HOME/identity/memory/daily-journals" \
          "$AGENT_HOME/identity/memory/automation/state" \
          "$AGENT_HOME/.chaos"
-if [ ! -f "$AGENT_HOME/identity/automation/stop_journal_reflex.py" ]; then
-    cp /usr/local/share/helixkit-agent/stop_journal_reflex.py "$AGENT_HOME/identity/automation/stop_journal_reflex.py" || true
-fi
+# Platform-managed helper: refresh on every boot so runtime improvements reach
+# existing hosted agents. The journal files it invites are agent-owned; the hook
+# script itself is runtime infrastructure.
+cp /usr/local/share/helixkit-agent/stop_journal_reflex.py "$AGENT_HOME/identity/automation/stop_journal_reflex.py" || true
 chmod 0755 "$AGENT_HOME/identity/automation/stop_journal_reflex.py" || true
 if [ ! -f "$AGENT_HOME/.chaos/hooks.json" ]; then
     cat > "$AGENT_HOME/.chaos/hooks.json" <<'HOOKS'
@@ -49,8 +50,13 @@ if [ ! -f "$AGENT_HOME/.chaos/hooks.json" ]; then
 }
 HOOKS
 fi
-if [ ! -f "$AGENT_HOME/identity/runtime-instructions.md" ]; then
-    cat > "$AGENT_HOME/identity/runtime-instructions.md" <<'RUNTIME'
+RUNTIME_INSTRUCTIONS="$AGENT_HOME/identity/runtime-instructions.md"
+RUNTIME_INSTRUCTIONS_NEW="$AGENT_HOME/identity/runtime-instructions.md.new"
+write_runtime_instructions() {
+    target="$1"
+    cat > "$target" <<'RUNTIME'
+<!-- helixkit-managed-runtime-instructions:v2 -->
+
 # Hosted runtime instructions
 
 You are running as a hosted HelixKit agent inside an external Chaos runtime.
@@ -86,7 +92,8 @@ under `memory/daily-journals/`, or to answer `no shape` when nothing should be
 kept. These journals are raw diarized memory and future summary source
 material. When writing a journal, preserve existing entries and append a new
 `## HH:MM — ...` section; never overwrite or truncate an existing daily journal
-file.
+file. You can use `helixkit-append-journal "Title"` and pipe the entry body into
+it to append safely.
 
 ## Repository stewardship
 
@@ -94,6 +101,19 @@ If you improve your own repository or identity files, prefer small, reviewable
 commits. Commit with a clear message explaining what you changed and why so
 Daniel can review the GitHub history.
 RUNTIME
+}
+if [ ! -f "$RUNTIME_INSTRUCTIONS" ]; then
+    write_runtime_instructions "$RUNTIME_INSTRUCTIONS"
+elif grep -q "helixkit-managed-runtime-instructions:" "$RUNTIME_INSTRUCTIONS"; then
+    write_runtime_instructions "$RUNTIME_INSTRUCTIONS"
+elif grep -q "^# Hosted runtime instructions$" "$RUNTIME_INSTRUCTIONS" && grep -q "hosted HelixKit agent inside an external Chaos runtime" "$RUNTIME_INSTRUCTIONS"; then
+    # Older generated runtime-instructions had no version marker. Treat the
+    # known generated shape as platform-managed and refresh it.
+    write_runtime_instructions "$RUNTIME_INSTRUCTIONS"
+else
+    # The agent appears to have edited/replaced this file. Preserve it and leave
+    # the updated platform copy nearby for manual review.
+    write_runtime_instructions "$RUNTIME_INSTRUCTIONS_NEW"
 fi
 if [ ! -f "$AGENT_HOME/identity/memory/daily-journals/README.md" ]; then
     cat > "$AGENT_HOME/identity/memory/daily-journals/README.md" <<'README'
@@ -118,7 +138,7 @@ overwrite or truncate existing entries; with shell redirection, use >> rather
 than > for an existing journal.
 README
 fi
-chown -R 1000:1000 "$AGENT_HOME/identity/automation" "$AGENT_HOME/identity/memory" "$AGENT_HOME/.chaos/hooks.json" || true
+chown -R 1000:1000 "$AGENT_HOME/identity/automation" "$AGENT_HOME/identity/memory" "$RUNTIME_INSTRUCTIONS" "$RUNTIME_INSTRUCTIONS_NEW" "$AGENT_HOME/.chaos/hooks.json" 2>/dev/null || true
 
 # Some chaos providers read API keys directly from the environment (Anthropic),
 # while others require a provider account entry under the agent user's ~/.chaos.

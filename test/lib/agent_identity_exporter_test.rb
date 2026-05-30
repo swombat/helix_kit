@@ -33,6 +33,8 @@ class AgentIdentityExporterTest < ActiveSupport::TestCase
     assert_includes files["runtime-instructions.md"], "soul.md` first"
     assert_includes files["runtime-instructions.md"], "Legacy memories"
     assert_includes files["runtime-instructions.md"], "never overwrite"
+    assert_includes files["runtime-instructions.md"], "helixkit-managed-runtime-instructions:v2"
+    assert_includes files["runtime-instructions.md"], "helixkit-append-journal"
     # Sovereignty guard: runtime-instructions describe the runtime around the
     # agent's identity; they shouldn't import the "system prompt" vocabulary
     # back onto soul.md, and they shouldn't frame triggers as authority asking.

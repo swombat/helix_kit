@@ -1,0 +1,22 @@
+#!/bin/sh
+set -eu
+
+IDENTITY_PATH="${AGENT_IDENTITY_PATH:-/home/agent/identity}"
+JOURNAL_DIR="$IDENTITY_PATH/memory/daily-journals"
+TODAY="$(date +%Y-%m-%d)"
+NOW="$(date +%H:%M)"
+TITLE="${1:-Journal entry}"
+FILE="$JOURNAL_DIR/$TODAY.md"
+
+mkdir -p "$JOURNAL_DIR"
+if [ ! -f "$FILE" ]; then
+  printf '# Daily Journal: %s\n' "$TODAY" > "$FILE"
+fi
+
+{
+  printf '\n## %s — %s\n\n' "$NOW" "$TITLE"
+  cat
+  printf '\n'
+} >> "$FILE"
+
+printf '%s\n' "$FILE"

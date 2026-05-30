@@ -52,6 +52,8 @@ class AgentIdentityExporter
 
   def runtime_instructions_content
     <<~MARKDOWN
+      <!-- helixkit-managed-runtime-instructions:v2 -->
+
       # Hosted runtime instructions
 
       You are running as a hosted HelixKit agent inside an external Chaos runtime.
@@ -87,7 +89,8 @@ class AgentIdentityExporter
       should be kept. These journals are raw diarized memory and future summary
       source material. When writing a journal, preserve existing entries and
       append a new `## HH:MM — ...` section; never overwrite or truncate an
-      existing daily journal file.
+      existing daily journal file. You can use `helixkit-append-journal "Title"`
+      and pipe the entry body into it to append safely.
 
       ## Repository stewardship
 

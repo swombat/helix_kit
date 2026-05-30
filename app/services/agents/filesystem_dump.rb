@@ -2,7 +2,7 @@ module Agents
   class FilesystemDump
     require "shellwords"
 
-    MAX_ENTRIES = 120
+    MAX_ENTRIES = 5_000
     MAX_DEPTH = 6
     MAX_FILE_BYTES = 4_000
     IDENTITY_ROOT = "/home/agent/identity"
@@ -29,18 +29,51 @@ module Agents
       return unavailable("container is not configured") if container_home? && agent.container_name.blank?
       return unavailable("container is not running") if container_home? && !container_running?
 
-      entries = list_entries.first(MAX_ENTRIES).map { |entry| entry_json(entry) }
+      entries = list_entries.map { |entry| entry_json(entry) }
 
       {
         root: root,
         volume_name: volume.volume_name,
         container_name: agent.container_name,
         target: target,
-        truncated: list_entries.length > MAX_ENTRIES,
+        truncated: truncated?,
         entries: entries
       }
     rescue StandardError => e
       unavailable("#{e.class}: #{e.message}")
+    end
+
+    def file_preview_json(path)
+      return unavailable_preview("agent uuid missing") if agent.uuid.blank?
+
+      relative_path = normalize_relative_path(path)
+      return unavailable_preview("invalid path") if relative_path.blank?
+      return unavailable_preview("unsupported file type") unless previewable_path?(relative_path)
+
+      return unavailable_preview("Docker daemon is not reachable") unless docker_ok?
+      return unavailable_preview("identity volume is missing") if identity? && !volume_exists?
+      return unavailable_preview("container is not configured") if container_home? && agent.container_name.blank?
+      return unavailable_preview("container is not running") if container_home? && !container_running?
+
+      result = docker_run("head", "-c", MAX_FILE_BYTES.to_s, relative_path)
+      return unavailable_preview("could not read file") unless result[:ok]
+
+      content = result[:stdout].to_s
+      return unavailable_preview("binary-looking content") if content.include?("\u0000")
+
+      size_result = docker_run("wc", "-c", relative_path)
+      size = size_result[:ok] ? size_result[:stdout].to_s.split.first.to_i : nil
+
+      {
+        path: relative_path.delete_prefix("./"),
+        target: target,
+        previewable: true,
+        content: content,
+        size_bytes: size,
+        truncated: size.present? && size > MAX_FILE_BYTES
+      }
+    rescue StandardError => e
+      unavailable_preview("#{e.class}: #{e.message}")
     end
 
     private
@@ -54,6 +87,24 @@ module Agents
         error: error,
         entries: []
       }
+    end
+
+    def unavailable_preview(error)
+      {
+        target: target,
+        error: error,
+        previewable: false
+      }
+    end
+
+    def normalize_relative_path(path)
+      cleaned = path.to_s.delete_prefix("./")
+      return nil if cleaned.blank? || cleaned.start_with?("/")
+
+      parts = cleaned.split("/")
+      return nil if parts.any? { |part| part.blank? || part == "." || part == ".." }
+
+      "./#{cleaned}"
     end
 
     def docker_ok?
@@ -74,16 +125,30 @@ module Agents
         result = find_entries
         return [] unless result[:ok]
 
-        result[:stdout]
-          .lines
-          .map(&:strip)
-          .reject { |path| path.blank? || path == "." }
-          .sort
+        parsed = result[:stdout].lines.filter_map do |line|
+          type, size, path = line.chomp.split("\t", 3)
+          next if path.blank? || path == "."
+
+          {
+            path: path,
+            type: type == "directory" ? "directory" : "file",
+            size_bytes: size.present? ? size.to_i : nil
+          }
+        end
+
+        @truncated = parsed.length > MAX_ENTRIES
+        parsed.first(MAX_ENTRIES)
       end
     end
 
-    def entry_json(relative_path)
-      type = directory?(relative_path) ? "directory" : "file"
+    def truncated?
+      list_entries
+      @truncated == true
+    end
+
+    def entry_json(entry)
+      relative_path = entry.fetch(:path)
+      type = entry.fetch(:type)
       json = {
         path: relative_path.delete_prefix("./"),
         name: File.basename(relative_path),
@@ -93,42 +158,9 @@ module Agents
 
       return json if type == "directory"
 
-      json.merge!(size_bytes: file_size(relative_path))
-      json.merge!(file_preview(relative_path))
+      json.merge!(size_bytes: entry[:size_bytes])
+      json.merge!(previewable: previewable_path?(relative_path))
       json
-    end
-
-    def directory?(relative_path)
-      docker_run("test", "-d", relative_path)[:ok]
-    end
-
-    def file_size(relative_path)
-      result = docker_run("wc", "-c", relative_path)
-      return nil unless result[:ok]
-
-      result[:stdout].to_s.split.first.to_i
-    end
-
-    def file_preview(relative_path)
-      return { previewable: false, skip_reason: "unsupported file type" } unless previewable_path?(relative_path)
-
-      result = docker_run("head", "-c", MAX_FILE_BYTES.to_s, relative_path)
-      return { previewable: false, skip_reason: "could not read file" } unless result[:ok]
-
-      content = result[:stdout].to_s
-      return { previewable: false, skip_reason: "binary-looking content" } if content.include?("\u0000")
-
-      size = file_size(relative_path)
-      {
-        previewable: true,
-        content: content,
-        truncated: size.present? && size > MAX_FILE_BYTES
-      }
-    end
-
-    def previewable_path?(relative_path)
-      extension = File.extname(relative_path)
-      PREVIEWABLE_EXTENSIONS.include?(extension) || extension.blank?
     end
 
     def docker_run(*command)
@@ -146,7 +178,7 @@ module Agents
     def find_entries
       return container_home_find if container_home?
 
-      docker_run("find", ".", "-maxdepth", MAX_DEPTH.to_s, "-print")
+      docker_run("sh", "-c", metadata_script("find . -maxdepth #{MAX_DEPTH} -print"))
     end
 
     def container_home_find
@@ -155,8 +187,17 @@ module Agents
         agent.container_name,
         "sh",
         "-c",
-        "cd /home/agent && find . -maxdepth #{MAX_DEPTH} \\( -path './.chaos' -o -path './.chaos/*' \\) -prune -o -print"
+        "cd /home/agent && #{metadata_script("find . -maxdepth #{MAX_DEPTH} \\( -path './.chaos' -o -path './.chaos/*' \\) -prune -o -print")}"
       )
+    end
+
+    def metadata_script(find_command)
+      %(#{find_command} | sort | head -n #{MAX_ENTRIES + 2} | while IFS= read -r path; do [ "$path" = "." ] && continue; if [ -d "$path" ]; then printf 'directory\\t\\t%s\\n' "$path"; else size=$(wc -c < "$path" 2>/dev/null || true); printf 'file\\t%s\\t%s\\n' "$size" "$path"; fi; done)
+    end
+
+    def previewable_path?(relative_path)
+      extension = File.extname(relative_path)
+      PREVIEWABLE_EXTENSIONS.include?(extension) || extension.blank?
     end
 
     def container_home_run(*command)

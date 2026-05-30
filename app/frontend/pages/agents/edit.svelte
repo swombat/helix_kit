@@ -13,6 +13,7 @@
     accountAgentMemoryProtectionPath,
     beginPromoteAccountAgentPath,
     cancelPromoteAccountAgentPath,
+    sendOrientationAccountAgentPath,
     sendTestRequestAccountAgentPath,
   } from '@/routes';
   import { useSync } from '$lib/use-sync';
@@ -55,10 +56,19 @@
   let runtimeManaged = $derived(agent.runtime === 'external' || agent.runtime === 'offline');
   let promoting = $state(false);
   let sendingTestRequest = $state(false);
+  let sendingOrientation = $state(false);
   let testResult = $state(null);
-  let sandboxStatus = $state({});
+  let orientationResult = $state(null);
+  let sandboxStatus = $state({
+    docker_available: null,
+    image_present: agent.container_image ? null : false,
+    container_exists: agent.container_name && (agent.runtime === 'external' || agent.runtime === 'migrating'),
+    identity_volume_exists: agent.uuid ? null : false,
+    chaos_volume_exists: agent.uuid ? null : false,
+  });
   let filesystemDump = $state({});
   let containerFilesystemDump = $state({});
+  let filePreviews = $state({});
   let diagnosticsLoading = $state(false);
   let diagnosticsLoaded = $state(false);
   let diagnosticsError = $state(null);
@@ -69,12 +79,14 @@
       description:
         'Read-only dump of the running container home directory. The persisted Chaos state folder is intentionally hidden.',
       dump: containerFilesystemDump,
+      target: 'container_home',
       fallbackRoot: '/home/agent',
     },
     {
       title: 'Identity filesystem',
       description: 'Read-only dump of the mounted identity filesystem.',
       dump: filesystemDump,
+      target: 'identity',
       fallbackRoot: '/home/agent/identity',
     },
   ]);
@@ -91,6 +103,7 @@
   let beginPromotePath = $derived(beginPromoteAccountAgentPath(account.id, agent.id));
   let cancelPromotePath = $derived(cancelPromoteAccountAgentPath(account.id, agent.id));
   let testRequestPath = $derived(sendTestRequestAccountAgentPath(account.id, agent.id));
+  let orientationPath = $derived(sendOrientationAccountAgentPath(account.id, agent.id));
 
   $effect(() => {
     if (activeTab === 'hosting' && !diagnosticsLoaded && !diagnosticsLoading) {
@@ -241,6 +254,39 @@
       });
   }
 
+
+  function filePreviewKey(section, entry) {
+    return `${section.target}:${entry.path}`;
+  }
+
+  function filePreviewUrl(section, entry) {
+    const url = new URL(`${hostingDiagnosticsUrl}/file_preview`, window.location.origin);
+    url.searchParams.set('target', section.target);
+    url.searchParams.set('path', entry.path);
+    return url.toString();
+  }
+
+  function loadFilePreview(section, entry, event) {
+    if (!event.currentTarget.open || !entry.previewable || !hostingDiagnosticsUrl) return;
+
+    const key = filePreviewKey(section, entry);
+    if (filePreviews[key]?.loading || filePreviews[key]?.loaded) return;
+
+    filePreviews = { ...filePreviews, [key]: { loading: true } };
+
+    fetch(filePreviewUrl(section, entry), { headers: { Accept: 'application/json' } })
+      .then((response) => response.json().then((body) => ({ ok: response.ok, body })))
+      .then(({ ok, body }) => {
+        filePreviews = {
+          ...filePreviews,
+          [key]: ok ? { ...body, loaded: true } : { error: body.error || 'Could not load preview', loaded: true },
+        };
+      })
+      .catch((error) => {
+        filePreviews = { ...filePreviews, [key]: { error: error.message, loaded: true } };
+      });
+  }
+
   function beginPromotion() {
     promoting = true;
     router.post(
@@ -280,6 +326,31 @@
       })
       .finally(() => {
         sendingTestRequest = false;
+      });
+  }
+
+  function sendOrientation() {
+    sendingOrientation = true;
+    orientationResult = null;
+
+    fetch(orientationPath, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': csrfToken(),
+      },
+    })
+      .then((response) => response.json().then((body) => ({ ok: response.ok, body })))
+      .then(({ ok, body }) => {
+        orientationResult = ok ? body : { status: 'transport_failed', error: body.error || 'Orientation failed' };
+        router.reload({ only: ['agent', 'runtime_interactions'], preserveScroll: true });
+        loadHostingDiagnostics();
+      })
+      .catch((error) => {
+        orientationResult = { status: 'transport_failed', error: error.message };
+      })
+      .finally(() => {
+        sendingOrientation = false;
       });
   }
 </script>
@@ -406,7 +477,28 @@
                     Identity fields in HelixKit are now read-only backups. The running agent's identity lives in its
                     hosted filesystem below.
                   </p>
+                  <div class="rounded border bg-muted/30 p-3 text-sm">
+                    <div class="font-medium">First-wake orientation</div>
+                    {#if agent.oriented_at}
+                      <p class="mt-1 text-muted-foreground">Oriented at {agent.oriented_at}.</p>
+                    {:else if orientationResult && orientationResult.status === 'orientation_sent'}
+                      <p class="mt-1 text-muted-foreground">
+                        Orientation sent. No first journal entry has been detected yet.
+                      </p>
+                    {:else}
+                      <p class="mt-1 text-muted-foreground">
+                        Not yet oriented. Send an invitation for the agent to read its files and find its footing.
+                      </p>
+                    {/if}
+                  </div>
                   <div class="flex flex-wrap gap-3">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onclick={sendOrientation}
+                      disabled={sendingOrientation || agent.health_state !== 'healthy'}>
+                      {sendingOrientation ? 'Orienting...' : agent.oriented_at ? 'Re-send orientation' : 'Send orientation'}
+                    </Button>
                     <Button type="button" onclick={sendTestRequest} disabled={sendingTestRequest}>
                       {sendingTestRequest ? 'Sending...' : 'Send test trigger'}
                     </Button>
@@ -416,6 +508,29 @@
                       </a>
                     {/if}
                   </div>
+                </div>
+              {/if}
+
+              {#if orientationResult}
+                <div class="rounded border bg-muted p-3 text-sm">
+                  <div>Orientation: <span class="font-mono">{orientationResult.status}</span></div>
+                  {#if orientationResult.oriented_at}<div>Oriented at: {orientationResult.oriented_at}</div>{/if}
+                  {#if orientationResult.oriented === false}
+                    <div class="text-muted-foreground">No new or grown daily journal file was detected.</div>
+                  {/if}
+                  {#if orientationResult.error}<div class="text-destructive">{orientationResult.error}</div>{/if}
+                  {#if orientationResult.runtime_stderr}
+                    <details class="mt-2">
+                      <summary class="cursor-pointer font-medium text-destructive">Runtime stderr</summary>
+                      <pre class="mt-1 overflow-x-auto whitespace-pre-wrap text-xs">{orientationResult.runtime_stderr}</pre>
+                    </details>
+                  {/if}
+                  {#if orientationResult.runtime_stdout}
+                    <details class="mt-2">
+                      <summary class="cursor-pointer font-medium">Runtime stdout</summary>
+                      <pre class="mt-1 overflow-x-auto whitespace-pre-wrap text-xs">{orientationResult.runtime_stdout}</pre>
+                    </details>
+                  {/if}
                 </div>
               {/if}
 
@@ -463,7 +578,7 @@
               <div class="grid gap-2 text-sm sm:grid-cols-2">
                 <p>
                   Docker daemon:
-                  <span class="font-medium">{sandboxStatus.docker_available ? 'reachable' : 'not reachable'}</span>
+                  <span class="font-medium">{sandboxStatus.docker_available === null ? 'checking' : sandboxStatus.docker_available ? 'reachable' : 'not reachable'}</span>
                 </p>
                 {#if sandboxStatus.docker_version}
                   <p>Docker version: <span class="font-mono">{sandboxStatus.docker_version}</span></p>
@@ -479,10 +594,10 @@
                   </p>
                 {/if}
                 <p>
-                  Runtime image present: <span class="font-medium">{sandboxStatus.image_present ? 'yes' : 'no'}</span>
+                  Runtime image present: <span class="font-medium">{sandboxStatus.image_present === null ? 'checking' : sandboxStatus.image_present ? 'yes' : 'no'}</span>
                 </p>
                 <p>
-                  Container exists: <span class="font-medium">{sandboxStatus.container_exists ? 'yes' : 'no'}</span>
+                  Container exists: <span class="font-medium">{sandboxStatus.container_exists === null ? 'checking' : sandboxStatus.container_exists ? 'yes' : 'no'}</span>
                 </p>
                 {#if sandboxStatus.container_state}
                   <p>Container state: <span class="font-mono">{sandboxStatus.container_state}</span></p>
@@ -492,11 +607,11 @@
                 {/if}
                 <p>
                   Identity volume:
-                  <span class="font-medium">{sandboxStatus.identity_volume_exists ? 'present' : 'missing'}</span>
+                  <span class="font-medium">{sandboxStatus.identity_volume_exists === null ? 'checking' : sandboxStatus.identity_volume_exists ? 'present' : 'missing'}</span>
                 </p>
                 <p>
                   Chaos volume: <span class="font-medium"
-                    >{sandboxStatus.chaos_volume_exists ? 'present' : 'missing'}</span>
+                    >{sandboxStatus.chaos_volume_exists === null ? 'checking' : sandboxStatus.chaos_volume_exists ? 'present' : 'missing'}</span>
                 </p>
               </div>
               {#if sandboxStatus.docker_error}
@@ -548,23 +663,28 @@
                       {:else}
                         <details
                           class="rounded border bg-muted/40 p-2 text-sm"
-                          style={`margin-left: ${entry.depth * 1.25}rem`}>
+                          style={`margin-left: ${entry.depth * 1.25}rem`}
+                          ontoggle={(event) => loadFilePreview(section, entry, event)}>
                           <summary class="cursor-pointer font-mono text-xs">
                             📄 {entry.name}
                             {#if entry.size_bytes !== null && entry.size_bytes !== undefined}
                               <span class="text-muted-foreground">({entry.size_bytes} bytes)</span>
                             {/if}
                           </summary>
-                          {#if entry.previewable}
+                          {#if !entry.previewable}
+                            <p class="mt-2 text-xs text-muted-foreground">Preview unavailable for this file type.</p>
+                          {:else if filePreviews[filePreviewKey(section, entry)]?.loading}
+                            <p class="mt-2 text-xs text-muted-foreground">Loading preview…</p>
+                          {:else if filePreviews[filePreviewKey(section, entry)]?.error}
+                            <p class="mt-2 text-xs text-destructive">{filePreviews[filePreviewKey(section, entry)].error}</p>
+                          {:else if filePreviews[filePreviewKey(section, entry)]?.loaded}
                             <pre
-                              class="mt-2 max-h-96 overflow-auto whitespace-pre-wrap rounded bg-background p-3 text-xs">{entry.content}</pre>
-                            {#if entry.truncated}
+                              class="mt-2 max-h-96 overflow-auto whitespace-pre-wrap rounded bg-background p-3 text-xs">{filePreviews[filePreviewKey(section, entry)].content}</pre>
+                            {#if filePreviews[filePreviewKey(section, entry)].truncated}
                               <p class="mt-1 text-xs text-muted-foreground">Preview truncated.</p>
                             {/if}
                           {:else}
-                            <p class="mt-2 text-xs text-muted-foreground">
-                              {entry.skip_reason || 'Preview unavailable.'}
-                            </p>
+                            <p class="mt-2 text-xs text-muted-foreground">Open to load preview.</p>
                           {/if}
                         </details>
                       {/if}

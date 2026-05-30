@@ -18,7 +18,7 @@ class Agents::PromoteControllerTest < ActionDispatch::IntegrationTest
       end
     end
 
-    assert_redirected_to promote_account_agent_path(@account, @agent)
+    assert_redirected_to edit_account_agent_path(@account, @agent, tab: "hosting")
     @agent.reload
 
     assert_equal "migrating", @agent.runtime
@@ -50,7 +50,7 @@ class Agents::PromoteControllerTest < ActionDispatch::IntegrationTest
       end
     end
 
-    assert_redirected_to promote_account_agent_path(@account, @agent)
+    assert_redirected_to edit_account_agent_path(@account, @agent, tab: "hosting")
   end
 
   test "cancel returns agent to inline and revokes scoped key" do
@@ -98,6 +98,42 @@ class Agents::PromoteControllerTest < ActionDispatch::IntegrationTest
     assert_equal "runtime_reachable", json["status"]
     assert_predicate json["conversation_id"], :present?
     assert_requested trigger
+  end
+
+  test "send orientation probes external runtime and returns orientation status" do
+    @agent.update!(
+      runtime: "external",
+      uuid: SecureRandom.uuid_v7,
+      endpoint_url: "https://agent.example.com",
+      trigger_bearer_token: "tr_valid",
+      health_state: "healthy",
+      consecutive_health_failures: 0
+    )
+    fake_journal_status = Object.new
+    def fake_journal_status.snapshot = {}
+    def fake_journal_status.grown_since?(_before) = true
+    trigger = stub_request(:post, "https://agent.example.com/trigger")
+      .with(headers: { "Authorization" => "Bearer tr_valid" })
+      .to_return(status: 200, body: { status: "ok", stdout: "oriented" }.to_json)
+
+    Agents::DailyJournalStatus.stub :new, fake_journal_status do
+      post send_orientation_account_agent_path(@account, @agent)
+    end
+
+    assert_response :success
+    json = JSON.parse(response.body)
+    assert_equal "orientation_sent", json["status"]
+    assert_equal true, json["oriented"]
+    assert_predicate @agent.reload.oriented_at, :present?
+    assert_requested trigger
+  end
+
+  test "send orientation requires healthy external agent" do
+    @agent.update!(runtime: "inline")
+
+    post send_orientation_account_agent_path(@account, @agent)
+
+    assert_response :unprocessable_entity
   end
 
 end

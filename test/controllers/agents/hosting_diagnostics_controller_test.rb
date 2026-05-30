@@ -39,4 +39,44 @@ class Agents::HostingDiagnosticsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "/home/agent", body.dig("container_filesystem_dump", "root")
   end
 
+  test "show marks external agent oriented when daily journals already exist" do
+    @agent.update!(runtime: "external", uuid: SecureRandom.uuid_v7, container_name: "hk-agent-test", health_state: "healthy")
+    sandbox = Struct.new(:status).new({ docker_available: true })
+    dump_factory = lambda do |_agent, target: :identity|
+      Struct.new(:as_json).new({ target: target, root: target == :container_home ? "/home/agent" : "/home/agent/identity", entries: [] })
+    end
+    journal_status = Object.new
+    def journal_status.entries? = true
+
+    Agents::Sandbox.stub(:new, ->(_agent) { sandbox }) do
+      Agents::FilesystemDump.stub(:new, dump_factory) do
+        Agents::DailyJournalStatus.stub(:new, journal_status) do
+          get account_agent_hosting_diagnostics_path(@account, @agent), as: :json
+        end
+      end
+    end
+
+    assert_response :success
+    assert_predicate @agent.reload.oriented_at, :present?
+  end
+
+  test "file preview returns lazy filesystem preview" do
+    preview_factory = lambda do |_agent, target: :identity|
+      Object.new.tap do |preview|
+        preview.define_singleton_method(:file_preview_json) do |_path|
+          { target: target, path: "soul.md", content: "# Soul\n", previewable: true }
+        end
+      end
+    end
+
+    Agents::FilesystemDump.stub(:new, preview_factory) do
+      get file_preview_account_agent_hosting_diagnostics_path(@account, @agent), params: { target: "identity", path: "soul.md" }, as: :json
+    end
+
+    assert_response :success
+    body = JSON.parse(response.body)
+    assert_equal "# Soul\n", body["content"]
+    assert_equal "identity", body["target"]
+  end
+
 end

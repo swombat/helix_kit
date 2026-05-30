@@ -75,10 +75,10 @@ class Agent < ApplicationRecord
                   :memories_count, :memory_token_summary, :thinking_enabled, :thinking_budget,
                   :telegram_bot_username, :telegram_configured?,
                   :voiced?, :voice_id, :runtime, :endpoint_url, :last_announced_at,
-                  :last_health_check_at, :health_state, :consecutive_health_failures,
-                  :github_repo_url, :github_repo_owner, :github_repo_name,
-                  :github_deploy_key_id, :container_name, :sandbox_host, :container_image,
-                  :sandbox_last_error, :sandbox_last_error_at
+                   :last_health_check_at, :health_state, :consecutive_health_failures,
+                   :github_repo_url, :github_repo_owner, :github_repo_name,
+                   :github_deploy_key_id, :container_name, :sandbox_host, :container_image,
+                   :sandbox_last_error, :sandbox_last_error_at, :oriented_at
 
   def self.json_attrs_for(options = nil)
     return json_attrs unless options&.dig(:as) == :list

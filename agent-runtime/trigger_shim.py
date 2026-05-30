@@ -40,7 +40,17 @@ import os
 import subprocess
 import logging
 from pathlib import Path
-from flask import Flask, request, jsonify, abort
+try:
+    from flask import Flask, request, jsonify, abort
+except ModuleNotFoundError:  # Allows prompt-building tests without Flask installed.
+    Flask = None
+    request = None
+
+    def jsonify(*_args, **_kwargs):
+        raise RuntimeError("Flask is required to serve trigger_shim.py")
+
+    def abort(*_args, **_kwargs):
+        raise RuntimeError("Flask is required to serve trigger_shim.py")
 
 # ----- config -----
 AGENT_ID = os.environ.get("AGENT_ID", "unknown")
@@ -54,6 +64,9 @@ SHIM_PORT = int(os.environ.get("SHIM_PORT", "4000"))
 CHAOS_BIN = os.environ.get("CHAOS_BIN", "/usr/local/bin/chaos")
 CHAOS_TIMEOUT_SECS = int(os.environ.get("CHAOS_TIMEOUT_SECS", "600"))
 IDENTITY_FILE_LIMIT = 80_000
+JOURNAL_MOST_RECENT_LIMIT = 12_000
+JOURNAL_MOST_RECENT_TAIL = 10_000
+JOURNAL_TOTAL_LIMIT = 16_000
 
 logging.basicConfig(
     level=logging.INFO,
@@ -65,16 +78,14 @@ if not TRIGGER_BEARER_TOKEN:
     log.error("TRIGGER_BEARER_TOKEN not set; shim will reject all /trigger calls. Refusing to start.")
     raise SystemExit(2)
 
-app = Flask(__name__)
+app = Flask(__name__) if Flask else None
 
 
 # ----- routes -----
-@app.get("/health")
 def health():
     return jsonify({"status": "ok", "agent_id": AGENT_ID, "version": _chaos_version()})
 
 
-@app.post("/trigger")
 def trigger():
     auth = request.headers.get("Authorization", "")
     if auth != f"Bearer {TRIGGER_BEARER_TOKEN}":
@@ -145,6 +156,11 @@ def trigger():
     return jsonify(response), (200 if result.returncode == 0 else 500)
 
 
+if app:
+    app.get("/health")(health)
+    app.post("/trigger")(trigger)
+
+
 # ----- helpers -----
 def _tail(s: str, n: int) -> str:
     """Trim long stdout/stderr so HelixKit doesn't choke on huge payloads."""
@@ -179,6 +195,10 @@ def identity_context() -> str:
         if content:
             sections.append(f"## {label}: identity/{filename}\n\n{content}")
 
+    journals = recent_journal_context()
+    if journals:
+        sections.append(journals)
+
     return "\n\n".join(sections)
 
 
@@ -196,6 +216,84 @@ def read_identity_file(filename: str) -> str:
     return content[:IDENTITY_FILE_LIMIT] + f"\n\n_[truncated {len(content) - IDENTITY_FILE_LIMIT} chars]_"
 
 
+def recent_journal_context() -> str:
+    """Read back recent diarized memory from the identity volume.
+
+    This is memory, not instruction: the most recent daily journal is included
+    verbatim (modulo tail truncation), and the previous two days show headings
+    only as a cheap index for deeper filesystem reads.
+    """
+    journal_dir = AGENT_IDENTITY_PATH / "memory" / "daily-journals"
+    try:
+        files = sorted(journal_dir.glob("????-??-??.md"), reverse=True)
+    except Exception as e:
+        return f"## Your recent journal entries\n\n_Could not list {journal_dir}: {e}_"
+
+    if not files:
+        return ""
+
+    sections = [
+        "## Your recent journal entries",
+        (
+            "Diarized memory you wrote on earlier turns. The most recent day is "
+            "shown in full; earlier days show entry titles only — read the full "
+            "file under `memory/daily-journals/` if a title is relevant."
+        ),
+    ]
+
+    remaining = JOURNAL_TOTAL_LIMIT
+    latest = render_latest_journal(files[0])
+    if latest:
+        latest = cap_text(latest, remaining)
+        sections.append(latest)
+        remaining -= len(latest)
+
+    for path in files[1:3]:
+        if remaining <= 0:
+            break
+        headings = render_journal_headings(path)
+        if headings:
+            headings = cap_text(headings, remaining)
+            sections.append(headings)
+            remaining -= len(headings)
+
+    return "\n\n".join(sections)
+
+
+def render_latest_journal(path: Path) -> str:
+    try:
+        content = path.read_text()
+    except Exception as e:
+        return f"### {path.name}\n\n_Could not read {path}: {e}_"
+
+    if len(content) > JOURNAL_MOST_RECENT_LIMIT:
+        first_line = content.splitlines()[0] if content.splitlines() else f"# {path.name}"
+        omitted = len(content) - JOURNAL_MOST_RECENT_TAIL
+        content = f"{first_line}\n\n_[older content truncated: {omitted} chars]_\n\n{content[-JOURNAL_MOST_RECENT_TAIL:]}"
+
+    return f"### {path.name} — full recent day\n\n{content}"
+
+
+def render_journal_headings(path: Path) -> str:
+    try:
+        headings = [line.rstrip() for line in path.read_text().splitlines() if line.startswith("## ")]
+    except Exception as e:
+        return f"### {path.name} — headings only\n\n_Could not read {path}: {e}_"
+
+    if not headings:
+        return f"### {path.name} — headings only\n\n_No entry headings found._"
+
+    return f"### {path.name} — headings only\n\n" + "\n".join(headings)
+
+
+def cap_text(text: str, limit: int) -> str:
+    if len(text) <= limit:
+        return text
+    if limit <= 200:
+        return text[:limit]
+    return text[: limit - 80] + f"\n\n_[journal section truncated to fit {JOURNAL_TOTAL_LIMIT} chars]_"
+
+
 def _chaos_version() -> str:
     try:
         out = subprocess.run([CHAOS_BIN, "--version"], capture_output=True, text=True, timeout=5)
@@ -205,6 +303,9 @@ def _chaos_version() -> str:
 
 
 if __name__ == "__main__":
+    if app is None:
+        raise SystemExit("Flask is required to serve trigger_shim.py")
+
     log.info(f"chaos-agent shim starting: port={SHIM_PORT}, chaos={_chaos_version()}")
     # 0.0.0.0 because we're inside a container; the daemon binds to all interfaces
     # and Docker handles which are externally exposed.

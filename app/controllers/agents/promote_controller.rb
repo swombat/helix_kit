@@ -166,6 +166,30 @@ class Agents::PromoteController < ApplicationController
     render json: { error: e.message }, status: :unprocessable_entity
   end
 
+  def send_orientation
+    unless @agent.external? && @agent.health_state == "healthy"
+      render json: { error: "Agent must be healthy and externally hosted before orientation" }, status: :unprocessable_entity
+      return
+    end
+
+    result = ExternalAgentOrientationRequest.new(
+      agent: @agent,
+      requested_by: Current.user.email_address
+    ).call
+
+    ok = result[:status].to_i.between?(200, 299)
+    render json: {
+      status: ok ? "orientation_sent" : "transport_failed",
+      transport_status: result[:status],
+      oriented: result[:oriented],
+      oriented_at: result[:oriented_at],
+      error: result[:error] || result.dig(:body, "error"),
+      runtime_status: result.dig(:body, "status"),
+      runtime_stderr: result.dig(:body, "stderr"),
+      runtime_stdout: result.dig(:body, "stdout")
+    }, status: ok ? :ok : :bad_gateway
+  end
+
   private
 
   def set_agent

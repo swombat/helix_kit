@@ -60,8 +60,9 @@ RUN mkdir -p /usr/local/share/helixkit-agent
 COPY --chown=agent:agent trigger_shim.py /home/agent/trigger_shim.py
 COPY stop_journal_reflex.py /usr/local/share/helixkit-agent/stop_journal_reflex.py
 COPY helixkit-post-message /usr/local/bin/helixkit-post-message
+COPY helixkit-append-journal /usr/local/bin/helixkit-append-journal
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod 0755 /usr/local/bin/entrypoint.sh /usr/local/bin/helixkit-post-message \
+RUN chmod 0755 /usr/local/bin/entrypoint.sh /usr/local/bin/helixkit-post-message /usr/local/bin/helixkit-append-journal \
     && chmod 0644 /usr/local/share/helixkit-agent/stop_journal_reflex.py
 
 # Canonical mounted volumes for hosted agents.

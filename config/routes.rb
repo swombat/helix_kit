@@ -91,10 +91,13 @@ Rails.application.routes.draw do
         post "promote/cancel", to: "agents/promote#cancel", as: :cancel_promote
         get "promote/identity_export", to: "agents/promote#identity_export", as: :identity_export
         post "promote/send_test_request", to: "agents/promote#send_test_request", as: :send_test_request
+        post "promote/send_orientation", to: "agents/promote#send_orientation", as: :send_orientation
       end
 
       scope module: :agents do
-        resource :hosting_diagnostics, only: :show
+        resource :hosting_diagnostics, only: :show do
+          get :file_preview
+        end
         resource :refinement, only: :create
         resource :telegram_test, only: :create
         resource :telegram_webhook, only: :create

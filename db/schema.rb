@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_25_183000) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_28_103000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -211,6 +211,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_25_183000) do
     t.datetime "migration_started_at"
     t.string "model_id", default: "openrouter/auto", null: false
     t.string "name", null: false
+    t.datetime "oriented_at"
     t.bigint "outbound_api_key_id"
     t.string "outbound_api_token"
     t.boolean "paused", default: false, null: false
