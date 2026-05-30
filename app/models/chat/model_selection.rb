@@ -22,6 +22,13 @@ module Chat::ModelSelection
       thinking: { supported: true }
     },
     {
+      model_id: "anthropic/claude-opus-4.8",
+      label: "Claude Opus 4.8",
+      group: "Top Models",
+      provider_model_id: "claude-opus-4-8",
+      thinking: { supported: true, requires_direct_api: true }
+    },
+    {
       model_id: "anthropic/claude-opus-4.7",
       label: "Claude Opus 4.7",
       group: "Top Models",

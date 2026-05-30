@@ -10,6 +10,13 @@ module Agents
       assert_equal "claude-opus-4-7", Agents::Sandbox.chaos_model_for(agent)
     end
 
+    test "maps Claude Opus 4.8 to direct provider id" do
+      agent = agents(:research_assistant)
+      agent.model_id = "anthropic/claude-opus-4.8"
+
+      assert_equal "claude-opus-4-8", Agents::Sandbox.chaos_model_for(agent)
+    end
+
     test "falls back to provider suffix for direct provider models" do
       agent = agents(:research_assistant)
       agent.model_id = "anthropic/claude-sonnet-4-5"

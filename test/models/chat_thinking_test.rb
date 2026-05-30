@@ -198,6 +198,17 @@ class ChatThinkingTest < ActiveSupport::TestCase
     end
   end
 
+  test "MODELS constant includes Claude Opus 4.8 direct Anthropic mapping" do
+    model = Chat::MODELS.find { |m| m[:model_id] == "anthropic/claude-opus-4.8" }
+
+    assert model, "Claude Opus 4.8 should be available"
+    assert_equal "Claude Opus 4.8", model[:label]
+    assert_equal "Top Models", model[:group]
+    assert_equal "claude-opus-4-8", model[:provider_model_id]
+    assert_equal true, model.dig(:thinking, :supported)
+    assert_equal true, model.dig(:thinking, :requires_direct_api)
+  end
+
   test "MODELS constant does not include thinking metadata for non-capable models" do
     non_thinking_models = Chat::MODELS.reject { |m| m.dig(:thinking, :supported) == true }
 

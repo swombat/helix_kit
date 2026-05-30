@@ -18,6 +18,7 @@ class OpenRouterApi
       "openai/gpt-5-mini",
       "openai/gpt-5-nano",
       "openai/gpt-5-chat",
+      "anthropic/claude-opus-4.8",
       "anthropic/claude-opus-4.6",
       "anthropic/claude-opus-4.5",
       "anthropic/claude-sonnet-4.5",

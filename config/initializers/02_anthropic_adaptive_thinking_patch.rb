@@ -25,6 +25,7 @@ if defined?(RubyLLM::Providers::Anthropic)
   module AnthropicAdaptiveThinkingPatch
 
     ADAPTIVE_MODELS = %w[
+      claude-opus-4-8
       claude-opus-4-7
     ].freeze
 
