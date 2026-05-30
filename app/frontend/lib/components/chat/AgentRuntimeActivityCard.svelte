@@ -3,6 +3,7 @@
   import { Spinner, TerminalWindow, WarningCircle, CheckCircle } from 'phosphor-svelte';
   import { formatTime, formatDateTime } from '$lib/utils';
   import { agentIconFor } from '$lib/agent-icons';
+  import { onDestroy, onMount } from 'svelte';
 
   let { interaction } = $props();
 
@@ -10,12 +11,29 @@
   const isRunning = $derived(interaction.status === 'running');
   const isFailed = $derived(interaction.status === 'failed');
   const hasOutput = $derived(Boolean(interaction.stdout || interaction.stderr));
+  let now = $state(Date.now());
+  let timer = null;
+
+  onMount(() => {
+    timer = setInterval(() => {
+      now = Date.now();
+    }, 1000);
+  });
+
+  onDestroy(() => {
+    if (timer) clearInterval(timer);
+  });
 
   function durationLabel(durationMs) {
     if (durationMs === null || durationMs === undefined) return null;
     if (durationMs < 1000) return `${durationMs}ms`;
     return `${(durationMs / 1000).toFixed(1)}s`;
   }
+
+  const liveDurationMs = $derived.by(() => {
+    if (!isRunning || !interaction.started_at) return interaction.duration_ms;
+    return Math.max(0, now - new Date(interaction.started_at).getTime());
+  });
 </script>
 
 <div class="flex justify-start group">
@@ -53,8 +71,8 @@
 
             <div class="text-xs text-muted-foreground">
               Hosted runtime activity, not a chat reply
-              {#if durationLabel(interaction.duration_ms)}
-                · {durationLabel(interaction.duration_ms)}
+              {#if durationLabel(liveDurationMs)}
+                · {durationLabel(liveDurationMs)}
               {/if}
               {#if interaction.runtime_status}
                 · runtime {interaction.runtime_status}
@@ -71,6 +89,13 @@
             {#if interaction.error_class}<span class="font-mono"
                 >{interaction.error_class}:
               </span>{/if}{interaction.error_message}
+          </div>
+        {/if}
+
+        {#if isRunning}
+          <div class="rounded border bg-background/70 p-2 text-xs text-muted-foreground">
+            Chaos is running in the hosted container. Live stdout is not streamed yet; output will appear here when the
+            runtime finishes.
           </div>
         {/if}
 

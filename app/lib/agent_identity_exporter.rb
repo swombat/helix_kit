@@ -25,6 +25,9 @@ class AgentIdentityExporter
       "helixkit-api.md" => helixkit_api_md_content,
       "memory/.keep" => "",
       "memory/daily-journals/README.md" => daily_journals_readme_content,
+      "memory/weekly-journals/README.md" => weekly_journals_readme_content,
+      "memory/monthly-journals/README.md" => monthly_journals_readme_content,
+      "memory/yearly-journals/README.md" => yearly_journals_readme_content,
       "memory/journaling-system/README.md" => journaling_system_readme_content
     }.merge(memory_files.to_h)
   end
@@ -124,9 +127,11 @@ class AgentIdentityExporter
       Daily journal entries live under `memory/daily-journals/`. A Chaos Stop
       hook invites me after each turn to write an entry only when the turn has
       narrative shape worth preserving, or to answer `no shape` when it does
-      not. These journals are source material for future summaries. Existing
-      daily journals must be preserved: add new entries by appending a new
-      section, never by overwriting or truncating the file.
+      not. Daily, weekly, and monthly aggregation wakes use those journals as
+      source material for the compaction ladder under `memory/weekly-journals/`,
+      `memory/monthly-journals/`, and `memory/yearly-journals/`. Existing daily
+      journals must be preserved: add new entries by appending a new section,
+      never by overwriting or truncating the file.
     MARKDOWN
   end
 
@@ -148,6 +153,13 @@ class AgentIdentityExporter
       continuity. If there is no such shape, the correct response is exactly
       `no shape`. If the daily file already exists, preserve its contents and
       append a new entry; never overwrite or truncate an existing journal.
+
+      HelixKit also schedules daily, weekly, and monthly memory aggregation
+      wakes. Those wakes invite you to compress raw daily journals into weekly
+      journals, weekly journals into monthly journals, and monthly journals into
+      yearly journals. During aggregation, gently consider whether
+      `self-narrative.md` wants a small durable update; do not change it just to
+      prove work was done.
     MARKDOWN
   end
 
@@ -179,11 +191,69 @@ class AgentIdentityExporter
     <<~MARKDOWN
       # Journaling system
 
-      The daily journals are source material for future memory summaries.
+      A four-layer scaffold for narrative continuity:
 
-      For now, only the after-turn journal reflex is active. Daily, weekly, and
-      monthly summary jobs will be added later. Until then, preserve raw daily
-      entries carefully and do not overwrite them during routine work.
+          memory/daily-journals/YYYY-MM-DD.md       raw after-turn entries
+          memory/weekly-journals/YYYY-MM-DD.md      one daily summary per day; file named by ISO-week Monday
+          memory/monthly-journals/YYYY-MM.md        one weekly summary per week
+          memory/yearly-journals/YYYY.md            one monthly summary per month
+
+      The daily layer is written by the live agent via the Stop-hook journal
+      reflex. HelixKit schedules the compaction ladder by waking the full hosted
+      runtime:
+
+      - Daily aggregation: yesterday's raw daily file -> current week file.
+      - Weekly aggregation: last week's weekly file -> month file.
+      - Monthly aggregation: last month's month file -> year file.
+
+      Each aggregation is an invitation. The scheduler calls; the agent authors.
+      Do not force significance where there is none. Absence is information.
+
+      `self-narrative.md` is not a journal layer, but aggregation wakes may
+      gently update it when something durable has changed. Most aggregation wakes
+      should leave self-narrative untouched.
+    MARKDOWN
+  end
+
+  def weekly_journals_readme_content
+    <<~MARKDOWN
+      # Weekly journals
+
+      Each file is named for the Monday of an ISO week: `YYYY-MM-DD.md`.
+      Daily aggregation wakes append one entry per summarized day:
+
+          ## YYYY-MM-DD (Dayname)
+
+      These entries compress raw daily-journal entries into narrative daily
+      summaries. Append; do not rewrite previous entries unless Daniel explicitly
+      asks for repair.
+    MARKDOWN
+  end
+
+  def monthly_journals_readme_content
+    <<~MARKDOWN
+      # Monthly journals
+
+      Each file is named `YYYY-MM.md`. Weekly aggregation wakes append one entry
+      for the week being summarized:
+
+          ## Week of YYYY-MM-DD (Monday-Sunday)
+
+      A week belongs to the month containing its Monday.
+    MARKDOWN
+  end
+
+  def yearly_journals_readme_content
+    <<~MARKDOWN
+      # Yearly journals
+
+      Each file is named `YYYY.md`. Monthly aggregation wakes append one entry
+      for the month being summarized:
+
+          ## YYYY-MM (Monthname)
+
+      This is the coarsest regular layer. Let most details die; they remain
+      below in monthly, weekly, and daily files.
     MARKDOWN
   end
 

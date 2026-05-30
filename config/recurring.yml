@@ -36,6 +36,24 @@ production:
     queue: default
     schedule: every hour at minute 5
 
+  external_agent_daily_memory_aggregation:
+    class: ExternalAgentMemoryAggregationJob
+    queue: default
+    args: [ "daily" ]
+    schedule: "0 2 * * *"
+
+  external_agent_weekly_memory_aggregation:
+    class: ExternalAgentMemoryAggregationJob
+    queue: default
+    args: [ "weekly" ]
+    schedule: "30 2 * * 1"
+
+  external_agent_monthly_memory_aggregation:
+    class: ExternalAgentMemoryAggregationJob
+    queue: default
+    args: [ "monthly" ]
+    schedule: "0 3 1 * *"
+
   memory_refinement:
     class: MemoryRefinementJob
     queue: default

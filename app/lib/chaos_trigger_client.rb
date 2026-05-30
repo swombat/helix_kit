@@ -1,5 +1,8 @@
 class ChaosTriggerClient
 
+  DEFAULT_RUNTIME_TIMEOUT_SECS = 30.minutes.to_i
+  DEFAULT_READ_TIMEOUT_SECS = DEFAULT_RUNTIME_TIMEOUT_SECS + 30
+
   def initialize(endpoint_url, trigger_bearer_token)
     require "net/http"
 
@@ -7,7 +10,7 @@ class ChaosTriggerClient
     @trigger_bearer_token = trigger_bearer_token
   end
 
-  def request_response(conversation_id:, requested_by:, session_id:, request:, trigger_kind: "conversation", model: nil, read_timeout: 60, runtime_timeout_secs: nil)
+  def request_response(conversation_id:, requested_by:, session_id:, request:, trigger_kind: "conversation", model: nil, read_timeout: DEFAULT_READ_TIMEOUT_SECS, runtime_timeout_secs: DEFAULT_RUNTIME_TIMEOUT_SECS)
     raise ArgumentError, "endpoint_url is missing" if endpoint_url.blank?
     raise ArgumentError, "trigger bearer token is missing" if trigger_bearer_token.blank?
 

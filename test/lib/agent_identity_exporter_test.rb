@@ -20,6 +20,9 @@ class AgentIdentityExporterTest < ActiveSupport::TestCase
     assert_includes files.keys, "bootstrap.md"
     assert_includes files.keys, "helixkit-api.md"
     assert_includes files.keys, "memory/daily-journals/README.md"
+    assert_includes files.keys, "memory/weekly-journals/README.md"
+    assert_includes files.keys, "memory/monthly-journals/README.md"
+    assert_includes files.keys, "memory/yearly-journals/README.md"
     assert_includes files.keys, "memory/journaling-system/README.md"
     assert files.keys.any? { |path| path.start_with?("memory/") }
     assert_includes files["soul.md"], agent.system_prompt
@@ -44,11 +47,16 @@ class AgentIdentityExporterTest < ActiveSupport::TestCase
     assert_includes files["bootstrap.md"], "helixkit-api.md"
     assert_includes files["bootstrap.md"], "Stop hook"
     assert_includes files["bootstrap.md"], "append a new entry"
+    assert_includes files["bootstrap.md"], "daily, weekly, and monthly memory aggregation"
     assert_includes files["self-narrative.md"], "never by overwriting"
     assert_includes files["helixkit-api.md"], "Authorization: Bearer \$HELIXKIT_BEARER_TOKEN"
     assert_includes files["helixkit-api.md"], "$HELIXKIT_APP_URL/api/v1/conversations"
     assert_includes files["memory/daily-journals/README.md"], "no shape"
     assert_includes files["memory/daily-journals/README.md"], "use `>>`"
+    assert_includes files["memory/journaling-system/README.md"], "HelixKit schedules the compaction ladder"
+    assert_includes files["memory/weekly-journals/README.md"], "ISO week"
+    assert_includes files["memory/monthly-journals/README.md"], "month containing its Monday"
+    assert_includes files["memory/yearly-journals/README.md"], "coarsest regular layer"
     assert_includes files.values.join("\n"), "Remember the important thing"
     assert_not_includes files.values.join("\n"), "do not export this transcript"
   end
