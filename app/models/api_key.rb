@@ -4,19 +4,22 @@ class ApiKey < ApplicationRecord
 
   belongs_to :user
   belongs_to :agent, optional: true
+  belongs_to :account, optional: true
 
   validates :name, presence: true, length: { maximum: 100 }
   validates :token_digest, presence: true, uniqueness: true
   validates :token_prefix, presence: true
+  validate :account_must_belong_to_user, if: -> { account_id.present? }
 
   scope :by_creation, -> { order(created_at: :desc) }
 
-  def self.generate_for(user, name:, agent: nil)
+  def self.generate_for(user, name:, agent: nil, account: nil)
     raw_token = "#{TOKEN_PREFIX}#{SecureRandom.hex(24)}"
 
     key = create!(
       user: user,
       agent: agent,
+      account: account,
       name: name,
       token_digest: Digest::SHA256.hexdigest(raw_token),
       token_prefix: raw_token[0, 8]
@@ -37,6 +40,13 @@ class ApiKey < ApplicationRecord
 
   def display_prefix
     "#{token_prefix}..."
+  end
+
+  private
+
+  def account_must_belong_to_user
+    return if account.memberships.exists?(user_id: user_id)
+    errors.add(:account, "must be one the user is a member of")
   end
 
 end

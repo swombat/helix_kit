@@ -30,8 +30,12 @@ module ApiAuthentication
   def current_api_account
     return Current.api_agent.account if Current.api_agent
 
-    # Use the user's first account (personal or team)
-    # In future, could scope keys to specific accounts
+    # An account-scoped key resolves to its account (the key's user is a
+    # validated member of it). This is how a multi-account user reaches a
+    # specific account via the API.
+    return Current.api_key.account if Current.api_key&.account
+
+    # Otherwise fall back to the user's first account (personal or team).
     current_api_user&.accounts&.first
   end
 
