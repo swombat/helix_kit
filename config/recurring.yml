@@ -27,6 +27,11 @@ production:
     class: DatabaseBackupJob
     schedule: every day at 4am
 
+  agent_backup_sweeper:
+    class: Backup::AgentBackupSweeperJob
+    queue: default
+    schedule: every hour at minute 25
+
   conversation_initiation:
     class: ConversationInitiationJob
     schedule: every hour at minute 0

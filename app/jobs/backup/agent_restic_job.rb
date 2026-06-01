@@ -58,17 +58,38 @@ module Backup
 
     def restic_env(agent)
       [
-        "-e", "AWS_ACCESS_KEY_ID=#{ENV['AWS_ACCESS_KEY_ID']}",
-        "-e", "AWS_SECRET_ACCESS_KEY=#{ENV['AWS_SECRET_ACCESS_KEY']}",
-        "-e", "AWS_DEFAULT_REGION=#{ENV.fetch('AWS_REGION', 'eu-west-1')}",
+        "-e", "AWS_ACCESS_KEY_ID=#{aws_access_key_id}",
+        "-e", "AWS_SECRET_ACCESS_KEY=#{aws_secret_access_key}",
+        "-e", "AWS_DEFAULT_REGION=#{aws_region}",
         "-e", "RESTIC_PASSWORD=#{agent.restic_password}",
         "-e", "RESTIC_REPOSITORY=#{restic_repo_url(agent)}"
       ]
     end
 
     def restic_repo_url(agent)
-      bucket = ENV.fetch("RESTIC_S3_BUCKET")
+      bucket = restic_s3_bucket
       "s3:s3.amazonaws.com/#{bucket}/agents/#{agent.uuid}"
+    end
+
+    def aws_access_key_id
+      ENV["AWS_ACCESS_KEY_ID"].presence || Rails.application.credentials.dig(:aws, :access_key_id) ||
+        raise(KeyError, "AWS_ACCESS_KEY_ID or credentials.aws.access_key_id is required")
+    end
+
+    def aws_secret_access_key
+      ENV["AWS_SECRET_ACCESS_KEY"].presence || Rails.application.credentials.dig(:aws, :secret_access_key) ||
+        raise(KeyError, "AWS_SECRET_ACCESS_KEY or credentials.aws.secret_access_key is required")
+    end
+
+    def aws_region
+      ENV["AWS_REGION"].presence || Rails.application.credentials.dig(:aws, :s3_region) || "eu-west-1"
+    end
+
+    def restic_s3_bucket
+      ENV["RESTIC_S3_BUCKET"].presence ||
+        Rails.application.credentials.dig(:aws, :agent_backups_bucket) ||
+        Rails.application.credentials.dig(:aws, :s3_bucket) ||
+        raise(KeyError, "RESTIC_S3_BUCKET, credentials.aws.agent_backups_bucket, or credentials.aws.s3_bucket is required")
     end
 
     def parse_restic_backup(output)
