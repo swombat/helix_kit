@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_28_103000) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_04_102500) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -162,6 +162,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_28_103000) do
     t.string "error_class"
     t.text "error_message"
     t.datetime "finished_at"
+    t.text "full_invocation_text"
     t.text "request_text"
     t.string "requested_by"
     t.jsonb "response_body", default: {}, null: false

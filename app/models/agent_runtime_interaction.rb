@@ -33,12 +33,15 @@ class AgentRuntimeInteraction < ApplicationRecord
 
   def record_result!(result)
     body = result[:body] || {}
+    full_invocation_text = body.delete("full_invocation_text")
+
     update!(
       transport_status: result[:status],
       runtime_status: body["status"],
       runtime_returncode: body["returncode"],
       stdout: body["stdout"],
       stderr: body["stderr"],
+      full_invocation_text: full_invocation_text,
       response_body: body,
       finished_at: Time.current,
       duration_ms: elapsed_ms
