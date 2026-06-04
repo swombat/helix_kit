@@ -14,11 +14,12 @@ if [[ "${HELIXKIT_SKIP_AGENT_RECONCILE:-}" == "1" ]]; then
 fi
 
 echo "Queueing hosted-agent runtime reconciliation for 5 minutes after deploy"
-KAMAL_ARGS=()
 if [[ -n "${KAMAL_DESTINATION:-}" ]]; then
-  KAMAL_ARGS+=("-d" "${KAMAL_DESTINATION}")
+  "${ROOT}/bin/kamal" app exec --skip-hooks --reuse -r web -d "${KAMAL_DESTINATION}" \
+    "bin/rails runner 'HostedAgentRuntimeReconcileJob.set(wait: 5.minutes).perform_later'" \
+    || echo "WARNING: could not enqueue hosted-agent runtime reconciliation"
+else
+  "${ROOT}/bin/kamal" app exec --skip-hooks --reuse -r web \
+    "bin/rails runner 'HostedAgentRuntimeReconcileJob.set(wait: 5.minutes).perform_later'" \
+    || echo "WARNING: could not enqueue hosted-agent runtime reconciliation"
 fi
-
-"${ROOT}/bin/kamal" app exec --skip-hooks --reuse -r web "${KAMAL_ARGS[@]}" \
-  "bin/rails runner 'HostedAgentRuntimeReconcileJob.set(wait: 5.minutes).perform_later'" \
-  || echo "WARNING: could not enqueue hosted-agent runtime reconciliation"
