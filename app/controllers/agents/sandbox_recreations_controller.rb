@@ -11,7 +11,7 @@ class Agents::SandboxRecreationsController < ApplicationController
     end
 
     HostedAgentRuntimeReconcileJob.perform_later(@agent.id)
-    redirect_to edit_account_agent_path(current_account, @agent, tab: "hosting"), notice: "Sandbox recreation queued for #{@agent.name}. Identity and Chaos volumes will be preserved."
+    redirect_to edit_account_agent_path(current_account, @agent, tab: "hosting"), notice: "Runtime image refresh queued for #{@agent.name}. Identity and Chaos volumes will be preserved."
   end
 
 end

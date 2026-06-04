@@ -103,7 +103,7 @@ class Agents::HostingDiagnosticsControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_redirected_to edit_account_agent_path(@account, @agent, tab: "hosting")
-    assert_match "Sandbox recreation queued", flash[:notice]
+    assert_match "Runtime image refresh queued", flash[:notice]
   end
 
   test "sandbox recreation refuses inline agent" do

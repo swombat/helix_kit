@@ -1,7 +1,11 @@
+require "shellwords"
+
 module Agents
   class Sandbox
 
     class SandboxError < StandardError; end
+
+    REPO_PATH = "/home/agent/repo"
 
     attr_reader :agent
 
@@ -23,6 +27,7 @@ module Agents
         if container_image_current?
           start!
         else
+          migrate_repo_volume_from_container!
           remove_container!
           run_container!
         end
@@ -49,6 +54,7 @@ module Agents
     end
 
     def recreate!
+      migrate_repo_volume_from_container! if container_exists?
       remove!(delete_volume: false)
       spawn!
     end
@@ -64,10 +70,12 @@ module Agents
         configured_helixkit_app_url: safe_config_value(:internal_url),
         volume_name: agent.uuid.present? ? Agents::Volume.new(agent).volume_name : nil,
         chaos_volume_name: agent.uuid.present? ? "chaos-home-#{agent.uuid}" : nil,
+        repo_volume_name: agent.uuid.present? ? repo_volume_name : nil,
         docker_available: false,
         container_exists: false,
         identity_volume_exists: false,
-        chaos_volume_exists: false
+        chaos_volume_exists: false,
+        repo_volume_exists: false
       }
       base[:configuration_error] = @configuration_error if @configuration_error.present?
 
@@ -82,6 +90,7 @@ module Agents
       base[:docker_version] = docker_info[:stdout].strip
       base[:identity_volume_exists] = volume_exists?(base[:volume_name])
       base[:chaos_volume_exists] = volume_exists?(base[:chaos_volume_name])
+      base[:repo_volume_exists] = volume_exists?(base[:repo_volume_name])
       base[:image_present] = image_present?(agent.container_image)
 
       if agent.container_name.present?
@@ -129,7 +138,10 @@ module Agents
 
     def remove!(delete_volume: false)
       remove_container!
-      Agents::Volume.new(agent).destroy! if delete_volume
+      if delete_volume
+        Agents::Volume.new(agent).destroy!
+        destroy_repo_volume!
+      end
     end
 
     def healthy?
@@ -163,10 +175,12 @@ module Agents
         configured_helixkit_app_url: nil,
         volume_name: nil,
         chaos_volume_name: nil,
+        repo_volume_name: nil,
         docker_available: false,
         container_exists: false,
         identity_volume_exists: false,
-        chaos_volume_exists: false
+        chaos_volume_exists: false,
+        repo_volume_exists: false
       }
     end
 
@@ -218,7 +232,43 @@ module Agents
       system("docker", "rm", "-f", agent.container_name, out: File::NULL, err: File::NULL)
     end
 
+    def repo_volume_name
+      "hk-agent-#{agent.uuid}-repo"
+    end
+
+    def ensure_repo_volume!
+      return true if volume_exists?(repo_volume_name)
+
+      system("docker", "volume", "create", repo_volume_name, out: File::NULL, err: File::NULL) || raise(SandboxError, "failed to create docker volume #{repo_volume_name}")
+    end
+
+    def destroy_repo_volume!
+      system("docker", "volume", "rm", "-f", repo_volume_name, out: File::NULL, err: File::NULL) if agent.uuid.present?
+    end
+
+    def migrate_repo_volume_from_container!
+      ensure_repo_volume!
+      return true if repo_volume_populated?
+
+      source = "#{agent.container_name}:#{REPO_PATH}/."
+      destination_mount = "#{repo_volume_name}:/repo"
+      cmd = [
+        "docker cp #{Shellwords.escape(source)} -",
+        "docker run --rm -i -v #{Shellwords.escape(destination_mount)} busybox tar xf - -C /repo"
+      ].join(" | ")
+      raise SandboxError, "failed to migrate #{REPO_PATH} into #{repo_volume_name}" unless system(cmd, out: File::NULL, err: File::NULL)
+    end
+
+    def repo_volume_populated?
+      result = docker_capture(
+        "run", "--rm", "-v", "#{repo_volume_name}:/repo:ro", "busybox", "sh", "-c",
+        "test -n \"$(find /repo -mindepth 1 -print -quit)\""
+      )
+      result[:ok]
+    end
+
     def run_container!
+      ensure_repo_volume!
       args = [
         "docker", "run", "-d",
         "--name", agent.container_name,
@@ -228,6 +278,7 @@ module Agents
         "--cpu-shares", agent.container_cpu_shares.to_s,
         "-v", "#{Agents::Volume.new(agent).volume_name}:/home/agent/identity",
         "-v", "chaos-home-#{agent.uuid}:/home/agent/.chaos",
+        "-v", "#{repo_volume_name}:#{REPO_PATH}",
         "-e", "AGENT_ID=#{agent.uuid}",
         "-e", "AGENT_SLUG=#{agent_slug}",
         "-e", "AGENT_PROVIDER=#{agent_provider}",

@@ -68,6 +68,23 @@ module Agents
 
       assert_equal false, status[:container_image_current]
       assert_equal true, status[:image_stale]
+      assert_equal "hk-agent-#{agent.uuid}-repo", status[:repo_volume_name]
+      assert_equal true, status[:repo_volume_exists]
+    end
+
+    test "recreate migrates repo volume before replacing container" do
+      agent = agents(:research_assistant)
+      agent.update!(uuid: SecureRandom.uuid_v7, container_name: "hk-agent-test")
+      sandbox = Agents::Sandbox.new(agent)
+      calls = []
+      sandbox.define_singleton_method(:container_exists?) { true }
+      sandbox.define_singleton_method(:migrate_repo_volume_from_container!) { calls << :migrate_repo }
+      sandbox.define_singleton_method(:remove!) { |delete_volume: false| calls << [ :remove, delete_volume ] }
+      sandbox.define_singleton_method(:spawn!) { calls << :spawn }
+
+      sandbox.recreate!
+
+      assert_equal [ :migrate_repo, [ :remove, false ], :spawn ], calls
     end
 
   end

@@ -67,6 +67,7 @@
     container_exists: agent.container_name && (agent.runtime === 'external' || agent.runtime === 'migrating'),
     identity_volume_exists: agent.uuid ? null : false,
     chaos_volume_exists: agent.uuid ? null : false,
+    repo_volume_exists: agent.uuid ? null : false,
   });
   let filesystemDump = $state({});
   let containerFilesystemDump = $state({});
@@ -213,7 +214,7 @@
 
     if (
       !confirm(
-        'Recreate this hosted sandbox container? The identity and Chaos volumes will be preserved, but any container-local files outside mounted volumes will be lost.'
+        'Refresh this hosted sandbox runtime? This replaces the container with one built from the current runtime image. The identity and Chaos volumes will be preserved, but any container-local files outside mounted volumes will be lost.'
       )
     ) {
       return;
@@ -563,7 +564,7 @@
                         variant="outline"
                         onclick={recreateSandbox}
                         disabled={recreatingSandbox || !runtimeManaged}>
-                        {recreatingSandbox ? 'Queueing...' : 'Recreate sandbox'}
+                        {recreatingSandbox ? 'Queueing...' : 'Refresh runtime image'}
                       </Button>
                     {/if}
                     {#if identityExportUrl}
@@ -689,6 +690,10 @@
                 <p>
                   Chaos volume: <span class="font-medium"
                     >{sandboxStatus.chaos_volume_exists === null ? 'checking' : sandboxStatus.chaos_volume_exists ? 'present' : 'missing'}</span>
+                </p>
+                <p>
+                  Repo/workspace volume:
+                  <span class="font-medium">{sandboxStatus.repo_volume_exists === null ? 'checking' : sandboxStatus.repo_volume_exists ? 'present' : 'missing'}</span>
                 </p>
               </div>
               {#if sandboxStatus.docker_error}
