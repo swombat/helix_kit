@@ -39,6 +39,7 @@
     local_dev_endpoint_mode: localDevEndpointMode = false,
     identity_export_url: identityExportUrl = null,
     hosting_diagnostics_url: hostingDiagnosticsUrl = null,
+    sandbox_recreation_url: sandboxRecreationUrl = null,
     runtime_interactions: runtimeInteractions = [],
     account,
   } = $props();
@@ -57,6 +58,7 @@
   let promoting = $state(false);
   let sendingTestRequest = $state(false);
   let sendingOrientation = $state(false);
+  let recreatingSandbox = $state(false);
   let testResult = $state(null);
   let orientationResult = $state(null);
   let sandboxStatus = $state({
@@ -201,6 +203,30 @@
         preserveScroll: true,
         onFinish() {
           registeringWebhook = false;
+        },
+      }
+    );
+  }
+
+  function recreateSandbox() {
+    if (!sandboxRecreationUrl || recreatingSandbox) return;
+
+    if (
+      !confirm(
+        'Recreate this hosted sandbox container? The identity and Chaos volumes will be preserved, but any container-local files outside mounted volumes will be lost.'
+      )
+    ) {
+      return;
+    }
+
+    recreatingSandbox = true;
+    router.post(
+      sandboxRecreationUrl,
+      {},
+      {
+        preserveScroll: true,
+        onFinish() {
+          recreatingSandbox = false;
         },
       }
     );
@@ -531,6 +557,15 @@
                     <Button type="button" onclick={sendTestRequest} disabled={sendingTestRequest}>
                       {sendingTestRequest ? 'Sending...' : 'Send test trigger'}
                     </Button>
+                    {#if sandboxRecreationUrl}
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onclick={recreateSandbox}
+                        disabled={recreatingSandbox || !runtimeManaged}>
+                        {recreatingSandbox ? 'Queueing...' : 'Recreate sandbox'}
+                      </Button>
+                    {/if}
                     {#if identityExportUrl}
                       <a href={identityExportUrl}>
                         <Button type="button" variant="outline">Download identity export</Button>
@@ -632,6 +667,13 @@
                   <p>
                     Container image current:
                     <span class="font-medium">{sandboxStatus.container_image_current === null || sandboxStatus.container_image_current === undefined ? 'checking' : sandboxStatus.container_image_current ? 'yes' : 'no'}</span>
+                  </p>
+                  <p>
+                    Image stale:
+                    <span
+                      class={sandboxStatus.image_stale ? 'font-medium text-amber-700' : 'font-medium'}>
+                      {sandboxStatus.image_stale === null || sandboxStatus.image_stale === undefined ? 'checking' : sandboxStatus.image_stale ? 'yes' : 'no'}
+                    </span>
                   </p>
                 {/if}
                 {#if sandboxStatus.container_state}

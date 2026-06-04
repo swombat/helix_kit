@@ -87,7 +87,7 @@ RUNTIME_INSTRUCTIONS_NEW="$AGENT_HOME/identity/runtime-instructions.md.new"
 write_runtime_instructions() {
     target="$1"
     cat > "$target" <<'RUNTIME'
-<!-- helixkit-managed-runtime-instructions:v2 -->
+<!-- helixkit-managed-runtime-instructions:v3 -->
 
 # Hosted runtime instructions
 
@@ -108,6 +108,22 @@ Use `helixkit-api.md` for the REST API manual. Conversation transcripts remain
 in HelixKit; read them through the API when you're considering a conversation,
 e.g. after a trigger arrives. `HELIXKIT_APP_URL` and `HELIXKIT_BEARER_TOKEN`
 are present in your shell environment.
+
+## Telegram direct messages
+
+If your HelixKit agent has Telegram configured, you can send direct Telegram
+messages to active subscribers of your bot without handling the raw bot token.
+Prefer the helper:
+
+```sh
+helixkit-send-telegram daniel "Short message"
+printf 'Longer message\nwith lines\n' | helixkit-send-telegram paulina
+helixkit-send-telegram all "Message to all active Telegram subscribers"
+```
+
+Recipients are matched by email/name among people who have subscribed to your
+Telegram bot in HelixKit. Use this thoughtfully; Telegram is a direct human
+notification channel, not a place to mirror routine HelixKit chatter.
 
 ## Legacy memories
 

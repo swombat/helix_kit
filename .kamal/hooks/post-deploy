@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Kamal deploy updates the HelixKit app containers and the pre-deploy hook builds
+# helixkit-agent-runtime:latest on the Docker host. Hosted agent sandboxes are
+# sibling containers, not Kamal-managed app containers, so enqueue a delayed
+# reconciliation pass that recreates only stale sandboxes and preserves their
+# identity/Chaos volumes.
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+
+if [[ "${HELIXKIT_SKIP_AGENT_RECONCILE:-}" == "1" ]]; then
+  echo "Skipping hosted-agent runtime reconciliation (HELIXKIT_SKIP_AGENT_RECONCILE=1)"
+  exit 0
+fi
+
+echo "Queueing hosted-agent runtime reconciliation for 5 minutes after deploy"
+KAMAL_ARGS=()
+if [[ -n "${KAMAL_DESTINATION:-}" ]]; then
+  KAMAL_ARGS+=("-d" "${KAMAL_DESTINATION}")
+fi
+
+"${ROOT}/bin/kamal" app exec --skip-hooks --reuse -r web "${KAMAL_ARGS[@]}" \
+  "bin/rails runner 'HostedAgentRuntimeReconcileJob.set(wait: 5.minutes).perform_later'" \
+  || echo "WARNING: could not enqueue hosted-agent runtime reconciliation"

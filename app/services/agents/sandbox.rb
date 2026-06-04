@@ -35,6 +35,24 @@ module Agents
       agent.update!(runtime: "external", health_state: "healthy", consecutive_health_failures: 0)
     end
 
+    def stale_image?
+      container_exists? && !container_image_current?
+    end
+
+    def active_turn?
+      return false unless container_exists?
+
+      result = docker_capture("exec", agent.container_name, "pgrep", "-f", "chaos exec")
+      result[:ok]
+    rescue StandardError
+      false
+    end
+
+    def recreate!
+      remove!(delete_volume: false)
+      spawn!
+    end
+
 
     def status
       @configuration_error = nil
@@ -72,12 +90,15 @@ module Agents
           container = JSON.parse(inspect[:stdout]).first
           state = container.fetch("State", {})
           network = container.fetch("NetworkSettings", {})
+          configured_image_id = image_id(agent.container_image)
+          container_image_current = configured_image_id.present? && container["Image"] == configured_image_id
           base.merge!(
             container_exists: true,
             container_id: container["Id"].to_s.first(12),
             container_image_id: container["Image"],
-            configured_image_id: image_id(agent.container_image),
-            container_image_current: image_current?(container["Image"], agent.container_image),
+            configured_image_id: configured_image_id,
+            container_image_current: container_image_current,
+            image_stale: !container_image_current,
             container_helixkit_app_url: container_env_value(container, "HELIXKIT_APP_URL"),
             container_state: state["Status"],
             container_running: state["Running"],

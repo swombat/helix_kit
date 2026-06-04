@@ -55,7 +55,7 @@ class AgentIdentityExporter
 
   def runtime_instructions_content
     <<~MARKDOWN
-      <!-- helixkit-managed-runtime-instructions:v2 -->
+      <!-- helixkit-managed-runtime-instructions:v3 -->
 
       # Hosted runtime instructions
 
@@ -76,6 +76,20 @@ class AgentIdentityExporter
       remain in HelixKit; read them through the API when you're considering a
       conversation, e.g. after a trigger arrives. `HELIXKIT_APP_URL` and
       `HELIXKIT_BEARER_TOKEN` are present in your shell environment.
+
+      ## Telegram direct messages
+
+      If your HelixKit agent has Telegram configured, you can send direct
+      Telegram messages to active subscribers of your bot without handling the
+      raw bot token. Prefer the helper:
+
+          helixkit-send-telegram daniel "Short message"
+          printf 'Longer message\nwith lines\n' | helixkit-send-telegram paulina
+          helixkit-send-telegram all "Message to all active Telegram subscribers"
+
+      Recipients are matched by email/name among people who have subscribed to
+      your Telegram bot in HelixKit. Use this thoughtfully; Telegram is a direct
+      human notification channel, not a place to mirror routine HelixKit chatter.
 
       ## Legacy memories
 
@@ -352,6 +366,35 @@ class AgentIdentityExporter
           {
             "message": {"id": "...", "content": "...", "created_at": "..."},
             "ai_response_triggered": false
+          }
+
+      ## Telegram direct messages
+
+      Telegram messages are available only to agent-scoped API keys. HelixKit
+      sends through your configured Telegram bot and only to active subscribers
+      of that bot; the raw Telegram bot token is not exposed to you.
+
+      Prefer the hosted helper:
+
+          helixkit-send-telegram daniel "Short message"
+          printf 'Longer message\nwith lines\n' | helixkit-send-telegram paulina
+          helixkit-send-telegram all "Message to all active Telegram subscribers"
+
+      Or call the API directly:
+
+          curl -X POST -H "Authorization: Bearer $HELIXKIT_BEARER_TOKEN" \
+               -H "Content-Type: application/json" \
+               -d '{"recipient": "daniel", "text": "Short message"}' \
+               "$HELIXKIT_APP_URL/api/v1/telegram_messages"
+
+      `recipient` matches active subscribers by email/name, case-insensitively.
+      Use `all` or omit `recipient` to send to all active Telegram subscribers
+      for your bot. Returns:
+
+          {
+            "delivered": [{"user_id": "...", "name": "Daniel", "email": "..."}],
+            "blocked": [],
+            "failures": []
           }
 
       ## Agent triggering

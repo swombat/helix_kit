@@ -1,0 +1,75 @@
+#!/usr/bin/env python3
+"""
+Send a direct Telegram message through HelixKit as the current hosted agent.
+
+Usage:
+  helixkit-send-telegram RECIPIENT "message text"
+  printf 'message text' | helixkit-send-telegram RECIPIENT
+  helixkit-send-telegram all "message text"
+
+RECIPIENT matches active Telegram subscribers for this agent by email/name
+(case-insensitive substring). Requires HELIXKIT_APP_URL and HELIXKIT_BEARER_TOKEN.
+Never prints bearer or bot tokens.
+"""
+
+import json
+import os
+import sys
+import urllib.error
+import urllib.request
+
+
+def main() -> int:
+    if len(sys.argv) not in (2, 3):
+        print("usage: helixkit-send-telegram RECIPIENT [MESSAGE]", file=sys.stderr)
+        return 64
+
+    app_url = os.environ.get("HELIXKIT_APP_URL")
+    token = os.environ.get("HELIXKIT_BEARER_TOKEN")
+    if not app_url:
+        print("HELIXKIT_APP_URL is missing", file=sys.stderr)
+        return 65
+    if not token:
+        print("HELIXKIT_BEARER_TOKEN is missing", file=sys.stderr)
+        return 65
+
+    recipient = sys.argv[1]
+    text = sys.argv[2] if len(sys.argv) == 3 else sys.stdin.read()
+    text = normalize_newlines(text).strip()
+    if not text:
+        print("message text is empty", file=sys.stderr)
+        return 66
+
+    url = f"{app_url.rstrip('/')}/api/v1/telegram_messages"
+    body = json.dumps({"recipient": recipient, "text": text}).encode("utf-8")
+    request = urllib.request.Request(
+        url,
+        data=body,
+        headers={
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        },
+        method="POST",
+    )
+
+    try:
+        with urllib.request.urlopen(request, timeout=30) as response:
+            payload = response.read().decode("utf-8")
+            print(payload)
+            return 0 if 200 <= response.status < 300 else 1
+    except urllib.error.HTTPError as error:
+        print(f"HelixKit returned HTTP {error.code}", file=sys.stderr)
+        print(error.read().decode("utf-8", errors="replace"), file=sys.stderr)
+        return 1
+    except Exception as error:
+        print(f"HelixKit Telegram send failed: {error}", file=sys.stderr)
+        return 1
+
+
+def normalize_newlines(content: str) -> str:
+    return content.replace("\\r\\n", "\n").replace("\\n", "\n")
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -8,6 +8,11 @@ class Admin::JobsController < ApplicationController
       job_class: CleanupOrphanedMessagesJob,
       name: "Cleanup Orphaned Messages",
       description: "Removes assistant messages that were never properly finalized (from failed streaming retries or tool call splits)."
+    },
+    "hosted_agent_runtime_reconcile" => {
+      job_class: HostedAgentRuntimeReconcileJob,
+      name: "Reconcile Hosted Agent Runtime",
+      description: "Recreates hosted agent sandbox containers whose runtime image is stale, preserving identity and Chaos volumes."
     }
   }.freeze
 

@@ -98,6 +98,7 @@ Rails.application.routes.draw do
         resource :hosting_diagnostics, only: :show do
           get :file_preview
         end
+        resource :sandbox_recreation, only: :create
         resource :refinement, only: :create
         resource :telegram_test, only: :create
         resource :telegram_webhook, only: :create
@@ -147,6 +148,7 @@ Rails.application.routes.draw do
         resources :participants, only: :create
       end
       resources :agents, only: [ :index, :show ]
+      resources :telegram_messages, only: :create
       resources :whiteboards, only: [ :index, :show, :create, :update ]
     end
   end

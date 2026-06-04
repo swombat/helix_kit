@@ -31,5 +31,44 @@ module Agents
       assert_equal "openrouter/auto", Agents::Sandbox.chaos_model_for(agent)
     end
 
+    test "status reports stale image explicitly" do
+      agent = agents(:research_assistant)
+      agent.update!(
+        runtime: "external",
+        uuid: SecureRandom.uuid_v7,
+        container_name: "hk-agent-test",
+        container_image: "helixkit-agent-runtime:latest"
+      )
+      sandbox = Agents::Sandbox.new(agent)
+      container = {
+        "Id" => "container123456789",
+        "Image" => "sha256:old",
+        "State" => { "Status" => "running", "Running" => true, "ExitCode" => 0 },
+        "NetworkSettings" => { "Ports" => {} },
+        "Config" => { "Env" => [ "HELIXKIT_APP_URL=http://helix-kit-web:3000" ] }
+      }
+      sandbox.define_singleton_method(:docker_capture) do |*args|
+        case args
+        in [ "info", "--format", "{{.ServerVersion}}" ]
+          { ok: true, stdout: "27.0.0\n", stderr: "" }
+        in [ "volume", "inspect", _name ]
+          { ok: true, stdout: "[]", stderr: "" }
+        in [ "image", "inspect", "--format", "{{.Id}}", "helixkit-agent-runtime:latest" ]
+          { ok: true, stdout: "sha256:new\n", stderr: "" }
+        in [ "container", "inspect", "hk-agent-test" ]
+          { ok: true, stdout: [ container ].to_json, stderr: "" }
+        in [ "logs", "--tail", "30", "hk-agent-test" ]
+          { ok: true, stdout: "", stderr: "" }
+        else
+          raise "unexpected docker args: #{args.inspect}"
+        end
+      end
+
+      status = sandbox.status
+
+      assert_equal false, status[:container_image_current]
+      assert_equal true, status[:image_stale]
+    end
+
   end
 end

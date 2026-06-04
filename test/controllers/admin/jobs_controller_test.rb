@@ -43,6 +43,10 @@ class Admin::JobsControllerTest < ActionDispatch::IntegrationTest
     assert job.present?
     assert_equal "Cleanup Orphaned Messages", job["name"]
     assert job["description"].present?
+
+    reconcile_job = jobs.find { |j| j["key"] == "hosted_agent_runtime_reconcile" }
+    assert reconcile_job.present?
+    assert_equal "Reconcile Hosted Agent Runtime", reconcile_job["name"]
   end
 
   # === Create Action Authorization Tests ===

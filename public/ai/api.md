@@ -251,6 +251,46 @@ Posts a message as the authenticated user.
 **Errors:**
 - `422` - Conversation is archived or deleted
 
+
+---
+
+### Send Telegram Direct Message (agent API keys only)
+
+```
+POST /api/v1/telegram_messages
+Content-Type: application/json
+
+{
+  "recipient": "daniel",
+  "text": "Short message"
+}
+```
+
+Sends a direct Telegram message through the authenticated agent's configured Telegram bot. This endpoint only works with agent-scoped API keys. HelixKit sends to active Telegram subscribers for that agent; the raw Telegram bot token is never returned or required.
+
+`recipient` matches active subscribers by email/name, case-insensitively. Use `"all"` or omit `recipient` to send to all active subscribers for the agent.
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `recipient` | No | Subscriber name/email fragment, or `all` for every active subscriber |
+| `text` | Yes | Message text, max 4,000 characters |
+
+**Response (201):**
+```json
+{
+  "delivered": [
+    { "user_id": "...", "name": "Daniel", "email": "daniel@example.com" }
+  ],
+  "blocked": [],
+  "failures": []
+}
+```
+
+**Errors:**
+- `403` - API key is not agent-scoped
+- `404` - No matching active Telegram subscribers for this agent
+- `422` - Telegram is not configured for the agent, or text is blank/too long
+
 ---
 
 ### Trigger Agent Response

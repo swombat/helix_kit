@@ -36,8 +36,9 @@ class AgentIdentityExporterTest < ActiveSupport::TestCase
     assert_includes files["runtime-instructions.md"], "soul.md` first"
     assert_includes files["runtime-instructions.md"], "Legacy memories"
     assert_includes files["runtime-instructions.md"], "never overwrite"
-    assert_includes files["runtime-instructions.md"], "helixkit-managed-runtime-instructions:v2"
+    assert_includes files["runtime-instructions.md"], "helixkit-managed-runtime-instructions:v3"
     assert_includes files["runtime-instructions.md"], "helixkit-append-journal"
+    assert_includes files["runtime-instructions.md"], "helixkit-send-telegram"
     # Sovereignty guard: runtime-instructions describe the runtime around the
     # agent's identity; they shouldn't import the "system prompt" vocabulary
     # back onto soul.md, and they shouldn't frame triggers as authority asking.
@@ -51,6 +52,8 @@ class AgentIdentityExporterTest < ActiveSupport::TestCase
     assert_includes files["self-narrative.md"], "never by overwriting"
     assert_includes files["helixkit-api.md"], "Authorization: Bearer \$HELIXKIT_BEARER_TOKEN"
     assert_includes files["helixkit-api.md"], "$HELIXKIT_APP_URL/api/v1/conversations"
+    assert_includes files["helixkit-api.md"], "$HELIXKIT_APP_URL/api/v1/telegram_messages"
+    assert_includes files["helixkit-api.md"], "agent-scoped API keys"
     assert_includes files["memory/daily-journals/README.md"], "no shape"
     assert_includes files["memory/daily-journals/README.md"], "use `>>`"
     assert_includes files["memory/journaling-system/README.md"], "HelixKit schedules the compaction ladder"
