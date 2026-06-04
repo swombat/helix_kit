@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_28_103000) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_04_102500) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -162,6 +162,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_28_103000) do
     t.string "error_class"
     t.text "error_message"
     t.datetime "finished_at"
+    t.text "full_invocation_text"
     t.text "request_text"
     t.string "requested_by"
     t.jsonb "response_body", default: {}, null: false
@@ -281,6 +282,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_28_103000) do
   end
 
   create_table "api_keys", force: :cascade do |t|
+    t.bigint "account_id"
     t.bigint "agent_id"
     t.datetime "created_at", null: false
     t.datetime "last_used_at"
@@ -290,6 +292,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_28_103000) do
     t.string "token_prefix", limit: 8, null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.index ["account_id"], name: "index_api_keys_on_account_id"
     t.index ["agent_id"], name: "index_api_keys_on_agent_id", unique: true, where: "(agent_id IS NOT NULL)"
     t.index ["token_digest"], name: "index_api_keys_on_token_digest", unique: true
     t.index ["user_id"], name: "index_api_keys_on_user_id"
@@ -581,6 +584,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_28_103000) do
   add_foreign_key "agents", "accounts"
   add_foreign_key "agents", "api_keys", column: "outbound_api_key_id"
   add_foreign_key "api_key_requests", "api_keys"
+  add_foreign_key "api_keys", "accounts"
   add_foreign_key "api_keys", "agents"
   add_foreign_key "api_keys", "users"
   add_foreign_key "audit_logs", "accounts"

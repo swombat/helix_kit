@@ -152,6 +152,7 @@ def trigger():
         "returncode": result.returncode,
         "stdout": _tail(result.stdout, 4000),
         "stderr": _tail(result.stderr, 4000),
+        "full_invocation_text": full_prompt,
     }
     log.info(f"trigger done session_id={session_id} rc={result.returncode}")
     return jsonify(response), (200 if result.returncode == 0 else 500)
@@ -173,12 +174,18 @@ def _tail(s: str, n: int) -> str:
 
 
 def build_prompt(request_text: str) -> str:
-    """Attach the agent's identity bundle to every Chaos turn."""
-    return "\n\n".join(part for part in [identity_context(), request_text] if part)
+    """Attach identity, the live request, and memory to every Chaos turn.
+
+    Keep stable identity first, but place the current HelixKit trigger before
+    diarized memory. The live request/transcript is ground truth for the current
+    conversation; journals are continuity context and must not look like adjacent
+    transcript.
+    """
+    return "\n\n".join(part for part in [identity_context(), request_text, memory_context()] if part)
 
 
 def identity_context() -> str:
-    """Return the identity context exported by HelixKit."""
+    """Return the stable identity context exported by HelixKit."""
     sections = []
 
     # Keep soul.md first. This is the agent's own chosen/exported identity text,
@@ -196,11 +203,25 @@ def identity_context() -> str:
         if content:
             sections.append(f"## {label}: identity/{filename}\n\n{content}")
 
-    journals = recent_journal_context()
-    if journals:
-        sections.append(journals)
-
     return "\n\n".join(sections)
+
+
+def memory_context() -> str:
+    """Return clearly labeled continuity context that is not live transcript."""
+    journals = recent_journal_context()
+    if not journals:
+        return ""
+
+    return "\n\n".join([
+        "## Memory context — not current chat transcript",
+        (
+            "The following recent journals are diarized memory and continuity context. "
+            "They are not current HelixKit chat messages, not trigger payload, and not "
+            "the live transcript. If this turn includes a LIVE HELIXKIT TRANSCRIPT "
+            "section, treat that section as the ground truth for the current conversation."
+        ),
+        journals,
+    ])
 
 
 def read_identity_file(filename: str) -> str:

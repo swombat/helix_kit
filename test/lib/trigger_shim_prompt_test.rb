@@ -18,6 +18,8 @@ class TriggerShimPromptTest < ActiveSupport::TestCase
 
       assert prompt.start_with?("SOUL FIRST\n"), "soul.md should be first in the prompt"
       assert_includes prompt, "## Hosted runtime instructions: identity/runtime-instructions.md"
+      assert_operator prompt.index("REQUEST"), :<, prompt.index("## Memory context — not current chat transcript")
+      assert_includes prompt, "They are not current HelixKit chat messages, not trigger payload, and not the live transcript"
       assert_includes prompt, "## Your recent journal entries"
       assert_includes prompt, "Today I woke here."
       assert_includes prompt, "## 09:00 — Previous title"

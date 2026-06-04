@@ -23,7 +23,14 @@ class ExternalAgentResponseRequestTest < ActiveSupport::TestCase
     assert_includes text, "post your own messages"
     assert_includes text, "stdout is diagnostic only"
     assert_includes text, "explain your reason briefly on stdout"
-    assert_includes text, "Conversation transcript"
+    assert_includes text, "Conversation metadata"
+    assert_includes text, "title: External prompt"
+    assert_includes text, "agent_only: false"
+    assert_includes text, "LIVE HELIXKIT TRANSCRIPT FROM DATABASE"
+    assert_includes text, "message_count_included: 1"
+    assert_includes text, "BEGIN LIVE HELIXKIT TRANSCRIPT FROM DATABASE"
+    assert_includes text, "END LIVE HELIXKIT TRANSCRIPT FROM DATABASE"
+    assert_includes text, "Only the LIVE HELIXKIT TRANSCRIPT section above is the current stored conversation transcript"
     assert_includes text, "Can you see this transcript?"
 
     # Sovereignty guard: assistant-pattern nudges that previously crept in.
@@ -35,6 +42,23 @@ class ExternalAgentResponseRequestTest < ActiveSupport::TestCase
     refute_includes text, "decide and act now"
     refute_includes text, "Do not ask for a second confirmation"
     refute_includes text, "asking you to act"
+  end
+
+  test "agent-only trigger softens expectation to post" do
+    agent = agents(:research_assistant)
+    chat = agent.account.chats.create!(model_id: "openrouter/auto", title: "[AGENT-ONLY] Quiet room")
+    chat.agents << agent
+    chat.messages.create!(role: "assistant", agent: agent, content: "Room quiet.")
+
+    text = ExternalAgentResponseRequest.new(agent: agent, chat: chat).send(:request_text)
+
+    assert_includes text, "agent_only: true"
+    assert_includes text, "the trigger is an invitation to inspect the live state"
+    assert_includes text, "If the live transcript contains a direct human request for you"
+    assert_includes text, "a visible reply may be useful but silence is often correct"
+    assert_includes text, "Do not post merely to acknowledge wakefulness or continue room weather"
+    refute_includes text, "normally expecting a visible reply"
+    refute_includes text, "The default for this trigger is that you post a reply"
   end
 
   test "records runtime stdout and stderr when triggering external agent" do
@@ -55,7 +79,8 @@ class ExternalAgentResponseRequestTest < ActiveSupport::TestCase
           status: "ok",
           returncode: 0,
           stdout: "runtime said hello",
-          stderr: "runtime diagnostics"
+          stderr: "runtime diagnostics",
+          full_invocation_text: "SOUL\n\nLIVE REQUEST\n\nMEMORY"
         }.to_json
       )
 
@@ -71,6 +96,8 @@ class ExternalAgentResponseRequestTest < ActiveSupport::TestCase
     assert_equal "ok", interaction.runtime_status
     assert_equal "runtime said hello", interaction.stdout
     assert_equal "runtime diagnostics", interaction.stderr
+    assert_equal "SOUL\n\nLIVE REQUEST\n\nMEMORY", interaction.full_invocation_text
+    refute_includes interaction.response_body.keys, "full_invocation_text"
   end
 
 end

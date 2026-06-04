@@ -60,21 +60,66 @@ class ExternalAgentResponseRequest
 
   def request_text
     parts = [
-      "HelixKit received an explicit user request for you to consider responding to conversation #{chat.to_param}. The user pressed the agent button, so they are normally expecting a visible reply from you.",
+      trigger_intro_text,
       "Requested by: #{requested_by}.",
-      "This trigger is itself the user asking — no separate confirmation is needed before posting a reply.",
+      confirmation_text,
       "Important: your final answer in this Chaos runtime is diagnostic stdout only; it will not appear in the HelixKit chat. If you have a message for the user, you must post it to HelixKit yourself before exiting.",
-      "Decide whether to respond. The default for this trigger is that you post a reply, but choosing not to is also a valid response. If you choose to respond, post it to this conversation now. Prefer the helper command: `helixkit-post-message #{chat.to_param} \"your message\"` (or pipe longer Markdown into it). You may also use the API described in ~/identity/helixkit-api.md with HELIXKIT_APP_URL and HELIXKIT_BEARER_TOKEN.",
+      response_expectation_text,
+      "If you choose to respond, post it to this conversation now. Prefer the helper command: `helixkit-post-message #{chat.to_param} \"your message\"` (or pipe longer Markdown into it). You may also use the API described in ~/identity/helixkit-api.md with HELIXKIT_APP_URL and HELIXKIT_BEARER_TOKEN.",
       "HELIXKIT_APP_URL and HELIXKIT_BEARER_TOKEN are already present in your shell environment. The bearer token is already authorized for you to read this conversation and post your own messages; do not ask Daniel to paste it or re-authorize it.",
       "Do not rely on stdout as the response channel; stdout is diagnostic only. If you choose not to respond, explain your reason briefly on stdout and then exit without posting.",
+      conversation_metadata,
       conversation_context
     ]
     parts << "Initiation reason: #{initiation_reason}" if initiation_reason.present?
     parts.join("\n\n")
   end
 
+  def trigger_intro_text
+    if chat.agent_only? || !recent_human_message?
+      "HelixKit received a trigger for you to consider conversation #{chat.to_param}. In this agent-only or no-recent-human-message context, the trigger is an invitation to inspect the live state, not evidence by itself that the conversation needs a visible reply."
+    else
+      "HelixKit received an explicit user request for you to consider responding to conversation #{chat.to_param}. The user pressed the agent button, so they are normally expecting a visible reply from you."
+    end
+  end
+
+  def confirmation_text
+    if chat.agent_only? || !recent_human_message?
+      "If the live transcript contains a direct human request for you, no separate confirmation is needed before posting a reply. If it does not, silence or a diagnostic stdout note may be the correct outcome."
+    else
+      "This trigger is itself the user asking — no separate confirmation is needed before posting a reply."
+    end
+  end
+
+  def response_expectation_text
+    if chat.agent_only? || !recent_human_message?
+      "Decide whether to respond. This is an agent-only or no-recent-human-message context, so a visible reply may be useful but silence is often correct. Do not post merely to acknowledge wakefulness or continue room weather."
+    else
+      "Decide whether to respond. The default for this trigger is that you post a reply, but choosing not to is also a valid response."
+    end
+  end
+
+  def recent_human_message?
+    chat.messages.where(role: "user").where("created_at > ?", 12.hours.ago).exists?
+  end
+
+  def conversation_metadata
+    agents = chat.agents.order(:name).pluck(:name)
+    humans = chat.messages.includes(:user).where(role: "user").filter_map { |message| message.user&.email_address }.uniq.sort
+
+    <<~TEXT.strip
+      Conversation metadata:
+      - id: #{chat.to_param}
+      - title: #{chat.title_or_default}
+      - agent_only: #{chat.agent_only?}
+      - agents: #{agents.any? ? agents.join(", ") : "_none recorded_"}
+      - humans_seen_in_transcript: #{humans.any? ? humans.join(", ") : "_none in stored messages_"}
+    TEXT
+  end
+
   def conversation_context
-    lines = chat.messages.order(:created_at).last(30).map do |message|
+    messages = chat.messages.order(:created_at).last(30)
+    lines = messages.map do |message|
       speaker = if message.agent
         message.agent.name
       elsif message.user
@@ -86,9 +131,27 @@ class ExternalAgentResponseRequest
       "#{speaker}: #{message.content.to_s.strip}"
     end
 
-    return "Conversation transcript: _No messages yet._" if lines.empty?
+    return <<~TEXT.strip if lines.empty?
+      LIVE HELIXKIT TRANSCRIPT FROM DATABASE:
+      message_count_included: 0
 
-    "Conversation transcript:\n\n#{lines.join("\n\n")}"
+      BEGIN LIVE HELIXKIT TRANSCRIPT FROM DATABASE
+      _No messages yet._
+      END LIVE HELIXKIT TRANSCRIPT FROM DATABASE
+
+      Ground truth warning: Only the LIVE HELIXKIT TRANSCRIPT section above is the current stored conversation transcript. Recent journals, memories, summaries, prior tool output, and any other context are memory or diagnostics, not current chat messages.
+    TEXT
+
+    <<~TEXT.strip
+      LIVE HELIXKIT TRANSCRIPT FROM DATABASE:
+      message_count_included: #{messages.length}
+
+      BEGIN LIVE HELIXKIT TRANSCRIPT FROM DATABASE
+      #{lines.join("\n\n")}
+      END LIVE HELIXKIT TRANSCRIPT FROM DATABASE
+
+      Ground truth warning: Only the LIVE HELIXKIT TRANSCRIPT section above is the current stored conversation transcript. Recent journals, memories, summaries, prior tool output, and any other context are memory or diagnostics, not current chat messages.
+    TEXT
   end
 
 end
