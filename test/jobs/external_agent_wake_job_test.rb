@@ -34,6 +34,14 @@ class ExternalAgentWakeJobTest < ActiveJob::TestCase
     assert_requested request
   end
 
+  test "does not send hourly wake invitations to Claude" do
+    @agent.update_columns(name: "Claude")
+
+    ExternalAgentWakeJob.perform_now
+
+    assert_not_requested :post, "https://agent.example.com/trigger"
+  end
+
   test "does not wake offline agents" do
     @agent.update!(runtime: "offline")
 
