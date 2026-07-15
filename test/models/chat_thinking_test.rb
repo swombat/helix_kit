@@ -209,6 +209,83 @@ class ChatThinkingTest < ActiveSupport::TestCase
     assert_equal true, model.dig(:thinking, :requires_direct_api)
   end
 
+  test "MODELS constant includes corpus-v2 models added after Claude Opus 4.8" do
+    model_ids = Chat::MODELS.map { |model| model[:model_id] }
+
+    [
+      "anthropic/claude-fable-5",
+      "anthropic/claude-sonnet-5",
+      "meta-llama/llama-3.1-70b-instruct",
+      "meta-llama/llama-3.1-8b-instruct",
+      "meta-llama/llama-3.2-1b-instruct",
+      "meta-llama/llama-3.2-11b-vision-instruct",
+      "meta-llama/llama-3.2-3b-instruct",
+      "meta-llama/llama-3.3-70b-instruct",
+      "meta-llama/llama-4-maverick",
+      "meta-llama/llama-4-scout",
+      "minimax/minimax-m3",
+      "mistralai/codestral-2508",
+      "mistralai/devstral-2512",
+      "mistralai/ministral-14b-2512",
+      "mistralai/ministral-3b-2512",
+      "mistralai/ministral-8b-2512",
+      "mistralai/mistral-large-2512",
+      "mistralai/mistral-medium-3",
+      "mistralai/mistral-medium-3.1",
+      "mistralai/mistral-medium-3-5",
+      "mistralai/mistral-nemo",
+      "mistralai/mistral-saba",
+      "mistralai/mistral-small-24b-instruct-2501",
+      "mistralai/mistral-small-2603",
+      "mistralai/mistral-small-3.1-24b-instruct",
+      "mistralai/mistral-small-3.2-24b-instruct",
+      "mistralai/mixtral-8x22b-instruct",
+      "moonshotai/kimi-k2.7-code",
+      "openai/gpt-3.5-turbo",
+      "openai/gpt-4",
+      "openai/gpt-4-turbo",
+      "openai/gpt-4.1-nano",
+      "openai/gpt-4.1-mini",
+      "openai/gpt-4o-mini",
+      "openai/gpt-5.1-codex-max",
+      "openai/gpt-5.1-codex-mini",
+      "openai/gpt-5.4-mini",
+      "openai/gpt-5.4-nano",
+      "openai/gpt-5.6-luna",
+      "openai/gpt-5.6-sol",
+      "openai/gpt-5.6-terra",
+      "openai/gpt-5-mini",
+      "openai/gpt-5-nano",
+      "openai/gpt-oss-120b",
+      "openai/gpt-oss-20b",
+      "x-ai/grok-4.20",
+      "x-ai/grok-4.20-non-reasoning",
+      "x-ai/grok-build-0.1",
+      "z-ai/glm-5.2"
+    ].each do |model_id|
+      assert_includes model_ids, model_id
+    end
+  end
+
+  test "new direct corpus-v2 models use their verified provider model IDs" do
+    assert_equal "claude-sonnet-5", Chat.provider_model_id("anthropic/claude-sonnet-5")
+    assert_equal "claude-fable-5", Chat.provider_model_id("anthropic/claude-fable-5")
+    %w[
+      gpt-5.1-codex-max
+      gpt-5.1-codex-mini
+      gpt-5.4-mini
+      gpt-5.4-nano
+      gpt-5.6-sol
+      gpt-5.6-terra
+      gpt-5.6-luna
+    ].each do |model_id|
+      assert_equal model_id, Chat.provider_model_id("openai/#{model_id}")
+    end
+    assert_equal "grok-4.20-0309-reasoning", Chat.provider_model_id("x-ai/grok-4.20")
+    assert_equal "grok-4.20-0309-non-reasoning", Chat.provider_model_id("x-ai/grok-4.20-non-reasoning")
+    assert_equal "grok-build-0.1", Chat.provider_model_id("x-ai/grok-build-0.1")
+  end
+
   test "MODELS constant does not include thinking metadata for non-capable models" do
     non_thinking_models = Chat::MODELS.reject { |m| m.dig(:thinking, :supported) == true }
 

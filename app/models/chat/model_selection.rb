@@ -67,6 +67,9 @@ module Chat::ModelSelection
     { model_id: "deepseek/deepseek-v3.2", label: "DeepSeek V3.2", group: "Top Models" },
 
     # OpenAI
+    { model_id: "openai/gpt-5.6-sol", label: "GPT-5.6 Sol", group: "OpenAI", provider_model_id: "gpt-5.6-sol", thinking: { supported: true } },
+    { model_id: "openai/gpt-5.6-terra", label: "GPT-5.6 Terra", group: "OpenAI", provider_model_id: "gpt-5.6-terra", thinking: { supported: true } },
+    { model_id: "openai/gpt-5.6-luna", label: "GPT-5.6 Luna", group: "OpenAI", provider_model_id: "gpt-5.6-luna", thinking: { supported: true } },
     {
       model_id: "openai/gpt-5.5-pro",
       label: "GPT-5.5 Pro",
@@ -81,6 +84,8 @@ module Chat::ModelSelection
       provider_model_id: "gpt-5.2",
       thinking: { supported: true }
     },
+    { model_id: "openai/gpt-5.4-mini", label: "GPT-5.4 Mini", group: "OpenAI", provider_model_id: "gpt-5.4-mini", thinking: { supported: true } },
+    { model_id: "openai/gpt-5.4-nano", label: "GPT-5.4 Nano", group: "OpenAI", provider_model_id: "gpt-5.4-nano", thinking: { supported: true } },
     {
       model_id: "openai/gpt-5.3-chat",
       label: "GPT-5.3 Chat",
@@ -106,6 +111,8 @@ module Chat::ModelSelection
       provider_model_id: "gpt-5.1",
       thinking: { supported: true }
     },
+    { model_id: "openai/gpt-5.1-codex-max", label: "GPT-5.1 Codex Max", group: "OpenAI", provider_model_id: "gpt-5.1-codex-max", thinking: { supported: true } },
+    { model_id: "openai/gpt-5.1-codex-mini", label: "GPT-5.1 Codex Mini", group: "OpenAI", provider_model_id: "gpt-5.1-codex-mini", thinking: { supported: true } },
     {
       model_id: "openai/gpt-5.1-codex",
       label: "GPT-5.1 Codex",
@@ -174,6 +181,10 @@ module Chat::ModelSelection
       group: "OpenAI",
       provider_model_id: "gpt-4.1-mini"
     },
+    { model_id: "openai/gpt-4.1-nano", label: "GPT-4.1 Nano", group: "OpenAI" },
+    { model_id: "openai/gpt-4-turbo", label: "GPT-4 Turbo", group: "OpenAI" },
+    { model_id: "openai/gpt-4", label: "GPT-4", group: "OpenAI" },
+    { model_id: "openai/gpt-3.5-turbo", label: "GPT-3.5 Turbo", group: "OpenAI" },
     {
       model_id: "openai/gpt-4o",
       label: "GPT-4o",
@@ -191,8 +202,23 @@ module Chat::ModelSelection
       group: "OpenAI",
       provider_model_id: "gpt-4o-mini"
     },
+    { model_id: "openai/gpt-oss-120b", label: "GPT-OSS 120B", group: "OpenAI" },
+    { model_id: "openai/gpt-oss-20b", label: "GPT-OSS 20B", group: "OpenAI" },
 
     # Anthropic
+    {
+      model_id: "anthropic/claude-sonnet-5",
+      label: "Claude Sonnet 5",
+      group: "Anthropic",
+      provider_model_id: "claude-sonnet-5",
+      thinking: { supported: true, requires_direct_api: true }
+    },
+    {
+      model_id: "anthropic/claude-fable-5",
+      label: "Claude Fable 5",
+      group: "Anthropic",
+      provider_model_id: "claude-fable-5"
+    },
     {
       model_id: "anthropic/claude-opus-4.5",
       label: "Claude Opus 4.5",
@@ -368,6 +394,18 @@ module Chat::ModelSelection
       thinking: { supported: true }
     },
     {
+      model_id: "x-ai/grok-4.20-non-reasoning",
+      label: "Grok 4.20 Non-Reasoning",
+      group: "xAI",
+      provider_model_id: "grok-4.20-0309-non-reasoning"
+    },
+    {
+      model_id: "x-ai/grok-build-0.1",
+      label: "GrokBuild 0.1",
+      group: "xAI",
+      provider_model_id: "grok-build-0.1"
+    },
+    {
       model_id: "x-ai/grok-4.2",
       label: "Grok 4.2",
       group: "xAI",
@@ -433,6 +471,7 @@ module Chat::ModelSelection
     { model_id: "deepseek/deepseek-v3", label: "DeepSeek V3", group: "DeepSeek" },
 
     # Moonshot / Kimi
+    { model_id: "moonshotai/kimi-k2.7-code", label: "Kimi K2.7 Code", group: "Moonshot / Kimi" },
     { model_id: "moonshotai/kimi-coding", label: "Kimi Coding", group: "Moonshot / Kimi" },
     { model_id: "moonshotai/kimi-k2.6", label: "Kimi K2.6", group: "Moonshot / Kimi", thinking: { supported: true } },
     { model_id: "moonshotai/kimi-k2.5", label: "Kimi K2.5", group: "Moonshot / Kimi", thinking: { supported: true } },
@@ -440,8 +479,37 @@ module Chat::ModelSelection
     { model_id: "moonshotai/kimi-k2-0905", label: "Kimi K2 0905", group: "Moonshot / Kimi" },
 
     # MiniMax
+    { model_id: "minimax/minimax-m3", label: "MiniMax M3", group: "MiniMax", thinking: { supported: true } },
     { model_id: "minimax/minimax-m2.7", label: "MiniMax M2.7", group: "MiniMax", thinking: { supported: true } },
     { model_id: "minimax/minimax-m2", label: "MiniMax M2", group: "MiniMax", thinking: { supported: true } },
+
+    # Mistral
+    { model_id: "mistralai/devstral-2512", label: "Devstral 2512", group: "Mistral" },
+    { model_id: "mistralai/codestral-2508", label: "Codestral 2508", group: "Mistral" },
+    { model_id: "mistralai/mistral-large-2512", label: "Mistral Large 2512", group: "Mistral" },
+    { model_id: "mistralai/mistral-medium-3-5", label: "Mistral Medium 3.5", group: "Mistral" },
+    { model_id: "mistralai/mistral-medium-3.1", label: "Mistral Medium 3.1", group: "Mistral" },
+    { model_id: "mistralai/mistral-medium-3", label: "Mistral Medium 3", group: "Mistral" },
+    { model_id: "mistralai/mistral-small-2603", label: "Mistral Small 2603", group: "Mistral" },
+    { model_id: "mistralai/mistral-small-3.2-24b-instruct", label: "Mistral Small 3.2 24B Instruct", group: "Mistral" },
+    { model_id: "mistralai/mistral-small-3.1-24b-instruct", label: "Mistral Small 3.1 24B Instruct", group: "Mistral" },
+    { model_id: "mistralai/mistral-small-24b-instruct-2501", label: "Mistral Small 24B Instruct 2501", group: "Mistral" },
+    { model_id: "mistralai/ministral-14b-2512", label: "Ministral 14B 2512", group: "Mistral" },
+    { model_id: "mistralai/ministral-8b-2512", label: "Ministral 8B 2512", group: "Mistral" },
+    { model_id: "mistralai/ministral-3b-2512", label: "Ministral 3B 2512", group: "Mistral" },
+    { model_id: "mistralai/mistral-nemo", label: "Mistral Nemo", group: "Mistral" },
+    { model_id: "mistralai/mistral-saba", label: "Mistral Saba", group: "Mistral" },
+    { model_id: "mistralai/mixtral-8x22b-instruct", label: "Mixtral 8x22B Instruct", group: "Mistral" },
+
+    # Meta Llama
+    { model_id: "meta-llama/llama-4-maverick", label: "Llama 4 Maverick", group: "Meta Llama" },
+    { model_id: "meta-llama/llama-4-scout", label: "Llama 4 Scout", group: "Meta Llama" },
+    { model_id: "meta-llama/llama-3.3-70b-instruct", label: "Llama 3.3 70B Instruct", group: "Meta Llama" },
+    { model_id: "meta-llama/llama-3.1-70b-instruct", label: "Llama 3.1 70B Instruct", group: "Meta Llama" },
+    { model_id: "meta-llama/llama-3.1-8b-instruct", label: "Llama 3.1 8B Instruct", group: "Meta Llama" },
+    { model_id: "meta-llama/llama-3.2-1b-instruct", label: "Llama 3.2 1B Instruct", group: "Meta Llama" },
+    { model_id: "meta-llama/llama-3.2-3b-instruct", label: "Llama 3.2 3B Instruct", group: "Meta Llama" },
+    { model_id: "meta-llama/llama-3.2-11b-vision-instruct", label: "Llama 3.2 11B Vision Instruct", group: "Meta Llama" },
 
     # Qwen
     { model_id: "qwen/qwen3.7-max", label: "Qwen3.7 Max", group: "Qwen", thinking: { supported: true } },
@@ -456,6 +524,7 @@ module Chat::ModelSelection
     { model_id: "qwen/qwen3-coder-plus", label: "Qwen3 Coder Plus", group: "Qwen" },
 
     # Z.ai
+    { model_id: "z-ai/glm-5.2", label: "GLM 5.2", group: "Z.ai", thinking: { supported: true } },
     { model_id: "z-ai/glm-5.1", label: "GLM 5.1", group: "Z.ai", thinking: { supported: true } },
     { model_id: "z-ai/glm-5.1-coding", label: "GLM 5.1 Coding", group: "Z.ai", thinking: { supported: true } },
     { model_id: "z-ai/glm-4.7", label: "GLM 4.7", group: "Z.ai", thinking: { supported: true } },
