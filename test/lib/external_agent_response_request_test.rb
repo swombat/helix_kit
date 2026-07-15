@@ -100,4 +100,121 @@ class ExternalAgentResponseRequestTest < ActiveSupport::TestCase
     refute_includes interaction.response_body.keys, "full_invocation_text"
   end
 
+  test "does not build a request_delta when persistent_session is disabled" do
+    agent = agents(:research_assistant)
+    chat = agent.account.chats.create!(model_id: "openrouter/auto", title: "Delta prompt")
+    chat.messages.create!(role: "user", content: "Hello")
+
+    request = ExternalAgentResponseRequest.new(agent: agent, chat: chat)
+
+    assert_nil request.send(:request_delta_text)
+  end
+
+  test "does not build a request_delta on the first turn even when persistent_session is enabled" do
+    agent = agents(:research_assistant)
+    agent.update!(persistent_session: true)
+    chat = agent.account.chats.create!(model_id: "openrouter/auto", title: "Delta prompt")
+    chat.messages.create!(role: "user", content: "Hello")
+
+    request = ExternalAgentResponseRequest.new(agent: agent, chat: chat)
+
+    assert_nil request.send(:request_delta_text)
+    assert_equal chat.messages.maximum(:id), request.send(:computed_last_included_message_id)
+  end
+
+  test "builds a request_delta containing only messages after the prior cursor" do
+    agent = agents(:research_assistant)
+    agent.update!(persistent_session: true)
+    chat = agent.account.chats.create!(model_id: "openrouter/auto", title: "Delta prompt")
+    first = chat.messages.create!(role: "user", content: "First message")
+    AgentRuntimeInteraction.create!(
+      agent: agent, chat: chat, trigger_kind: "conversation", session_id: "s",
+      requested_by: "test", started_at: 1.minute.ago, last_included_message_id: first.id
+    )
+    second = chat.messages.create!(role: "user", content: "Second message")
+
+    request = ExternalAgentResponseRequest.new(agent: agent, chat: chat)
+    delta = request.send(:request_delta_text)
+
+    assert_includes delta, "LIVE HELIXKIT TRANSCRIPT DELTA FROM DATABASE"
+    assert_includes delta, "messages_after_cursor: #{first.id}"
+    assert_includes delta, "message_count_included: 1"
+    assert_includes delta, "Second message"
+    refute_includes delta, "First message"
+    assert_includes delta, "Treat these new messages as ground truth for recent conversation activity"
+    assert_includes delta, "Current time:"
+    refute_includes delta, "must post it to HelixKit yourself before exiting"
+    assert_equal second.id, request.send(:computed_last_included_message_id)
+  end
+
+  test "sends an empty delta block with zero count when no new messages exist since the cursor" do
+    agent = agents(:research_assistant)
+    agent.update!(persistent_session: true)
+    chat = agent.account.chats.create!(model_id: "openrouter/auto", title: "Delta prompt")
+    only = chat.messages.create!(role: "user", content: "Only message")
+    AgentRuntimeInteraction.create!(
+      agent: agent, chat: chat, trigger_kind: "conversation", session_id: "s",
+      requested_by: "test", started_at: 1.minute.ago, last_included_message_id: only.id
+    )
+
+    request = ExternalAgentResponseRequest.new(agent: agent, chat: chat)
+    delta = request.send(:request_delta_text)
+
+    assert_includes delta, "message_count_included: 0"
+    assert_includes delta, "_No new messages._"
+    assert_equal only.id, request.send(:computed_last_included_message_id)
+  end
+
+  test "call sends persistent_session and request_delta, and records usage and session fields on resume" do
+    agent = agents(:research_assistant)
+    agent.update!(
+      runtime: "external",
+      uuid: SecureRandom.uuid_v7,
+      endpoint_url: "https://agent.example.com",
+      trigger_bearer_token: "tr_valid",
+      health_state: "healthy",
+      consecutive_health_failures: 0,
+      persistent_session: true
+    )
+    chat = agent.account.chats.create!(model_id: "openrouter/auto", title: "Delta prompt")
+    first = chat.messages.create!(role: "user", content: "First message")
+    AgentRuntimeInteraction.create!(
+      agent: agent, chat: chat, trigger_kind: "conversation", session_id: "s",
+      requested_by: "test", started_at: 2.minutes.ago, finished_at: 1.minute.ago,
+      last_included_message_id: first.id
+    )
+    second = chat.messages.create!(role: "user", content: "Second message")
+
+    stub = stub_request(:post, "https://agent.example.com/trigger")
+      .with do |http_request|
+        body = JSON.parse(http_request.body)
+        body["persistent_session"] == true &&
+          body["request_delta"].to_s.include?("Second message") &&
+          !body["request_delta"].to_s.include?("First message") &&
+          body["request"].to_s.include?("First message")
+      end
+      .to_return(
+        status: 200,
+        body: {
+          status: "ok",
+          chaos_session_id: "chaos-123",
+          session_resumed: true,
+          fresh_fallback: false,
+          usage: { "input_tokens" => 10, "cached_input_tokens" => 5, "output_tokens" => 3 }
+        }.to_json
+      )
+
+    ExternalAgentResponseRequest.new(agent: agent, chat: chat).call
+
+    assert_requested stub
+    interaction = AgentRuntimeInteraction.last
+    assert_equal second.id, interaction.last_included_message_id
+    assert_equal "chaos-123", interaction.chaos_session_id
+    assert interaction.session_resumed
+    assert_not interaction.fresh_fallback
+    assert_equal 10, interaction.input_tokens
+    assert_equal 5, interaction.cached_input_tokens
+    assert_equal 3, interaction.output_tokens
+  end
+
 end

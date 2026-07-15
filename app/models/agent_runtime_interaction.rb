@@ -10,7 +10,7 @@ class AgentRuntimeInteraction < ApplicationRecord
   scope :recent, -> { order(created_at: :desc) }
   scope :timeline_order, -> { order(Arel.sql("COALESCE(finished_at, started_at, created_at) ASC"), :id) }
 
-  def self.record_trigger!(agent:, chat:, trigger_kind:, conversation_id:, requested_by:, session_id:, endpoint_url:, request_text:)
+  def self.record_trigger!(agent:, chat:, trigger_kind:, conversation_id:, requested_by:, session_id:, endpoint_url:, request_text:, last_included_message_id: nil)
     interaction = create!(
       agent: agent,
       chat: chat,
@@ -20,6 +20,7 @@ class AgentRuntimeInteraction < ApplicationRecord
       session_id: session_id,
       endpoint_url: endpoint_url,
       request_text: request_text,
+      last_included_message_id: last_included_message_id,
       started_at: Time.current
     )
 
@@ -34,6 +35,7 @@ class AgentRuntimeInteraction < ApplicationRecord
   def record_result!(result)
     body = result[:body] || {}
     full_invocation_text = body.delete("full_invocation_text")
+    usage = body["usage"] || {}
 
     update!(
       transport_status: result[:status],
@@ -42,6 +44,12 @@ class AgentRuntimeInteraction < ApplicationRecord
       stdout: body["stdout"],
       stderr: body["stderr"],
       full_invocation_text: full_invocation_text,
+      chaos_session_id: body["chaos_session_id"],
+      session_resumed: body["session_resumed"],
+      fresh_fallback: body["fresh_fallback"],
+      input_tokens: usage["input_tokens"],
+      cached_input_tokens: usage["cached_input_tokens"],
+      output_tokens: usage["output_tokens"],
       response_body: body,
       finished_at: Time.current,
       duration_ms: elapsed_ms
@@ -72,6 +80,12 @@ class AgentRuntimeInteraction < ApplicationRecord
       stderr: stderr,
       error_class: error_class,
       error_message: error_message,
+      chaos_session_id: chaos_session_id,
+      session_resumed: session_resumed,
+      fresh_fallback: fresh_fallback,
+      input_tokens: input_tokens,
+      cached_input_tokens: cached_input_tokens,
+      output_tokens: output_tokens,
       started_at: started_at&.iso8601,
       finished_at: finished_at&.iso8601,
       duration_ms: duration_ms,

@@ -13,6 +13,7 @@ class ExternalAgentResponseRequest
     endpoint_url = Agents::Endpoint.url_for(agent)
     session_id = "#{agent.uuid}-#{chat.id}"
     request = request_text
+    delta = request_delta_text
 
     AgentRuntimeInteraction.record_trigger!(
       agent: agent,
@@ -22,13 +23,16 @@ class ExternalAgentResponseRequest
       requested_by: requested_by,
       session_id: session_id,
       endpoint_url: endpoint_url,
-      request_text: request
+      request_text: request,
+      last_included_message_id: computed_last_included_message_id
     ) do
       ChaosTriggerClient.new(endpoint_url, agent.trigger_bearer_token).request_response(
         conversation_id: chat.to_param,
         requested_by: requested_by,
         session_id: session_id,
         request: request,
+        request_delta: delta,
+        persistent_session: agent.persistent_session?,
         model: Agents::Sandbox.chaos_model_for(agent)
       )
     end
@@ -118,18 +122,8 @@ class ExternalAgentResponseRequest
   end
 
   def conversation_context
-    messages = chat.messages.order(:created_at).last(30)
-    lines = messages.map do |message|
-      speaker = if message.agent
-        message.agent.name
-      elsif message.user
-        message.user.email_address
-      else
-        message.role
-      end
-
-      "#{speaker}: #{message.content.to_s.strip}"
-    end
+    messages = full_window_messages
+    lines = messages.map { |message| format_transcript_line(message) }
 
     return <<~TEXT.strip if lines.empty?
       LIVE HELIXKIT TRANSCRIPT FROM DATABASE:
@@ -151,6 +145,84 @@ class ExternalAgentResponseRequest
       END LIVE HELIXKIT TRANSCRIPT FROM DATABASE
 
       Ground truth warning: Only the LIVE HELIXKIT TRANSCRIPT section above is the current stored conversation transcript. Recent journals, memories, summaries, prior tool output, and any other context are memory or diagnostics, not current chat messages.
+    TEXT
+  end
+
+  def format_transcript_line(message)
+    speaker = if message.agent
+      message.agent.name
+    elsif message.user
+      message.user.email_address
+    else
+      message.role
+    end
+
+    "#{speaker}: #{message.content.to_s.strip}"
+  end
+
+  def full_window_messages
+    chat.messages.order(:created_at).last(30)
+  end
+
+  # The most recent prior conversation trigger for this agent+chat that recorded
+  # a transcript cursor, regardless of whether that run posted a reply. Messages
+  # can arrive mid-run, so `finished_at` is not a safe cursor (see plan 3.3).
+  def prior_cursor_message_id
+    return @prior_cursor_message_id if defined?(@prior_cursor_message_id)
+
+    @prior_cursor_message_id = AgentRuntimeInteraction
+      .where(agent: agent, chat: chat, trigger_kind: "conversation")
+      .where.not(last_included_message_id: nil)
+      .order(created_at: :desc, id: :desc)
+      .limit(1)
+      .pick(:last_included_message_id)
+  end
+
+  def delta_messages
+    return Message.none unless prior_cursor_message_id
+
+    chat.messages.where("id > ?", prior_cursor_message_id).order(:id)
+  end
+
+  def computed_last_included_message_id
+    if agent.persistent_session? && prior_cursor_message_id
+      delta_messages.maximum(:id) || prior_cursor_message_id
+    else
+      full_window_messages.map(&:id).max
+    end
+  end
+
+  def request_delta_text
+    return nil unless agent.persistent_session? && prior_cursor_message_id
+
+    parts = [
+      trigger_intro_text,
+      "Requested by: #{requested_by}.",
+      confirmation_text,
+      "Post replies with `helixkit-post-message #{chat.to_param} \"your message\"`; stdout is diagnostic only.",
+      response_expectation_text,
+      "Current time: #{Time.current.iso8601}",
+      delta_transcript_context
+    ]
+    parts << "Initiation reason: #{initiation_reason}" if initiation_reason.present?
+    parts.join("\n\n")
+  end
+
+  def delta_transcript_context
+    messages = delta_messages.to_a
+    lines = messages.map { |message| format_transcript_line(message) }
+    cursor_label = prior_cursor_message_id || "none"
+
+    <<~TEXT.strip
+      LIVE HELIXKIT TRANSCRIPT DELTA FROM DATABASE:
+      messages_after_cursor: #{cursor_label}
+      message_count_included: #{messages.length}
+
+      BEGIN LIVE HELIXKIT TRANSCRIPT DELTA FROM DATABASE
+      #{lines.any? ? lines.join("\n\n") : "_No new messages._"}
+      END LIVE HELIXKIT TRANSCRIPT DELTA FROM DATABASE
+
+      Ground truth warning: This delta block contains newly stored database messages since the last transcript cursor included in this resumed Chaos session. Treat these new messages as ground truth for recent conversation activity. Earlier transcript context should already be present in the resumed Chaos session; if session resumption failed, the shim must retry with full context rather than sending this delta alone.
     TEXT
   end
 

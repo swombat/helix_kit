@@ -18,7 +18,7 @@ module Api
             agents: chat.group_chat? ? chat.agents.map { |a| { id: a.to_param, name: a.name } } : [],
             created_at: chat.created_at.iso8601,
             updated_at: chat.updated_at.iso8601,
-            transcript: chat.transcript_for_api
+            transcript: chat.transcript_for_api(after_message_id: resolved_after_message_id, since: params[:since])
           }
         }
       end
@@ -73,6 +73,12 @@ module Api
         return current_api_agent.chats if current_api_agent
 
         current_api_account.chats
+      end
+
+      def resolved_after_message_id
+        return nil if params[:after_message_id].blank?
+
+        Message.decode_id(params[:after_message_id])
       end
 
       def create_agent_scoped_conversation!

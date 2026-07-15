@@ -89,4 +89,68 @@ class AgentRuntimeInteractionTest < ActiveSupport::TestCase
     assert_not interaction.visible_in_chat_timeline?
   end
 
+  test "record_result! maps chaos session and usage fields from the response body" do
+    agent = agents(:research_assistant)
+    chat = agent.account.chats.create!(model_id: "openrouter/auto", title: "Runtime log")
+
+    AgentRuntimeInteraction.record_trigger!(
+      agent: agent,
+      chat: chat,
+      trigger_kind: "conversation",
+      conversation_id: chat.to_param,
+      requested_by: "test",
+      session_id: "session-1",
+      endpoint_url: "https://agent.example.com",
+      request_text: "Please respond",
+      last_included_message_id: 42
+    ) do
+      {
+        status: 200,
+        body: {
+          "status" => "ok",
+          "chaos_session_id" => "chaos-abc",
+          "session_resumed" => true,
+          "fresh_fallback" => false,
+          "usage" => { "input_tokens" => 100, "cached_input_tokens" => 40, "output_tokens" => 20 }
+        }
+      }
+    end
+
+    interaction = AgentRuntimeInteraction.last
+    assert_equal 42, interaction.last_included_message_id
+    assert_equal "chaos-abc", interaction.chaos_session_id
+    assert interaction.session_resumed
+    assert_not interaction.fresh_fallback
+    assert_equal 100, interaction.input_tokens
+    assert_equal 40, interaction.cached_input_tokens
+    assert_equal 20, interaction.output_tokens
+  end
+
+  test "record_result! leaves usage and session fields nil when absent from the response body" do
+    agent = agents(:research_assistant)
+    chat = agent.account.chats.create!(model_id: "openrouter/auto", title: "Runtime log")
+
+    AgentRuntimeInteraction.record_trigger!(
+      agent: agent,
+      chat: chat,
+      trigger_kind: "conversation",
+      conversation_id: chat.to_param,
+      requested_by: "test",
+      session_id: "session-1",
+      endpoint_url: "https://agent.example.com",
+      request_text: "Please respond"
+    ) do
+      { status: 200, body: { "status" => "ok" } }
+    end
+
+    interaction = AgentRuntimeInteraction.last
+    assert_nil interaction.last_included_message_id
+    assert_nil interaction.chaos_session_id
+    assert_nil interaction.session_resumed
+    assert_nil interaction.fresh_fallback
+    assert_nil interaction.input_tokens
+    assert_nil interaction.cached_input_tokens
+    assert_nil interaction.output_tokens
+  end
+
 end

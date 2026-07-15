@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_04_102500) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_15_130100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -154,6 +154,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_04_102500) do
 
   create_table "agent_runtime_interactions", force: :cascade do |t|
     t.bigint "agent_id", null: false
+    t.bigint "cached_input_tokens"
+    t.string "chaos_session_id"
     t.bigint "chat_id"
     t.string "conversation_obfuscated_id"
     t.datetime "created_at", null: false
@@ -162,13 +164,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_04_102500) do
     t.string "error_class"
     t.text "error_message"
     t.datetime "finished_at"
+    t.boolean "fresh_fallback"
     t.text "full_invocation_text"
+    t.bigint "input_tokens"
+    t.bigint "last_included_message_id"
+    t.bigint "output_tokens"
     t.text "request_text"
     t.string "requested_by"
     t.jsonb "response_body", default: {}, null: false
     t.integer "runtime_returncode"
     t.string "runtime_status"
     t.string "session_id"
+    t.boolean "session_resumed"
     t.datetime "started_at", null: false
     t.text "stderr"
     t.text "stdout"
@@ -216,6 +223,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_04_102500) do
     t.bigint "outbound_api_key_id"
     t.string "outbound_api_token"
     t.boolean "paused", default: false, null: false
+    t.boolean "persistent_session", default: false, null: false
     t.text "refinement_prompt"
     t.float "refinement_threshold"
     t.text "reflection_prompt"
@@ -282,6 +290,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_04_102500) do
   end
 
   create_table "api_keys", force: :cascade do |t|
+    t.bigint "account_id"
     t.bigint "agent_id"
     t.datetime "created_at", null: false
     t.datetime "last_used_at"
@@ -291,6 +300,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_04_102500) do
     t.string "token_prefix", limit: 8, null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.index ["account_id"], name: "index_api_keys_on_account_id"
     t.index ["agent_id"], name: "index_api_keys_on_agent_id", unique: true, where: "(agent_id IS NOT NULL)"
     t.index ["token_digest"], name: "index_api_keys_on_token_digest", unique: true
     t.index ["user_id"], name: "index_api_keys_on_user_id"
@@ -582,6 +592,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_04_102500) do
   add_foreign_key "agents", "accounts"
   add_foreign_key "agents", "api_keys", column: "outbound_api_key_id"
   add_foreign_key "api_key_requests", "api_keys"
+  add_foreign_key "api_keys", "accounts"
   add_foreign_key "api_keys", "agents"
   add_foreign_key "api_keys", "users"
   add_foreign_key "audit_logs", "accounts"

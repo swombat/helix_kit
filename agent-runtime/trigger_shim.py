@@ -5,8 +5,10 @@ trigger_shim.py — the HTTP-to-chaos-exec bridge.
 Runs inside each chaos-agent container. Listens on port 4000.
 HelixKit POSTs a trigger payload here; we shell out to `chaos exec`.
 
-This is intentionally dumb: no business logic, no state, no decision-making.
-If it grows past ~200 lines, you've built the wrong thing.
+This is intentionally dumb: no business logic, no decision-making beyond
+"fresh session or resume". The only state it keeps is a sidecar cache mapping
+HelixKit session ids to chaos process ids — losable at any moment with zero
+correctness impact (loss means one fresh session, i.e. today's behaviour).
 
 Endpoints:
     GET  /health          — liveness check (no auth)
@@ -14,14 +16,34 @@ Endpoints:
 
 Trigger payload (HelixKit ChaosTriggerClient shape):
     {
-      "session_id": "<agent-uuid>-<chat-id>",     # arbitrary string, future chaos session resume
-      "request": "HelixKit received a request...",# the prompt text fed to `chaos exec`
+      "session_id": "<agent-uuid>-<chat-id>",     # HelixKit's stable session key
+      "request": "HelixKit received a request...",# full prompt (always present)
+      "request_delta": "...",                     # optional slim prompt, used only on resume
+      "persistent_session": true,                 # optional; enables resume behaviour
       "conversation_id": "WYNWQe",                # optional, for logs only
       "requested_by": "user@example.com",         # optional, for logs only
       "model": "claude-sonnet-4-5"                # optional; falls back to AGENT_DEFAULT_MODEL env
     }
 
 `prompt` is accepted as a backwards-compatible alias for `request`.
+
+Persistent-session behaviour (when `persistent_session` is true):
+    - First trigger for a session_id runs `chaos exec --json` with the full
+      identity-wrapped prompt, captures chaos's process_id from the
+      `process.started` event, and stores the mapping in a sidecar file under
+      `$CHAOS_HOME/helixkit-sessions/`.
+    - Subsequent triggers run `chaos exec --json ... resume <process_id> -`
+      with `request_delta` (falling back to `request`) — no identity
+      re-injection, no journal re-read.
+    - The session rolls (fresh start) on: model change, identity-file change,
+      context-size ceiling, or any resume failure. Failure mode is always
+      "one full fresh turn", never a contextless agent.
+    - The response gains `chaos_session_id`, `session_resumed`,
+      `fresh_fallback`, `session_roll_reason`, and `usage`
+      {input_tokens, cached_input_tokens, output_tokens}.
+
+Without `persistent_session`, behaviour is byte-identical to the legacy shim:
+one fresh non-persisted-mapping `chaos exec` per trigger.
 
 Env vars (read at startup):
     AGENT_ID                  stable identifier for this agent
@@ -33,12 +55,22 @@ Env vars (read at startup):
     AGENT_IDENTITY_PATH       identity path (default /home/agent/identity)
     SHIM_PORT                 port to listen on (default 4000)
     CHAOS_BIN                 path to chaos binary (default /usr/local/bin/chaos)
+    CHAOS_HOME                chaos state dir (default ~/.chaos); sidecar session
+                              map lives under $CHAOS_HOME/helixkit-sessions/
     CHAOS_TIMEOUT_SECS        max seconds for a single chaos exec call (default 600)
+    SESSION_MAX_CONTEXT_TOKENS  roll a resumed session once its last-seen context
+                                (input + cached input tokens of the final turn)
+                                exceeds this (default 150000)
 """
 
+import hashlib
+import json
 import os
+import re
 import subprocess
+import threading
 import logging
+from datetime import datetime, timezone
 from pathlib import Path
 try:
     from flask import Flask, request, jsonify, abort
@@ -62,7 +94,16 @@ AGENT_REPO_PATH = Path(os.environ.get("AGENT_REPO_PATH", "/home/agent/repo"))
 AGENT_IDENTITY_PATH = Path(os.environ.get("AGENT_IDENTITY_PATH", "/home/agent/identity"))
 SHIM_PORT = int(os.environ.get("SHIM_PORT", "4000"))
 CHAOS_BIN = os.environ.get("CHAOS_BIN", "/usr/local/bin/chaos")
+CHAOS_HOME = Path(os.environ.get("CHAOS_HOME", str(Path.home() / ".chaos")))
 CHAOS_TIMEOUT_SECS = int(os.environ.get("CHAOS_TIMEOUT_SECS", "600"))
+SESSION_MAP_DIR = CHAOS_HOME / "helixkit-sessions"
+SESSION_MAX_CONTEXT_TOKENS = int(os.environ.get("SESSION_MAX_CONTEXT_TOKENS", "150000"))
+IDENTITY_FINGERPRINT_FILES = [
+    "soul.md",
+    "runtime-instructions.md",
+    "self-narrative.md",
+    "bootstrap.md",
+]
 IDENTITY_FILE_LIMIT = 80_000
 JOURNAL_MOST_RECENT_LIMIT = 12_000
 JOURNAL_MOST_RECENT_TAIL = 10_000
@@ -79,6 +120,12 @@ if not TRIGGER_BEARER_TOKEN:
     raise SystemExit(2)
 
 app = Flask(__name__) if Flask else None
+
+# Per-session locks: two triggers for the same session_id must never resume the
+# same chaos process concurrently. Flask's default server is single-threaded,
+# so this is a safety net for anyone who later turns threading on.
+_session_locks = {}
+_session_locks_guard = threading.Lock()
 
 
 # ----- routes -----
@@ -97,6 +144,8 @@ def trigger():
     # `request` is the canonical field name (HelixKit ChaosTriggerClient). `prompt`
     # is accepted as a backwards-compatible alias for hand-rolled clients.
     prompt = payload.get("request") or payload.get("prompt")
+    request_delta = payload.get("request_delta")
+    persistent_session = bool(payload.get("persistent_session"))
     model = payload.get("model", AGENT_DEFAULT_MODEL)
     timeout_secs = int(payload.get("timeout_secs") or CHAOS_TIMEOUT_SECS)
     conversation_id = payload.get("conversation_id")
@@ -107,41 +156,22 @@ def trigger():
 
     log.info(
         f"trigger session_id={session_id} conversation_id={conversation_id} "
-        f"requested_by={requested_by} model={model} timeout_secs={timeout_secs} prompt_len={len(prompt)}"
+        f"requested_by={requested_by} model={model} timeout_secs={timeout_secs} "
+        f"prompt_len={len(prompt)} persistent={persistent_session} "
+        f"delta_len={len(request_delta) if request_delta else 0}"
     )
 
+    if persistent_session:
+        return persistent_trigger(session_id, prompt, request_delta, model, timeout_secs)
+    return legacy_trigger(session_id, prompt, model, timeout_secs)
+
+
+def legacy_trigger(session_id, prompt, model, timeout_secs):
+    """One fresh chaos exec per trigger — the original shim behaviour, unchanged."""
     full_prompt = build_prompt(prompt)
-    cwd = AGENT_REPO_PATH if AGENT_REPO_PATH.exists() else Path.home()
 
     try:
-        result = subprocess.run(
-            [
-                CHAOS_BIN, "exec",
-                "--provider", AGENT_PROVIDER,
-                "-C", str(cwd),
-                "--skip-git-repo-check",
-                "-m", model,
-                # Docker is the sandbox boundary for hosted agents. Inside that
-                # boundary the agent must be able to use Bash, write its mounted
-                # identity/state folders, and call HelixKit's API back.
-                "--dangerously-bypass-approvals-and-sandbox",
-                "-c", "shell_environment_policy.inherit=\"all\"",
-                # NOTE: --resume <session_id> only works for an existing session.
-                # For the first turn we omit it; subsequent turns pass it. The shim
-                # does not currently track first-vs-subsequent — chaos will create
-                # a new session on the first call. Caller can persist the
-                # returned session_id from chaos's stdout if needed.
-                # TODO: implement session-id persistence properly once we know the
-                # chaos session-id format from real runs.
-                # Read the full prompt from stdin so identity injection is not
-                # constrained by shell argv limits and is not exposed in ps args.
-                "-",
-            ],
-            input=full_prompt,
-            capture_output=True,
-            text=True,
-            timeout=timeout_secs,
-        )
+        result = run_chaos(model, timeout_secs, full_prompt, json_output=False)
     except subprocess.TimeoutExpired:
         log.error(f"chaos exec timed out after {timeout_secs}s")
         return jsonify({"status": "timeout", "session_id": session_id, "timeout_secs": timeout_secs}), 504
@@ -158,9 +188,291 @@ def trigger():
     return jsonify(response), (200 if result.returncode == 0 else 500)
 
 
+def persistent_trigger(session_id, prompt, request_delta, model, timeout_secs):
+    """Resume the session mapped to session_id, or start (and record) a fresh one.
+
+    Guarantees: a resume that fails in any detectable way is retried once as a
+    full fresh turn. The delta prompt is only ever sent into a session that
+    actually resumed (stale-marker guard) — never into a fresh contextless one.
+    """
+    lock = _lock_for(session_id)
+    if not lock.acquire(blocking=False):
+        log.warning(f"session busy session_id={session_id}")
+        return jsonify({"status": "already_running", "session_id": session_id}), 409
+
+    try:
+        record = load_session_record(session_id)
+        roll = roll_reason(record, model) if record else None
+        if record and roll:
+            log.info(f"rolling session session_id={session_id} reason={roll}")
+            retire_session_record(session_id, reason=roll)
+            record = None
+
+        if record:
+            resume_prompt = request_delta or prompt
+            try:
+                result = run_chaos(
+                    model, timeout_secs, resume_prompt,
+                    json_output=True, resume_id=record["chaos_process_id"],
+                )
+            except subprocess.TimeoutExpired:
+                # Chaos may have made partial progress; keep the mapping —
+                # the next trigger resumes whatever state was persisted.
+                log.error(f"chaos resume timed out after {timeout_secs}s session_id={session_id}")
+                return jsonify({"status": "timeout", "session_id": session_id, "timeout_secs": timeout_secs}), 504
+
+            events = parse_events(result.stdout)
+            stale = events["process_id"] != record["chaos_process_id"]
+            if result.returncode == 0 and not stale:
+                update_session_record(session_id, record, events)
+                return persistent_response(
+                    session_id, result, events, resume_prompt,
+                    resumed=True, fresh_fallback=False, roll=None,
+                )
+
+            log.warning(
+                f"resume failed session_id={session_id} rc={result.returncode} "
+                f"stale={stale} mapped={record['chaos_process_id']} got={events['process_id']}"
+            )
+            retire_session_record(session_id, reason="resume-failed")
+            roll = roll or "resume-failed"
+
+        # Fresh path: full identity-wrapped prompt, new session, new mapping.
+        full_prompt = build_prompt(prompt)
+        try:
+            result = run_chaos(model, timeout_secs, full_prompt, json_output=True)
+        except subprocess.TimeoutExpired:
+            log.error(f"chaos exec timed out after {timeout_secs}s session_id={session_id}")
+            return jsonify({"status": "timeout", "session_id": session_id, "timeout_secs": timeout_secs}), 504
+
+        events = parse_events(result.stdout)
+        if result.returncode == 0 and events["process_id"]:
+            save_session_record(session_id, model, events)
+        return persistent_response(
+            session_id, result, events, full_prompt,
+            resumed=False, fresh_fallback=(roll == "resume-failed"), roll=roll,
+        )
+    finally:
+        lock.release()
+
+
 if app:
     app.get("/health")(health)
     app.post("/trigger")(trigger)
+
+
+# ----- chaos invocation -----
+def run_chaos(model, timeout_secs, prompt_text, json_output, resume_id=None):
+    args = [CHAOS_BIN, "exec"]
+    if json_output:
+        # Machine-readable JSONL: process.started carries the process_id we
+        # map for resume; turn.completed carries token usage.
+        args.append("--json")
+    cwd = AGENT_REPO_PATH if AGENT_REPO_PATH.exists() else Path.home()
+    args += [
+        "--provider", AGENT_PROVIDER,
+        "-C", str(cwd),
+        "--skip-git-repo-check",
+        "-m", model,
+        # Docker is the sandbox boundary for hosted agents. Inside that
+        # boundary the agent must be able to use Bash, write its mounted
+        # identity/state folders, and call HelixKit's API back.
+        "--dangerously-bypass-approvals-and-sandbox",
+        "-c", "shell_environment_policy.inherit=\"all\"",
+    ]
+    if resume_id:
+        # `resume` is an exec subcommand; root exec flags stay before it.
+        args += ["resume", resume_id]
+    # Read the full prompt from stdin so identity injection is not
+    # constrained by shell argv limits and is not exposed in ps args.
+    args.append("-")
+
+    return subprocess.run(
+        args,
+        input=prompt_text,
+        capture_output=True,
+        text=True,
+        timeout=timeout_secs,
+    )
+
+
+def parse_events(stdout):
+    """Parse `chaos exec --json` JSONL output.
+
+    Returns process_id, summed token usage across turns, and the agent's
+    final message texts (for human-readable diagnostics).
+    """
+    parsed = {
+        "process_id": None,
+        "input_tokens": 0,
+        "cached_input_tokens": 0,
+        "output_tokens": 0,
+        "agent_messages": [],
+        "errors": [],
+    }
+    for line in (stdout or "").splitlines():
+        line = line.strip()
+        if not line.startswith("{"):
+            continue
+        try:
+            event = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        kind = event.get("type")
+        if kind == "process.started":
+            parsed["process_id"] = event.get("process_id")
+        elif kind == "turn.completed":
+            usage = event.get("usage") or {}
+            parsed["input_tokens"] += int(usage.get("input_tokens") or 0)
+            parsed["cached_input_tokens"] += int(usage.get("cached_input_tokens") or 0)
+            parsed["output_tokens"] += int(usage.get("output_tokens") or 0)
+        elif kind == "item.completed":
+            item = event.get("item") or {}
+            if item.get("type") == "agent_message" and item.get("text"):
+                parsed["agent_messages"].append(item["text"])
+        elif kind in ("error", "turn.failed"):
+            parsed["errors"].append(json.dumps(event))
+    return parsed
+
+
+def persistent_response(session_id, result, events, invocation_text, resumed, fresh_fallback, roll):
+    # Prefer the agent's own message texts as diagnostics; fall back to raw
+    # JSONL tail so failures stay debuggable.
+    if events["agent_messages"]:
+        stdout_text = "\n\n".join(events["agent_messages"])
+    else:
+        stdout_text = result.stdout
+    if events["errors"]:
+        stdout_text += "\n\n[events] " + "\n".join(events["errors"])
+
+    response = {
+        "status": "ok" if result.returncode == 0 else "error",
+        "session_id": session_id,
+        "returncode": result.returncode,
+        "stdout": _tail(stdout_text, 4000),
+        "stderr": _tail(result.stderr, 4000),
+        "full_invocation_text": invocation_text,
+        "chaos_session_id": events["process_id"],
+        "session_resumed": resumed,
+        "fresh_fallback": fresh_fallback,
+        "usage": {
+            "input_tokens": events["input_tokens"],
+            "cached_input_tokens": events["cached_input_tokens"],
+            "output_tokens": events["output_tokens"],
+        },
+    }
+    if roll:
+        response["session_roll_reason"] = roll
+    log.info(
+        f"trigger done session_id={session_id} rc={result.returncode} resumed={resumed} "
+        f"chaos_session={events['process_id']} "
+        f"usage=i{events['input_tokens']}/c{events['cached_input_tokens']}/o{events['output_tokens']}"
+    )
+    return jsonify(response), (200 if result.returncode == 0 else 500)
+
+
+# ----- session sidecar records -----
+def session_record_path(session_id):
+    # Session ids are caller-supplied; never place them raw into a path.
+    safe = re.sub(r"[^A-Za-z0-9._-]", "_", session_id)[:80]
+    digest = hashlib.sha256(session_id.encode()).hexdigest()[:12]
+    return SESSION_MAP_DIR / f"{safe}-{digest}.json"
+
+
+def load_session_record(session_id):
+    path = session_record_path(session_id)
+    try:
+        record = json.loads(path.read_text())
+    except FileNotFoundError:
+        return None
+    except Exception as e:
+        log.warning(f"unreadable session record {path}: {e}")
+        return None
+    if not record.get("chaos_process_id"):
+        return None
+    return record
+
+
+def save_session_record(session_id, model, events):
+    now = _utcnow_iso()
+    record = {
+        "helixkit_session_id": session_id,
+        "chaos_process_id": events["process_id"],
+        "model": model,
+        "created_at": now,
+        "last_finished_at": now,
+        "last_context_tokens": events["input_tokens"] + events["cached_input_tokens"],
+        "identity_fingerprint": identity_fingerprint(),
+    }
+    _atomic_write(session_record_path(session_id), record)
+
+
+def update_session_record(session_id, record, events):
+    record["last_finished_at"] = _utcnow_iso()
+    # The final turn's input+cached is the best available proxy for the
+    # session's accumulated context size.
+    record["last_context_tokens"] = events["input_tokens"] + events["cached_input_tokens"]
+    _atomic_write(session_record_path(session_id), record)
+
+
+def retire_session_record(session_id, reason):
+    path = session_record_path(session_id)
+    try:
+        path.rename(path.with_suffix(f".retired-{reason}.json"))
+    except FileNotFoundError:
+        pass
+    except Exception as e:
+        log.warning(f"could not retire session record {path}: {e}")
+        try:
+            path.unlink()
+        except Exception:
+            pass
+
+
+def roll_reason(record, model):
+    """Reasons to abandon a mapped session and start fresh. None = resume."""
+    if record.get("model") != model:
+        return "model-changed"
+    if record.get("identity_fingerprint") != identity_fingerprint():
+        return "identity-changed"
+    if int(record.get("last_context_tokens") or 0) > SESSION_MAX_CONTEXT_TOKENS:
+        return "context-ceiling"
+    return None
+
+
+def identity_fingerprint():
+    """mtimes of the injected identity files; a change rolls the session so
+    identity edits propagate at the next turn instead of never."""
+    fingerprint = {}
+    for filename in IDENTITY_FINGERPRINT_FILES:
+        path = AGENT_IDENTITY_PATH / filename
+        try:
+            fingerprint[filename] = path.stat().st_mtime_ns
+        except OSError:
+            fingerprint[filename] = None
+    return fingerprint
+
+
+def _atomic_write(path, record):
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        tmp = path.with_suffix(".tmp")
+        tmp.write_text(json.dumps(record, indent=2))
+        tmp.replace(path)
+    except Exception as e:
+        # Sidecar loss is safe (next trigger goes fresh); never fail the run.
+        log.warning(f"could not write session record {path}: {e}")
+
+
+def _lock_for(session_id):
+    with _session_locks_guard:
+        if session_id not in _session_locks:
+            _session_locks[session_id] = threading.Lock()
+        return _session_locks[session_id]
+
+
+def _utcnow_iso():
+    return datetime.now(timezone.utc).isoformat()
 
 
 # ----- helpers -----

@@ -18,14 +18,25 @@ module Chat::Summarizable
     summary
   end
 
-  def transcript_for_api
-    messages.includes(:user, :agent)
-            .where(role: %w[user assistant])
-            .order(:created_at)
-            .map { |message| format_message_for_api(message) }
+  def transcript_for_api(after_message_id: nil, since: nil)
+    scope = messages.includes(:user, :agent)
+                     .where(role: %w[user assistant])
+                     .order(:created_at)
+    scope = scope.where("messages.id > ?", after_message_id) if after_message_id.present?
+    since_time = parse_since(since)
+    scope = scope.where("messages.created_at > ?", since_time) if since_time
+
+    scope.map { |message| format_message_for_api(message) }
   end
 
   private
+
+  def parse_since(value)
+    return nil if value.blank?
+    Time.iso8601(value.to_s)
+  rescue ArgumentError
+    nil
+  end
 
   def generate_summary_from_llm
     transcript_lines = messages.where(role: %w[user assistant])
@@ -45,6 +56,7 @@ module Chat::Summarizable
 
   def format_message_for_api(message)
     {
+      id: message.to_param,
       role: message.role,
       content: message.content,
       author: api_author_name(message),

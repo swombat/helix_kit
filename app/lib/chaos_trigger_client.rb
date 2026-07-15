@@ -10,7 +10,7 @@ class ChaosTriggerClient
     @trigger_bearer_token = trigger_bearer_token
   end
 
-  def request_response(conversation_id:, requested_by:, session_id:, request:, trigger_kind: "conversation", model: nil, read_timeout: DEFAULT_READ_TIMEOUT_SECS, runtime_timeout_secs: DEFAULT_RUNTIME_TIMEOUT_SECS)
+  def request_response(conversation_id:, requested_by:, session_id:, request:, trigger_kind: "conversation", model: nil, request_delta: nil, persistent_session: false, read_timeout: DEFAULT_READ_TIMEOUT_SECS, runtime_timeout_secs: DEFAULT_RUNTIME_TIMEOUT_SECS)
     raise ArgumentError, "endpoint_url is missing" if endpoint_url.blank?
     raise ArgumentError, "trigger bearer token is missing" if trigger_bearer_token.blank?
 
@@ -27,6 +27,8 @@ class ChaosTriggerClient
     }
     body[:model] = model if model.present?
     body[:timeout_secs] = runtime_timeout_secs if runtime_timeout_secs.present?
+    body[:request_delta] = request_delta if request_delta.present?
+    body[:persistent_session] = true if persistent_session
     http_request.body = body.to_json
 
     response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == "https", open_timeout: 5, read_timeout: read_timeout) do |http|

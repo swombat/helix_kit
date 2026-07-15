@@ -63,6 +63,19 @@ module Api
         assert_equal 2, json["conversation"]["transcript"].length
       end
 
+      test "filters transcript to messages after a given cursor" do
+        first = @chat.messages.create!(content: "Hello", role: "user", user: @user)
+        second = @chat.messages.create!(content: "Hi there!", role: "assistant")
+
+        get api_v1_conversation_url(@chat), params: { after_message_id: first.to_param }, headers: { "Authorization" => "Bearer #{@token}" }
+        assert_response :success
+
+        json = JSON.parse(response.body)
+        transcript = json["conversation"]["transcript"]
+        assert_equal 1, transcript.length
+        assert_equal second.to_param, transcript.first["id"]
+      end
+
       test "returns 404 for unknown conversation" do
         get api_v1_conversation_url("nonexistent"), headers: { "Authorization" => "Bearer #{@token}" }
         assert_response :not_found

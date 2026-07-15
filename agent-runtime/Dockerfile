@@ -23,8 +23,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Pin to a specific chaos commit SHA for reproducibility.
+# cbd48916: master with PR #13 merged (Anthropic prompt caching in the parrot
+# provider — cache_control + cache-read/creation accounting in TokenUsage).
 ARG CHAOS_REPO=https://github.com/seuros/chaos.git
-ARG CHAOS_REF=d3bb3e9418cef11c64b83326f8bb9559daf9ec2b
+ARG CHAOS_REF=cbd489164327e1bcdfc374cbc7cdeb5249fb1788
 
 WORKDIR /build
 RUN git clone --filter=blob:none ${CHAOS_REPO} chaos \
@@ -71,6 +73,11 @@ VOLUME ["/home/agent/identity", "/home/agent/.chaos", "/home/agent/repo"]
 
 WORKDIR /home/agent
 ENV SHIM_PORT=4000
+# Anthropic prompt-cache TTL for chaos (PR seuros/chaos#13). Hosted agents are
+# triggered on ~hourly wake cadence and bursty conversations; the 1-hour TTL
+# keeps the cache chained across wakes (5m dies in the inter-wake gap and its
+# writes become pure loss).
+ENV CHAOS_ANTHROPIC_CACHE_TTL=1h
 EXPOSE 4000
 
 ENTRYPOINT ["tini", "--", "/usr/local/bin/entrypoint.sh"]
