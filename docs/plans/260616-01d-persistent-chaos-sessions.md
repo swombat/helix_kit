@@ -132,13 +132,13 @@ else:
 
 After the process exits, parse the JSONL stdout and capture the actual Chaos `process_id` from the `process.started` event.
 
-**Stale-marker guard (load-bearing — confirmed by Q3):** if the shim attempted resume with `mapped_chaos_process_id`, but the `process.started.process_id` in the output **differs from** the mapped id, Chaos silently forked a fresh session. (Per Q3 this is the *only* detectable signal — there is no error, no non-zero exit.) Then:
+**Stale-marker guard (load-bearing — confirmed by Q3):** if the shim attempted resume with `mapped_chaos_process_id`, but the `process.started.process_id` in the output **differs from** the mapped id, Chaos silently forked a fresh session. (Per Q3 this is the *only* detectable signal — there is no error, no non-zero exit, and detection happens after that attempted run may already have produced side effects.) Then:
 
 1. delete/quarantine the sidecar marker;
 2. retry once as a first turn with `build_prompt(request_text)` (full identity + transcript);
 3. write a fresh mapping after success.
 
-This is the difference between "degrades to today's cost" and "agent wakes context-less." Without the id-comparison check, the failure is **silent** — the shim would believe it resumed.
+This prevents subsequent turns from remaining context-less. It cannot undo tool or posting side effects from the already-completed stale-id attempt; avoiding that entirely requires Chaos to reject unknown resume ids before starting a turn.
 
 **Failure mode:** if mapping is lost, corrupt, or stale, the fallback is full first-turn behavior. That is today's cost, not a contextless agent.
 
@@ -215,7 +215,7 @@ For Step 1, prefer simple and safe: reject/return `409 already_running` with eno
 - Per-turn payload shrinks to genuinely new content.
 - Prompt-cache friendliness improves where the provider supports it — see §4.4 (treat as a measured win, not an assumed one).
 
-**Risk profile:** low if the stale-marker guard and locking are included. No new process supervisor. Worst safe case degrades to full first-turn behavior.
+**Risk profile:** low if the stale-marker guard and locking are included. No new process supervisor. The main residual risk is the narrow stale-id window above: Chaos can run one delta-only turn before returning the mismatched id.
 
 Ship Step 1 independently and measure token spend before building Step 2.
 

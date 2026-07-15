@@ -36,8 +36,7 @@ Persistent-session behaviour (when `persistent_session` is true):
       with `request_delta` (falling back to `request`) — no identity
       re-injection, no journal re-read.
     - The session rolls (fresh start) on: model change, identity-file change,
-      context-size ceiling, or any resume failure. Failure mode is always
-      "one full fresh turn", never a contextless agent.
+      or any resume failure.
     - The response gains `chaos_session_id`, `session_resumed`,
       `fresh_fallback`, `session_roll_reason`, and `usage`
       {input_tokens, cached_input_tokens, output_tokens}.
@@ -58,9 +57,6 @@ Env vars (read at startup):
     CHAOS_HOME                chaos state dir (default ~/.chaos); sidecar session
                               map lives under $CHAOS_HOME/helixkit-sessions/
     CHAOS_TIMEOUT_SECS        max seconds for a single chaos exec call (default 600)
-    SESSION_MAX_CONTEXT_TOKENS  roll a resumed session once its last-seen context
-                                (input + cached input tokens of the final turn)
-                                exceeds this (default 150000)
 """
 
 import hashlib
@@ -97,7 +93,6 @@ CHAOS_BIN = os.environ.get("CHAOS_BIN", "/usr/local/bin/chaos")
 CHAOS_HOME = Path(os.environ.get("CHAOS_HOME", str(Path.home() / ".chaos")))
 CHAOS_TIMEOUT_SECS = int(os.environ.get("CHAOS_TIMEOUT_SECS", "600"))
 SESSION_MAP_DIR = CHAOS_HOME / "helixkit-sessions"
-SESSION_MAX_CONTEXT_TOKENS = int(os.environ.get("SESSION_MAX_CONTEXT_TOKENS", "150000"))
 IDENTITY_FINGERPRINT_FILES = [
     "soul.md",
     "runtime-instructions.md",
@@ -191,9 +186,9 @@ def legacy_trigger(session_id, prompt, model, timeout_secs):
 def persistent_trigger(session_id, prompt, request_delta, model, timeout_secs):
     """Resume the session mapped to session_id, or start (and record) a fresh one.
 
-    Guarantees: a resume that fails in any detectable way is retried once as a
-    full fresh turn. The delta prompt is only ever sent into a session that
-    actually resumed (stale-marker guard) — never into a fresh contextless one.
+    A resume that fails in any detectable way is retried once as a full fresh
+    turn. Chaos reveals a stale id only after the attempted run, so the retry
+    repairs future context but cannot undo side effects from that rare attempt.
     """
     lock = _lock_for(session_id)
     if not lock.acquire(blocking=False):
@@ -216,18 +211,22 @@ def persistent_trigger(session_id, prompt, request_delta, model, timeout_secs):
                     json_output=True, resume_id=record["chaos_process_id"],
                 )
             except subprocess.TimeoutExpired:
-                # Chaos may have made partial progress; keep the mapping —
-                # the next trigger resumes whatever state was persisted.
+                # The subprocess is killed on timeout, so the persisted session
+                # may contain only part of this turn. Retire the ambiguous
+                # mapping: the next trigger will use the full prompt instead of
+                # replaying the same delta into a possibly half-written turn.
                 log.error(f"chaos resume timed out after {timeout_secs}s session_id={session_id}")
+                retire_session_record(session_id, reason="resume-timeout")
                 return jsonify({"status": "timeout", "session_id": session_id, "timeout_secs": timeout_secs}), 504
 
             events = parse_events(result.stdout)
             stale = events["process_id"] != record["chaos_process_id"]
             if result.returncode == 0 and not stale:
-                update_session_record(session_id, record, events)
+                usage = usage_since(record, events)
+                update_session_record(session_id, record, events, usage)
                 return persistent_response(
                     session_id, result, events, resume_prompt,
-                    resumed=True, fresh_fallback=False, roll=None,
+                    usage=usage, resumed=True, fresh_fallback=False, roll=None,
                 )
 
             log.warning(
@@ -246,11 +245,13 @@ def persistent_trigger(session_id, prompt, request_delta, model, timeout_secs):
             return jsonify({"status": "timeout", "session_id": session_id, "timeout_secs": timeout_secs}), 504
 
         events = parse_events(result.stdout)
+        usage = usage_since(None, events)
         if result.returncode == 0 and events["process_id"]:
-            save_session_record(session_id, model, events)
+            save_session_record(session_id, model, events, usage)
         return persistent_response(
             session_id, result, events, full_prompt,
-            resumed=False, fresh_fallback=(roll == "resume-failed"), roll=roll,
+            usage=usage, resumed=False,
+            fresh_fallback=(roll == "resume-failed"), roll=roll,
         )
     finally:
         lock.release()
@@ -299,8 +300,8 @@ def run_chaos(model, timeout_secs, prompt_text, json_output, resume_id=None):
 def parse_events(stdout):
     """Parse `chaos exec --json` JSONL output.
 
-    Returns process_id, summed token usage across turns, and the agent's
-    final message texts (for human-readable diagnostics).
+    Returns process_id, the latest cumulative token usage reported by Chaos,
+    and the agent's final message texts (for human-readable diagnostics).
     """
     parsed = {
         "process_id": None,
@@ -323,9 +324,9 @@ def parse_events(stdout):
             parsed["process_id"] = event.get("process_id")
         elif kind == "turn.completed":
             usage = event.get("usage") or {}
-            parsed["input_tokens"] += int(usage.get("input_tokens") or 0)
-            parsed["cached_input_tokens"] += int(usage.get("cached_input_tokens") or 0)
-            parsed["output_tokens"] += int(usage.get("output_tokens") or 0)
+            parsed["input_tokens"] = int(usage.get("input_tokens") or 0)
+            parsed["cached_input_tokens"] = int(usage.get("cached_input_tokens") or 0)
+            parsed["output_tokens"] = int(usage.get("output_tokens") or 0)
         elif kind == "item.completed":
             item = event.get("item") or {}
             if item.get("type") == "agent_message" and item.get("text"):
@@ -335,7 +336,23 @@ def parse_events(stdout):
     return parsed
 
 
-def persistent_response(session_id, result, events, invocation_text, resumed, fresh_fallback, roll):
+def usage_since(record, events):
+    """Convert Chaos's cumulative process counters into usage for this trigger."""
+    record = record or {}
+    usage = {}
+    for key in ("input_tokens", "cached_input_tokens", "output_tokens"):
+        previous = int(record.get(f"cumulative_{key}") or 0)
+        current = int(events.get(key) or 0)
+        # A future Chaos compaction or accounting change may reset a cumulative
+        # counter. Treat the new value as this trigger's usage rather than
+        # incorrectly reporting zero forever after the reset.
+        usage[key] = current - previous if current >= previous else current
+    return usage
+
+
+def persistent_response(
+    session_id, result, events, invocation_text, usage, resumed, fresh_fallback, roll
+):
     # Prefer the agent's own message texts as diagnostics; fall back to raw
     # JSONL tail so failures stay debuggable.
     if events["agent_messages"]:
@@ -355,18 +372,14 @@ def persistent_response(session_id, result, events, invocation_text, resumed, fr
         "chaos_session_id": events["process_id"],
         "session_resumed": resumed,
         "fresh_fallback": fresh_fallback,
-        "usage": {
-            "input_tokens": events["input_tokens"],
-            "cached_input_tokens": events["cached_input_tokens"],
-            "output_tokens": events["output_tokens"],
-        },
+        "usage": usage,
     }
     if roll:
         response["session_roll_reason"] = roll
     log.info(
         f"trigger done session_id={session_id} rc={result.returncode} resumed={resumed} "
         f"chaos_session={events['process_id']} "
-        f"usage=i{events['input_tokens']}/c{events['cached_input_tokens']}/o{events['output_tokens']}"
+        f"usage=i{usage['input_tokens']}/c{usage['cached_input_tokens']}/o{usage['output_tokens']}"
     )
     return jsonify(response), (200 if result.returncode == 0 else 500)
 
@@ -393,7 +406,7 @@ def load_session_record(session_id):
     return record
 
 
-def save_session_record(session_id, model, events):
+def save_session_record(session_id, model, events, usage):
     now = _utcnow_iso()
     record = {
         "helixkit_session_id": session_id,
@@ -401,17 +414,19 @@ def save_session_record(session_id, model, events):
         "model": model,
         "created_at": now,
         "last_finished_at": now,
-        "last_context_tokens": events["input_tokens"] + events["cached_input_tokens"],
+        "cumulative_input_tokens": events["input_tokens"],
+        "cumulative_cached_input_tokens": events["cached_input_tokens"],
+        "cumulative_output_tokens": events["output_tokens"],
         "identity_fingerprint": identity_fingerprint(),
     }
     _atomic_write(session_record_path(session_id), record)
 
 
-def update_session_record(session_id, record, events):
+def update_session_record(session_id, record, events, usage):
     record["last_finished_at"] = _utcnow_iso()
-    # The final turn's input+cached is the best available proxy for the
-    # session's accumulated context size.
-    record["last_context_tokens"] = events["input_tokens"] + events["cached_input_tokens"]
+    record["cumulative_input_tokens"] = events["input_tokens"]
+    record["cumulative_cached_input_tokens"] = events["cached_input_tokens"]
+    record["cumulative_output_tokens"] = events["output_tokens"]
     _atomic_write(session_record_path(session_id), record)
 
 
@@ -435,8 +450,6 @@ def roll_reason(record, model):
         return "model-changed"
     if record.get("identity_fingerprint") != identity_fingerprint():
         return "identity-changed"
-    if int(record.get("last_context_tokens") or 0) > SESSION_MAX_CONTEXT_TOKENS:
-        return "context-ceiling"
     return None
 
 

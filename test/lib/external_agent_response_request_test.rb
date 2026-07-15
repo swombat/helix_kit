@@ -129,7 +129,8 @@ class ExternalAgentResponseRequestTest < ActiveSupport::TestCase
     first = chat.messages.create!(role: "user", content: "First message")
     AgentRuntimeInteraction.create!(
       agent: agent, chat: chat, trigger_kind: "conversation", session_id: "s",
-      requested_by: "test", started_at: 1.minute.ago, last_included_message_id: first.id
+      requested_by: "test", started_at: 1.minute.ago, last_included_message_id: first.id,
+      chaos_session_id: "chaos-1", transport_status: 200, runtime_status: "ok"
     )
     second = chat.messages.create!(role: "user", content: "Second message")
 
@@ -147,6 +148,55 @@ class ExternalAgentResponseRequestTest < ActiveSupport::TestCase
     assert_equal second.id, request.send(:computed_last_included_message_id)
   end
 
+  test "failed runtime attempts do not advance the persistent transcript cursor" do
+    agent = agents(:research_assistant)
+    agent.update!(persistent_session: true)
+    chat = agent.account.chats.create!(model_id: "openrouter/auto", title: "Delta prompt")
+    first = chat.messages.create!(role: "user", content: "First message")
+    AgentRuntimeInteraction.create!(
+      agent: agent, chat: chat, trigger_kind: "conversation", session_id: "s",
+      requested_by: "test", started_at: 3.minutes.ago, finished_at: 2.minutes.ago,
+      last_included_message_id: first.id, chaos_session_id: "chaos-1",
+      transport_status: 200, runtime_status: "ok"
+    )
+    second = chat.messages.create!(role: "user", content: "Second message")
+    AgentRuntimeInteraction.create!(
+      agent: agent, chat: chat, trigger_kind: "conversation", session_id: "s",
+      requested_by: "test", started_at: 1.minute.ago, finished_at: Time.current,
+      last_included_message_id: second.id, chaos_session_id: "chaos-1",
+      transport_status: 504, runtime_status: "timeout"
+    )
+
+    request = ExternalAgentResponseRequest.new(agent: agent, chat: chat)
+    delta = request.send(:request_delta_text)
+
+    assert_includes delta, "messages_after_cursor: #{first.id}"
+    assert_includes delta, "Second message"
+    assert_equal second.id, request.send(:computed_last_included_message_id)
+  end
+
+  test "persistent cursor records the exact delta snapshot even if a message arrives later" do
+    agent = agents(:research_assistant)
+    agent.update!(persistent_session: true)
+    chat = agent.account.chats.create!(model_id: "openrouter/auto", title: "Delta prompt")
+    first = chat.messages.create!(role: "user", content: "First message")
+    AgentRuntimeInteraction.create!(
+      agent: agent, chat: chat, trigger_kind: "conversation", session_id: "s",
+      requested_by: "test", started_at: 1.minute.ago, last_included_message_id: first.id,
+      chaos_session_id: "chaos-1", transport_status: 200, runtime_status: "ok"
+    )
+    second = chat.messages.create!(role: "user", content: "Second message")
+
+    request = ExternalAgentResponseRequest.new(agent: agent, chat: chat)
+    delta = request.send(:request_delta_text)
+    third = chat.messages.create!(role: "user", content: "Arrived after prompt snapshot")
+
+    assert_includes delta, "Second message"
+    refute_includes delta, "Arrived after prompt snapshot"
+    assert_equal second.id, request.send(:computed_last_included_message_id)
+    assert_operator third.id, :>, request.send(:computed_last_included_message_id)
+  end
+
   test "sends an empty delta block with zero count when no new messages exist since the cursor" do
     agent = agents(:research_assistant)
     agent.update!(persistent_session: true)
@@ -154,7 +204,8 @@ class ExternalAgentResponseRequestTest < ActiveSupport::TestCase
     only = chat.messages.create!(role: "user", content: "Only message")
     AgentRuntimeInteraction.create!(
       agent: agent, chat: chat, trigger_kind: "conversation", session_id: "s",
-      requested_by: "test", started_at: 1.minute.ago, last_included_message_id: only.id
+      requested_by: "test", started_at: 1.minute.ago, last_included_message_id: only.id,
+      chaos_session_id: "chaos-1", transport_status: 200, runtime_status: "ok"
     )
 
     request = ExternalAgentResponseRequest.new(agent: agent, chat: chat)
@@ -181,7 +232,8 @@ class ExternalAgentResponseRequestTest < ActiveSupport::TestCase
     AgentRuntimeInteraction.create!(
       agent: agent, chat: chat, trigger_kind: "conversation", session_id: "s",
       requested_by: "test", started_at: 2.minutes.ago, finished_at: 1.minute.ago,
-      last_included_message_id: first.id
+      last_included_message_id: first.id, chaos_session_id: "chaos-1",
+      transport_status: 200, runtime_status: "ok"
     )
     second = chat.messages.create!(role: "user", content: "Second message")
 

@@ -76,12 +76,13 @@ Per trigger:
 2. **Mapping exists** → `chaos exec --json resume <process_id> -` with a
    **delta prompt** (see below). On *any* resume failure (unknown id,
    corrupted rollout, chaos version bump) → delete mapping, fall through to
-   (1). Self-healing; worst case is exactly today's behaviour.
+   (1). This restores a full-context mapping for subsequent turns. Chaos
+   currently reports an unknown id only after silently running a fresh
+   session, so that rare stale-marker attempt may already have produced tool
+   side effects before the shim detects the returned-id mismatch.
 3. **Roll conditions** (delete mapping, go fresh):
    - requested `model` ≠ stored `model` (a resumed session keeps its model;
      cache is model-scoped anyway)
-   - `cum_input_tokens` (or last turn's `input_tokens + cached_input_tokens`)
-     > ~150k — context ceiling
    - identity files changed since `created_at` (cheap mtime check on
      `soul.md` / `self-narrative.md` / `runtime-instructions.md`) — so an
      identity edit propagates at the next turn instead of never

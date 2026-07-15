@@ -161,32 +161,39 @@ class ExternalAgentResponseRequest
   end
 
   def full_window_messages
-    chat.messages.order(:created_at).last(30)
+    @full_window_messages ||= chat.messages.order(:created_at).last(30)
   end
 
-  # The most recent prior conversation trigger for this agent+chat that recorded
-  # a transcript cursor, regardless of whether that run posted a reply. Messages
-  # can arrive mid-run, so `finished_at` is not a safe cursor (see plan 3.3).
+  # The most recent successful persistent-session trigger for this agent+chat.
+  # Failed attempts must not advance the cursor: the request may never have
+  # reached Chaos, and a later delta would otherwise skip undelivered messages.
+  # Messages can arrive mid-run, so `finished_at` is not a safe cursor.
   def prior_cursor_message_id
     return @prior_cursor_message_id if defined?(@prior_cursor_message_id)
 
     @prior_cursor_message_id = AgentRuntimeInteraction
       .where(agent: agent, chat: chat, trigger_kind: "conversation")
       .where.not(last_included_message_id: nil)
+      .where.not(chaos_session_id: nil)
+      .where(transport_status: 200...300, runtime_status: "ok")
       .order(created_at: :desc, id: :desc)
       .limit(1)
       .pick(:last_included_message_id)
   end
 
   def delta_messages
-    return Message.none unless prior_cursor_message_id
+    return @delta_messages if defined?(@delta_messages)
 
-    chat.messages.where("id > ?", prior_cursor_message_id).order(:id)
+    @delta_messages = if prior_cursor_message_id
+      chat.messages.where("id > ?", prior_cursor_message_id).order(:id).to_a
+    else
+      []
+    end
   end
 
   def computed_last_included_message_id
     if agent.persistent_session? && prior_cursor_message_id
-      delta_messages.maximum(:id) || prior_cursor_message_id
+      delta_messages.map(&:id).max || prior_cursor_message_id
     else
       full_window_messages.map(&:id).max
     end
@@ -209,7 +216,7 @@ class ExternalAgentResponseRequest
   end
 
   def delta_transcript_context
-    messages = delta_messages.to_a
+    messages = delta_messages
     lines = messages.map { |message| format_transcript_line(message) }
     cursor_label = prior_cursor_message_id || "none"
 
