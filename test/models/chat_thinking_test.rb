@@ -182,6 +182,30 @@ class ChatThinkingTest < ActiveSupport::TestCase
     assert_equal "grok-4.3", top_xai_model[:provider_model_id]
   end
 
+  test "Top Models includes exactly one latest flagship per lab" do
+    top_model_ids = Chat::MODELS
+      .select { |model| model[:group] == "Top Models" }
+      .map { |model| model[:model_id] }
+
+    assert_equal [
+      "openai/gpt-5.6-sol",
+      "anthropic/claude-fable-5",
+      "deepseek/deepseek-v4-pro",
+      "google/gemini-3.1-pro-preview",
+      "x-ai/grok-4.3",
+      "mistralai/mistral-large-2512",
+      "meta-llama/llama-4-maverick",
+      "minimax/minimax-m3",
+      "moonshotai/kimi-k2.7-code",
+      "qwen/qwen3.7-max",
+      "z-ai/glm-5.2"
+    ], top_model_ids
+
+    assert_equal "OpenAI", Chat.model_config("openai/gpt-5.5")[:group]
+    assert_equal "Anthropic", Chat.model_config("anthropic/claude-opus-4.7")[:group]
+    assert_equal "DeepSeek", Chat.model_config("deepseek/deepseek-v3.2")[:group]
+  end
+
   test "MODELS constant includes thinking metadata for all thinking-capable models" do
     thinking_models = Chat::MODELS.select { |m| m.dig(:thinking, :supported) == true }
 
@@ -203,7 +227,7 @@ class ChatThinkingTest < ActiveSupport::TestCase
 
     assert model, "Claude Opus 4.8 should be available"
     assert_equal "Claude Opus 4.8", model[:label]
-    assert_equal "Top Models", model[:group]
+    assert_equal "Anthropic", model[:group]
     assert_equal "claude-opus-4-8", model[:provider_model_id]
     assert_equal true, model.dig(:thinking, :supported)
     assert_equal true, model.dig(:thinking, :requires_direct_api)

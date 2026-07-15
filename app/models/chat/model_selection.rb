@@ -8,39 +8,17 @@ module Chat::ModelSelection
   MODELS = [
     # Top Models - Flagship from each major provider
     {
-      model_id: "openai/gpt-5.5",
-      label: "GPT-5.5",
+      model_id: "openai/gpt-5.6-sol",
+      label: "GPT-5.6 Sol",
       group: "Top Models",
-      provider_model_id: "gpt-5.5",
+      provider_model_id: "gpt-5.6-sol",
       thinking: { supported: true }
     },
     {
-      model_id: "openai/gpt-5.4",
-      label: "GPT-5.4",
+      model_id: "anthropic/claude-fable-5",
+      label: "Claude Fable 5",
       group: "Top Models",
-      provider_model_id: "gpt-5.4",
-      thinking: { supported: true }
-    },
-    {
-      model_id: "anthropic/claude-opus-4.8",
-      label: "Claude Opus 4.8",
-      group: "Top Models",
-      provider_model_id: "claude-opus-4-8",
-      thinking: { supported: true, requires_direct_api: true }
-    },
-    {
-      model_id: "anthropic/claude-opus-4.7",
-      label: "Claude Opus 4.7",
-      group: "Top Models",
-      provider_model_id: "claude-opus-4-7",
-      thinking: { supported: true, requires_direct_api: true }
-    },
-    {
-      model_id: "anthropic/claude-opus-4.6",
-      label: "Claude Opus 4.6",
-      group: "Top Models",
-      provider_model_id: "claude-opus-4-6",
-      thinking: { supported: true, requires_direct_api: true }
+      provider_model_id: "claude-fable-5"
     },
     {
       model_id: "deepseek/deepseek-v4-pro",
@@ -64,12 +42,18 @@ module Chat::ModelSelection
       provider_model_id: "grok-4.3",
       thinking: { supported: true }
     },
-    { model_id: "deepseek/deepseek-v3.2", label: "DeepSeek V3.2", group: "Top Models" },
+    { model_id: "mistralai/mistral-large-2512", label: "Mistral Large 2512", group: "Top Models" },
+    { model_id: "meta-llama/llama-4-maverick", label: "Llama 4 Maverick", group: "Top Models" },
+    { model_id: "minimax/minimax-m3", label: "MiniMax M3", group: "Top Models", thinking: { supported: true } },
+    { model_id: "moonshotai/kimi-k2.7-code", label: "Kimi K2.7 Code", group: "Top Models" },
+    { model_id: "qwen/qwen3.7-max", label: "Qwen3.7 Max", group: "Top Models", thinking: { supported: true } },
+    { model_id: "z-ai/glm-5.2", label: "GLM 5.2", group: "Top Models", thinking: { supported: true } },
 
     # OpenAI
     { model_id: "openai/gpt-5.6-sol", label: "GPT-5.6 Sol", group: "OpenAI", provider_model_id: "gpt-5.6-sol", thinking: { supported: true } },
     { model_id: "openai/gpt-5.6-terra", label: "GPT-5.6 Terra", group: "OpenAI", provider_model_id: "gpt-5.6-terra", thinking: { supported: true } },
     { model_id: "openai/gpt-5.6-luna", label: "GPT-5.6 Luna", group: "OpenAI", provider_model_id: "gpt-5.6-luna", thinking: { supported: true } },
+    { model_id: "openai/gpt-5.5", label: "GPT-5.5", group: "OpenAI", provider_model_id: "gpt-5.5", thinking: { supported: true } },
     {
       model_id: "openai/gpt-5.5-pro",
       label: "GPT-5.5 Pro",
@@ -77,6 +61,7 @@ module Chat::ModelSelection
       provider_model_id: "gpt-5.5-pro",
       thinking: { supported: true, requires_direct_api: true }
     },
+    { model_id: "openai/gpt-5.4", label: "GPT-5.4", group: "OpenAI", provider_model_id: "gpt-5.4", thinking: { supported: true } },
     {
       model_id: "openai/gpt-5.2",
       label: "GPT-5.2",
@@ -218,6 +203,27 @@ module Chat::ModelSelection
       label: "Claude Fable 5",
       group: "Anthropic",
       provider_model_id: "claude-fable-5"
+    },
+    {
+      model_id: "anthropic/claude-opus-4.8",
+      label: "Claude Opus 4.8",
+      group: "Anthropic",
+      provider_model_id: "claude-opus-4-8",
+      thinking: { supported: true, requires_direct_api: true }
+    },
+    {
+      model_id: "anthropic/claude-opus-4.7",
+      label: "Claude Opus 4.7",
+      group: "Anthropic",
+      provider_model_id: "claude-opus-4-7",
+      thinking: { supported: true, requires_direct_api: true }
+    },
+    {
+      model_id: "anthropic/claude-opus-4.6",
+      label: "Claude Opus 4.6",
+      group: "Anthropic",
+      provider_model_id: "claude-opus-4-6",
+      thinking: { supported: true, requires_direct_api: true }
     },
     {
       model_id: "anthropic/claude-opus-4.5",
@@ -461,6 +467,7 @@ module Chat::ModelSelection
 
     # DeepSeek
     { model_id: "deepseek/deepseek-chat", label: "DeepSeek Chat", group: "DeepSeek" },
+    { model_id: "deepseek/deepseek-v3.2", label: "DeepSeek V3.2", group: "DeepSeek" },
     {
       model_id: "deepseek/deepseek-v4-flash",
       label: "DeepSeek V4 Flash",
