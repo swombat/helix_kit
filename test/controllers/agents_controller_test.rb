@@ -159,6 +159,17 @@ class AgentsControllerTest < ActionDispatch::IntegrationTest
     assert @agent.paused?
   end
 
+  test "external agent can enable persistent sessions" do
+    @agent.update!(runtime: "external", uuid: SecureRandom.uuid_v7)
+
+    patch account_agent_path(@account, @agent), params: {
+      agent: { persistent_session: true }
+    }
+
+    assert_redirected_to account_agents_path(@account)
+    assert @agent.reload.persistent_session?
+  end
+
   test "should fail with duplicate name in same account" do
     existing = @account.agents.create!(name: "Unique Test Agent")
 

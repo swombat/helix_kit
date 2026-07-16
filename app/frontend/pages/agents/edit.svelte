@@ -1,6 +1,8 @@
 <script>
   import { useForm, router } from '@inertiajs/svelte';
   import { Button } from '$lib/components/shadcn/button/index.js';
+  import { Label } from '$lib/components/shadcn/label';
+  import { Switch } from '$lib/components/shadcn/switch';
   import { IdentificationCard, Palette, Cpu, Plug, Notebook, CloudArrowUp } from 'phosphor-svelte';
   import {
     accountAgentsPath,
@@ -76,7 +78,9 @@
   let diagnosticsLoading = $state(false);
   let diagnosticsLoaded = $state(false);
   let diagnosticsError = $state(null);
-  let showFormActions = $derived(!runtimeManaged || activeTab === 'appearance' || activeTab === 'integrations');
+  let showFormActions = $derived(
+    !runtimeManaged || activeTab === 'appearance' || activeTab === 'integrations' || activeTab === 'hosting'
+  );
   let filesystemSections = $derived([
     {
       title: 'Container home filesystem',
@@ -135,6 +139,7 @@
       telegram_bot_username: agent.telegram_bot_username || '',
       telegram_bot_token: agent.telegram_bot_token || '',
       voice_id: agent.voice_id || '',
+      persistent_session: agent.persistent_session || false,
     },
   });
 
@@ -497,6 +502,27 @@
                 {/if}
                 <p>Health: <span class="font-medium">{agent.health_state || 'unknown'}</span></p>
               </div>
+
+              <div class="flex items-center justify-between gap-6 rounded border bg-muted/30 p-4">
+                <div class="space-y-1">
+                  <Label for="persistent_session">Persistent conversation sessions</Label>
+                  <p class="text-sm text-muted-foreground">
+                    Resume each conversation's Chaos session and send only new transcript messages after the first turn.
+                    This reduces repeated identity and transcript token usage.
+                  </p>
+                </div>
+                <Switch
+                  id="persistent_session"
+                  checked={$form.agent.persistent_session}
+                  disabled={!runtimeManaged}
+                  onCheckedChange={(checked) => ($form.agent.persistent_session = checked)} />
+              </div>
+
+              {#if !runtimeManaged}
+                <p class="text-xs text-muted-foreground">
+                  Persistent sessions become available after this agent is promoted to an external runtime.
+                </p>
+              {/if}
 
               {#if agent.sandbox_last_error}
                 <div class="rounded border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
