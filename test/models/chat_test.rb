@@ -70,6 +70,16 @@ class ChatTest < ActiveSupport::TestCase
     assert chat.respond_to?(:to_llm)
   end
 
+  test "builds direct-provider chat for models missing from RubyLLM registry" do
+    chat = Chat.create!(
+      account: @account,
+      model_id: "openai/gpt-5.6-sol",
+      title: "Future model"
+    )
+
+    assert_nothing_raised { chat.to_llm }
+  end
+
   test "broadcasts to account" do
     assert_equal [ :account ], Chat.broadcast_targets
   end

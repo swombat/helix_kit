@@ -228,7 +228,8 @@ class Chat < ApplicationRecord
 
     @chat = (context || RubyLLM).chat(
       model: provider_config[:model_id],
-      provider: provider_config[:provider]
+      provider: provider_config[:provider],
+      assume_model_exists: true
     )
 
     messages_association.each do |msg|
