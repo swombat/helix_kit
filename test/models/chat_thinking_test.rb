@@ -82,6 +82,7 @@ class ChatThinkingTest < ActiveSupport::TestCase
   end
 
   test "provider_model_id returns current direct xAI model IDs for Grok models" do
+    assert_equal "grok-4.5", Chat.provider_model_id("x-ai/grok-4.5")
     assert_equal "grok-4.3", Chat.provider_model_id("x-ai/grok-4.3")
     assert_equal "grok-4.20-0309-reasoning", Chat.provider_model_id("x-ai/grok-4.20")
     assert_equal "grok-4.20-multi-agent-0309", Chat.provider_model_id("x-ai/grok-4.20-multi-agent")
@@ -175,11 +176,11 @@ class ChatThinkingTest < ActiveSupport::TestCase
     end
   end
 
-  test "Top Models uses Grok 4.3 as the xAI recommendation" do
+  test "Top Models uses Grok 4.5 as the xAI recommendation" do
     top_xai_model = Chat::MODELS.find { |model| model[:group] == "Top Models" && model[:model_id].start_with?("x-ai/") }
 
-    assert_equal "x-ai/grok-4.3", top_xai_model[:model_id]
-    assert_equal "grok-4.3", top_xai_model[:provider_model_id]
+    assert_equal "x-ai/grok-4.5", top_xai_model[:model_id]
+    assert_equal "grok-4.5", top_xai_model[:provider_model_id]
   end
 
   test "Top Models includes exactly one latest flagship per lab" do
@@ -192,7 +193,7 @@ class ChatThinkingTest < ActiveSupport::TestCase
       "anthropic/claude-fable-5",
       "deepseek/deepseek-v4-pro",
       "google/gemini-3.1-pro-preview",
-      "x-ai/grok-4.3",
+      "x-ai/grok-4.5",
       "mistralai/mistral-large-2512",
       "meta-llama/llama-4-maverick",
       "minimax/minimax-m3",
