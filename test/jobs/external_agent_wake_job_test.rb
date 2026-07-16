@@ -44,6 +44,21 @@ class ExternalAgentWakeJobTest < ActiveJob::TestCase
     assert_requested request
   end
 
+  test "persistent wake mode reuses the stable wake session" do
+    @agent.update!(persistent_wake_session: true)
+    request = stub_request(:post, "https://agent.example.com/trigger")
+      .with(body: lambda { |body|
+        parsed = JSON.parse(body)
+        parsed["persistent_session"] == true &&
+          parsed["session_id"] == "#{@agent.uuid}-wake"
+      })
+      .to_return(status: 200, body: { status: "ok" }.to_json)
+
+    ExternalAgentWakeJob.perform_now
+
+    assert_requested request
+  end
+
   test "does not wake offline agents" do
     @agent.update!(runtime: "offline")
 

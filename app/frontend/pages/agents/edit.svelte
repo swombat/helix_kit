@@ -140,6 +140,7 @@
       telegram_bot_token: agent.telegram_bot_token || '',
       voice_id: agent.voice_id || '',
       persistent_session: agent.persistent_session || false,
+      persistent_wake_session: agent.persistent_wake_session || false,
     },
   });
 
@@ -516,6 +517,21 @@
                   checked={$form.agent.persistent_session}
                   disabled={!runtimeManaged}
                   onCheckedChange={(checked) => ($form.agent.persistent_session = checked)} />
+              </div>
+
+              <div class="flex items-center justify-between gap-6 rounded border bg-muted/30 p-4">
+                <div class="space-y-1">
+                  <Label for="persistent_wake_session">Persistent hourly heartbeat session</Label>
+                  <p class="text-sm text-muted-foreground">
+                    Run hourly heartbeats in one continuing Chaos session instead of starting fresh each time.
+                    This preserves heartbeat context and allows provider caching across wakes.
+                  </p>
+                </div>
+                <Switch
+                  id="persistent_wake_session"
+                  checked={$form.agent.persistent_wake_session}
+                  disabled={!runtimeManaged}
+                  onCheckedChange={(checked) => ($form.agent.persistent_wake_session = checked)} />
               </div>
 
               {#if !runtimeManaged}

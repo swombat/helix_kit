@@ -18,4 +18,10 @@ class ExternalAgentWakeRequestTest < ActiveSupport::TestCase
     assert_includes text, "identity/soul.md as protected"
   end
 
+  test "persistent wake sessions are opt in" do
+    agent = agents(:research_assistant)
+
+    assert_not agent.persistent_wake_session?
+  end
+
 end
