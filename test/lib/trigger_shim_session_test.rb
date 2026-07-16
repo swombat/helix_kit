@@ -7,6 +7,13 @@ require "tmpdir"
 # script. Mirrors the harness style of trigger_shim_prompt_test.rb.
 class TriggerShimSessionTest < ActiveSupport::TestCase
 
+  test "runtime image includes the journald companion required for resume" do
+    dockerfile = Rails.root.join("agent-runtime/Dockerfile").read
+
+    assert_includes dockerfile, "cargo build --release --bin chaos_journald"
+    assert_includes dockerfile, "COPY --from=builder /usr/local/bin/chaos_journald /usr/local/bin/chaos_journald"
+  end
+
   test "parse_events extracts process id, latest cumulative usage, and agent messages" do
     out = run_shim_python(<<~PY)
       events = "\\n".join([
@@ -76,6 +83,22 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
       { "input_tokens" => 80, "cached_input_tokens" => 30, "output_tokens" => 9 },
       JSON.parse(out)
     )
+  end
+
+  test "run_chaos uses the current headless execution flag" do
+    out = run_shim_python(<<~PY)
+      captured = {}
+      def fake_run(args, **kwargs):
+          captured["args"] = args
+          return mod.subprocess.CompletedProcess(args, 0, "", "")
+      mod.subprocess.run = fake_run
+      mod.run_chaos("claude-opus-4-7", 30, "REQUEST", True)
+      print(json.dumps(captured))
+    PY
+
+    args = JSON.parse(out).fetch("args")
+    assert_includes args, "--headless"
+    assert_not_includes args, "--dangerously-bypass-approvals-and-sandbox"
   end
 
   test "first persistent trigger goes fresh, second resumes the mapped session" do

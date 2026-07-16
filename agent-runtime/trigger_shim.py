@@ -278,7 +278,7 @@ def run_chaos(model, timeout_secs, prompt_text, json_output, resume_id=None):
         # Docker is the sandbox boundary for hosted agents. Inside that
         # boundary the agent must be able to use Bash, write its mounted
         # identity/state folders, and call HelixKit's API back.
-        "--dangerously-bypass-approvals-and-sandbox",
+        "--headless",
         "-c", "shell_environment_policy.inherit=\"all\"",
     ]
     if resume_id:
