@@ -197,12 +197,11 @@ module Chat::Contextualizable
 
     role = message.agent_id == current_agent.id ? "assistant" : "user"
 
-    file_paths = message.file_paths_for_llm(include_audio: audio_tools_enabled, include_pdf: pdf_input_supported)
-    content = if file_paths.present?
-      RubyLLM::Content.new(text_content, file_paths)
-    else
-      text_content
-    end
+    content = message.content_with_documents_for_llm(
+      text_content,
+      include_audio: audio_tools_enabled,
+      include_pdf: pdf_input_supported
+    )
 
     result = { role: role, content: content }
 

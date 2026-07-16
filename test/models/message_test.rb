@@ -1,4 +1,5 @@
 require "test_helper"
+require "zip"
 
 class MessageTest < ActiveSupport::TestCase
 
@@ -105,6 +106,46 @@ class MessageTest < ActiveSupport::TestCase
     )
     # RubyLLM methods should be available - updated method name
     assert message.respond_to?(:to_llm)
+  end
+
+  test "converts docx attachments to text for the LLM" do
+    message = @chat.messages.create!(
+      user: @user,
+      role: "user",
+      content: "Please review this document"
+    )
+    message.attachments.attach(
+      io: StringIO.new(docx_file("A heading", "Document body text")),
+      filename: "draft.docx",
+      content_type: Message::Attachable::DOCX_CONTENT_TYPE
+    )
+
+    llm_message = message.to_llm
+
+    assert_kind_of String, llm_message.content
+    assert_includes llm_message.content, "Please review this document"
+    assert_includes llm_message.content, "<file name='draft.docx'>"
+    assert_includes llm_message.content, "A heading"
+    assert_includes llm_message.content, "Document body text"
+    assert_nothing_raised do
+      RubyLLM::Providers::OpenAI::Media.format_content(llm_message.content)
+    end
+  end
+
+  test "excludes legacy word attachments from binary LLM attachments" do
+    message = @chat.messages.create!(
+      user: @user,
+      role: "user",
+      content: "Please review this old document"
+    )
+    message.attachments.attach(
+      io: StringIO.new("legacy word bytes"),
+      filename: "draft.doc",
+      content_type: "application/msword"
+    )
+
+    assert_empty message.file_paths_for_llm
+    assert_includes message.to_llm.content, "could not be converted to text"
   end
 
   test "broadcasts to chat" do
@@ -1144,6 +1185,28 @@ class MessageTest < ActiveSupport::TestCase
   test "search_in_account returns empty for blank query" do
     results = Message.search_in_account(@account, "")
     assert_empty results
+  end
+
+  private
+
+  def docx_file(*paragraphs)
+    xml = <<~XML
+      <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+      <w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+        <w:body>
+          #{paragraphs.map { |text| "<w:p><w:r><w:t>#{text}</w:t></w:r></w:p>" }.join}
+        </w:body>
+      </w:document>
+    XML
+
+    buffer = Zip::OutputStream.write_buffer do |archive|
+      archive.put_next_entry("[Content_Types].xml")
+      archive.write("<Types xmlns='http://schemas.openxmlformats.org/package/2006/content-types'/>")
+      archive.put_next_entry("word/document.xml")
+      archive.write(xml)
+    end
+
+    buffer.string
   end
 
 end

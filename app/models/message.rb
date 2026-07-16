@@ -17,6 +17,14 @@ class Message < ApplicationRecord
   # Virtual attribute enables mass assignment (e.g., create!(thinking: "..."))
   attribute :thinking, :string
 
+  # RubyLLM does not classify Word documents as a supported attachment type.
+  # Convert them to inline text while preserving any other supported files.
+  def to_llm
+    super.tap do |llm_message|
+      llm_message.content = content_with_documents_for_llm if word_documents_attached?
+    end
+  end
+
   def thinking
     thinking_text
   end
