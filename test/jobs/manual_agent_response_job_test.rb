@@ -55,6 +55,50 @@ class ManualAgentResponseJobTest < ActiveJob::TestCase
     assert_includes context.second[:content], "Hello, agents!"
   end
 
+  test "gpt 5.6 sol keeps tools by disabling reasoning effort on chat completions" do
+    @agent.update!(
+      model_id: "openai/gpt-5.6-sol",
+      thinking_enabled: true,
+      thinking_budget: 5000,
+      enabled_tools: [ "CloseConversationTool" ]
+    )
+
+    request = stub_request(:post, "https://api.openai.com/v1/chat/completions")
+      .with do |req|
+        body = JSON.parse(req.body)
+        body["model"] == "gpt-5.6-sol" &&
+          body["reasoning_effort"] == "none" &&
+          body["tools"].present?
+      end
+      .to_return(
+        status: 200,
+        headers: { "Content-Type" => "application/json" },
+        body: {
+          id: "chatcmpl-sol-tool-test",
+          object: "chat.completion",
+          created: 1_784_220_000,
+          model: "gpt-5.6-sol",
+          choices: [
+            {
+              index: 0,
+              message: { role: "assistant", content: "Sol tool response" },
+              finish_reason: "stop"
+            }
+          ],
+          usage: { prompt_tokens: 10, completion_tokens: 3, total_tokens: 13 }
+        }.to_json
+      )
+
+    VCR.turned_off do
+      ManualAgentResponseJob.perform_now(@chat, @agent)
+    end
+
+    assert_requested request
+    response = @chat.messages.where(role: "assistant", agent: @agent).last
+    assert_equal "Sol tool response", response.content
+    assert_equal "provider_unsupported", response.reasoning_skip_reason
+  end
+
   test "external agent receives trigger request instead of local llm response" do
     @agent.update!(
       runtime: "external",
