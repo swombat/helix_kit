@@ -14,7 +14,6 @@ class ExternalAgentWakeJob < ApplicationJob
     Agent.active
          .unpaused
          .where(runtime: "external")
-         .where.not(name: "Claude")
          .where.not(trigger_bearer_token: [ nil, "" ])
   end
 

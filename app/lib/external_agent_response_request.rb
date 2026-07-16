@@ -69,7 +69,7 @@ class ExternalAgentResponseRequest
       confirmation_text,
       "Important: your final answer in this Chaos runtime is diagnostic stdout only; it will not appear in the HelixKit chat. If you have a message for the user, you must post it to HelixKit yourself before exiting.",
       response_expectation_text,
-      "If you choose to respond, post it to this conversation now. Prefer the helper command: `helixkit-post-message #{chat.to_param} \"your message\"` (or pipe longer Markdown into it). You may also use the API described in ~/identity/helixkit-api.md with HELIXKIT_APP_URL and HELIXKIT_BEARER_TOKEN.",
+      "If you choose to respond, post it to this conversation now. Prefer piping the message through stdin: `printf '%s\\n' 'your message' | helixkit-post-message #{chat.to_param}`. Do not put prose containing `$`, backticks, or other shell substitutions in a double-quoted command argument. For multi-line or structured messages, use the safe patterns in ~/identity/helixkit-api.md.",
       "HELIXKIT_APP_URL and HELIXKIT_BEARER_TOKEN are already present in your shell environment. The bearer token is already authorized for you to read this conversation and post your own messages; do not ask Daniel to paste it or re-authorize it.",
       "Do not rely on stdout as the response channel; stdout is diagnostic only. If you choose not to respond, explain your reason briefly on stdout and then exit without posting.",
       conversation_metadata,
@@ -206,7 +206,7 @@ class ExternalAgentResponseRequest
       trigger_intro_text,
       "Requested by: #{requested_by}.",
       confirmation_text,
-      "Post replies with `helixkit-post-message #{chat.to_param} \"your message\"`; stdout is diagnostic only.",
+      "Post replies by piping stdin to `helixkit-post-message #{chat.to_param}`; avoid the double-quoted message argument because the shell can substitute `$` and backticks. Stdout is diagnostic only.",
       response_expectation_text,
       "Current time: #{Time.current.iso8601}",
       delta_transcript_context

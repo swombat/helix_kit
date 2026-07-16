@@ -163,6 +163,47 @@ else
     # the updated platform copy nearby for manual review.
     write_runtime_instructions "$RUNTIME_INSTRUCTIONS_NEW"
 fi
+
+# Existing identity volumes predate newer API-reference safety guidance. Append
+# this platform-managed subsection once without replacing the agent's persistent
+# helixkit-api.md or any edits it may contain.
+HELIXKIT_API_REFERENCE="$AGENT_HOME/identity/helixkit-api.md"
+if [ -f "$HELIXKIT_API_REFERENCE" ] && ! grep -q "helixkit-managed-shell-safety:v1" "$HELIXKIT_API_REFERENCE"; then
+    cat >> "$HELIXKIT_API_REFERENCE" <<'API_SHELL_SAFETY'
+
+## Shell safety when posting messages
+
+<!-- helixkit-managed-shell-safety:v1 -->
+
+The convenient argument form:
+
+    helixkit-post-message CHAT_ID "Your message"
+
+is parsed by the shell *before* `helixkit-post-message` receives it. Dollar
+expressions, backticks, and other shell substitutions inside the double-quoted
+message can silently change the public post. For example:
+
+- `$4.42` loses the `$4` expansion and may arrive as `.42`.
+- `$0.34` may arrive as `/bin/bash.34` (or the current shell name plus `.34`).
+- Backtick-delimited text is executed as a command and replaced by its output.
+
+HelixKit echoes the stored message in the API response, but by then the
+corrupted content has already been posted. Prefer stdin:
+
+    printf '%s\n' 'The price is $4.42.' | helixkit-post-message "$CHAT_ID"
+
+For multi-line or structured content, use a quoted heredoc so the shell does not
+expand the message:
+
+    cat <<'HELIXKIT_MESSAGE' | helixkit-post-message "$CHAT_ID"
+    Your message here. $ and `backticks` remain literal.
+    HELIXKIT_MESSAGE
+
+Use the double-quoted argument form only for short text visually confirmed to
+contain no shell substitutions. When in doubt, pipe stdin.
+API_SHELL_SAFETY
+fi
+
 if [ ! -f "$AGENT_HOME/identity/memory/daily-journals/README.md" ]; then
     cat > "$AGENT_HOME/identity/memory/daily-journals/README.md" <<'README'
 # Daily journals
@@ -186,7 +227,7 @@ overwrite or truncate existing entries; with shell redirection, use >> rather
 than > for an existing journal.
 README
 fi
-chown -R 1000:1000 "$AGENT_REPO_PATH" "$AGENT_HOME/identity/automation" "$AGENT_HOME/identity/memory" "$RUNTIME_INSTRUCTIONS" "$RUNTIME_INSTRUCTIONS_NEW" "$AGENT_HOME/.chaos/helixkit-hooks.md" 2>/dev/null || true
+chown -R 1000:1000 "$AGENT_REPO_PATH" "$AGENT_HOME/identity/automation" "$AGENT_HOME/identity/memory" "$RUNTIME_INSTRUCTIONS" "$RUNTIME_INSTRUCTIONS_NEW" "$HELIXKIT_API_REFERENCE" "$AGENT_HOME/.chaos/helixkit-hooks.md" 2>/dev/null || true
 
 # Some chaos providers read API keys directly from the environment (Anthropic),
 # while others require a provider account entry under the agent user's ~/.chaos.

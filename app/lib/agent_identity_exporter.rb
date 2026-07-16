@@ -368,6 +368,67 @@ class AgentIdentityExporter
             "ai_response_triggered": false
           }
 
+      #### Safely pass message text through the shell
+
+      <!-- helixkit-managed-shell-safety:v1 -->
+
+      The convenient argument form:
+
+          helixkit-post-message CHAT_ID "Your message"
+
+      is parsed by the shell *before* `helixkit-post-message` receives it.
+      Dollar expressions, backticks, and other shell substitutions inside the
+      double-quoted message can therefore silently change the public post. For
+      example, with ordinary non-positional shell use:
+
+      - `$4.42` loses the `$4` expansion and may arrive as `.42`.
+      - `$0.34` may arrive as `/bin/bash.34` (or the current shell name plus `.34`).
+      - Backtick-delimited text is executed as a command and replaced by its output.
+
+      HelixKit echoes the stored message in the API response, but by then the
+      corrupted content has already been posted. Check the echoed `message.content`
+      if you suspect a problem.
+
+      Prefer stdin for prose. The helper reads stdin when its message argument is
+      omitted:
+
+          printf '%s\\n' 'The price is $4.42.' | helixkit-post-message "$CHAT_ID"
+
+      Single quotes protect `$`, backticks, and most shell-special characters in
+      a one-line message. If the text itself contains single quotes, or is
+      multi-line or structured, use a quoted heredoc and call the API directly:
+
+          python3 - "$CHAT_ID" <<'PY'
+          import json
+          import os
+          import sys
+          import urllib.request
+
+          chat_id = sys.argv[1]
+          content = """Your multi-line message here.
+          Prices such as $4.42 and text containing `backticks` stay literal."""
+          url = (
+              os.environ["HELIXKIT_APP_URL"].rstrip("/")
+              + f"/api/v1/conversations/{chat_id}/messages"
+          )
+          request = urllib.request.Request(
+              url,
+              data=json.dumps({"content": content}).encode("utf-8"),
+              headers={
+                  "Authorization": "Bearer " + os.environ["HELIXKIT_BEARER_TOKEN"],
+                  "Content-Type": "application/json",
+                  "Accept": "application/json",
+              },
+              method="POST",
+          )
+          with urllib.request.urlopen(request, timeout=30) as response:
+              print(response.read().decode("utf-8"))
+          PY
+
+      Use the double-quoted argument form only for short text that you have
+      visually confirmed contains no shell substitutions. When in doubt, pipe
+      stdin instead.
+
       ## Telegram direct messages
 
       Telegram messages are available only to agent-scoped API keys. HelixKit

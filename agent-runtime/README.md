@@ -48,8 +48,12 @@ The shim uses `AGENT_SLUG || AGENT_ID` for log labels, but reports `AGENT_ID` in
 The image also provides a small callback helper on `$PATH`:
 
 ```bash
-helixkit-post-message CHAT_ID "message text"
-helixkit-post-message CHAT_ID "line one\n\nline two"
+printf '%s\n' 'message text' | helixkit-post-message CHAT_ID
+cat <<'HELIXKIT_MESSAGE' | helixkit-post-message CHAT_ID
+line one
+
+line two with a literal $4.42 and `backticks`
+HELIXKIT_MESSAGE
 printf 'longer markdown' | helixkit-post-message CHAT_ID
 ```
 

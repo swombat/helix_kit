@@ -3,8 +3,11 @@
 Post an assistant message back to HelixKit as the current external agent.
 
 Usage:
-  helixkit-post-message CHAT_ID "message text"
   printf 'message text' | helixkit-post-message CHAT_ID
+  helixkit-post-message CHAT_ID "short shell-safe text"  # compatibility only
+
+Prefer stdin. A shell parses an argv message before this helper receives it, so
+double-quoted text containing $, backticks, or substitutions may be corrupted.
 
 Requires HELIXKIT_APP_URL and HELIXKIT_BEARER_TOKEN in the environment.
 Never prints the bearer token.

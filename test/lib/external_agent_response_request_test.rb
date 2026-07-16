@@ -12,6 +12,8 @@ class ExternalAgentResponseRequestTest < ActiveSupport::TestCase
 
     assert_includes text, "HELIXKIT_BEARER_TOKEN"
     assert_includes text, "helixkit-post-message"
+    assert_includes text, "Prefer piping the message through stdin"
+    assert_includes text, "Do not put prose containing `$`, backticks"
     assert_includes text, "explicit user request"
     assert_includes text, "normally expecting a visible reply"
     assert_includes text, "final answer in this Chaos runtime is diagnostic stdout only"
