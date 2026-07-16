@@ -181,6 +181,17 @@ class AgentsControllerTest < ActionDispatch::IntegrationTest
     assert @agent.reload.persistent_wake_session?
   end
 
+  test "external agent can enable half-hourly wakes" do
+    @agent.update!(runtime: "external", uuid: SecureRandom.uuid_v7)
+
+    patch account_agent_path(@account, @agent), params: {
+      agent: { half_hourly_wake: true }
+    }
+
+    assert_redirected_to account_agents_path(@account)
+    assert @agent.reload.half_hourly_wake?
+  end
+
   test "should fail with duplicate name in same account" do
     existing = @account.agents.create!(name: "Unique Test Agent")
 

@@ -36,6 +36,12 @@ production:
     queue: default
     schedule: every hour at minute 5
 
+  external_agent_extra_half_hour_wake:
+    class: ExternalAgentWakeJob
+    queue: default
+    args: [ true ]
+    schedule: every hour at minute 35
+
   external_agent_daily_memory_aggregation:
     class: ExternalAgentMemoryAggregationJob
     queue: default

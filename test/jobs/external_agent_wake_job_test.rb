@@ -59,6 +59,19 @@ class ExternalAgentWakeJobTest < ActiveJob::TestCase
     assert_requested request
   end
 
+  test "extra half-hour run only wakes opted-in agents" do
+    ExternalAgentWakeJob.perform_now(true)
+    assert_not_requested :post, "https://agent.example.com/trigger"
+
+    @agent.update!(half_hourly_wake: true)
+    request = stub_request(:post, "https://agent.example.com/trigger")
+      .to_return(status: 200, body: { status: "ok" }.to_json)
+
+    ExternalAgentWakeJob.perform_now(true)
+
+    assert_requested request
+  end
+
   test "does not wake offline agents" do
     @agent.update!(runtime: "offline")
 

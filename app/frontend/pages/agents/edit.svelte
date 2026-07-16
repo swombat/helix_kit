@@ -141,6 +141,7 @@
       voice_id: agent.voice_id || '',
       persistent_session: agent.persistent_session || false,
       persistent_wake_session: agent.persistent_wake_session || false,
+      half_hourly_wake: agent.half_hourly_wake || false,
     },
   });
 
@@ -532,6 +533,20 @@
                   checked={$form.agent.persistent_wake_session}
                   disabled={!runtimeManaged}
                   onCheckedChange={(checked) => ($form.agent.persistent_wake_session = checked)} />
+              </div>
+
+              <div class="flex items-center justify-between gap-6 rounded border bg-muted/30 p-4">
+                <div class="space-y-1">
+                  <Label for="half_hourly_wake">30-minute heartbeats</Label>
+                  <p class="text-sm text-muted-foreground">
+                    Add a second heartbeat at minute :35, between the normal hourly heartbeats at minute :05.
+                  </p>
+                </div>
+                <Switch
+                  id="half_hourly_wake"
+                  checked={$form.agent.half_hourly_wake}
+                  disabled={!runtimeManaged}
+                  onCheckedChange={(checked) => ($form.agent.half_hourly_wake = checked)} />
               </div>
 
               {#if !runtimeManaged}

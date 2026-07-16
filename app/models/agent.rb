@@ -79,7 +79,7 @@ class Agent < ApplicationRecord
                    :github_repo_url, :github_repo_owner, :github_repo_name,
                    :github_deploy_key_id, :container_name, :sandbox_host, :container_image,
                     :sandbox_last_error, :sandbox_last_error_at, :oriented_at,
-                    :persistent_session?, :persistent_wake_session?
+                    :persistent_session?, :persistent_wake_session?, :half_hourly_wake?
 
   def self.json_attrs_for(options = nil)
     return json_attrs unless options&.dig(:as) == :list

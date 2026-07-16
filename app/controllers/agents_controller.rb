@@ -83,7 +83,7 @@ class AgentsController < ApplicationController
       :model_id, :active, :paused, :colour, :icon,
       :thinking_enabled, :thinking_budget,
       :telegram_bot_token, :telegram_bot_username,
-      :voice_id, :persistent_session, :persistent_wake_session,
+      :voice_id, :persistent_session, :persistent_wake_session, :half_hourly_wake,
       enabled_tools: []
     )
 

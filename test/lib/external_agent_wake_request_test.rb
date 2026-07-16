@@ -24,4 +24,10 @@ class ExternalAgentWakeRequestTest < ActiveSupport::TestCase
     assert_not agent.persistent_wake_session?
   end
 
+  test "half-hourly wakes are opt in" do
+    agent = agents(:research_assistant)
+
+    assert_not agent.half_hourly_wake?
+  end
+
 end
