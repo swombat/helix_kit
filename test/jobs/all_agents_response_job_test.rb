@@ -111,6 +111,49 @@ class AllAgentsResponseJobTest < ActiveJob::TestCase
     assert_equal "anthropic_key_unavailable", skipped_message.reasoning_skip_reason
   end
 
+  test "gpt 5.6 sol disables default reasoning when tools are present" do
+    @agent1.update!(
+      model_id: "openai/gpt-5.6-sol",
+      thinking_enabled: false,
+      enabled_tools: [ "CloseConversationTool" ]
+    )
+
+    request = stub_request(:post, "https://api.openai.com/v1/chat/completions")
+      .with do |req|
+        body = JSON.parse(req.body)
+        body["model"] == "gpt-5.6-sol" &&
+          body["reasoning_effort"] == "none" &&
+          body["tools"].present?
+      end
+      .to_return(
+        status: 200,
+        headers: { "Content-Type" => "application/json" },
+        body: {
+          id: "chatcmpl-sol-default-reasoning-test",
+          object: "chat.completion",
+          created: 1_784_220_000,
+          model: "gpt-5.6-sol",
+          choices: [
+            {
+              index: 0,
+              message: { role: "assistant", content: "Sol group response" },
+              finish_reason: "stop"
+            }
+          ],
+          usage: { prompt_tokens: 10, completion_tokens: 3, total_tokens: 13 }
+        }.to_json
+      )
+
+    VCR.turned_off do
+      AllAgentsResponseJob.perform_now(@chat, [ @agent1.id ])
+    end
+
+    assert_requested request
+    response = @chat.messages.where(role: "assistant", agent: @agent1).last
+    assert_equal "Sol group response", response.content
+    assert_nil response.reasoning_skip_reason
+  end
+
   test "external first agent receives trigger and remaining agents are queued" do
     @agent1.update!(
       runtime: "external",

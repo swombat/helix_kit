@@ -37,16 +37,16 @@ module ConfiguresLlmThinking
   end
 
   def ensure_tool_compatible_thinking(llm, provider_config, tools_added)
-    return llm unless @use_thinking
     return llm if tools_added.empty?
     return llm unless provider_config[:provider] == :openai
     return llm unless provider_config[:model_id] == "gpt-5.6-sol"
 
     # OpenAI's Chat Completions endpoint rejects Sol requests that combine
-    # function tools with reasoning_effort. Keep tools available and make the
-    # reasoning downgrade explicit until this path moves to the Responses API.
-    @pending_skip_reason ||= "provider_unsupported"
-    debug_info "Disabled reasoning effort: gpt-5.6-sol tools require effort 'none' on Chat Completions"
+    # function tools with its default reasoning effort, even when thinking was
+    # not explicitly enabled. Keep tools available until this path moves to the
+    # Responses API, and only record a skip when reasoning was requested.
+    @pending_skip_reason ||= "provider_unsupported" if @use_thinking
+    debug_info "Set reasoning effort to 'none': gpt-5.6-sol tools require it on Chat Completions"
     llm.with_thinking(effort: "none")
   end
 
