@@ -6,7 +6,7 @@
   import AgentModelSelect from '$lib/components/agents/AgentModelSelect.svelte';
   import AgentToolChecklist from '$lib/components/agents/AgentToolChecklist.svelte';
 
-  let { form, groupedModels = {}, availableTools = [], selectedModel = $bindable(), locked = false } = $props();
+  let { form, groupedModels = {}, availableTools = [], selectedModel = $bindable(), runtimeManaged = false } = $props();
 </script>
 
 <div class="space-y-8">
@@ -14,12 +14,12 @@
     <div>
       <h2 class="text-lg font-semibold">AI Model</h2>
       <p class="text-sm text-muted-foreground">
-        {locked
-          ? 'The running external agent manages its runtime model configuration.'
+        {runtimeManaged
+          ? 'Choose the model HelixKit sends to the external runtime on each trigger.'
           : 'Choose which AI model powers this agent'}
       </p>
     </div>
-    <AgentModelSelect {groupedModels} bind:value={selectedModel} disabled={locked} />
+    <AgentModelSelect {groupedModels} bind:value={selectedModel} />
   </div>
 
   <div class="space-y-4">
@@ -36,7 +36,7 @@
         <Switch
           id="thinking_enabled"
           checked={$form.agent.thinking_enabled}
-          disabled={locked}
+          disabled={runtimeManaged}
           onCheckedChange={(checked) => ($form.agent.thinking_enabled = checked)} />
       </div>
 
@@ -50,7 +50,7 @@
             max={50000}
             step={1000}
             bind:value={$form.agent.thinking_budget}
-            disabled={locked}
+            disabled={runtimeManaged}
             class="max-w-xs" />
           <p class="text-xs text-muted-foreground">Maximum tokens for reasoning (1,000 - 50,000)</p>
         </div>
@@ -66,7 +66,7 @@
   <div class="space-y-4">
     <div>
       <h2 class="text-lg font-semibold">Tools & Capabilities</h2>
-      {#if locked}
+      {#if runtimeManaged}
         <p class="text-sm text-muted-foreground">
           This agent is now self-hosted. It runs inside a regular coding harness and can use the command line tools
           available in that runtime rather than HelixKit's inline tool checklist.
@@ -77,7 +77,7 @@
         </p>
       {/if}
     </div>
-    {#if !locked}
+    {#if !runtimeManaged}
       <AgentToolChecklist tools={availableTools} bind:enabledTools={$form.agent.enabled_tools} />
     {/if}
   </div>

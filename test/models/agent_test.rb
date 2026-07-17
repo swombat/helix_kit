@@ -69,7 +69,7 @@ class AgentTest < ActiveSupport::TestCase
     assert_equal "unknown/model", agent.model_label
   end
 
-  test "external agents reject runtime-owned setting changes" do
+  test "external agents reject identity and runtime-owned setting changes" do
     agent = agents(:research_assistant)
     agent.update!(runtime: "external", uuid: SecureRandom.uuid_v7)
 
@@ -77,12 +77,16 @@ class AgentTest < ActiveSupport::TestCase
     assert_includes agent.errors[:base], "Identity and runtime-managed fields are read-only for external agents"
 
     agent.reload
-    assert_not agent.update(model_id: "openai/gpt-5.2")
-    assert_includes agent.errors[:base], "Identity and runtime-managed fields are read-only for external agents"
-
-    agent.reload
     assert_not agent.update(thinking_enabled: true)
     assert_includes agent.errors[:base], "Identity and runtime-managed fields are read-only for external agents"
+  end
+
+  test "external agents allow HelixKit-managed model changes" do
+    agent = agents(:research_assistant)
+    agent.update!(runtime: "external", uuid: SecureRandom.uuid_v7)
+
+    assert agent.update(model_id: "openai/gpt-5.2")
+    assert_equal "openai/gpt-5.2", agent.reload.model_id
   end
 
   test "external agents can update voice as appearance setting" do

@@ -79,7 +79,11 @@
   let diagnosticsLoaded = $state(false);
   let diagnosticsError = $state(null);
   let showFormActions = $derived(
-    !runtimeManaged || activeTab === 'appearance' || activeTab === 'integrations' || activeTab === 'hosting'
+    !runtimeManaged ||
+      activeTab === 'appearance' ||
+      activeTab === 'model' ||
+      activeTab === 'integrations' ||
+      activeTab === 'hosting'
   );
   let filesystemSections = $derived([
     {
@@ -450,12 +454,12 @@
             {form}
             groupedModels={grouped_models}
             availableTools={available_tools}
-            locked={runtimeManaged}
+            {runtimeManaged}
             bind:selectedModel />
           {#if runtimeManaged}
             <div class="border rounded-lg p-4 text-sm text-muted-foreground">
-              Model, thinking, and tool settings are managed by the external runtime. Change them in the hosted
-              filesystem or rebuild/recreate the sandbox.
+              Model changes take effect on the next trigger; no sandbox rebuild is needed. Extended-thinking and tool
+              settings remain managed by the external coding runtime.
             </div>
           {/if}
         {:else if activeTab === 'integrations'}

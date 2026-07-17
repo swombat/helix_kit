@@ -320,6 +320,10 @@ module Agents
     end
 
     def agent_provider
+      self.class.chaos_provider_for(agent)
+    end
+
+    def self.chaos_provider_for(agent)
       agent.model_id.to_s.split("/").first.presence || "anthropic"
     end
 

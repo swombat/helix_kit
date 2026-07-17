@@ -22,6 +22,7 @@ Trigger payload (HelixKit ChaosTriggerClient shape):
       "persistent_session": true,                 # optional; enables resume behaviour
        "conversation_id": "WYNWQe",                # optional, for logs only
        "requested_by": "user@example.com",         # optional, for logs only
+       "provider": "anthropic",                    # optional; falls back to AGENT_PROVIDER env
        "model": "claude-sonnet-4-5",               # optional; falls back to AGENT_DEFAULT_MODEL env
        "channel": "telegram",                      # optional channel-specific metadata
        "sender": {"name": "...", "email": "...", "telegram_username": "..."},
@@ -40,8 +41,8 @@ Persistent-session behaviour (when `persistent_session` is true):
     - Subsequent triggers run `chaos exec --json ... resume <process_id> -`
       with `request_delta` (falling back to `request`) — no identity
       re-injection, no journal re-read.
-    - The session rolls (fresh start) on: model change, identity-file change,
-      or any resume failure.
+    - The session rolls (fresh start) on: provider/model change,
+      identity-file change, or any resume failure.
     - The response gains `chaos_session_id`, `session_resumed`,
       `fresh_fallback`, `session_roll_reason`, and `usage`
       {input_tokens, cached_input_tokens, output_tokens}.
@@ -146,6 +147,7 @@ def trigger():
     prompt = payload.get("request") or payload.get("prompt")
     request_delta = payload.get("request_delta")
     persistent_session = bool(payload.get("persistent_session"))
+    provider = payload.get("provider", AGENT_PROVIDER)
     model = payload.get("model", AGENT_DEFAULT_MODEL)
     timeout_secs = int(payload.get("timeout_secs") or CHAOS_TIMEOUT_SECS)
     conversation_id = payload.get("conversation_id")
@@ -156,22 +158,22 @@ def trigger():
 
     log.info(
         f"trigger session_id={session_id} conversation_id={conversation_id} "
-        f"requested_by={requested_by} model={model} timeout_secs={timeout_secs} "
+        f"requested_by={requested_by} provider={provider} model={model} timeout_secs={timeout_secs} "
         f"prompt_len={len(prompt)} persistent={persistent_session} "
         f"delta_len={len(request_delta) if request_delta else 0}"
     )
 
     if persistent_session:
-        return persistent_trigger(session_id, prompt, request_delta, model, timeout_secs)
-    return legacy_trigger(session_id, prompt, model, timeout_secs)
+        return persistent_trigger(session_id, prompt, request_delta, model, timeout_secs, provider=provider)
+    return legacy_trigger(session_id, prompt, model, timeout_secs, provider=provider)
 
 
-def legacy_trigger(session_id, prompt, model, timeout_secs):
+def legacy_trigger(session_id, prompt, model, timeout_secs, provider=None):
     """One fresh chaos exec per trigger — the original shim behaviour, unchanged."""
     full_prompt = build_prompt(prompt)
 
     try:
-        result = run_chaos(model, timeout_secs, full_prompt, json_output=False)
+        result = run_chaos(model, timeout_secs, full_prompt, json_output=False, provider=provider)
     except subprocess.TimeoutExpired:
         log.error(f"chaos exec timed out after {timeout_secs}s")
         return jsonify({"status": "timeout", "session_id": session_id, "timeout_secs": timeout_secs}), 504
@@ -188,7 +190,7 @@ def legacy_trigger(session_id, prompt, model, timeout_secs):
     return jsonify(response), (200 if result.returncode == 0 else 500)
 
 
-def persistent_trigger(session_id, prompt, request_delta, model, timeout_secs):
+def persistent_trigger(session_id, prompt, request_delta, model, timeout_secs, provider=None):
     """Resume the session mapped to session_id, or start (and record) a fresh one.
 
     A resume that fails in any detectable way is retried once as a full fresh
@@ -201,8 +203,9 @@ def persistent_trigger(session_id, prompt, request_delta, model, timeout_secs):
         return jsonify({"status": "already_running", "session_id": session_id}), 409
 
     try:
+        provider = provider or AGENT_PROVIDER
         record = load_session_record(session_id)
-        roll = roll_reason(record, model) if record else None
+        roll = roll_reason(record, model, provider) if record else None
         if record and roll:
             log.info(f"rolling session session_id={session_id} reason={roll}")
             retire_session_record(session_id, reason=roll)
@@ -213,7 +216,7 @@ def persistent_trigger(session_id, prompt, request_delta, model, timeout_secs):
             try:
                 result = run_chaos(
                     model, timeout_secs, resume_prompt,
-                    json_output=True, resume_id=record["chaos_process_id"],
+                    json_output=True, resume_id=record["chaos_process_id"], provider=provider,
                 )
             except subprocess.TimeoutExpired:
                 # The subprocess is killed on timeout, so the persisted session
@@ -244,7 +247,7 @@ def persistent_trigger(session_id, prompt, request_delta, model, timeout_secs):
         # Fresh path: full identity-wrapped prompt, new session, new mapping.
         full_prompt = build_prompt(prompt)
         try:
-            result = run_chaos(model, timeout_secs, full_prompt, json_output=True)
+            result = run_chaos(model, timeout_secs, full_prompt, json_output=True, provider=provider)
         except subprocess.TimeoutExpired:
             log.error(f"chaos exec timed out after {timeout_secs}s session_id={session_id}")
             return jsonify({"status": "timeout", "session_id": session_id, "timeout_secs": timeout_secs}), 504
@@ -252,7 +255,7 @@ def persistent_trigger(session_id, prompt, request_delta, model, timeout_secs):
         events = parse_events(result.stdout)
         usage = usage_since(None, events)
         if result.returncode == 0 and events["process_id"]:
-            save_session_record(session_id, model, events, usage)
+            save_session_record(session_id, model, events, usage, provider=provider)
         return persistent_response(
             session_id, result, events, full_prompt,
             usage=usage, resumed=False,
@@ -268,7 +271,7 @@ if app:
 
 
 # ----- chaos invocation -----
-def run_chaos(model, timeout_secs, prompt_text, json_output, resume_id=None):
+def run_chaos(model, timeout_secs, prompt_text, json_output, resume_id=None, provider=None):
     args = [CHAOS_BIN, "exec"]
     if json_output:
         # Machine-readable JSONL: process.started carries the process_id we
@@ -276,7 +279,7 @@ def run_chaos(model, timeout_secs, prompt_text, json_output, resume_id=None):
         args.append("--json")
     cwd = AGENT_REPO_PATH if AGENT_REPO_PATH.exists() else Path.home()
     args += [
-        "--provider", AGENT_PROVIDER,
+        "--provider", provider or AGENT_PROVIDER,
         "-C", str(cwd),
         "--skip-git-repo-check",
         "-m", model,
@@ -411,11 +414,12 @@ def load_session_record(session_id):
     return record
 
 
-def save_session_record(session_id, model, events, usage):
+def save_session_record(session_id, model, events, usage, provider=None):
     now = _utcnow_iso()
     record = {
         "helixkit_session_id": session_id,
         "chaos_process_id": events["process_id"],
+        "provider": provider or AGENT_PROVIDER,
         "model": model,
         "created_at": now,
         "last_finished_at": now,
@@ -449,8 +453,10 @@ def retire_session_record(session_id, reason):
             pass
 
 
-def roll_reason(record, model):
+def roll_reason(record, model, provider=None):
     """Reasons to abandon a mapped session and start fresh. None = resume."""
+    if record.get("provider", AGENT_PROVIDER) != (provider or AGENT_PROVIDER):
+        return "provider-changed"
     if record.get("model") != model:
         return "model-changed"
     if record.get("identity_fingerprint") != identity_fingerprint():

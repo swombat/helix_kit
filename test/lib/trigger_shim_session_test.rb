@@ -35,24 +35,25 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
     assert_equal [ "hello" ], parsed["agent_messages"]
   end
 
-  test "session records round-trip and roll on model and identity changes" do
+  test "session records round-trip and roll on provider, model, and identity changes" do
     out = run_shim_python(<<~PY)
       events = {"process_id": "pid-abc", "input_tokens": 50, "cached_input_tokens": 0, "output_tokens": 5}
       usage = mod.usage_since(None, events)
-      mod.save_session_record("sess-1", "claude-opus-4-7", events, usage)
+      mod.save_session_record("sess-1", "claude-opus-4-7", events, usage, provider="anthropic")
       record = mod.load_session_record("sess-1")
       checks = {
         "loaded_pid": record["chaos_process_id"],
         "cumulative_input_tokens": record["cumulative_input_tokens"],
-        "same_model": mod.roll_reason(record, "claude-opus-4-7"),
-        "other_model": mod.roll_reason(record, "claude-haiku-4-5"),
+        "same_model": mod.roll_reason(record, "claude-opus-4-7", "anthropic"),
+        "other_model": mod.roll_reason(record, "claude-haiku-4-5", "anthropic"),
+        "other_provider": mod.roll_reason(record, "claude-opus-4-7", "openrouter"),
       }
 
       # Identity change: touch soul.md after record creation.
       import os, time
       soul = mod.AGENT_IDENTITY_PATH / "soul.md"
       os.utime(soul, ns=(soul.stat().st_atime_ns, soul.stat().st_mtime_ns + 1_000_000))
-      checks["identity_changed"] = mod.roll_reason(record, "claude-opus-4-7")
+      checks["identity_changed"] = mod.roll_reason(record, "claude-opus-4-7", "anthropic")
 
       mod.retire_session_record("sess-1", reason="test")
       checks["after_retire"] = mod.load_session_record("sess-1")
@@ -64,6 +65,7 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
     assert_equal 50, checks["cumulative_input_tokens"]
     assert_nil checks["same_model"]
     assert_equal "model-changed", checks["other_model"]
+    assert_equal "provider-changed", checks["other_provider"]
     assert_equal "identity-changed", checks["identity_changed"]
     assert_nil checks["after_retire"]
   end
@@ -92,12 +94,14 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
           captured["args"] = args
           return mod.subprocess.CompletedProcess(args, 0, "", "")
       mod.subprocess.run = fake_run
-      mod.run_chaos("claude-opus-4-7", 30, "REQUEST", True)
+      mod.run_chaos("gpt-5.2", 30, "REQUEST", True, provider="openai")
       print(json.dumps(captured))
     PY
 
     args = JSON.parse(out).fetch("args")
     assert_includes args, "--headless"
+    assert_equal "openai", args[args.index("--provider") + 1]
+    assert_equal "gpt-5.2", args[args.index("-m") + 1]
     assert_not_includes args, "--dangerously-bypass-approvals-and-sandbox"
   end
 

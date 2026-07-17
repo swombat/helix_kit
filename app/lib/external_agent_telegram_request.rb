@@ -33,6 +33,7 @@ class ExternalAgentTelegramRequest
         request: request,
         request_delta: request_delta_text,
         persistent_session: agent.persistent_session?,
+        provider: Agents::Sandbox.chaos_provider_for(agent),
         model: Agents::Sandbox.chaos_model_for(agent),
         trigger_payload: trigger_payload
       )

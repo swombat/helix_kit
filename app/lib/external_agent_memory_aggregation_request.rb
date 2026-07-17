@@ -35,6 +35,7 @@ class ExternalAgentMemoryAggregationRequest
         session_id: session_id,
         trigger_kind: "memory_aggregation_#{period}",
         request: request,
+        provider: Agents::Sandbox.chaos_provider_for(agent),
         model: Agents::Sandbox.chaos_model_for(agent),
         read_timeout: AGGREGATION_TIMEOUT_SECS + 30,
         runtime_timeout_secs: AGGREGATION_TIMEOUT_SECS

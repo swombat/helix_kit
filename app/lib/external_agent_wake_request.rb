@@ -29,6 +29,7 @@ class ExternalAgentWakeRequest
         trigger_kind: "wake",
         request: request,
         persistent_session: agent.persistent_wake_session?,
+        provider: Agents::Sandbox.chaos_provider_for(agent),
         model: Agents::Sandbox.chaos_model_for(agent)
       )
     end

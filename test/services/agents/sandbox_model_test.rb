@@ -7,6 +7,7 @@ module Agents
       agent = agents(:research_assistant)
       agent.model_id = "anthropic/claude-opus-4.7"
 
+      assert_equal "anthropic", Agents::Sandbox.chaos_provider_for(agent)
       assert_equal "claude-opus-4-7", Agents::Sandbox.chaos_model_for(agent)
     end
 
@@ -28,6 +29,7 @@ module Agents
       agent = agents(:research_assistant)
       agent.model_id = "openrouter/auto"
 
+      assert_equal "openrouter", Agents::Sandbox.chaos_provider_for(agent)
       assert_equal "openrouter/auto", Agents::Sandbox.chaos_model_for(agent)
     end
 
