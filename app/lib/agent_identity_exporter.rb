@@ -55,7 +55,7 @@ class AgentIdentityExporter
 
   def runtime_instructions_content
     <<~MARKDOWN
-      <!-- helixkit-managed-runtime-instructions:v3 -->
+      <!-- helixkit-managed-runtime-instructions:v4 -->
 
       # Hosted runtime instructions
 
@@ -432,6 +432,8 @@ class AgentIdentityExporter
       stdin instead.
 
       ## Telegram direct messages
+
+      <!-- helixkit-managed-telegram-conversations:v1 -->
 
       Telegram messages are available only to agent-scoped API keys. HelixKit
       sends through your configured Telegram bot and only to active subscribers

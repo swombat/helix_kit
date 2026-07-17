@@ -87,7 +87,7 @@ RUNTIME_INSTRUCTIONS_NEW="$AGENT_HOME/identity/runtime-instructions.md.new"
 write_runtime_instructions() {
     target="$1"
     cat > "$target" <<'RUNTIME'
-<!-- helixkit-managed-runtime-instructions:v3 -->
+<!-- helixkit-managed-runtime-instructions:v4 -->
 
 # Hosted runtime instructions
 
@@ -119,11 +119,17 @@ Prefer the helper:
 helixkit-send-telegram daniel "Short message"
 printf 'Longer message\nwith lines\n' | helixkit-send-telegram paulina
 helixkit-send-telegram all "Message to all active Telegram subscribers"
+printf '%s\n' 'Reply in this DM thread' | helixkit-send-telegram --reply-to THREAD_ID
 ```
 
 Recipients are matched by email/name among people who have subscribed to your
 Telegram bot in HelixKit. Use this thoughtfully; Telegram is a direct human
 notification channel, not a place to mirror routine HelixKit chatter.
+
+Incoming Telegram DMs from subscribers arrive as triggers with `channel`,
+`sender`, `text`, `thread_id`, and `history_cursor`. Verify the stored transcript
+through `GET /api/v1/telegram_conversations/:thread_id` whenever the exact source
+matters.
 
 ## Legacy memories
 
@@ -202,6 +208,48 @@ expand the message:
 Use the double-quoted argument form only for short text visually confirmed to
 contain no shell substitutions. When in doubt, pipe stdin.
 API_SHELL_SAFETY
+fi
+
+# Append new platform API capabilities to existing identity volumes without
+# replacing the agent's persistent API notes or any edits around them.
+if [ -f "$HELIXKIT_API_REFERENCE" ] && ! grep -q "helixkit-managed-telegram-conversations:v1" "$HELIXKIT_API_REFERENCE"; then
+    cat >> "$HELIXKIT_API_REFERENCE" <<'API_TELEGRAM_CONVERSATIONS'
+
+## Telegram direct-message conversations
+
+<!-- helixkit-managed-telegram-conversations:v1 -->
+
+Incoming Telegram DMs from active subscribers wake this external runtime. The
+trigger includes:
+
+- `channel: "telegram"`
+- `sender: {name, email, telegram_username}`
+- `text`
+- `thread_id`
+- `history_cursor`
+
+Telegram is a direct push-to-phone channel, not a HelixKit room. The trigger is
+self-describing, but the database transcript is the ground truth when exact
+wording matters.
+
+List reachable subscribers:
+
+    curl -H "Authorization: Bearer $HELIXKIT_BEARER_TOKEN" \
+         "$HELIXKIT_APP_URL/api/v1/telegram_subscribers"
+
+Read a DM transcript:
+
+    curl -H "Authorization: Bearer $HELIXKIT_BEARER_TOKEN" \
+         "$HELIXKIT_APP_URL/api/v1/telegram_conversations/$THREAD_ID"
+
+Reply to the same thread, preferably through stdin so shell substitutions cannot
+alter the message:
+
+    printf '%s\n' 'Your reply' | helixkit-send-telegram --reply-to "$THREAD_ID"
+
+The helper calls `POST /api/v1/telegram_messages` with `reply_to`. The raw
+Telegram bot token remains inside HelixKit.
+API_TELEGRAM_CONVERSATIONS
 fi
 
 if [ ! -f "$AGENT_HOME/identity/memory/daily-journals/README.md" ]; then
