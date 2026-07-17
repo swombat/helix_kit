@@ -150,7 +150,9 @@ Rails.application.routes.draw do
         resources :participants, only: :create
       end
       resources :agents, only: [ :index, :show ]
+      resources :telegram_conversations, only: :show
       resources :telegram_messages, only: :create
+      resources :telegram_subscribers, only: :index
       resources :whiteboards, only: [ :index, :show, :create, :update ]
     end
   end

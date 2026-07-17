@@ -82,4 +82,25 @@ class ChaosTriggerClientTest < ActiveSupport::TestCase
     assert_requested stub
   end
 
+  test "includes channel-specific trigger payload without replacing standard fields" do
+    stub = stub_request(:post, "https://agent.example.com/trigger")
+      .with do |request|
+        body = JSON.parse(request.body)
+        body["channel"] == "telegram" &&
+          body["thread_id"] == "thread-1" &&
+          body["request"] == "canonical request"
+      end
+      .to_return(status: 200, body: { status: "ok" }.to_json)
+
+    ChaosTriggerClient.new("https://agent.example.com", "tr_valid").request_response(
+      conversation_id: "thread-1",
+      requested_by: "test",
+      session_id: "session",
+      request: "canonical request",
+      trigger_payload: { channel: "telegram", thread_id: "thread-1", request: "cannot replace" }
+    )
+
+    assert_requested stub
+  end
+
 end

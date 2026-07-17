@@ -20,10 +20,15 @@ Trigger payload (HelixKit ChaosTriggerClient shape):
       "request": "HelixKit received a request...",# full prompt (always present)
       "request_delta": "...",                     # optional slim prompt, used only on resume
       "persistent_session": true,                 # optional; enables resume behaviour
-      "conversation_id": "WYNWQe",                # optional, for logs only
-      "requested_by": "user@example.com",         # optional, for logs only
-      "model": "claude-sonnet-4-5"                # optional; falls back to AGENT_DEFAULT_MODEL env
-    }
+       "conversation_id": "WYNWQe",                # optional, for logs only
+       "requested_by": "user@example.com",         # optional, for logs only
+       "model": "claude-sonnet-4-5",               # optional; falls back to AGENT_DEFAULT_MODEL env
+       "channel": "telegram",                      # optional channel-specific metadata
+       "sender": {"name": "...", "email": "...", "telegram_username": "..."},
+       "text": "incoming direct message",
+       "thread_id": "stable-thread-id",
+       "history_cursor": "latest-message-id"
+     }
 
 `prompt` is accepted as a backwards-compatible alias for `request`.
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_16_170000) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_17_110000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -500,11 +500,26 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_16_170000) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "telegram_messages", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "role", null: false
+    t.string "sender_name"
+    t.string "sender_username"
+    t.datetime "sent_at", null: false
+    t.bigint "telegram_message_id"
+    t.bigint "telegram_subscription_id", null: false
+    t.text "text", null: false
+    t.datetime "updated_at", null: false
+    t.index ["telegram_subscription_id", "telegram_message_id"], name: "idx_on_telegram_subscription_id_telegram_message_id_9eb10802be", unique: true, where: "(telegram_message_id IS NOT NULL)"
+    t.index ["telegram_subscription_id"], name: "index_telegram_messages_on_telegram_subscription_id"
+  end
+
   create_table "telegram_subscriptions", force: :cascade do |t|
     t.bigint "agent_id", null: false
     t.boolean "blocked", default: false
     t.datetime "created_at", null: false
     t.bigint "telegram_chat_id", null: false
+    t.string "telegram_username"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["agent_id", "telegram_chat_id"], name: "index_telegram_subscriptions_on_agent_id_and_telegram_chat_id", unique: true
@@ -617,6 +632,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_16_170000) do
   add_foreign_key "profiles", "users"
   add_foreign_key "prompt_outputs", "accounts"
   add_foreign_key "sessions", "users"
+  add_foreign_key "telegram_messages", "telegram_subscriptions"
   add_foreign_key "telegram_subscriptions", "agents"
   add_foreign_key "telegram_subscriptions", "users"
   add_foreign_key "tool_calls", "messages"

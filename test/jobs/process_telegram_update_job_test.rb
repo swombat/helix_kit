@@ -89,21 +89,66 @@ class ProcessTelegramUpdateJobTest < ActiveSupport::TestCase
   end
 
   test "ignores non-start messages" do
-    assert_no_difference "TelegramSubscription.count" do
+    assert_no_difference [ "TelegramSubscription.count", "TelegramMessage.count" ] do
       ProcessTelegramUpdateJob.perform_now(@agent, build_update("hello"))
     end
   end
 
+  test "stores a direct message from a subscribed user" do
+    subscription = @agent.telegram_subscriptions.create!(user: @user, telegram_chat_id: 456)
+
+    assert_difference "TelegramMessage.count", 1 do
+      assert_no_enqueued_jobs only: TelegramAgentTriggerJob do
+        ProcessTelegramUpdateJob.perform_now(@agent, build_update("hello", username: "daniel_t"))
+      end
+    end
+
+    telegram_message = subscription.telegram_messages.last
+    assert_equal "user", telegram_message.role
+    assert_equal "hello", telegram_message.text
+    assert_equal "daniel_t", telegram_message.sender_username
+    assert_equal "daniel_t", subscription.reload.telegram_username
+  end
+
+  test "triggers an external agent for a subscribed direct message" do
+    @agent.update!(
+      runtime: "external",
+      endpoint_url: "https://agent.example.com",
+      trigger_bearer_token: "tr_valid"
+    )
+    @agent.telegram_subscriptions.create!(user: @user, telegram_chat_id: 456)
+
+    assert_enqueued_with(job: TelegramAgentTriggerJob) do
+      ProcessTelegramUpdateJob.perform_now(@agent, build_update("wake up"))
+    end
+  end
+
+  test "does not trigger twice for a duplicate Telegram update" do
+    @agent.update!(
+      runtime: "external",
+      endpoint_url: "https://agent.example.com",
+      trigger_bearer_token: "tr_valid"
+    )
+    @agent.telegram_subscriptions.create!(user: @user, telegram_chat_id: 456)
+    update = build_update("once")
+
+    assert_difference "TelegramMessage.count", 1 do
+      2.times { ProcessTelegramUpdateJob.perform_now(@agent, update) }
+    end
+    assert_equal 1, enqueued_jobs.count { |job| job["job_class"] == "TelegramAgentTriggerJob" }
+  end
+
   private
 
-  def build_update(text)
+  def build_update(text, username: nil)
     {
       "update_id" => 123,
       "message" => {
         "message_id" => 1,
-        "chat" => { "id" => 456 },
+        "date" => Time.current.to_i,
+        "chat" => { "id" => 456, "type" => "private" },
         "text" => text,
-        "from" => { "id" => 789 }
+        "from" => { "id" => 789, "username" => username }
       }
     }
   end

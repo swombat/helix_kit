@@ -41,4 +41,11 @@ class TelegramSubscriptionTest < ActiveSupport::TestCase
     assert sub.reload.blocked?
   end
 
+  test "uses a stable obfuscated thread id" do
+    sub = @agent.telegram_subscriptions.create!(user: @user, telegram_chat_id: 111)
+
+    assert_equal sub, TelegramSubscription.find(sub.to_param)
+    assert_not_equal sub.id.to_s, sub.to_param
+  end
+
 end

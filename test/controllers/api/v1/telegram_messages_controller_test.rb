@@ -18,7 +18,7 @@ module Api
 
       test "agent-scoped key sends telegram message to matching subscriber" do
         posts = []
-        fake_ok = OpenStruct.new(body: { "ok" => true }.to_json)
+        fake_ok = OpenStruct.new(body: { "ok" => true, "result" => { "message_id" => 77, "date" => Time.current.to_i } }.to_json)
 
         Net::HTTP.stub :post, ->(uri, body, headers) { posts << [ uri, JSON.parse(body), headers ]; fake_ok } do
           post api_v1_telegram_messages_url,
@@ -35,6 +35,24 @@ module Api
         assert_equal "https://api.telegram.org/bot#{@agent.telegram_bot_token}/sendMessage", posts.first[0].to_s
         assert_equal 111, posts.first[1]["chat_id"]
         assert_equal "Hello &lt;friend&gt;", posts.first[1]["text"]
+        telegram_message = @subscription.telegram_messages.last
+        assert_equal "assistant", telegram_message.role
+        assert_equal "Hello <friend>", telegram_message.text
+        assert_equal 77, telegram_message.telegram_message_id
+      end
+
+      test "agent-scoped key can reply to a Telegram thread" do
+        fake_ok = OpenStruct.new(body: { "ok" => true, "result" => { "message_id" => 78 } }.to_json)
+
+        Net::HTTP.stub :post, fake_ok do
+          post api_v1_telegram_messages_url,
+            params: { reply_to: @subscription.to_param, text: "Thread reply" },
+            headers: { "Authorization" => "Bearer #{@token}" }
+        end
+
+        assert_response :created
+        assert_equal @subscription.to_param, JSON.parse(response.body).dig("delivered", 0, "thread_id")
+        assert_equal "Thread reply", @subscription.telegram_messages.last.text
       end
 
       test "user-scoped key cannot send telegram messages" do

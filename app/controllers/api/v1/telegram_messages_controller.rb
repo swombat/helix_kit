@@ -21,7 +21,8 @@ module Api
 
         subscriptions.each do |subscription|
           begin
-            current_api_agent.telegram_send_message(subscription.telegram_chat_id, ERB::Util.html_escape(text))
+            result = current_api_agent.telegram_send_message(subscription.telegram_chat_id, ERB::Util.html_escape(text))
+            record_outbound_message(subscription, text, result)
             delivered << subscriber_json(subscription)
           rescue TelegramNotifiable::TelegramError => e
             if e.message.include?("blocked") || e.message.include?("chat not found")
@@ -41,6 +42,8 @@ module Api
 
       def target_subscriptions
         scope = current_api_agent.telegram_subscriptions.active.includes(user: :profile)
+        return [ scope.find(params[:reply_to]) ] if params[:reply_to].present?
+
         target = params[:recipient].presence || params[:to].presence
         needle = target.to_s.downcase.strip
         return scope.to_a if needle.blank? || needle == "all"
@@ -48,6 +51,7 @@ module Api
         scope.select do |subscription|
           user = subscription.user
           candidates = [
+            subscription.telegram_username,
             user.email_address,
             user.first_name,
             user.last_name,
@@ -64,9 +68,22 @@ module Api
         user = subscription.user
         {
           user_id: user.to_param,
+          thread_id: subscription.to_param,
           name: user.full_name.presence || user.email_address,
-          email: user.email_address
+          email: user.email_address,
+          telegram_username: subscription.telegram_username
         }
+      end
+
+      def record_outbound_message(subscription, text, result)
+        telegram_message = result["result"] || {}
+        subscription.telegram_messages.create!(
+          role: "assistant",
+          text: text,
+          sender_name: current_api_agent.name,
+          telegram_message_id: telegram_message["message_id"],
+          sent_at: telegram_message["date"] ? Time.zone.at(telegram_message["date"]) : Time.current
+        )
       end
 
     end

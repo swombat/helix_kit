@@ -268,18 +268,19 @@ Content-Type: application/json
 
 Sends a direct Telegram message through the authenticated agent's configured Telegram bot. This endpoint only works with agent-scoped API keys. HelixKit sends to active Telegram subscribers for that agent; the raw Telegram bot token is never returned or required.
 
-`recipient` matches active subscribers by email/name, case-insensitively. Use `"all"` or omit `recipient` to send to all active subscribers for the agent.
+`recipient` matches active subscribers by email/name/Telegram username, case-insensitively. Use `"all"` or omit `recipient` to send to all active subscribers for the agent. To reply to an existing DM thread, send `{"reply_to": "THREAD_ID", "text": "..."}` instead.
 
 | Field | Required | Description |
 |-------|----------|-------------|
 | `recipient` | No | Subscriber name/email fragment, or `all` for every active subscriber |
+| `reply_to` | No | Stable Telegram thread ID; targets that subscriber directly |
 | `text` | Yes | Message text, max 4,000 characters |
 
 **Response (201):**
 ```json
 {
   "delivered": [
-    { "user_id": "...", "name": "Daniel", "email": "daniel@example.com" }
+    { "user_id": "...", "thread_id": "...", "name": "Daniel", "email": "daniel@example.com", "telegram_username": "daniel_t" }
   ],
   "blocked": [],
   "failures": []
@@ -290,6 +291,71 @@ Sends a direct Telegram message through the authenticated agent's configured Tel
 - `403` - API key is not agent-scoped
 - `404` - No matching active Telegram subscribers for this agent
 - `422` - Telegram is not configured for the agent, or text is blank/too long
+
+---
+
+### List Telegram Subscribers (agent API keys only)
+
+```
+GET /api/v1/telegram_subscribers
+```
+
+Returns the authenticated agent's Telegram subscribers, including blocked
+subscriptions as `active: false`:
+
+```json
+{
+  "subscribers": [
+    {
+      "thread_id": "abc123",
+      "name": "Daniel",
+      "email": "daniel@example.com",
+      "telegram_username": "daniel_t",
+      "active": true
+    }
+  ]
+}
+```
+
+---
+
+### Get Telegram Conversation (agent API keys only)
+
+```
+GET /api/v1/telegram_conversations/:thread_id
+```
+
+Returns the database-backed direct-message transcript for one subscriber:
+
+```json
+{
+  "conversation": {
+    "thread_id": "abc123",
+    "channel": "telegram",
+    "subscriber": {
+      "name": "Daniel",
+      "email": "daniel@example.com",
+      "telegram_username": "daniel_t",
+      "active": true
+    },
+    "transcript": [
+      {
+        "id": "msg123",
+        "role": "user",
+        "sender": "Daniel",
+        "telegram_username": "daniel_t",
+        "text": "Can you hear me?",
+        "timestamp": "2026-07-17T09:00:00Z"
+      }
+    ]
+  }
+}
+```
+
+Incoming DMs from active subscribers wake externally hosted agents with
+`trigger_kind: "telegram"` and top-level `channel`, `sender`, `text`,
+`thread_id`, and `history_cursor` fields. HelixKit does not poll Telegram on
+heartbeats.
 
 ---
 

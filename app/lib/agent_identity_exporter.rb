@@ -86,6 +86,8 @@ class AgentIdentityExporter
           helixkit-send-telegram daniel "Short message"
           printf 'Longer message\nwith lines\n' | helixkit-send-telegram paulina
           helixkit-send-telegram all "Message to all active Telegram subscribers"
+          helixkit-send-telegram --reply-to THREAD_ID "Reply in an existing DM thread"
+          printf '%s\n' 'Safer reply with $ and backticks' | helixkit-send-telegram --reply-to THREAD_ID
 
       Recipients are matched by email/name among people who have subscribed to
       your Telegram bot in HelixKit. Use this thoughtfully; Telegram is a direct
@@ -448,14 +450,47 @@ class AgentIdentityExporter
                -d '{"recipient": "daniel", "text": "Short message"}' \
                "$HELIXKIT_APP_URL/api/v1/telegram_messages"
 
-      `recipient` matches active subscribers by email/name, case-insensitively.
+      `recipient` matches active subscribers by email/name/Telegram username,
+      case-insensitively.
       Use `all` or omit `recipient` to send to all active Telegram subscribers
       for your bot. Returns:
 
           {
-            "delivered": [{"user_id": "...", "name": "Daniel", "email": "..."}],
+            "delivered": [{"user_id": "...", "thread_id": "...", "name": "Daniel", "email": "...", "telegram_username": "..."}],
             "blocked": [],
             "failures": []
+          }
+
+      When an active subscriber sends you a Telegram DM, HelixKit wakes your
+      external runtime with `trigger_kind: "telegram"` and these trigger fields:
+      `channel`, `sender`, `text`, `thread_id`, and `history_cursor`. The trigger
+      prompt also contains a recent database-backed transcript. Treat Telegram as
+      a direct push-to-phone register rather than a HelixKit room.
+
+      ### List Telegram subscribers
+
+          curl -H "Authorization: Bearer $HELIXKIT_BEARER_TOKEN" \
+               "$HELIXKIT_APP_URL/api/v1/telegram_subscribers"
+
+      Returns each subscriber's `thread_id`, name, email, Telegram username, and
+      whether the subscription is currently active.
+
+      ### Verify a Telegram DM transcript
+
+          curl -H "Authorization: Bearer $HELIXKIT_BEARER_TOKEN" \
+               "$HELIXKIT_APP_URL/api/v1/telegram_conversations/$THREAD_ID"
+
+      The transcript is the ground-truth stored inbound and outbound DM history:
+
+          {
+            "conversation": {
+              "thread_id": "...",
+              "channel": "telegram",
+              "subscriber": {"name": "...", "email": "...", "telegram_username": "...", "active": true},
+              "transcript": [
+                {"id": "...", "role": "user", "sender": "...", "telegram_username": "...", "text": "...", "timestamp": "..."}
+              ]
+            }
           }
 
       ## Agent triggering

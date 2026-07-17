@@ -6,6 +6,7 @@ module TelegramNotifiable
 
   included do
     has_many :telegram_subscriptions, dependent: :destroy
+    has_many :telegram_messages, through: :telegram_subscriptions
 
     encrypts :telegram_bot_token
 
