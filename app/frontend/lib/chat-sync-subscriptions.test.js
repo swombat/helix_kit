@@ -16,7 +16,7 @@ describe('chat sync subscriptions', () => {
       })
     ).toEqual({
       'Account:12:chats': 'chats',
-      'Chat:34': ['chat', 'messages'],
+      'Chat:34': ['chat', 'messages', 'runtime_interactions'],
       'Chat:34:messages': 'messages',
       'Whiteboard:56': ['chat', 'messages'],
     });

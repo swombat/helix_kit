@@ -3,6 +3,8 @@ Rails.application.routes.draw do
     namespace :test_support, path: "test" do
       namespace :e2e do
         post :setup, to: "/test_support/e2e#setup"
+        post :conversation_fixture, to: "/test_support/e2e#conversation_fixture"
+        post :append_messages, to: "/test_support/e2e#append_messages"
         post :assistant_message, to: "/test_support/e2e#assistant_message"
         post :invitation_url, to: "/test_support/e2e#invitation_url"
         post :perform_promote, to: "/test_support/e2e#perform_promote"

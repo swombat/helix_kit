@@ -34,7 +34,12 @@
     timestampLabelForMessages,
     visibleChatMessages,
   } from '$lib/chat-message-state';
-  import { combinePaginatedMessages, prependOlderMessages, shouldLoadMoreMessages } from '$lib/chat-pagination-state';
+  import {
+    combinePaginatedMessages,
+    prependOlderMessages,
+    preserveDisplacedRecentMessages,
+    shouldLoadMoreMessages,
+  } from '$lib/chat-pagination-state';
   import {
     appendMessageIfMissing,
     patchMessageInCollections,
@@ -80,6 +85,8 @@
   let hasMore = $state(serverHasMore);
   let oldestId = $state(serverOldestId);
   let loadingMore = $state(false);
+  let previousRecentMessages = [];
+  let previousRecentChatId = null;
 
   const allMessages = $derived(combinePaginatedMessages(olderMessages, recentMessages));
 
@@ -102,6 +109,26 @@
       olderMessages = [];
       hasMore = serverHasMore;
       oldestId = serverOldestId;
+    }
+  });
+
+  // A sync reload always returns the newest 30 messages. Preserve records that
+  // were in the previous window but were pushed out by newly-arrived messages,
+  // otherwise a long open conversation develops gaps at the pagination seam.
+  $effect(() => {
+    const currentChatId = chat?.id ?? null;
+    const currentRecentMessages = recentMessages || [];
+
+    if (currentChatId !== previousRecentChatId) {
+      previousRecentChatId = currentChatId;
+      previousRecentMessages = currentRecentMessages;
+    } else {
+      olderMessages = preserveDisplacedRecentMessages({
+        olderMessages,
+        previousRecentMessages,
+        recentMessages: currentRecentMessages,
+      });
+      previousRecentMessages = currentRecentMessages;
     }
   });
 

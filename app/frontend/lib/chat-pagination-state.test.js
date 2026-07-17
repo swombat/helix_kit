@@ -1,8 +1,13 @@
 import { describe, expect, test } from 'vitest';
-import { combinePaginatedMessages, prependOlderMessages, shouldLoadMoreMessages } from './chat-pagination-state';
+import {
+  combinePaginatedMessages,
+  prependOlderMessages,
+  preserveDisplacedRecentMessages,
+  shouldLoadMoreMessages,
+} from './chat-pagination-state';
 
 describe('chat pagination state', () => {
-  test('combines older and recent messages while preserving the first copy of duplicates', () => {
+  test('combines older and recent messages while preserving the recent copy of duplicates', () => {
     const olderMessages = [
       { id: 1, content: 'oldest' },
       { id: 2, content: 'older copy' },
@@ -14,7 +19,7 @@ describe('chat pagination state', () => {
 
     expect(combinePaginatedMessages(olderMessages, recentMessages)).toEqual([
       { id: 1, content: 'oldest' },
-      { id: 2, content: 'older copy' },
+      { id: 2, content: 'recent copy' },
       { id: 3, content: 'newest' },
     ]);
   });
@@ -40,5 +45,19 @@ describe('chat pagination state', () => {
       hasMore: true,
       oldestId: 1,
     });
+  });
+
+  test('keeps messages displaced when the latest server window advances', () => {
+    const olderMessages = [{ id: 1 }, { id: 2 }];
+    const previousRecentMessages = [{ id: 3 }, { id: 4 }, { id: 5 }];
+    const recentMessages = [{ id: 5 }, { id: 6 }, { id: 7 }];
+
+    expect(
+      preserveDisplacedRecentMessages({
+        olderMessages,
+        previousRecentMessages,
+        recentMessages,
+      })
+    ).toEqual([{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }]);
   });
 });
