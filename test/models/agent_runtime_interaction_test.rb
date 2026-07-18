@@ -268,6 +268,43 @@ class AgentRuntimeInteractionTest < ActiveSupport::TestCase
     assert_nil interaction.usage_complete
   end
 
+  test "record_result! persists trigger-local usage aggregated across fallback invocations" do
+    interaction = AgentRuntimeInteraction.create!(
+      agent: agents(:research_assistant),
+      trigger_kind: "conversation",
+      session_id: "fallback-trigger",
+      started_at: Time.current
+    )
+
+    interaction.record_result!(
+      status: 200,
+      body: {
+        "status" => "ok",
+        "telemetry" => {
+          "schema_version" => 1,
+          "chaos_telemetry_status" => "detailed",
+          "usage" => {
+            "scope" => "trigger",
+            "complete" => true,
+            "input_tokens" => 2_000,
+            "uncached_input_tokens" => 100,
+            "cache_creation_input_tokens" => 300,
+            "cache_read_input_tokens" => 1_600,
+            "output_tokens" => 80,
+            "provider_request_count" => 4
+          }
+        }
+      }
+    )
+
+    assert_equal "trigger", interaction.usage_scope
+    assert interaction.usage_complete
+    assert_equal 2_000, interaction.input_tokens
+    assert_equal 300, interaction.cache_creation_input_tokens
+    assert_equal 1_600, interaction.cache_read_input_tokens
+    assert_equal 4, interaction.provider_request_count
+  end
+
   test "telemetry envelope without detailed usage does not upgrade coarse fallback usage" do
     interaction = AgentRuntimeInteraction.create!(
       agent: agents(:research_assistant),

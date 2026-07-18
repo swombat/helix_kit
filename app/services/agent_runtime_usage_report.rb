@@ -1,6 +1,7 @@
 class AgentRuntimeUsageReport
 
   SUPPORTED_TELEMETRY_SCHEMA_VERSION = 1
+  LOCAL_USAGE_SCOPES = %w[invocation trigger].freeze
   DETAILED_TOKEN_FIELDS = %i[
     uncached_input_tokens
     cache_creation_input_tokens
@@ -77,8 +78,8 @@ class AgentRuntimeUsageReport
       interactions: interactions.size,
       logical_sessions: interactions.map { |row| logical_session_id(row) }.uniq.size,
       chaos_processes: interactions.filter_map(&:chaos_session_id).uniq.size,
-      provider_requests: sum_invocation_usage(interactions, :provider_request_count),
-      provider_request_unknown_rows: invocation_usage_unknown_count(interactions, :provider_request_count),
+      provider_requests: sum_local_usage(interactions, :provider_request_count),
+      provider_request_unknown_rows: local_usage_unknown_count(interactions, :provider_request_count),
       fresh: interactions.count { |row| row.session_outcome == "fresh" },
       resumed: interactions.count { |row| row.session_outcome == "resumed" },
       rolled: interactions.count { |row| row.session_outcome == "rolled" },
@@ -133,8 +134,8 @@ class AgentRuntimeUsageReport
       models: interactions.filter_map(&:model).uniq,
       cache_ttls: interactions.filter_map(&:cache_ttl).uniq,
       chaos_versions: interactions.filter_map(&:chaos_version).uniq,
-      provider_request_count: sum_invocation_usage(interactions, :provider_request_count),
-      provider_request_unknown_rows: invocation_usage_unknown_count(interactions, :provider_request_count),
+      provider_request_count: sum_local_usage(interactions, :provider_request_count),
+      provider_request_unknown_rows: local_usage_unknown_count(interactions, :provider_request_count),
       selected_prompt_bytes: sum_known(interactions, :selected_prompt_bytes),
       selected_prompt_unknown_rows: unknown_count(interactions, :selected_prompt_bytes),
       tokens: token_totals(interactions),
@@ -178,13 +179,13 @@ class AgentRuntimeUsageReport
       cache_ttl: interaction.cache_ttl,
       chaos_telemetry_status: interaction.chaos_telemetry_status,
       unsupported_chaos_telemetry_schema_version: interaction.unsupported_chaos_telemetry_schema_version,
-      provider_request_count: invocation_value(interaction, :provider_request_count),
+      provider_request_count: local_usage_value(interaction, :provider_request_count),
       usage_scope: interaction.usage_scope,
       usage_complete: interaction.usage_complete,
       telemetry_schema_version: interaction.telemetry_schema_version,
       telemetry_state: state,
       telemetry_state_reason: telemetry_state_reason(interaction, state),
-      tokens: TOKEN_FIELDS.to_h { |field| [ field, invocation_value(interaction, field) ] }
+      tokens: TOKEN_FIELDS.to_h { |field| [ field, local_usage_value(interaction, field) ] }
     }
   end
 
@@ -199,11 +200,11 @@ class AgentRuntimeUsageReport
   end
 
   def token_totals(interactions)
-    TOKEN_FIELDS.to_h { |field| [ field, sum_invocation_usage(interactions, field) ] }
+    TOKEN_FIELDS.to_h { |field| [ field, sum_local_usage(interactions, field) ] }
   end
 
   def token_unknown_counts(interactions)
-    TOKEN_FIELDS.to_h { |field| [ field, invocation_usage_unknown_count(interactions, field) ] }
+    TOKEN_FIELDS.to_h { |field| [ field, local_usage_unknown_count(interactions, field) ] }
   end
 
   def grouped_counts(interactions, field)
@@ -221,26 +222,26 @@ class AgentRuntimeUsageReport
     interactions.count { |interaction| interaction.public_send(field).nil? }
   end
 
-  def sum_invocation_usage(interactions, field)
+  def sum_local_usage(interactions, field)
     values = interactions.filter_map do |interaction|
-      invocation_value(interaction, field)
+      local_usage_value(interaction, field)
     end
     values.sum if values.any?
   end
 
-  def invocation_usage_unknown_count(interactions, field)
+  def local_usage_unknown_count(interactions, field)
     interactions.count do |interaction|
-      !invocation_usage?(interaction) || interaction.public_send(field).nil?
+      !local_usage?(interaction) || interaction.public_send(field).nil?
     end
   end
 
-  def invocation_usage?(interaction)
+  def local_usage?(interaction)
     interaction.telemetry_schema_version == SUPPORTED_TELEMETRY_SCHEMA_VERSION &&
-      interaction.usage_scope == "invocation"
+      interaction.usage_scope.in?(LOCAL_USAGE_SCOPES)
   end
 
-  def invocation_value(interaction, field)
-    interaction.public_send(field) if invocation_usage?(interaction)
+  def local_usage_value(interaction, field)
+    interaction.public_send(field) if local_usage?(interaction)
   end
 
   def telemetry_state(interaction)
@@ -250,7 +251,7 @@ class AgentRuntimeUsageReport
       interaction.chaos_telemetry_status == "unsupported" ||
       interaction.unsupported_chaos_telemetry_schema_version.present?
     return "unavailable" if interaction.chaos_telemetry_status.in?(%w[missing legacy])
-    return "complete" if interaction.usage_complete == true && interaction.usage_scope == "invocation"
+    return "complete" if interaction.usage_complete == true && interaction.usage_scope.in?(LOCAL_USAGE_SCOPES)
 
     "incomplete"
   end
@@ -270,10 +271,14 @@ class AgentRuntimeUsageReport
         "runtime reported unsupported telemetry schema version #{interaction.telemetry_schema_version}"
       end
     when "complete"
-      "versioned invocation-local telemetry complete"
+      if interaction.usage_scope == "trigger"
+        "versioned trigger-local telemetry complete across multiple Chaos invocations"
+      else
+        "versioned invocation-local telemetry complete"
+      end
     when "incomplete"
-      if interaction.usage_scope.present? && interaction.usage_scope != "invocation"
-        "usage scope is #{interaction.usage_scope}, not invocation"
+      if interaction.usage_scope.present? && !interaction.usage_scope.in?(LOCAL_USAGE_SCOPES)
+        "usage scope is #{interaction.usage_scope}, not invocation or trigger"
       elsif interaction.usage_complete == false
         "runtime marked invocation telemetry incomplete"
       else

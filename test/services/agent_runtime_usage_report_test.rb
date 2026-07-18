@@ -103,6 +103,35 @@ class AgentRuntimeUsageReportTest < ActiveSupport::TestCase
     assert_equal 1, report.dig(:summary, :token_unknown_rows, :reasoning_output_tokens)
   end
 
+  test "includes trigger-local totals from a resume fallback with two Chaos invocations" do
+    create_interaction!(
+      started_at: @from + 10.minutes,
+      session_id: "fallback-trigger",
+      usage_scope: "trigger",
+      usage_complete: true,
+      session_outcome: "fresh_fallback",
+      provider_request_count: 4,
+      input_tokens: 2_000,
+      uncached_input_tokens: 100,
+      cache_creation_input_tokens: 300,
+      cache_read_input_tokens: 1_600,
+      output_tokens: 80
+    )
+
+    report = AgentRuntimeUsageReport.new(agent: @agent, from: @from, to: @to).call
+
+    assert_equal 4, report.dig(:summary, :provider_requests)
+    assert_equal 2_000, report.dig(:summary, :tokens, :input_tokens)
+    assert_equal 300, report.dig(:summary, :tokens, :cache_creation_input_tokens)
+    assert_equal 0, report.dig(:summary, :provider_request_unknown_rows)
+    assert_equal 1, report.dig(:summary, :complete_usage_rows)
+
+    interaction = report.dig(:sessions, 0, :interactions, 0)
+    assert_equal "complete", interaction.fetch(:telemetry_state)
+    assert_match(/trigger-local telemetry complete/, interaction.fetch(:telemetry_state_reason))
+    assert_equal 4, interaction.fetch(:provider_request_count)
+  end
+
   test "uses exact UTC range boundaries" do
     create_interaction!(started_at: @from - 1.second, session_id: "before")
     create_interaction!(started_at: @from, session_id: "inside-start")
