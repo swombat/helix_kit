@@ -75,6 +75,46 @@ class Admin::AgentRuntimeSessionsControllerTest < ActionDispatch::IntegrationTes
     assert_equal "2026-07-18T12:00:00Z", inertia_shared_props.dig("filters", "to")
   end
 
+  test "normalizes a backwards UTC window instead of raising" do
+    login_as(@site_admin)
+
+    get admin_agent_runtime_path(@agent), params: {
+      from: "2026-07-18T14:00:00Z",
+      to: "2026-07-18T12:00:00Z"
+    }
+
+    assert_response :success
+    assert_equal "2026-07-17T12:00:00Z", inertia_shared_props.dig("filters", "from")
+    assert_equal "2026-07-18T12:00:00Z", inertia_shared_props.dig("filters", "to")
+  end
+
+  test "ignores malformed timestamp parameters" do
+    login_as(@site_admin)
+
+    get admin_agent_runtime_path(@agent), params: {
+      from: { unexpected: "value" },
+      to: "not-a-time"
+    }
+
+    assert_response :success
+    from = Time.iso8601(inertia_shared_props.dig("filters", "from"))
+    to = Time.iso8601(inertia_shared_props.dig("filters", "to"))
+    assert_in_delta 24.hours, to - from, 1.second
+  end
+
+  test "limits reports to a 31 day UTC window" do
+    login_as(@site_admin)
+
+    get admin_agent_runtime_path(@agent), params: {
+      from: "2026-01-01T00:00:00Z",
+      to: "2026-07-18T12:00:00Z"
+    }
+
+    assert_response :success
+    assert_equal "2026-06-17T12:00:00Z", inertia_shared_props.dig("filters", "from")
+    assert_equal "2026-07-18T12:00:00Z", inertia_shared_props.dig("filters", "to")
+  end
+
   test "applies report dimensions and selects a logical session timeline" do
     @agent.agent_runtime_interactions.create!(
       trigger_kind: "wake",

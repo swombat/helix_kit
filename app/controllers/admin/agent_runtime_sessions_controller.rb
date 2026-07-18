@@ -9,6 +9,7 @@ class Admin::AgentRuntimeSessionsController < ApplicationController
     agent = Agent.includes(:account).find(params[:agent_id])
     to = parse_time(params[:to]) || Time.current.utc
     from = parse_time(params[:from]) || (to - 24.hours)
+    from = to - 24.hours if from > to
     from = [ from, to - MAX_WINDOW ].max
 
     report = AgentRuntimeUsageReport.new(
@@ -35,8 +36,10 @@ class Admin::AgentRuntimeSessionsController < ApplicationController
   private
 
   def parse_time(value)
-    Time.iso8601(value).utc if value.present?
-  rescue ArgumentError
+    return unless value.is_a?(String) && value.present?
+
+    Time.iso8601(value).utc
+  rescue ArgumentError, TypeError
     nil
   end
 
