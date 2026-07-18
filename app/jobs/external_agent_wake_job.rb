@@ -14,6 +14,7 @@ class ExternalAgentWakeJob < ApplicationJob
     scope = Agent.active
                  .unpaused
                  .where(runtime: "external")
+                 .where(scheduled_wakes_enabled: true)
                  .where.not(trigger_bearer_token: [ nil, "" ])
     extra_half_hour ? scope.where(half_hourly_wake: true) : scope
   end

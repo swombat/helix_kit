@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_17_110000) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_18_103000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -234,6 +234,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_17_110000) do
     t.string "sandbox_host"
     t.text "sandbox_last_error"
     t.datetime "sandbox_last_error_at"
+    t.boolean "scheduled_wakes_enabled", default: true, null: false
     t.text "summary_prompt"
     t.text "system_prompt"
     t.string "telegram_bot_token"

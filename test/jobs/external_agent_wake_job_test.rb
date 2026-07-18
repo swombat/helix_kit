@@ -44,6 +44,15 @@ class ExternalAgentWakeJobTest < ActiveJob::TestCase
     assert_requested request
   end
 
+  test "does not send scheduled wakes to agents with heartbeats disabled" do
+    @agent.update!(scheduled_wakes_enabled: false, half_hourly_wake: true)
+
+    ExternalAgentWakeJob.perform_now
+    ExternalAgentWakeJob.perform_now(true)
+
+    assert_not_requested :post, "https://agent.example.com/trigger"
+  end
+
   test "persistent wake mode reuses the stable wake session" do
     @agent.update!(persistent_wake_session: true)
     request = stub_request(:post, "https://agent.example.com/trigger")

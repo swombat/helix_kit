@@ -145,6 +145,7 @@
       voice_id: agent.voice_id || '',
       persistent_session: agent.persistent_session || false,
       persistent_wake_session: agent.persistent_wake_session || false,
+      scheduled_wakes_enabled: agent.scheduled_wakes_enabled ?? true,
       half_hourly_wake: agent.half_hourly_wake || false,
     },
   });
@@ -292,8 +293,6 @@
         diagnosticsLoading = false;
       });
   }
-
-
 
   function directoryKey(section, entryOrPath) {
     const path = typeof entryOrPath === 'string' ? entryOrPath : entryOrPath.path;
@@ -511,6 +510,20 @@
 
               <div class="flex items-center justify-between gap-6 rounded border bg-muted/30 p-4">
                 <div class="space-y-1">
+                  <Label for="scheduled_wakes_enabled">Scheduled heartbeats</Label>
+                  <p class="text-sm text-muted-foreground">
+                    Allow HelixKit to wake this agent for hourly heartbeats and any optional 30-minute heartbeats.
+                  </p>
+                </div>
+                <Switch
+                  id="scheduled_wakes_enabled"
+                  checked={$form.agent.scheduled_wakes_enabled}
+                  disabled={!runtimeManaged}
+                  onCheckedChange={(checked) => ($form.agent.scheduled_wakes_enabled = checked)} />
+              </div>
+
+              <div class="flex items-center justify-between gap-6 rounded border bg-muted/30 p-4">
+                <div class="space-y-1">
                   <Label for="persistent_session">Persistent conversation sessions</Label>
                   <p class="text-sm text-muted-foreground">
                     Resume each conversation's Chaos session and send only new transcript messages after the first turn.
@@ -528,8 +541,8 @@
                 <div class="space-y-1">
                   <Label for="persistent_wake_session">Persistent hourly heartbeat session</Label>
                   <p class="text-sm text-muted-foreground">
-                    Run hourly heartbeats in one continuing Chaos session instead of starting fresh each time.
-                    This preserves heartbeat context and allows provider caching across wakes.
+                    Run hourly heartbeats in one continuing Chaos session instead of starting fresh each time. This
+                    preserves heartbeat context and allows provider caching across wakes.
                   </p>
                 </div>
                 <Switch
@@ -549,7 +562,7 @@
                 <Switch
                   id="half_hourly_wake"
                   checked={$form.agent.half_hourly_wake}
-                  disabled={!runtimeManaged}
+                  disabled={!runtimeManaged || !$form.agent.scheduled_wakes_enabled}
                   onCheckedChange={(checked) => ($form.agent.half_hourly_wake = checked)} />
               </div>
 
@@ -614,7 +627,11 @@
                       variant="outline"
                       onclick={sendOrientation}
                       disabled={sendingOrientation || agent.health_state !== 'healthy'}>
-                      {sendingOrientation ? 'Orienting...' : agent.oriented_at ? 'Re-send orientation' : 'Send orientation'}
+                      {sendingOrientation
+                        ? 'Orienting...'
+                        : agent.oriented_at
+                          ? 'Re-send orientation'
+                          : 'Send orientation'}
                     </Button>
                     <Button type="button" onclick={sendTestRequest} disabled={sendingTestRequest}>
                       {sendingTestRequest ? 'Sending...' : 'Send test trigger'}
@@ -648,13 +665,15 @@
                   {#if orientationResult.runtime_stderr}
                     <details class="mt-2">
                       <summary class="cursor-pointer font-medium text-destructive">Runtime stderr</summary>
-                      <pre class="mt-1 overflow-x-auto whitespace-pre-wrap text-xs">{orientationResult.runtime_stderr}</pre>
+                      <pre
+                        class="mt-1 overflow-x-auto whitespace-pre-wrap text-xs">{orientationResult.runtime_stderr}</pre>
                     </details>
                   {/if}
                   {#if orientationResult.runtime_stdout}
                     <details class="mt-2">
                       <summary class="cursor-pointer font-medium">Runtime stdout</summary>
-                      <pre class="mt-1 overflow-x-auto whitespace-pre-wrap text-xs">{orientationResult.runtime_stdout}</pre>
+                      <pre
+                        class="mt-1 overflow-x-auto whitespace-pre-wrap text-xs">{orientationResult.runtime_stdout}</pre>
                     </details>
                   {/if}
                 </div>
@@ -704,7 +723,12 @@
               <div class="grid gap-2 text-sm sm:grid-cols-2">
                 <p>
                   Docker daemon:
-                  <span class="font-medium">{sandboxStatus.docker_available === null ? 'checking' : sandboxStatus.docker_available ? 'reachable' : 'not reachable'}</span>
+                  <span class="font-medium"
+                    >{sandboxStatus.docker_available === null
+                      ? 'checking'
+                      : sandboxStatus.docker_available
+                        ? 'reachable'
+                        : 'not reachable'}</span>
                 </p>
                 {#if sandboxStatus.docker_version}
                   <p>Docker version: <span class="font-mono">{sandboxStatus.docker_version}</span></p>
@@ -720,21 +744,40 @@
                   </p>
                 {/if}
                 <p>
-                  Runtime image present: <span class="font-medium">{sandboxStatus.image_present === null ? 'checking' : sandboxStatus.image_present ? 'yes' : 'no'}</span>
+                  Runtime image present: <span class="font-medium"
+                    >{sandboxStatus.image_present === null
+                      ? 'checking'
+                      : sandboxStatus.image_present
+                        ? 'yes'
+                        : 'no'}</span>
                 </p>
                 <p>
-                  Container exists: <span class="font-medium">{sandboxStatus.container_exists === null ? 'checking' : sandboxStatus.container_exists ? 'yes' : 'no'}</span>
+                  Container exists: <span class="font-medium"
+                    >{sandboxStatus.container_exists === null
+                      ? 'checking'
+                      : sandboxStatus.container_exists
+                        ? 'yes'
+                        : 'no'}</span>
                 </p>
                 {#if sandboxStatus.container_exists}
                   <p>
                     Container image current:
-                    <span class="font-medium">{sandboxStatus.container_image_current === null || sandboxStatus.container_image_current === undefined ? 'checking' : sandboxStatus.container_image_current ? 'yes' : 'no'}</span>
+                    <span class="font-medium"
+                      >{sandboxStatus.container_image_current === null ||
+                      sandboxStatus.container_image_current === undefined
+                        ? 'checking'
+                        : sandboxStatus.container_image_current
+                          ? 'yes'
+                          : 'no'}</span>
                   </p>
                   <p>
                     Image stale:
-                    <span
-                      class={sandboxStatus.image_stale ? 'font-medium text-amber-700' : 'font-medium'}>
-                      {sandboxStatus.image_stale === null || sandboxStatus.image_stale === undefined ? 'checking' : sandboxStatus.image_stale ? 'yes' : 'no'}
+                    <span class={sandboxStatus.image_stale ? 'font-medium text-amber-700' : 'font-medium'}>
+                      {sandboxStatus.image_stale === null || sandboxStatus.image_stale === undefined
+                        ? 'checking'
+                        : sandboxStatus.image_stale
+                          ? 'yes'
+                          : 'no'}
                     </span>
                   </p>
                 {/if}
@@ -746,15 +789,29 @@
                 {/if}
                 <p>
                   Identity volume:
-                  <span class="font-medium">{sandboxStatus.identity_volume_exists === null ? 'checking' : sandboxStatus.identity_volume_exists ? 'present' : 'missing'}</span>
+                  <span class="font-medium"
+                    >{sandboxStatus.identity_volume_exists === null
+                      ? 'checking'
+                      : sandboxStatus.identity_volume_exists
+                        ? 'present'
+                        : 'missing'}</span>
                 </p>
                 <p>
                   Chaos volume: <span class="font-medium"
-                    >{sandboxStatus.chaos_volume_exists === null ? 'checking' : sandboxStatus.chaos_volume_exists ? 'present' : 'missing'}</span>
+                    >{sandboxStatus.chaos_volume_exists === null
+                      ? 'checking'
+                      : sandboxStatus.chaos_volume_exists
+                        ? 'present'
+                        : 'missing'}</span>
                 </p>
                 <p>
                   Repo/workspace volume:
-                  <span class="font-medium">{sandboxStatus.repo_volume_exists === null ? 'checking' : sandboxStatus.repo_volume_exists ? 'present' : 'missing'}</span>
+                  <span class="font-medium"
+                    >{sandboxStatus.repo_volume_exists === null
+                      ? 'checking'
+                      : sandboxStatus.repo_volume_exists
+                        ? 'present'
+                        : 'missing'}</span>
                 </p>
               </div>
               {#if sandboxStatus.docker_error}
@@ -771,8 +828,8 @@
               {/if}
               {#if sandboxStatus.container_exists && sandboxStatus.container_image_current === false}
                 <div class="rounded border border-amber-300/40 bg-amber-50 p-3 text-sm text-amber-900">
-                  This container was created from an older runtime image. Restarting promotion will recreate the container
-                  while preserving its identity and Chaos volumes.
+                  This container was created from an older runtime image. Restarting promotion will recreate the
+                  container while preserving its identity and Chaos volumes.
                 </div>
               {/if}
               {#if sandboxStatus.container_error}
@@ -835,10 +892,14 @@
                             {:else if filePreviews[filePreviewKey(section, entry)]?.loading}
                               <p class="mt-2 text-xs text-muted-foreground">Loading preview…</p>
                             {:else if filePreviews[filePreviewKey(section, entry)]?.error}
-                              <p class="mt-2 text-xs text-destructive">{filePreviews[filePreviewKey(section, entry)].error}</p>
+                              <p class="mt-2 text-xs text-destructive">
+                                {filePreviews[filePreviewKey(section, entry)].error}
+                              </p>
                             {:else if filePreviews[filePreviewKey(section, entry)]?.loaded}
                               <pre
-                                class="mt-2 max-h-96 overflow-auto whitespace-pre-wrap rounded bg-background p-3 text-xs">{filePreviews[filePreviewKey(section, entry)].content}</pre>
+                                class="mt-2 max-h-96 overflow-auto whitespace-pre-wrap rounded bg-background p-3 text-xs">{filePreviews[
+                                  filePreviewKey(section, entry)
+                                ].content}</pre>
                               {#if filePreviews[filePreviewKey(section, entry)].truncated}
                                 <p class="mt-1 text-xs text-muted-foreground">Preview truncated.</p>
                               {/if}

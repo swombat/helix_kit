@@ -181,6 +181,17 @@ class AgentsControllerTest < ActionDispatch::IntegrationTest
     assert @agent.reload.persistent_wake_session?
   end
 
+  test "external agent can disable scheduled wakes" do
+    @agent.update!(runtime: "external", uuid: SecureRandom.uuid_v7)
+
+    patch account_agent_path(@account, @agent), params: {
+      agent: { scheduled_wakes_enabled: false }
+    }
+
+    assert_redirected_to account_agents_path(@account)
+    assert_not @agent.reload.scheduled_wakes_enabled?
+  end
+
   test "external agent can enable half-hourly wakes" do
     @agent.update!(runtime: "external", uuid: SecureRandom.uuid_v7)
 
