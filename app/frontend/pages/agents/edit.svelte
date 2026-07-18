@@ -41,6 +41,7 @@
     local_dev_endpoint_mode: localDevEndpointMode = false,
     identity_export_url: identityExportUrl = null,
     hosting_diagnostics_url: hostingDiagnosticsUrl = null,
+    runtime_observability_url: runtimeObservabilityUrl = null,
     sandbox_recreation_url: sandboxRecreationUrl = null,
     runtime_interactions: runtimeInteractions = [],
     account,
@@ -648,6 +649,11 @@
                     {#if identityExportUrl}
                       <a href={identityExportUrl}>
                         <Button type="button" variant="outline">Download identity export</Button>
+                      </a>
+                    {/if}
+                    {#if runtimeObservabilityUrl}
+                      <a href={runtimeObservabilityUrl}>
+                        <Button type="button" variant="outline">Runtime usage</Button>
                       </a>
                     {/if}
                   </div>

@@ -33,9 +33,30 @@ class AgentRuntimeInteraction < ApplicationRecord
   end
 
   def record_result!(result)
-    body = result[:body] || {}
+    body = (result[:body] || {}).deep_dup
     full_invocation_text = body.delete("full_invocation_text")
-    usage = body["usage"] || {}
+    telemetry = body["telemetry"].presence || {}
+    runtime = telemetry["runtime"].presence || {}
+    session = telemetry["session"].presence || {}
+    prompt = telemetry["prompt"].presence || {}
+    telemetry_usage = telemetry["usage"]
+    versioned_usage = telemetry_usage.is_a?(Hash)
+    usage = versioned_usage ? telemetry_usage : body["usage"].presence || {}
+    # Only the versioned telemetry envelope promises invocation-local usage.
+    # Unversioned fields may still be process-cumulative output from an older
+    # Chaos runtime, so keep them in the compatibility columns rather than
+    # presenting them as trustworthy detailed accounting.
+    detailed_usage = versioned_usage
+    cache_read_tokens = cache_read_tokens_from(usage) if detailed_usage
+    compatible_cached_tokens = detailed_usage ? cache_read_tokens : usage["cached_input_tokens"]
+    cache_creation_tokens = usage["cache_creation_input_tokens"] if detailed_usage
+    uncached_tokens = uncached_input_tokens_from(
+      usage,
+      cache_creation_tokens: cache_creation_tokens,
+      cache_read_tokens: cache_read_tokens
+    ) if detailed_usage
+    reasoning_output_tokens = usage["reasoning_output_tokens"] if detailed_usage
+    provider_request_count = usage["provider_request_count"] if detailed_usage
 
     update!(
       transport_status: result[:status],
@@ -44,12 +65,40 @@ class AgentRuntimeInteraction < ApplicationRecord
       stdout: body["stdout"],
       stderr: body["stderr"],
       full_invocation_text: full_invocation_text,
-      chaos_session_id: body["chaos_session_id"],
-      session_resumed: body["session_resumed"],
-      fresh_fallback: body["fresh_fallback"],
+      chaos_session_id: session["chaos_process_id"] || body["chaos_session_id"],
+      session_resumed: body.key?("session_resumed") ? body["session_resumed"] : derived_session_flag(session, "resumed"),
+      fresh_fallback: body.key?("fresh_fallback") ? body["fresh_fallback"] : derived_session_flag(session, "fresh_fallback"),
+      telemetry_schema_version: telemetry["schema_version"],
+      chaos_telemetry_status: telemetry["chaos_telemetry_status"],
+      unsupported_chaos_telemetry_schema_version: telemetry["unsupported_chaos_telemetry_schema_version"],
+      chaos_version: runtime["chaos_version"],
+      provider: runtime["provider"],
+      model: runtime["model"],
+      cache_ttl: runtime["cache_ttl"],
+      persistent_session_requested: session["persistent_requested"],
+      session_mapping_found: session["mapping_found"],
+      resume_attempted: session["resume_attempted"],
+      session_outcome: session["outcome"],
+      session_roll_reason: session["roll_reason"] || body["session_roll_reason"],
+      changed_identity_files: session.key?("changed_identity_files") ? session["changed_identity_files"] : changed_identity_files,
+      prior_chaos_session_id: session["prior_chaos_process_id"],
+      session_trigger_sequence: session["trigger_sequence"],
+      session_age_seconds: session["session_age_seconds"],
+      prompt_mode: prompt["mode"],
+      full_prompt_bytes: prompt["full_prompt_bytes"],
+      delta_prompt_bytes: prompt["delta_prompt_bytes"],
+      selected_prompt_bytes: prompt["selected_prompt_bytes"],
+      prompt_component_bytes: prompt.key?("components") ? prompt["components"] : prompt_component_bytes,
+      usage_scope: usage["scope"],
       input_tokens: usage["input_tokens"],
-      cached_input_tokens: usage["cached_input_tokens"],
+      uncached_input_tokens: uncached_tokens,
+      cache_creation_input_tokens: cache_creation_tokens,
+      cache_read_input_tokens: cache_read_tokens,
+      cached_input_tokens: compatible_cached_tokens,
       output_tokens: usage["output_tokens"],
+      reasoning_output_tokens: reasoning_output_tokens,
+      provider_request_count: provider_request_count,
+      usage_complete: usage_complete_value(versioned_usage, usage),
       response_body: body,
       finished_at: Time.current,
       duration_ms: elapsed_ms
@@ -63,6 +112,41 @@ class AgentRuntimeInteraction < ApplicationRecord
       finished_at: Time.current,
       duration_ms: elapsed_ms
     )
+  end
+
+  def cache_read_ratio
+    token_ratio(cache_read_input_tokens)
+  end
+
+  def cache_creation_ratio
+    token_ratio(cache_creation_input_tokens)
+  end
+
+  def fresh_session?
+    session_outcome.in?(%w[legacy_fresh fresh])
+  end
+
+  def resumed_session?
+    session_outcome == "resumed"
+  end
+
+  def cold_start?
+    prompt_mode == "full" || fresh_session? || session_outcome.in?(%w[rolled fresh_fallback])
+  end
+
+  def provider_requests_per_trigger
+    provider_request_count
+  end
+
+  def token_breakdown
+    {
+      input: input_tokens,
+      uncached_input: uncached_input_tokens,
+      cache_creation_input: cache_creation_input_tokens,
+      cache_read_input: cache_read_input_tokens,
+      output: output_tokens,
+      reasoning_output: reasoning_output_tokens
+    }
   end
 
   def as_debug_json
@@ -83,9 +167,37 @@ class AgentRuntimeInteraction < ApplicationRecord
       chaos_session_id: chaos_session_id,
       session_resumed: session_resumed,
       fresh_fallback: fresh_fallback,
+      telemetry_schema_version: telemetry_schema_version,
+      chaos_telemetry_status: chaos_telemetry_status,
+      unsupported_chaos_telemetry_schema_version: unsupported_chaos_telemetry_schema_version,
+      chaos_version: chaos_version,
+      provider: provider,
+      model: model,
+      cache_ttl: cache_ttl,
+      persistent_session_requested: persistent_session_requested,
+      session_mapping_found: session_mapping_found,
+      resume_attempted: resume_attempted,
+      session_outcome: session_outcome,
+      session_roll_reason: session_roll_reason,
+      changed_identity_files: changed_identity_files,
+      prior_chaos_session_id: prior_chaos_session_id,
+      session_trigger_sequence: session_trigger_sequence,
+      session_age_seconds: session_age_seconds,
+      prompt_mode: prompt_mode,
+      full_prompt_bytes: full_prompt_bytes,
+      delta_prompt_bytes: delta_prompt_bytes,
+      selected_prompt_bytes: selected_prompt_bytes,
+      prompt_component_bytes: prompt_component_bytes,
+      usage_scope: usage_scope,
       input_tokens: input_tokens,
+      uncached_input_tokens: uncached_input_tokens,
+      cache_creation_input_tokens: cache_creation_input_tokens,
+      cache_read_input_tokens: cache_read_input_tokens,
       cached_input_tokens: cached_input_tokens,
       output_tokens: output_tokens,
+      reasoning_output_tokens: reasoning_output_tokens,
+      provider_request_count: provider_request_count,
+      usage_complete: usage_complete,
       started_at: started_at&.iso8601,
       finished_at: finished_at&.iso8601,
       duration_ms: duration_ms,
@@ -123,6 +235,36 @@ class AgentRuntimeInteraction < ApplicationRecord
   end
 
   private
+
+  def cache_read_tokens_from(usage)
+    return usage["cache_read_input_tokens"] if usage.key?("cache_read_input_tokens")
+
+    usage["cached_input_tokens"]
+  end
+
+  def uncached_input_tokens_from(usage, cache_creation_tokens:, cache_read_tokens:)
+    return usage["uncached_input_tokens"] unless usage["uncached_input_tokens"].nil?
+    return if usage["input_tokens"].nil? || cache_creation_tokens.nil? || cache_read_tokens.nil?
+
+    usage["input_tokens"] - cache_creation_tokens - cache_read_tokens
+  end
+
+  def token_ratio(category_tokens)
+    return if category_tokens.nil? || input_tokens.nil? || input_tokens.zero?
+
+    category_tokens.to_f / input_tokens
+  end
+
+  def usage_complete_value(versioned_usage, usage)
+    return usage["complete"] if usage.key?("complete")
+    return true if versioned_usage && usage["scope"] == "invocation"
+
+    nil
+  end
+
+  def derived_session_flag(session, outcome)
+    session["outcome"] == outcome if session.key?("outcome")
+  end
 
   def broadcast_agent_runtime_interactions_refresh
     ActionCable.server.broadcast(

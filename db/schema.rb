@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_18_103000) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_18_152000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -154,11 +154,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_18_103000) do
 
   create_table "agent_runtime_interactions", force: :cascade do |t|
     t.bigint "agent_id", null: false
+    t.bigint "cache_creation_input_tokens"
+    t.bigint "cache_read_input_tokens"
+    t.string "cache_ttl"
     t.bigint "cached_input_tokens"
+    t.jsonb "changed_identity_files", default: []
     t.string "chaos_session_id"
+    t.string "chaos_telemetry_status"
+    t.string "chaos_version"
     t.bigint "chat_id"
     t.string "conversation_obfuscated_id"
     t.datetime "created_at", null: false
+    t.bigint "delta_prompt_bytes"
     t.integer "duration_ms"
     t.string "endpoint_url"
     t.string "error_class"
@@ -166,23 +173,48 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_18_103000) do
     t.datetime "finished_at"
     t.boolean "fresh_fallback"
     t.text "full_invocation_text"
+    t.bigint "full_prompt_bytes"
     t.bigint "input_tokens"
     t.bigint "last_included_message_id"
+    t.string "model"
     t.bigint "output_tokens"
+    t.boolean "persistent_session_requested"
+    t.string "prior_chaos_session_id"
+    t.jsonb "prompt_component_bytes", default: {}
+    t.string "prompt_mode"
+    t.string "provider"
+    t.integer "provider_request_count"
+    t.bigint "reasoning_output_tokens"
     t.text "request_text"
     t.string "requested_by"
     t.jsonb "response_body", default: {}, null: false
+    t.boolean "resume_attempted"
     t.integer "runtime_returncode"
     t.string "runtime_status"
+    t.bigint "selected_prompt_bytes"
+    t.integer "session_age_seconds"
     t.string "session_id"
+    t.boolean "session_mapping_found"
+    t.string "session_outcome"
     t.boolean "session_resumed"
+    t.string "session_roll_reason"
+    t.integer "session_trigger_sequence"
     t.datetime "started_at", null: false
     t.text "stderr"
     t.text "stdout"
+    t.integer "telemetry_schema_version"
     t.integer "transport_status"
     t.string "trigger_kind", null: false
+    t.bigint "uncached_input_tokens"
+    t.integer "unsupported_chaos_telemetry_schema_version"
     t.datetime "updated_at", null: false
+    t.boolean "usage_complete"
+    t.string "usage_scope"
+    t.index ["agent_id", "chaos_session_id", "started_at"], name: "idx_runtime_interactions_agent_chaos_started"
     t.index ["agent_id", "created_at"], name: "index_agent_runtime_interactions_on_agent_id_and_created_at"
+    t.index ["agent_id", "session_id", "started_at"], name: "idx_runtime_interactions_agent_session_started"
+    t.index ["agent_id", "session_outcome", "started_at"], name: "idx_runtime_interactions_agent_outcome_started"
+    t.index ["agent_id", "session_roll_reason", "started_at"], name: "idx_runtime_interactions_agent_roll_reason_started"
     t.index ["agent_id"], name: "index_agent_runtime_interactions_on_agent_id"
     t.index ["chat_id", "created_at"], name: "index_agent_runtime_interactions_on_chat_id_and_created_at"
     t.index ["chat_id"], name: "index_agent_runtime_interactions_on_chat_id"
