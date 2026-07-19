@@ -22,13 +22,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         git \
     && rm -rf /var/lib/apt/lists/*
 
-# Pin to a specific chaos commit SHA for reproducibility.
-# a7e98d33: runtime observability built on top of the merged Anthropic prompt
-# caching support. Until the observability PR is merged upstream, pin the
-# reviewed fork commit so runtime images actually emit the contract consumed by
-# trigger_shim.py and HelixKit.
-ARG CHAOS_REPO=https://github.com/swombat/chaos.git
-ARG CHAOS_REF=a7e98d33fd4e22929eac5a1926d3a0f1f37f2809
+# Runtime observability and Anthropic prompt caching are now merged upstream,
+# so hosted images follow the canonical Chaos branch again.
+ARG CHAOS_REPO=https://github.com/seuros/chaos.git
+ARG CHAOS_REF=master
 
 WORKDIR /build
 RUN git clone --filter=blob:none ${CHAOS_REPO} chaos \
