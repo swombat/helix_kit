@@ -60,6 +60,7 @@ class ManualAgentResponseJobTest < ActiveJob::TestCase
       model_id: "openai/gpt-5.6-sol",
       thinking_enabled: true,
       thinking_budget: 5000,
+      prompt_cache_layout_v2: true,
       enabled_tools: [ "CloseConversationTool" ]
     )
 
@@ -97,6 +98,11 @@ class ManualAgentResponseJobTest < ActiveJob::TestCase
     response = @chat.messages.where(role: "assistant", agent: @agent).last
     assert_equal "Sol tool response", response.content
     assert_equal "provider_unsupported", response.reasoning_skip_reason
+    assert_equal 2, response.prompt_layout_version
+    assert_operator response.stable_prompt_bytes, :>, 0
+    assert_operator response.transcript_prompt_bytes, :>, 0
+    assert_operator response.envelope_prompt_bytes, :>, 0
+    assert_match(/\A[0-9a-f]{64}\z/, response.stable_prompt_sha256)
   end
 
   test "external agent receives trigger request instead of local llm response" do

@@ -67,16 +67,110 @@ class ConsolidateConversationJobTest < ActiveJob::TestCase
 
     @chat.reload
 
-    VCR.use_cassette("jobs/consolidate_conversation_job/extracts_memories") do
-      ConsolidateConversationJob.perform_now(@chat)
+    job = ConsolidateConversationJob.new
+    job.stub(:build_checkpoint_summary, "The user prefers concise Ruby refactoring help.") do
+      VCR.use_cassette("jobs/consolidate_conversation_job/extracts_memories") do
+        job.perform(@chat)
+      end
     end
 
     @chat.reload
 
     assert_not_nil @chat.last_consolidated_at
     assert_equal @chat.messages.order(:created_at, :id).last.id, @chat.last_consolidated_message_id
+    assert_equal "The user prefers concise Ruby refactoring help.", @chat.checkpoint_summary
     assert @agent.memories.journal.where("content ILIKE ?", "%concise%").exists?
     assert @agent.memories.core.where("content ILIKE ?", "%Ruby%").exists?
+  end
+
+  test "over-budget conversations consolidate even while recently active" do
+    regular_chat = @account.chats.create!(
+      model_id: "openrouter/auto",
+      title: "Large regular chat",
+      manual_responses: false
+    )
+    message = regular_chat.messages.create!(role: "user", content: "A long active conversation", user: @user)
+    job = ConsolidateConversationJob.new
+
+    ENV.stub(:fetch, ->(key, default = nil) { key == "HELIX_TRANSCRIPT_BUDGET_TOKENS" ? "1" : ENV[key] || default }) do
+      job.stub(:build_checkpoint_summary, "A compact checkpoint.") do
+        job.perform(regular_chat)
+      end
+    end
+
+    regular_chat.reload
+    assert_equal message.id, regular_chat.last_consolidated_message_id
+    assert_equal "A compact checkpoint.", regular_chat.checkpoint_summary
+  end
+
+  test "checkpoint consolidation reduces the transcript sent on the next turn" do
+    @agent.update!(prompt_cache_layout_v2: true)
+    10.times do |index|
+      @chat.messages.create!(
+        role: "user",
+        content: "Historical #{index}: " + ("expensive transcript material " * 100),
+        user: @user
+      )
+    end
+    20.times do |index|
+      @chat.messages.create!(role: "user", content: "Recent #{index}", user: @user)
+    end
+
+    @chat.build_context_for_agent(@agent, provider: :openai)
+    before_bytes = @chat.prompt_layout_telemetry[:transcript_prompt_bytes]
+    job = ConsolidateConversationJob.new
+
+    ENV.stub(:fetch, ->(key, default = nil) { key == "HELIX_TRANSCRIPT_BUDGET_TOKENS" ? "1" : ENV[key] || default }) do
+      job.stub(:build_checkpoint_summary, "The historical exchange established a durable plan.") do
+        job.stub(:extract_memories_for_agent, nil) do
+          job.perform(@chat)
+        end
+      end
+    end
+
+    @chat.reload.build_context_for_agent(@agent, provider: :openai)
+    after_bytes = @chat.prompt_layout_telemetry[:transcript_prompt_bytes]
+
+    assert_operator after_bytes, :<, before_bytes / 2
+    assert_includes @chat.build_context_for_agent(@agent, provider: :openai)
+      .map { |message| message[:content].to_s }.join("\n"), "durable plan"
+  end
+
+  test "does not advance the checkpoint boundary when summary generation fails" do
+    job = ConsolidateConversationJob.new
+
+    job.stub(:build_checkpoint_summary, nil) do
+      job.perform(@chat)
+    end
+
+    @chat.reload
+    assert_nil @chat.last_consolidated_message_id
+    assert_nil @chat.checkpoint_summary
+    assert_equal 0, @agent.memories.count
+  end
+
+  test "checkpoint prompt carries the previous checkpoint forward" do
+    @chat.update!(checkpoint_summary: "Earlier, the user chose PostgreSQL.")
+    new_message = @chat.messages.create!(role: "user", content: "Now use JSONB for metadata.", user: @user)
+
+    prompt = ConsolidateConversationJob.new.send(:checkpoint_prompt, @chat, [ new_message ])
+
+    assert_includes prompt, "Earlier, the user chose PostgreSQL."
+    assert_includes prompt, "Now use JSONB for metadata."
+    assert_includes prompt, "Preserve decisions, commitments, durable preferences"
+  end
+
+  test "persisted checkpoint remains byte-stable when there are no new messages" do
+    last_message = @chat.messages.order(:created_at, :id).last
+    @chat.update!(
+      checkpoint_summary: "Stable checkpoint bytes.",
+      last_consolidated_at: 1.hour.ago,
+      last_consolidated_message_id: last_message.id
+    )
+
+    ConsolidateConversationJob.perform_now(@chat)
+
+    assert_equal "Stable checkpoint bytes.", @chat.reload.checkpoint_summary
   end
 
   test "only selects messages after the last consolidated message" do

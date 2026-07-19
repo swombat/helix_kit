@@ -1,9 +1,14 @@
 class ConsolidateStaleConversationsJob < ApplicationJob
 
   IDLE_THRESHOLD = 6.hours
-
   def perform
-    stale_conversations.find_each do |chat|
+    conversation_ids = stale_conversations.pluck(:id)
+
+    over_budget_conversations.find_each do |chat|
+      conversation_ids << chat.id if ConsolidateConversationJob.transcript_over_budget?(chat)
+    end
+
+    Chat.where(id: conversation_ids.uniq).find_each do |chat|
       ConsolidateConversationJob.perform_later(chat)
     end
   end
@@ -17,6 +22,14 @@ class ConsolidateStaleConversationsJob < ApplicationJob
       .joins(:messages)
       .where(never_consolidated.or(has_unconsolidated_messages))
       .distinct
+  end
+
+  def over_budget_conversations
+    Chat
+      .joins(:messages)
+      .where(never_consolidated.or(has_unconsolidated_messages))
+      .group("chats.id")
+      .having("SUM(OCTET_LENGTH(COALESCE(messages.content, ''))) > ?", ConsolidateConversationJob.transcript_budget_tokens)
   end
 
   def recently_active_chat_ids

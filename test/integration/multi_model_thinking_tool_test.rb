@@ -149,7 +149,7 @@ class MultiModelThinkingToolTest < ActiveSupport::TestCase
     )
 
     context = chat.build_context_for_agent(opus_agent, thinking_enabled: true, provider: :anthropic)
-    legacy_msg = context.find { |m| m[:role] == "assistant" && m[:content].to_s.include?("from the past") }
+    legacy_msg = context.find { |m| m[:role] == "assistant" && content_text(m[:content]).include?("from the past") }
     assert_not_nil legacy_msg, "Opus's legacy message should be in context"
     assert_nil legacy_msg[:thinking], "Legacy unsigned thinking must not be replayed"
     assert_nil legacy_msg[:thinking_signature]
@@ -186,7 +186,7 @@ class MultiModelThinkingToolTest < ActiveSupport::TestCase
     )
 
     context = chat.build_context_for_agent(opus_agent, thinking_enabled: true, provider: :anthropic)
-    opus_context_msg = context.find { |m| m[:content].to_s.include?("I'm Claude Opus") }
+    opus_context_msg = context.find { |m| content_text(m[:content]).include?("I'm Claude Opus") }
     assert_not_nil opus_context_msg
 
     assert_kind_of RubyLLM::Thinking, opus_context_msg[:thinking]
@@ -264,6 +264,14 @@ class MultiModelThinkingToolTest < ActiveSupport::TestCase
       opus_memories = opus_agent.memories.reload
       assert opus_memories.any?, "Opus should have saved a memory"
     end
+  end
+
+  private
+
+  def content_text(content)
+    return content.to_s unless content.is_a?(RubyLLM::Content::Raw)
+
+    content.value.filter_map { |part| part[:text] || part["text"] }.join("\n")
   end
 
 end

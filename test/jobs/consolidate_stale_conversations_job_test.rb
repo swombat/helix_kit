@@ -113,4 +113,81 @@ class ConsolidateStaleConversationsJobTest < ActiveJob::TestCase
     end
   end
 
+  test "enqueues active regular chats when their transcript exceeds the budget" do
+    @regular_chat.messages.create!(
+      role: "user",
+      content: "This active transcript is deliberately over the test budget.",
+      user: @user
+    )
+
+    ENV.stub(:fetch, ->(key, default = nil) { key == "HELIX_TRANSCRIPT_BUDGET_TOKENS" ? "1" : ENV[key] || default }) do
+      assert_enqueued_with(job: ConsolidateConversationJob, args: [ @regular_chat ]) do
+        ConsolidateStaleConversationsJob.perform_now
+      end
+    end
+  end
+
+  test "candidate scan does not assume four bytes per token" do
+    @regular_chat.messages.create!(
+      role: "user",
+      content: "abcdefghij",
+      user: @user
+    )
+
+    ENV.stub(:fetch, ->(key, default = nil) { key == "HELIX_TRANSCRIPT_BUDGET_TOKENS" ? "5" : ENV[key] || default }) do
+      ConsolidateConversationJob.stub(:transcript_over_budget?, true) do
+        assert_enqueued_with(job: ConsolidateConversationJob, args: [ @regular_chat ]) do
+          ConsolidateStaleConversationsJob.perform_now
+        end
+      end
+    end
+  end
+
+  test "does not repeatedly enqueue an over-budget chat without new messages" do
+    message = @regular_chat.messages.create!(
+      role: "user",
+      content: "This transcript remains large after its checkpoint.",
+      user: @user
+    )
+    @regular_chat.update!(
+      checkpoint_summary: "Existing checkpoint.",
+      last_consolidated_at: 1.hour.ago,
+      last_consolidated_message_id: message.id
+    )
+
+    ENV.stub(:fetch, ->(key, default = nil) { key == "HELIX_TRANSCRIPT_BUDGET_TOKENS" ? "1" : ENV[key] || default }) do
+      assert_no_enqueued_jobs(only: ConsolidateConversationJob) do
+        ConsolidateStaleConversationsJob.perform_now
+      end
+    end
+  end
+
+  test "budget check measures the checkpoint plus retained tail instead of all historical rows" do
+    historical = 5.times.map do |index|
+      @regular_chat.messages.create!(
+        role: "user",
+        content: "Historical #{index} " + ("large " * 500),
+        user: @user
+      )
+    end
+    20.times do |index|
+      @regular_chat.messages.create!(role: "user", content: "Recent #{index}", user: @user)
+    end
+    boundary = @regular_chat.messages.order(:created_at, :id).last
+    @regular_chat.update!(
+      checkpoint_summary: "Compact checkpoint.",
+      last_consolidated_at: 1.hour.ago,
+      last_consolidated_message_id: boundary.id
+    )
+    @regular_chat.messages.create!(role: "user", content: "Tiny new turn", user: @user)
+
+    ENV.stub(:fetch, ->(key, default = nil) { key == "HELIX_TRANSCRIPT_BUDGET_TOKENS" ? "200" : ENV[key] || default }) do
+      assert_no_enqueued_jobs(only: ConsolidateConversationJob) do
+        ConsolidateStaleConversationsJob.perform_now
+      end
+    end
+
+    assert historical.all?(&:persisted?)
+  end
+
 end

@@ -158,11 +158,21 @@ class Message < ApplicationRecord
       cache_write_tokens: cache_creation_tokens
     }
 
-    {
+    telemetry = {
       model: model_id_string.presence || chat.model_id,
       instrumentation_complete: token_usage.values.none?(&:nil?),
       **token_usage
     }
+
+    layout = {
+      prompt_layout_version: prompt_layout_version,
+      stable_prompt_bytes: stable_prompt_bytes,
+      transcript_prompt_bytes: transcript_prompt_bytes,
+      envelope_prompt_bytes: envelope_prompt_bytes,
+      stable_prompt_sha256: stable_prompt_sha256
+    }
+    telemetry.merge!(layout) if layout.values.any?(&:present?)
+    telemetry
   end
 
   def content_for_speech

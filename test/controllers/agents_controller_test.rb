@@ -260,6 +260,28 @@ class AgentsControllerTest < ActionDispatch::IntegrationTest
     assert_not @agent.reload.scheduled_wakes_enabled?
   end
 
+  test "inline agent can enable the stable prompt cache layout" do
+    assert @agent.inline?
+
+    patch account_agent_path(@account, @agent), params: {
+      agent: { prompt_cache_layout_v2: true }
+    }
+
+    assert_redirected_to account_agents_path(@account)
+    assert @agent.reload.prompt_cache_layout_v2?
+  end
+
+  test "external agent ignores the inline prompt cache layout setting" do
+    @agent.update!(runtime: "external", uuid: SecureRandom.uuid_v7)
+
+    patch account_agent_path(@account, @agent), params: {
+      agent: { prompt_cache_layout_v2: true }
+    }
+
+    assert_redirected_to account_agents_path(@account)
+    assert_not @agent.reload.prompt_cache_layout_v2?
+  end
+
   test "external agent can enable half-hourly wakes" do
     @agent.update!(runtime: "external", uuid: SecureRandom.uuid_v7)
 

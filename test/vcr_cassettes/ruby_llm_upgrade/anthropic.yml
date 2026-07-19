@@ -5,7 +5,7 @@ http_interactions:
     uri: https://api.anthropic.com/v1/messages
     body:
       encoding: UTF-8
-      string: '{"model":"claude-opus-4-6","messages":[{"role":"user","content":[{"type":"text","text":"Reply with ok"}]}],"stream":false,"max_tokens":4096,"system":[{"type":"text","text":"Stable identity","cache_control":{"type":"ephemeral"}},{"type":"text","text":"Dynamic context"}]}'
+      string: '{"model":"claude-opus-4-6","messages":[{"role":"user","content":[{"type":"text","text":"Reply with ok"}]}],"stream":false,"max_tokens":4096,"system":[{"type":"text","text":"Stable identity","cache_control":{"type":"ephemeral","ttl":"1h"}},{"type":"text","text":"Dynamic context"}]}'
     headers: {}
   response:
     status:

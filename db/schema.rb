@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_18_152000) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_19_235500) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -258,6 +258,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_18_152000) do
     t.boolean "paused", default: false, null: false
     t.boolean "persistent_session", default: false, null: false
     t.boolean "persistent_wake_session", default: false, null: false
+    t.boolean "prompt_cache_layout_v2", default: false, null: false
     t.text "refinement_prompt"
     t.float "refinement_threshold"
     t.text "reflection_prompt"
@@ -380,6 +381,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_18_152000) do
     t.bigint "active_whiteboard_id"
     t.bigint "ai_model_id"
     t.datetime "archived_at"
+    t.text "checkpoint_summary"
     t.integer "context_tokens", default: 0, null: false
     t.datetime "created_at", null: false
     t.text "debug_log"
@@ -390,6 +392,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_18_152000) do
     t.bigint "last_consolidated_message_id"
     t.boolean "manual_responses", default: false, null: false
     t.string "model_id_string", default: "openrouter/auto", null: false
+    t.string "prompt_timezone"
     t.text "summary"
     t.datetime "summary_generated_at"
     t.string "title"
@@ -450,20 +453,25 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_18_152000) do
     t.bigint "chat_id", null: false
     t.text "content"
     t.datetime "created_at", null: false
+    t.integer "envelope_prompt_bytes"
     t.integer "input_tokens"
     t.string "model_id_string"
     t.datetime "moderated_at"
     t.jsonb "moderation_scores"
     t.integer "output_tokens"
+    t.integer "prompt_layout_version"
     t.string "reasoning_skip_reason"
     t.jsonb "replay_payload"
     t.string "role", null: false
+    t.integer "stable_prompt_bytes"
+    t.string "stable_prompt_sha256"
     t.boolean "streaming", default: false, null: false
     t.text "thinking_text"
     t.integer "thinking_tokens"
     t.bigint "tool_call_id"
     t.string "tool_status"
     t.text "tools_used", default: [], array: true
+    t.integer "transcript_prompt_bytes"
     t.datetime "updated_at", null: false
     t.bigint "user_id"
     t.index ["agent_id"], name: "index_messages_on_agent_id"

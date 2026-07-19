@@ -778,7 +778,7 @@ end
 
     assert_instance_of RubyLLM::Content::Raw, context.first[:content]
     assert_equal "Stable identity", context.first[:content].value.first[:text]
-    assert_equal({ type: "ephemeral" }, context.first[:content].value.first[:cache_control])
+    assert_equal({ type: "ephemeral", ttl: "1h" }, context.first[:content].value.first[:cache_control])
     assert_includes context.second[:content], "Current time:"
     assert_includes context.second[:content], "Cache test"
   end

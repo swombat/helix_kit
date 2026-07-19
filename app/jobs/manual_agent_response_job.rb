@@ -46,6 +46,7 @@ class ManualAgentResponseJob < ApplicationJob
     @pending_skip_reason = "tool_continuity_missing" if @use_thinking && @provider == :gemini && missing_gemini_tool_continuity?(chat, agent)
 
     context = chat.build_context_for_agent(agent, thinking_enabled: @use_thinking, provider: @provider, initiation_reason: initiation_reason)
+    @prompt_layout_telemetry = chat.prompt_layout_telemetry
     debug_info "Built context with #{context.length} messages"
 
     debug_info "Using provider: #{provider_config[:provider]}, model: #{provider_config[:model_id]}"
@@ -96,7 +97,8 @@ class ManualAgentResponseJob < ApplicationJob
         agent: agent,
         content: "",
         thinking: "",
-        streaming: true
+        streaming: true,
+        **@prompt_layout_telemetry
       )
       debug_info "Message created with ID: #{@ai_message.obfuscated_id}"
     end

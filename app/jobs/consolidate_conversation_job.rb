@@ -4,6 +4,37 @@ class ConsolidateConversationJob < ApplicationJob
 
   IDLE_THRESHOLD = 6.hours
   CHUNK_TARGET_TOKENS = 100_000
+  DEFAULT_TRANSCRIPT_BUDGET_TOKENS = 60_000
+
+  def self.transcript_over_budget?(chat)
+    transcript_token_count(chat) > transcript_budget_tokens
+  end
+
+  def self.transcript_token_count(chat)
+    messages = chat.messages.includes(:user, :agent).order(:created_at, :id).to_a
+
+    if chat.checkpoint_summary.present? && chat.last_consolidated_message_id.present?
+      recent_ids = messages.last(Chat::Contextualizable::RECENT_TRANSCRIPT_MESSAGES).map(&:id)
+      messages.select! do |message|
+        message.id > chat.last_consolidated_message_id || recent_ids.include?(message.id)
+      end
+    end
+
+    texts = messages.map { |message| message_text(message) }
+    texts.unshift(chat.checkpoint_summary) if chat.checkpoint_summary.present?
+    texts.sum { |text| OpenAI.rough_token_count(text.to_s) }
+  end
+
+  def self.transcript_budget_tokens
+    configured = ENV.fetch("HELIX_TRANSCRIPT_BUDGET_TOKENS", DEFAULT_TRANSCRIPT_BUDGET_TOKENS).to_i
+    configured.positive? ? configured : DEFAULT_TRANSCRIPT_BUDGET_TOKENS
+  end
+
+  def self.message_text(message)
+    prefix = message.agent&.name || message.user&.full_name ||
+      message.user&.email_address&.split("@")&.first || "User"
+    "[#{prefix}]: #{message.content}"
+  end
 
   def perform(chat)
     return unless eligible?(chat)
@@ -11,19 +42,22 @@ class ConsolidateConversationJob < ApplicationJob
     messages = messages_to_consolidate(chat)
     return if messages.empty?
 
+    checkpoint_summary = build_checkpoint_summary(chat, messages)
+    return if checkpoint_summary.blank?
+
     chunks = chunk_messages(messages)
 
     chat.agents.find_each do |agent|
       extract_memories_for_agent(agent, chunks)
     end
 
-    mark_consolidated!(chat, messages.last)
+    mark_consolidated!(chat, messages.last, checkpoint_summary)
   end
 
   private
 
   def eligible?(chat)
-    chat.group_chat? && !recently_active?(chat)
+    (chat.group_chat? && !recently_active?(chat)) || self.class.transcript_over_budget?(chat)
   end
 
   def recently_active?(chat)
@@ -93,6 +127,42 @@ class ConsolidateConversationJob < ApplicationJob
     { journal: [], core: [] }
   end
 
+  def build_checkpoint_summary(chat, messages)
+    provider_config = llm_provider_for(chat.model_id)
+    llm = RubyLLM.chat(
+      model: provider_config[:model_id],
+      provider: provider_config[:provider],
+      assume_model_exists: true
+    )
+
+    response = llm.ask(checkpoint_prompt(chat, messages))
+    response.content.to_s.strip.presence
+  rescue => e
+    Rails.logger.error "Checkpoint summary failed for chat #{chat.id}: #{e.message}"
+    nil
+  end
+
+  def checkpoint_prompt(chat, messages)
+    previous = if chat.checkpoint_summary.present?
+      <<~PREVIOUS
+        Previous checkpoint summary:
+        #{chat.checkpoint_summary}
+
+      PREVIOUS
+    end
+
+    conversation_text = messages.map { |message| message_text(message) }.join("\n\n")
+
+    <<~PROMPT
+      Write a compact, factual checkpoint summary of this conversation for use as context in future turns.
+      Preserve decisions, commitments, durable preferences, unresolved questions, and details needed to continue the work.
+      Do not address the participants, add advice, or mention that you are summarizing.
+
+      #{previous}Messages added since the previous checkpoint:
+      #{conversation_text}
+    PROMPT
+  end
+
   def build_prompt(agent, existing_core)
     base_prompt = agent.reflection_prompt.presence || EXTRACTION_PROMPT
 
@@ -114,8 +184,9 @@ class ConsolidateConversationJob < ApplicationJob
     end
   end
 
-  def mark_consolidated!(chat, last_message)
+  def mark_consolidated!(chat, last_message, checkpoint_summary)
     chat.update_columns(
+      checkpoint_summary: checkpoint_summary,
       last_consolidated_at: Time.current,
       last_consolidated_message_id: last_message.id
     )
@@ -126,8 +197,7 @@ class ConsolidateConversationJob < ApplicationJob
   end
 
   def message_text(msg)
-    prefix = msg.agent&.name || msg.user&.full_name || msg.user&.email_address&.split("@")&.first || "User"
-    "[#{prefix}]: #{msg.content}"
+    self.class.message_text(msg)
   end
 
   def format_existing_memories(memories)
