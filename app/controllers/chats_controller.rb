@@ -44,6 +44,7 @@ class ChatsController < ApplicationController
     end
 
     props[:runtime_interactions] = runtime_interactions_for_timeline if inertia_prop_requested?(:runtime_interactions)
+    props[:cost_breakdown] = ChatUsageReport.new(chat: @chat).call if inertia_prop_requested?(:cost_breakdown)
 
     props[:chat] = chat_json_with_whiteboard if inertia_prop_requested?(:chat)
     props[:models] = available_models if inertia_prop_requested?(:models)

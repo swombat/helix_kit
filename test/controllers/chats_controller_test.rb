@@ -33,6 +33,26 @@ class ChatsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "show includes conversation cost breakdown" do
+    @chat.messages.create!(
+      role: "assistant",
+      content: "Measured response",
+      model_id_string: "openai/gpt-5.4",
+      input_tokens: 100,
+      cache_creation_tokens: 20,
+      cached_tokens: 30,
+      output_tokens: 40,
+      thinking_tokens: 10
+    )
+
+    get account_chat_path(@account, @chat)
+
+    breakdown = inertia_shared_props["cost_breakdown"]
+    assert_equal 1, breakdown["row_count"]
+    assert_equal "openai/gpt-5.4", breakdown.dig("models", 0, "model")
+    assert_equal 30, breakdown.dig("totals", "cache_read_input_tokens")
+  end
+
   test "should create chat with default model" do
     assert_difference "Chat.count" do
       post account_chats_path(@account)

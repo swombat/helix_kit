@@ -3,7 +3,7 @@
   import { Button } from '$lib/components/shadcn/button/index.js';
   import { Label } from '$lib/components/shadcn/label';
   import { Switch } from '$lib/components/shadcn/switch';
-  import { IdentificationCard, Palette, Cpu, Plug, Notebook, CloudArrowUp } from 'phosphor-svelte';
+  import { IdentificationCard, Palette, Cpu, Plug, Notebook, CloudArrowUp, ChartBar } from 'phosphor-svelte';
   import {
     accountAgentsPath,
     accountAgentPath,
@@ -26,6 +26,7 @@
   import AgentMemoryPanel from '$lib/components/agents/AgentMemoryPanel.svelte';
   import AgentModelPanel from '$lib/components/agents/AgentModelPanel.svelte';
   import AgentSettingsTabs from '$lib/components/agents/AgentSettingsTabs.svelte';
+  import AgentInteractionsPanel from '$lib/components/agents/AgentInteractionsPanel.svelte';
 
   let {
     agent,
@@ -44,11 +45,13 @@
     runtime_observability_url: runtimeObservabilityUrl = null,
     sandbox_recreation_url: sandboxRecreationUrl = null,
     runtime_interactions: runtimeInteractions = [],
+    interactions = [],
+    interactions_pagination: interactionsPagination = {},
     account,
   } = $props();
 
   useSync({
-    [`Agent:${agent.id}`]: ['agent', 'memories', 'runtime_interactions'],
+    [`Agent:${agent.id}`]: ['agent', 'memories', 'runtime_interactions', 'interactions', 'interactions_pagination'],
   });
 
   let selectedModel = $state(agent.model_id);
@@ -111,6 +114,7 @@
     { id: 'integrations', label: 'Integrations', icon: Plug },
     { id: 'memory', label: 'Memory', icon: Notebook },
     { id: 'hosting', label: 'Hosting', icon: CloudArrowUp },
+    { id: 'interactions', label: 'Interactions', icon: ChartBar },
   ];
 
   let beginPromotePath = $derived(beginPromoteAccountAgentPath(account.id, agent.id));
@@ -974,6 +978,8 @@
               {/if}
             </div>
           </div>
+        {:else if activeTab === 'interactions'}
+          <AgentInteractionsPanel {interactions} pagination={interactionsPagination} {account} {agent} />
         {/if}
 
         {#if showFormActions}

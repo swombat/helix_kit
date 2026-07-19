@@ -27,6 +27,7 @@
     addableAgents = [],
     showAllMessages = $bindable(false),
     debugMode = $bindable(false),
+    showCosts = $bindable(false),
     onsidebaropen,
     onassignagent,
     onaddagent,
@@ -174,6 +175,7 @@
       {isSiteAdmin}
       bind:showAllMessages
       bind:debugMode
+      bind:showCosts
       onToggleWebAccess={toggleWebAccess}
       onAssignAgent={() => onassignagent?.()}
       onAddAgent={() => onaddagent?.()}

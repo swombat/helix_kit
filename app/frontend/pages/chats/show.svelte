@@ -12,6 +12,7 @@
   import TelegramBanner from '$lib/components/chat/TelegramBanner.svelte';
   import DebugPanel from '$lib/components/chat/DebugPanel.svelte';
   import ChatOverlays from '$lib/components/chat/ChatOverlays.svelte';
+  import ConversationCostDrawer from '$lib/components/chat/ConversationCostDrawer.svelte';
   import {
     accountChatMessagesPath,
     messageRetryPath,
@@ -69,6 +70,7 @@
     chats = [],
     messages: recentMessages = [],
     runtime_interactions: runtimeInteractions = [],
+    cost_breakdown: costBreakdown = {},
     has_more_messages: serverHasMore = false,
     oldest_message_id: serverOldestId = null,
     account,
@@ -147,6 +149,7 @@
   let timeoutCheckInterval;
   let showAllMessages = $state(false);
   let debugMode = $state(false);
+  let showCosts = $state(false);
   let debugLogs = $state([]);
   // Brief "select an agent" prompt for group chats after sending a message
   let showAgentPrompt = $state(false);
@@ -642,6 +645,7 @@
       addableAgents={addable_agents}
       bind:showAllMessages
       bind:debugMode
+      bind:showCosts
       onsidebaropen={() => (sidebarOpen = true)}
       onassignagent={() => (assignAgentOpen = true)}
       onaddagent={() => (addAgentOpen = true)}
@@ -728,6 +732,8 @@
       }} />
   </main>
 </div>
+
+<ConversationCostDrawer bind:open={showCosts} breakdown={costBreakdown} />
 
 <ChatOverlays
   {chat}

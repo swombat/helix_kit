@@ -10,6 +10,7 @@
     Archive,
     Trash,
     ArrowCounterClockwise,
+    ChartBar,
   } from 'phosphor-svelte';
 
   let {
@@ -20,6 +21,7 @@
     isSiteAdmin = false,
     showAllMessages = $bindable(false),
     debugMode = $bindable(false),
+    showCosts = $bindable(false),
     onToggleWebAccess = () => {},
     onAssignAgent = () => {},
     onAddAgent = () => {},
@@ -62,6 +64,11 @@
         <GitFork size={16} class="mr-2" weight="duotone" />
         Fork
       </DropdownMenu.Item>
+
+      <DropdownMenu.CheckboxItem checked={showCosts} onCheckedChange={(checked) => (showCosts = checked)}>
+        <ChartBar size={16} class="mr-2" weight="duotone" />
+        View costs
+      </DropdownMenu.CheckboxItem>
 
       {#if chat?.active_whiteboard}
         <DropdownMenu.Item onclick={onWhiteboardOpen}>

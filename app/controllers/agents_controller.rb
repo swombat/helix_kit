@@ -30,6 +30,11 @@ class AgentsController < ApplicationController
   end
 
   def edit
+    interactions_pagy, interactions = pagy(
+      @agent.agent_runtime_interactions.includes(:chat).recent,
+      limit: 25
+    )
+
     render inertia: "agents/edit", props: {
       agent: @agent.as_json.merge(
         "voice_id" => @agent.voice_id
@@ -49,6 +54,8 @@ class AgentsController < ApplicationController
       runtime_observability_url: Current.user&.is_site_admin? ? admin_agent_runtime_path(@agent) : nil,
       sandbox_recreation_url: account_agent_sandbox_recreation_path(current_account, @agent),
       runtime_interactions: @agent.agent_runtime_interactions.recent.limit(10).map(&:as_debug_json),
+      interactions: interactions.map(&:as_cost_json),
+      interactions_pagination: pagy_to_hash(interactions_pagy),
       account: current_account.as_json
     }
   end

@@ -61,6 +61,63 @@ class AgentsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "edit includes paginated interaction costs with chat context" do
+    chat = @account.chats.create!(model_id: "openrouter/auto", title: "Dad cost investigation")
+    AgentRuntimeInteraction.create!(
+      agent: @agent,
+      chat: chat,
+      trigger_kind: "conversation",
+      requested_by: "HelixKit conversation",
+      started_at: Time.current,
+      telemetry_schema_version: 1,
+      chaos_telemetry_status: "detailed",
+      usage_scope: "invocation",
+      usage_complete: true,
+      provider: "anthropic",
+      model: "claude-fable-5",
+      session_outcome: "resumed",
+      prompt_mode: "delta",
+      uncached_input_tokens: 100,
+      cache_creation_input_tokens: 20,
+      cache_read_input_tokens: 500,
+      output_tokens: 30
+    )
+
+    get edit_account_agent_path(@account, @agent), params: { tab: "interactions" }
+
+    interaction = inertia_shared_props.fetch("interactions").first
+    assert_equal "Dad cost investigation", interaction["chat_title"]
+    assert_equal "Conversation · Resumed · delta prompt", interaction["summary"]
+    assert_equal 500, interaction.dig("tokens", "cache_read_input_tokens")
+    assert_equal 1, inertia_shared_props.dig("interactions_pagination", "count")
+  end
+
+  test "interaction costs are reverse chronological and paginated" do
+    26.times do |index|
+      AgentRuntimeInteraction.create!(
+        agent: @agent,
+        trigger_kind: "wake",
+        requested_by: "Wake #{index}",
+        started_at: index.minutes.ago,
+        created_at: index.minutes.ago
+      )
+    end
+
+    get edit_account_agent_path(@account, @agent), params: { tab: "interactions" }
+
+    first_page = inertia_shared_props.fetch("interactions")
+    assert_equal 25, first_page.size
+    assert_equal "Wake 0", first_page.first["requested_by"]
+    assert_equal 2, inertia_shared_props.dig("interactions_pagination", "pages")
+
+    get edit_account_agent_path(@account, @agent), params: { tab: "interactions", page: 2 }
+    @inertia_props = nil
+
+    second_page = inertia_shared_props.fetch("interactions")
+    assert_equal 1, second_page.size
+    assert_equal "Wake 25", second_page.first["requested_by"]
+  end
+
   test "edit does not load docker filesystem diagnostics inline" do
     Agents::FilesystemDump.stub(:new, ->(*) { raise "filesystem dump should be loaded asynchronously" }) do
       Agents::Sandbox.stub(:new, ->(*) { raise "sandbox status should be loaded asynchronously" }) do

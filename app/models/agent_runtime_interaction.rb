@@ -1,5 +1,8 @@
 class AgentRuntimeInteraction < ApplicationRecord
 
+  SUPPORTED_TELEMETRY_SCHEMA_VERSION = 1
+  LOCAL_USAGE_SCOPES = %w[invocation trigger].freeze
+
   belongs_to :agent
   belongs_to :chat, optional: true
   after_commit :broadcast_agent_runtime_interactions_refresh, on: [ :create, :update, :destroy ]
@@ -138,6 +141,22 @@ class AgentRuntimeInteraction < ApplicationRecord
     provider_request_count
   end
 
+  def local_usage?
+    telemetry_schema_version == SUPPORTED_TELEMETRY_SCHEMA_VERSION &&
+      usage_scope.in?(LOCAL_USAGE_SCOPES)
+  end
+
+  def telemetry_state
+    return "unavailable" if telemetry_schema_version.nil?
+    return "unsupported" if telemetry_schema_version > SUPPORTED_TELEMETRY_SCHEMA_VERSION ||
+      chaos_telemetry_status == "unsupported" ||
+      unsupported_chaos_telemetry_schema_version.present?
+    return "unavailable" if chaos_telemetry_status.in?(%w[missing legacy])
+    return "complete" if usage_complete == true && local_usage?
+
+    "incomplete"
+  end
+
   def token_breakdown
     {
       input: input_tokens,
@@ -230,11 +249,45 @@ class AgentRuntimeInteraction < ApplicationRecord
     }
   end
 
+  def as_cost_json
+    {
+      id: to_param,
+      chat_id: chat&.to_param,
+      chat_title: chat&.title_or_default,
+      trigger_kind: trigger_kind,
+      summary: interaction_summary,
+      requested_by: requested_by,
+      provider: provider,
+      model: model,
+      session_outcome: session_outcome,
+      prompt_mode: prompt_mode,
+      provider_request_count: local_usage? ? provider_request_count : nil,
+      telemetry_state: telemetry_state,
+      usage_complete: usage_complete,
+      tokens: {
+        uncached_input_tokens: local_usage? ? uncached_input_tokens : nil,
+        cache_creation_input_tokens: local_usage? ? cache_creation_input_tokens : nil,
+        cache_read_input_tokens: local_usage? ? cache_read_input_tokens : nil,
+        output_tokens: local_usage? ? output_tokens : nil,
+        reasoning_output_tokens: local_usage? ? reasoning_output_tokens : nil
+      },
+      started_at: started_at&.iso8601,
+      duration_ms: duration_ms
+    }
+  end
+
   def visible_in_chat_timeline?
     !posted_assistant_message?
   end
 
   private
+
+  def interaction_summary
+    parts = [ trigger_kind.to_s.humanize ]
+    parts << session_outcome.to_s.humanize if session_outcome.present?
+    parts << "#{prompt_mode} prompt" if prompt_mode.present?
+    parts.join(" · ")
+  end
 
   def cache_read_tokens_from(usage)
     return usage["cache_read_input_tokens"] if usage.key?("cache_read_input_tokens")

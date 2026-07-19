@@ -41,6 +41,35 @@ class AgentRuntimeInteractionTest < ActiveSupport::TestCase
     assert_not_nil interaction.duration_ms
   end
 
+  test "cost json exposes only trigger-local detailed usage" do
+    agent = agents(:research_assistant)
+    chat = agent.account.chats.create!(model_id: "openrouter/auto", title: "Cost context")
+    interaction = AgentRuntimeInteraction.create!(
+      agent: agent,
+      chat: chat,
+      trigger_kind: "conversation",
+      requested_by: "test",
+      started_at: Time.current,
+      telemetry_schema_version: 1,
+      chaos_telemetry_status: "detailed",
+      usage_scope: "trigger",
+      usage_complete: true,
+      provider: "anthropic",
+      model: "claude-fable-5",
+      session_outcome: "resumed",
+      prompt_mode: "delta",
+      cache_read_input_tokens: 400,
+      output_tokens: 20
+    )
+
+    json = interaction.as_cost_json
+
+    assert_equal "complete", json[:telemetry_state]
+    assert_equal "Cost context", json[:chat_title]
+    assert_equal "Conversation · Resumed · delta prompt", json[:summary]
+    assert_equal 400, json.dig(:tokens, :cache_read_input_tokens)
+  end
+
   test "broadcasts agent runtime interactions refresh when recorded" do
     agent = agents(:research_assistant)
     chat = agent.account.chats.create!(model_id: "openrouter/auto", title: "Runtime log")
