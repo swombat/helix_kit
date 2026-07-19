@@ -1,7 +1,5 @@
 class AgentRuntimeUsageReport
 
-  SUPPORTED_TELEMETRY_SCHEMA_VERSION = 1
-  LOCAL_USAGE_SCOPES = %w[invocation trigger].freeze
   DETAILED_TOKEN_FIELDS = %i[
     uncached_input_tokens
     cache_creation_input_tokens
@@ -235,9 +233,11 @@ class AgentRuntimeUsageReport
     end
   end
 
+  # Telemetry trust decisions live on AgentRuntimeInteraction; this report
+  # only aggregates them. Keep it that way — a second copy of the state
+  # machine here is how the two views of "trustworthy usage" drift apart.
   def local_usage?(interaction)
-    interaction.telemetry_schema_version == SUPPORTED_TELEMETRY_SCHEMA_VERSION &&
-      interaction.usage_scope.in?(LOCAL_USAGE_SCOPES)
+    interaction.local_usage?
   end
 
   def local_usage_value(interaction, field)
@@ -245,15 +245,7 @@ class AgentRuntimeUsageReport
   end
 
   def telemetry_state(interaction)
-    version = interaction.telemetry_schema_version
-    return "unavailable" if version.nil?
-    return "unsupported" if version > SUPPORTED_TELEMETRY_SCHEMA_VERSION ||
-      interaction.chaos_telemetry_status == "unsupported" ||
-      interaction.unsupported_chaos_telemetry_schema_version.present?
-    return "unavailable" if interaction.chaos_telemetry_status.in?(%w[missing legacy])
-    return "complete" if interaction.usage_complete == true && interaction.usage_scope.in?(LOCAL_USAGE_SCOPES)
-
-    "incomplete"
+    interaction.telemetry_state
   end
 
   def telemetry_state_reason(interaction, state)
@@ -277,7 +269,7 @@ class AgentRuntimeUsageReport
         "versioned invocation-local telemetry complete"
       end
     when "incomplete"
-      if interaction.usage_scope.present? && !interaction.usage_scope.in?(LOCAL_USAGE_SCOPES)
+      if interaction.usage_scope.present? && !interaction.usage_scope.in?(AgentRuntimeInteraction::LOCAL_USAGE_SCOPES)
         "usage scope is #{interaction.usage_scope}, not invocation or trigger"
       elsif interaction.usage_complete == false
         "runtime marked invocation telemetry incomplete"
