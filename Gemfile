@@ -77,8 +77,8 @@ gem "hashids"
 
 gem "ruby-openai"
 
-# Ruby LLM - AI framework with extended thinking support (v1.10+) and xAI/Grok (v1.11+)
-gem "ruby_llm", github: "crmne/ruby_llm", branch: "main"
+# Ruby LLM - pin stable releases so provider and instrumentation behaviour is reproducible.
+gem "ruby_llm", "~> 1.16.0"
 
 gem "pagy", "~> 9.3"
 

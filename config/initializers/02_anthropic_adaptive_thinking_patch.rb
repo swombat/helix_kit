@@ -14,9 +14,10 @@
 #   "thinking.type.enabled is not supported for this model. Use
 #    thinking.type.adaptive and output_config.effort to control thinking behavior."
 #
-# RubyLLM's Anthropic adapter still hardcodes the old shape (build_thinking_payload
-# returns { type: 'enabled', budget_tokens: budget }). This patch overrides
-# build_base_payload to emit the new shape for models in ADAPTIVE_MODELS.
+# RubyLLM 1.16 supports both shapes when its model registry includes reasoning
+# options. HelixKit's persisted AiModel rows can predate those fields, though,
+# so this patch supplies the known model-specific behavior while the registry
+# catches up.
 #
 # REMOVE WHEN: RubyLLM ships native adaptive thinking support for Anthropic.
 # =============================================================================
@@ -29,20 +30,22 @@ if defined?(RubyLLM::Providers::Anthropic)
       claude-opus-4-7
     ].freeze
 
-    def build_base_payload(chat_messages, model, stream, thinking)
-      payload = super
-      return payload unless adaptive_thinking?(model, thinking)
+    def build_thinking_payload(thinking, model)
+      return super unless thinking&.enabled?
+      return adaptive_thinking_payload(adaptive_effort_for(thinking)) if ADAPTIVE_MODELS.include?(model.id)
 
-      payload[:thinking] = { type: "adaptive" }
-      payload[:output_config] = { effort: adaptive_effort_for(thinking) }
-      payload.delete(:max_tokens)
-      payload
+      super
+    rescue ArgumentError => error
+      raise unless stale_reasoning_metadata?(error, model, thinking)
+
+      enabled_thinking_payload(thinking.budget)
     end
 
     private
 
-    def adaptive_thinking?(model, thinking)
-      ADAPTIVE_MODELS.include?(model.id) && thinking&.enabled?
+    def stale_reasoning_metadata?(error, model, thinking)
+      thinking.budget.is_a?(Integer) &&
+        error.message == "Anthropic thinking budget is not supported for #{model.id}"
     end
 
     def adaptive_effort_for(thinking)

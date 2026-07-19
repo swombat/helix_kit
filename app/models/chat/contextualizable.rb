@@ -8,7 +8,7 @@ module Chat::Contextualizable
 
   def build_context_for_agent(agent, thinking_enabled: false, provider: nil, initiation_reason: nil)
     provider ||= self.class.resolve_provider(agent.model_id)[:provider]
-    [ system_message_for(agent, initiation_reason: initiation_reason) ] +
+    system_messages_for(agent, provider:, initiation_reason:) +
       messages_context_for(agent,
         provider: provider,
         thinking_enabled: thinking_enabled,
@@ -19,54 +19,67 @@ module Chat::Contextualizable
   private
 
   def system_message_for(agent, initiation_reason: nil)
-    parts = []
+    stable, dynamic = system_prompt_parts_for(agent, initiation_reason:)
+    { role: "system", content: [ stable, *dynamic ].join("\n\n") }
+  end
 
-    parts << (agent.system_prompt.presence || "You are #{agent.name}.")
+  def system_messages_for(agent, provider:, initiation_reason: nil)
+    stable, dynamic = system_prompt_parts_for(agent, initiation_reason:)
+    LlmPromptCachePolicy.system_messages(
+      stable: stable,
+      dynamic: dynamic.join("\n\n"),
+      provider: provider
+    )
+  end
+
+  def system_prompt_parts_for(agent, initiation_reason:)
+    stable = agent.system_prompt.presence || "You are #{agent.name}."
+    dynamic = []
 
     if (memory_context = agent.memory_context)
-      parts << memory_context
+      dynamic << memory_context
     end
 
     account.users.each do |user|
       if (health_context = user.oura_health_context_labeled)
-        parts << health_context
+        dynamic << health_context
       end
     end
 
     if (whiteboard_index = whiteboard_index_context)
-      parts << whiteboard_index
+      dynamic << whiteboard_index
     end
 
     if (topic = conversation_topic_context)
-      parts << topic
+      dynamic << topic
     end
 
     if (active_board = active_whiteboard_context)
-      parts << active_board
+      dynamic << active_board
     end
 
     if (cross_conv = format_cross_conversation_context(agent))
-      parts << cross_conv
+      dynamic << cross_conv
     end
 
     if (borrowed = format_borrowed_context(agent))
-      parts << borrowed
+      dynamic << borrowed
     end
 
     if Rails.env.development?
-      parts << "**DEVELOPMENT TESTING MODE**: You are currently being tested on a development server using a production database backup. Any memories or changes you make will NOT be saved to the production server. This is a safe testing environment."
+      dynamic << "**DEVELOPMENT TESTING MODE**: You are currently being tested on a development server using a production database backup. Any memories or changes you make will NOT be saved to the production server. This is a safe testing environment."
     end
 
     if agent_only?
-      parts << "**AGENT-ONLY THREAD**: This conversation is not visible to humans. You are communicating privately with other agents. No notifications are sent to human users for messages in this thread."
+      dynamic << "**AGENT-ONLY THREAD**: This conversation is not visible to humans. You are communicating privately with other agents. No notifications are sent to human users for messages in this thread."
     end
 
     if initiation_reason.present?
-      parts << "You have chosen to continue this conversation of your own initiative. The user did not prompt you to do so. It was your choice. Your reasoning was: #{initiation_reason}"
+      dynamic << "You have chosen to continue this conversation of your own initiative. The user did not prompt you to do so. It was your choice. Your reasoning was: #{initiation_reason}"
     end
 
     if agent.voiced?
-      parts << <<~VOICE.strip
+      dynamic << <<~VOICE.strip
         You have a voice. When your messages are played aloud, the ElevenLabs v3 engine renders
         them with full expressiveness. You can use tonal tags inline to shape how you sound:
         [whispers], [excited], [sarcastically], [sighs], [laughs], [serious], [gentle], [playful].
@@ -74,12 +87,12 @@ module Chat::Contextualizable
       VOICE
     end
 
-    parts << "Current time: #{Time.current.in_time_zone(user_timezone).strftime('%A, %Y-%m-%d %H:%M %Z')}"
+    dynamic << "Current time: #{Time.current.in_time_zone(user_timezone).strftime('%A, %Y-%m-%d %H:%M %Z')}"
 
-    parts << "You are participating in a group conversation."
-    parts << "Other participants: #{participant_description(agent)}."
+    dynamic << "You are participating in a group conversation."
+    dynamic << "Other participants: #{participant_description(agent)}."
 
-    { role: "system", content: parts.join("\n\n") }
+    [ stable, dynamic ]
   end
 
   def whiteboard_index_context

@@ -70,7 +70,7 @@ class RubyLlmVcrIntegrationTest < ActiveSupport::TestCase
 
     # Verify ask method exists and has correct signature
     assert chat.respond_to?(:ask)
-    assert_equal [ [ :req, :message ], [ :key, :with ], [ :block, :& ] ], chat.method(:ask).parameters
+    assert_equal [ [ :opt, :message ], [ :key, :with ], [ :block, :& ] ], chat.method(:ask).parameters
 
     # Verify to_llm method exists and returns RubyLLM::Chat
     llm_chat = chat.to_llm

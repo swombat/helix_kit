@@ -764,6 +764,25 @@ end
     assert_not_includes user_msg[:content].to_s, "[voice message, audio_id:"
   end
 
+  test "Anthropic context caches the stable identity before dynamic context" do
+    agent = @account.agents.create!(
+      name: "Cached Claude",
+      system_prompt: "Stable identity",
+      model_id: "anthropic/claude-opus-4.6"
+    )
+    chat = @account.chats.new(title: "Cache test", manual_responses: true, model_id: agent.model_id)
+    chat.agent_ids = [ agent.id ]
+    chat.save!
+
+    context = chat.build_context_for_agent(agent, provider: :anthropic)
+
+    assert_instance_of RubyLLM::Content::Raw, context.first[:content]
+    assert_equal "Stable identity", context.first[:content].value.first[:text]
+    assert_equal({ type: "ephemeral" }, context.first[:content].value.first[:cache_control])
+    assert_includes context.second[:content], "Current time:"
+    assert_includes context.second[:content], "Cache test"
+  end
+
   # Cross-conversation context tests
 
   test "format_cross_conversation_context returns nil when no other conversations" do

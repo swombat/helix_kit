@@ -57,6 +57,25 @@ class Message::RecordProviderResponseTest < ActiveSupport::TestCase
     assert_equal 25, @ai_message.cached_tokens
   end
 
+  test "normalized RubyLLM cache usage takes precedence over provider raw payloads" do
+    rlm = build_rlm(
+      provider: "anthropic",
+      content: "Cached response.",
+      model_id: "claude-opus-4-6",
+      input_tokens: 20,
+      output_tokens: 5,
+      cache_read_tokens: 1_200,
+      cache_write_tokens: 300,
+      raw: { "usage" => { "cache_read_input_tokens" => 12, "cache_creation_input_tokens" => 3 } }
+    )
+
+    @ai_message.record_provider_response!(rlm, provider: :anthropic)
+    @ai_message.reload
+
+    assert_equal 1_200, @ai_message.cached_tokens
+    assert_equal 300, @ai_message.cache_creation_tokens
+  end
+
   test "Gemini raw with tool call thoughtSignature populates tool_calls.replay_payload" do
     tool_call = OpenStruct.new(id: "call_1", name: "WebTool", arguments: { url: "https://example.com" }, thought_signature: "gemini-tool-sig-9")
     rlm = build_rlm(
@@ -113,8 +132,8 @@ class Message::RecordProviderResponseTest < ActiveSupport::TestCase
 
   private
 
-  def build_rlm(provider:, content:, model_id:, input_tokens:, output_tokens:, raw:, thinking: nil, thinking_tokens: nil, tool_calls: [], thought_signature: nil)
-    OpenStruct.new(
+  def build_rlm(provider:, content:, model_id:, input_tokens:, output_tokens:, raw:, thinking: nil, thinking_tokens: nil, tool_calls: [], thought_signature: nil, cache_read_tokens: :unsupported, cache_write_tokens: :unsupported)
+    attributes = {
       provider:           provider,
       content:            content,
       thinking:           thinking,
@@ -125,7 +144,10 @@ class Message::RecordProviderResponseTest < ActiveSupport::TestCase
       tool_calls:         tool_calls,
       thought_signature:  thought_signature,
       raw:                raw
-    )
+    }
+    attributes[:cache_read_tokens] = cache_read_tokens unless cache_read_tokens == :unsupported
+    attributes[:cache_write_tokens] = cache_write_tokens unless cache_write_tokens == :unsupported
+    OpenStruct.new(attributes)
   end
 
 end

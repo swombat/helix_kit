@@ -88,12 +88,17 @@ module Message::Replayable
   end
 
   def extract_cached_tokens(rlm)
+    return rlm.cache_read_tokens if rlm.respond_to?(:cache_read_tokens)
+
     raw = rlm.raw.is_a?(Hash) ? rlm.raw : {}
     raw.dig("usage", "cache_read_input_tokens") ||
       raw.dig("usage", "prompt_tokens_details", "cached_tokens")
   end
 
   def extract_cache_creation_tokens(rlm)
+    return rlm.cache_write_tokens if rlm.respond_to?(:cache_write_tokens)
+    return rlm.cache_creation_tokens if rlm.respond_to?(:cache_creation_tokens)
+
     raw = rlm.raw.is_a?(Hash) ? rlm.raw : {}
     raw.dig("usage", "cache_creation_input_tokens")
   end
