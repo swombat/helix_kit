@@ -10,7 +10,7 @@
 # =============================================================================
 # Stage 1 — pull and build chaos. Source tree is discarded after the binary copies.
 # =============================================================================
-FROM rust:1.95-bookworm AS builder
+FROM rust:1.97-bookworm AS builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -23,10 +23,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Pin to a specific chaos commit SHA for reproducibility.
-# cbd48916: master with PR #13 merged (Anthropic prompt caching in the parrot
-# provider — cache_control + cache-read/creation accounting in TokenUsage).
-ARG CHAOS_REPO=https://github.com/seuros/chaos.git
-ARG CHAOS_REF=cbd489164327e1bcdfc374cbc7cdeb5249fb1788
+# a7e98d33: runtime observability built on top of the merged Anthropic prompt
+# caching support. Until the observability PR is merged upstream, pin the
+# reviewed fork commit so runtime images actually emit the contract consumed by
+# trigger_shim.py and HelixKit.
+ARG CHAOS_REPO=https://github.com/swombat/chaos.git
+ARG CHAOS_REF=a7e98d33fd4e22929eac5a1926d3a0f1f37f2809
 
 WORKDIR /build
 RUN git clone --filter=blob:none ${CHAOS_REPO} chaos \

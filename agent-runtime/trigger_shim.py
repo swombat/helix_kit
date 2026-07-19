@@ -43,12 +43,12 @@ Persistent-session behaviour (when `persistent_session` is true):
       re-injection, no journal re-read.
     - The session rolls (fresh start) on: provider/model change,
       identity-file change, or any resume failure.
-    - The response gains `chaos_session_id`, `session_resumed`,
-      `fresh_fallback`, `session_roll_reason`, and `usage`
-      {input_tokens, cached_input_tokens, output_tokens}.
+    - The response gains a versioned `telemetry` object describing the runtime,
+      session decision, prompt sizes, and invocation-local usage. Existing
+      top-level session and usage fields remain during migration.
 
-Without `persistent_session`, behaviour is byte-identical to the legacy shim:
-one fresh non-persisted-mapping `chaos exec` per trigger.
+Without `persistent_session`, each trigger still runs one fresh Chaos process
+without a sidecar mapping, but JSON output is enabled so usage is observable.
 
 Env vars (read at startup):
     AGENT_ID                  stable identifier for this agent
@@ -98,7 +98,11 @@ SHIM_PORT = int(os.environ.get("SHIM_PORT", "4000"))
 CHAOS_BIN = os.environ.get("CHAOS_BIN", "/usr/local/bin/chaos")
 CHAOS_HOME = Path(os.environ.get("CHAOS_HOME", str(Path.home() / ".chaos")))
 CHAOS_TIMEOUT_SECS = int(os.environ.get("CHAOS_TIMEOUT_SECS", "600"))
+CHAOS_ANTHROPIC_CACHE_TTL = os.environ.get("CHAOS_ANTHROPIC_CACHE_TTL")
 SESSION_MAP_DIR = CHAOS_HOME / "helixkit-sessions"
+SHIM_TELEMETRY_SCHEMA_VERSION = 1
+SIDECAR_SCHEMA_VERSION = 2
+SUPPORTED_CHAOS_TELEMETRY_SCHEMA_VERSION = 1
 IDENTITY_FINGERPRINT_FILES = [
     "soul.md",
     "runtime-instructions.md",
@@ -109,6 +113,15 @@ IDENTITY_FILE_LIMIT = 80_000
 JOURNAL_MOST_RECENT_LIMIT = 12_000
 JOURNAL_MOST_RECENT_TAIL = 10_000
 JOURNAL_TOTAL_LIMIT = 16_000
+USAGE_FIELDS = (
+    "input_tokens",
+    "uncached_input_tokens",
+    "cache_creation_input_tokens",
+    "cache_read_input_tokens",
+    "output_tokens",
+    "reasoning_output_tokens",
+    "provider_request_count",
+)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -169,25 +182,73 @@ def trigger():
 
 
 def legacy_trigger(session_id, prompt, model, timeout_secs, provider=None):
-    """One fresh chaos exec per trigger — the original shim behaviour, unchanged."""
-    full_prompt = build_prompt(prompt)
+    """Run a fresh, unmapped Chaos process while still capturing JSON telemetry."""
+    provider = provider or AGENT_PROVIDER
+    full_prompt, prompt_components = build_prompt_with_components(prompt)
+    prompt_info = prompt_telemetry(
+        full_prompt=full_prompt,
+        delta_prompt=None,
+        selected_prompt=full_prompt,
+        mode="full",
+        components=prompt_components,
+    )
 
     try:
-        result = run_chaos(model, timeout_secs, full_prompt, json_output=False, provider=provider)
-    except subprocess.TimeoutExpired:
+        result = run_chaos(model, timeout_secs, full_prompt, json_output=True, provider=provider)
+    except subprocess.TimeoutExpired as error:
         log.error(f"chaos exec timed out after {timeout_secs}s")
-        return jsonify({"status": "timeout", "session_id": session_id, "timeout_secs": timeout_secs}), 504
+        return timeout_response(
+            session_id=session_id,
+            timeout_secs=timeout_secs,
+            runtime=runtime_telemetry(provider, model, timeout_secs),
+            session=session_telemetry(
+                session_id=session_id,
+                mapping_found=False,
+                resume_attempted=False,
+                outcome="failed",
+                roll_reason=None,
+                changed_identity_files=[],
+                prior_process_id=None,
+                process_id=None,
+                record=None,
+                trigger_sequence=1,
+                persistent_requested=False,
+            ),
+            prompt=prompt_info,
+            timeout_error=error,
+            invocation_text=full_prompt,
+            resumed=False,
+            fresh_fallback=False,
+        )
 
-    response = {
-        "status": "ok" if result.returncode == 0 else "error",
-        "session_id": session_id,
-        "returncode": result.returncode,
-        "stdout": _tail(result.stdout, 4000),
-        "stderr": _tail(result.stderr, 4000),
-        "full_invocation_text": full_prompt,
-    }
-    log.info(f"trigger done session_id={session_id} rc={result.returncode}")
-    return jsonify(response), (200 if result.returncode == 0 else 500)
+    events = parse_events(result.stdout)
+    usage = invocation_usage(None, events)
+    outcome = "legacy_fresh" if result.returncode == 0 else "failed"
+    return instrumented_response(
+        session_id,
+        result,
+        events,
+        full_prompt,
+        usage=usage,
+        runtime=runtime_telemetry(provider, model, timeout_secs, events),
+        session=session_telemetry(
+            session_id=session_id,
+            mapping_found=False,
+            resume_attempted=False,
+            outcome=outcome,
+            roll_reason=None,
+            changed_identity_files=[],
+            prior_process_id=None,
+            process_id=events["process_id"],
+            record=None,
+            trigger_sequence=1,
+            persistent_requested=False,
+        ),
+        prompt=prompt_info,
+        resumed=False,
+        fresh_fallback=False,
+        roll=None,
+    )
 
 
 def persistent_trigger(session_id, prompt, request_delta, model, timeout_secs, provider=None):
@@ -200,12 +261,36 @@ def persistent_trigger(session_id, prompt, request_delta, model, timeout_secs, p
     lock = _lock_for(session_id)
     if not lock.acquire(blocking=False):
         log.warning(f"session busy session_id={session_id}")
-        return jsonify({"status": "already_running", "session_id": session_id}), 409
+        return jsonify({
+            "status": "already_running",
+            "session_id": session_id,
+            "telemetry": build_telemetry(
+                runtime=runtime_telemetry(provider or AGENT_PROVIDER, model, timeout_secs),
+                session={
+                    "logical_session_id": session_id,
+                    "persistent_requested": True,
+                    "mapping_found": None,
+                    "resume_attempted": False,
+                    "outcome": "already_running",
+                    "roll_reason": None,
+                    "changed_identity_files": [],
+                    "prior_chaos_process_id": None,
+                    "chaos_process_id": None,
+                    "trigger_sequence": None,
+                    "session_age_seconds": None,
+                },
+                prompt=None,
+                usage=None,
+            ),
+        }), 409
 
     try:
         provider = provider or AGENT_PROVIDER
+        prior_attempt = None
         record = load_session_record(session_id)
-        roll = roll_reason(record, model, provider) if record else None
+        mapping_found = record is not None
+        prior_process_id = record.get("chaos_process_id") if record else None
+        roll, changed_identity_files = roll_decision(record, model, provider) if record else (None, [])
         if record and roll:
             log.info(f"rolling session session_id={session_id} reason={roll}")
             retire_session_record(session_id, reason=roll)
@@ -213,28 +298,74 @@ def persistent_trigger(session_id, prompt, request_delta, model, timeout_secs, p
 
         if record:
             resume_prompt = request_delta or prompt
+            prompt_info = prompt_telemetry(
+                full_prompt=None,
+                delta_prompt=request_delta,
+                selected_prompt=resume_prompt,
+                mode="delta",
+                components=None,
+            )
             try:
                 result = run_chaos(
                     model, timeout_secs, resume_prompt,
                     json_output=True, resume_id=record["chaos_process_id"], provider=provider,
                 )
-            except subprocess.TimeoutExpired:
+            except subprocess.TimeoutExpired as error:
                 # The subprocess is killed on timeout, so the persisted session
                 # may contain only part of this turn. Retire the ambiguous
                 # mapping: the next trigger will use the full prompt instead of
                 # replaying the same delta into a possibly half-written turn.
                 log.error(f"chaos resume timed out after {timeout_secs}s session_id={session_id}")
                 retire_session_record(session_id, reason="resume-timeout")
-                return jsonify({"status": "timeout", "session_id": session_id, "timeout_secs": timeout_secs}), 504
+                return timeout_response(
+                    session_id=session_id,
+                    timeout_secs=timeout_secs,
+                    runtime=runtime_telemetry(provider, model, timeout_secs),
+                    session=session_telemetry(
+                        session_id=session_id,
+                        mapping_found=True,
+                        resume_attempted=True,
+                        outcome="resume_timeout",
+                        roll_reason="resume-timeout",
+                        changed_identity_files=[],
+                        prior_process_id=prior_process_id,
+                        process_id=prior_process_id,
+                        record=record,
+                    ),
+                    prompt=prompt_info,
+                    timeout_error=error,
+                    usage_record=record,
+                    invocation_text=resume_prompt,
+                    resumed=False,
+                    fresh_fallback=False,
+                )
 
             events = parse_events(result.stdout)
             stale = events["process_id"] != record["chaos_process_id"]
             if result.returncode == 0 and not stale:
-                usage = usage_since(record, events)
-                update_session_record(session_id, record, events, usage)
-                return persistent_response(
+                usage = invocation_usage(record, events)
+                next_sequence = next_trigger_sequence(record)
+                update_session_record(session_id, record, events)
+                return instrumented_response(
                     session_id, result, events, resume_prompt,
-                    usage=usage, resumed=True, fresh_fallback=False, roll=None,
+                    usage=usage,
+                    runtime=runtime_telemetry(provider, model, timeout_secs, events),
+                    session=session_telemetry(
+                        session_id=session_id,
+                        mapping_found=True,
+                        resume_attempted=True,
+                        outcome="resumed",
+                        roll_reason=None,
+                        changed_identity_files=[],
+                        prior_process_id=prior_process_id,
+                        process_id=events["process_id"],
+                        record=record,
+                        trigger_sequence=next_sequence,
+                    ),
+                    prompt=prompt_info,
+                    resumed=True,
+                    fresh_fallback=False,
+                    roll=None,
                 )
 
             log.warning(
@@ -242,24 +373,91 @@ def persistent_trigger(session_id, prompt, request_delta, model, timeout_secs, p
                 f"stale={stale} mapped={record['chaos_process_id']} got={events['process_id']}"
             )
             retire_session_record(session_id, reason="resume-failed")
+            prior_attempt = {
+                "usage": invocation_usage(record, events),
+                "detailed": events["telemetry_status"] == "detailed",
+            }
+            if prior_attempt["detailed"] and result.returncode != 0:
+                prior_attempt["usage"] = dict(prior_attempt["usage"] or {})
+                prior_attempt["usage"]["complete"] = False
             roll = roll or "resume-failed"
+            changed_identity_files = []
 
         # Fresh path: full identity-wrapped prompt, new session, new mapping.
-        full_prompt = build_prompt(prompt)
+        # Build this only after deciding not to resume. Reading journals on a
+        # successful resume is unnecessary work and can make an append appear
+        # to affect a turn whose actual prompt contains only the delta.
+        full_prompt, prompt_components = build_prompt_with_components(prompt)
+        prompt_info = prompt_telemetry(
+            full_prompt=full_prompt,
+            delta_prompt=request_delta,
+            selected_prompt=full_prompt,
+            mode="full",
+            components=prompt_components,
+        )
         try:
             result = run_chaos(model, timeout_secs, full_prompt, json_output=True, provider=provider)
-        except subprocess.TimeoutExpired:
+        except subprocess.TimeoutExpired as error:
             log.error(f"chaos exec timed out after {timeout_secs}s session_id={session_id}")
-            return jsonify({"status": "timeout", "session_id": session_id, "timeout_secs": timeout_secs}), 504
+            outcome = "fresh_fallback" if roll == "resume-failed" else ("rolled" if mapping_found else "failed")
+            return timeout_response(
+                session_id=session_id,
+                timeout_secs=timeout_secs,
+                runtime=runtime_telemetry(provider, model, timeout_secs),
+                session=session_telemetry(
+                    session_id=session_id,
+                    mapping_found=mapping_found,
+                    resume_attempted=(roll == "resume-failed"),
+                    outcome=outcome,
+                    roll_reason=roll,
+                    changed_identity_files=changed_identity_files,
+                    prior_process_id=prior_process_id,
+                    process_id=None,
+                    record=None,
+                    trigger_sequence=1,
+                ),
+                prompt=prompt_info,
+                timeout_error=error,
+                invocation_text=full_prompt,
+                resumed=False,
+                fresh_fallback=(roll == "resume-failed"),
+                roll=roll,
+                prior_attempt=prior_attempt,
+            )
 
         events = parse_events(result.stdout)
-        usage = usage_since(None, events)
+        usage = invocation_usage(None, events)
         if result.returncode == 0 and events["process_id"]:
-            save_session_record(session_id, model, events, usage, provider=provider)
-        return persistent_response(
+            save_session_record(session_id, model, events, provider=provider)
+        if result.returncode != 0:
+            outcome = "failed"
+        elif roll == "resume-failed":
+            outcome = "fresh_fallback"
+        elif mapping_found:
+            outcome = "rolled"
+        else:
+            outcome = "fresh"
+        return instrumented_response(
             session_id, result, events, full_prompt,
-            usage=usage, resumed=False,
-            fresh_fallback=(roll == "resume-failed"), roll=roll,
+            usage=usage,
+            runtime=runtime_telemetry(provider, model, timeout_secs, events),
+            session=session_telemetry(
+                session_id=session_id,
+                mapping_found=mapping_found,
+                resume_attempted=(roll == "resume-failed"),
+                outcome=outcome,
+                roll_reason=roll,
+                changed_identity_files=changed_identity_files,
+                prior_process_id=prior_process_id,
+                process_id=events["process_id"],
+                record=None,
+                trigger_sequence=1,
+            ),
+            prompt=prompt_info,
+            resumed=False,
+            fresh_fallback=(roll == "resume-failed"),
+            roll=roll,
+            prior_attempt=prior_attempt,
         )
     finally:
         lock.release()
@@ -308,11 +506,19 @@ def run_chaos(model, timeout_secs, prompt_text, json_output, resume_id=None, pro
 def parse_events(stdout):
     """Parse `chaos exec --json` JSONL output.
 
-    Returns process_id, the latest cumulative token usage reported by Chaos,
-    and the agent's final message texts (for human-readable diagnostics).
+    Version-1 Chaos telemetry is invocation-local and safe to persist directly.
+    Older events are retained as explicitly legacy cumulative counters so they
+    cannot accidentally populate the new detailed usage fields.
     """
     parsed = {
         "process_id": None,
+        "telemetry_schema_version": None,
+        "telemetry_status": "missing",
+        "usage": None,
+        "session_usage": None,
+        "unsupported_telemetry_schema_version": None,
+        "legacy_cumulative_usage": None,
+        # Compatibility aliases for the old cumulative subtraction path.
         "input_tokens": 0,
         "cached_input_tokens": 0,
         "output_tokens": 0,
@@ -330,11 +536,8 @@ def parse_events(stdout):
         kind = event.get("type")
         if kind == "process.started":
             parsed["process_id"] = event.get("process_id")
-        elif kind == "turn.completed":
-            usage = event.get("usage") or {}
-            parsed["input_tokens"] = int(usage.get("input_tokens") or 0)
-            parsed["cached_input_tokens"] = int(usage.get("cached_input_tokens") or 0)
-            parsed["output_tokens"] = int(usage.get("output_tokens") or 0)
+        elif kind in ("turn.completed", "invocation.completed"):
+            _parse_completion_event(parsed, event)
         elif kind == "item.completed":
             item = event.get("item") or {}
             if item.get("type") == "agent_message" and item.get("text"):
@@ -344,13 +547,96 @@ def parse_events(stdout):
     return parsed
 
 
+def _parse_completion_event(parsed, event):
+    usage = event.get("usage") or {}
+    schema_version = _optional_int(event.get("telemetry_schema_version"))
+    parsed.update({
+        "telemetry_schema_version": schema_version,
+        "telemetry_status": "missing",
+        "usage": None,
+        "session_usage": None,
+        "unsupported_telemetry_schema_version": None,
+        "legacy_cumulative_usage": None,
+        "input_tokens": 0,
+        "cached_input_tokens": 0,
+        "output_tokens": 0,
+    })
+
+    if schema_version is None:
+        legacy = {
+            "input_tokens": _int_or_zero(usage.get("input_tokens")),
+            "cached_input_tokens": _int_or_zero(usage.get("cached_input_tokens")),
+            "output_tokens": _int_or_zero(usage.get("output_tokens")),
+        }
+        if _has_additive_legacy_usage(usage):
+            cache_read = (
+                usage.get("cache_read_input_tokens")
+                if "cache_read_input_tokens" in usage
+                else usage.get("cached_input_tokens")
+            )
+            legacy.update({
+                "uncached_input_tokens": _optional_int(usage.get("uncached_input_tokens")),
+                "cache_creation_input_tokens": _optional_int(usage.get("cache_creation_input_tokens")),
+                "cache_read_input_tokens": _optional_int(cache_read),
+                "reasoning_output_tokens": _optional_int(usage.get("reasoning_output_tokens")),
+                "provider_request_count": _optional_int(usage.get("provider_request_count")),
+            })
+        parsed["telemetry_status"] = "legacy"
+        parsed["legacy_cumulative_usage"] = legacy
+        parsed.update(legacy)
+        return
+
+    if schema_version != SUPPORTED_CHAOS_TELEMETRY_SCHEMA_VERSION:
+        parsed["telemetry_status"] = "unsupported"
+        parsed["unsupported_telemetry_schema_version"] = schema_version
+        return
+
+    if usage.get("scope") != "invocation":
+        parsed["telemetry_status"] = "invalid_scope"
+        return
+
+    parsed["telemetry_status"] = "detailed"
+    parsed["usage"] = normalize_usage(usage)
+    session_usage = event.get("session_usage")
+    if isinstance(session_usage, dict) and session_usage.get("scope") == "process_cumulative":
+        parsed["session_usage"] = normalize_usage(session_usage)
+
+
+def normalize_usage(usage):
+    normalized = {"scope": usage.get("scope")}
+    for field in USAGE_FIELDS:
+        value = usage.get(field)
+        if field == "cache_read_input_tokens" and field not in usage:
+            value = usage.get("cached_input_tokens")
+        normalized[field] = _optional_int(value)
+    if "complete" in usage:
+        normalized["complete"] = usage["complete"] if isinstance(usage["complete"], bool) else None
+    return normalized
+
+
+def invocation_usage(record, events):
+    """Return new invocation-local usage, or a coarse old-runtime fallback."""
+    if events["telemetry_status"] == "detailed":
+        return events["usage"]
+    if events["telemetry_status"] == "legacy":
+        return usage_since(record, events)
+    return None
+
+
 def usage_since(record, events):
-    """Convert Chaos's cumulative process counters into usage for this trigger."""
+    """Compatibility only: subtract old Chaos process-cumulative counters."""
     record = record or {}
     usage = {}
-    for key in ("input_tokens", "cached_input_tokens", "output_tokens"):
+    cumulative_usage = events.get("legacy_cumulative_usage") or {
+        key: events.get(key)
+        for key in ("input_tokens", "cached_input_tokens", "output_tokens")
+    }
+    for key, current_value in cumulative_usage.items():
+        if current_value is None:
+            usage[key] = None
+            continue
         previous = int(record.get(f"cumulative_{key}") or 0)
-        current = int(events.get(key) or 0)
+        current = int(current_value)
         # A future Chaos compaction or accounting change may reset a cumulative
         # counter. Treat the new value as this trigger's usage rather than
         # incorrectly reporting zero forever after the reset.
@@ -358,8 +644,19 @@ def usage_since(record, events):
     return usage
 
 
-def persistent_response(
-    session_id, result, events, invocation_text, usage, resumed, fresh_fallback, roll
+def instrumented_response(
+    session_id,
+    result,
+    events,
+    invocation_text,
+    usage,
+    runtime,
+    session,
+    prompt,
+    resumed,
+    fresh_fallback,
+    roll,
+    prior_attempt=None,
 ):
     # Prefer the agent's own message texts as diagnostics; fall back to raw
     # JSONL tail so failures stay debuggable.
@@ -370,6 +667,23 @@ def persistent_response(
     if events["errors"]:
         stdout_text += "\n\n[events] " + "\n".join(events["errors"])
 
+    telemetry_usage = response_invocation_usage(events, result.returncode)
+    compatibility_usage = compatibility_usage_fields(telemetry_usage or usage)
+    chaos_telemetry_status = events["telemetry_status"]
+    if prior_attempt:
+        compatibility_usage = aggregate_attempt_usage(
+            compatibility_usage_fields(prior_attempt.get("usage")),
+            compatibility_usage,
+        )
+        compatibility_usage = compatibility_usage_fields(compatibility_usage)
+        if prior_attempt.get("detailed") and telemetry_usage is not None:
+            telemetry_usage = aggregate_attempt_usage(prior_attempt.get("usage"), telemetry_usage)
+        else:
+            telemetry_usage = None
+            chaos_telemetry_status = "mixed"
+    if result.returncode != 0:
+        compatibility_usage = dict(compatibility_usage)
+        compatibility_usage["complete"] = False
     response = {
         "status": "ok" if result.returncode == 0 else "error",
         "session_id": session_id,
@@ -380,16 +694,213 @@ def persistent_response(
         "chaos_session_id": events["process_id"],
         "session_resumed": resumed,
         "fresh_fallback": fresh_fallback,
-        "usage": usage,
+        "usage": compatibility_usage,
+        "telemetry": build_telemetry(
+            runtime=runtime,
+            session=session,
+            prompt=prompt,
+            usage=telemetry_usage,
+            session_usage=events["session_usage"],
+            chaos_telemetry_status=chaos_telemetry_status,
+            unsupported_chaos_schema=events["unsupported_telemetry_schema_version"],
+        ),
     }
     if roll:
         response["session_roll_reason"] = roll
     log.info(
         f"trigger done session_id={session_id} rc={result.returncode} resumed={resumed} "
         f"chaos_session={events['process_id']} "
-        f"usage=i{usage['input_tokens']}/c{usage['cached_input_tokens']}/o{usage['output_tokens']}"
+        f"telemetry={events['telemetry_status']} "
+        f"usage=i{compatibility_usage.get('input_tokens')}/"
+        f"c{compatibility_usage.get('cached_input_tokens')}/"
+        f"o{compatibility_usage.get('output_tokens')}"
     )
     return jsonify(response), (200 if result.returncode == 0 else 500)
+
+
+def response_invocation_usage(events, returncode):
+    """Return detailed usage, marking failed shim invocations incomplete."""
+    if events["telemetry_status"] != "detailed":
+        return None
+    usage = dict(events["usage"])
+    if returncode != 0:
+        usage["complete"] = False
+    return usage
+
+
+def compatibility_usage_fields(usage):
+    if not usage:
+        return {}
+    if "cache_read_input_tokens" in usage:
+        return {
+            **usage,
+            "cached_input_tokens": usage.get("cache_read_input_tokens"),
+        }
+    return usage
+
+
+def aggregate_attempt_usage(first, second):
+    """Aggregate all Chaos invocations caused by one HelixKit trigger."""
+    if not first:
+        return second or {}
+    if not second:
+        return first or {}
+
+    aggregate = {"scope": "trigger"}
+    for field in USAGE_FIELDS:
+        left = first.get(field)
+        if field == "cache_read_input_tokens" and left is None:
+            left = first.get("cached_input_tokens")
+        right = second.get(field)
+        if field == "cache_read_input_tokens" and right is None:
+            right = second.get("cached_input_tokens")
+        aggregate[field] = left + right if left is not None and right is not None else None
+
+    complete_values = [usage.get("complete") for usage in (first, second)]
+    aggregate["complete"] = all(value is not False for value in complete_values)
+    return aggregate
+
+
+def build_telemetry(
+    runtime,
+    session,
+    prompt,
+    usage,
+    session_usage=None,
+    chaos_telemetry_status=None,
+    unsupported_chaos_schema=None,
+):
+    telemetry = {
+        "schema_version": SHIM_TELEMETRY_SCHEMA_VERSION,
+        "runtime": runtime,
+        "session": session,
+        "prompt": prompt,
+        "usage": usage,
+    }
+    if session_usage is not None:
+        telemetry["session_usage"] = session_usage
+    if chaos_telemetry_status:
+        telemetry["chaos_telemetry_status"] = chaos_telemetry_status
+    if unsupported_chaos_schema is not None:
+        telemetry["unsupported_chaos_telemetry_schema_version"] = unsupported_chaos_schema
+    return telemetry
+
+
+def runtime_telemetry(provider, model, timeout_secs, events=None):
+    return {
+        "chaos_version": _chaos_version(),
+        "provider": provider,
+        "model": model,
+        "cache_ttl": effective_cache_ttl(provider),
+        "timeout_seconds": timeout_secs,
+        "chaos_telemetry_schema_version": (
+            events.get("telemetry_schema_version") if events else None
+        ),
+    }
+
+
+def effective_cache_ttl(provider):
+    if provider != "anthropic":
+        return "unknown"
+    value = (CHAOS_ANTHROPIC_CACHE_TTL or "").strip().lower()
+    return value if value in ("off", "5m", "1h") else "unknown"
+
+
+def session_telemetry(
+    session_id,
+    mapping_found,
+    resume_attempted,
+    outcome,
+    roll_reason,
+    changed_identity_files,
+    prior_process_id,
+    process_id,
+    record,
+    trigger_sequence=None,
+    persistent_requested=True,
+):
+    return {
+        "logical_session_id": session_id,
+        "persistent_requested": persistent_requested,
+        "mapping_found": mapping_found,
+        "resume_attempted": resume_attempted,
+        "outcome": outcome,
+        "roll_reason": roll_reason,
+        "changed_identity_files": changed_identity_files,
+        "prior_chaos_process_id": prior_process_id,
+        "chaos_process_id": process_id,
+        "sidecar_created_at": record.get("created_at") if record else None,
+        "sidecar_last_finished_at": record.get("last_finished_at") if record else None,
+        "session_age_seconds": _session_age_seconds(record),
+        "trigger_sequence": trigger_sequence,
+    }
+
+
+def timeout_response(
+    session_id,
+    timeout_secs,
+    runtime,
+    session,
+    prompt,
+    timeout_error=None,
+    usage_record=None,
+    invocation_text=None,
+    resumed=False,
+    fresh_fallback=False,
+    roll=None,
+    prior_attempt=None,
+):
+    stdout = _timeout_stream(timeout_error, "stdout")
+    stderr = _timeout_stream(timeout_error, "stderr")
+    events = parse_events(stdout)
+    usage = invocation_usage(usage_record, events)
+    telemetry_usage = response_invocation_usage(events, returncode=1)
+    compatibility_usage = compatibility_usage_fields(telemetry_usage or usage)
+    chaos_telemetry_status = "incomplete"
+    if prior_attempt:
+        compatibility_usage = aggregate_attempt_usage(
+            compatibility_usage_fields(prior_attempt.get("usage")),
+            compatibility_usage,
+        )
+        compatibility_usage = compatibility_usage_fields(compatibility_usage)
+        if prior_attempt.get("detailed") and telemetry_usage is not None:
+            telemetry_usage = aggregate_attempt_usage(prior_attempt.get("usage"), telemetry_usage)
+        else:
+            telemetry_usage = None
+            chaos_telemetry_status = "mixed_incomplete"
+    compatibility_usage["complete"] = False
+
+    runtime = dict(runtime)
+    runtime["chaos_telemetry_schema_version"] = events["telemetry_schema_version"]
+    session = dict(session)
+    if not session.get("chaos_process_id") and events["process_id"]:
+        session["chaos_process_id"] = events["process_id"]
+
+    response = {
+        "status": "timeout",
+        "session_id": session_id,
+        "timeout_secs": timeout_secs,
+        "returncode": None,
+        "stdout": _tail(stdout, 4000),
+        "stderr": _tail(stderr, 4000),
+        "full_invocation_text": invocation_text,
+        "chaos_session_id": session.get("chaos_process_id"),
+        "session_resumed": resumed,
+        "fresh_fallback": fresh_fallback,
+        "usage": compatibility_usage,
+        "telemetry": build_telemetry(
+            runtime=runtime,
+            session=session,
+            prompt=prompt,
+            usage=telemetry_usage,
+            session_usage=events["session_usage"],
+            chaos_telemetry_status=chaos_telemetry_status,
+            unsupported_chaos_schema=events["unsupported_telemetry_schema_version"],
+        ),
+    }
+    if roll:
+        response["session_roll_reason"] = roll
+    return jsonify(response), 504
 
 
 # ----- session sidecar records -----
@@ -414,29 +925,39 @@ def load_session_record(session_id):
     return record
 
 
-def save_session_record(session_id, model, events, usage, provider=None):
+def save_session_record(session_id, model, events, provider=None):
     now = _utcnow_iso()
     record = {
+        "schema_version": SIDECAR_SCHEMA_VERSION,
         "helixkit_session_id": session_id,
         "chaos_process_id": events["process_id"],
         "provider": provider or AGENT_PROVIDER,
         "model": model,
         "created_at": now,
         "last_finished_at": now,
-        "cumulative_input_tokens": events["input_tokens"],
-        "cumulative_cached_input_tokens": events["cached_input_tokens"],
-        "cumulative_output_tokens": events["output_tokens"],
+        "trigger_sequence": 1,
         "identity_fingerprint": identity_fingerprint(),
     }
+    _store_legacy_cumulative_usage(record, events)
     _atomic_write(session_record_path(session_id), record)
 
 
-def update_session_record(session_id, record, events, usage):
+def update_session_record(session_id, record, events):
+    record["schema_version"] = SIDECAR_SCHEMA_VERSION
     record["last_finished_at"] = _utcnow_iso()
-    record["cumulative_input_tokens"] = events["input_tokens"]
-    record["cumulative_cached_input_tokens"] = events["cached_input_tokens"]
-    record["cumulative_output_tokens"] = events["output_tokens"]
+    record["trigger_sequence"] = next_trigger_sequence(record)
+    record["identity_fingerprint"] = identity_fingerprint()
+    _store_legacy_cumulative_usage(record, events)
     _atomic_write(session_record_path(session_id), record)
+
+
+def _store_legacy_cumulative_usage(record, events):
+    legacy = events.get("legacy_cumulative_usage")
+    if not legacy:
+        return
+    for key, value in legacy.items():
+        if value is not None:
+            record[f"cumulative_{key}"] = value
 
 
 def retire_session_record(session_id, reason):
@@ -453,28 +974,60 @@ def retire_session_record(session_id, reason):
             pass
 
 
-def roll_reason(record, model, provider=None):
-    """Reasons to abandon a mapped session and start fresh. None = resume."""
+def roll_decision(record, model, provider=None):
+    """Return (reason, changed identity files); reason None means resume."""
+    schema_version = _optional_int(record.get("schema_version", 1))
+    if schema_version is None or schema_version > SIDECAR_SCHEMA_VERSION:
+        return "sidecar-schema-unsupported", []
     if record.get("provider", AGENT_PROVIDER) != (provider or AGENT_PROVIDER):
-        return "provider-changed"
+        return "provider-changed", []
     if record.get("model") != model:
-        return "model-changed"
-    if record.get("identity_fingerprint") != identity_fingerprint():
-        return "identity-changed"
-    return None
+        return "model-changed", []
+    changed_files = changed_identity_files(record.get("identity_fingerprint") or {})
+    if changed_files:
+        return "identity-changed", changed_files
+    return None, []
+
+
+def roll_reason(record, model, provider=None):
+    """Compatibility wrapper for callers that only need the reason."""
+    reason, _changed_files = roll_decision(record, model, provider)
+    return reason
 
 
 def identity_fingerprint():
-    """mtimes of the injected identity files; a change rolls the session so
-    identity edits propagate at the next turn instead of never."""
+    """Content fingerprints for identity files that require a session roll."""
     fingerprint = {}
     for filename in IDENTITY_FINGERPRINT_FILES:
         path = AGENT_IDENTITY_PATH / filename
         try:
-            fingerprint[filename] = path.stat().st_mtime_ns
+            content = path.read_bytes()
+            fingerprint[filename] = {
+                "sha256": hashlib.sha256(content).hexdigest(),
+                "bytes": len(content),
+            }
         except OSError:
             fingerprint[filename] = None
     return fingerprint
+
+
+def changed_identity_files(previous_fingerprint):
+    current = identity_fingerprint()
+    changed = []
+    for filename in IDENTITY_FINGERPRINT_FILES:
+        previous = previous_fingerprint.get(filename)
+        if isinstance(previous, int):
+            # Schema-v1 sidecars stored mtimes. They can safely resume while the
+            # mtime is unchanged; the next successful write upgrades to hashes.
+            try:
+                unchanged = AGENT_IDENTITY_PATH.joinpath(filename).stat().st_mtime_ns == previous
+            except OSError:
+                unchanged = previous is None
+        else:
+            unchanged = previous == current.get(filename)
+        if not unchanged:
+            changed.append(filename)
+    return changed
 
 
 def _atomic_write(path, record):
@@ -499,6 +1052,64 @@ def _utcnow_iso():
     return datetime.now(timezone.utc).isoformat()
 
 
+def _session_age_seconds(record):
+    if not record or not record.get("created_at"):
+        return 0 if record is None else None
+    try:
+        created_at = datetime.fromisoformat(record["created_at"])
+        if created_at.tzinfo is None:
+            created_at = created_at.replace(tzinfo=timezone.utc)
+        return max(0, int((datetime.now(timezone.utc) - created_at).total_seconds()))
+    except (TypeError, ValueError):
+        return None
+
+
+def next_trigger_sequence(record):
+    """Increment old, missing, or malformed sidecar sequence values safely."""
+    current = _optional_int((record or {}).get("trigger_sequence"))
+    return max(0, current or 0) + 1
+
+
+def _has_additive_legacy_usage(usage):
+    return any(
+        field in usage
+        for field in (
+            "uncached_input_tokens",
+            "cache_creation_input_tokens",
+            "cache_read_input_tokens",
+            "reasoning_output_tokens",
+            "provider_request_count",
+        )
+    )
+
+
+def _timeout_stream(error, name):
+    value = getattr(error, name, None) if error else None
+    if isinstance(value, bytes):
+        return value.decode("utf-8", errors="replace")
+    return value or ""
+
+
+def _optional_int(value):
+    if value is None:
+        return None
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _int_or_zero(value):
+    parsed = _optional_int(value)
+    return parsed if parsed is not None else 0
+
+
+def _byte_length(text):
+    if text is None:
+        return None
+    return len(text.encode("utf-8"))
+
+
 # ----- helpers -----
 def _tail(s: str, n: int) -> str:
     """Trim long stdout/stderr so HelixKit doesn't choke on huge payloads."""
@@ -517,7 +1128,31 @@ def build_prompt(request_text: str) -> str:
     conversation; journals are continuity context and must not look like adjacent
     transcript.
     """
-    return "\n\n".join(part for part in [identity_context(), request_text, memory_context()] if part)
+    prompt, _components = build_prompt_with_components(request_text)
+    return prompt
+
+
+def build_prompt_with_components(request_text):
+    """Build a fresh prompt and return byte sizes without retaining its contents twice."""
+    identity = identity_context()
+    journals = memory_context()
+    parts = [part for part in (identity, request_text, journals) if part]
+    prompt = "\n\n".join(parts)
+    return prompt, {
+        "identity": _byte_length(identity),
+        "request": _byte_length(request_text),
+        "journal": _byte_length(journals),
+    }
+
+
+def prompt_telemetry(full_prompt, delta_prompt, selected_prompt, mode, components):
+    return {
+        "mode": mode,
+        "full_prompt_bytes": _byte_length(full_prompt),
+        "delta_prompt_bytes": _byte_length(delta_prompt),
+        "selected_prompt_bytes": _byte_length(selected_prompt),
+        "components": components or {},
+    }
 
 
 def identity_context() -> str:

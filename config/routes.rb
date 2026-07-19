@@ -125,6 +125,9 @@ Rails.application.routes.draw do
   end
 
   namespace :admin do
+    resources :agents, only: [] do
+      resource :runtime, only: :show, controller: "agent_runtime_sessions"
+    end
     resources :accounts, only: [ :index ] do
       member do
         patch :disable
