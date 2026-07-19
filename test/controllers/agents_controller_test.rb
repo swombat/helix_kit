@@ -192,6 +192,17 @@ class AgentsControllerTest < ActionDispatch::IntegrationTest
     assert_not @agent.reload.scheduled_wakes_enabled?
   end
 
+  test "HelixKit-hosted agent can disable scheduled wakes" do
+    assert @agent.inline?
+
+    patch account_agent_path(@account, @agent), params: {
+      agent: { scheduled_wakes_enabled: false }
+    }
+
+    assert_redirected_to account_agents_path(@account)
+    assert_not @agent.reload.scheduled_wakes_enabled?
+  end
+
   test "external agent can enable half-hourly wakes" do
     @agent.update!(runtime: "external", uuid: SecureRandom.uuid_v7)
 

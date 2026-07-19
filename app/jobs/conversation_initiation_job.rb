@@ -20,6 +20,7 @@ class ConversationInitiationJob < ApplicationJob
     Agent.active
          .unpaused
          .where(runtime: "inline")
+         .where(scheduled_wakes_enabled: true)
          .joins(:account)
          .where(accounts: { id: active_account_ids })
          .distinct

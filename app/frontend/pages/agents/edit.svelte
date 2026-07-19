@@ -518,7 +518,6 @@
                 <Switch
                   id="scheduled_wakes_enabled"
                   checked={$form.agent.scheduled_wakes_enabled}
-                  disabled={!runtimeManaged}
                   onCheckedChange={(checked) => ($form.agent.scheduled_wakes_enabled = checked)} />
               </div>
 
@@ -568,7 +567,9 @@
 
               {#if !runtimeManaged}
                 <p class="text-xs text-muted-foreground">
-                  Persistent sessions become available after this agent is promoted to an external runtime.
+                  Persistent sessions and 30-minute heartbeats become available after this agent is promoted to an
+                  external runtime. The scheduled-heartbeats toggle also controls this HelixKit-hosted agent's hourly
+                  initiation checks.
                 </p>
               {/if}
 

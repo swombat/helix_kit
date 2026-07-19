@@ -88,6 +88,20 @@ class ConversationInitiationJobTest < ActiveSupport::TestCase
            "Should not schedule job for paused agent"
   end
 
+  test "skips HelixKit-hosted agents with scheduled heartbeats disabled" do
+    @agent.update!(scheduled_wakes_enabled: false)
+
+    travel_to Time.utc(2026, 1, 28, 12, 0, 0) do
+      ConversationInitiationJob.perform_now
+    end
+
+    enqueued = queue_adapter.enqueued_jobs.select { |j| j["job_class"] == "AgentInitiationDecisionJob" }
+    agent_ids = enqueued.map { |j| j["arguments"].first["_aj_globalid"] }
+
+    refute agent_ids.any? { |gid| gid.include?("/#{@agent.id}") },
+           "Should not schedule a heartbeat decision for an inline agent with scheduled wakes disabled"
+  end
+
   test "skips external agents because they receive their own wake invitations" do
     @agent.update!(
       runtime: "external",
