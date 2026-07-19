@@ -18,6 +18,7 @@
     allMessages = [],
     chat = null,
     showAllMessages = false,
+    showMessageTelemetry = false,
     lastMessageIsHiddenThinking = false,
     shouldShowSendingPlaceholder = false,
     isTimedOut = false,
@@ -108,6 +109,7 @@
           {message}
           isLastVisible={index === timelineItems.length - 1}
           isGroupChat={chat?.manual_responses}
+          {showMessageTelemetry}
           showResend={index === timelineItems.length - 1 &&
             lastUserMessageNeedsResend &&
             !waitingForResponse &&

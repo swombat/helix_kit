@@ -74,7 +74,13 @@ class Message < ApplicationRecord
                   :fixable,
                   :audio_source, :audio_url,
                   :voice_available, :voice_audio_url,
-                  :reasoning_skip_reason, :reasoning_skip_reason_label
+                  :reasoning_skip_reason, :reasoning_skip_reason_label do |hash, options|
+    if options&.dig(:include_ruby_llm_telemetry) && (telemetry = ruby_llm_telemetry)
+      hash["ruby_llm_telemetry"] = telemetry
+    end
+
+    hash
+  end
 
   def completed?
     # User messages are always completed
@@ -139,6 +145,24 @@ class Message < ApplicationRecord
 
   def voice_available
     role == "assistant" && agent&.voiced?
+  end
+
+  def ruby_llm_telemetry
+    return unless role == "assistant"
+    return if agent&.externally_hosted?
+
+    token_usage = {
+      input_tokens: input_tokens,
+      output_tokens: output_tokens,
+      cache_read_tokens: cached_tokens,
+      cache_write_tokens: cache_creation_tokens
+    }
+
+    {
+      model: model_id_string.presence || chat.model_id,
+      instrumentation_complete: token_usage.values.none?(&:nil?),
+      **token_usage
+    }
   end
 
   def content_for_speech

@@ -22,12 +22,14 @@
     allMessages = [],
     contextTokens = 0,
     costTokens = { input: 0, output: 0 },
+    costBreakdown = {},
     thresholds = { amber: 100_000, red: 150_000, critical: 200_000 },
     availableAgents = [],
     addableAgents = [],
     showAllMessages = $bindable(false),
     debugMode = $bindable(false),
     showCosts = $bindable(false),
+    showMessageTelemetry = $bindable(false),
     onsidebaropen,
     onassignagent,
     onaddagent,
@@ -164,7 +166,7 @@
     </Button>
     <div class="flex-1 min-w-0">
       <ChatTitleEditor {chat} {titleIsLoading} onSaveTitle={saveTitle} />
-      <ChatTokenStatus {chat} {agents} {allMessages} {contextTokens} {costTokens} {tokenWarningLevel} />
+      <ChatTokenStatus {chat} {agents} {allMessages} {contextTokens} {costTokens} {costBreakdown} {tokenWarningLevel} />
     </div>
 
     <ChatActionsMenu
@@ -176,6 +178,7 @@
       bind:showAllMessages
       bind:debugMode
       bind:showCosts
+      bind:showMessageTelemetry
       onToggleWebAccess={toggleWebAccess}
       onAssignAgent={() => onassignagent?.()}
       onAddAgent={() => onaddagent?.()}

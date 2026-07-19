@@ -2,6 +2,7 @@
   import { Badge } from '$lib/components/shadcn/badge/index.js';
   import ParticipantAvatars from '$lib/components/chat/ParticipantAvatars.svelte';
   import { formatTokenCount } from '$lib/chat-utils';
+  import { formatCompactTelemetryTokens } from '$lib/message-telemetry';
 
   let {
     chat,
@@ -9,26 +10,33 @@
     allMessages = [],
     contextTokens = 0,
     costTokens = { input: 0, output: 0 },
+    costBreakdown = {},
     tokenWarningLevel = 'none',
   } = $props();
+
+  const detailedCosts = $derived(costBreakdown?.totals);
+  const hasDetailedCosts = $derived((costBreakdown?.row_count || 0) > 0);
 </script>
 
 <div class="text-sm text-muted-foreground flex items-center gap-2 flex-wrap">
   {#if chat?.manual_responses}
     <ParticipantAvatars {agents} messages={allMessages} />
-    <span class="ml-2 text-xs">
-      Context: {formatTokenCount(contextTokens)} · Cost: {formatTokenCount(costTokens.input)} in / {formatTokenCount(
-        costTokens.output
-      )} out
-    </span>
   {:else}
     {chat?.model_label || chat?.model_id || 'Auto'}
-    <span class="ml-2 text-xs">
-      Context: {formatTokenCount(contextTokens)} · Cost: {formatTokenCount(costTokens.input)} in / {formatTokenCount(
-        costTokens.output
-      )} out
-    </span>
   {/if}
+
+  <span class="ml-2 text-xs">
+    Context: {formatTokenCount(contextTokens)} · Cost:
+    {#if hasDetailedCosts}
+      {formatCompactTelemetryTokens(detailedCosts?.uncached_input_tokens)} input · {formatCompactTelemetryTokens(
+        detailedCosts?.cache_read_input_tokens
+      )} cache read · {formatCompactTelemetryTokens(detailedCosts?.cache_creation_input_tokens)} cache write · {formatCompactTelemetryTokens(
+        detailedCosts?.output_tokens
+      )} output
+    {:else}
+      {formatTokenCount(costTokens.input)} input · {formatTokenCount(costTokens.output)} output
+    {/if}
+  </span>
 
   {#if tokenWarningLevel === 'amber'}
     <Badge

@@ -150,6 +150,8 @@
   let showAllMessages = $state(false);
   let debugMode = $state(false);
   let showCosts = $state(false);
+  let showMessageTelemetry = $state(false);
+  let messageTelemetryChatId = chat?.id;
   let debugLogs = $state([]);
   // Brief "select an agent" prompt for group chats after sending a message
   let showAgentPrompt = $state(false);
@@ -172,6 +174,13 @@
 
   // Streaming safety-net refresh timer
   let streamingRefreshTimer = null;
+
+  $effect(() => {
+    if (chat?.id !== messageTelemetryChatId) {
+      messageTelemetryChatId = chat?.id;
+      showMessageTelemetry = false;
+    }
+  });
 
   function scheduleStreamingRefresh(delayMs = 5000) {
     if (streamingRefreshTimer) clearTimeout(streamingRefreshTimer);
@@ -640,12 +649,14 @@
       {allMessages}
       {contextTokens}
       {costTokens}
+      {costBreakdown}
       {thresholds}
       availableAgents={available_agents}
       addableAgents={addable_agents}
       bind:showAllMessages
       bind:debugMode
       bind:showCosts
+      bind:showMessageTelemetry
       onsidebaropen={() => (sidebarOpen = true)}
       onassignagent={() => (assignAgentOpen = true)}
       onaddagent={() => (addAgentOpen = true)}
@@ -679,6 +690,7 @@
       {allMessages}
       {chat}
       {showAllMessages}
+      {showMessageTelemetry}
       {lastMessageIsHiddenThinking}
       {shouldShowSendingPlaceholder}
       {isTimedOut}

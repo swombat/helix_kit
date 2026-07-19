@@ -22,6 +22,7 @@
     showAllMessages = $bindable(false),
     debugMode = $bindable(false),
     showCosts = $bindable(false),
+    showMessageTelemetry = $bindable(false),
     onToggleWebAccess = () => {},
     onAssignAgent = () => {},
     onAddAgent = () => {},
@@ -106,6 +107,11 @@
         </DropdownMenu.Item>
         <DropdownMenu.CheckboxItem checked={showAllMessages} onCheckedChange={(checked) => (showAllMessages = checked)}>
           Show all messages
+        </DropdownMenu.CheckboxItem>
+        <DropdownMenu.CheckboxItem
+          checked={showMessageTelemetry}
+          onCheckedChange={(checked) => (showMessageTelemetry = checked)}>
+          View message telemetry
         </DropdownMenu.CheckboxItem>
         <DropdownMenu.CheckboxItem
           checked={debugMode}

@@ -53,6 +53,55 @@ class ChatsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 30, breakdown.dig("totals", "cache_read_input_tokens")
   end
 
+  test "show omits per-message RubyLLM telemetry for non-site-admins" do
+    @chat.messages.create!(
+      role: "assistant",
+      content: "Measured response",
+      model_id_string: "openai/gpt-5.4",
+      input_tokens: 100,
+      cache_creation_tokens: 20,
+      cached_tokens: 30,
+      output_tokens: 40
+    )
+
+    get account_chat_path(@account, @chat)
+
+    message = inertia_shared_props["messages"].find { |row| row["role"] == "assistant" }
+    refute message.key?("ruby_llm_telemetry")
+  end
+
+  test "show includes per-message RubyLLM telemetry for site admins" do
+    @chat.messages.create!(
+      role: "assistant",
+      content: "Measured response",
+      model_id_string: "openai/gpt-5.4",
+      input_tokens: 100,
+      cache_creation_tokens: 20,
+      cached_tokens: 30,
+      output_tokens: 40
+    )
+    delete logout_path
+    post login_path, params: {
+      email_address: users(:site_admin_user).email_address,
+      password: "password123"
+    }
+
+    get account_chat_path(@account, @chat)
+
+    message = inertia_shared_props["messages"].find { |row| row["role"] == "assistant" }
+    assert_equal(
+      {
+        "model" => "openai/gpt-5.4",
+        "instrumentation_complete" => true,
+        "input_tokens" => 100,
+        "output_tokens" => 40,
+        "cache_read_tokens" => 30,
+        "cache_write_tokens" => 20
+      },
+      message["ruby_llm_telemetry"]
+    )
+  end
+
   test "should create chat with default model" do
     assert_difference "Chat.count" do
       post account_chats_path(@account)
@@ -485,6 +534,34 @@ class ChatsControllerTest < ActionDispatch::IntegrationTest
     # All returned messages should have IDs less than the middle message
     returned_ids = json["messages"].map { |m| Message.decode_id(m["id"]) }
     assert returned_ids.all? { |id| id < middle.id }
+  end
+
+  test "messages index includes per-message RubyLLM telemetry for site admins" do
+    chat = @account.chats.create!(model_id: "openrouter/auto")
+    assistant_message = chat.messages.create!(
+      role: "assistant",
+      content: "Older measured response",
+      model_id_string: "anthropic/claude-opus-4-6",
+      input_tokens: 200,
+      output_tokens: 50,
+      cached_tokens: 150,
+      cache_creation_tokens: 25
+    )
+    newer_message = chat.messages.create!(role: "user", content: "Newer message", user: @user)
+    delete logout_path
+    post login_path, params: {
+      email_address: users(:site_admin_user).email_address,
+      password: "password123"
+    }
+
+    get account_chat_messages_path(@account, chat, before_id: newer_message.to_param),
+        headers: { "Accept" => "application/json" }
+
+    assert_response :success
+    json = JSON.parse(response.body)
+    message = json["messages"].find { |row| row["id"] == assistant_message.to_param }
+    assert_equal 150, message.dig("ruby_llm_telemetry", "cache_read_tokens")
+    assert_equal 25, message.dig("ruby_llm_telemetry", "cache_write_tokens")
   end
 
   test "messages index returns empty when no more messages" do

@@ -38,7 +38,7 @@ class ChatsController < ApplicationController
     if inertia_prop_requested?(:messages)
       messages = @chat.messages_page
       has_more = messages.any? && @chat.messages.where("id < ?", messages.first.id).exists?
-      props[:messages] = messages.collect(&:as_json)
+      props[:messages] = messages.map { |message| message_json(message) }
       props[:has_more_messages] = has_more
       props[:oldest_message_id] = messages.first&.to_param
     end
@@ -174,6 +174,10 @@ class ChatsController < ApplicationController
       .select(&:visible_in_chat_timeline?)
       .sort_by { |interaction| interaction.finished_at || interaction.started_at || interaction.created_at }
       .map(&:as_chat_activity_json)
+  end
+
+  def message_json(message)
+    message.as_json(include_ruby_llm_telemetry: Current.user&.site_admin)
   end
 
   def chat_json_with_whiteboard

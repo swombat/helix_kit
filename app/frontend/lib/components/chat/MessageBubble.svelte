@@ -16,6 +16,7 @@
   import ThinkingBlock from '$lib/components/chat/ThinkingBlock.svelte';
   import ModerationIndicator from '$lib/components/chat/ModerationIndicator.svelte';
   import AudioPlayer from '$lib/components/chat/AudioPlayer.svelte';
+  import MessageTelemetry from '$lib/components/chat/MessageTelemetry.svelte';
   import { Streamdown } from 'svelte-streamdown';
   import { formatTime, formatDateTime } from '$lib/utils';
   import { reasoningSkipTooltip } from '$lib/chat-utils';
@@ -26,6 +27,7 @@
     isLastVisible = false,
     isGroupChat = false,
     showResend = false,
+    showMessageTelemetry = false,
     streamingThinking = '',
     shikiTheme = 'catppuccin-latte',
     onedit,
@@ -182,38 +184,43 @@
             {/if}
           </Card.Content>
         </Card.Root>
-        <div class="text-xs text-muted-foreground mt-1 flex items-center gap-2">
-          {#if message.moderation_scores}
-            <ModerationIndicator scores={message.moderation_scores} />
-          {/if}
-          {#if isGroupChat && message.author_name}
-            <span class="mr-1">{message.author_name} ·</span>
-          {/if}
-          <span class="group">
-            {formatTime(message.created_at)}
-            <span class="hidden group-hover:inline-block">({formatDateTime(message.created_at, true)})</span>
-          </span>
-          {#if message.reasoning_skip_reason}
-            <span
-              title={message.reasoning_skip_reason_label || reasoningSkipTooltip(message.reasoning_skip_reason)}
-              class="text-muted-foreground inline-flex items-center"
-              aria-label="Thinking unavailable for this message">
-              <LightbulbFilament size={14} />
+        <div class="text-xs text-muted-foreground mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+          <div class="flex items-center gap-2">
+            {#if message.moderation_scores}
+              <ModerationIndicator scores={message.moderation_scores} />
+            {/if}
+            {#if isGroupChat && message.author_name}
+              <span class="mr-1">{message.author_name} ·</span>
+            {/if}
+            <span class="group">
+              {formatTime(message.created_at)}
+              <span class="hidden group-hover:inline-block">({formatDateTime(message.created_at, true)})</span>
             </span>
-          {/if}
-          {#if message.status === 'pending'}
-            <span class="ml-2 text-blue-600">...</span>
-          {:else if message.streaming}
-            <span class="ml-2 text-green-600 animate-pulse">...</span>
-          {/if}
-          {#if message.fixable}
-            <button
-              onclick={() => onfix(message.id)}
-              class="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-amber-500 transition-colors md:opacity-0 md:group-hover:opacity-100"
-              title="Fix hallucinated tool call">
-              <Wrench size={14} />
-              Fix
-            </button>
+            {#if message.reasoning_skip_reason}
+              <span
+                title={message.reasoning_skip_reason_label || reasoningSkipTooltip(message.reasoning_skip_reason)}
+                class="text-muted-foreground inline-flex items-center"
+                aria-label="Thinking unavailable for this message">
+                <LightbulbFilament size={14} />
+              </span>
+            {/if}
+            {#if message.status === 'pending'}
+              <span class="ml-2 text-blue-600">...</span>
+            {:else if message.streaming}
+              <span class="ml-2 text-green-600 animate-pulse">...</span>
+            {/if}
+            {#if message.fixable}
+              <button
+                onclick={() => onfix(message.id)}
+                class="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-amber-500 transition-colors md:opacity-0 md:group-hover:opacity-100"
+                title="Fix hallucinated tool call">
+                <Wrench size={14} />
+                Fix
+              </button>
+            {/if}
+          </div>
+          {#if showMessageTelemetry && message.ruby_llm_telemetry}
+            <MessageTelemetry telemetry={message.ruby_llm_telemetry} />
           {/if}
         </div>
         {#if message.voice_available && !message.streaming}

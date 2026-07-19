@@ -11,7 +11,7 @@ class MessagesController < ApplicationController
     @has_more = @messages.any? && @chat.messages.where("id < ?", @messages.first.id).exists?
 
     render json: {
-      messages: @messages.collect(&:as_json),
+      messages: @messages.map { |message| message_json(message) },
       has_more: @has_more,
       oldest_id: @messages.first&.to_param
     }
@@ -98,6 +98,10 @@ class MessagesController < ApplicationController
 
   def message_params
     params.require(:message).permit(:content)
+  end
+
+  def message_json(message)
+    message.as_json(include_ruby_llm_telemetry: Current.user&.site_admin)
   end
 
   def require_respondable_chat
