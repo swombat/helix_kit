@@ -247,26 +247,34 @@ class ChatPromptCacheLayoutTest < ActiveSupport::TestCase
     ], telemetry.keys
   end
 
-  test "checkpoint replaces old transcript while preserving the most recent twenty messages" do
+  test "checkpoint boundary preserves a fixed ten-message tail" do
     @agent.update!(prompt_cache_layout_v2: true)
     created_messages = 25.times.map do |index|
       @chat.messages.create!(role: "user", content: "Message #{index}", user: @user)
     end
     @chat.update!(
       checkpoint_summary: "The conversation established the durable answer.",
-      last_consolidated_message_id: created_messages.last.id,
+      last_consolidated_message_id: created_messages[-11].id,
       last_consolidated_at: Time.current
     )
 
-    context = @chat.build_context_for_agent(@agent, provider: :openai)
-    content = context.map { |message| message[:content].to_s }.join("\n")
+    first_context = @chat.build_context_for_agent(@agent, provider: :openai)
+    first_content = first_context.map { |message| message[:content].to_s }.join("\n")
 
-    assert_includes content, "Summary of the conversation so far"
-    assert_includes content, "durable answer"
-    assert_not_includes content, "Message 4"
-    assert_includes content, "Message 5"
-    assert_includes content, "Message 24"
-    assert_equal 25, @chat.messages.count
+    assert_includes first_content, "Summary of the conversation so far"
+    assert_includes first_content, "durable answer"
+    assert_not_includes first_content, "Message 14"
+    assert_includes first_content, "Message 15"
+    assert_includes first_content, "Message 24"
+
+    @chat.messages.create!(role: "user", content: "Message 25", user: @user)
+    second_context = @chat.build_context_for_agent(@agent, provider: :openai)
+    second_content = second_context.map { |message| message[:content].to_s }.join("\n")
+
+    assert_includes second_content, "Message 15"
+    assert_includes second_content, "Message 24"
+    assert_includes second_content, "Message 25"
+    assert_equal 26, @chat.messages.count
   end
 
 end

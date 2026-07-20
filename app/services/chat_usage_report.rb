@@ -13,7 +13,7 @@ class ChatUsageReport
   end
 
   def call
-    rows = message_rows + runtime_rows
+    rows = message_rows + runtime_rows + compaction_rows
     groups = rows.group_by { |row| [ row[:provider], row[:model] ] }
 
     {
@@ -51,7 +51,7 @@ class ChatUsageReport
           source: "message",
           provider: provider_from(message.model_id_string),
           model: message.model_id_string.presence || chat.model_id,
-          telemetry_state: tokens.values.all?(&:present?) ? "complete" : "incomplete",
+          telemetry_state: tokens.values.none?(&:nil?) ? "complete" : "incomplete",
           tokens: tokens
         }
       end
@@ -69,6 +69,26 @@ class ChatUsageReport
         tokens: TOKEN_FIELDS.to_h do |field|
           [ field, local_usage ? interaction.public_send(field) : nil ]
         end
+      }
+    end
+  end
+
+  def compaction_rows
+    chat.conversation_compactions.map do |compaction|
+      tokens = {
+        uncached_input_tokens: compaction.input_tokens,
+        cache_creation_input_tokens: compaction.cache_creation_tokens,
+        cache_read_input_tokens: compaction.cached_tokens,
+        output_tokens: compaction.output_tokens,
+        reasoning_output_tokens: compaction.thinking_tokens
+      }
+
+      {
+        source: "compaction",
+        provider: compaction.provider,
+        model: compaction.model,
+        telemetry_state: tokens.values.none?(&:nil?) ? "complete" : "incomplete",
+        tokens: tokens
       }
     end
   end

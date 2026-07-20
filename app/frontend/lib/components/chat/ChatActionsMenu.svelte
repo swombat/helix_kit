@@ -111,7 +111,7 @@
         <DropdownMenu.CheckboxItem
           checked={showMessageTelemetry}
           onCheckedChange={(checked) => (showMessageTelemetry = checked)}>
-          View message telemetry
+          View telemetry
         </DropdownMenu.CheckboxItem>
         <DropdownMenu.CheckboxItem
           checked={debugMode}

@@ -3,6 +3,7 @@
   import * as Card from '$lib/components/shadcn/card/index.js';
   import MessageBubble from '$lib/components/chat/MessageBubble.svelte';
   import AgentRuntimeActivityCard from '$lib/components/chat/AgentRuntimeActivityCard.svelte';
+  import ConversationCompactionCard from '$lib/components/chat/ConversationCompactionCard.svelte';
   import { ArrowClockwise, Spinner } from 'phosphor-svelte';
   import { fade } from 'svelte/transition';
   import { formatTime, formatDate } from '$lib/utils';
@@ -15,6 +16,7 @@
     oldestId = null,
     visibleMessages = [],
     runtimeInteractions = [],
+    conversationCompactions = [],
     allMessages = [],
     chat = null,
     showAllMessages = false,
@@ -55,7 +57,14 @@
       interaction,
     }));
 
-    return [...messageItems, ...runtimeItems].sort((a, b) => {
+    const compactionItems = (conversationCompactions || []).map((compaction) => ({
+      type: 'conversation_compaction',
+      id: `compaction-${compaction.id}`,
+      created_at: compaction.created_at,
+      compaction,
+    }));
+
+    return [...messageItems, ...runtimeItems, ...compactionItems].sort((a, b) => {
       const aTime = new Date(a.created_at).getTime();
       const bTime = new Date(b.created_at).getTime();
       return aTime - bTime;
@@ -123,8 +132,10 @@
           onresend={resendLastMessage}
           onimagelightbox={openImageLightbox}
           onvoice={requestVoice} />
-      {:else}
+      {:else if item.type === 'runtime_interaction'}
         <AgentRuntimeActivityCard interaction={item.interaction} />
+      {:else}
+        <ConversationCompactionCard compaction={item.compaction} {showMessageTelemetry} {shikiTheme} />
       {/if}
     {/each}
 

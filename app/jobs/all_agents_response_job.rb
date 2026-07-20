@@ -75,8 +75,15 @@ class AllAgentsResponseJob < ApplicationJob
     tools_added = []
     agent.tools.each do |tool_class|
       tool = tool_class.new(chat: chat, current_agent: agent)
+      next if tool.respond_to?(:available?) && !tool.available?
       llm = llm.with_tool(tool)
       tools_added << tool_class.name
+    end
+
+    retrieval_tool = RetrieveConversationMessagesTool.new(chat: chat, current_agent: agent)
+    if retrieval_tool.available? && !tools_added.include?(RetrieveConversationMessagesTool.name)
+      llm = llm.with_tool(retrieval_tool)
+      tools_added << RetrieveConversationMessagesTool.name
     end
     debug_info "Added #{tools_added.length} tools: #{tools_added.join(', ')}" if tools_added.any?
 

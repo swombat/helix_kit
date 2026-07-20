@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_19_235500) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_20_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -410,6 +410,25 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_19_235500) do
     t.index ["web_access"], name: "index_chats_on_web_access"
   end
 
+  create_table "conversation_compactions", force: :cascade do |t|
+    t.bigint "boundary_message_id", null: false
+    t.bigint "cache_creation_tokens"
+    t.bigint "cached_tokens"
+    t.bigint "chat_id", null: false
+    t.integer "compacted_message_count", null: false
+    t.datetime "created_at", null: false
+    t.bigint "input_tokens"
+    t.string "model", null: false
+    t.bigint "output_tokens"
+    t.string "provider", null: false
+    t.text "summary", null: false
+    t.bigint "thinking_tokens"
+    t.datetime "updated_at", null: false
+    t.index ["chat_id", "boundary_message_id"], name: "idx_on_chat_id_boundary_message_id_cb11697831", unique: true
+    t.index ["chat_id", "created_at"], name: "index_conversation_compactions_on_chat_id_and_created_at"
+    t.index ["chat_id"], name: "index_conversation_compactions_on_chat_id"
+  end
+
   create_table "github_integrations", force: :cascade do |t|
     t.text "access_token"
     t.bigint "account_id", null: false
@@ -661,6 +680,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_19_235500) do
   add_foreign_key "chats", "agents", column: "initiated_by_agent_id"
   add_foreign_key "chats", "ai_models"
   add_foreign_key "chats", "whiteboards", column: "active_whiteboard_id"
+  add_foreign_key "conversation_compactions", "chats"
   add_foreign_key "github_integrations", "accounts"
   add_foreign_key "memberships", "accounts"
   add_foreign_key "memberships", "users"

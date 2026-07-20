@@ -83,6 +83,47 @@ class AllAgentsResponseJobTest < ActiveJob::TestCase
     assert_includes second_agent_context[2][:content], "Research Assistant"
   end
 
+  test "automatically exposes original-message retrieval after compaction" do
+    @agent1.update!(model_id: "openai/gpt-5-nano")
+    @chat.update!(
+      checkpoint_summary: "The earlier conversation was compacted.",
+      last_consolidated_message_id: @user_message.id,
+      last_consolidated_at: Time.current
+    )
+
+    request = stub_request(:post, "https://api.openai.com/v1/chat/completions")
+      .with do |req|
+        body = JSON.parse(req.body)
+        body.fetch("tools", []).any? do |tool|
+          tool.dig("function", "name") == "retrieve_conversation_messages"
+        end
+      end
+      .to_return(
+        status: 200,
+        headers: { "Content-Type" => "application/json" },
+        body: {
+          id: "chatcmpl-all-agents-retrieval-tool-test",
+          object: "chat.completion",
+          created: 1_784_220_000,
+          model: "gpt-5-nano",
+          choices: [
+            {
+              index: 0,
+              message: { role: "assistant", content: "I can retrieve the originals when needed." },
+              finish_reason: "stop"
+            }
+          ],
+          usage: { prompt_tokens: 20, completion_tokens: 8, total_tokens: 28 }
+        }.to_json
+      )
+
+    VCR.turned_off do
+      AllAgentsResponseJob.perform_now(@chat, [ @agent1.id ])
+    end
+
+    assert_requested request
+  end
+
   test "queues remaining agents when an anthropic thinking agent is skipped for missing API key" do
     anthropic_agent = @account.agents.create!(
       name: "Claude",

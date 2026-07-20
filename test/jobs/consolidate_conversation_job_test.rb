@@ -19,6 +19,9 @@ class ConsolidateConversationJobTest < ActiveJob::TestCase
     travel_to 7.hours.ago do
       @chat.messages.create!(role: "user", content: "I prefer concise responses while refactoring Ruby code.", user: @user)
       @chat.messages.create!(role: "assistant", content: "I'll keep responses concise and focused.", agent: @agent)
+      10.times do |index|
+        @chat.messages.create!(role: "user", content: "Recent context #{index}", user: @user)
+      end
     end
     travel_back
   end
@@ -77,8 +80,10 @@ class ConsolidateConversationJobTest < ActiveJob::TestCase
     @chat.reload
 
     assert_not_nil @chat.last_consolidated_at
-    assert_equal @chat.messages.order(:created_at, :id).last.id, @chat.last_consolidated_message_id
+    assert_equal @chat.messages.order(:created_at, :id).second.id, @chat.last_consolidated_message_id
     assert_equal "The user prefers concise Ruby refactoring help.", @chat.checkpoint_summary
+    assert_equal 1, @chat.conversation_compactions.count
+    assert_equal "anthropic/claude-sonnet-5", @chat.conversation_compactions.last.model
     assert @agent.memories.journal.where("content ILIKE ?", "%concise%").exists?
     assert @agent.memories.core.where("content ILIKE ?", "%Ruby%").exists?
   end
@@ -90,6 +95,9 @@ class ConsolidateConversationJobTest < ActiveJob::TestCase
       manual_responses: false
     )
     message = regular_chat.messages.create!(role: "user", content: "A long active conversation", user: @user)
+    10.times do |index|
+      regular_chat.messages.create!(role: "user", content: "Recent active context #{index}", user: @user)
+    end
     job = ConsolidateConversationJob.new
 
     ENV.stub(:fetch, ->(key, default = nil) { key == "HELIX_TRANSCRIPT_BUDGET_TOKENS" ? "1" : ENV[key] || default }) do
@@ -101,6 +109,29 @@ class ConsolidateConversationJobTest < ActiveJob::TestCase
     regular_chat.reload
     assert_equal message.id, regular_chat.last_consolidated_message_id
     assert_equal "A compact checkpoint.", regular_chat.checkpoint_summary
+    assert_equal 1, regular_chat.conversation_compactions.count
+  end
+
+  test "preserves a fixed ten-message tail at consolidation time" do
+    messages = @chat.messages.order(:created_at, :id).to_a
+
+    selected = ConsolidateConversationJob.new.send(:messages_to_consolidate, @chat)
+
+    assert_equal messages.first(2).map(&:id), selected.map(&:id)
+
+    @chat.update!(
+      checkpoint_summary: "A stable checkpoint.",
+      last_consolidated_message_id: selected.last.id,
+      last_consolidated_at: Time.current
+    )
+    initial_tail_ids = @chat.send(:context_messages_for, @agent).map(&:id)
+    assert_equal messages.last(10).map(&:id), initial_tail_ids
+
+    appended = @chat.messages.create!(role: "user", content: "A newly appended turn", user: @user)
+    next_tail_ids = @chat.send(:context_messages_for, @agent).map(&:id)
+
+    assert_equal initial_tail_ids, next_tail_ids.first(10)
+    assert_equal appended.id, next_tail_ids.last
   end
 
   test "checkpoint consolidation reduces the transcript sent on the next turn" do
@@ -146,6 +177,7 @@ class ConsolidateConversationJobTest < ActiveJob::TestCase
     @chat.reload
     assert_nil @chat.last_consolidated_message_id
     assert_nil @chat.checkpoint_summary
+    assert_equal 0, @chat.conversation_compactions.count
     assert_equal 0, @agent.memories.count
   end
 
@@ -158,6 +190,50 @@ class ConsolidateConversationJobTest < ActiveJob::TestCase
     assert_includes prompt, "Earlier, the user chose PostgreSQL."
     assert_includes prompt, "Now use JSONB for metadata."
     assert_includes prompt, "Preserve decisions, commitments, durable preferences"
+    assert_includes prompt, "target 1,000 to 2,000 tokens"
+  end
+
+  test "checkpoint summaries are pinned to Sonnet 5 and record usage telemetry" do
+    response = Struct.new(
+      :content,
+      :input_tokens,
+      :output_tokens,
+      :cached_tokens,
+      :cache_creation_tokens,
+      :thinking_tokens
+    ).new("Pinned summary.", 1_200, 1_100, 800, 400, 0)
+
+    llm = Object.new
+    llm.define_singleton_method(:with_params) do |params|
+      raise "wrong max_tokens" unless params == { max_tokens: 2_000 }
+      self
+    end
+    llm.define_singleton_method(:ask) { |_prompt| response }
+
+    captured = nil
+    RubyLLM.stub(:chat, ->(**args) {
+      captured = args
+      llm
+    }) do
+      job = ConsolidateConversationJob.new
+      job.stub(:extract_memories_for_agent, nil) do
+        job.perform(@chat)
+      end
+    end
+
+    assert_equal(
+      { model: "claude-sonnet-5", provider: :anthropic, assume_model_exists: true },
+      captured
+    )
+
+    compaction = @chat.reload.conversation_compactions.last
+    assert_equal "Pinned summary.", compaction.summary
+    assert_equal "anthropic", compaction.provider
+    assert_equal "anthropic/claude-sonnet-5", compaction.model
+    assert_equal 1_200, compaction.input_tokens
+    assert_equal 1_100, compaction.output_tokens
+    assert_equal 800, compaction.cached_tokens
+    assert_equal 400, compaction.cache_creation_tokens
   end
 
   test "persisted checkpoint remains byte-stable when there are no new messages" do
@@ -174,12 +250,13 @@ class ConsolidateConversationJobTest < ActiveJob::TestCase
   end
 
   test "only selects messages after the last consolidated message" do
-    older_message = @chat.messages.order(:created_at, :id).first
+    messages = @chat.messages.order(:created_at, :id).to_a
+    older_message = messages.first
     @chat.update!(last_consolidated_message_id: older_message.id)
 
-    messages = ConsolidateConversationJob.new.send(:messages_to_consolidate, @chat)
+    selected = ConsolidateConversationJob.new.send(:messages_to_consolidate, @chat)
 
-    assert_equal @chat.messages.where("id > ?", older_message.id).order(:created_at, :id).pluck(:id), messages.map(&:id)
+    assert_equal [ messages.second.id ], selected.map(&:id)
   end
 
   test "prompt includes existing core memories and JSON instruction" do

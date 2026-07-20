@@ -5,19 +5,18 @@ class ConsolidateConversationJob < ApplicationJob
   IDLE_THRESHOLD = 6.hours
   CHUNK_TARGET_TOKENS = 100_000
   DEFAULT_TRANSCRIPT_BUDGET_TOKENS = 60_000
+  CHECKPOINT_MODEL_ID = "anthropic/claude-sonnet-5"
+  CHECKPOINT_MAX_OUTPUT_TOKENS = 2_000
+  PRESERVED_TAIL_MESSAGES = 10
 
   def self.transcript_over_budget?(chat)
     transcript_token_count(chat) > transcript_budget_tokens
   end
 
   def self.transcript_token_count(chat)
-    messages = chat.messages.includes(:user, :agent).order(:created_at, :id).to_a
-
+    messages = chat.messages.includes(:user, :agent).order(:created_at, :id)
     if chat.checkpoint_summary.present? && chat.last_consolidated_message_id.present?
-      recent_ids = messages.last(Chat::Contextualizable::RECENT_TRANSCRIPT_MESSAGES).map(&:id)
-      messages.select! do |message|
-        message.id > chat.last_consolidated_message_id || recent_ids.include?(message.id)
-      end
+      messages = messages.where("messages.id > ?", chat.last_consolidated_message_id)
     end
 
     texts = messages.map { |message| message_text(message) }
@@ -51,7 +50,7 @@ class ConsolidateConversationJob < ApplicationJob
       extract_memories_for_agent(agent, chunks)
     end
 
-    mark_consolidated!(chat, messages.last, checkpoint_summary)
+    mark_consolidated!(chat, messages.last, checkpoint_summary, messages.length)
   end
 
   private
@@ -71,7 +70,11 @@ class ConsolidateConversationJob < ApplicationJob
       scope = scope.where("id > ?", chat.last_consolidated_message_id)
     end
 
-    scope.to_a
+    messages = scope.to_a
+    compacted_count = messages.length - PRESERVED_TAIL_MESSAGES
+    return [] unless compacted_count.positive?
+
+    messages.first(compacted_count)
   end
 
   def chunk_messages(messages)
@@ -128,17 +131,19 @@ class ConsolidateConversationJob < ApplicationJob
   end
 
   def build_checkpoint_summary(chat, messages)
-    provider_config = llm_provider_for(chat.model_id)
+    provider_config = llm_provider_for(CHECKPOINT_MODEL_ID)
     llm = RubyLLM.chat(
       model: provider_config[:model_id],
       provider: provider_config[:provider],
       assume_model_exists: true
-    )
+    ).with_params(max_tokens: CHECKPOINT_MAX_OUTPUT_TOKENS)
 
     response = llm.ask(checkpoint_prompt(chat, messages))
+    @checkpoint_telemetry = checkpoint_telemetry(response, provider_config)
     response.content.to_s.strip.presence
   rescue => e
     Rails.logger.error "Checkpoint summary failed for chat #{chat.id}: #{e.message}"
+    @checkpoint_telemetry = nil
     nil
   end
 
@@ -155,6 +160,8 @@ class ConsolidateConversationJob < ApplicationJob
 
     <<~PROMPT
       Write a compact, factual checkpoint summary of this conversation for use as context in future turns.
+      For substantial histories, target 1,000 to 2,000 tokens. Use less for short histories rather than adding filler.
+      Never exceed 2,000 tokens.
       Preserve decisions, commitments, durable preferences, unresolved questions, and details needed to continue the work.
       Do not address the participants, add advice, or mention that you are summarizing.
 
@@ -184,12 +191,50 @@ class ConsolidateConversationJob < ApplicationJob
     end
   end
 
-  def mark_consolidated!(chat, last_message, checkpoint_summary)
-    chat.update_columns(
-      checkpoint_summary: checkpoint_summary,
-      last_consolidated_at: Time.current,
-      last_consolidated_message_id: last_message.id
-    )
+  def mark_consolidated!(chat, last_message, checkpoint_summary, compacted_message_count)
+    now = Time.current
+
+    Chat.transaction do
+      chat.update_columns(
+        checkpoint_summary: checkpoint_summary,
+        last_consolidated_at: now,
+        last_consolidated_message_id: last_message.id,
+        updated_at: now
+      )
+
+      telemetry = @checkpoint_telemetry || {
+        provider: "anthropic",
+        model: CHECKPOINT_MODEL_ID,
+        input_tokens: nil,
+        output_tokens: nil,
+        cached_tokens: nil,
+        cache_creation_tokens: nil,
+        thinking_tokens: nil
+      }
+
+      chat.conversation_compactions.create!(
+        boundary_message_id: last_message.id,
+        summary: checkpoint_summary,
+        compacted_message_count: compacted_message_count,
+        **telemetry
+      )
+    end
+  end
+
+  def checkpoint_telemetry(response, provider_config)
+    {
+      provider: provider_config[:provider].to_s,
+      model: CHECKPOINT_MODEL_ID,
+      input_tokens: response_usage(response, :input_tokens),
+      output_tokens: response_usage(response, :output_tokens),
+      cached_tokens: response_usage(response, :cached_tokens),
+      cache_creation_tokens: response_usage(response, :cache_creation_tokens),
+      thinking_tokens: response_usage(response, :thinking_tokens)
+    }
+  end
+
+  def response_usage(response, field)
+    response.public_send(field) if response.respond_to?(field)
   end
 
   def token_count(text)
