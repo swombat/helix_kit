@@ -7,7 +7,7 @@ class ExternalAgentWakeRequestTest < ActiveSupport::TestCase
     request = ExternalAgentWakeRequest.new(agent: agent)
     text = request.send(:request_text)
 
-    assert_includes text, "hourly self-directed session"
+    assert_includes text, "scheduled self-directed session"
     assert_includes text, "Current time:"
     assert_includes text, "choose to do nothing"
     assert_includes text, "helixkit-api.md"
@@ -24,10 +24,10 @@ class ExternalAgentWakeRequestTest < ActiveSupport::TestCase
     assert_not agent.persistent_wake_session?
   end
 
-  test "half-hourly wakes are opt in" do
+  test "heartbeat wakes default to twice daily" do
     agent = agents(:research_assistant)
 
-    assert_not agent.half_hourly_wake?
+    assert_equal 2, agent.heartbeat_wakes_per_day
   end
 
 end

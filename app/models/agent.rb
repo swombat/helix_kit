@@ -6,6 +6,7 @@ class Agent < ApplicationRecord
   include JsonAttributes
   include SyncAuthorizable
   include TelegramNotifiable
+  include Agent::Heartbeat
   include Agent::Initiation
   include Agent::Memory
   include Agent::Predecessor
@@ -52,8 +53,10 @@ class Agent < ApplicationRecord
             numericality: { greater_than_or_equal_to: 1000, less_than_or_equal_to: 50000 },
             allow_nil: true
   validates :refinement_threshold,
-            numericality: { greater_than: 0, less_than_or_equal_to: 1 },
-            allow_nil: true
+             numericality: { greater_than: 0, less_than_or_equal_to: 1 },
+             allow_nil: true
+  validates :heartbeat_wakes_per_day,
+            numericality: { only_integer: true, greater_than: 0, less_than_or_equal_to: 48 }
   validates :runtime, inclusion: { in: %w[inline migrating external offline] }
   validates :health_state, inclusion: { in: %w[healthy unhealthy unknown] }
   validate :identity_fields_are_read_only_when_external
@@ -78,9 +81,9 @@ class Agent < ApplicationRecord
                    :last_health_check_at, :health_state, :consecutive_health_failures,
                    :github_repo_url, :github_repo_owner, :github_repo_name,
                    :github_deploy_key_id, :container_name, :sandbox_host, :container_image,
-                    :sandbox_last_error, :sandbox_last_error_at, :oriented_at,
-                    :persistent_session?, :persistent_wake_session?, :scheduled_wakes_enabled?,
-                    :half_hourly_wake?
+                     :sandbox_last_error, :sandbox_last_error_at, :oriented_at,
+                     :persistent_session?, :persistent_wake_session?, :scheduled_wakes_enabled?,
+                     :heartbeat_wakes_per_day
 
   def self.json_attrs_for(options = nil)
     return json_attrs unless options&.dig(:as) == :list

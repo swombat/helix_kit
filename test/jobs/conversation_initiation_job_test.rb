@@ -14,6 +14,8 @@ class ConversationInitiationJobTest < ActiveSupport::TestCase
   end
 
   test "schedules decision jobs with nighttime flag at 3am GMT" do
+    @agent.update!(heartbeat_wakes_per_day: 24)
+
     travel_to Time.utc(2026, 1, 28, 3, 0, 0) do
       assert_enqueued_with(job: AgentInitiationDecisionJob) do
         ConversationInitiationJob.perform_now
@@ -26,6 +28,8 @@ class ConversationInitiationJobTest < ActiveSupport::TestCase
   end
 
   test "schedules decision jobs with nighttime flag at 21:00 GMT" do
+    @agent.update!(heartbeat_wakes_per_day: 24)
+
     travel_to Time.utc(2026, 1, 28, 21, 0, 0) do
       assert_enqueued_with(job: AgentInitiationDecisionJob) do
         ConversationInitiationJob.perform_now
@@ -120,6 +124,34 @@ class ConversationInitiationJobTest < ActiveSupport::TestCase
 
     refute agent_ids.any? { |gid| gid.include?("/#{@agent.id}") },
            "External agents should decide what to do from ExternalAgentWakeJob instead"
+  end
+
+  test "only schedules the configured number of daily heartbeat decisions" do
+    @agent.update!(heartbeat_wakes_per_day: 2)
+
+    [ 0, 12 ].each do |hour|
+      clear_enqueued_jobs
+
+      travel_to Time.utc(2026, 1, 28, hour, 0, 0) do
+        ConversationInitiationJob.perform_now
+      end
+
+      agent_ids = queue_adapter.enqueued_jobs
+                               .select { |job| job["job_class"] == "AgentInitiationDecisionJob" }
+                               .map { |job| job["arguments"].first["_aj_globalid"] }
+      assert agent_ids.any? { |gid| gid.include?("/#{@agent.id}") }
+    end
+
+    clear_enqueued_jobs
+
+    travel_to Time.utc(2026, 1, 28, 6, 0, 0) do
+      ConversationInitiationJob.perform_now
+    end
+
+    agent_ids = queue_adapter.enqueued_jobs
+                             .select { |job| job["job_class"] == "AgentInitiationDecisionJob" }
+                             .map { |job| job["arguments"].first["_aj_globalid"] }
+    refute agent_ids.any? { |gid| gid.include?("/#{@agent.id}") }
   end
 
 end

@@ -260,15 +260,24 @@ class AgentsControllerTest < ActionDispatch::IntegrationTest
     assert_not @agent.reload.scheduled_wakes_enabled?
   end
 
-  test "external agent can enable half-hourly wakes" do
+  test "external agent can set heartbeat wakes per day" do
     @agent.update!(runtime: "external", uuid: SecureRandom.uuid_v7)
 
     patch account_agent_path(@account, @agent), params: {
-      agent: { half_hourly_wake: true }
+      agent: { heartbeat_wakes_per_day: 1 }
     }
 
     assert_redirected_to account_agents_path(@account)
-    assert @agent.reload.half_hourly_wake?
+    assert_equal 1, @agent.reload.heartbeat_wakes_per_day
+  end
+
+  test "HelixKit-hosted agent can set heartbeat wakes per day" do
+    patch account_agent_path(@account, @agent), params: {
+      agent: { heartbeat_wakes_per_day: 2 }
+    }
+
+    assert_redirected_to account_agents_path(@account)
+    assert_equal 2, @agent.reload.heartbeat_wakes_per_day
   end
 
   test "should fail with duplicate name in same account" do

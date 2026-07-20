@@ -1,6 +1,7 @@
 <script>
   import { useForm, router } from '@inertiajs/svelte';
   import { Button } from '$lib/components/shadcn/button/index.js';
+  import { Input } from '$lib/components/shadcn/input';
   import { Label } from '$lib/components/shadcn/label';
   import { Switch } from '$lib/components/shadcn/switch';
   import { IdentificationCard, Palette, Cpu, Plug, Notebook, CloudArrowUp, ChartBar } from 'phosphor-svelte';
@@ -151,7 +152,7 @@
       persistent_session: agent.persistent_session || false,
       persistent_wake_session: agent.persistent_wake_session || false,
       scheduled_wakes_enabled: agent.scheduled_wakes_enabled ?? true,
-      half_hourly_wake: agent.half_hourly_wake || false,
+      heartbeat_wakes_per_day: agent.heartbeat_wakes_per_day ?? 2,
     },
   });
 
@@ -517,7 +518,7 @@
                 <div class="space-y-1">
                   <Label for="scheduled_wakes_enabled">Scheduled heartbeats</Label>
                   <p class="text-sm text-muted-foreground">
-                    Allow HelixKit to wake this agent for hourly heartbeats and any optional 30-minute heartbeats.
+                    Allow HelixKit to wake this agent for self-directed heartbeat sessions.
                   </p>
                 </div>
                 <Switch
@@ -543,10 +544,10 @@
 
               <div class="flex items-center justify-between gap-6 rounded border bg-muted/30 p-4">
                 <div class="space-y-1">
-                  <Label for="persistent_wake_session">Persistent hourly heartbeat session</Label>
+                  <Label for="persistent_wake_session">Persistent heartbeat session</Label>
                   <p class="text-sm text-muted-foreground">
-                    Run hourly heartbeats in one continuing Chaos session instead of starting fresh each time. This
-                    preserves heartbeat context and allows provider caching across wakes.
+                    Run heartbeats in one continuing Chaos session instead of starting fresh each time. This preserves
+                    heartbeat context and allows provider caching across wakes.
                   </p>
                 </div>
                 <Switch
@@ -556,25 +557,27 @@
                   onCheckedChange={(checked) => ($form.agent.persistent_wake_session = checked)} />
               </div>
 
-              <div class="flex items-center justify-between gap-6 rounded border bg-muted/30 p-4">
-                <div class="space-y-1">
-                  <Label for="half_hourly_wake">30-minute heartbeats</Label>
-                  <p class="text-sm text-muted-foreground">
-                    Add a second heartbeat at minute :35, between the normal hourly heartbeats at minute :05.
-                  </p>
-                </div>
-                <Switch
-                  id="half_hourly_wake"
-                  checked={$form.agent.half_hourly_wake}
-                  disabled={!runtimeManaged || !$form.agent.scheduled_wakes_enabled}
-                  onCheckedChange={(checked) => ($form.agent.half_hourly_wake = checked)} />
+              <div class="rounded border bg-muted/30 p-4 space-y-2">
+                <Label for="heartbeat_wakes_per_day">Heartbeat wakes per day</Label>
+                <Input
+                  id="heartbeat_wakes_per_day"
+                  type="number"
+                  min={1}
+                  max={48}
+                  step={1}
+                  bind:value={$form.agent.heartbeat_wakes_per_day}
+                  disabled={!$form.agent.scheduled_wakes_enabled}
+                  class="max-w-32" />
+                <p class="text-sm text-muted-foreground">
+                  Spread evenly across the UTC day. Use 1 for daily, 2 for twice daily, 24 for hourly, or 48 for every
+                  30 minutes.
+                </p>
               </div>
 
               {#if !runtimeManaged}
                 <p class="text-xs text-muted-foreground">
-                  Persistent sessions and 30-minute heartbeats become available after this agent is promoted to an
-                  external runtime. The scheduled-heartbeats toggle also controls this HelixKit-hosted agent's hourly
-                  initiation checks.
+                  Persistent sessions become available after this agent is promoted to an external runtime. Heartbeat
+                  frequency also controls this HelixKit-hosted agent's initiation checks.
                 </p>
               {/if}
 

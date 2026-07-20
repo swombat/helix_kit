@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_20_120100) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_20_123300) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -242,8 +242,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_20_120100) do
     t.string "github_repo_name"
     t.string "github_repo_owner"
     t.string "github_repo_url"
-    t.boolean "half_hourly_wake", default: false, null: false
     t.string "health_state", default: "unknown", null: false
+    t.integer "heartbeat_wakes_per_day", default: 2, null: false
     t.string "icon"
     t.datetime "last_announced_at"
     t.datetime "last_health_check_at"

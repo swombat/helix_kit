@@ -1,6 +1,6 @@
 class ExternalAgentWakeRequest
 
-  def initialize(agent:, requested_by: "HelixKit hourly wake")
+  def initialize(agent:, requested_by: "HelixKit scheduled wake")
     @agent = agent
     @requested_by = requested_by
   end
@@ -49,7 +49,7 @@ class ExternalAgentWakeRequest
   def request_text
     now = Time.current
     <<~TEXT
-      HelixKit is inviting you to wake for an hourly self-directed session.
+      HelixKit is inviting you to wake for a scheduled self-directed session.
 
       Current time: #{now.iso8601}
       Current UTC time: #{now.utc.iso8601}

@@ -4,16 +4,18 @@ class ConversationInitiationJob < ApplicationJob
   ACTIVE_THRESHOLD = 7.days
 
   def perform
-    eligible_agents.each do |agent|
+    now = Time.current
+
+    eligible_agents.select { |agent| agent.heartbeat_wake_due_at?(now) }.each do |agent|
       delay = rand(1..20).minutes
-      AgentInitiationDecisionJob.set(wait: delay).perform_later(agent, nighttime: nighttime?)
+      AgentInitiationDecisionJob.set(wait: delay).perform_later(agent, nighttime: nighttime?(now))
     end
   end
 
   private
 
-  def nighttime?
-    !DAYTIME_HOURS.include?(Time.current.in_time_zone("GMT").hour)
+  def nighttime?(time)
+    !DAYTIME_HOURS.include?(time.in_time_zone("GMT").hour)
   end
 
   def eligible_agents

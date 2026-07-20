@@ -59,6 +59,40 @@ class AgentTest < ActiveSupport::TestCase
     assert agent.active?
   end
 
+  test "defaults to twice-daily heartbeat wakes" do
+    agent = @account.agents.create!(name: "Default Heartbeat Agent")
+
+    assert_equal 2, agent.heartbeat_wakes_per_day
+  end
+
+  test "validates heartbeat wakes per day" do
+    agent = @account.agents.build(name: "Heartbeat Agent")
+
+    agent.heartbeat_wakes_per_day = 0
+    assert_not agent.valid?
+
+    agent.heartbeat_wakes_per_day = 49
+    assert_not agent.valid?
+
+    agent.heartbeat_wakes_per_day = 2
+    assert agent.valid?
+  end
+
+  test "distributes heartbeat wakes across UTC half-hour slots" do
+    agent = @account.agents.build(name: "Heartbeat Agent", heartbeat_wakes_per_day: 2)
+
+    assert agent.heartbeat_wake_due_at?(Time.utc(2026, 1, 28, 0, 0))
+    assert agent.heartbeat_wake_due_at?(Time.utc(2026, 1, 28, 12, 0))
+    refute agent.heartbeat_wake_due_at?(Time.utc(2026, 1, 28, 6, 0))
+  end
+
+  test "daily heartbeat wakes at noon UTC" do
+    agent = @account.agents.build(name: "Daily Agent", heartbeat_wakes_per_day: 1)
+
+    assert agent.heartbeat_wake_due_at?(Time.utc(2026, 1, 28, 12, 0))
+    refute agent.heartbeat_wake_due_at?(Time.utc(2026, 1, 28, 0, 0))
+  end
+
   test "model_label returns friendly name for known models" do
     agent = @account.agents.create!(name: "Test", model_id: "openai/gpt-5.2")
     assert_equal "GPT-5.2", agent.model_label
