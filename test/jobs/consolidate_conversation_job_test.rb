@@ -134,8 +134,35 @@ class ConsolidateConversationJobTest < ActiveJob::TestCase
     assert_equal appended.id, next_tail_ids.last
   end
 
+  test "does not consolidate or extract memories from a stale conversation with ten or fewer messages" do
+    short_chat = @account.chats.new(
+      model_id: "openrouter/auto",
+      title: "Short stale conversation",
+      manual_responses: true
+    )
+    short_chat.agent_ids = [ @agent.id ]
+    short_chat.save!
+
+    travel_to 7.hours.ago do
+      10.times do |index|
+        short_chat.messages.create!(role: "user", content: "Short context #{index}", user: @user)
+      end
+    end
+    travel_back
+
+    job = ConsolidateConversationJob.new
+    job.stub(:build_checkpoint_summary, ->(*) { flunk "short conversations should not be summarized" }) do
+      job.perform(short_chat)
+    end
+
+    short_chat.reload
+    assert_nil short_chat.last_consolidated_message_id
+    assert_nil short_chat.checkpoint_summary
+    assert_equal 0, short_chat.conversation_compactions.count
+    assert_equal 0, @agent.memories.count
+  end
+
   test "checkpoint consolidation reduces the transcript sent on the next turn" do
-    @agent.update!(prompt_cache_layout_v2: true)
     10.times do |index|
       @chat.messages.create!(
         role: "user",

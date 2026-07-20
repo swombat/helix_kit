@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_20_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_20_120100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -258,7 +258,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_20_120000) do
     t.boolean "paused", default: false, null: false
     t.boolean "persistent_session", default: false, null: false
     t.boolean "persistent_wake_session", default: false, null: false
-    t.boolean "prompt_cache_layout_v2", default: false, null: false
     t.text "refinement_prompt"
     t.float "refinement_threshold"
     t.text "reflection_prompt"

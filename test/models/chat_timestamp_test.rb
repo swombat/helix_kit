@@ -59,22 +59,25 @@ class ChatTimestampTest < ActiveSupport::TestCase
     assert_equal "London", @chat.send(:user_timezone).name
   end
 
-  test "system_message_for includes current time" do
-    system_msg = @chat.send(:system_message_for, @agent)
-    assert_match(/Current time: \w+, \d{4}-\d{2}-\d{2} \d{2}:\d{2} \w+/, system_msg[:content])
+  test "context envelope includes current time" do
+    context = @chat.build_context_for_agent(@agent, provider: :openrouter)
+    envelope = context.find { |message| message[:content].to_s.start_with?("<helixkit_context>") }
+
+    assert_match(/Current time: \w+, \d{4}-\d{2}-\d{2} \d{2}:\d{2} \w+/, envelope[:content])
   end
 
-  test "system_message_for uses user timezone for current time" do
+  test "context envelope uses user timezone for current time" do
     @user.profile.update!(timezone: "Eastern Time (US & Canada)")
     @chat.messages.create!(role: "user", content: "Hello", user: @user)
 
     # Clear memoized timezone
     @chat.instance_variable_set(:@user_timezone, nil)
 
-    system_msg = @chat.send(:system_message_for, @agent)
+    context = @chat.build_context_for_agent(@agent, provider: :openrouter)
+    envelope = context.find { |message| message[:content].to_s.start_with?("<helixkit_context>") }
 
     # The timezone abbreviation should be in the output (EST or EDT depending on time of year)
-    assert_match(/Current time: \w+, \d{4}-\d{2}-\d{2} \d{2}:\d{2} (EST|EDT)/, system_msg[:content])
+    assert_match(/Current time: \w+, \d{4}-\d{2}-\d{2} \d{2}:\d{2} (EST|EDT)/, envelope[:content])
   end
 
   test "format_message_for_context prepends timestamp to user messages" do

@@ -35,8 +35,28 @@ class AllAgentsResponseJobTest < ActiveJob::TestCase
     recorded_at = Time.zone.parse("2026-05-03 11:52 UTC")
     @user_message.update!(created_at: recorded_at)
 
+    stub_request(:post, "https://api.openai.com/v1/chat/completions")
+      .to_return(
+        status: 200,
+        headers: { "Content-Type" => "application/json" },
+        body: {
+          id: "chatcmpl-all-agents-test",
+          object: "chat.completion",
+          created: recorded_at.to_i,
+          model: "gpt-5-nano",
+          choices: [
+            {
+              index: 0,
+              message: { role: "assistant", content: "First agent response." },
+              finish_reason: "stop"
+            }
+          ],
+          usage: { prompt_tokens: 24, completion_tokens: 5, total_tokens: 29 }
+        }.to_json
+      )
+
     travel_to recorded_at do
-      VCR.use_cassette("jobs/all_agents_response_job/processes_first_agent") do
+      VCR.turned_off do
         assert_enqueued_with(job: AllAgentsResponseJob, args: [ @chat, [ @agent2.id ] ]) do
           AllAgentsResponseJob.perform_now(@chat, agent_ids)
         end
@@ -60,9 +80,12 @@ class AllAgentsResponseJobTest < ActiveJob::TestCase
   test "builds context messages for the selected agent" do
     context = @chat.build_context_for_agent(@agent1, thinking_enabled: false, provider: :openrouter)
 
-    assert_equal 2, context.length, "Should include system prompt and user message"
+    assert_equal 3, context.length, "Should include stable system prompt, context envelope, and user message"
     assert_equal "system", context.first[:role]
     assert_equal "user", context.second[:role]
+    assert_includes context.second[:content], "<helixkit_context>"
+    assert_equal "user", context.third[:role]
+    assert_includes context.third[:content], "Hello, agents!"
   end
 
   test "sequential processing creates context for subsequent agents" do
@@ -74,13 +97,16 @@ class AllAgentsResponseJobTest < ActiveJob::TestCase
 
     second_agent_context = @chat.build_context_for_agent(@agent2, thinking_enabled: false, provider: :openrouter)
 
-    # Second agent should see system + user message + first agent's response
-    assert_equal 3, second_agent_context.length, "Second agent should see all prior messages"
+    # Second agent should see system + envelope + user message + first agent's response
+    assert_equal 4, second_agent_context.length, "Second agent should see all prior messages"
     assert_equal "system", second_agent_context[0][:role]
     assert_equal "user", second_agent_context[1][:role]
-    # The third message is from agent1, formatted as a user message with [AgentName] prefix
+    assert_includes second_agent_context[1][:content], "<helixkit_context>"
     assert_equal "user", second_agent_context[2][:role]
-    assert_includes second_agent_context[2][:content], "Research Assistant"
+    assert_includes second_agent_context[2][:content], "Hello, agents!"
+    # The final message is from agent1, formatted as a user message with [AgentName] prefix
+    assert_equal "user", second_agent_context[3][:role]
+    assert_includes second_agent_context[3][:content], "Research Assistant"
   end
 
   test "automatically exposes original-message retrieval after compaction" do
@@ -156,7 +182,6 @@ class AllAgentsResponseJobTest < ActiveJob::TestCase
     @agent1.update!(
       model_id: "openai/gpt-5.6-sol",
       thinking_enabled: false,
-      prompt_cache_layout_v2: true,
       enabled_tools: [ "CloseConversationTool" ]
     )
 

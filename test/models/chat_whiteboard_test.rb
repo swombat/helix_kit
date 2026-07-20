@@ -58,15 +58,18 @@ class ChatWhiteboardTest < ActiveSupport::TestCase
     assert_nil @chat.send(:active_whiteboard_context)
   end
 
-  test "system_message_for includes whiteboard contexts" do
+  test "context envelope includes whiteboard contexts" do
     board = whiteboards(:project_notes)
     @chat.update!(active_whiteboard: board)
 
-    message = @chat.send(:system_message_for, @agent)
+    context = @chat.build_context_for_agent(@agent, provider: :openrouter)
+    envelope = context.find do |message|
+      message[:role] == "user" && message[:content].to_s.start_with?("<helixkit_context>")
+    end
 
-    assert_includes message[:content], "Shared Whiteboards"
-    assert_includes message[:content], "Active Whiteboard"
-    assert_includes message[:content], board.content
+    assert_includes envelope[:content], "Shared Whiteboards"
+    assert_includes envelope[:content], "Active Whiteboard"
+    assert_includes envelope[:content], board.content
   end
 
 end

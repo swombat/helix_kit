@@ -152,7 +152,6 @@
       persistent_wake_session: agent.persistent_wake_session || false,
       scheduled_wakes_enabled: agent.scheduled_wakes_enabled ?? true,
       half_hourly_wake: agent.half_hourly_wake || false,
-      prompt_cache_layout_v2: agent.prompt_cache_layout_v2 || false,
     },
   });
 

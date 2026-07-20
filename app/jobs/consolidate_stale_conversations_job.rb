@@ -25,6 +25,10 @@ class ConsolidateStaleConversationsJob < ApplicationJob
   end
 
   def over_budget_conversations
+    # This is deliberately a broad candidate scan, not a token estimate. Using
+    # a four-bytes-per-token conversion here could exclude token-dense or
+    # non-ASCII transcripts. The exact Ruby-side token count below decides
+    # whether each candidate is actually over budget.
     Chat
       .joins(:messages)
       .where(never_consolidated.or(has_unconsolidated_messages))

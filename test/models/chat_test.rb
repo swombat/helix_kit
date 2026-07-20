@@ -764,7 +764,7 @@ end
     assert_not_includes user_msg[:content].to_s, "[voice message, audio_id:"
   end
 
-  test "Anthropic context caches the stable identity before dynamic context" do
+  test "Anthropic context caches the stable system prefix before the context envelope" do
     agent = @account.agents.create!(
       name: "Cached Claude",
       system_prompt: "Stable identity",
@@ -777,7 +777,9 @@ end
     context = chat.build_context_for_agent(agent, provider: :anthropic)
 
     assert_instance_of RubyLLM::Content::Raw, context.first[:content]
-    assert_equal "Stable identity", context.first[:content].value.first[:text]
+    assert_includes context.first[:content].value.first[:text], "Stable identity"
+    assert_includes context.first[:content].value.first[:text], "Each activation includes a `<helixkit_context>` block"
+    assert_not_includes context.first[:content].value.first[:text], "Current time:"
     assert_equal({ type: "ephemeral", ttl: "1h" }, context.first[:content].value.first[:cache_control])
     assert_includes context.second[:content], "Current time:"
     assert_includes context.second[:content], "Cache test"
@@ -811,12 +813,12 @@ end
     ca2.update_columns(agent_summary: "Discussing API design patterns", agent_summary_generated_at: 1.minute.ago)
 
     context = chat1.build_context_for_agent(agent)
-    system_content = context.first[:content]
+    envelope_content = context.last[:content]
 
-    assert_includes system_content, "Your Other Active Conversations"
-    assert_includes system_content, "Other Chat"
-    assert_includes system_content, "Discussing API design patterns"
-    assert_includes system_content, chat2.obfuscated_id
+    assert_includes envelope_content, "Your Other Active Conversations"
+    assert_includes envelope_content, "Other Chat"
+    assert_includes envelope_content, "Discussing API design patterns"
+    assert_includes envelope_content, chat2.obfuscated_id
   end
 
   test "format_borrowed_context returns nil when no borrowed context" do
@@ -846,12 +848,12 @@ end
     })
 
     context = chat.build_context_for_agent(agent)
-    system_content = context.first[:content]
+    envelope_content = context.last[:content]
 
-    assert_includes system_content, "Borrowed Context from Conversation abcdef"
-    assert_includes system_content, "[Alice]: Can you review the PR?"
-    assert_includes system_content, "[Bot]: I will review it now."
-    assert_includes system_content, "will not appear in future activations"
+    assert_includes envelope_content, "Borrowed Context from Conversation abcdef"
+    assert_includes envelope_content, "[Alice]: Can you review the PR?"
+    assert_includes envelope_content, "[Bot]: I will review it now."
+    assert_includes envelope_content, "will not appear in future activations"
 
     # Verify context is NOT consumed (still present)
     assert ca.reload.borrowed_context_json.present?

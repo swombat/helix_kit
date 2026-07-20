@@ -23,19 +23,7 @@ class ChatPromptCacheLayoutTest < ActiveSupport::TestCase
     @chat.save!
   end
 
-  test "stable-prefix layout is off by default" do
-    @chat.messages.create!(role: "user", content: "Hello", user: @user)
-
-    context = @chat.build_context_for_agent(@agent, provider: :openai)
-
-    assert_not @agent.prompt_cache_layout_v2?
-    assert_equal %w[system user], context.pluck(:role)
-    assert_includes context.first[:content], "Current time:"
-    assert_equal 1, @chat.prompt_layout_telemetry[:prompt_layout_version]
-  end
-
   test "stable-prefix layout puts volatile context after persisted transcript and before newest human message" do
-    @agent.update!(prompt_cache_layout_v2: true)
     travel_to 2.minutes.ago do
       @chat.messages.create!(role: "user", content: "Earlier question", user: @user)
       @chat.messages.create!(role: "assistant", content: "Earlier answer", agent: @agent)
@@ -67,7 +55,6 @@ class ChatPromptCacheLayoutTest < ActiveSupport::TestCase
   end
 
   test "agent-initiated activation leaves the synthetic envelope as the final message" do
-    @agent.update!(prompt_cache_layout_v2: true)
     @chat.messages.create!(role: "assistant", content: "Previous thought", agent: @agent)
 
     context = @chat.build_context_for_agent(@agent, provider: :gemini, initiation_reason: "Continue thinking")
@@ -78,7 +65,6 @@ class ChatPromptCacheLayoutTest < ActiveSupport::TestCase
   end
 
   test "envelope precedes the newest human turn and all agent replies from that activation" do
-    @agent.update!(prompt_cache_layout_v2: true)
     other_agent = @account.agents.create!(
       name: "Second Agent",
       system_prompt: "You are another collaborator.",
@@ -101,7 +87,7 @@ class ChatPromptCacheLayoutTest < ActiveSupport::TestCase
   end
 
   test "Anthropic caches the transcript immediately before the envelope" do
-    @agent.update!(prompt_cache_layout_v2: true, model_id: "anthropic/claude-opus-4.6")
+    @agent.update!(model_id: "anthropic/claude-opus-4.6")
     @chat.messages.create!(role: "user", content: "Earlier question", user: @user)
     @chat.messages.create!(role: "assistant", content: "Earlier answer", agent: @agent)
     @chat.messages.create!(role: "user", content: "Newest question", user: @user)
@@ -118,7 +104,6 @@ class ChatPromptCacheLayoutTest < ActiveSupport::TestCase
   end
 
   test "Anthropic cache breakpoint stays on persisted transcript before the envelope" do
-    @agent.update!(prompt_cache_layout_v2: true)
     @chat.messages.create!(role: "user", content: "Earlier question", user: @user)
     @chat.messages.create!(role: "assistant", content: "Earlier answer", agent: @agent)
     @chat.messages.create!(role: "user", content: "Newest question", user: @user)
@@ -158,7 +143,6 @@ class ChatPromptCacheLayoutTest < ActiveSupport::TestCase
   end
 
   test "identical source state produces byte-identical stable content and envelope" do
-    @agent.update!(prompt_cache_layout_v2: true)
     @chat.messages.create!(role: "user", content: "Hello", user: @user)
 
     freeze_time do
@@ -173,7 +157,6 @@ class ChatPromptCacheLayoutTest < ActiveSupport::TestCase
   end
 
   test "volatile and one-shot context appears only in the synthetic envelope" do
-    @agent.update!(prompt_cache_layout_v2: true)
     @chat.messages.create!(role: "user", content: "Continue", user: @user)
 
     @agent.stub(:memory_context, "PRIVATE MEMORY") do
@@ -208,8 +191,7 @@ class ChatPromptCacheLayoutTest < ActiveSupport::TestCase
     end
   end
 
-  test "prompt timezone is pinned when v2 first builds and survives profile changes" do
-    @agent.update!(prompt_cache_layout_v2: true)
+  test "prompt timezone is pinned when context first builds and survives profile changes" do
     travel_to Time.utc(2026, 1, 24, 18, 30) do
       @chat.messages.create!(role: "user", content: "Timezone check", user: @user)
     end
@@ -227,7 +209,6 @@ class ChatPromptCacheLayoutTest < ActiveSupport::TestCase
   end
 
   test "layout telemetry records sizes without storing prompt text" do
-    @agent.update!(prompt_cache_layout_v2: true)
     @chat.messages.create!(role: "user", content: "Measure this", user: @user)
 
     @chat.build_context_for_agent(@agent, provider: :openai)
@@ -248,7 +229,6 @@ class ChatPromptCacheLayoutTest < ActiveSupport::TestCase
   end
 
   test "checkpoint boundary preserves a fixed ten-message tail" do
-    @agent.update!(prompt_cache_layout_v2: true)
     created_messages = 25.times.map do |index|
       @chat.messages.create!(role: "user", content: "Message #{index}", user: @user)
     end

@@ -65,28 +65,6 @@
 
   <div class="space-y-4">
     <div>
-      <h2 class="text-lg font-semibold">Prompt caching</h2>
-      <p class="text-sm text-muted-foreground">
-        Keep the identity and conversation prefix stable while moving changing situational context to the latest turn.
-      </p>
-    </div>
-    <div class="flex items-center justify-between gap-6">
-      <div class="space-y-1">
-        <Label for="prompt_cache_layout_v2">Stable prompt layout</Label>
-        <p class="text-sm text-muted-foreground">
-          Experimental rollout for inline agents. Existing conversations remain stored normally.
-        </p>
-      </div>
-      <Switch
-        id="prompt_cache_layout_v2"
-        checked={$form.agent.prompt_cache_layout_v2}
-        disabled={runtimeManaged}
-        onCheckedChange={(checked) => ($form.agent.prompt_cache_layout_v2 = checked)} />
-    </div>
-  </div>
-
-  <div class="space-y-4">
-    <div>
       <h2 class="text-lg font-semibold">Tools & Capabilities</h2>
       {#if runtimeManaged}
         <p class="text-sm text-muted-foreground">

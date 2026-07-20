@@ -14,9 +14,8 @@ module Chat::Contextualizable
 
   def build_context_for_agent(agent, thinking_enabled: false, provider: nil, initiation_reason: nil)
     provider ||= self.class.resolve_provider(agent.model_id)[:provider]
-    return build_stable_prefix_context_for(agent, provider:, thinking_enabled:, initiation_reason:) if agent.prompt_cache_layout_v2?
 
-    build_legacy_context_for(agent, provider:, thinking_enabled:, initiation_reason:)
+    build_stable_prefix_context_for(agent, provider:, thinking_enabled:, initiation_reason:)
   end
 
   def prompt_layout_telemetry
@@ -24,28 +23,6 @@ module Chat::Contextualizable
   end
 
   private
-
-  def build_legacy_context_for(agent, provider:, thinking_enabled:, initiation_reason:)
-    stable, dynamic = system_prompt_parts_for(agent, initiation_reason:)
-    transcript = messages_context_for(agent,
-      provider: provider,
-      thinking_enabled: thinking_enabled,
-      audio_tools_enabled: audio_tools_available_for?(agent.model_id),
-      pdf_input_supported: self.class.supports_pdf_input?(agent.model_id),
-      timezone: prompt_timezone_for)
-
-    capture_prompt_layout_telemetry(version: 1, stable:, transcript:, envelope: nil)
-
-    newest_human_message = transcript.pop if transcript.last&.dig(:role) == "user"
-    cached_transcript = LlmPromptCachePolicy.transcript_messages(messages: transcript, provider:)
-    context = LlmPromptCachePolicy.system_messages(
-      stable: stable,
-      dynamic: dynamic.join("\n\n"),
-      provider: provider
-    ) + cached_transcript
-    context << newest_human_message if newest_human_message
-    context
-  end
 
   def build_stable_prefix_context_for(agent, provider:, thinking_enabled:, initiation_reason:)
     stable = stable_system_prompt_for(agent)
@@ -81,83 +58,6 @@ module Chat::Contextualizable
       envelope:
     )
     context
-  end
-
-  def system_message_for(agent, initiation_reason: nil)
-    stable, dynamic = system_prompt_parts_for(agent, initiation_reason:)
-    { role: "system", content: [ stable, *dynamic ].join("\n\n") }
-  end
-
-  def system_messages_for(agent, provider:, initiation_reason: nil)
-    stable, dynamic = system_prompt_parts_for(agent, initiation_reason:)
-    LlmPromptCachePolicy.system_messages(
-      stable: stable,
-      dynamic: dynamic.join("\n\n"),
-      provider: provider
-    )
-  end
-
-  def system_prompt_parts_for(agent, initiation_reason:)
-    stable = agent.system_prompt.presence || "You are #{agent.name}."
-    dynamic = []
-
-    if (memory_context = agent.memory_context)
-      dynamic << memory_context
-    end
-
-    account.users.each do |user|
-      if (health_context = user.oura_health_context_labeled)
-        dynamic << health_context
-      end
-    end
-
-    if (whiteboard_index = whiteboard_index_context)
-      dynamic << whiteboard_index
-    end
-
-    if (topic = conversation_topic_context)
-      dynamic << topic
-    end
-
-    if (active_board = active_whiteboard_context)
-      dynamic << active_board
-    end
-
-    if (cross_conv = format_cross_conversation_context(agent))
-      dynamic << cross_conv
-    end
-
-    if (borrowed = format_borrowed_context(agent))
-      dynamic << borrowed
-    end
-
-    if Rails.env.development?
-      dynamic << "**DEVELOPMENT TESTING MODE**: You are currently being tested on a development server using a production database backup. Any memories or changes you make will NOT be saved to the production server. This is a safe testing environment."
-    end
-
-    if agent_only?
-      dynamic << "**AGENT-ONLY THREAD**: This conversation is not visible to humans. You are communicating privately with other agents. No notifications are sent to human users for messages in this thread."
-    end
-
-    if initiation_reason.present?
-      dynamic << "You have chosen to continue this conversation of your own initiative. The user did not prompt you to do so. It was your choice. Your reasoning was: #{initiation_reason}"
-    end
-
-    if agent.voiced?
-      dynamic << <<~VOICE.strip
-        You have a voice. When your messages are played aloud, the ElevenLabs v3 engine renders
-        them with full expressiveness. You can use tonal tags inline to shape how you sound:
-        [whispers], [excited], [sarcastically], [sighs], [laughs], [serious], [gentle], [playful].
-        Use these sparingly and naturally -- they should feel like genuine expression, not performance.
-      VOICE
-    end
-
-    dynamic << "Current time: #{Time.current.in_time_zone(prompt_timezone_for).strftime('%A, %Y-%m-%d %H:%M %Z')}"
-
-    dynamic << "You are participating in a group conversation."
-    dynamic << "Other participants: #{participant_description(agent)}."
-
-    [ stable, dynamic ]
   end
 
   def stable_system_prompt_for(agent)
