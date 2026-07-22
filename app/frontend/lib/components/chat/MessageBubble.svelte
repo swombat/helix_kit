@@ -44,6 +44,19 @@
     if (!colour) return '';
     return `bg-${colour}-100 dark:bg-${colour}-900`;
   }
+
+  function dollars(value) {
+    if (value === null || value === undefined) return null;
+
+    const amount = Number(value);
+    const digits = amount < 0.01 ? 4 : 2;
+    return `≈${new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: digits,
+      maximumFractionDigits: digits,
+    }).format(amount)}`;
+  }
 </script>
 
 {#snippet expressionTag({ token })}
@@ -190,7 +203,14 @@
               <ModerationIndicator scores={message.moderation_scores} />
             {/if}
             {#if isGroupChat && message.author_name}
-              <span class="mr-1">{message.author_name} ·</span>
+              <span>{message.author_name}</span>
+              <span>·</span>
+            {/if}
+            {#if message.interaction_cost?.amount_usd}
+              <span title={`Estimated interaction cost using ${message.interaction_cost.pricing_as_of} prices`}>
+                {dollars(message.interaction_cost.amount_usd)}
+              </span>
+              <span>·</span>
             {/if}
             <span class="group">
               {formatTime(message.created_at)}

@@ -9,9 +9,10 @@ class MessagesController < ApplicationController
   def index
     @messages = @chat.messages_page(before_id: params[:before_id])
     @has_more = @messages.any? && @chat.messages.where("id < ?", @messages.first.id).exists?
+    interaction_costs = InteractionCostsByMessage.new(chat: @chat, messages: @messages).call
 
     render json: {
-      messages: @messages.map { |message| message_json(message) },
+      messages: @messages.map { |message| message_json(message, interaction_costs[message.id]) },
       has_more: @has_more,
       oldest_id: @messages.first&.to_param
     }
@@ -100,8 +101,10 @@ class MessagesController < ApplicationController
     params.require(:message).permit(:content)
   end
 
-  def message_json(message)
-    message.as_json(include_ruby_llm_telemetry: Current.user&.site_admin)
+  def message_json(message, interaction_cost = nil)
+    message.as_json(include_ruby_llm_telemetry: Current.user&.site_admin).tap do |json|
+      json["interaction_cost"] = interaction_cost if interaction_cost
+    end
   end
 
   def require_respondable_chat

@@ -38,7 +38,8 @@ class ChatsController < ApplicationController
     if inertia_prop_requested?(:messages)
       messages = @chat.messages_page
       has_more = messages.any? && @chat.messages.where("id < ?", messages.first.id).exists?
-      props[:messages] = messages.map { |message| message_json(message) }
+      interaction_costs = InteractionCostsByMessage.new(chat: @chat, messages: messages).call
+      props[:messages] = messages.map { |message| message_json(message, interaction_costs[message.id]) }
       props[:has_more_messages] = has_more
       props[:oldest_message_id] = messages.first&.to_param
     end
@@ -183,8 +184,10 @@ class ChatsController < ApplicationController
     end
   end
 
-  def message_json(message)
-    message.as_json(include_ruby_llm_telemetry: Current.user&.site_admin)
+  def message_json(message, interaction_cost = nil)
+    message.as_json(include_ruby_llm_telemetry: Current.user&.site_admin).tap do |json|
+      json["interaction_cost"] = interaction_cost if interaction_cost
+    end
   end
 
   def chat_json_with_whiteboard

@@ -331,12 +331,37 @@ class AgentRuntimeInteraction < ApplicationRecord
       { action: "refresh", prop: "runtime_interactions" }
     )
 
-    return unless chat
+    if chat
+      ActionCable.server.broadcast(
+        "Chat:#{chat.obfuscated_id}",
+        { action: "refresh", prop: "runtime_interactions" }
+      )
+    end
+
+    broadcast_linked_message_refresh if previous_changes.key?("finished_at")
+  end
+
+  def broadcast_linked_message_refresh
+    linked_chat = chat || obvious_wake_response_chat
+    return unless linked_chat
 
     ActionCable.server.broadcast(
-      "Chat:#{chat.obfuscated_id}",
-      { action: "refresh", prop: "runtime_interactions" }
+      "Chat:#{linked_chat.obfuscated_id}",
+      { action: "refresh", prop: "messages" }
     )
+  end
+
+  def obvious_wake_response_chat
+    return unless trigger_kind == "wake" && agent && started_at && finished_at
+
+    messages = Message.joins(:chat)
+      .where(chats: { account_id: agent.account_id })
+      .where(role: "assistant", agent: agent)
+      .where(created_at: started_at..(finished_at + 30.seconds))
+      .limit(2)
+      .to_a
+
+    messages.first.chat if messages.one?
   end
 
   def elapsed_ms

@@ -79,7 +79,7 @@ class AgentRuntimeInteractionTest < ActiveSupport::TestCase
     chat = agent.account.chats.create!(model_id: "openrouter/auto", title: "Runtime log")
 
     assert_broadcasts("Agent:#{agent.obfuscated_id}", 2) do
-      assert_broadcasts("Chat:#{chat.obfuscated_id}", 2) do
+      assert_broadcasts("Chat:#{chat.obfuscated_id}", 3) do
         AgentRuntimeInteraction.record_trigger!(
           agent: agent,
           chat: chat,
@@ -93,6 +93,27 @@ class AgentRuntimeInteractionTest < ActiveSupport::TestCase
           { status: 200, body: { "status" => "ok" } }
         end
       end
+    end
+  end
+
+  test "refreshes the one chat response obviously linked to a completed wake" do
+    agent = agents(:research_assistant)
+    chat = agent.account.chats.create!(model_id: "openrouter/auto", title: "Wake response")
+    started_at = 1.minute.ago
+    chat.messages.create!(
+      role: "assistant",
+      agent: agent,
+      content: "One wake response",
+      created_at: started_at + 10.seconds
+    )
+
+    assert_broadcasts("Chat:#{chat.obfuscated_id}", 1) do
+      AgentRuntimeInteraction.create!(
+        agent: agent,
+        trigger_kind: "wake",
+        started_at: started_at,
+        finished_at: started_at + 20.seconds
+      )
     end
   end
 

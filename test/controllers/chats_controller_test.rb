@@ -102,6 +102,98 @@ class ChatsControllerTest < ActionDispatch::IntegrationTest
     )
   end
 
+  test "show includes estimated interaction cost on an unambiguously linked hosted response" do
+    agent = agents(:research_assistant)
+    started_at = 1.minute.ago
+    message = @chat.messages.create!(
+      role: "assistant",
+      agent: agent,
+      content: "Hosted response",
+      created_at: started_at + 10.seconds
+    )
+    @chat.agent_runtime_interactions.create!(
+      agent: agent,
+      trigger_kind: "conversation",
+      started_at: started_at,
+      finished_at: started_at + 20.seconds,
+      telemetry_schema_version: 1,
+      usage_scope: "trigger",
+      usage_complete: true,
+      provider: "anthropic",
+      model: "claude-sonnet-5",
+      uncached_input_tokens: 1_000,
+      cache_creation_input_tokens: 0,
+      cache_read_input_tokens: 0,
+      output_tokens: 25
+    )
+
+    get account_chat_path(@account, @chat)
+
+    response_message = inertia_shared_props["messages"].find { |row| row["id"] == message.to_param }
+    assert_equal "0.00225", response_message.dig("interaction_cost", "amount_usd")
+  end
+
+  test "show omits interaction cost when one interaction posted several messages" do
+    agent = agents(:research_assistant)
+    started_at = 1.minute.ago
+    messages = [
+      @chat.messages.create!(role: "assistant", agent: agent, content: "First", created_at: started_at + 10.seconds),
+      @chat.messages.create!(role: "assistant", agent: agent, content: "Second", created_at: started_at + 15.seconds)
+    ]
+    @chat.agent_runtime_interactions.create!(
+      agent: agent,
+      trigger_kind: "conversation",
+      started_at: started_at,
+      finished_at: started_at + 20.seconds,
+      telemetry_schema_version: 1,
+      usage_scope: "trigger",
+      usage_complete: true,
+      provider: "anthropic",
+      model: "claude-sonnet-5",
+      uncached_input_tokens: 1_000,
+      cache_creation_input_tokens: 0,
+      cache_read_input_tokens: 0,
+      output_tokens: 25
+    )
+
+    get account_chat_path(@account, @chat)
+
+    response_messages = inertia_shared_props["messages"].select { |row| row["id"].in?(messages.map(&:to_param)) }
+    assert response_messages.none? { |row| row.key?("interaction_cost") }
+  end
+
+  test "show includes estimated interaction cost for a wake with one obvious chat response" do
+    agent = agents(:research_assistant)
+    started_at = 1.minute.ago
+    message = @chat.messages.create!(
+      role: "assistant",
+      agent: agent,
+      content: "A wake response",
+      created_at: started_at + 10.seconds
+    )
+    AgentRuntimeInteraction.create!(
+      agent: agent,
+      chat: nil,
+      trigger_kind: "wake",
+      started_at: started_at,
+      finished_at: started_at + 20.seconds,
+      telemetry_schema_version: 1,
+      usage_scope: "trigger",
+      usage_complete: true,
+      provider: "anthropic",
+      model: "claude-sonnet-5",
+      uncached_input_tokens: 1_000,
+      cache_creation_input_tokens: 0,
+      cache_read_input_tokens: 0,
+      output_tokens: 25
+    )
+
+    get account_chat_path(@account, @chat)
+
+    response_message = inertia_shared_props["messages"].find { |row| row["id"] == message.to_param }
+    assert_equal "0.00225", response_message.dig("interaction_cost", "amount_usd")
+  end
+
   test "show exposes compaction summaries to conversation members without telemetry" do
     @chat.conversation_compactions.create!(
       boundary_message_id: 123,

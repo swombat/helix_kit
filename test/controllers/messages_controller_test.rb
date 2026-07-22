@@ -21,6 +21,37 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
   end
 
+  test "index includes estimated interaction costs for paginated messages" do
+    agent = agents(:research_assistant)
+    started_at = 1.minute.ago
+    message = @chat.messages.create!(
+      role: "assistant",
+      agent: agent,
+      content: "An older hosted response",
+      created_at: started_at + 10.seconds
+    )
+    @chat.agent_runtime_interactions.create!(
+      agent: agent,
+      trigger_kind: "conversation",
+      started_at: started_at,
+      finished_at: started_at + 20.seconds,
+      telemetry_schema_version: 1,
+      usage_scope: "trigger",
+      usage_complete: true,
+      provider: "anthropic",
+      model: "claude-sonnet-5",
+      uncached_input_tokens: 1_000,
+      cache_creation_input_tokens: 0,
+      cache_read_input_tokens: 0,
+      output_tokens: 25
+    )
+
+    get account_chat_messages_path(@account, @chat), as: :json
+
+    response_message = response.parsed_body["messages"].find { |row| row["id"] == message.to_param }
+    assert_equal "0.00225", response_message.dig("interaction_cost", "amount_usd")
+  end
+
   test "should create message and trigger AI response" do
     assert_difference "Message.count" do
       post account_chat_messages_path(@account, @chat), params: {
