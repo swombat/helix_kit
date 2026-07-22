@@ -125,6 +125,29 @@ class AgentsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Wake 25", second_page.first["requested_by"]
   end
 
+  test "edit includes interaction costs grouped by day" do
+    AgentRuntimeInteraction.create!(
+      agent: @agent,
+      trigger_kind: "wake",
+      started_at: Time.zone.local(2026, 7, 22, 12),
+      telemetry_schema_version: 1,
+      usage_scope: "trigger",
+      usage_complete: true,
+      provider: "anthropic",
+      model: "claude-sonnet-5",
+      uncached_input_tokens: 1_000,
+      cache_creation_input_tokens: 0,
+      cache_read_input_tokens: 0,
+      output_tokens: 25
+    )
+
+    get edit_account_agent_path(@account, @agent), params: { tab: "costs" }
+
+    report = inertia_shared_props.fetch("cost_report")
+    assert_equal "0.00225", report["total_amount_usd"]
+    assert_equal "2026-07-22", report.dig("days", 0, "date")
+  end
+
   test "edit does not load docker filesystem diagnostics inline" do
     Agents::FilesystemDump.stub(:new, ->(*) { raise "filesystem dump should be loaded asynchronously" }) do
       Agents::Sandbox.stub(:new, ->(*) { raise "sandbox status should be loaded asynchronously" }) do

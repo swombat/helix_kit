@@ -65,6 +65,7 @@ Rails.application.routes.draw do
     end
 
     resource :agent_initiation, only: :create, module: :accounts
+    resource :costs, only: :show, module: :accounts
 
     resources :chats do
       collection do

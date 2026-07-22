@@ -57,6 +57,7 @@ class AgentsController < ApplicationController
       runtime_interactions: @agent.agent_runtime_interactions.recent.limit(10).map(&:as_debug_json),
       interactions: interactions.map(&:as_cost_json),
       interactions_pagination: pagy_to_hash(interactions_pagy),
+      cost_report: AgentInteractionCostReport.new(agent: @agent).call,
       account: current_account.as_json
     }
   end

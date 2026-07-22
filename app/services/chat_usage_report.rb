@@ -24,7 +24,8 @@ class ChatUsageReport
       complete_rows: rows.count { |row| row[:telemetry_state] == "complete" },
       incomplete_rows: rows.count { |row| row[:telemetry_state] != "complete" },
       instrumentation_complete: rows.any? && rows.all? { |row| row[:telemetry_state] == "complete" },
-      instrumentation_note: instrumentation_note(rows)
+      instrumentation_note: instrumentation_note(rows),
+      estimated_cost: estimated_cost
     }
   end
 
@@ -115,6 +116,30 @@ class ChatUsageReport
 
   def sum_known(rows, field)
     rows.filter_map { |row| row.dig(:tokens, field) }.sum
+  end
+
+  def estimated_cost
+    interactions = chat.agent_runtime_interactions.to_a + linked_wake_interactions
+    estimates = interactions.uniq(&:id).filter_map do |interaction|
+      cost = interaction.estimated_cost
+      cost if cost[:amount_usd]
+    end
+    return if estimates.empty?
+
+    {
+      amount_usd: estimates.sum { |cost| BigDecimal(cost[:amount_usd]) }.to_s("F"),
+      currency: "USD",
+      pricing_as_of: estimates.filter_map { |cost| cost[:pricing_as_of] }.max,
+      interaction_count: estimates.size
+    }
+  end
+
+  def linked_wake_interactions
+    messages = chat.messages.where(role: "assistant").where.not(agent_id: nil)
+    InteractionCostsByMessage.new(chat: chat, messages: messages)
+      .linked_interactions
+      .values
+      .select { |interaction| interaction.trigger_kind == "wake" }
   end
 
   def provider_from(model)

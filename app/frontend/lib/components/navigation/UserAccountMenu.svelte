@@ -16,11 +16,19 @@
     XLogo,
     Plugs,
     Key,
+    CurrencyDollar,
   } from 'phosphor-svelte';
   import * as DropdownMenu from '$lib/components/shadcn/dropdown-menu/index.js';
   import { buttonVariants } from '$lib/components/shadcn/button/index.js';
   import { cn } from '$lib/utils.js';
-  import { editUserPath, editUserPasswordPath, accountPath, newAccountPath, apiKeysPath } from '@/routes';
+  import {
+    editUserPath,
+    editUserPasswordPath,
+    accountPath,
+    accountCostsPath,
+    newAccountPath,
+    apiKeysPath,
+  } from '@/routes';
   import Avatar from '$lib/components/Avatar.svelte';
 
   let {
@@ -117,6 +125,10 @@
         </DropdownMenu.SubContent>
       </DropdownMenu.Sub>
       {#if currentAccount?.id}
+        <DropdownMenu.Item onclick={() => router.visit(accountCostsPath(currentAccount.id))}>
+          <CurrencyDollar class="mr-2 size-4" />
+          <span>Costs</span>
+        </DropdownMenu.Item>
         <DropdownMenu.Item onclick={() => router.visit(accountPath(currentAccount.id))}>
           <Gear class="mr-2 size-4" />
           <span>Account Settings</span>

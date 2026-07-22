@@ -330,6 +330,12 @@ class AgentRuntimeInteraction < ApplicationRecord
       "Agent:#{agent.obfuscated_id}",
       { action: "refresh", prop: "runtime_interactions" }
     )
+    if previous_changes.key?("finished_at")
+      ActionCable.server.broadcast(
+        "Agent:#{agent.obfuscated_id}",
+        { action: "refresh", prop: "cost_report" }
+      )
+    end
 
     if chat
       ActionCable.server.broadcast(
@@ -348,6 +354,10 @@ class AgentRuntimeInteraction < ApplicationRecord
     ActionCable.server.broadcast(
       "Chat:#{linked_chat.obfuscated_id}",
       { action: "refresh", prop: "messages" }
+    )
+    ActionCable.server.broadcast(
+      "Chat:#{linked_chat.obfuscated_id}",
+      { action: "refresh", prop: "cost_breakdown" }
     )
   end
 

@@ -78,8 +78,8 @@ class AgentRuntimeInteractionTest < ActiveSupport::TestCase
     agent = agents(:research_assistant)
     chat = agent.account.chats.create!(model_id: "openrouter/auto", title: "Runtime log")
 
-    assert_broadcasts("Agent:#{agent.obfuscated_id}", 2) do
-      assert_broadcasts("Chat:#{chat.obfuscated_id}", 3) do
+    assert_broadcasts("Agent:#{agent.obfuscated_id}", 3) do
+      assert_broadcasts("Chat:#{chat.obfuscated_id}", 4) do
         AgentRuntimeInteraction.record_trigger!(
           agent: agent,
           chat: chat,
@@ -107,7 +107,7 @@ class AgentRuntimeInteractionTest < ActiveSupport::TestCase
       created_at: started_at + 10.seconds
     )
 
-    assert_broadcasts("Chat:#{chat.obfuscated_id}", 1) do
+    assert_broadcasts("Chat:#{chat.obfuscated_id}", 2) do
       AgentRuntimeInteraction.create!(
         agent: agent,
         trigger_kind: "wake",

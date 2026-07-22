@@ -4,7 +4,16 @@
   import { Input } from '$lib/components/shadcn/input';
   import { Label } from '$lib/components/shadcn/label';
   import { Switch } from '$lib/components/shadcn/switch';
-  import { IdentificationCard, Palette, Cpu, Plug, Notebook, CloudArrowUp, ChartBar } from 'phosphor-svelte';
+  import {
+    IdentificationCard,
+    Palette,
+    Cpu,
+    Plug,
+    Notebook,
+    CloudArrowUp,
+    ChartBar,
+    CurrencyDollar,
+  } from 'phosphor-svelte';
   import {
     accountAgentsPath,
     accountAgentPath,
@@ -28,6 +37,7 @@
   import AgentModelPanel from '$lib/components/agents/AgentModelPanel.svelte';
   import AgentSettingsTabs from '$lib/components/agents/AgentSettingsTabs.svelte';
   import AgentInteractionsPanel from '$lib/components/agents/AgentInteractionsPanel.svelte';
+  import AgentCostsPanel from '$lib/components/agents/AgentCostsPanel.svelte';
 
   let {
     agent,
@@ -48,11 +58,19 @@
     runtime_interactions: runtimeInteractions = [],
     interactions = [],
     interactions_pagination: interactionsPagination = {},
+    cost_report: costReport = {},
     account,
   } = $props();
 
   useSync({
-    [`Agent:${agent.id}`]: ['agent', 'memories', 'runtime_interactions', 'interactions', 'interactions_pagination'],
+    [`Agent:${agent.id}`]: [
+      'agent',
+      'memories',
+      'runtime_interactions',
+      'interactions',
+      'interactions_pagination',
+      'cost_report',
+    ],
   });
 
   let selectedModel = $state(agent.model_id);
@@ -84,11 +102,13 @@
   let diagnosticsLoaded = $state(false);
   let diagnosticsError = $state(null);
   let showFormActions = $derived(
-    !runtimeManaged ||
-      activeTab === 'appearance' ||
-      activeTab === 'model' ||
-      activeTab === 'integrations' ||
-      activeTab === 'hosting'
+    activeTab !== 'interactions' &&
+      activeTab !== 'costs' &&
+      (!runtimeManaged ||
+        activeTab === 'appearance' ||
+        activeTab === 'model' ||
+        activeTab === 'integrations' ||
+        activeTab === 'hosting')
   );
   let filesystemSections = $derived([
     {
@@ -116,6 +136,7 @@
     { id: 'memory', label: 'Memory', icon: Notebook },
     { id: 'hosting', label: 'Hosting', icon: CloudArrowUp },
     { id: 'interactions', label: 'Interactions', icon: ChartBar },
+    { id: 'costs', label: 'Costs', icon: CurrencyDollar },
   ];
 
   let beginPromotePath = $derived(beginPromoteAccountAgentPath(account.id, agent.id));
@@ -983,6 +1004,8 @@
           </div>
         {:else if activeTab === 'interactions'}
           <AgentInteractionsPanel {interactions} pagination={interactionsPagination} {account} {agent} />
+        {:else if activeTab === 'costs'}
+          <AgentCostsPanel report={costReport} />
         {/if}
 
         {#if showFormActions}

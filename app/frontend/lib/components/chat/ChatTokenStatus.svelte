@@ -16,6 +16,17 @@
 
   const detailedCosts = $derived(costBreakdown?.totals);
   const hasDetailedCosts = $derived((costBreakdown?.row_count || 0) > 0);
+
+  function dollars(value) {
+    const amount = Number(value);
+    const digits = amount < 0.01 ? 4 : 2;
+    return `≈${new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: digits,
+      maximumFractionDigits: digits,
+    }).format(amount)}`;
+  }
 </script>
 
 <div class="text-sm text-muted-foreground flex items-center gap-2 flex-wrap">
@@ -35,6 +46,13 @@
       )} output
     {:else}
       {formatTokenCount(costTokens.input)} input · {formatTokenCount(costTokens.output)} output
+    {/if}
+    {#if costBreakdown?.estimated_cost?.amount_usd}
+      ·
+      <span
+        title={`Estimated from ${costBreakdown.estimated_cost.interaction_count} priced interactions using ${costBreakdown.estimated_cost.pricing_as_of} prices`}>
+        Estimated: {dollars(costBreakdown.estimated_cost.amount_usd)}
+      </span>
     {/if}
   </span>
 

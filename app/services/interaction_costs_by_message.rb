@@ -8,6 +8,15 @@ class InteractionCostsByMessage
   end
 
   def call
+    linked_interactions.filter_map do |message_id, interaction|
+      cost = interaction.estimated_cost
+      next unless cost[:amount_usd]
+
+      [ message_id, cost ]
+    end.to_h
+  end
+
+  def linked_interactions
     displayed_messages = messages.select { |message| message.role == "assistant" && message.agent_id.present? }
     return {} if displayed_messages.empty?
 
@@ -25,10 +34,7 @@ class InteractionCostsByMessage
       end
       next unless candidates.one?
 
-      cost = interaction.estimated_cost
-      next unless cost[:amount_usd]
-
-      [ candidates.first.id, cost ]
+      [ candidates.first.id, interaction ]
     end
 
     claims
