@@ -168,6 +168,10 @@ class AgentRuntimeInteraction < ApplicationRecord
     }
   end
 
+  def estimated_cost
+    AgentRuntimeInteractionCost.new(self).call
+  end
+
   def as_debug_json
     {
       id: id,
@@ -217,6 +221,7 @@ class AgentRuntimeInteraction < ApplicationRecord
       reasoning_output_tokens: reasoning_output_tokens,
       provider_request_count: provider_request_count,
       usage_complete: usage_complete,
+      estimated_cost: estimated_cost,
       started_at: started_at&.iso8601,
       finished_at: finished_at&.iso8601,
       duration_ms: duration_ms,
@@ -271,6 +276,7 @@ class AgentRuntimeInteraction < ApplicationRecord
         output_tokens: local_usage? ? output_tokens : nil,
         reasoning_output_tokens: local_usage? ? reasoning_output_tokens : nil
       },
+      estimated_cost: estimated_cost,
       started_at: started_at&.iso8601,
       duration_ms: duration_ms
     }

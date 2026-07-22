@@ -16,6 +16,19 @@
     return value === null || value === undefined ? '—' : new Intl.NumberFormat('en-US').format(value);
   }
 
+  function dollars(value) {
+    if (value === null || value === undefined) return 'Cost unavailable';
+
+    const amount = Number(value);
+    const digits = amount < 0.01 ? 4 : 2;
+    return `≈${new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: digits,
+      maximumFractionDigits: digits,
+    }).format(amount)}`;
+  }
+
   function dateTime(value) {
     return value
       ? new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value))
@@ -51,7 +64,7 @@
     <h2 class="text-xl font-semibold">Interactions</h2>
     <p class="text-sm text-muted-foreground">
       Runtime interactions in reverse chronological order. Token values are shown only when the runtime reported
-      trigger-local instrumentation.
+      trigger-local instrumentation. Costs are estimates using public API prices as of 22 July 2026.
     </p>
   </div>
 
@@ -92,10 +105,13 @@
                 {/if}
               </div>
             </div>
-            <div class="text-xs text-muted-foreground">
-              {interaction.provider_request_count === null || interaction.provider_request_count === undefined
-                ? 'Provider calls unavailable'
-                : `${interaction.provider_request_count} provider call${interaction.provider_request_count === 1 ? '' : 's'}`}
+            <div class="text-right text-xs text-muted-foreground">
+              <div class="font-medium text-foreground">{dollars(interaction.estimated_cost?.amount_usd)}</div>
+              <div>
+                {interaction.provider_request_count === null || interaction.provider_request_count === undefined
+                  ? 'Provider calls unavailable'
+                  : `${interaction.provider_request_count} provider call${interaction.provider_request_count === 1 ? '' : 's'}`}
+              </div>
             </div>
           </div>
 

@@ -89,7 +89,9 @@ class AgentRuntimeUsageReport
       selected_prompt_bytes: sum_known(interactions, :selected_prompt_bytes),
       selected_prompt_unknown_rows: unknown_count(interactions, :selected_prompt_bytes),
       tokens: token_totals(interactions),
-      token_unknown_rows: token_unknown_counts(interactions)
+      token_unknown_rows: token_unknown_counts(interactions),
+      estimated_cost_usd: estimated_cost_total(interactions),
+      estimated_cost_unknown_rows: estimated_cost_unknown_count(interactions)
     }
   end
 
@@ -138,6 +140,8 @@ class AgentRuntimeUsageReport
       selected_prompt_unknown_rows: unknown_count(interactions, :selected_prompt_bytes),
       tokens: token_totals(interactions),
       token_unknown_rows: token_unknown_counts(interactions),
+      estimated_cost_usd: estimated_cost_total(interactions),
+      estimated_cost_unknown_rows: estimated_cost_unknown_count(interactions),
       telemetry_states: telemetry_states,
       telemetry_state: aggregate_telemetry_state(telemetry_states),
       interactions: interactions.map { |row| interaction_json(row) }
@@ -183,7 +187,8 @@ class AgentRuntimeUsageReport
       telemetry_schema_version: interaction.telemetry_schema_version,
       telemetry_state: state,
       telemetry_state_reason: telemetry_state_reason(interaction, state),
-      tokens: TOKEN_FIELDS.to_h { |field| [ field, local_usage_value(interaction, field) ] }
+      tokens: TOKEN_FIELDS.to_h { |field| [ field, local_usage_value(interaction, field) ] },
+      estimated_cost: interaction.estimated_cost
     }
   end
 
@@ -203,6 +208,18 @@ class AgentRuntimeUsageReport
 
   def token_unknown_counts(interactions)
     TOKEN_FIELDS.to_h { |field| [ field, local_usage_unknown_count(interactions, field) ] }
+  end
+
+  def estimated_cost_total(interactions)
+    amounts = interactions.filter_map do |interaction|
+      cost = interaction.estimated_cost
+      BigDecimal(cost[:amount_usd]) if cost[:amount_usd]
+    end
+    amounts.sum.to_s("F") if amounts.any?
+  end
+
+  def estimated_cost_unknown_count(interactions)
+    interactions.count { |interaction| interaction.estimated_cost[:amount_usd].nil? }
   end
 
   def grouped_counts(interactions, field)

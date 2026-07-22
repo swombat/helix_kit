@@ -59,6 +59,8 @@ class AgentRuntimeInteractionTest < ActiveSupport::TestCase
       session_outcome: "resumed",
       prompt_mode: "delta",
       cache_read_input_tokens: 400,
+      cache_creation_input_tokens: 0,
+      uncached_input_tokens: 0,
       output_tokens: 20
     )
 
@@ -68,6 +70,8 @@ class AgentRuntimeInteractionTest < ActiveSupport::TestCase
     assert_equal "Cost context", json[:chat_title]
     assert_equal "Conversation · Resumed · delta prompt", json[:summary]
     assert_equal 400, json.dig(:tokens, :cache_read_input_tokens)
+    assert_equal "estimated", json.dig(:estimated_cost, :status)
+    assert_equal "0.0014", json.dig(:estimated_cost, :amount_usd)
   end
 
   test "broadcasts agent runtime interactions refresh when recorded" do

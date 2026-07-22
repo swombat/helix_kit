@@ -43,6 +43,8 @@ class AgentRuntimeUsageReportTest < ActiveSupport::TestCase
     assert_equal 4, report.dig(:summary, :provider_requests)
     assert_equal 920, report.dig(:summary, :tokens, :cache_creation_input_tokens)
     assert_equal 970, report.dig(:summary, :tokens, :cache_read_input_tokens)
+    assert_equal "0.00043175", report.dig(:summary, :estimated_cost_usd)
+    assert_equal 0, report.dig(:summary, :estimated_cost_unknown_rows)
     assert_equal({ "conversation" => 2 }, report.dig(:groups, :trigger_kinds))
     assert_equal({ "fresh" => 1, "rolled" => 1 }, report.dig(:groups, :session_outcomes))
 
@@ -317,7 +319,9 @@ class AgentRuntimeUsageReportTest < ActiveSupport::TestCase
         started_at: @from,
         telemetry_schema_version: 1,
         usage_scope: "invocation",
-        usage_complete: true
+        usage_complete: true,
+        provider: "openai",
+        model: "gpt-5-mini"
       }.merge(attributes)
     )
   end
