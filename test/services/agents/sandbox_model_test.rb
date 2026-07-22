@@ -33,6 +33,14 @@ module Agents
       assert_equal "openrouter/auto", Agents::Sandbox.chaos_model_for(agent)
     end
 
+    test "maps OpenRouter xAI prefix to Chaos provider id" do
+      agent = agents(:research_assistant)
+      agent.model_id = "x-ai/grok-4.5"
+
+      assert_equal "xai", Agents::Sandbox.chaos_provider_for(agent)
+      assert_equal "grok-4.5", Agents::Sandbox.chaos_model_for(agent)
+    end
+
     test "status reports stale image explicitly" do
       agent = agents(:research_assistant)
       agent.update!(

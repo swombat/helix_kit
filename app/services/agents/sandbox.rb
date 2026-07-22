@@ -6,6 +6,9 @@ module Agents
     class SandboxError < StandardError; end
 
     REPO_PATH = "/home/agent/repo"
+    CHAOS_PROVIDER_IDS = {
+      "x-ai" => "xai"
+    }.freeze
 
     attr_reader :agent
 
@@ -324,7 +327,8 @@ module Agents
     end
 
     def self.chaos_provider_for(agent)
-      agent.model_id.to_s.split("/").first.presence || "anthropic"
+      provider = agent.model_id.to_s.split("/").first.presence || "anthropic"
+      CHAOS_PROVIDER_IDS.fetch(provider, provider)
     end
 
     def self.chaos_model_for(agent)
