@@ -14,6 +14,17 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
     assert_includes dockerfile, "COPY --from=builder /usr/local/bin/chaos_journald /usr/local/bin/chaos_journald"
   end
 
+  test "runtime config installs RubyLLM providers not bundled by Chaos" do
+    entrypoint = Rails.root.join("agent-runtime/entrypoint.sh").read
+
+    Agents::Sandbox::CHAOS_RUNTIME_PROVIDER_IDS.each do |provider|
+      assert_includes entrypoint, "[model_providers.#{provider}]"
+    end
+
+    assert_includes entrypoint, "https://generativelanguage.googleapis.com/v1beta/openai"
+    assert_includes entrypoint, "https://openrouter.ai/api/v1"
+  end
+
   test "parse_events keeps old cumulative usage explicitly legacy" do
     out = run_shim_python(<<~PY)
       events = "\\n".join([

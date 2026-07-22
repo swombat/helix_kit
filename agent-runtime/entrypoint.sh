@@ -26,6 +26,34 @@ mkdir -p "$AGENT_HOME/identity/automation" \
          "$AGENT_HOME/identity/memory/automation/state" \
          "$AGENT_HOME/.chaos" \
          "$AGENT_REPO_PATH/.chaos"
+
+# Chaos bundles Anthropic, OpenAI, and xAI providers. Hosted agents also need
+# the two providers RubyLLM may select that are not bundled by Chaos itself.
+# Append only missing sections so persisted/user-managed settings win.
+CHAOS_CONFIG="$AGENT_HOME/.chaos/config.toml"
+touch "$CHAOS_CONFIG"
+if ! grep -q '^\[model_providers\.gemini\]' "$CHAOS_CONFIG"; then
+    cat >> "$CHAOS_CONFIG" <<'GEMINI_PROVIDER'
+
+[model_providers.gemini]
+name = "Gemini"
+base_url = "https://generativelanguage.googleapis.com/v1beta/openai"
+env_key = "GEMINI_API_KEY"
+wire_api = "chat_completions"
+GEMINI_PROVIDER
+fi
+if ! grep -q '^\[model_providers\.openrouter\]' "$CHAOS_CONFIG"; then
+    cat >> "$CHAOS_CONFIG" <<'OPENROUTER_PROVIDER'
+
+[model_providers.openrouter]
+name = "OpenRouter"
+base_url = "https://openrouter.ai/api/v1"
+env_key = "OPENROUTER_API_KEY"
+wire_api = "chat_completions"
+OPENROUTER_PROVIDER
+fi
+chown 1000:1000 "$CHAOS_CONFIG" || true
+
 # Platform-managed helper: refresh on every boot so runtime improvements reach
 # existing hosted agents. The journal files it invites are agent-owned; the hook
 # script itself is runtime infrastructure.

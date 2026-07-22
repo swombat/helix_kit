@@ -6,8 +6,17 @@ module Agents
     class SandboxError < StandardError; end
 
     REPO_PATH = "/home/agent/repo"
+    CHAOS_BUILT_IN_PROVIDER_IDS = %w[anthropic openai xai].freeze
+    CHAOS_RUNTIME_PROVIDER_IDS = %w[gemini openrouter].freeze
+    SUPPORTED_CHAOS_PROVIDER_IDS = (
+      CHAOS_BUILT_IN_PROVIDER_IDS + CHAOS_RUNTIME_PROVIDER_IDS
+    ).freeze
     CHAOS_PROVIDER_IDS = {
-      "x-ai" => "xai"
+      anthropic: "anthropic",
+      openai: "openai",
+      gemini: "gemini",
+      xai: "xai",
+      openrouter: "openrouter"
     }.freeze
 
     attr_reader :agent
@@ -327,18 +336,19 @@ module Agents
     end
 
     def self.chaos_provider_for(agent)
-      provider = agent.model_id.to_s.split("/").first.presence || "anthropic"
-      CHAOS_PROVIDER_IDS.fetch(provider, provider)
+      chaos_selection_for(agent).fetch(:provider)
     end
 
     def self.chaos_model_for(agent)
-      model_id = agent.model_id.to_s
-      model_config = Chat::MODELS.find { |model| model[:model_id] == model_id }
-      return model_config[:provider_model_id] if model_config&.dig(:provider_model_id).present?
+      chaos_selection_for(agent).fetch(:model)
+    end
 
-      provider, model = model_id.split("/", 2)
-      return model_id if model.blank?
-      provider == "openrouter" ? model_id : model
+    def self.chaos_selection_for(agent)
+      selection = ResolvesProvider.resolve_provider(agent.model_id.to_s)
+      {
+        provider: CHAOS_PROVIDER_IDS.fetch(selection.fetch(:provider)),
+        model: selection.fetch(:model_id)
+      }
     end
 
     def agent_model

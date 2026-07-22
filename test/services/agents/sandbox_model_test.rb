@@ -7,22 +7,29 @@ module Agents
       agent = agents(:research_assistant)
       agent.model_id = "anthropic/claude-opus-4.7"
 
-      assert_equal "anthropic", Agents::Sandbox.chaos_provider_for(agent)
-      assert_equal "claude-opus-4-7", Agents::Sandbox.chaos_model_for(agent)
+      ResolvesProvider.stub :api_key_available?, true do
+        assert_equal "anthropic", Agents::Sandbox.chaos_provider_for(agent)
+        assert_equal "claude-opus-4-7", Agents::Sandbox.chaos_model_for(agent)
+      end
     end
 
     test "maps Claude Opus 4.8 to direct provider id" do
       agent = agents(:research_assistant)
       agent.model_id = "anthropic/claude-opus-4.8"
 
-      assert_equal "claude-opus-4-8", Agents::Sandbox.chaos_model_for(agent)
+      ResolvesProvider.stub :api_key_available?, true do
+        assert_equal "claude-opus-4-8", Agents::Sandbox.chaos_model_for(agent)
+      end
     end
 
-    test "falls back to provider suffix for direct provider models" do
+    test "keeps models without a direct provider mapping on OpenRouter" do
       agent = agents(:research_assistant)
       agent.model_id = "anthropic/claude-sonnet-4-5"
 
-      assert_equal "claude-sonnet-4-5", Agents::Sandbox.chaos_model_for(agent)
+      ResolvesProvider.stub :api_key_available?, true do
+        assert_equal "openrouter", Agents::Sandbox.chaos_provider_for(agent)
+        assert_equal "anthropic/claude-sonnet-4-5", Agents::Sandbox.chaos_model_for(agent)
+      end
     end
 
     test "keeps openrouter model id intact" do
@@ -37,8 +44,61 @@ module Agents
       agent = agents(:research_assistant)
       agent.model_id = "x-ai/grok-4.5"
 
-      assert_equal "xai", Agents::Sandbox.chaos_provider_for(agent)
-      assert_equal "grok-4.5", Agents::Sandbox.chaos_model_for(agent)
+      ResolvesProvider.stub :api_key_available?, true do
+        assert_equal "xai", Agents::Sandbox.chaos_provider_for(agent)
+        assert_equal "grok-4.5", Agents::Sandbox.chaos_model_for(agent)
+      end
+    end
+
+    test "maps RubyLLM Gemini provider to Chaos provider id" do
+      agent = agents(:research_assistant)
+      agent.model_id = "google/gemini-3.1-pro-preview"
+
+      ResolvesProvider.stub :api_key_available?, true do
+        assert_equal "gemini", Agents::Sandbox.chaos_provider_for(agent)
+        assert_equal "gemini-3.1-pro-preview", Agents::Sandbox.chaos_model_for(agent)
+      end
+    end
+
+    test "every selectable RubyLLM model maps to a configured Chaos provider and model" do
+      agent = agents(:research_assistant)
+
+      ResolvesProvider.stub :api_key_available?, true do
+        Chat::MODELS.map { |model| model.fetch(:model_id) }.uniq.each do |model_id|
+          agent.model_id = model_id
+          ruby_llm_selection = ResolvesProvider.resolve_provider(model_id)
+          chaos_selection = Agents::Sandbox.chaos_selection_for(agent)
+
+          assert_equal(
+            ruby_llm_selection.fetch(:provider).to_s,
+            chaos_selection.fetch(:provider),
+            "provider mapping differs for #{model_id}"
+          )
+          assert_equal(
+            ruby_llm_selection.fetch(:model_id),
+            chaos_selection.fetch(:model),
+            "model mapping differs for #{model_id}"
+          )
+          assert_includes(
+            Agents::Sandbox::SUPPORTED_CHAOS_PROVIDER_IDS,
+            chaos_selection.fetch(:provider),
+            "Chaos provider is not configured for #{model_id}"
+          )
+        end
+      end
+    end
+
+    test "every selectable model falls back intact through OpenRouter" do
+      agent = agents(:research_assistant)
+
+      ResolvesProvider.stub :api_key_available?, false do
+        Chat::MODELS.map { |model| model.fetch(:model_id) }.uniq.each do |model_id|
+          agent.model_id = model_id
+
+          assert_equal "openrouter", Agents::Sandbox.chaos_provider_for(agent), model_id
+          assert_equal model_id, Agents::Sandbox.chaos_model_for(agent), model_id
+        end
+      end
     end
 
     test "status reports stale image explicitly" do
