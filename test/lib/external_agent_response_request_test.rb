@@ -63,6 +63,30 @@ class ExternalAgentResponseRequestTest < ActiveSupport::TestCase
     refute_includes text, "The default for this trigger is that you post a reply"
   end
 
+  test "trigger transcript exposes authenticated attachment download paths" do
+    agent = agents(:research_assistant)
+    chat = agent.account.chats.create!(model_id: "openrouter/auto", title: "Attached document")
+    message = chat.messages.create!(role: "user", content: "Please read the attached draft")
+    message.attachments.attach(
+      io: file_fixture("test_document.pdf").open,
+      filename: "draft.pdf",
+      content_type: "application/pdf"
+    )
+
+    text = ExternalAgentResponseRequest.new(agent: agent, chat: chat).send(:request_text)
+    attachment = message.attachments_attachments.first
+
+    assert_includes text, "Attachments (fetch with"
+    assert_includes text, "filename: draft.pdf"
+    assert_includes text, "content_type: application/pdf"
+    assert_includes text, Rails.application.routes.url_helpers.api_v1_conversation_message_attachment_path(
+      chat,
+      message,
+      attachment
+    )
+    assert_includes text, "HELIXKIT_BEARER_TOKEN"
+  end
+
   test "records runtime stdout and stderr when triggering external agent" do
     agent = agents(:research_assistant)
     chat = agent.account.chats.create!(model_id: "openrouter/auto", title: "External prompt")

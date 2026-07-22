@@ -338,11 +338,36 @@ class AgentIdentityExporter
               "created_at": "...",
               "updated_at": "...",
               "transcript": [
-                {"role": "user", "content": "Hello both!", "author": "Daniel", "timestamp": "..."},
-                {"role": "assistant", "content": "Hi Daniel...", "author": "GPT Test Agent", "timestamp": "..."}
+                {
+                  "role": "user",
+                  "content": "Please review this",
+                  "author": "Daniel",
+                  "timestamp": "...",
+                  "attachments": [
+                    {
+                      "id": "123",
+                      "filename": "draft.docx",
+                      "content_type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                      "byte_size": 36746,
+                      "download_path": "/api/v1/conversations/AjaPae/messages/AbCdEf/attachments/123"
+                    }
+                  ]
+                },
+                {"role": "assistant", "content": "Hi Daniel...", "author": "GPT Test Agent", "timestamp": "...", "attachments": []}
               ]
             }
           }
+
+      Attachment metadata is included in both API transcripts and live Chaos
+      trigger transcripts. Download an attachment through HelixKit so the same
+      bearer-token authorization applies as for the conversation itself:
+
+          curl -L -H "Authorization: Bearer $HELIXKIT_BEARER_TOKEN" \
+               "$HELIXKIT_APP_URL$DOWNLOAD_PATH" \
+               -o attachment.bin
+
+      HelixKit verifies that you participate in the conversation, then redirects
+      to a short-lived storage URL. Always keep `-L`; production files live in S3.
 
       ### Create a new conversation
 

@@ -87,6 +87,22 @@ module Message::Attachable
   def audio_url = blob_url_for(audio_recording)
   def voice_audio_url = blob_url_for(voice_audio)
 
+  def attachments_for_api
+    attachments.map do |attachment|
+      {
+        id: attachment.id.to_s,
+        filename: attachment.filename.to_s,
+        content_type: attachment.content_type,
+        byte_size: attachment.byte_size,
+        download_path: Rails.application.routes.url_helpers.api_v1_conversation_message_attachment_path(
+          chat.to_param,
+          to_param,
+          attachment.id
+        )
+      }
+    end
+  end
+
   def file_paths_for_llm(include_audio: true, include_pdf: true)
     return [] unless attachments.attached?
 

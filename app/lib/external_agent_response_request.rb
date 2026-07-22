@@ -158,11 +158,30 @@ class ExternalAgentResponseRequest
       message.role
     end
 
-    "#{speaker}: #{message.content.to_s.strip}"
+    line = "#{speaker}: #{message.content.to_s.strip}"
+    return line unless message.attachments.attached?
+
+    attachments = message.attachments_for_api.map do |attachment|
+      <<~ATTACHMENT.strip
+        - filename: #{attachment.fetch(:filename)}
+          content_type: #{attachment.fetch(:content_type)}
+          byte_size: #{attachment.fetch(:byte_size)}
+          authenticated_download_path: #{attachment.fetch(:download_path)}
+      ATTACHMENT
+    end
+
+    <<~TEXT.strip
+      #{line}
+      Attachments (fetch with `curl -L -H "Authorization: Bearer $HELIXKIT_BEARER_TOKEN" "$HELIXKIT_APP_URL<authenticated_download_path>"`):
+      #{attachments.join("\n")}
+    TEXT
   end
 
   def full_window_messages
-    @full_window_messages ||= chat.messages.order(:created_at).last(30)
+    @full_window_messages ||= chat.messages
+      .includes(:user, :agent, attachments_attachments: :blob)
+      .order(:created_at)
+      .last(30)
   end
 
   # The most recent successful persistent-session trigger for this agent+chat.
@@ -186,7 +205,11 @@ class ExternalAgentResponseRequest
     return @delta_messages if defined?(@delta_messages)
 
     @delta_messages = if prior_cursor_message_id
-      chat.messages.where("id > ?", prior_cursor_message_id).order(:id).to_a
+      chat.messages
+        .includes(:user, :agent, attachments_attachments: :blob)
+        .where("id > ?", prior_cursor_message_id)
+        .order(:id)
+        .to_a
     else
       []
     end

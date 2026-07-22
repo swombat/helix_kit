@@ -148,7 +148,9 @@ Rails.application.routes.draw do
       post "agents/:uuid/announce", to: "agents#announce", as: :agent_announce
       get "agents/:uuid/health", to: "agents#health", as: :agent_health
       resources :conversations, only: [ :index, :show, :create ] do
-        resources :messages, only: :create
+        resources :messages, only: :create do
+          resources :attachments, only: :show
+        end
         resource :agent_trigger, only: :create
         resources :participants, only: :create
       end

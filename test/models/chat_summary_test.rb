@@ -74,6 +74,29 @@ class ChatSummaryTest < ActiveSupport::TestCase
     assert_equal "Test Agent", transcript.first[:author]
   end
 
+  test "transcript_for_api includes authenticated attachment metadata" do
+    message = @chat.messages.create!(content: "Please review this", role: "user", user: @user)
+    message.attachments.attach(
+      io: file_fixture("test_document.pdf").open,
+      filename: "draft.pdf",
+      content_type: "application/pdf"
+    )
+
+    attachment = @chat.transcript_for_api.first.fetch(:attachments).first
+
+    assert_equal "draft.pdf", attachment.fetch(:filename)
+    assert_equal "application/pdf", attachment.fetch(:content_type)
+    assert_equal message.attachments.first.byte_size, attachment.fetch(:byte_size)
+    assert_equal(
+      Rails.application.routes.url_helpers.api_v1_conversation_message_attachment_path(
+        @chat,
+        message,
+        message.attachments_attachments.first
+      ),
+      attachment.fetch(:download_path)
+    )
+  end
+
   test "summary is included in json_attributes" do
     @chat.update!(summary: "Test summary")
     json = @chat.as_json
