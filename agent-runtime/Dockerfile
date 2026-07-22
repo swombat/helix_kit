@@ -22,10 +22,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         git \
     && rm -rf /var/lib/apt/lists/*
 
-# Runtime observability and Anthropic prompt caching are now merged upstream,
-# so hosted images follow the canonical Chaos branch again.
+# Pin the merged Gemini thought-signature fix so hosted runtime rebuilds are
+# reproducible and do not depend on Docker noticing movement of a branch ref.
 ARG CHAOS_REPO=https://github.com/seuros/chaos.git
-ARG CHAOS_REF=master
+ARG CHAOS_REF=650056732f2212c65779b99e9e032389f0c12ba9
 
 WORKDIR /build
 RUN git clone --filter=blob:none ${CHAOS_REPO} chaos \
