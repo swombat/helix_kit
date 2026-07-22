@@ -5,6 +5,7 @@ class ChatFlowTest < ActionDispatch::IntegrationTest
   setup do
     @user = users(:user_1)
     @account = accounts(:personal_account)
+    @agent = agents(:research_assistant)
 
     # Sign in user
     post login_path, params: {
@@ -22,10 +23,10 @@ class ChatFlowTest < ActionDispatch::IntegrationTest
     # Create a new chat with initial message
     assert_difference "Chat.count" do
       assert_difference "Message.count" do
-        assert_enqueued_with(job: AiResponseJob) do
+        assert_no_enqueued_jobs only: AiResponseJob do
           post account_chats_path(@account), params: {
-            chat: { model_id: "openai/gpt-4o-mini" },
-            message: "Hello, I need help with coding"
+            message: "Hello, I need help with coding",
+            agent_ids: [ @agent.to_param ]
           }
         end
       end
@@ -34,10 +35,12 @@ class ChatFlowTest < ActionDispatch::IntegrationTest
     chat = Chat.last
     user_message = chat.messages.last
 
-    assert_equal "openai/gpt-4o-mini", chat.model_id
+    assert_equal "openrouter/auto", chat.model_id
     assert_equal "Hello, I need help with coding", user_message.content
     assert_equal "user", user_message.role
     assert_equal @user, user_message.user
+    assert chat.manual_responses?
+    assert_equal [ @agent ], chat.agents
 
     # Should redirect to chat page
     assert_redirected_to account_chat_path(@account, chat)
@@ -50,7 +53,7 @@ class ChatFlowTest < ActionDispatch::IntegrationTest
 
     # Add another message to the conversation
     assert_difference "Message.count" do
-      assert_enqueued_with(job: AiResponseJob) do
+      assert_no_enqueued_jobs only: AiResponseJob do
         post account_chat_messages_path(@account, chat), params: {
           message: { content: "Specifically about Ruby on Rails" }
         }

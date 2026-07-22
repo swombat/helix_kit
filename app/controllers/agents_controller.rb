@@ -12,6 +12,7 @@ class AgentsController < ApplicationController
       available_tools: tools_for_frontend,
       colour_options: Agent::VALID_COLOURS,
       icon_options: Agent::VALID_ICONS,
+      create_agent: params[:create].present?,
       account: current_account.as_json
     }
   end

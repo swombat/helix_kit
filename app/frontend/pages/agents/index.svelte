@@ -20,6 +20,7 @@
     available_tools = [],
     colour_options = [],
     icon_options = [],
+    create_agent = false,
     account,
   } = $props();
 
@@ -31,7 +32,7 @@
     [`Account:${account.id}`]: 'agents',
   });
 
-  let showCreateModal = $state(false);
+  let showCreateModal = $state(create_agent);
   let selectedModel = $state(firstModelId(grouped_models));
 
   // Upgrade-with-predecessor modal state.

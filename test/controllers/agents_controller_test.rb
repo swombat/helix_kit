@@ -23,6 +23,13 @@ class AgentsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "index can open the agent creation dialog" do
+    get account_agents_path(@account, create: true)
+
+    assert_response :success
+    assert_equal true, inertia_shared_props.fetch("create_agent")
+  end
+
   test "should create agent" do
     assert_difference "Agent.count" do
       post account_agents_path(@account), params: {

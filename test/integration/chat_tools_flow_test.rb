@@ -5,6 +5,7 @@ class ChatToolsFlowTest < ActionDispatch::IntegrationTest
   setup do
     @user = users(:user_1)
     @account = accounts(:personal_account)
+    @agent = agents(:research_assistant)
 
     # Sign in user
     post login_path, params: {
@@ -14,17 +15,17 @@ class ChatToolsFlowTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
   end
 
-  test "complete chat flow with web access enabled" do
-    # Create a chat with web access enabled
+  test "agent chat creation ignores model-chat web access" do
     assert_difference "Chat.count" do
       post account_chats_path(@account), params: {
-        chat: { model_id: "openai/gpt-4o-mini", web_access: true }
+        chat: { model_id: "openai/gpt-4o-mini", web_access: true },
+        agent_ids: [ @agent.to_param ]
       }
     end
 
     chat = Chat.last
-    assert chat.web_access, "Chat should have web access enabled"
-    assert_includes chat.available_tools, WebTool, "WebTool should be available"
+    assert_not chat.web_access
+    assert_empty chat.available_tools
 
     # Navigate to the chat
     get account_chat_path(@account, chat)
@@ -32,7 +33,7 @@ class ChatToolsFlowTest < ActionDispatch::IntegrationTest
 
     # Send a message that would benefit from web access
     assert_difference "Message.count" do
-      assert_enqueued_with(job: AiResponseJob) do
+      assert_no_enqueued_jobs only: AiResponseJob do
         post account_chat_messages_path(@account, chat), params: {
           message: { content: "What's the latest news about Ruby on Rails?" }
         }
@@ -49,7 +50,7 @@ class ChatToolsFlowTest < ActionDispatch::IntegrationTest
     # Create chat without specifying web_access
     assert_difference "Chat.count" do
       post account_chats_path(@account), params: {
-        chat: { model_id: "openai/gpt-4o-mini" }
+        agent_ids: [ @agent.to_param ]
       }
     end
 
@@ -132,14 +133,14 @@ class ChatToolsFlowTest < ActionDispatch::IntegrationTest
     assert_equal [ "Web fetch" ], message_json["tools_used"]
   end
 
-  test "complete flow from chat creation to message with tools" do
-    # Create chat with web access enabled
+  test "complete flow from agent chat creation to another message" do
     assert_difference "Chat.count" do
       assert_difference "Message.count" do
-        assert_enqueued_with(job: AiResponseJob) do
+        assert_no_enqueued_jobs only: AiResponseJob do
           post account_chats_path(@account), params: {
             chat: { model_id: "openai/gpt-4o-mini", web_access: true },
-            message: "Search for information about Ruby 3.4"
+            message: "Search for information about Ruby 3.4",
+            agent_ids: [ @agent.to_param ]
           }
         end
       end
@@ -148,9 +149,8 @@ class ChatToolsFlowTest < ActionDispatch::IntegrationTest
     chat = Chat.last
     user_message = chat.messages.last
 
-    # Verify chat has web access enabled
-    assert chat.web_access
-    assert_includes chat.available_tools, WebTool
+    assert_not chat.web_access
+    assert_empty chat.available_tools
 
     # Verify user message was created correctly
     assert_equal "Search for information about Ruby 3.4", user_message.content
@@ -163,17 +163,17 @@ class ChatToolsFlowTest < ActionDispatch::IntegrationTest
 
     # Add another message
     assert_difference "Message.count" do
-      assert_enqueued_with(job: AiResponseJob) do
+      assert_no_enqueued_jobs only: AiResponseJob do
         post account_chat_messages_path(@account, chat), params: {
           message: { content: "What are the new features?" }
         }
       end
     end
 
-    # Verify the chat still has web access for subsequent messages
+    # Agent chats remain manual-response conversations for subsequent messages.
     chat.reload
-    assert chat.web_access
-    assert_includes chat.available_tools, WebTool
+    assert chat.manual_responses?
+    assert_equal [ @agent ], chat.agents
   end
 
   test "web access setting persists across page views" do

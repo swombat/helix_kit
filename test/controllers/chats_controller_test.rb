@@ -28,6 +28,24 @@ class ChatsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "index redirects to agent creation when no active agents exist" do
+    @account.agents.update_all(active: false)
+
+    get account_chats_path(@account)
+
+    assert_redirected_to account_agents_path(@account, create: true)
+    assert_equal "Create an agent before starting a conversation", flash[:alert]
+  end
+
+  test "new redirects to agent creation when no active agents exist" do
+    @account.agents.update_all(active: false)
+
+    get new_account_chat_path(@account)
+
+    assert_redirected_to account_agents_path(@account, create: true)
+    assert_equal "Create an agent before starting a conversation", flash[:alert]
+  end
+
   test "should show chat" do
     get account_chat_path(@account, @chat)
     assert_response :success
@@ -243,26 +261,57 @@ class ChatsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 200, telemetry["cache_write_tokens"]
   end
 
-  test "should create chat with default model" do
+  test "should create chat with agents" do
+    agent = agents(:research_assistant)
+
     assert_difference "Chat.count" do
-      post account_chats_path(@account)
+      post account_chats_path(@account), params: { agent_ids: [ agent.to_param ] }
     end
 
     chat = Chat.last
     assert_equal "openrouter/auto", chat.model_id
     assert_equal @account, chat.account
+    assert chat.manual_responses?
+    assert_equal [ agent ], chat.agents
     assert_redirected_to account_chat_path(@account, chat)
   end
 
-  test "should create chat with custom model" do
-    assert_difference "Chat.count" do
-      post account_chats_path(@account), params: {
-        chat: { model_id: "gpt-4o" }
-      }
-    end
+  test "should ignore model chat attributes when creating a chat" do
+    agent = agents(:research_assistant)
+
+    post account_chats_path(@account), params: {
+      chat: {
+        model_id: "gpt-4o",
+        web_access: true,
+        manual_responses: false
+      },
+      agent_ids: [ agent.to_param ]
+    }
 
     chat = Chat.last
-    assert_equal "gpt-4o", chat.model_id
+    assert_equal "openrouter/auto", chat.model_id
+    assert_not chat.web_access?
+    assert chat.manual_responses?
+  end
+
+  test "should not create chat without agents" do
+    assert_no_difference "Chat.count" do
+      post account_chats_path(@account)
+    end
+
+    assert_redirected_to new_account_chat_path(@account)
+    assert_equal "Select at least one agent", flash[:alert]
+  end
+
+  test "should not create chat with an agent from another account" do
+    other_agent = agents(:other_account_agent)
+
+    assert_no_difference "Chat.count" do
+      post account_chats_path(@account), params: { agent_ids: [ other_agent.to_param ] }
+    end
+
+    assert_redirected_to new_account_chat_path(@account)
+    assert_equal "Select valid agents from this account", flash[:alert]
   end
 
   test "should destroy chat" do
@@ -309,13 +358,15 @@ class ChatsControllerTest < ActionDispatch::IntegrationTest
     assert_response :redirect
   end
 
-  test "should create chat with message and trigger AI response" do
+  test "should create agent chat with message without triggering plain AI response" do
+    agent = agents(:research_assistant)
+
     assert_difference "Chat.count" do
       assert_difference "Message.count" do
-        assert_enqueued_with(job: AiResponseJob) do
+        assert_no_enqueued_jobs only: AiResponseJob do
           post account_chats_path(@account), params: {
-            chat: { model_id: "gpt-4o" },
-            message: "Hello AI"
+            message: "Hello agent",
+            agent_ids: [ agent.to_param ]
           }
         end
       end
@@ -323,22 +374,24 @@ class ChatsControllerTest < ActionDispatch::IntegrationTest
 
     chat = Chat.last
     message = chat.messages.last
-    assert_equal "Hello AI", message.content
+    assert_equal "Hello agent", message.content
     assert_equal "user", message.role
     assert_equal @user, message.user
+    assert_equal [ agent ], chat.agents
     assert_redirected_to account_chat_path(@account, chat)
   end
 
   test "should create chat with file attachments" do
+    agent = agents(:research_assistant)
     file = fixture_file_upload("test_image.png", "image/png")
 
     assert_difference "Chat.count" do
       assert_difference "Message.count" do
-        assert_enqueued_with(job: AiResponseJob) do
+        assert_no_enqueued_jobs only: AiResponseJob do
           post account_chats_path(@account), params: {
-            chat: { model_id: "gpt-4o" },
             message: "Please analyze this image",
-            files: [ file ]
+            files: [ file ],
+            agent_ids: [ agent.to_param ]
           }
         end
       end
@@ -359,15 +412,16 @@ class ChatsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should create chat with only files and no message content" do
+    agent = agents(:research_assistant)
     file = fixture_file_upload("test_image.png", "image/png")
 
     assert_difference "Chat.count" do
       assert_difference "Message.count" do
-        assert_enqueued_with(job: AiResponseJob) do
+        assert_no_enqueued_jobs only: AiResponseJob do
           post account_chats_path(@account), params: {
-            chat: { model_id: "gpt-4o" },
             message: "", # Empty message content
-            files: [ file ]
+            files: [ file ],
+            agent_ids: [ agent.to_param ]
           }
         end
       end
@@ -437,15 +491,16 @@ class ChatsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should create chat with file uploads" do
+    agent = agents(:research_assistant)
     # Create a test file
     file = fixture_file_upload("test.txt", "text/plain")
 
     assert_difference "Chat.count" do
       assert_difference "Message.count" do
         post account_chats_path(@account), params: {
-          chat: { model_id: "gpt-4o" },
           message: "Hello with file",
-          files: [ file ]
+          files: [ file ],
+          agent_ids: [ agent.to_param ]
         }
       end
     end
