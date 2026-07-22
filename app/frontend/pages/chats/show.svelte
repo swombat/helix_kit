@@ -70,7 +70,6 @@
     chats = [],
     messages: recentMessages = [],
     runtime_interactions: runtimeInteractions = [],
-    conversation_compactions: conversationCompactions = [],
     cost_breakdown: costBreakdown = {},
     has_more_messages: serverHasMore = false,
     oldest_message_id: serverOldestId = null,
@@ -688,7 +687,6 @@
       {oldestId}
       {visibleMessages}
       {runtimeInteractions}
-      {conversationCompactions}
       {allMessages}
       {chat}
       {showAllMessages}

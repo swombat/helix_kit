@@ -212,55 +212,6 @@ class ChatsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "0.00225", response_message.dig("interaction_cost", "amount_usd")
   end
 
-  test "show exposes compaction summaries to conversation members without telemetry" do
-    @chat.conversation_compactions.create!(
-      boundary_message_id: 123,
-      summary: "The visible checkpoint summary.",
-      provider: "anthropic",
-      model: "anthropic/claude-sonnet-5",
-      compacted_message_count: 12,
-      input_tokens: 1_000,
-      output_tokens: 1_200,
-      cached_tokens: 500,
-      cache_creation_tokens: 200
-    )
-
-    get account_chat_path(@account, @chat)
-
-    compaction = inertia_shared_props["conversation_compactions"].first
-    assert_equal "The visible checkpoint summary.", compaction["summary"]
-    assert_equal 12, compaction["compacted_message_count"]
-    refute compaction.key?("ruby_llm_telemetry")
-  end
-
-  test "show includes compaction telemetry for site admins" do
-    @chat.conversation_compactions.create!(
-      boundary_message_id: 123,
-      summary: "The visible checkpoint summary.",
-      provider: "anthropic",
-      model: "anthropic/claude-sonnet-5",
-      compacted_message_count: 12,
-      input_tokens: 1_000,
-      output_tokens: 1_200,
-      cached_tokens: 500,
-      cache_creation_tokens: 200
-    )
-    delete logout_path
-    post login_path, params: {
-      email_address: users(:site_admin_user).email_address,
-      password: "password123"
-    }
-
-    get account_chat_path(@account, @chat)
-
-    telemetry = inertia_shared_props.dig("conversation_compactions", 0, "ruby_llm_telemetry")
-    assert_equal "anthropic/claude-sonnet-5", telemetry["model"]
-    assert_equal 1_000, telemetry["input_tokens"]
-    assert_equal 1_200, telemetry["output_tokens"]
-    assert_equal 500, telemetry["cache_read_tokens"]
-    assert_equal 200, telemetry["cache_write_tokens"]
-  end
-
   test "should create chat with agents" do
     agent = agents(:research_assistant)
 

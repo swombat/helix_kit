@@ -71,29 +71,6 @@ class ChatUsageReportTest < ActiveSupport::TestCase
     assert_match(/Unknown values/, report[:instrumentation_note])
   end
 
-  test "includes checkpoint summarisation telemetry in conversation costs" do
-    @chat.conversation_compactions.create!(
-      boundary_message_id: 123,
-      summary: "Compacted history.",
-      provider: "anthropic",
-      model: "anthropic/claude-sonnet-5",
-      compacted_message_count: 20,
-      input_tokens: 1_000,
-      cache_creation_tokens: 100,
-      cached_tokens: 600,
-      output_tokens: 1_200,
-      thinking_tokens: 0
-    )
-
-    report = ChatUsageReport.new(chat: @chat).call
-
-    assert_equal 1, report[:row_count]
-    assert_equal [ "compaction" ], report.dig(:models, 0, :sources)
-    assert_equal 1_000, report.dig(:totals, :uncached_input_tokens)
-    assert_equal 600, report.dig(:totals, :cache_read_input_tokens)
-    assert_equal 1_200, report.dig(:totals, :output_tokens)
-  end
-
   test "does not double count messages posted by externally hosted agents" do
     @agent.update!(runtime: "external")
     @chat.messages.create!(

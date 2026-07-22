@@ -42,8 +42,7 @@ module Chat::Contextualizable
       thinking_enabled: thinking_enabled,
       audio_tools_enabled: audio_tools_available_for?(agent.model_id),
       pdf_input_supported: self.class.supports_pdf_input?(agent.model_id),
-      timezone: prompt_timezone_for,
-      include_checkpoint: false)
+      timezone: prompt_timezone_for)
     envelope = tail_context_envelope_for(agent, initiation_reason:)
 
     cached_transcript = LlmPromptCachePolicy.transcript_messages(messages: stable_transcript, provider:)
@@ -197,18 +196,14 @@ module Chat::Contextualizable
   end
 
   def context_messages_for(agent)
-    context_messages = messages.includes(:user, :agent).order(:created_at, :id)
+    messages.includes(:user, :agent).order(:created_at, :id)
       .reject { |message| message.content.blank? }
       .reject { |message| message.used_tools? && message.agent_id != agent.id }
-
-    return context_messages unless checkpoint_summary.present? && last_consolidated_message_id.present?
-
-    context_messages.select { |message| message.id > last_consolidated_message_id }
   end
 
   def format_messages_for_context(messages, agent, provider:, thinking_enabled:, audio_tools_enabled:,
-    pdf_input_supported:, timezone:, include_checkpoint: true)
-    formatted = messages.map do |message|
+    pdf_input_supported:, timezone:)
+    messages.map do |message|
       format_message_for_context(
         message,
         agent,
@@ -219,36 +214,12 @@ module Chat::Contextualizable
         pdf_input_supported:
       )
     end
-
-    if include_checkpoint && checkpoint_summary.present? && last_consolidated_message_id.present?
-      formatted.unshift(checkpoint_context_message(timezone))
-    end
-
-    formatted
   end
 
   def activation_boundary_for(messages, initiation_reason:)
     return nil if initiation_reason.present?
 
     messages.rindex { |message| message.user_id.present? }
-  end
-
-  def checkpoint_context_message(timezone)
-    boundary = messages.find_by(id: last_consolidated_message_id)
-    boundary_time = boundary&.created_at&.in_time_zone(timezone)&.strftime("%Y-%m-%d %H:%M %Z")
-    before = boundary_time.present? ? " (messages through #{boundary_time})" : ""
-
-    {
-      role: "user",
-      content: <<~CONTENT.strip
-        Summary of the conversation so far#{before}:
-
-        #{checkpoint_summary}
-
-        If exact wording from the earlier messages matters, use the
-        retrieve_conversation_messages tool to inspect the stored originals.
-      CONTENT
-    }
   end
 
   def participant_description(current_agent)

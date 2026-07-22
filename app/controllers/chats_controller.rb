@@ -44,7 +44,6 @@ class ChatsController < ApplicationController
     end
 
     props[:runtime_interactions] = runtime_interactions_for_timeline if inertia_prop_requested?(:runtime_interactions)
-    props[:conversation_compactions] = conversation_compactions_for_timeline if inertia_prop_requested?(:conversation_compactions)
     props[:cost_breakdown] = ChatUsageReport.new(chat: @chat).call if inertia_prop_requested?(:cost_breakdown)
 
     props[:chat] = chat_json_with_whiteboard if inertia_prop_requested?(:chat)
@@ -207,12 +206,6 @@ class ChatsController < ApplicationController
       .select(&:visible_in_chat_timeline?)
       .sort_by { |interaction| interaction.finished_at || interaction.started_at || interaction.created_at }
       .map(&:as_chat_activity_json)
-  end
-
-  def conversation_compactions_for_timeline
-    @chat.conversation_compactions.order(:created_at, :id).map do |compaction|
-      compaction.as_timeline_json(include_telemetry: Current.user&.site_admin)
-    end
   end
 
   def message_json(message, interaction_cost = nil)

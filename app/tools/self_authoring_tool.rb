@@ -73,8 +73,6 @@ class SelfAuthoringTool < RubyLLM::Tool
 
   def default_for(field)
     case field
-    when "reflection_prompt"
-      ConsolidateConversationJob::EXTRACTION_PROMPT
     when "memory_reflection_prompt"
       MemoryReflectionJob::REFLECTION_PROMPT
     when "refinement_prompt"

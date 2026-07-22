@@ -228,33 +228,24 @@ class ChatPromptCacheLayoutTest < ActiveSupport::TestCase
     ], telemetry.keys
   end
 
-  test "checkpoint boundary preserves a fixed ten-message tail" do
-    created_messages = 25.times.map do |index|
-      @chat.messages.create!(role: "user", content: "Message #{index}", user: @user)
+  test "legacy checkpoint fields no longer replace conversation history" do
+    messages = 3.times.map do |index|
+      @chat.messages.create!(role: "user", content: "Original message #{index}", user: @user)
     end
     @chat.update!(
-      checkpoint_summary: "The conversation established the durable answer.",
-      last_consolidated_message_id: created_messages[-11].id,
+      checkpoint_summary: "Legacy compacted summary.",
+      last_consolidated_message_id: messages.second.id,
       last_consolidated_at: Time.current
     )
 
-    first_context = @chat.build_context_for_agent(@agent, provider: :openai)
-    first_content = first_context.map { |message| message[:content].to_s }.join("\n")
+    content = @chat.build_context_for_agent(@agent, provider: :openai)
+      .map { |message| message[:content].to_s }
+      .join("\n")
 
-    assert_includes first_content, "Summary of the conversation so far"
-    assert_includes first_content, "durable answer"
-    assert_not_includes first_content, "Message 14"
-    assert_includes first_content, "Message 15"
-    assert_includes first_content, "Message 24"
-
-    @chat.messages.create!(role: "user", content: "Message 25", user: @user)
-    second_context = @chat.build_context_for_agent(@agent, provider: :openai)
-    second_content = second_context.map { |message| message[:content].to_s }.join("\n")
-
-    assert_includes second_content, "Message 15"
-    assert_includes second_content, "Message 24"
-    assert_includes second_content, "Message 25"
-    assert_equal 26, @chat.messages.count
+    assert_includes content, "Original message 0"
+    assert_includes content, "Original message 1"
+    assert_includes content, "Original message 2"
+    assert_not_includes content, "Legacy compacted summary"
   end
 
 end

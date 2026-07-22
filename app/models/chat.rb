@@ -21,8 +21,6 @@ class Chat < ApplicationRecord
   has_many :chat_agents, dependent: :destroy
   has_many :agents, through: :chat_agents
   has_many :agent_runtime_interactions, dependent: :nullify
-  has_many :conversation_compactions, dependent: :destroy
-
   validates :agents, length: { minimum: 1, message: "must include at least one agent" }, if: :manual_responses?
 
   json_attributes :title_or_default, :model_id, :model_label, :ai_model_name, :updated_at_formatted,

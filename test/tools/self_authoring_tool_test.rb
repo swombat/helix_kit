@@ -39,13 +39,13 @@ class SelfAuthoringToolTest < ActiveSupport::TestCase
     assert_equal false, result[:is_default]
   end
 
-  test "view returns default reflection_prompt when unset" do
+  test "view returns nil reflection_prompt when unset" do
     @agent.update!(reflection_prompt: nil)
 
     result = @tool.execute(action: "view", field: "reflection_prompt")
 
-    assert_equal ConsolidateConversationJob::EXTRACTION_PROMPT, result[:value]
-    assert_equal true, result[:is_default]
+    assert_nil result[:value]
+    assert_equal false, result[:is_default]
   end
 
   test "view returns default memory_reflection_prompt when unset" do
