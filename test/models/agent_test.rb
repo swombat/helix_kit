@@ -103,14 +103,13 @@ class AgentTest < ActiveSupport::TestCase
     assert_equal "unknown/model", agent.model_label
   end
 
-  test "external agents reject identity and runtime-owned setting changes" do
+  test "external agents allow display name changes but reject runtime-owned setting changes" do
     agent = agents(:research_assistant)
     agent.update!(runtime: "external", uuid: SecureRandom.uuid_v7)
 
-    assert_not agent.update(name: "Externally Renamed")
-    assert_includes agent.errors[:base], "Identity and runtime-managed fields are read-only for external agents"
+    assert agent.update(name: "Externally Renamed")
+    assert_equal "Externally Renamed", agent.reload.name
 
-    agent.reload
     assert_not agent.update(thinking_enabled: true)
     assert_includes agent.errors[:base], "Identity and runtime-managed fields are read-only for external agents"
   end

@@ -61,17 +61,15 @@
 
 <div class="space-y-5">
   <div>
-    <h2 class="text-xl font-semibold">Interactions</h2>
+    <h2 class="text-xl font-semibold">Sessions</h2>
     <p class="text-sm text-muted-foreground">
-      Runtime interactions in reverse chronological order. Token values are shown only when the runtime reported
+      Agent runtime sessions in reverse chronological order. Token values are shown only when the runtime reported
       trigger-local instrumentation. Costs are estimates using public API prices as of 22 July 2026.
     </p>
   </div>
 
   {#if interactions.length === 0}
-    <div class="rounded border p-8 text-center text-sm text-muted-foreground">
-      No runtime interactions recorded yet.
-    </div>
+    <div class="rounded border p-8 text-center text-sm text-muted-foreground">No runtime sessions recorded yet.</div>
   {:else}
     <div class="space-y-3">
       {#each interactions as interaction}

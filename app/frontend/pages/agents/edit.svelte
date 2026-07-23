@@ -1,19 +1,7 @@
 <script>
   import { useForm, router } from '@inertiajs/svelte';
   import { Button } from '$lib/components/shadcn/button/index.js';
-  import { Input } from '$lib/components/shadcn/input';
-  import { Label } from '$lib/components/shadcn/label';
-  import { Switch } from '$lib/components/shadcn/switch';
-  import {
-    IdentificationCard,
-    Palette,
-    Cpu,
-    Plug,
-    Notebook,
-    CloudArrowUp,
-    ChartBar,
-    CurrencyDollar,
-  } from 'phosphor-svelte';
+  import { Palette, Gear, Plug, CloudArrowUp, TerminalWindow, CurrencyDollar } from 'phosphor-svelte';
   import {
     accountAgentsPath,
     accountAgentPath,
@@ -31,10 +19,9 @@
   import { useSync } from '$lib/use-sync';
   import AgentAppearancePanel from '$lib/components/agents/AgentAppearancePanel.svelte';
   import AgentEditHeader from '$lib/components/agents/AgentEditHeader.svelte';
-  import AgentIdentityPanel from '$lib/components/agents/AgentIdentityPanel.svelte';
   import AgentIntegrationsPanel from '$lib/components/agents/AgentIntegrationsPanel.svelte';
   import AgentMemoryPanel from '$lib/components/agents/AgentMemoryPanel.svelte';
-  import AgentModelPanel from '$lib/components/agents/AgentModelPanel.svelte';
+  import AgentSettingsPanel from '$lib/components/agents/AgentSettingsPanel.svelte';
   import AgentSettingsTabs from '$lib/components/agents/AgentSettingsTabs.svelte';
   import AgentInteractionsPanel from '$lib/components/agents/AgentInteractionsPanel.svelte';
   import AgentCostsPanel from '$lib/components/agents/AgentCostsPanel.svelte';
@@ -46,7 +33,6 @@
     memories = [],
     grouped_models = {},
     available_tools = [],
-    available_voices = [],
     colour_options = [],
     icon_options = [],
     active_tab: activeTabProp = null,
@@ -77,8 +63,9 @@
   let sendingTestNotification = $state(false);
   let registeringWebhook = $state(false);
   let triggeringRefinement = $state(false);
-  let activeTab = $state(activeTabProp || 'identity');
-  let identityLocked = $derived(agent.runtime === 'external' || agent.runtime === 'offline');
+  let activeTab = $state(
+    activeTabProp === 'identity' ? 'appearance' : activeTabProp === 'model' ? 'settings' : activeTabProp || 'appearance'
+  );
   let runtimeManaged = $derived(agent.runtime === 'external' || agent.runtime === 'offline');
   let promoting = $state(false);
   let sendingTestRequest = $state(false);
@@ -106,7 +93,7 @@
       activeTab !== 'costs' &&
       (!runtimeManaged ||
         activeTab === 'appearance' ||
-        activeTab === 'model' ||
+        activeTab === 'settings' ||
         activeTab === 'integrations' ||
         activeTab === 'hosting')
   );
@@ -129,13 +116,11 @@
   ]);
 
   const tabs = [
-    { id: 'identity', label: 'Identity', icon: IdentificationCard },
     { id: 'appearance', label: 'Appearance', icon: Palette },
-    { id: 'model', label: 'Model', icon: Cpu },
+    { id: 'settings', label: 'Settings', icon: Gear },
     { id: 'integrations', label: 'Integrations', icon: Plug },
-    { id: 'memory', label: 'Memory', icon: Notebook },
     { id: 'hosting', label: 'Hosting', icon: CloudArrowUp },
-    { id: 'interactions', label: 'Interactions', icon: ChartBar },
+    { id: 'interactions', label: 'Sessions', icon: TerminalWindow },
     { id: 'costs', label: 'Costs', icon: CurrencyDollar },
   ];
 
@@ -153,12 +138,6 @@
   let form = useForm({
     agent: {
       name: agent.name,
-      system_prompt: agent.system_prompt || '',
-      reflection_prompt: agent.reflection_prompt || '',
-      memory_reflection_prompt: agent.memory_reflection_prompt || '',
-      summary_prompt: agent.summary_prompt || '',
-      refinement_prompt: agent.refinement_prompt || '',
-      refinement_threshold: agent.refinement_threshold ?? 0.9,
       model_id: agent.model_id,
       active: agent.active,
       paused: agent.paused || false,
@@ -169,7 +148,6 @@
       thinking_budget: agent.thinking_budget || 10000,
       telegram_bot_username: agent.telegram_bot_username || '',
       telegram_bot_token: agent.telegram_bot_token || '',
-      voice_id: agent.voice_id || '',
       persistent_session: agent.persistent_session || false,
       persistent_wake_session: agent.persistent_wake_session || false,
       scheduled_wakes_enabled: agent.scheduled_wakes_enabled ?? true,
@@ -465,29 +443,21 @@
 
       <!-- Content area -->
       <div class="flex-1 min-w-0 space-y-6">
-        {#if activeTab === 'identity'}
-          <AgentIdentityPanel {form} {identityLocked} />
-        {:else if activeTab === 'appearance'}
+        {#if activeTab === 'appearance'}
           <AgentAppearancePanel
+            bind:name={$form.agent.name}
             bind:colour={$form.agent.colour}
             bind:icon={$form.agent.icon}
-            bind:voiceId={$form.agent.voice_id}
+            nameError={$form.errors.name}
             colourOptions={colour_options}
-            iconOptions={icon_options}
-            availableVoices={available_voices} />
-        {:else if activeTab === 'model'}
-          <AgentModelPanel
+            iconOptions={icon_options} />
+        {:else if activeTab === 'settings'}
+          <AgentSettingsPanel
             {form}
             groupedModels={grouped_models}
             availableTools={available_tools}
             {runtimeManaged}
             bind:selectedModel />
-          {#if runtimeManaged}
-            <div class="border rounded-lg p-4 text-sm text-muted-foreground">
-              Model changes take effect on the next trigger; no sandbox rebuild is needed. Extended-thinking and tool
-              settings remain managed by the external coding runtime.
-            </div>
-          {/if}
         {:else if activeTab === 'integrations'}
           <AgentIntegrationsPanel
             {form}
@@ -534,73 +504,6 @@
                 {/if}
                 <p>Health: <span class="font-medium">{agent.health_state || 'unknown'}</span></p>
               </div>
-
-              <div class="flex items-center justify-between gap-6 rounded border bg-muted/30 p-4">
-                <div class="space-y-1">
-                  <Label for="scheduled_wakes_enabled">Scheduled heartbeats</Label>
-                  <p class="text-sm text-muted-foreground">
-                    Allow HelixKit to wake this agent for self-directed heartbeat sessions.
-                  </p>
-                </div>
-                <Switch
-                  id="scheduled_wakes_enabled"
-                  checked={$form.agent.scheduled_wakes_enabled}
-                  onCheckedChange={(checked) => ($form.agent.scheduled_wakes_enabled = checked)} />
-              </div>
-
-              <div class="flex items-center justify-between gap-6 rounded border bg-muted/30 p-4">
-                <div class="space-y-1">
-                  <Label for="persistent_session">Persistent conversation sessions</Label>
-                  <p class="text-sm text-muted-foreground">
-                    Resume each conversation's Chaos session and send only new transcript messages after the first turn.
-                    This reduces repeated identity and transcript token usage.
-                  </p>
-                </div>
-                <Switch
-                  id="persistent_session"
-                  checked={$form.agent.persistent_session}
-                  disabled={!runtimeManaged}
-                  onCheckedChange={(checked) => ($form.agent.persistent_session = checked)} />
-              </div>
-
-              <div class="flex items-center justify-between gap-6 rounded border bg-muted/30 p-4">
-                <div class="space-y-1">
-                  <Label for="persistent_wake_session">Persistent heartbeat session</Label>
-                  <p class="text-sm text-muted-foreground">
-                    Run heartbeats in one continuing Chaos session instead of starting fresh each time. This preserves
-                    heartbeat context and allows provider caching across wakes.
-                  </p>
-                </div>
-                <Switch
-                  id="persistent_wake_session"
-                  checked={$form.agent.persistent_wake_session}
-                  disabled={!runtimeManaged}
-                  onCheckedChange={(checked) => ($form.agent.persistent_wake_session = checked)} />
-              </div>
-
-              <div class="rounded border bg-muted/30 p-4 space-y-2">
-                <Label for="heartbeat_wakes_per_day">Heartbeat wakes per day</Label>
-                <Input
-                  id="heartbeat_wakes_per_day"
-                  type="number"
-                  min={1}
-                  max={48}
-                  step={1}
-                  bind:value={$form.agent.heartbeat_wakes_per_day}
-                  disabled={!$form.agent.scheduled_wakes_enabled}
-                  class="max-w-32" />
-                <p class="text-sm text-muted-foreground">
-                  Spread evenly across the UTC day. Use 1 for daily, 2 for twice daily, 24 for hourly, or 48 for every
-                  30 minutes.
-                </p>
-              </div>
-
-              {#if !runtimeManaged}
-                <p class="text-xs text-muted-foreground">
-                  Persistent sessions become available after this agent is promoted to an external runtime. Heartbeat
-                  frequency also controls this HelixKit-hosted agent's initiation checks.
-                </p>
-              {/if}
 
               {#if agent.sandbox_last_error}
                 <div class="rounded border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">

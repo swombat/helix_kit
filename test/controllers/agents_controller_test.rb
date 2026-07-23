@@ -217,7 +217,7 @@ class AgentsControllerTest < ActionDispatch::IntegrationTest
     assert_includes @agent.enabled_tools, available_tools.first
   end
 
-  test "external agent update allows model changes but ignores self-managed identity and runtime params" do
+  test "external agent update allows display name and model changes but ignores self-managed identity params" do
     @agent.update!(
       name: "Hosted Researcher",
       model_id: "openrouter/auto",
@@ -238,7 +238,7 @@ class AgentsControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to account_agents_path(@account)
     @agent.reload
-    assert_equal "Hosted Researcher", @agent.name
+    assert_equal "Browser Rename", @agent.name
     assert_not_equal "Changed prompt", @agent.system_prompt
     assert_equal "openai/gpt-5.2", @agent.model_id
     assert_equal "changed-voice", @agent.voice_id

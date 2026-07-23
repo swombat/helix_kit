@@ -37,15 +37,12 @@ class AgentsController < ApplicationController
     )
 
     render inertia: "agents/edit", props: {
-      agent: @agent.as_json.merge(
-        "voice_id" => @agent.voice_id
-      ),
+      agent: @agent.as_json,
       telegram_deep_link: @agent.telegram_configured? ? @agent.telegram_deep_link_for(Current.user) : nil,
       telegram_subscriber_count: @agent.telegram_subscriptions.active.count,
       memories: memories_for_display,
       grouped_models: grouped_models,
       available_tools: tools_for_frontend,
-      available_voices: available_voices,
       colour_options: Agent::VALID_COLOURS,
       icon_options: Agent::VALID_ICONS,
       active_tab: params[:tab],
@@ -133,15 +130,6 @@ class AgentsController < ApplicationController
         description: tool.try(:description)
       }
     end
-  end
-
-  def available_voices
-    [
-      { id: "JewcNslG8KqUpiFxGwfX", name: "Chris (Deep British baritone)" },
-      { id: "H8WYgYgDseTlAoQnNEac", name: "Claude (Soft androgynous)" },
-      { id: "vtcGSOQ5BUsEzdBNaKWo", name: "Grok (Mediterranean, husky)" },
-      { id: "AWtKLCFhfixN68SjZWSo", name: "Wing (Androgynous, warm)" }
-    ]
   end
 
   def memories_for_display

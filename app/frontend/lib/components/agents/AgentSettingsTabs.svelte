@@ -1,7 +1,7 @@
 <script>
   import * as Select from '$lib/components/shadcn/select/index.js';
 
-  let { tabs = [], activeTab = $bindable('identity') } = $props();
+  let { tabs = [], activeTab = $bindable('appearance') } = $props();
 </script>
 
 <nav class="md:w-48 md:flex-shrink-0">

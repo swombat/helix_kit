@@ -34,7 +34,7 @@ class Agent < ApplicationRecord
   ].freeze
 
   EXTERNALLY_MANAGED_ATTRIBUTES = %w[
-    name system_prompt reflection_prompt memory_reflection_prompt
+    system_prompt reflection_prompt memory_reflection_prompt
     summary_prompt refinement_prompt refinement_threshold
     thinking_enabled thinking_budget enabled_tools
   ].freeze
