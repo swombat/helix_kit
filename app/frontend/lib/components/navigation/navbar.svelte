@@ -30,10 +30,13 @@
       label: 'Chats',
       show: !!currentUser && siteSettings?.allow_chats,
     },
+    {
+      href: currentAccount?.id ? `/accounts/${currentAccount.id}/agents` : '#',
+      label: 'Agents',
+      show: !!currentUser && siteSettings?.allow_agents && !!currentAccount?.id,
+    },
     { href: '#', label: 'About', show: true },
   ]);
-
-  const showAgentsDropdown = $derived(!!currentUser && siteSettings?.allow_agents && currentAccount?.id);
 
   // Search
   let navSearchQuery = $state('');
@@ -100,22 +103,6 @@
               class={cn(buttonVariants({ variant: 'ghost' }), 'rounded-full text-muted-foreground')}>{link.label}</Link>
           {/if}
         {/each}
-        {#if showAgentsDropdown}
-          <DropdownMenu.Root>
-            <DropdownMenu.Trigger
-              class={cn(buttonVariants({ variant: 'ghost' }), 'rounded-full text-muted-foreground')}>
-              Agents
-            </DropdownMenu.Trigger>
-            <DropdownMenu.Content align="start">
-              <DropdownMenu.Item onclick={() => router.visit(`/accounts/${currentAccount.id}/agents`)}>
-                Identities
-              </DropdownMenu.Item>
-              <DropdownMenu.Item onclick={() => router.visit(`/accounts/${currentAccount.id}/whiteboards`)}>
-                Whiteboards
-              </DropdownMenu.Item>
-            </DropdownMenu.Content>
-          </DropdownMenu.Root>
-        {/if}
       </div>
     </div>
 

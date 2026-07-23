@@ -17,6 +17,7 @@
     Plugs,
     Key,
     CurrencyDollar,
+    Chalkboard,
   } from 'phosphor-svelte';
   import * as DropdownMenu from '$lib/components/shadcn/dropdown-menu/index.js';
   import { buttonVariants } from '$lib/components/shadcn/button/index.js';
@@ -28,6 +29,7 @@
     accountCostsPath,
     newAccountPath,
     apiKeysPath,
+    accountWhiteboardsPath,
   } from '@/routes';
   import Avatar from '$lib/components/Avatar.svelte';
 
@@ -125,6 +127,12 @@
         </DropdownMenu.SubContent>
       </DropdownMenu.Sub>
       {#if currentAccount?.id}
+        {#if currentAccount?.has_whiteboards}
+          <DropdownMenu.Item onclick={() => router.visit(accountWhiteboardsPath(currentAccount.id))}>
+            <Chalkboard class="mr-2 size-4" />
+            <span>Whiteboards</span>
+          </DropdownMenu.Item>
+        {/if}
         <DropdownMenu.Item onclick={() => router.visit(accountCostsPath(currentAccount.id))}>
           <CurrencyDollar class="mr-2 size-4" />
           <span>Costs</span>
