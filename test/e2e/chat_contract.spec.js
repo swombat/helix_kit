@@ -118,6 +118,8 @@ test.describe('browser contracts', () => {
 
     await page.goto(`/accounts/${setup.account_id}/chats`);
 
+    await expect(page.locator('nav').getByRole('link', { name: 'Documentation', exact: true })).toBeHidden();
+    await expect(page.locator('nav').getByRole('link', { name: 'About', exact: true })).toBeHidden();
     const agentsLink = page.locator('nav').getByRole('link', { name: 'Agents', exact: true });
     await expect(agentsLink).toHaveAttribute('href', /\/accounts\/[^/]+\/agents$/);
     await agentsLink.click();
@@ -153,14 +155,6 @@ test.describe('browser contracts', () => {
     await expect(page.getByText(/Current runtime:\s*external/)).toBeVisible({ timeout: 60_000 });
     await expect(page.getByText(/Health:\s*healthy/)).toBeVisible();
     await expect(page.getByText(/Container exists:\s*yes/)).toBeVisible();
-  });
-
-  test('documentation page renders code examples', async ({ page }) => {
-    await page.goto('/documentation');
-
-    await expect(page.getByRole('heading', { name: 'Documentation' })).toBeVisible();
-    await expect(page.getByRole('link', { name: /Real-time Synchronization System/ })).toBeVisible();
-    await expect(page.locator('code').filter({ hasText: 'include SyncAuthorizable' })).toBeVisible();
   });
 
   test('chat messages sync between two logged-in browser windows', async ({ browser, page }) => {

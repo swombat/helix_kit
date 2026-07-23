@@ -25,7 +25,6 @@
   const siteSettings = $derived($page.props?.site_settings);
 
   const links = $derived([
-    { href: '/documentation', label: 'Documentation', show: true },
     {
       href: currentAccount?.id ? `/accounts/${currentAccount.id}/chats` : '#',
       label: 'Chats',
@@ -36,7 +35,6 @@
       label: 'Agents',
       show: !!currentUser && siteSettings?.allow_agents && !!currentAccount?.id,
     },
-    { href: '#', label: 'About', show: true },
   ]);
 
   // Search

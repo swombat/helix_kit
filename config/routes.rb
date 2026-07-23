@@ -22,9 +22,6 @@ Rails.application.routes.draw do
   get "favicon", to: "favicon#show", defaults: { format: "ico" }
   get "apple-touch-icon.png", to: "favicon#apple_touch_icon"
 
-  # Documentation
-  get "documentation" => "documentation#index", as: :documentation
-
   get "login" => "sessions#new", as: :login
   post "login" => "sessions#create"
   delete "logout" => "sessions#destroy", as: :logout
