@@ -100,19 +100,10 @@
               <Streamdown
                 content={message.content}
                 inlineCitation={expressionTag}
-                parseIncompleteMarkdown
                 baseTheme="shadcn"
                 {shikiTheme}
                 shikiPreloadThemes={['catppuccin-latte', 'catppuccin-mocha']}
-                class="prose"
-                animation={{
-                  enabled: true,
-                  type: 'fade',
-                  tokenize: 'word',
-                  duration: 300,
-                  timingFunction: 'ease-out',
-                  animateOnMount: false,
-                }} />
+                class="prose" />
             </Card.Content>
           </Card.Root>
         </div>
@@ -168,19 +159,10 @@
               <Streamdown
                 content={message.content}
                 inlineCitation={expressionTag}
-                parseIncompleteMarkdown
                 baseTheme="shadcn"
                 {shikiTheme}
                 shikiPreloadThemes={['catppuccin-latte', 'catppuccin-mocha']}
-                class="prose"
-                animation={{
-                  enabled: true,
-                  type: 'fade',
-                  tokenize: 'word',
-                  duration: 300,
-                  timingFunction: 'ease-out',
-                  animateOnMount: true,
-                }} />
+                class="prose" />
             {/if}
 
             {#if message.tools_used && message.tools_used.length > 0}
