@@ -30,14 +30,12 @@ async function startGroupChat(page, accountId, firstMessage) {
   await expect(page.getByRole('heading', { name: 'New Chat' })).toBeVisible();
 
   const chatForm = page.locator('main');
-  await expect(chatForm.getByRole('button', { name: /^Model$/i })).toBeVisible();
-  await expect(page.getByLabel(/allow web access/i)).toBeVisible();
-  await chatForm.getByRole('button', { name: /^Agents$/i }).click();
-  await expect(page.getByLabel(/allow web access/i)).toBeHidden();
   await expect(chatForm.getByRole('button', { name: /E2E Researcher/i })).toBeVisible();
   await expect(chatForm.getByRole('button', { name: /E2E Critic/i })).toBeVisible();
   await expect(chatForm.getByRole('button', { name: /E2E Paused Fork/i })).toBeVisible();
   await expect(chatForm.getByRole('button', { name: /E2E Inactive Fork/i })).toBeHidden();
+  await expect(chatForm.getByRole('button', { name: /^Model$/i })).toBeHidden();
+  await expect(page.getByLabel(/allow web access/i)).toBeHidden();
 
   const composer = page.locator('main textarea').last();
   await composer.fill(firstMessage);
@@ -109,6 +107,31 @@ test.describe('browser contracts', () => {
     await expect(page.getByText(/127.0.0.1/)).toBeVisible();
   });
 
+  test('agent navigation is direct and whiteboards only appear for configured accounts', async ({ page }) => {
+    await login(page, setup.primary_user, setup.password);
+
+    await page.goto(`/accounts/${setup.empty_account_id}/chats`);
+    const accountMenu = page.getByRole('button', { name: 'User account menu' });
+    await accountMenu.click();
+    await expect(page.getByRole('menuitem', { name: 'Whiteboards' })).toBeHidden();
+    await page.keyboard.press('Escape');
+
+    await page.goto(`/accounts/${setup.account_id}/chats`);
+
+    const agentsLink = page.locator('nav').getByRole('link', { name: 'Agents', exact: true });
+    await expect(agentsLink).toHaveAttribute('href', /\/accounts\/[^/]+\/agents$/);
+    await agentsLink.click();
+    await expect(page).toHaveURL(/\/accounts\/[^/]+\/agents$/);
+    await expect(page.getByRole('heading', { name: 'Agents' })).toBeVisible();
+
+    await accountMenu.click();
+    const whiteboardsItem = page.getByRole('menuitem', { name: 'Whiteboards' });
+    await expect(whiteboardsItem).toBeVisible();
+    await whiteboardsItem.click();
+    await expect(page).toHaveURL(/\/accounts\/[^/]+\/whiteboards$/);
+    await expect(page.getByRole('heading', { name: 'Whiteboards' })).toBeVisible();
+  });
+
   test('user can promote a hosted agent into a local Docker sandbox', async ({ page, request }) => {
     await login(page, setup.primary_user, setup.password);
     const agentId = setup.agents[0].id;
@@ -158,7 +181,7 @@ test.describe('browser contracts', () => {
     await secondContext.close();
   });
 
-  test('account default can open new conversations in agents mode', async ({ page, request }) => {
+  test('new conversations remain agent-only after updating the legacy account default', async ({ page, request }) => {
     await login(page, setup.primary_user, setup.password);
     await page.goto(`/accounts/${setup.account_id}/edit`);
     await expect(page.getByRole('heading', { name: 'Edit Account' })).toBeVisible();
@@ -176,7 +199,7 @@ test.describe('browser contracts', () => {
 
     await page.goto(`/accounts/${setup.account_id}/chats`);
     const chatForm = page.locator('main');
-    await expect(chatForm.getByRole('button', { name: /^Agents$/i })).toHaveClass(/bg-primary/);
+    await expect(chatForm.getByRole('button', { name: /^Model$/i })).toBeHidden();
     await expect(page.getByLabel(/allow web access/i)).toBeHidden();
     await expect(chatForm.getByRole('button', { name: /E2E Researcher/i })).toBeVisible();
     await expect(chatForm.getByRole('button', { name: /E2E Critic/i })).toBeVisible();
@@ -259,21 +282,10 @@ test.describe('browser contracts', () => {
     await page.goto(setup.agents[0].edit_url);
     await expect(page.getByRole('heading', { name: 'Edit Agent' })).toBeVisible();
 
-    await page.getByRole('button', { name: 'Memory' }).click();
-    await expect(page.getByRole('heading', { name: 'Agent Memory' })).toBeVisible();
-    await page.getByRole('button', { name: 'Add Memory' }).click();
-    await expect(page.getByLabel('Memory Content')).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Save Memory' })).toBeDisabled();
-    await page
-      .getByRole('button', { name: 'Save Memory' })
-      .locator('..')
-      .getByRole('button', { name: 'Cancel' })
-      .click();
-    await page.getByRole('button', { name: 'Identity' }).click();
-
-    await page.getByLabel('Name').fill('E2E Refactor Sentinel');
-    await page.getByLabel('System Prompt').fill('You are an E2E sentinel guarding refactors.');
-    await page.getByLabel('Refinement Retention Threshold').fill('0.85');
+    await page.getByLabel('Display name').fill('E2E Refactor Sentinel');
+    await page.getByRole('button', { name: 'Settings' }).click();
+    await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible();
+    await page.getByLabel('Heartbeat wakes per day').fill('4');
     await page.locator('label[for="paused"]').click();
     await page.getByRole('button', { name: 'Update Agent' }).click();
 
@@ -284,9 +296,8 @@ test.describe('browser contracts', () => {
     expect(state.agents).toContainEqual(
       expect.objectContaining({
         name: 'E2E Refactor Sentinel',
-        system_prompt: 'You are an E2E sentinel guarding refactors.',
         paused: true,
-        refinement_threshold: 0.85,
+        heartbeat_wakes_per_day: 4,
       })
     );
   });

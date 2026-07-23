@@ -19,6 +19,7 @@ module TestSupport
       account = Account.create!(name: "E2E #{run_id} Team", account_type: :team)
       account.add_user!(primary_user, role: "owner", skip_confirmation: true)
       account.add_user!(secondary_user, role: "member", skip_confirmation: true)
+      account.whiteboards.create!(name: "E2E Whiteboard", content: "# E2E Whiteboard")
 
       agents = [
         create_agent!(account, "E2E Researcher", "slate"),
@@ -31,6 +32,7 @@ module TestSupport
         run_id: run_id,
         password: PASSWORD,
         account_id: account.id,
+        empty_account_id: primary_user.personal_account.id,
         primary_user: user_json(primary_user),
         secondary_user: user_json(secondary_user),
         admin_user: user_json(admin_user),
@@ -181,7 +183,8 @@ module TestSupport
             name: agent.name,
             system_prompt: agent.system_prompt,
             paused: agent.paused?,
-            refinement_threshold: agent.refinement_threshold
+            refinement_threshold: agent.refinement_threshold,
+            heartbeat_wakes_per_day: agent.heartbeat_wakes_per_day
           }
         }
       }

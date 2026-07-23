@@ -21,6 +21,7 @@
   const currentUser = $derived($page.props?.user);
   const currentAccount = $derived($page.props?.account);
   const accounts = $derived($page.props?.accounts || []);
+  const accountHasWhiteboards = $derived($page.props?.account_has_whiteboards || false);
   const siteSettings = $derived($page.props?.site_settings);
 
   const links = $derived([
@@ -150,6 +151,7 @@
         {currentUser}
         {currentAccount}
         {accounts}
+        hasWhiteboards={accountHasWhiteboards}
         {currentTheme}
         onThemeChange={updateTheme}
         onLogout={handleLogout} />

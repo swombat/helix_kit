@@ -37,6 +37,7 @@
     currentUser,
     currentAccount = null,
     accounts = [],
+    hasWhiteboards = false,
     currentTheme = 'system',
     onThemeChange = () => {},
     onLogout = () => {},
@@ -45,6 +46,7 @@
 
 <DropdownMenu.Root>
   <DropdownMenu.Trigger
+    aria-label="User account menu"
     class={cn(buttonVariants({ variant: 'outline' }), 'rounded-full pl-0.5 pr-0.5 md:pr-2.5 gap-1 h-9')}>
     <Avatar user={currentUser} size="small" class="!size-8" />
     {#if currentUser?.full_name}
@@ -127,7 +129,7 @@
         </DropdownMenu.SubContent>
       </DropdownMenu.Sub>
       {#if currentAccount?.id}
-        {#if currentAccount?.has_whiteboards}
+        {#if hasWhiteboards}
           <DropdownMenu.Item onclick={() => router.visit(accountWhiteboardsPath(currentAccount.id))}>
             <Chalkboard class="mr-2 size-4" />
             <span>Whiteboards</span>

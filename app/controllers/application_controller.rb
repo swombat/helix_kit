@@ -14,8 +14,9 @@ class ApplicationController < ActionController::Base
     if authenticated?
       {
         user: Current.user.as_json,
-        account: shared_current_account,
+        account: current_account&.as_json,
         accounts: Current.user.confirmed_accounts.map(&:as_json),
+        account_has_whiteboards: current_account&.whiteboards&.active&.exists? || false,
         theme_preference: Current.user&.theme || cookies[:theme],
         site_settings: shared_site_settings,
         is_account_admin: current_account&.manageable_by?(Current.user) || false,
@@ -101,14 +102,6 @@ class ApplicationController < ActionController::Base
       allow_chats: settings.allow_chats,
       allow_agents: settings.allow_agents
     }
-  end
-
-  def shared_current_account
-    return unless current_account
-
-    current_account.as_json.merge(
-      has_whiteboards: current_account.whiteboards.active.exists?
-    )
   end
 
   def pagy_to_hash(pagy)
