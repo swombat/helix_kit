@@ -277,6 +277,19 @@ test.describe('browser contracts', () => {
     await expect(page.getByRole('heading', { name: 'Edit Agent' })).toBeVisible();
 
     await page.getByLabel('Display name').fill('E2E Refactor Sentinel');
+    await page.getByRole('button', { name: 'Integrations' }).click();
+    await expect(page.getByRole('heading', { name: 'Integrations' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Telegram' })).toBeVisible();
+    await page.getByRole('button', { name: 'Set up' }).click();
+    await expect(page.getByRole('heading', { name: 'Create a Telegram bot' })).toBeVisible();
+    await expect(page.getByRole('link', { name: '@BotFather in Telegram' })).toHaveAttribute(
+      'href',
+      'https://t.me/botfather'
+    );
+    await expect(page.getByText('/newbot')).toBeVisible();
+    await page.getByRole('button', { name: 'All integrations' }).click();
+    await expect(page.getByRole('button', { name: 'Set up' })).toBeVisible();
+
     await page.getByRole('button', { name: 'Settings' }).click();
     await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible();
     await page.getByLabel('Heartbeat wakes per day').fill('4');

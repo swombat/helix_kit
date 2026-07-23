@@ -96,11 +96,8 @@
   let showFormActions = $derived(
     activeTab !== 'interactions' &&
       activeTab !== 'costs' &&
-      (!runtimeManaged ||
-        activeTab === 'appearance' ||
-        activeTab === 'settings' ||
-        activeTab === 'integrations' ||
-        activeTab === 'hosting')
+      activeTab !== 'integrations' &&
+      (!runtimeManaged || activeTab === 'appearance' || activeTab === 'settings' || activeTab === 'hosting')
   );
   let filesystemSections = $derived([
     {
