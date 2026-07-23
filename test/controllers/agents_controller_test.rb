@@ -23,30 +23,42 @@ class AgentsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "index can open the agent creation dialog" do
+  test "index creation link redirects to the creation wizard" do
     get account_agents_path(@account, create: true)
 
-    assert_response :success
-    assert_equal true, inertia_shared_props.fetch("create_agent")
+    assert_redirected_to new_account_agent_path(@account)
   end
 
-  test "should create agent" do
-    assert_difference "Agent.count" do
-      post account_agents_path(@account), params: {
-        agent: {
-          name: "Created Test Agent",
-          system_prompt: "You are helpful",
-          model_id: "openrouter/auto",
-          active: true,
-          enabled_tools: []
+  test "should get new agent wizard" do
+    get new_account_agent_path(@account)
+
+    assert_response :success
+    assert_equal @account.to_param, inertia_shared_props.dig("account", "id")
+  end
+
+  test "should create born-hosted agent" do
+    assert_difference [ "Agent.count", "ApiKey.count" ], 1 do
+      assert_enqueued_with(job: PromoteAgentJob) do
+        post account_agents_path(@account), params: {
+          agent: {
+            name: "Created Test Agent",
+            system_prompt: "You are helpful",
+            model_id: "openrouter/auto",
+            scheduled_wakes_enabled: true
+          }
         }
-      }
+      end
     end
 
     agent = Agent.last
     assert_equal "Created Test Agent", agent.name
     assert_equal @account, agent.account
-    assert_redirected_to account_agents_path(@account)
+    assert_equal "provisioning", agent.runtime
+    assert_predicate agent.birth_committed_at, :present?
+    assert_predicate agent.provisioning_started_at, :present?
+    assert_predicate agent.trigger_bearer_token, :present?
+    assert_equal agent, agent.outbound_api_key.agent
+    assert_redirected_to onboarding_account_agent_path(@account, agent)
   end
 
   test "should fail to create agent with missing name" do
@@ -60,7 +72,39 @@ class AgentsControllerTest < ActionDispatch::IntegrationTest
       }
     end
 
-    assert_redirected_to account_agents_path(@account)
+    assert_redirected_to new_account_agent_path(@account)
+  end
+
+  test "blank soul seed requires an explicit open beginning" do
+    assert_no_difference [ "Agent.count", "ApiKey.count" ] do
+      post account_agents_path(@account), params: {
+        agent: {
+          name: "Unconfirmed Blank Agent",
+          system_prompt: "",
+          model_id: "openrouter/auto"
+        }
+      }
+    end
+
+    assert_redirected_to new_account_agent_path(@account)
+  end
+
+  test "explicit open beginning creates a born-hosted agent" do
+    assert_difference [ "Agent.count", "ApiKey.count" ], 1 do
+      post account_agents_path(@account), params: {
+        agent: {
+          name: "Open Beginning Agent",
+          system_prompt: "",
+          model_id: "openrouter/auto",
+          open_beginning: true
+        }
+      }
+    end
+
+    agent = Agent.last
+    assert_predicate agent, :born_hosted?
+    assert_equal "", agent.system_prompt
+    assert_redirected_to onboarding_account_agent_path(@account, agent)
   end
 
   test "should get edit" do
@@ -178,6 +222,28 @@ class AgentsControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_redirected_to account_agents_path(@account)
+  end
+
+  test "born-hosted soul seed is write-once while display metadata remains editable" do
+    @agent.update!(system_prompt: "The committed beginning")
+    @agent.update!(
+      birth_committed_at: Time.current,
+      runtime: "provisioning"
+    )
+
+    patch account_agent_path(@account, @agent), params: {
+      agent: {
+        name: "New display label",
+        system_prompt: "A replacement beginning",
+        colour: "emerald"
+      }
+    }
+
+    assert_redirected_to account_agents_path(@account)
+    @agent.reload
+    assert_equal "New display label", @agent.name
+    assert_equal "The committed beginning", @agent.system_prompt
+    assert_equal "emerald", @agent.colour
   end
 
   test "should scope agents to current account" do
@@ -315,22 +381,24 @@ class AgentsControllerTest < ActionDispatch::IntegrationTest
 
     assert_no_difference "Agent.count" do
       post account_agents_path(@account), params: {
-        agent: {
-          name: "Unique Test Agent",
-          model_id: "openrouter/auto"
+          agent: {
+            name: "Unique Test Agent",
+            model_id: "openrouter/auto",
+            open_beginning: true
         }
       }
     end
 
-    assert_redirected_to account_agents_path(@account)
+    assert_redirected_to new_account_agent_path(@account)
   end
 
   test "create should audit" do
     assert_difference "AuditLog.count" do
       post account_agents_path(@account), params: {
-        agent: {
-          name: "Audited Agent",
-          model_id: "openrouter/auto"
+          agent: {
+            name: "Audited Agent",
+            model_id: "openrouter/auto",
+            open_beginning: true
         }
       }
     end

@@ -5,6 +5,7 @@
   import {
     accountAgentsPath,
     accountAgentPath,
+    onboardingAccountAgentPath,
     accountAgentTelegramTestPath,
     accountAgentTelegramWebhookPath,
     accountAgentRefinementPath,
@@ -66,7 +67,9 @@
   let activeTab = $state(
     activeTabProp === 'identity' ? 'appearance' : activeTabProp === 'model' ? 'settings' : activeTabProp || 'appearance'
   );
-  let runtimeManaged = $derived(agent.runtime === 'external' || agent.runtime === 'offline');
+  let runtimeManaged = $derived(
+    Boolean(agent.birth_committed_at) || agent.runtime === 'external' || agent.runtime === 'offline'
+  );
   let promoting = $state(false);
   let sendingTestRequest = $state(false);
   let sendingOrientation = $state(false);
@@ -76,7 +79,9 @@
   let sandboxStatus = $state({
     docker_available: null,
     image_present: agent.container_image ? null : false,
-    container_exists: agent.container_name && (agent.runtime === 'external' || agent.runtime === 'migrating'),
+    container_exists:
+      agent.container_name &&
+      (agent.runtime === 'external' || agent.runtime === 'migrating' || agent.runtime === 'provisioning'),
     identity_volume_exists: agent.uuid ? null : false,
     chaos_volume_exists: agent.uuid ? null : false,
     repo_volume_exists: agent.uuid ? null : false,
@@ -507,7 +512,7 @@
 
               {#if agent.sandbox_last_error}
                 <div class="rounded border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
-                  <div class="font-medium">Last promotion error</div>
+                  <div class="font-medium">Last hosting error</div>
                   <div class="mt-1 font-mono text-xs whitespace-pre-wrap">{agent.sandbox_last_error}</div>
                   {#if agent.sandbox_last_error_at}
                     <div class="mt-1 text-xs opacity-80">At {agent.sandbox_last_error_at}</div>
@@ -534,6 +539,16 @@
                   <Button type="button" disabled>Promotion in progress...</Button>
                   <Button type="button" variant="outline" onclick={cancelPromotion}>Cancel</Button>
                 </div>
+              {:else if agent.runtime === 'provisioning'}
+                <div class="space-y-3">
+                  <p class="text-sm text-muted-foreground">
+                    This born-hosted agent is being prepared. Their initial seed is already committed and cannot be
+                    reopened for editing.
+                  </p>
+                  <a href={onboardingAccountAgentPath(account.id, agent.id)}>
+                    <Button type="button" variant="outline">View setup progress</Button>
+                  </a>
+                </div>
               {:else}
                 <div class="space-y-3">
                   <p class="text-sm text-muted-foreground">
@@ -542,15 +557,16 @@
                   </p>
                   <div class="rounded border bg-muted/30 p-3 text-sm">
                     <div class="font-medium">First-wake orientation</div>
-                    {#if agent.oriented_at}
-                      <p class="mt-1 text-muted-foreground">Oriented at {agent.oriented_at}.</p>
-                    {:else if orientationResult && orientationResult.status === 'orientation_sent'}
+                    {#if agent.orientation_completed_at}
+                      <p class="mt-1 text-muted-foreground">The most recent orientation wake completed.</p>
+                    {:else if agent.orientation_requested_at}
                       <p class="mt-1 text-muted-foreground">
-                        Orientation sent. No first journal entry has been detected yet.
+                        An orientation wake has been offered and may still be running.
                       </p>
                     {:else}
                       <p class="mt-1 text-muted-foreground">
-                        Not yet oriented. Send an invitation for the agent to read its files and find its footing.
+                        No orientation wake has been recorded yet. You can offer one without requiring any particular
+                        response.
                       </p>
                     {/if}
                   </div>
@@ -562,7 +578,7 @@
                       disabled={sendingOrientation || agent.health_state !== 'healthy'}>
                       {sendingOrientation
                         ? 'Orienting...'
-                        : agent.oriented_at
+                        : agent.orientation_requested_at
                           ? 'Re-send orientation'
                           : 'Send orientation'}
                     </Button>
@@ -595,10 +611,6 @@
               {#if orientationResult}
                 <div class="rounded border bg-muted p-3 text-sm">
                   <div>Orientation: <span class="font-mono">{orientationResult.status}</span></div>
-                  {#if orientationResult.oriented_at}<div>Oriented at: {orientationResult.oriented_at}</div>{/if}
-                  {#if orientationResult.oriented === false}
-                    <div class="text-muted-foreground">No new or grown daily journal file was detected.</div>
-                  {/if}
                   {#if orientationResult.error}<div class="text-destructive">{orientationResult.error}</div>{/if}
                   {#if orientationResult.runtime_stderr}
                     <details class="mt-2">

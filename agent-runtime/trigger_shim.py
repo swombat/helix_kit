@@ -135,9 +135,10 @@ if not TRIGGER_BEARER_TOKEN:
 
 app = Flask(__name__) if Flask else None
 
-# Per-session locks: two triggers for the same session_id must never resume the
-# same chaos process concurrently. Flask's default server is single-threaded,
-# so this is a safety net for anyone who later turns threading on.
+# One agent-wide lock prevents independent sessions from running Chaos
+# concurrently against the same writable identity and repository volumes.
+# Per-session locks additionally protect persistent-session sidecar state.
+_agent_invocation_lock = threading.Lock()
 _session_locks = {}
 _session_locks_guard = threading.Lock()
 
@@ -176,9 +177,10 @@ def trigger():
         f"delta_len={len(request_delta) if request_delta else 0}"
     )
 
-    if persistent_session:
-        return persistent_trigger(session_id, prompt, request_delta, model, timeout_secs, provider=provider)
-    return legacy_trigger(session_id, prompt, model, timeout_secs, provider=provider)
+    with _agent_invocation_lock:
+        if persistent_session:
+            return persistent_trigger(session_id, prompt, request_delta, model, timeout_secs, provider=provider)
+        return legacy_trigger(session_id, prompt, model, timeout_secs, provider=provider)
 
 
 def legacy_trigger(session_id, prompt, model, timeout_secs, provider=None):

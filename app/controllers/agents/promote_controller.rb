@@ -23,48 +23,16 @@ class Agents::PromoteController < ApplicationController
       return
     end
 
-    configuration_error = hosted_runtime_configuration_error
-    if configuration_error.present?
-      redirect_to hosting_settings_path, alert: configuration_error
-      return
-    end
-
-    old_api_key = @agent.outbound_api_key
-    outbound_api_key = nil
-    @agent.transaction do
-      if old_api_key
-        @agent.outbound_api_key = nil
-        @agent.outbound_api_token = nil
-        @agent.save!
-        old_api_key.destroy!
-      end
-
-      @agent.uuid ||= SecureRandom.uuid_v7
-      outbound_api_key = ApiKey.generate_for(
-        @agent.account.owner || Current.user,
-        name: "agent:#{agent_slug}:outbound",
-        agent: @agent
-      )
-      @agent.outbound_api_key = outbound_api_key
-      @agent.outbound_api_token = outbound_api_key.raw_token
-      @agent.trigger_bearer_token = "tr_#{SecureRandom.hex(24)}"
-      @agent.restic_password = SecureRandom.hex(32)
-      @agent.container_name = "hk-agent-#{@agent.uuid}"
-      @agent.sandbox_host = Agents::Config.sandbox_host
-      @agent.container_image = Agents::Config.default_image
-      @agent.endpoint_url = nil unless Agents::Config.publish_ports?
-      @agent.runtime = "migrating"
-      @agent.migration_started_at = Time.current
-      @agent.health_state = "unknown"
-      @agent.consecutive_health_failures = 0
-      @agent.sandbox_last_error = nil
-      @agent.sandbox_last_error_at = nil
-      @agent.save!
-    end
+    Agents::HostedProvisioning.new(
+      agent: @agent,
+      user: @agent.account.owner || Current.user
+    ).prepare!(runtime: "migrating", started_at: Time.current)
 
     PromoteAgentJob.perform_later(@agent.id)
 
     redirect_to hosting_settings_path, notice: "Promoting #{@agent.name} to a hosted sandbox"
+  rescue Agents::HostedProvisioning::ConfigurationError => e
+    redirect_to hosting_settings_path, alert: e.message
   end
 
   def regenerate_credentials
@@ -125,6 +93,12 @@ class Agents::PromoteController < ApplicationController
   end
 
   def cancel
+    if @agent.born_hosted?
+      redirect_to onboarding_account_agent_path(current_account, @agent),
+                  alert: "A born-hosted agent cannot be demoted to inline. Delete the agent explicitly if you do not want to continue setup."
+      return
+    end
+
     api_key = @agent.outbound_api_key
     @agent.update!(
       runtime: "inline",
@@ -178,12 +152,14 @@ class Agents::PromoteController < ApplicationController
       return
     end
 
+    @agent.update!(orientation_requested_at: Time.current)
     result = ExternalAgentOrientationRequest.new(
       agent: @agent,
       requested_by: Current.user.email_address
     ).call
 
     ok = result[:status].to_i.between?(200, 299)
+    @agent.update!(orientation_completed_at: Time.current) if ok
     render json: {
       status: ok ? "orientation_sent" : "transport_failed",
       transport_status: result[:status],
@@ -270,15 +246,6 @@ class Agents::PromoteController < ApplicationController
     end
 
     outbound_api_key
-  end
-
-  def hosted_runtime_configuration_error
-    Agents::Config.sandbox_host
-    Agents::Config.internal_url
-    Agents::Config.default_image
-    nil
-  rescue KeyError => e
-    "Hosted agent runtime is not configured: #{e.message}"
   end
 
 end

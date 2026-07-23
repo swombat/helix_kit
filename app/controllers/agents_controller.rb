@@ -4,6 +4,11 @@ class AgentsController < ApplicationController
   before_action :set_agent, only: [ :edit, :update, :destroy ]
 
   def index
+    if params[:create].present?
+      redirect_to new_account_agent_path(current_account)
+      return
+    end
+
     @agents = current_account.agents.by_name
 
     render inertia: "agents/index", props: {
@@ -12,22 +17,36 @@ class AgentsController < ApplicationController
       available_tools: tools_for_frontend,
       colour_options: Agent::VALID_COLOURS,
       icon_options: Agent::VALID_ICONS,
-      create_agent: params[:create].present?,
+      account: current_account.as_json
+    }
+  end
+
+  def new
+    render inertia: "agents/new", props: {
+      grouped_models: grouped_models,
+      colour_options: Agent::VALID_COLOURS,
+      icon_options: Agent::VALID_ICONS,
       account: current_account.as_json
     }
   end
 
   def create
-    attrs = agent_params
-    @agent = current_account.agents.new(attrs)
-
-    if @agent.save
-      audit("create_agent", @agent, **agent_audit_data(attrs))
-      redirect_to account_agents_path(current_account), notice: "Agent created"
-    else
-      redirect_to account_agents_path(current_account),
-                  inertia: { errors: @agent.errors.to_hash }
-    end
+    attrs = birth_params
+    open_beginning = ActiveModel::Type::Boolean.new.cast(attrs.delete(:open_beginning))
+    @agent = Agents::HostedBirth.new(
+      account: current_account,
+      creator: Current.user,
+      attributes: attrs,
+      open_beginning: open_beginning
+    ).create!
+    audit("create_agent", @agent, **agent_audit_data(attrs))
+    redirect_to onboarding_account_agent_path(current_account, @agent), notice: "#{@agent.name} is being prepared"
+  rescue ActiveRecord::RecordInvalid => e
+    redirect_to new_account_agent_path(current_account),
+                inertia: { errors: e.record.errors.to_hash }
+  rescue Agents::HostedProvisioning::ConfigurationError => e
+    redirect_to new_account_agent_path(current_account),
+                inertia: { errors: { base: [ e.message ] } }
   end
 
   def edit
@@ -96,8 +115,15 @@ class AgentsController < ApplicationController
     )
 
     permitted.delete(:telegram_bot_token) if permitted[:telegram_bot_token].blank?
-    strip_externally_managed_params!(permitted) if @agent&.externally_hosted?
+    strip_externally_managed_params!(permitted) if @agent&.identity_owned_by_agent?
     permitted
+  end
+
+  def birth_params
+    params.require(:agent).permit(
+      :name, :system_prompt, :model_id, :colour, :icon,
+      :scheduled_wakes_enabled, :open_beginning
+    )
   end
 
   def strip_externally_managed_params!(permitted)

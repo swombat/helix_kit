@@ -57,7 +57,7 @@ class Agent < ApplicationRecord
              allow_nil: true
   validates :heartbeat_wakes_per_day,
             numericality: { only_integer: true, greater_than: 0, less_than_or_equal_to: 48 }
-  validates :runtime, inclusion: { in: %w[inline migrating external offline] }
+  validates :runtime, inclusion: { in: %w[inline migrating provisioning external offline] }
   validates :health_state, inclusion: { in: %w[healthy unhealthy unknown] }
   validate :identity_fields_are_read_only_when_external
   broadcasts_to :account
@@ -81,9 +81,12 @@ class Agent < ApplicationRecord
                    :last_health_check_at, :health_state, :consecutive_health_failures,
                    :github_repo_url, :github_repo_owner, :github_repo_name,
                    :github_deploy_key_id, :container_name, :sandbox_host, :container_image,
-                     :sandbox_last_error, :sandbox_last_error_at, :oriented_at,
-                     :persistent_session?, :persistent_wake_session?, :scheduled_wakes_enabled?,
-                     :heartbeat_wakes_per_day
+                      :sandbox_last_error, :sandbox_last_error_at, :birth_committed_at,
+                      :provisioning_started_at, :identity_seeded_at, :runtime_ready_at,
+                      :orientation_requested_at, :orientation_completed_at,
+                      :orientation_last_error, :orientation_last_error_at, :oriented_at,
+                      :persistent_session?, :persistent_wake_session?, :scheduled_wakes_enabled?,
+                      :heartbeat_wakes_per_day
 
   def self.json_attrs_for(options = nil)
     return json_attrs unless options&.dig(:as) == :list
@@ -107,12 +110,30 @@ class Agent < ApplicationRecord
 
   def migrating? = runtime == "migrating"
 
+  def provisioning? = runtime == "provisioning"
+
   def external? = runtime == "external"
 
   def offline? = runtime == "offline"
 
   def externally_hosted?
     external? || offline?
+  end
+
+  def born_hosted?
+    birth_committed_at.present?
+  end
+
+  def identity_owned_by_agent?
+    born_hosted? || externally_hosted?
+  end
+
+  def provisioning_failed?
+    provisioning? && sandbox_last_error.present?
+  end
+
+  def soul_seed
+    system_prompt
   end
 
   def other_conversation_summaries(exclude_chat_id:)
@@ -130,11 +151,11 @@ class Agent < ApplicationRecord
   private
 
   def identity_fields_are_read_only_when_external
-    return unless persisted? && externally_hosted?
+    return unless persisted? && identity_owned_by_agent?
 
     return unless EXTERNALLY_MANAGED_ATTRIBUTES.any? { |field| will_save_change_to_attribute?(field) }
 
-    errors.add(:base, "Identity and runtime-managed fields are read-only for external agents")
+    errors.add(:base, "Identity and runtime-managed fields are agent-owned and read-only in HelixKit")
   end
 
 end

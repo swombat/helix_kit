@@ -8,7 +8,7 @@
 <div class="flex items-center justify-between mb-8">
   <div>
     <h1 class="text-3xl font-bold">Agents</h1>
-    <p class="text-muted-foreground mt-1">Create and manage AI agents with custom personalities</p>
+    <p class="text-muted-foreground mt-1">Create and care for persistent hosted AI partners</p>
   </div>
   <div class="flex gap-2">
     <Button variant="outline" onclick={onInitiate}>

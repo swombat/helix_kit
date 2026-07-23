@@ -84,8 +84,9 @@ Rails.application.routes.draw do
       resources :messages, only: [ :index, :create ]
     end
 
-    resources :agents, except: [ :show, :new ] do
+    resources :agents, except: :show do
       member do
+        get :onboarding, to: "agents/onboarding#show"
         get :promote, to: "agents/promote#show"
         post "promote/github_access", to: "agents/promote#github_access", as: :github_access_promote
         post "promote/begin", to: "agents/promote#begin", as: :begin_promote
@@ -98,6 +99,8 @@ Rails.application.routes.draw do
       end
 
       scope module: :agents do
+        resource :provisioning_retry, only: :create
+        resource :orientation_retry, only: :create
         resource :hosting_diagnostics, only: :show do
           get :file_preview
         end

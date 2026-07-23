@@ -172,14 +172,14 @@ class ChatsController < ApplicationController
   end
 
   def available_agents_scope
-    current_account.agents.active.order(:paused, :name)
+    current_account.agents.active.where.not(runtime: %w[provisioning migrating]).order(:paused, :name)
   end
 
   def selected_agents
     ids = Array(params[:agent_ids]).reject(&:blank?)
     return [] if ids.empty?
 
-    current_account.agents.active.find(Agent.decode_id(ids))
+    current_account.agents.active.where.not(runtime: %w[provisioning migrating]).find(Agent.decode_id(ids))
   end
 
   def require_available_agents
@@ -194,7 +194,7 @@ class ChatsController < ApplicationController
 
   def addable_agents_for_chat(as: nil)
     return [] unless @chat.group_chat?
-    scope = current_account.agents.active.where.not(id: @chat.agent_ids)
+    scope = current_account.agents.active.where.not(runtime: %w[provisioning migrating], id: @chat.agent_ids)
     as.present? ? scope.as_json(as: as) : scope.as_json
   end
 

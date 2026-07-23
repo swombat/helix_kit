@@ -28,6 +28,21 @@ class ChatsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "new chat excludes agents whose hosted runtime is still being prepared" do
+    provisioning_agent = agents(:research_assistant)
+    provisioning_agent.update!(
+      runtime: "provisioning",
+      birth_committed_at: Time.current
+    )
+
+    get new_account_chat_path(@account)
+
+    assert_response :success
+    agent_ids = inertia_shared_props.fetch("agents").pluck("id")
+    assert_not_includes agent_ids, provisioning_agent.to_param
+    assert_includes agent_ids, agents(:code_reviewer).to_param
+  end
+
   test "index redirects to agent creation when no active agents exist" do
     @account.agents.update_all(active: false)
 

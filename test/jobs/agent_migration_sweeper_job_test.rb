@@ -46,4 +46,24 @@ class AgentMigrationSweeperJobTest < ActiveJob::TestCase
     assert_equal key, @agent.outbound_api_key
   end
 
+  test "leaves born-hosted provisioning credentials alone" do
+    key = ApiKey.generate_for(@user, name: "born", agent: @agent)
+    @agent.update!(
+      runtime: "provisioning",
+      birth_committed_at: 25.hours.ago,
+      provisioning_started_at: 25.hours.ago,
+      uuid: SecureRandom.uuid_v7,
+      trigger_bearer_token: "tr_born",
+      outbound_api_key: key
+    )
+
+    assert_no_difference "ApiKey.count" do
+      AgentMigrationSweeperJob.perform_now
+    end
+
+    assert_equal "provisioning", @agent.reload.runtime
+    assert_equal "tr_born", @agent.trigger_bearer_token
+    assert_equal key, @agent.outbound_api_key
+  end
+
 end

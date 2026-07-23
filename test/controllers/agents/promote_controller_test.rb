@@ -98,6 +98,27 @@ class Agents::PromoteControllerTest < ActionDispatch::IntegrationTest
     assert_nil @agent.migration_started_at
   end
 
+  test "cancel does not demote a born-hosted agent" do
+    key = ApiKey.generate_for(@user, name: "born agent key", agent: @agent)
+    @agent.update!(
+      runtime: "provisioning",
+      birth_committed_at: Time.current,
+      uuid: SecureRandom.uuid_v7,
+      trigger_bearer_token: "tr_existing",
+      outbound_api_key: key,
+      outbound_api_token: key.raw_token,
+      provisioning_started_at: Time.current
+    )
+
+    assert_no_difference "ApiKey.count" do
+      post cancel_promote_account_agent_path(@account, @agent)
+    end
+
+    assert_redirected_to onboarding_account_agent_path(@account, @agent)
+    assert_equal "provisioning", @agent.reload.runtime
+    assert_equal key, @agent.outbound_api_key
+  end
+
   test "send test request probes external runtime synchronously" do
     @agent.update!(
       runtime: "external",

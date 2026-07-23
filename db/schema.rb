@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_20_123300) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_23_150000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -228,6 +228,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_20_123300) do
     t.integer "backup_keep_daily", default: 7, null: false
     t.integer "backup_keep_monthly", default: 12, null: false
     t.integer "backup_keep_weekly", default: 4, null: false
+    t.datetime "birth_committed_at"
     t.string "colour"
     t.integer "consecutive_health_failures", default: 0, null: false
     t.integer "container_cpu_shares", default: 1024, null: false
@@ -245,6 +246,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_20_123300) do
     t.string "health_state", default: "unknown", null: false
     t.integer "heartbeat_wakes_per_day", default: 2, null: false
     t.string "icon"
+    t.datetime "identity_seeded_at"
     t.datetime "last_announced_at"
     t.datetime "last_health_check_at"
     t.datetime "last_refinement_at"
@@ -252,17 +254,23 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_20_123300) do
     t.datetime "migration_started_at"
     t.string "model_id", default: "openrouter/auto", null: false
     t.string "name", null: false
+    t.datetime "orientation_completed_at"
+    t.text "orientation_last_error"
+    t.datetime "orientation_last_error_at"
+    t.datetime "orientation_requested_at"
     t.datetime "oriented_at"
     t.bigint "outbound_api_key_id"
     t.string "outbound_api_token"
     t.boolean "paused", default: false, null: false
     t.boolean "persistent_session", default: false, null: false
     t.boolean "persistent_wake_session", default: false, null: false
+    t.datetime "provisioning_started_at"
     t.text "refinement_prompt"
     t.float "refinement_threshold"
     t.text "reflection_prompt"
     t.string "restic_password"
     t.string "runtime", default: "inline", null: false
+    t.datetime "runtime_ready_at"
     t.string "sandbox_host"
     t.text "sandbox_last_error"
     t.datetime "sandbox_last_error_at"

@@ -111,7 +111,7 @@ class AgentTest < ActiveSupport::TestCase
     assert_equal "Externally Renamed", agent.reload.name
 
     assert_not agent.update(thinking_enabled: true)
-    assert_includes agent.errors[:base], "Identity and runtime-managed fields are read-only for external agents"
+    assert_includes agent.errors[:base], "Identity and runtime-managed fields are agent-owned and read-only in HelixKit"
   end
 
   test "external agents allow HelixKit-managed model changes" do
@@ -120,6 +120,20 @@ class AgentTest < ActiveSupport::TestCase
 
     assert agent.update(model_id: "openai/gpt-5.2")
     assert_equal "openai/gpt-5.2", agent.reload.model_id
+  end
+
+  test "born-hosted agents reject soul changes while allowing display metadata changes" do
+    agent = agents(:research_assistant)
+    agent.update!(system_prompt: "Committed beginning")
+    agent.update!(runtime: "provisioning", birth_committed_at: Time.current)
+
+    assert_not agent.update(system_prompt: "Replacement beginning")
+    assert_includes agent.errors[:base], "Identity and runtime-managed fields are agent-owned and read-only in HelixKit"
+    assert_equal "Committed beginning", agent.reload.system_prompt
+
+    assert agent.update(name: "New display label", colour: "emerald")
+    assert_equal "New display label", agent.reload.name
+    assert_equal "emerald", agent.colour
   end
 
   test "external agents can update voice as appearance setting" do

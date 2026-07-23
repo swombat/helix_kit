@@ -11,7 +11,7 @@
     <Robot class="mx-auto size-16 text-muted-foreground mb-4" weight="duotone" />
     <h2 class="text-xl font-semibold mb-2">No agents yet</h2>
     <p class="text-muted-foreground mb-6">
-      Create your first agent to define a custom AI personality with specific tools and capabilities.
+      Offer an initial seed, prepare a persistent runtime, and begin a relationship that can grow over time.
     </p>
     <Button onclick={onCreate}>
       <Plus class="mr-2 size-4" />
