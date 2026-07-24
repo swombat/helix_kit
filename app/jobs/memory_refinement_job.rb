@@ -73,8 +73,12 @@ class MemoryRefinementJob < ApplicationJob
   end
 
   def chat_for(agent)
-    provider_config = llm_provider_for(agent.model_id)
-    RubyLLM.chat(model: provider_config[:model_id], provider: provider_config[:provider], assume_model_exists: true)
+    provider_config = llm_provider_for(agent.model_id, account: agent.account)
+    agent.account.ruby_llm_context.chat(
+      model: provider_config[:model_id],
+      provider: provider_config[:provider],
+      assume_model_exists: true
+    )
   end
 
   def development_preamble

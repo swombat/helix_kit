@@ -18,8 +18,8 @@ module SelectsLlmProvider
   # @param model_id [String] The model ID (e.g., "anthropic/claude-opus-4.6")
   # @param thinking_enabled [Boolean] Whether thinking is enabled (retained for caller compatibility)
   # @return [Hash] { provider: Symbol, model_id: String }
-  def llm_provider_for(model_id, thinking_enabled: false)
-    config = ResolvesProvider.resolve_provider(model_id)
+  def llm_provider_for(model_id, thinking_enabled: false, account: nil)
+    config = ResolvesProvider.resolve_provider(model_id, account: account)
 
     # Gemini requires metadata column on tool_calls for tool-calling jobs
     if config[:provider] == :gemini && !gemini_metadata_column_exists?
@@ -37,8 +37,8 @@ module SelectsLlmProvider
 
   # Used directly by ManualAgentResponseJob and AllAgentsResponseJob
   # to check Anthropic API availability before attempting thinking mode.
-  def anthropic_api_available?
-    ResolvesProvider.api_key_available?(:anthropic)
+  def anthropic_api_available?(account: nil)
+    ResolvesProvider.api_key_available?(:anthropic, account: account)
   end
 
 end

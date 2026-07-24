@@ -8,7 +8,7 @@ module ResolvesProvider
 
   module_function
 
-  def resolve_provider(model_id)
+  def resolve_provider(model_id, account: nil)
     # Only route direct for models with an explicit provider_model_id mapping.
     # This ensures we only use model IDs known to work on direct provider APIs.
     # Models without a mapping (OpenRouter aliases, :thinking suffix, etc.) stay on OpenRouter.
@@ -16,20 +16,23 @@ module ResolvesProvider
     direct_model_id = config&.dig(:provider_model_id)
     return { provider: :openrouter, model_id: model_id } unless direct_model_id
 
-    if model_id.start_with?("anthropic/") && api_key_available?(:anthropic)
+    if model_id.start_with?("anthropic/") && api_key_available?(:anthropic, account: account)
       { provider: :anthropic, model_id: direct_model_id }
-    elsif model_id.start_with?("openai/") && api_key_available?(:openai)
+    elsif model_id.start_with?("openai/") && api_key_available?(:openai, account: account)
       { provider: :openai, model_id: direct_model_id }
-    elsif model_id.start_with?("google/") && api_key_available?(:gemini)
+    elsif model_id.start_with?("google/") && api_key_available?(:gemini, account: account)
       { provider: :gemini, model_id: direct_model_id }
-    elsif model_id.start_with?("x-ai/") && api_key_available?(:xai)
+    elsif model_id.start_with?("x-ai/") && api_key_available?(:xai, account: account)
       { provider: :xai, model_id: direct_model_id }
     else
       { provider: :openrouter, model_id: model_id }
     end
   end
 
-  def api_key_available?(provider)
+  def api_key_available?(provider, account: nil)
+    key = account&.ai_api_key(provider)
+    return key.present? && !key.start_with?("<") if account
+
     key = case provider
     when :anthropic then RubyLLM.config.anthropic_api_key
     when :openai then RubyLLM.config.openai_api_key

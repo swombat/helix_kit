@@ -11,6 +11,7 @@ class RubyLlmVcrIntegrationTest < ActiveSupport::TestCase
     email = "message-llm-#{SecureRandom.hex(4)}@example.com"
     user = User.register!(email)
     account = user.personal_account
+    account.update!(use_system_ai_credentials: true)
     chat = Chat.create!(account: account)
 
     # Test user message conversion
@@ -41,6 +42,7 @@ class RubyLlmVcrIntegrationTest < ActiveSupport::TestCase
     email = "chat-llm-#{SecureRandom.hex(4)}@example.com"
     user = User.register!(email)
     account = user.personal_account
+    account.update!(use_system_ai_credentials: true)
     chat = Chat.create!(account: account)
 
     # Add multiple messages
@@ -66,6 +68,7 @@ class RubyLlmVcrIntegrationTest < ActiveSupport::TestCase
     email = "ask-test-#{SecureRandom.hex(4)}@example.com"
     user = User.register!(email)
     account = user.personal_account
+    account.update!(use_system_ai_credentials: true)
     chat = Chat.create!(account: account)
 
     # Verify ask method exists and has correct signature
@@ -121,6 +124,7 @@ class RubyLlmVcrIntegrationTest < ActiveSupport::TestCase
     email = "openai-test-#{SecureRandom.hex(4)}@example.com"
     user = User.register!(email)
     account = user.personal_account
+    account.update!(use_system_ai_credentials: true)
 
     VCR.use_cassette("openai_chat_completion_test") do
       chat = Chat.create!(account: account, model_id: "gpt-4o-mini")
@@ -146,6 +150,7 @@ class RubyLlmVcrIntegrationTest < ActiveSupport::TestCase
     email = "openrouter-test-#{SecureRandom.hex(4)}@example.com"
     user = User.register!(email)
     account = user.personal_account
+    account.update!(use_system_ai_credentials: true)
 
     VCR.use_cassette("openrouter_chat_completion_test") do
       chat = Chat.create!(account: account, model_id: "openai/gpt-4.1-mini")
@@ -168,6 +173,7 @@ class RubyLlmVcrIntegrationTest < ActiveSupport::TestCase
     email = "claude-test-#{SecureRandom.hex(4)}@example.com"
     user = User.register!(email)
     account = user.personal_account
+    account.update!(use_system_ai_credentials: true)
 
     VCR.use_cassette("claude_chat_completion_test") do
       chat = Chat.create!(account: account, model_id: "claude-3-haiku")

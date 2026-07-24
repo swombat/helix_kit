@@ -11,7 +11,38 @@ class Account < ApplicationRecord
   # Enums
   enum :account_type, { personal: 0, team: 1 }
 
-  DEFAULT_CONVERSATION_MODES = %w[model agents].freeze
+  AI_PROVIDERS = {
+    openrouter: {
+      env: "OPENROUTER_API_KEY",
+      credentials: %i[ai openrouter api_token],
+      ruby_llm: :openrouter_api_key
+    },
+    anthropic: {
+      env: "ANTHROPIC_API_KEY",
+      credentials: %i[ai claude api_token],
+      ruby_llm: :anthropic_api_key
+    },
+    openai: {
+      env: "OPENAI_API_KEY",
+      credentials: %i[ai open_ai api_token],
+      ruby_llm: :openai_api_key
+    },
+    gemini: {
+      env: "GEMINI_API_KEY",
+      credentials: %i[ai gemini api_token],
+      ruby_llm: :gemini_api_key
+    },
+    xai: {
+      env: "XAI_API_KEY",
+      credentials: %i[ai xai api_token],
+      ruby_llm: :xai_api_key
+    },
+    moonshot: { env: "MOONSHOT_API_KEY", credentials: %i[ai moonshot api_token] }
+  }.freeze
+  AI_CREDENTIAL_ATTRIBUTES = [
+    :use_system_ai_credentials,
+    *AI_PROVIDERS.keys.map { |provider| "#{provider}_api_key".to_sym }
+  ].freeze
 
   # Associations
   has_many :memberships, dependent: :destroy
@@ -28,7 +59,6 @@ class Account < ApplicationRecord
   # Validations (Rails-only, no SQL constraints!)
   validates :name, presence: true
   validates :account_type, presence: true
-  validates :default_conversation_mode, inclusion: { in: DEFAULT_CONVERSATION_MODES }
   validate :enforce_personal_account_limit, if: :personal?
   validate :can_invite_members, if: -> { memberships.any?(&:invitation?) }
 
@@ -44,8 +74,12 @@ class Account < ApplicationRecord
   scope :disabled, -> { where.not(disabled_at: nil) }
 
   encrypts :github_pat
-
-  store_accessor :settings, :default_conversation_mode
+  encrypts :openrouter_api_key
+  encrypts :anthropic_api_key
+  encrypts :openai_api_key
+  encrypts :gemini_api_key
+  encrypts :xai_api_key
+  encrypts :moonshot_api_key
 
   # Authorization scope for SyncChannel - Account is special, it IS the account
   def self.accessible_by(user)
@@ -55,7 +89,8 @@ class Account < ApplicationRecord
   end
 
   json_attributes :personal?, :team?, :active?, :disabled, :is_site_admin, :name, :github_login,
-                  :default_conversation_mode
+                  :use_system_ai_credentials,
+                  except: [ :github_pat, *AI_PROVIDERS.keys.map { |provider| "#{provider}_api_key" } ]
 
   # Business Logic Methods
   def add_user!(user, role: "member", skip_confirmation: false)
@@ -157,13 +192,41 @@ class Account < ApplicationRecord
     github_integration&.commits_context
   end
 
-  def default_conversation_mode
-    raw_mode = super.presence
+  def ai_api_key(provider)
+    provider = provider.to_sym
+    config = AI_PROVIDERS.fetch(provider)
+    configured_key = public_send("#{provider}_api_key").presence
+    return configured_key if configured_key
+    return unless use_system_ai_credentials?
 
-    case raw_mode
-    when "single" then "model"
-    when "group" then "agents"
-    else raw_mode || "model"
+    ruby_llm_key = RubyLLM.config.public_send(config[:ruby_llm]) if config[:ruby_llm]
+    ruby_llm_key.presence ||
+      Rails.application.credentials.dig(*config.fetch(:credentials)).presence ||
+      ENV[config.fetch(:env)].presence
+  end
+
+  def ai_provider_keys
+    AI_PROVIDERS.filter_map do |provider, config|
+      value = ai_api_key(provider)
+      [ config.fetch(:env), value ] if value.present? && !value.start_with?("<")
+    end.to_h
+  end
+
+  def ai_api_keys_configured
+    AI_PROVIDERS.keys.index_with { |provider| public_send("#{provider}_api_key").present? }
+  end
+
+  def saved_ai_credentials_change?
+    (saved_changes.keys.map(&:to_sym) & AI_CREDENTIAL_ATTRIBUTES).any?
+  end
+
+  def ruby_llm_context
+    RubyLLM.context do |config|
+      config.openrouter_api_key = ai_api_key(:openrouter)
+      config.anthropic_api_key = ai_api_key(:anthropic)
+      config.openai_api_key = ai_api_key(:openai)
+      config.gemini_api_key = ai_api_key(:gemini)
+      config.xai_api_key = ai_api_key(:xai)
     end
   end
 
@@ -176,6 +239,13 @@ class Account < ApplicationRecord
     return true if user.site_admin
     # Confirmed account members are treated as trusted collaborators.
     memberships.confirmed.exists?(user: user)
+  end
+
+  def ai_credentials_manageable_by?(user)
+    return false unless user
+    return true if user.site_admin
+
+    memberships.confirmed.admins.exists?(user: user)
   end
 
   def owned_by?(user)

@@ -42,8 +42,8 @@ class GenerateAgentSummaryJob < ApplicationJob
   def generate_summary(agent, chat_agent, chat, transcript)
     prompt = build_prompt(agent, chat_agent, chat, transcript)
 
-    provider_config = llm_provider_for(Prompt::LIGHT_MODEL)
-    llm = RubyLLM.chat(
+    provider_config = llm_provider_for(Prompt::LIGHT_MODEL, account: agent.account)
+    llm = agent.account.ruby_llm_context.chat(
       model: provider_config[:model_id],
       provider: provider_config[:provider],
       assume_model_exists: true

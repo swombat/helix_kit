@@ -32,8 +32,8 @@ class AgentInitiationDecisionJob < ApplicationJob
       nighttime: @nighttime
     )
 
-    provider_config = llm_provider_for(agent.model_id)
-    response = RubyLLM.chat(
+    provider_config = llm_provider_for(agent.model_id, account: agent.account)
+    response = agent.account.ruby_llm_context.chat(
       model: provider_config[:model_id],
       provider: provider_config[:provider],
       assume_model_exists: true

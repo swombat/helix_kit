@@ -28,7 +28,11 @@ class AccountsController < ApplicationController
     if params[:convert].present?
       render inertia: "accounts/convert_confirmation", props: edit_conversion_props
     else
-      render inertia: "accounts/edit", props: { account: @account }
+      render inertia: "accounts/edit", props: {
+        account: @account,
+        ai_api_keys_configured: @account.ai_api_keys_configured,
+        can_manage_ai_credentials: @account.ai_credentials_manageable_by?(Current.user)
+      }
     end
   end
 
@@ -93,6 +97,7 @@ class AccountsController < ApplicationController
   def update_account_settings
     return unless @account.update!(account_params)
 
+    AccountAgentCredentialsRefreshJob.perform_later(@account.id) if @account.saved_ai_credentials_change?
     audit_account_changes if account_has_meaningful_changes?
     redirect_to @account, notice: "Account updated"
   end
@@ -110,11 +115,28 @@ class AccountsController < ApplicationController
   end
 
   def account_params
-    params.require(:account).permit(:name, :default_conversation_mode)
+    permitted_attributes = [ :name ]
+    if @account.ai_credentials_manageable_by?(Current.user)
+      permitted_attributes.push(
+        *Account::AI_PROVIDERS.keys.map { |provider| "#{provider}_api_key" },
+        { clear_ai_api_keys: [] }
+      )
+    end
+
+    permitted = params.require(:account).permit(*permitted_attributes)
+    clear_ai_api_keys = Array(permitted.delete("clear_ai_api_keys"))
+
+    Account::AI_PROVIDERS.each_key do |provider|
+      attribute = "#{provider}_api_key"
+      permitted.delete(attribute) if permitted[attribute].blank?
+      permitted[attribute] = nil if clear_ai_api_keys.include?(provider.to_s)
+    end
+
+    permitted
   end
 
   def create_account_params
-    params.require(:account).permit(:name, :account_type, :default_conversation_mode)
+    params.require(:account).permit(:name, :account_type)
   end
 
   def current_account

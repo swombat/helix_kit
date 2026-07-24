@@ -17,7 +17,8 @@ class AgentCredentialsEncryptorTest < ActiveSupport::TestCase
       github_deploy_key: "PRIVATE KEY",
       provider_keys: {
         "ANTHROPIC_API_KEY" => "sk-ant-test",
-        "OPENROUTER_API_KEY" => "sk-or-test"
+        "OPENROUTER_API_KEY" => "sk-or-test",
+        "MOONSHOT_API_KEY" => "sk-moonshot-test"
       }
     ).encrypt
     wrapper = YAML.safe_load(encrypted)
@@ -34,17 +35,26 @@ class AgentCredentialsEncryptorTest < ActiveSupport::TestCase
     assert_equal "PRIVATE KEY", creds.dig("github", "deploy_key")
     assert_equal "sk-ant-test", creds.dig("llm_provider_keys", "ANTHROPIC_API_KEY")
     assert_equal "sk-or-test", creds.dig("llm_provider_keys", "OPENROUTER_API_KEY")
+    assert_equal "sk-moonshot-test", creds.dig("llm_provider_keys", "MOONSHOT_API_KEY")
   end
 
-  test "omits placeholder provider keys" do
-    provider_keys = AgentCredentialsEncryptor.stub(
-      :provider_key_value,
-      ->(_method, _credentials_path, _env_name) { "<PLACEHOLDER>" }
-    ) do
-      AgentCredentialsEncryptor.provider_keys_from_helixkit
-    end
+  test "uses the agent account provider keys" do
+    agent = agents(:research_assistant)
+    agent.account.update!(
+      use_system_ai_credentials: false,
+      gemini_api_key: "gemini-account-key"
+    )
+    master_key = SecureRandom.base64(32)
 
-    assert_empty provider_keys
+    encrypted = AgentCredentialsEncryptor.new(
+      agent,
+      master_key,
+      outbound_token: "hx_test"
+    ).encrypt
+    creds = YAML.safe_load(decrypt(YAML.safe_load(encrypted), master_key))
+
+    assert_equal "gemini-account-key", creds.dig("llm_provider_keys", "GEMINI_API_KEY")
+    assert_equal "gemini-account-key", creds.dig("llm_provider_keys", "GOOGLE_API_KEY")
   end
 
   private

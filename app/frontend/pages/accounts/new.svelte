@@ -7,14 +7,12 @@
 
   let accountType = $state('team');
   let accountName = $state('');
-  let defaultConversationMode = $state('model');
 
   function getFormData() {
     return {
       account: {
         name: accountName,
         account_type: accountType,
-        default_conversation_mode: defaultConversationMode,
       },
     };
   }
@@ -58,26 +56,5 @@
     <Label for="name">Account Name</Label>
     <Input type="text" id="name" bind:value={accountName} placeholder="Research Lab" required />
     <p class="text-sm text-muted-foreground">Use a name that will make sense in the account switcher.</p>
-  </div>
-
-  <div class="space-y-3">
-    <Label>New Conversation Default</Label>
-    <RadioGroup bind:value={defaultConversationMode} class="grid gap-3 md:grid-cols-2">
-      <label class="flex cursor-pointer items-start gap-3 rounded-md border border-border p-3 hover:bg-muted/50">
-        <RadioGroupItem value="model" id="default-conversation-model" />
-        <span class="space-y-1">
-          <span class="block text-sm font-medium">Model</span>
-          <span class="block text-sm text-muted-foreground">Start with one selected model.</span>
-        </span>
-      </label>
-
-      <label class="flex cursor-pointer items-start gap-3 rounded-md border border-border p-3 hover:bg-muted/50">
-        <RadioGroupItem value="agents" id="default-conversation-agents" />
-        <span class="space-y-1">
-          <span class="block text-sm font-medium">Agents</span>
-          <span class="block text-sm text-muted-foreground">Start with every active account agent selected.</span>
-        </span>
-      </label>
-    </RadioGroup>
   </div>
 </Form>

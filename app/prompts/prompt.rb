@@ -10,9 +10,10 @@ class Prompt
   GUARD_MODEL = "anthropic/claude-opus-4.6"
   CHAT_MODEL = "openai/gpt-5-chat"
 
-  def initialize(model: DEFAULT_MODEL, template: nil)
+  def initialize(model: DEFAULT_MODEL, template: nil, account: nil)
     @model = map_model(model)
     @template = template
+    @account = account
   end
 
   def map_model(model)
@@ -27,9 +28,9 @@ class Prompt
 
   def execute_to_string
     params = render
-    provider_config = ResolvesProvider.resolve_provider(@model)
+    provider_config = ResolvesProvider.resolve_provider(@model, account: @account)
 
-    llm = RubyLLM.chat(
+    llm = llm_context.chat(
       model: provider_config[:model_id],
       provider: provider_config[:provider],
       assume_model_exists: true
@@ -54,9 +55,9 @@ class Prompt
 
   def execute_to_json(single_object: false)
     params = render
-    provider_config = ResolvesProvider.resolve_provider(@model)
+    provider_config = ResolvesProvider.resolve_provider(@model, account: @account)
 
-    llm = RubyLLM.chat(
+    llm = llm_context.chat(
       model: provider_config[:model_id],
       provider: provider_config[:provider],
       assume_model_exists: true
@@ -89,11 +90,11 @@ class Prompt
     info "Executing #{self.class} with output class #{output_class} and id #{output_id} on property #{output_property}"
 
     params = render
-    provider_config = ResolvesProvider.resolve_provider(@model)
+    provider_config = ResolvesProvider.resolve_provider(@model, account: @account)
 
     @output = output_class.constantize.find(output_id)
 
-    llm = RubyLLM.chat(
+    llm = llm_context.chat(
       model: provider_config[:model_id],
       provider: provider_config[:provider],
       assume_model_exists: true
@@ -125,6 +126,10 @@ class Prompt
     end
     params[:model] = @model
     params
+  end
+
+  def llm_context
+    @account&.ruby_llm_context || RubyLLM
   end
 
   def render_template(**args)

@@ -9,6 +9,7 @@ class ChatTest < ActiveSupport::TestCase
     )
     @user.profile.update!(first_name: "Test", last_name: "User")
     @account = @user.personal_account
+    @account.update!(use_system_ai_credentials: true)
   end
 
   test "belongs to account" do

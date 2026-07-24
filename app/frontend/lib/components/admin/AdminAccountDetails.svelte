@@ -6,6 +6,7 @@
   import { Input } from '$lib/components/shadcn/input/index.js';
   import { Label } from '$lib/components/shadcn/label/index.js';
   import { RadioGroup, RadioGroupItem } from '$lib/components/shadcn/radio-group/index.js';
+  import { Switch } from '$lib/components/shadcn/switch/index.js';
   import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '$lib/components/shadcn/table';
   import InfoCard from '$lib/components/InfoCard.svelte';
   import Avatar from '$lib/components/Avatar.svelte';
@@ -43,6 +44,12 @@
     if (!confirm(`Convert ${account.name} to a personal account? This requires exactly one member.`)) return;
 
     router.patch(`/admin/accounts/${account.id}/convert`, { account_type: 'personal' });
+  }
+
+  function setSharedAiCredentials(enabled) {
+    router.patch(`/admin/accounts/${account.id}/shared_ai_credentials`, {
+      account: { use_system_ai_credentials: enabled },
+    });
   }
 
   function removeMember(member) {
@@ -166,6 +173,30 @@
           <Button onclick={convertToPersonal} disabled={members.length !== 1}>Convert to Personal</Button>
         </div>
       {/if}
+    </CardContent>
+  </Card>
+
+  <Card class="mb-8">
+    <CardHeader>
+      <CardTitle>Shared AI credentials</CardTitle>
+      <CardDescription>
+        Allow this account to use the application's Rails credential keys when it has no provider-specific key.
+      </CardDescription>
+    </CardHeader>
+    <CardContent>
+      <div class="flex items-center justify-between gap-6 rounded-md border p-4">
+        <div class="space-y-1">
+          <Label for={`shared-ai-credentials-${account.id}`}>Use shared keys as fallback</Label>
+          <p class="text-sm text-muted-foreground">
+            New accounts start with this disabled. Account owners cannot change it themselves.
+          </p>
+        </div>
+        <Switch
+          id={`shared-ai-credentials-${account.id}`}
+          aria-label="Use shared keys as fallback"
+          checked={account.use_system_ai_credentials}
+          onCheckedChange={setSharedAiCredentials} />
+      </div>
     </CardContent>
   </Card>
 

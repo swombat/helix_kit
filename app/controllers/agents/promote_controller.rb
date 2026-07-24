@@ -63,7 +63,8 @@ class Agents::PromoteController < ApplicationController
       @agent,
       master_key,
       outbound_token: outbound_api_key.raw_token,
-      github_deploy_key: @agent.github_deploy_key_priv
+      github_deploy_key: @agent.github_deploy_key_priv,
+      provider_keys: current_account.ai_provider_keys
     ).encrypt
     deploy_yml = repo_creator.deploy_yml(repo)
     repo_creator.commit_runtime_files!(

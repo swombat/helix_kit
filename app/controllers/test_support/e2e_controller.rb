@@ -153,7 +153,7 @@ module TestSupport
           account_type: account.account_type,
           disabled: account.disabled?,
           active: account.active?,
-          default_conversation_mode: account.default_conversation_mode,
+          use_system_ai_credentials: account.use_system_ai_credentials?,
           members: account.memberships.includes(:user).map { |membership|
             {
               email: membership.user.email_address,

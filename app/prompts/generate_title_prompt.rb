@@ -6,7 +6,7 @@ class GenerateTitlePrompt < Prompt
   MAX_MESSAGE_LENGTH = 240
 
   def initialize(chat:, model: Prompt::LIGHT_MODEL)
-    super(model: model, template: "generate_title")
+    super(model: model, template: "generate_title", account: chat.account)
     @chat = chat
   end
 

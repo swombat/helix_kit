@@ -223,9 +223,9 @@ class Chat < ApplicationRecord
   # calls go to the direct provider for lower latency and cost.
   def to_llm
     original_model_id = model_id_string_value
-    provider_config = self.class.resolve_provider(original_model_id)
+    provider_config = ResolvesProvider.resolve_provider(original_model_id, account: account)
 
-    @chat = (context || RubyLLM).chat(
+    @chat = (context || account.ruby_llm_context).chat(
       model: provider_config[:model_id],
       provider: provider_config[:provider],
       assume_model_exists: true

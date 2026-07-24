@@ -71,7 +71,6 @@ module Agents
       spawn!
     end
 
-
     def status
       @configuration_error = nil
       base = {
@@ -297,7 +296,7 @@ module Agents
         "-e", "AGENT_DEFAULT_MODEL=#{agent_model}",
         "-e", "TRIGGER_BEARER_TOKEN=#{agent.trigger_bearer_token}",
         "-e", "HELIXKIT_BEARER_TOKEN=#{agent.outbound_api_token}",
-        "-e", "HELIXKIT_APP_URL=#{Agents::Config.internal_url}",
+        "-e", "HELIXKIT_APP_URL=#{Agents::Config.internal_url}"
       ]
       args += provider_env_args
       args += [ "-p", "127.0.0.1::4000" ] if Agents::Config.publish_ports?
@@ -356,20 +355,9 @@ module Agents
     end
 
     def provider_env_args
-      {
-        "ANTHROPIC_API_KEY" => credential(:anthropic, :claude),
-        "OPENAI_API_KEY" => credential(:openai, :open_ai),
-        "OPENROUTER_API_KEY" => credential(:openrouter, :openrouter),
-        "GEMINI_API_KEY" => credential(:gemini, :gemini),
-        "XAI_API_KEY" => credential(:xai, :xai)
-      }.filter_map do |name, value|
+      agent.account.ai_provider_keys.filter_map do |name, value|
         value.present? ? [ "-e", "#{name}=#{value}" ] : nil
       end.flatten
-    end
-
-    def credential(env_name, credential_name)
-      ENV["#{env_name.to_s.upcase}_API_KEY"].presence ||
-        Rails.application.credentials.dig(:ai, credential_name, :api_token).presence
     end
 
   end

@@ -134,6 +134,7 @@ Rails.application.routes.draw do
         patch :disable
         patch :enable
         patch :convert
+        patch :shared_ai_credentials
       end
       resources :memberships, only: [ :create, :destroy ], controller: "account_memberships"
     end

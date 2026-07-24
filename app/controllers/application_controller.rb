@@ -75,6 +75,9 @@ class ApplicationController < ActionController::Base
 
     changes = record.saved_changes.except(:updated_at)
     data = extra_data.merge(changes)
+    data = ActiveSupport::ParameterFilter
+      .new(Rails.application.config.filter_parameters)
+      .filter(data)
 
     audit(action, record, **data)
   end

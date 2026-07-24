@@ -34,8 +34,8 @@ class MemoryReflectionJob < ApplicationJob
 
     prompt = build_prompt(agent, core_memories, journal_entries)
 
-    provider_config = llm_provider_for(agent.model_id)
-    llm = RubyLLM.chat(
+    provider_config = llm_provider_for(agent.model_id, account: agent.account)
+    llm = agent.account.ruby_llm_context.chat(
       model: provider_config[:model_id],
       provider: provider_config[:provider],
       assume_model_exists: true

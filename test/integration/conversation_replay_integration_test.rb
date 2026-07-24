@@ -21,6 +21,7 @@ class ConversationReplayIntegrationTest < ActiveSupport::TestCase
     @user = User.find_or_create_by!(email_address: "replay-integration@example.com") { |u| u.password = "password123" }
     @user.profile.update!(first_name: "Replay", last_name: "User")
     @account = @user.personal_account
+    @account.update!(use_system_ai_credentials: true)
   end
 
   test "anthropic_thinking_two_turn — thinking persists across turns" do

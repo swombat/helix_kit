@@ -134,6 +134,7 @@ class Admin::AccountsControllerTest < ActionDispatch::IntegrationTest
     assert selected_account.key?("updated_at")
     assert selected_account.key?("owner")
     assert selected_account.key?("memberships")
+    assert selected_account.key?("use_system_ai_credentials")
 
     # Verify memberships array structure
     memberships = selected_account["memberships"]
@@ -380,6 +381,20 @@ class Admin::AccountManagementActionsTest < ActionDispatch::IntegrationTest
     assert_redirected_to admin_accounts_path(account_id: account)
     assert_not account.reload.disabled?
     assert account.active?
+  end
+
+  test "site admin can update shared AI credential fallback" do
+    account = accounts(:team_account)
+    account.update!(use_system_ai_credentials: false)
+
+    assert_enqueued_with(job: AccountAgentCredentialsRefreshJob, args: [ account.id ]) do
+      patch shared_ai_credentials_admin_account_path(account), params: {
+        account: { use_system_ai_credentials: true }
+      }
+    end
+
+    assert_redirected_to admin_accounts_path(account_id: account)
+    assert account.reload.use_system_ai_credentials?
   end
 
   test "disabled accounts are hidden from regular account access" do

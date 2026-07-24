@@ -175,21 +175,11 @@ test.describe('browser contracts', () => {
     await secondContext.close();
   });
 
-  test('new conversations remain agent-only after updating the legacy account default', async ({ page, request }) => {
+  test('new conversations remain agent-only without an account conversation-mode setting', async ({ page }) => {
     await login(page, setup.primary_user, setup.password);
     await page.goto(`/accounts/${setup.account_id}/edit`);
     await expect(page.getByRole('heading', { name: 'Edit Account' })).toBeVisible();
-
-    await page.locator('#default-conversation-agents').click();
-    await page.getByRole('button', { name: 'Save Changes' }).click();
-    await expect(page).toHaveURL(/\/accounts\/[^/]+$/);
-
-    const stateResponse = await request.post('/test/e2e/state', {
-      data: { run_id: setup.run_id, account_id: setup.account_id },
-    });
-    expect(stateResponse.ok()).toBe(true);
-    const state = await stateResponse.json();
-    expect(state.account.default_conversation_mode).toBe('agents');
+    await expect(page.getByText('New Conversation Default')).toBeHidden();
 
     await page.goto(`/accounts/${setup.account_id}/chats`);
     const chatForm = page.locator('main');
@@ -308,6 +298,26 @@ test.describe('browser contracts', () => {
       })
     );
   });
+
+  test('account AI API keys can be configured without exposing saved values', async ({ page }) => {
+    await login(page, setup.primary_user, setup.password);
+    await page.goto(`/accounts/${setup.account_id}/edit`);
+
+    const openRouterKey = page.getByLabel('OpenRouter');
+    await expect(openRouterKey).toHaveAttribute('type', 'password');
+    await openRouterKey.fill('e2e-openrouter-secret');
+    await expect(page.getByText('Shared AI keys are available as a fallback')).toBeHidden();
+
+    await page.getByRole('button', { name: 'Save Changes' }).click();
+    await expect(page).toHaveURL(/\/accounts\/[^/]+$/);
+
+    await page.goto(`/accounts/${setup.account_id}/edit`);
+    await expect(page.getByText('Set', { exact: true })).toBeVisible();
+    await expect(page.getByText('Not set', { exact: true })).toHaveCount(5);
+    await expect(page.getByLabel('OpenRouter')).toHaveValue('');
+    await expect(page.getByLabel('OpenRouter')).toHaveAttribute('placeholder', 'Enter a replacement key');
+    await expect(page.locator('body')).not.toContainText('e2e-openrouter-secret');
+  });
 });
 
 test.describe('admin account management', () => {
@@ -331,6 +341,11 @@ test.describe('admin account management', () => {
     await page.goto(`/admin/accounts?account_id=${setup.account_id}`);
     const details = page.locator('main');
     await expect(details.getByRole('heading', { name: `E2E ${setup.run_id} Team` })).toBeVisible();
+
+    const sharedAiCredentials = details.getByRole('switch', { name: 'Use shared keys as fallback' });
+    await expect(sharedAiCredentials).toHaveAttribute('aria-checked', 'false');
+    await sharedAiCredentials.click();
+    await expect(sharedAiCredentials).toHaveAttribute('aria-checked', 'true');
 
     const secondaryRow = details.getByRole('row').filter({ hasText: setup.secondary_user.email });
     await expect(secondaryRow).toBeVisible();
@@ -366,5 +381,6 @@ test.describe('admin account management', () => {
     expect(state.account.account_type).toBe('team');
     expect(state.account.disabled).toBe(true);
     expect(state.account.active).toBe(false);
+    expect(state.account.use_system_ai_credentials).toBe(true);
   });
 });

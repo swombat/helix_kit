@@ -34,10 +34,10 @@ class ManualAgentResponseJob < ApplicationJob
     @use_thinking = agent.uses_thinking? && Chat.supports_thinking?(agent.model_id)
     debug_info "Thinking: #{@use_thinking ? 'enabled' : 'disabled'}"
 
-    provider_config = llm_provider_for(agent.model_id, thinking_enabled: @use_thinking)
+    provider_config = llm_provider_for(agent.model_id, thinking_enabled: @use_thinking, account: chat.account)
     @provider = provider_config[:provider]
 
-    if @use_thinking && Chat.requires_direct_api_for_thinking?(agent.model_id) && !anthropic_api_available?
+    if @use_thinking && Chat.requires_direct_api_for_thinking?(agent.model_id) && !anthropic_api_available?(account: chat.account)
       record_thinking_skip!("anthropic_key_unavailable",
         content: "_Extended thinking requires Anthropic API access, but the API key is not configured. Configure ANTHROPIC_API_KEY to enable signed reasoning blocks._")
       return
@@ -51,7 +51,7 @@ class ManualAgentResponseJob < ApplicationJob
 
     debug_info "Using provider: #{provider_config[:provider]}, model: #{provider_config[:model_id]}"
 
-    llm = RubyLLM.chat(
+    llm = chat.account.ruby_llm_context.chat(
       model: provider_config[:model_id],
       provider: provider_config[:provider],
       assume_model_exists: true

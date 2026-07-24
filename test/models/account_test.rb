@@ -2,6 +2,48 @@ require "test_helper"
 
 class AccountTest < ActiveSupport::TestCase
 
+  test "new accounts do not use shared AI credentials by default" do
+    account = Account.create!(name: "Bring Your Own Keys", account_type: :team)
+
+    assert_not account.use_system_ai_credentials?
+  end
+
+  test "account AI key takes precedence over shared credentials" do
+    account = accounts(:team_account)
+    account.update!(anthropic_api_key: "account-key", use_system_ai_credentials: true)
+
+    Rails.application.credentials.stub(:dig, "shared-key") do
+      assert_equal "account-key", account.ai_api_key(:anthropic)
+    end
+  end
+
+  test "shared AI credentials are only used when fallback is enabled" do
+    account = accounts(:team_account)
+    account.update!(anthropic_api_key: nil, use_system_ai_credentials: true)
+    original_key = RubyLLM.config.anthropic_api_key
+    RubyLLM.config.anthropic_api_key = nil
+
+    Rails.application.credentials.stub(:dig, "shared-key") do
+      assert_equal "shared-key", account.ai_api_key(:anthropic)
+
+      account.update!(use_system_ai_credentials: false)
+      assert_nil account.ai_api_key(:anthropic)
+    end
+  ensure
+    RubyLLM.config.anthropic_api_key = original_key
+  end
+
+  test "provider key export includes Moonshot and omits placeholders" do
+    account = accounts(:team_account)
+    account.update!(
+      use_system_ai_credentials: false,
+      moonshot_api_key: "moonshot-key",
+      openrouter_api_key: "<OPENROUTER_API_KEY>"
+    )
+
+    assert_equal({ "MOONSHOT_API_KEY" => "moonshot-key" }, account.ai_provider_keys)
+  end
+
   # === Core add_user! Method Tests ===
 
   test "add_user! creates new Membership for new membership" do
@@ -691,45 +733,6 @@ class AccountTest < ActiveSupport::TestCase
     assert_not account.manageable_by?(nil)
     assert_not account.accessible_by?(nil)
     assert_not account.owned_by?(nil)
-  end
-
-  test "default conversation mode defaults to model" do
-    account = Account.create!(name: "Conversation Defaults", account_type: :team)
-
-    assert_equal "model", account.default_conversation_mode
-    assert_equal "model", account.as_json["default_conversation_mode"]
-  end
-
-  test "default conversation mode can be set to agents" do
-    account = Account.create!(
-      name: "Group Defaults",
-      account_type: :team,
-      default_conversation_mode: "agents"
-    )
-
-    assert_equal "agents", account.default_conversation_mode
-    assert_equal "agents", account.settings["default_conversation_mode"]
-  end
-
-  test "default conversation mode maps legacy values" do
-    account = Account.create!(name: "Legacy Defaults", account_type: :team)
-
-    account.update_column(:settings, { "default_conversation_mode" => "single" })
-    assert_equal "model", account.reload.default_conversation_mode
-
-    account.update_column(:settings, { "default_conversation_mode" => "group" })
-    assert_equal "agents", account.reload.default_conversation_mode
-  end
-
-  test "default conversation mode rejects unknown values" do
-    account = Account.new(
-      name: "Bad Defaults",
-      account_type: :team,
-      default_conversation_mode: "surprise"
-    )
-
-    assert_not account.valid?
-    assert_includes account.errors[:default_conversation_mode], "is not included in the list"
   end
 
 end

@@ -4,7 +4,7 @@ class Admin::AccountsController < ApplicationController
   skip_before_action :set_current_account
 
   before_action :require_site_admin
-  before_action :set_account, only: %i[disable enable convert]
+  before_action :set_account, only: %i[disable enable convert shared_ai_credentials]
 
   def index
     @accounts = Account.includes(:owner, memberships: :user)
@@ -44,6 +44,19 @@ class Admin::AccountsController < ApplicationController
     end
   end
 
+  def shared_ai_credentials
+    enabled = ActiveModel::Type::Boolean.new.cast(params.require(:account).require(:use_system_ai_credentials))
+    @account.update!(use_system_ai_credentials: enabled)
+    AccountAgentCredentialsRefreshJob.perform_later(@account.id)
+    audit(
+      :admin_update_shared_ai_credentials,
+      @account,
+      account_id: @account.id,
+      use_system_ai_credentials: enabled
+    )
+    redirect_to admin_accounts_path(account_id: @account), notice: "Shared AI credential fallback updated"
+  end
+
   private
 
   def accounts_json
@@ -58,6 +71,7 @@ class Admin::AccountsController < ApplicationController
       include: [ :owner, users: { methods: [ :full_name ] } ],
       methods: [ :users_count, :members_count, :active, :disabled ]
     ).merge(
+      "use_system_ai_credentials" => account.use_system_ai_credentials?,
       "memberships" => account.memberships.map { |membership| membership_json(membership) }
     )
   end

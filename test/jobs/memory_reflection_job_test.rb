@@ -125,7 +125,12 @@ class MemoryReflectionJobTest < ActiveSupport::TestCase
       end
     end.new
 
-    RubyLLM.stub(:chat, llm) do
+    llm_context = Object.new
+    llm_context.define_singleton_method(:chat) { |**| llm }
+
+    context_factory = ->(*, **) { llm_context }
+
+    RubyLLM.stub(:context, context_factory) do
       yield
     end
 

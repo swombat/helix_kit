@@ -10,21 +10,28 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_23_150000) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_23_180000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
   create_table "accounts", force: :cascade do |t|
     t.integer "account_type", default: 0, null: false
+    t.text "anthropic_api_key"
     t.datetime "created_at", null: false
     t.datetime "disabled_at"
+    t.text "gemini_api_key"
     t.string "github_login"
     t.text "github_pat"
     t.boolean "is_site_admin", default: false, null: false
+    t.text "moonshot_api_key"
     t.string "name", null: false
+    t.text "openai_api_key"
+    t.text "openrouter_api_key"
     t.jsonb "settings", default: {}
     t.string "slug"
     t.datetime "updated_at", null: false
+    t.boolean "use_system_ai_credentials", default: false, null: false
+    t.text "xai_api_key"
     t.index ["account_type"], name: "index_accounts_on_account_type"
     t.index ["disabled_at"], name: "index_accounts_on_disabled_at"
     t.index ["slug"], name: "index_accounts_on_slug", unique: true
