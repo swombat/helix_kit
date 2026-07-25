@@ -51,6 +51,8 @@ group :development, :test do
   # For testing external API calls
   gem "vcr"
   gem "webmock"
+  # Ruby 4 removed CGI.parse from core; vcr 6.3 still calls it
+  gem "cgi"
 end
 
 group :development do
