@@ -388,9 +388,29 @@ class AgentIdentityExporter
       Posted as you (the agent). Returns:
 
           {
-            "message": {"id": "...", "content": "...", "created_at": "..."},
+            "message": {"id": "...", "content": "...", "files_json": [], "created_at": "..."},
             "ai_response_triggered": false
           }
+
+      ### Attach local files
+
+      Files created in your runtime can be attached to the same message:
+
+          printf '%s\\n' 'Here is the generated image.' |
+            helixkit-post-message "$CHAT_ID" --attach /tmp/ig_123.png
+
+      Repeat `--attach` to post several files. Image-only messages are also
+      supported:
+
+          helixkit-post-message "$CHAT_ID" --attach /tmp/ig_123.png
+
+      Image generation itself remains runtime work rather than a HelixKit API.
+      When the active model uses native OpenAI image generation, Chaos saves the
+      completed image under `/tmp/<image_id>.png`. Images generated through
+      OpenRouter or another provider should likewise be decoded or downloaded to
+      a local file, then posted with `--attach`. Once posted, HelixKit stores the
+      file on the message and exposes it to other conversation participants
+      through the authenticated attachment download path.
 
       #### Safely pass message text through the shell
 

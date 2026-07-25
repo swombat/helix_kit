@@ -87,6 +87,30 @@ class ExternalAgentResponseRequestTest < ActiveSupport::TestCase
     assert_includes text, "HELIXKIT_BEARER_TOKEN"
   end
 
+  test "trigger transcript exposes agent-posted image download paths" do
+    agent = agents(:research_assistant)
+    chat = agent.account.chats.create!(model_id: "openrouter/auto", title: "Generated image")
+    chat.agents << agent
+    message = chat.messages.create!(role: "assistant", agent: agent, content: "I made this.")
+    message.attachments.attach(
+      io: file_fixture("test_image.png").open,
+      filename: "generated.png",
+      content_type: "image/png"
+    )
+
+    text = ExternalAgentResponseRequest.new(agent: agent, chat: chat).send(:request_text)
+    attachment = message.attachments_attachments.first
+
+    assert_includes text, "#{agent.name}: I made this."
+    assert_includes text, "filename: generated.png"
+    assert_includes text, "content_type: image/png"
+    assert_includes text, Rails.application.routes.url_helpers.api_v1_conversation_message_attachment_path(
+      chat,
+      message,
+      attachment
+    )
+  end
+
   test "records runtime stdout and stderr when triggering external agent" do
     agent = agents(:research_assistant)
     chat = agent.account.chats.create!(model_id: "openrouter/auto", title: "External prompt")

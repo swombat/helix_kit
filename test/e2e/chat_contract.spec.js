@@ -94,6 +94,30 @@ test.describe('browser contracts', () => {
     await expect(page.getByText(/I will compare both deterministic test agents/)).toBeVisible();
   });
 
+  test('agent image attachments render as thumbnails and open the lightbox', async ({ page, request }) => {
+    await login(page, setup.primary_user, setup.password);
+    const chatId = await startGroupChat(page, setup.account_id, 'Please make a small test image.');
+
+    const response = await request.post('/test/e2e/assistant_message', {
+      data: {
+        chat_id: chatId,
+        content: 'Here is the generated image.',
+        attach_image: true,
+      },
+    });
+    expect(response.ok()).toBe(true);
+
+    await page.reload();
+    await expect(page.getByText('Here is the generated image.')).toBeVisible();
+    const thumbnail = page.getByRole('img', { name: 'agent-generated-image.png' }).first();
+    await expect(thumbnail).toBeVisible();
+    await thumbnail.click();
+
+    await expect(page.getByText('View full size original')).toBeVisible();
+    await expect(page.getByTitle('Download original')).toHaveAttribute('href', /rails\/active_storage/);
+    await expect(page.getByRole('img', { name: 'agent-generated-image.png' }).last()).toBeVisible();
+  });
+
   test('hosted agent promotion page explains local sandbox testing', async ({ page }) => {
     await login(page, setup.primary_user, setup.password);
     const agentId = setup.agents[0].id;

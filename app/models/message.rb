@@ -84,8 +84,8 @@ class Message < ApplicationRecord
 
   def completed?
     # User messages are always completed
-    # Assistant messages are completed if they have content
-    role == "user" || (role == "assistant" && content.present?)
+    # Assistant messages are completed if they have content or attachments
+    role == "user" || (role == "assistant" && (content.present? || attachments.attached?))
   end
 
   alias_method :completed, :completed?

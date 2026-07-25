@@ -10,24 +10,33 @@ module Api
         end
 
         message = if current_api_agent
-          chat.messages.create!(
+          chat.messages.build(
             content: params[:content],
             role: "assistant",
             agent: current_api_agent
           )
         else
-          chat.messages.create!(
+          chat.messages.build(
             content: params[:content],
             role: "user",
             user: current_api_user
           )
+        end
+        message.attachments.attach(params[:files]) if params[:files].present?
+
+        if message.content.blank? && !message.attachments.attached?
+          return render json: { errors: [ "Content or at least one file is required" ] }, status: :unprocessable_entity
+        end
+
+        unless message.save
+          return render json: { errors: message.errors.full_messages }, status: :unprocessable_entity
         end
 
         ai_response_triggered = !current_api_agent && !chat.manual_responses?
         AiResponseJob.perform_later(chat) if ai_response_triggered
 
         render json: {
-          message: { id: message.to_param, content: message.content, created_at: message.created_at.iso8601 },
+          message: message.as_json,
           ai_response_triggered: ai_response_triggered
         }, status: :created
       end

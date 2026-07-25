@@ -165,6 +165,14 @@
                 class="prose" />
             {/if}
 
+            {#if message.files_json && message.files_json.length > 0}
+              <div class:mt-3={message.content || message.thinking || streamingThinking} class="space-y-2">
+                {#each message.files_json as file}
+                  <FileAttachment {file} onImageClick={onimagelightbox} />
+                {/each}
+              </div>
+            {/if}
+
             {#if message.tools_used && message.tools_used.length > 0}
               <div class="flex items-center gap-2 mt-3 pt-3 border-t border-border/50">
                 <Globe size={14} class="text-muted-foreground" weight="duotone" />

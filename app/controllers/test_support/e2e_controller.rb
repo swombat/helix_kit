@@ -52,6 +52,13 @@ module TestSupport
         thinking: params[:thinking],
         streaming: false
       )
+      if params[:attach_image]
+        message.attachments.attach(
+          io: Rails.root.join("test/fixtures/files/test_image.png").open,
+          filename: "agent-generated-image.png",
+          content_type: "image/png"
+        )
+      end
 
       render json: { message_id: message.to_param }
     end

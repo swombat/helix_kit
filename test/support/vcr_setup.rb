@@ -6,7 +6,8 @@ IGNORED_HEADERS = [
   "Authorization",
   "User-Agent",
   "Accept",
-  "X-Auth-Token"
+  "X-Auth-Token",
+  "Set-Cookie"
 ]
 
 VCR_RECORD_MODE = ENV["RECORD_CASSETTES"] == "1" ? :new_episodes : :none
