@@ -211,8 +211,12 @@ namespace :db_backup do
     end
   end
 
+  task ensure_agent_restore_ready: :environment do
+    Backup::AgentResticRestore.ensure_docker_available! if Rails.env.development?
+  end
+
   desc "Download and restore the latest backup (full refresh)"
-  task refresh: [ :download, :restore ] do
+  task refresh: [ :ensure_agent_restore_ready, :download, :restore ] do
     DbBackupHelpers.ensure_not_production!
     Rake::Task["db_backup:restore_agents"].invoke if Rails.env.development?
     puts "Database refresh completed."

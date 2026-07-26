@@ -4,9 +4,19 @@ module Backup
     class RestoreError < StandardError; end
 
     def self.restore_all!
+      ensure_docker_available!
+
       Agent.externally_hosted.where.not(uuid: nil).find_each do |agent|
         new(agent).restore!
       end
+    end
+
+    def self.ensure_docker_available!
+      stdout, stderr, status = Open3.capture3("docker", "info", "--format", "{{.ServerVersion}}")
+      return true if status.success? && stdout.strip.present?
+
+      detail = stderr.presence || stdout.presence || "unknown Docker error"
+      raise RestoreError, "Docker daemon is not reachable. Start Docker and retry: #{detail.strip}"
     end
 
     def initialize(agent)
@@ -33,14 +43,21 @@ module Backup
     def remove_container!
       return if agent.container_name.blank?
 
-      system("docker", "rm", "-f", agent.container_name, out: File::NULL, err: File::NULL)
+      result = docker_capture("rm", "-f", agent.container_name)
+      return if result[:ok] || result[:stderr].include?("No such container")
+
+      raise RestoreError, docker_error("remove container #{agent.container_name}", result)
     end
 
     def recreate_volumes!
       Agents::VolumeSet.new(agent).each do |_name, volume|
-        system("docker", "volume", "rm", "-f", volume, out: File::NULL, err: File::NULL)
-        success = system("docker", "volume", "create", volume, out: File::NULL, err: File::NULL)
-        raise RestoreError, "Could not create Docker volume #{volume}" unless success
+        removal = docker_capture("volume", "rm", "-f", volume)
+        unless removal[:ok] || removal[:stderr].include?("No such volume")
+          raise RestoreError, docker_error("remove Docker volume #{volume}", removal)
+        end
+
+        creation = docker_capture("volume", "create", volume)
+        raise RestoreError, docker_error("create Docker volume #{volume}", creation) unless creation[:ok]
       end
     end
 
@@ -55,6 +72,16 @@ module Backup
       ]
       success = system(*command)
       raise RestoreError, "Restic restore failed for #{agent.name}" unless success
+    end
+
+    def docker_capture(*args)
+      stdout, stderr, status = Open3.capture3("docker", *args)
+      { stdout: stdout, stderr: stderr, ok: status.success? }
+    end
+
+    def docker_error(action, result)
+      detail = result[:stderr].presence || result[:stdout].presence || "unknown Docker error"
+      "Could not #{action}: #{detail.strip}"
     end
 
     def configure_for_local_runtime!

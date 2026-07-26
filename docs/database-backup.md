@@ -85,6 +85,13 @@ bin/rails db_backup:restore_agents
 
 Both restore steps prompt before replacing local state.
 
+Docker must be running before the agent-volume restore begins. If PostgreSQL has
+already been restored but Docker was unavailable, start Docker and resume with:
+
+```bash
+bin/rails db_backup:restore_agents
+```
+
 ### 1. Download the backup from S3
 
 ```bash
@@ -152,3 +159,10 @@ auxiliary databases are not backed up because they contain ephemeral data:
 - Verify AWS credentials are correct
 - Check the `postgres_bucket` credential is set
 - Ensure the S3 bucket exists and allows PutObject
+
+### Agent restore says the Docker daemon is not reachable
+
+- Start Docker Desktop (or the local Docker daemon).
+- Confirm `docker info` succeeds in the same shell.
+- Run `bin/rails db_backup:restore_agents`; the database does not need to be
+  restored again.
