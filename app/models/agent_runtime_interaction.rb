@@ -2,6 +2,7 @@ class AgentRuntimeInteraction < ApplicationRecord
 
   SUPPORTED_TELEMETRY_SCHEMA_VERSION = 1
   LOCAL_USAGE_SCOPES = %w[invocation trigger].freeze
+  RUNTIME_OUTPUT_CAPTURE_LIMIT = 4_000
 
   belongs_to :agent
   belongs_to :chat, optional: true
@@ -280,6 +281,40 @@ class AgentRuntimeInteraction < ApplicationRecord
       started_at: started_at&.iso8601,
       duration_ms: duration_ms
     }
+  end
+
+  def as_session_json
+    as_cost_json.merge(
+      session_id: session_id,
+      conversation_id: conversation_obfuscated_id,
+      transport_status: transport_status,
+      runtime_status: runtime_status,
+      runtime_returncode: runtime_returncode,
+      stdout: stdout,
+      stderr: stderr,
+      stdout_chars: stdout.to_s.length,
+      stderr_chars: stderr.to_s.length,
+      output_capture_limit_chars: RUNTIME_OUTPUT_CAPTURE_LIMIT,
+      stdout_may_be_truncated: stdout.to_s.length >= RUNTIME_OUTPUT_CAPTURE_LIMIT,
+      stderr_may_be_truncated: stderr.to_s.length >= RUNTIME_OUTPUT_CAPTURE_LIMIT,
+      error_class: error_class,
+      error_message: error_message,
+      chaos_session_id: chaos_session_id,
+      prior_chaos_session_id: prior_chaos_session_id,
+      session_roll_reason: session_roll_reason,
+      session_trigger_sequence: session_trigger_sequence,
+      session_age_seconds: session_age_seconds,
+      persistent_session_requested: persistent_session_requested,
+      session_mapping_found: session_mapping_found,
+      resume_attempted: resume_attempted,
+      full_prompt_bytes: full_prompt_bytes,
+      delta_prompt_bytes: delta_prompt_bytes,
+      selected_prompt_bytes: selected_prompt_bytes,
+      prompt_component_bytes: prompt_component_bytes,
+      chaos_version: chaos_version,
+      cache_ttl: cache_ttl,
+      finished_at: finished_at&.iso8601
+    )
   end
 
   def visible_in_chat_timeline?

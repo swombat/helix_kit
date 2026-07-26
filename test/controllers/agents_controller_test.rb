@@ -131,7 +131,11 @@ class AgentsControllerTest < ActionDispatch::IntegrationTest
       uncached_input_tokens: 100,
       cache_creation_input_tokens: 20,
       cache_read_input_tokens: 500,
-      output_tokens: 30
+      output_tokens: 30,
+      stdout: "diagnostic answer",
+      stderr: "runtime warning",
+      chaos_session_id: "chaos-process-123",
+      selected_prompt_bytes: 12_345
     )
 
     get edit_account_agent_path(@account, @agent), params: { tab: "interactions" }
@@ -140,6 +144,11 @@ class AgentsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Dad cost investigation", interaction["chat_title"]
     assert_equal "Conversation · Resumed · delta prompt", interaction["summary"]
     assert_equal 500, interaction.dig("tokens", "cache_read_input_tokens")
+    assert_equal "diagnostic answer", interaction["stdout"]
+    assert_equal "runtime warning", interaction["stderr"]
+    assert_equal "chaos-process-123", interaction["chaos_session_id"]
+    assert_equal 12_345, interaction["selected_prompt_bytes"]
+    assert_equal 4_000, interaction["output_capture_limit_chars"]
     assert_equal 1, inertia_shared_props.dig("interactions_pagination", "count")
   end
 

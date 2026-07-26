@@ -42,7 +42,6 @@
     hosting_diagnostics_url: hostingDiagnosticsUrl = null,
     runtime_observability_url: runtimeObservabilityUrl = null,
     sandbox_recreation_url: sandboxRecreationUrl = null,
-    runtime_interactions: runtimeInteractions = [],
     interactions = [],
     interactions_pagination: interactionsPagination = {},
     cost_report: costReport = {},
@@ -50,14 +49,7 @@
   } = $props();
 
   useSync({
-    [`Agent:${agent.id}`]: [
-      'agent',
-      'memories',
-      'runtime_interactions',
-      'interactions',
-      'interactions_pagination',
-      'cost_report',
-    ],
+    [`Agent:${agent.id}`]: ['agent', 'memories', 'interactions', 'interactions_pagination', 'cost_report'],
   });
 
   let selectedModel = $state(agent.model_id);
@@ -416,7 +408,7 @@
       .then((response) => response.json().then((body) => ({ ok: response.ok, body })))
       .then(({ ok, body }) => {
         orientationResult = ok ? body : { status: 'transport_failed', error: body.error || 'Orientation failed' };
-        router.reload({ only: ['agent', 'runtime_interactions'], preserveScroll: true });
+        router.reload({ only: ['agent', 'interactions'], preserveScroll: true });
         loadHostingDiagnostics();
       })
       .catch((error) => {
@@ -594,11 +586,6 @@
                     {#if identityExportUrl}
                       <a href={identityExportUrl}>
                         <Button type="button" variant="outline">Download identity export</Button>
-                      </a>
-                    {/if}
-                    {#if runtimeObservabilityUrl}
-                      <a href={runtimeObservabilityUrl}>
-                        <Button type="button" variant="outline">Runtime usage</Button>
                       </a>
                     {/if}
                   </div>
@@ -864,58 +851,14 @@
                 {/if}
               </div>
             {/each}
-
-            <div class="border rounded-lg p-6 space-y-3">
-              <h2 class="text-xl font-semibold">Recent runtime interactions</h2>
-              {#if runtimeInteractions.length === 0}
-                <p class="text-sm text-muted-foreground">No external runtime interactions have been recorded yet.</p>
-              {:else}
-                <div class="space-y-3">
-                  {#each runtimeInteractions as interaction}
-                    <details class="rounded border bg-muted p-3 text-sm">
-                      <summary class="cursor-pointer">
-                        <span class="font-medium">{interaction.trigger_kind}</span>
-                        <span class="text-muted-foreground">
-                          {interaction.created_at}
-                          · transport {interaction.transport_status ?? 'n/a'}
-                          · runtime {interaction.runtime_status ?? 'n/a'}
-                          {#if interaction.duration_ms}
-                            · {interaction.duration_ms}ms{/if}
-                        </span>
-                      </summary>
-                      <div class="mt-2 grid gap-1 text-xs">
-                        {#if interaction.conversation_id}<div>
-                            Conversation: <span class="font-mono">{interaction.conversation_id}</span>
-                          </div>{/if}
-                        {#if interaction.session_id}<div>
-                            Session: <span class="font-mono">{interaction.session_id}</span>
-                          </div>{/if}
-                        {#if interaction.error_message}<div class="text-destructive">
-                            {interaction.error_class}: {interaction.error_message}
-                          </div>{/if}
-                      </div>
-                      {#if interaction.stdout}
-                        <details class="mt-2">
-                          <summary class="cursor-pointer font-medium">stdout</summary>
-                          <pre
-                            class="mt-1 max-h-80 overflow-auto whitespace-pre-wrap text-xs">{interaction.stdout}</pre>
-                        </details>
-                      {/if}
-                      {#if interaction.stderr}
-                        <details class="mt-2">
-                          <summary class="cursor-pointer font-medium text-destructive">stderr</summary>
-                          <pre
-                            class="mt-1 max-h-80 overflow-auto whitespace-pre-wrap text-xs">{interaction.stderr}</pre>
-                        </details>
-                      {/if}
-                    </details>
-                  {/each}
-                </div>
-              {/if}
-            </div>
           </div>
         {:else if activeTab === 'interactions'}
-          <AgentInteractionsPanel {interactions} pagination={interactionsPagination} {account} {agent} />
+          <AgentInteractionsPanel
+            {interactions}
+            pagination={interactionsPagination}
+            {account}
+            {agent}
+            {runtimeObservabilityUrl} />
         {:else if activeTab === 'costs'}
           <AgentCostsPanel report={costReport} />
         {/if}

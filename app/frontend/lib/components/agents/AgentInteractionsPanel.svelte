@@ -2,7 +2,7 @@
   import { router } from '@inertiajs/svelte';
   import { Button } from '$lib/components/shadcn/button';
 
-  let { interactions = [], pagination = {}, account, agent } = $props();
+  let { interactions = [], pagination = {}, account, agent, runtimeObservabilityUrl = null } = $props();
 
   const tokenColumns = [
     ['uncached_input_tokens', 'Ordinary'],
@@ -57,15 +57,33 @@
     if (state === 'unsupported') return 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300';
     return 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300';
   }
+
+  function bytes(value) {
+    if (value === null || value === undefined) return 'unknown';
+    if (value < 1024) return `${value} B`;
+    if (value < 1024 * 1024) return `${(value / 1024).toFixed(1)} KiB`;
+    return `${(value / 1024 / 1024).toFixed(1)} MiB`;
+  }
 </script>
 
 <div class="space-y-5">
-  <div>
-    <h2 class="text-xl font-semibold">Sessions</h2>
-    <p class="text-sm text-muted-foreground">
-      Agent runtime sessions in reverse chronological order. Token values are shown only when the runtime reported
-      trigger-local instrumentation. Costs are estimates using public API prices as of 22 July 2026.
-    </p>
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+    <div>
+      <h2 class="text-xl font-semibold">Sessions</h2>
+      <p class="text-sm text-muted-foreground">
+        Agent runtime sessions in reverse chronological order. Token values are shown only when the runtime reported
+        trigger-local instrumentation. Costs are estimates using public API prices as of 22 July 2026.
+      </p>
+      <p class="mt-1 text-xs text-muted-foreground">
+        Diagnostic stdout and stderr are stored per trigger. The runtime currently retains only the final 4,000
+        characters of each stream; a 4,000-character value may therefore be truncated.
+      </p>
+    </div>
+    {#if runtimeObservabilityUrl}
+      <a href={runtimeObservabilityUrl}>
+        <Button type="button" variant="outline" size="sm">Detailed runtime usage</Button>
+      </a>
+    {/if}
   </div>
 
   {#if interactions.length === 0}
@@ -121,6 +139,84 @@
               </div>
             {/each}
           </div>
+
+          <details class="mt-4 rounded border bg-muted/30 text-sm">
+            <summary class="cursor-pointer px-3 py-2 font-medium">Session diagnostics and output</summary>
+            <div class="space-y-3 border-t p-3">
+              <div class="grid gap-2 text-xs sm:grid-cols-2 lg:grid-cols-3">
+                <div>
+                  <span class="text-muted-foreground">Logical session:</span>
+                  <span class="font-mono">{interaction.session_id || 'unknown'}</span>
+                </div>
+                <div>
+                  <span class="text-muted-foreground">Chaos process:</span>
+                  <span class="font-mono">{interaction.chaos_session_id || 'unknown'}</span>
+                </div>
+                <div>
+                  <span class="text-muted-foreground">Transport/runtime:</span>
+                  {interaction.transport_status ?? 'n/a'} / {interaction.runtime_status || 'n/a'} /
+                  {interaction.runtime_returncode ?? 'n/a'}
+                </div>
+                <div>
+                  <span class="text-muted-foreground">Lifecycle:</span>
+                  {interaction.session_outcome || 'unknown'}
+                  {#if interaction.session_roll_reason}
+                    · {interaction.session_roll_reason}{/if}
+                </div>
+                <div>
+                  <span class="text-muted-foreground">Prompt:</span>
+                  {interaction.prompt_mode || 'unknown'} · selected {bytes(interaction.selected_prompt_bytes)}
+                </div>
+                <div>
+                  <span class="text-muted-foreground">Chaos/cache:</span>
+                  {interaction.chaos_version || 'unknown'} / {interaction.cache_ttl || 'unknown'}
+                </div>
+              </div>
+
+              {#if Object.keys(interaction.prompt_component_bytes || {}).length}
+                <div class="text-xs text-muted-foreground">
+                  Prompt components:
+                  {Object.entries(interaction.prompt_component_bytes)
+                    .map(([key, value]) => `${key} ${bytes(value)}`)
+                    .join(' · ')}
+                </div>
+              {/if}
+
+              {#if interaction.error_message}
+                <div class="rounded border border-destructive/30 bg-destructive/10 p-2 text-xs text-destructive">
+                  {interaction.error_class}: {interaction.error_message}
+                </div>
+              {/if}
+
+              {#if interaction.stdout}
+                <details>
+                  <summary class="cursor-pointer font-medium">
+                    stdout ({number(interaction.stdout_chars)} characters)
+                    {#if interaction.stdout_may_be_truncated}
+                      <span class="text-amber-700 dark:text-amber-400">· tail only</span>
+                    {/if}
+                  </summary>
+                  <pre
+                    class="mt-1 max-h-96 overflow-auto whitespace-pre-wrap rounded bg-background p-3 text-xs">{interaction.stdout}</pre>
+                </details>
+              {:else}
+                <p class="text-xs text-muted-foreground">No stdout was captured.</p>
+              {/if}
+
+              {#if interaction.stderr}
+                <details>
+                  <summary class="cursor-pointer font-medium text-destructive">
+                    stderr ({number(interaction.stderr_chars)} characters)
+                    {#if interaction.stderr_may_be_truncated}
+                      <span class="text-amber-700 dark:text-amber-400">· tail only</span>
+                    {/if}
+                  </summary>
+                  <pre
+                    class="mt-1 max-h-96 overflow-auto whitespace-pre-wrap rounded bg-background p-3 text-xs">{interaction.stderr}</pre>
+                </details>
+              {/if}
+            </div>
+          </details>
         </div>
       {/each}
     </div>
