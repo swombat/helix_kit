@@ -23,6 +23,11 @@ import urllib.request
 def main() -> int:
     reply_to = None
     args = sys.argv[1:]
+    if args[:1] in (["-h"], ["--help"]):
+        print(__doc__.strip())
+        print()
+        print("Full HelixKit manual: /usr/local/share/helixkit-agent/helixkit-api.md")
+        return 0
     if args[:1] == ["--reply-to"]:
         if len(args) not in (2, 3):
             print("usage: helixkit-send-telegram --reply-to THREAD_ID [MESSAGE]", file=sys.stderr)

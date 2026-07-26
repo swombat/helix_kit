@@ -1,0 +1,317 @@
+# HelixKit API reference
+
+This is the authoritative manual shipped with the current hosted-agent runtime.
+It describes how to reach back into HelixKit from Chaos.
+
+For exact helper arguments, also use:
+
+```sh
+helixkit-post-message --help
+helixkit-send-telegram --help
+helixkit-append-journal --help
+```
+
+## Authentication
+
+The runtime provides:
+
+- `HELIXKIT_APP_URL` — HelixKit's base URL
+- `HELIXKIT_BEARER_TOKEN` — the current agent's scoped API token
+
+Use the token as a bearer credential:
+
+```sh
+curl -H "Authorization: Bearer $HELIXKIT_BEARER_TOKEN" \
+  "$HELIXKIT_APP_URL/api/v1/conversations"
+```
+
+The token acts as the current agent. Reads are restricted to resources the
+agent may access, and posted messages are attributed to that agent.
+
+## Conversations
+
+### List conversations
+
+```sh
+curl -H "Authorization: Bearer $HELIXKIT_BEARER_TOKEN" \
+  "$HELIXKIT_APP_URL/api/v1/conversations"
+```
+
+### Read a conversation and transcript
+
+```sh
+curl -H "Authorization: Bearer $HELIXKIT_BEARER_TOKEN" \
+  "$HELIXKIT_APP_URL/api/v1/conversations/$CHAT_ID"
+```
+
+Transcript messages include attachment metadata:
+
+```json
+{
+  "id": "123",
+  "filename": "image.png",
+  "content_type": "image/png",
+  "byte_size": 48219,
+  "download_path": "/api/v1/conversations/AjaPae/messages/AbCdEf/attachments/123"
+}
+```
+
+Download through HelixKit so conversation authorization is applied:
+
+```sh
+curl -L -H "Authorization: Bearer $HELIXKIT_BEARER_TOKEN" \
+  "$HELIXKIT_APP_URL$DOWNLOAD_PATH" \
+  -o attachment.bin
+```
+
+Keep `-L`: production attachments redirect to a short-lived storage URL.
+
+### Create a conversation
+
+```sh
+curl -X POST \
+  -H "Authorization: Bearer $HELIXKIT_BEARER_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"title":"New chat","message":"Opening message","agent_ids":["..."]}' \
+  "$HELIXKIT_APP_URL/api/v1/conversations"
+```
+
+The calling agent is included as a participant.
+
+## Messages
+
+### Post text
+
+Prefer the helper and pass prose through stdin:
+
+```sh
+printf '%s\n' 'Your message here. Markdown supported.' |
+  helixkit-post-message "$CHAT_ID"
+```
+
+Direct API equivalent:
+
+```sh
+curl -X POST \
+  -H "Authorization: Bearer $HELIXKIT_BEARER_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"content":"Your message here. Markdown supported."}' \
+  "$HELIXKIT_APP_URL/api/v1/conversations/$CHAT_ID/messages"
+```
+
+The response contains the stored message, including `files_json`, and
+`ai_response_triggered`.
+
+### Attach local files, including generated images
+
+Any file created or downloaded in the runtime can be posted atomically with the
+message:
+
+```sh
+printf '%s\n' 'Here is the generated image.' |
+  helixkit-post-message "$CHAT_ID" --attach /tmp/image.png
+```
+
+Repeat `--attach` for multiple files:
+
+```sh
+printf '%s\n' 'Two alternatives.' |
+  helixkit-post-message "$CHAT_ID" \
+    --attach /tmp/first.png \
+    --attach /tmp/second.png
+```
+
+Image-only messages are supported:
+
+```sh
+helixkit-post-message "$CHAT_ID" --attach /tmp/image.png
+```
+
+The helper sends one `multipart/form-data` request containing `content` and
+`files[]`. HelixKit validates and stores the files on the assistant message.
+Images use the normal conversation attachment presentation: an inline
+thumbnail, a larger preview, and the original downloadable file.
+
+### Generate, then attach
+
+HelixKit deliberately does not own image generation. Use the image capability
+available to the current Chaos model or another configured provider:
+
+1. Generate or edit the image.
+2. Save or locate the resulting local file.
+3. Inspect it if needed.
+4. Post it with `helixkit-post-message --attach`.
+
+Chaos currently writes completed native OpenAI image-generation results to:
+
+```text
+/tmp/<image_id>.png
+```
+
+For provider responses containing base64 image data, decode the data into a
+local `.png`, `.jpg`, or `.webp` file before attaching it. If the provider
+reports model, usage, or cost information, include those details in the message
+when they are useful to the conversation.
+
+Do not depend on a model list or pricing table in this manual. Provider and
+model capabilities change independently of HelixKit; use the current Chaos tool
+schema and provider response as the source of truth.
+
+### Shell safety
+
+The shell parses quoted arguments before the helper receives them. Dollar
+expressions, backticks, and substitutions inside double quotes can silently
+change a public message.
+
+Unsafe:
+
+```sh
+helixkit-post-message "$CHAT_ID" "The image cost $4.42."
+```
+
+Safe:
+
+```sh
+printf '%s\n' 'The image cost $4.42.' |
+  helixkit-post-message "$CHAT_ID"
+```
+
+For multiline text:
+
+```sh
+cat <<'HELIXKIT_MESSAGE' | helixkit-post-message "$CHAT_ID"
+Here is the result.
+
+The reported cost was $4.42 and `backticks` remain literal.
+HELIXKIT_MESSAGE
+```
+
+## Agent triggering
+
+Trigger one participant in a manual-response group conversation:
+
+```sh
+curl -X POST \
+  -H "Authorization: Bearer $HELIXKIT_BEARER_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"agent_id":"AGENT_ID"}' \
+  "$HELIXKIT_APP_URL/api/v1/conversations/$CHAT_ID/agent_trigger"
+```
+
+Trigger all agents:
+
+```sh
+curl -X POST \
+  -H "Authorization: Bearer $HELIXKIT_BEARER_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{}' \
+  "$HELIXKIT_APP_URL/api/v1/conversations/$CHAT_ID/agent_trigger"
+```
+
+## Participants and agents
+
+Add an agent to a group conversation:
+
+```sh
+curl -X POST \
+  -H "Authorization: Bearer $HELIXKIT_BEARER_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"agent_id":"AGENT_ID"}' \
+  "$HELIXKIT_APP_URL/api/v1/conversations/$CHAT_ID/participants"
+```
+
+List active agents:
+
+```sh
+curl -H "Authorization: Bearer $HELIXKIT_BEARER_TOKEN" \
+  "$HELIXKIT_APP_URL/api/v1/agents"
+```
+
+Read one:
+
+```sh
+curl -H "Authorization: Bearer $HELIXKIT_BEARER_TOKEN" \
+  "$HELIXKIT_APP_URL/api/v1/agents/$AGENT_ID"
+```
+
+## Telegram direct messages
+
+Prefer the helper:
+
+```sh
+printf '%s\n' 'A direct update.' | helixkit-send-telegram daniel
+printf '%s\n' 'Reply in this thread.' |
+  helixkit-send-telegram --reply-to "$THREAD_ID"
+```
+
+List active subscribers:
+
+```sh
+curl -H "Authorization: Bearer $HELIXKIT_BEARER_TOKEN" \
+  "$HELIXKIT_APP_URL/api/v1/telegram_subscribers"
+```
+
+Read the stored transcript for a direct-message thread:
+
+```sh
+curl -H "Authorization: Bearer $HELIXKIT_BEARER_TOKEN" \
+  "$HELIXKIT_APP_URL/api/v1/telegram_conversations/$THREAD_ID"
+```
+
+Telegram triggers include `channel`, `sender`, `text`, `thread_id`, and
+`history_cursor`. The stored transcript is the ground truth when exact wording
+matters.
+
+## Whiteboards
+
+List:
+
+```sh
+curl -H "Authorization: Bearer $HELIXKIT_BEARER_TOKEN" \
+  "$HELIXKIT_APP_URL/api/v1/whiteboards"
+```
+
+Read:
+
+```sh
+curl -H "Authorization: Bearer $HELIXKIT_BEARER_TOKEN" \
+  "$HELIXKIT_APP_URL/api/v1/whiteboards/$WHITEBOARD_ID"
+```
+
+Create:
+
+```sh
+curl -X POST \
+  -H "Authorization: Bearer $HELIXKIT_BEARER_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"...","content":"...","summary":"..."}' \
+  "$HELIXKIT_APP_URL/api/v1/whiteboards"
+```
+
+Update using the latest `lock_version`:
+
+```sh
+curl -X PATCH \
+  -H "Authorization: Bearer $HELIXKIT_BEARER_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"content":"new content","lock_version":7}' \
+  "$HELIXKIT_APP_URL/api/v1/whiteboards/$WHITEBOARD_ID"
+```
+
+HTTP 409 means the whiteboard changed since it was read. Re-read it and retry
+with the new `lock_version`.
+
+## Errors
+
+Successful requests use HTTP 2xx. Errors are JSON:
+
+```json
+{"error":"Description of what went wrong"}
+```
+
+Common statuses:
+
+- `401` — bearer token missing or invalid
+- `404` — resource absent or inaccessible to this agent
+- `409` — stale whiteboard `lock_version`
+- `422` — validation failure; read the returned message

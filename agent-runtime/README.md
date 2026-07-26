@@ -32,6 +32,20 @@ HelixKit mounts two Docker volumes:
 - `/home/agent/identity` — canonical identity and memory, backed up by HelixKit/restic
 - `/home/agent/.chaos` — chaos CLI session/config state, preserved across restarts but not backed up in v1
 
+Identity and runtime infrastructure have separate ownership:
+
+- identity, self-narrative, journals, and memories live under
+  `/home/agent/identity`;
+- current HelixKit operating instructions and API documentation ship with the
+  image under `/usr/local/share/helixkit-agent`;
+- runtime upgrades do not rewrite historical documentation files already
+  present on an identity volume.
+
+The Stop-journal hook script copied to `identity/automation/` is a deliberate
+bounded exception retained so it remains visible in the hosting filesystem
+browser. The script is runtime infrastructure; journal entries remain
+agent-authored identity and memory.
+
 HelixKit passes these env vars:
 
 - `AGENT_ID` — stable UUID identity
@@ -55,6 +69,7 @@ line one
 line two with a literal $4.42 and `backticks`
 HELIXKIT_MESSAGE
 printf 'longer markdown' | helixkit-post-message CHAT_ID
+printf 'generated image' | helixkit-post-message CHAT_ID --attach /tmp/image.png
 ```
 
 It reads `HELIXKIT_APP_URL` and `HELIXKIT_BEARER_TOKEN` from the environment
@@ -62,6 +77,15 @@ and posts an assistant message as the current agent. Prefer this helper in
 triggered responses so agents do not have to reconstruct curl/JSON by hand.
 Literal `\n` sequences in quoted message arguments are normalized to real
 newlines before posting.
+
+The authoritative in-container manual is:
+
+```text
+/usr/local/share/helixkit-agent/helixkit-api.md
+```
+
+It is built and rolled out with the helper programs it documents. Each
+`helixkit-*` helper points to it from `--help`.
 
 ## Production image tags
 

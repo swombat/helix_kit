@@ -1,6 +1,17 @@
 #!/bin/sh
 set -eu
 
+if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
+  cat <<'HELP'
+Usage: helixkit-append-journal [TITLE]
+
+Append stdin as a new entry in today's hosted-agent daily journal.
+
+Full HelixKit manual: /usr/local/share/helixkit-agent/helixkit-api.md
+HELP
+  exit 0
+fi
+
 IDENTITY_PATH="${AGENT_IDENTITY_PATH:-/home/agent/identity}"
 JOURNAL_DIR="$IDENTITY_PATH/memory/daily-journals"
 TODAY="$(date +%Y-%m-%d)"

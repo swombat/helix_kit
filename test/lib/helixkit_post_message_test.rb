@@ -6,6 +6,14 @@ class HelixkitPostMessageTest < ActiveSupport::TestCase
 
   SCRIPT = Rails.root.join("agent-runtime/helixkit-post-message")
 
+  test "help documents attachments and the canonical runtime manual" do
+    stdout, stderr, status = Open3.capture3("python3", SCRIPT.to_s, "--help")
+
+    assert status.success?, stderr
+    assert_includes stdout, "--attach PATH"
+    assert_includes stdout, "/usr/local/share/helixkit-agent/helixkit-api.md"
+  end
+
   test "posts multipart content and repeated attachments" do
     request = capture_request do |url|
       stdout, stderr, status = Open3.capture3(

@@ -58,6 +58,8 @@ Env vars (read at startup):
     AGENT_PROVIDER            chaos provider override (e.g. "anthropic")
     AGENT_REPO_PATH           agent repo path (default /home/agent/repo)
     AGENT_IDENTITY_PATH       identity path (default /home/agent/identity)
+    AGENT_RUNTIME_DOCS_PATH   runtime documentation path
+                              (default /usr/local/share/helixkit-agent)
     SHIM_PORT                 port to listen on (default 4000)
     CHAOS_BIN                 path to chaos binary (default /usr/local/bin/chaos)
     CHAOS_HOME                chaos state dir (default ~/.chaos); sidecar session
@@ -94,6 +96,10 @@ AGENT_DEFAULT_MODEL = os.environ.get("AGENT_DEFAULT_MODEL", "claude-haiku-4-5")
 AGENT_PROVIDER = os.environ.get("AGENT_PROVIDER", "anthropic")
 AGENT_REPO_PATH = Path(os.environ.get("AGENT_REPO_PATH", "/home/agent/repo"))
 AGENT_IDENTITY_PATH = Path(os.environ.get("AGENT_IDENTITY_PATH", "/home/agent/identity"))
+AGENT_RUNTIME_DOCS_PATH = Path(os.environ.get(
+    "AGENT_RUNTIME_DOCS_PATH",
+    "/usr/local/share/helixkit-agent",
+))
 SHIM_PORT = int(os.environ.get("SHIM_PORT", "4000"))
 CHAOS_BIN = os.environ.get("CHAOS_BIN", "/usr/local/bin/chaos")
 CHAOS_HOME = Path(os.environ.get("CHAOS_HOME", str(Path.home() / ".chaos")))
@@ -101,11 +107,10 @@ CHAOS_TIMEOUT_SECS = int(os.environ.get("CHAOS_TIMEOUT_SECS", "600"))
 CHAOS_ANTHROPIC_CACHE_TTL = os.environ.get("CHAOS_ANTHROPIC_CACHE_TTL")
 SESSION_MAP_DIR = CHAOS_HOME / "helixkit-sessions"
 SHIM_TELEMETRY_SCHEMA_VERSION = 1
-SIDECAR_SCHEMA_VERSION = 2
+SIDECAR_SCHEMA_VERSION = 3
 SUPPORTED_CHAOS_TELEMETRY_SCHEMA_VERSION = 1
 IDENTITY_FINGERPRINT_FILES = [
     "soul.md",
-    "runtime-instructions.md",
     "self-narrative.md",
     "bootstrap.md",
 ]
@@ -939,6 +944,7 @@ def save_session_record(session_id, model, events, provider=None):
         "last_finished_at": now,
         "trigger_sequence": 1,
         "identity_fingerprint": identity_fingerprint(),
+        "runtime_context_fingerprint": runtime_context_fingerprint(),
     }
     _store_legacy_cumulative_usage(record, events)
     _atomic_write(session_record_path(session_id), record)
@@ -988,6 +994,8 @@ def roll_decision(record, model, provider=None):
     changed_files = changed_identity_files(record.get("identity_fingerprint") or {})
     if changed_files:
         return "identity-changed", changed_files
+    if record.get("runtime_context_fingerprint") != runtime_context_fingerprint():
+        return "runtime-context-changed", []
     return None, []
 
 
@@ -1030,6 +1038,15 @@ def changed_identity_files(previous_fingerprint):
         if not unchanged:
             changed.append(filename)
     return changed
+
+
+def runtime_context_fingerprint():
+    """Fingerprint the exact runtime section injected when a session is born."""
+    content = runtime_context().encode("utf-8")
+    return {
+        "sha256": hashlib.sha256(content).hexdigest(),
+        "bytes": len(content),
+    }
 
 
 def _atomic_write(path, record):
@@ -1158,7 +1175,7 @@ def prompt_telemetry(full_prompt, delta_prompt, selected_prompt, mode, component
 
 
 def identity_context() -> str:
-    """Return the stable identity context exported by HelixKit."""
+    """Return identity and current hosting context, with soul first."""
     sections = []
 
     # Keep soul.md first. This is the agent's own chosen/exported identity text,
@@ -1167,8 +1184,11 @@ def identity_context() -> str:
     if soul:
         sections.append(soul)
 
+    runtime = runtime_context()
+    if runtime:
+        sections.append(runtime)
+
     for filename, label in [
-        ("runtime-instructions.md", "Hosted runtime instructions"),
         ("self-narrative.md", "Self-narrative"),
         ("bootstrap.md", "Bootstrap notes"),
     ]:
@@ -1177,6 +1197,40 @@ def identity_context() -> str:
             sections.append(f"## {label}: identity/{filename}\n\n{content}")
 
     return "\n\n".join(sections)
+
+
+def runtime_context() -> str:
+    """Return the exact runtime-owned section injected into fresh sessions."""
+    path = AGENT_RUNTIME_DOCS_PATH / "runtime-instructions.md"
+    content = read_runtime_file(path)
+    if not content:
+        return ""
+
+    notes = [
+        (
+            "This is hosting context supplied by the current runtime image, not "
+            "part of your identity."
+        ),
+    ]
+    legacy_paths = [
+        AGENT_IDENTITY_PATH / "runtime-instructions.md",
+        AGENT_IDENTITY_PATH / "runtime-instructions.md.new",
+        AGENT_IDENTITY_PATH / "helixkit-api.md",
+    ]
+    if any(path.exists() for path in legacy_paths):
+        notes.append(
+            "If `identity/runtime-instructions.md`, "
+            "`identity/runtime-instructions.md.new`, or "
+            "`identity/helixkit-api.md` exists, it may be a historical export "
+            "or contain your own annotations. These files are preserved, but "
+            "the runtime-owned manual named below is authoritative."
+        )
+
+    return "\n\n".join([
+        f"## Hosted runtime instructions: {path}",
+        *notes,
+        content,
+    ])
 
 
 def memory_context() -> str:
@@ -1205,6 +1259,19 @@ def read_identity_file(filename: str) -> str:
         return ""
     except Exception as e:
         return f"_Could not read {path}: {e}_"
+
+    if len(content) <= IDENTITY_FILE_LIMIT:
+        return content
+    return content[:IDENTITY_FILE_LIMIT] + f"\n\n_[truncated {len(content) - IDENTITY_FILE_LIMIT} chars]_"
+
+
+def read_runtime_file(path: Path) -> str:
+    try:
+        content = path.read_text()
+    except FileNotFoundError:
+        return f"_Runtime documentation is missing at {path}._"
+    except Exception as e:
+        return f"_Could not read runtime documentation at {path}: {e}_"
 
     if len(content) <= IDENTITY_FILE_LIMIT:
         return content

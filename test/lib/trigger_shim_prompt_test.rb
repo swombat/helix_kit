@@ -8,7 +8,7 @@ class TriggerShimPromptTest < ActiveSupport::TestCase
       identity = Pathname.new(dir)
       (identity / "memory" / "daily-journals").mkpath
       (identity / "soul.md").write("SOUL FIRST\n")
-      (identity / "runtime-instructions.md").write("Runtime context\n")
+      (identity / "runtime-instructions.md").write("STALE IDENTITY RUNTIME CONTEXT\n")
       (identity / "self-narrative.md").write("Self narrative\n")
       (identity / "bootstrap.md").write("Bootstrap\n")
       (identity / "memory" / "daily-journals" / "2026-05-28.md").write("# Daily Journal: 2026-05-28\n\n## 10:00 — Live edge\n\nToday I woke here.\n")
@@ -17,7 +17,13 @@ class TriggerShimPromptTest < ActiveSupport::TestCase
       prompt = build_prompt_with_python(identity)
 
       assert prompt.start_with?("SOUL FIRST\n"), "soul.md should be first in the prompt"
-      assert_includes prompt, "## Hosted runtime instructions: identity/runtime-instructions.md"
+      assert_includes prompt, "## Hosted runtime instructions: #{Rails.root.join('agent-runtime/docs/runtime-instructions.md')}"
+      assert_includes prompt, "authoritative API and helper reference"
+      assert_includes prompt, "a historical export"
+      assert_includes prompt, "identity/runtime-instructions.md.new"
+      assert_not_includes prompt, "STALE IDENTITY RUNTIME CONTEXT"
+      assert_includes prompt, 'helixkit-post-message "$CHAT_ID" --attach /tmp/image.png'
+      assert_includes prompt, "/tmp/<image_id>.png"
       assert_operator prompt.index("REQUEST"), :<, prompt.index("## Memory context — not current chat transcript")
       assert_includes prompt, "They are not current HelixKit chat messages, not trigger payload, and not the live transcript"
       assert_includes prompt, "## Your recent journal entries"
@@ -69,7 +75,8 @@ class TriggerShimPromptTest < ActiveSupport::TestCase
     PY
     env = {
       "TRIGGER_BEARER_TOKEN" => "tr_test",
-      "AGENT_IDENTITY_PATH" => identity.to_s
+      "AGENT_IDENTITY_PATH" => identity.to_s,
+      "AGENT_RUNTIME_DOCS_PATH" => Rails.root.join("agent-runtime/docs").to_s
     }
     stdout, stderr, status = Open3.capture3(env, "python3", "-c", command)
     assert status.success?, stderr

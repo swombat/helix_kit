@@ -30,6 +30,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         prog="helixkit-post-message",
         description="Post a message and optional local files to a HelixKit conversation.",
+        epilog="Full HelixKit manual: /usr/local/share/helixkit-agent/helixkit-api.md",
     )
     parser.add_argument("chat_id")
     parser.add_argument("message", nargs="?")

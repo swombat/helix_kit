@@ -12,6 +12,8 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
 
     assert_includes dockerfile, "cargo build --release --bin chaos_journald"
     assert_includes dockerfile, "COPY --from=builder /usr/local/bin/chaos_journald /usr/local/bin/chaos_journald"
+    assert_includes dockerfile, "COPY docs/runtime-instructions.md /usr/local/share/helixkit-agent/runtime-instructions.md"
+    assert_includes dockerfile, "COPY docs/helixkit-api.md /usr/local/share/helixkit-agent/helixkit-api.md"
   end
 
   test "runtime config installs RubyLLM providers not bundled by Chaos" do
@@ -23,6 +25,15 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
 
     assert_includes entrypoint, "https://generativelanguage.googleapis.com/v1beta/openai"
     assert_includes entrypoint, "https://openrouter.ai/api/v1"
+  end
+
+  test "entrypoint does not rewrite historical runtime documentation in identity" do
+    entrypoint = Rails.root.join("agent-runtime/entrypoint.sh").read
+
+    assert_not_includes entrypoint, "identity/runtime-instructions.md"
+    assert_not_includes entrypoint, "identity/helixkit-api.md"
+    assert_not_includes entrypoint, "runtime-instructions.md.new"
+    assert_includes entrypoint, "identity/automation/stop_journal_reflex.py"
   end
 
   test "parse_events keeps old cumulative usage explicitly legacy" do
@@ -179,6 +190,8 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
     out = run_shim_python(<<~PY)
       events = mod.parse_events('{"type":"process.started","process_id":"pid-abc"}\\n' +
         '{"type":"turn.completed","usage":{"input_tokens":50,"cached_input_tokens":0,"output_tokens":5}}')
+      legacy_runtime = mod.AGENT_IDENTITY_PATH / "runtime-instructions.md"
+      legacy_runtime.write_text("OLD PLATFORM COPY\\n")
       mod.save_session_record("sess-1", "claude-opus-4-7", events, provider="anthropic")
       record = mod.load_session_record("sess-1")
       checks = {
@@ -186,6 +199,7 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
         "schema_version": record["schema_version"],
         "cumulative_input_tokens": record["cumulative_input_tokens"],
         "soul_fingerprint": record["identity_fingerprint"]["soul.md"],
+        "runtime_fingerprint": record["runtime_context_fingerprint"],
         "same_model": mod.roll_reason(record, "claude-opus-4-7", "anthropic"),
         "other_model": mod.roll_reason(record, "claude-haiku-4-5", "anthropic"),
         "other_provider": mod.roll_reason(record, "claude-opus-4-7", "openrouter"),
@@ -196,6 +210,12 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
       soul = mod.AGENT_IDENTITY_PATH / "soul.md"
       os.utime(soul, ns=(soul.stat().st_atime_ns, soul.stat().st_mtime_ns + 1_000_000))
       checks["same_content_touch"] = mod.roll_reason(record, "claude-opus-4-7", "anthropic")
+      legacy_runtime.write_text("MY HISTORICAL NOTES\\n")
+      checks["legacy_runtime_edit"] = mod.roll_reason(record, "claude-opus-4-7", "anthropic")
+      original_runtime_context = mod.runtime_context
+      mod.runtime_context = lambda: original_runtime_context() + "\\nWRAPPER CHANGED"
+      checks["runtime_changed"] = mod.roll_reason(record, "claude-opus-4-7", "anthropic")
+      mod.runtime_context = original_runtime_context
       soul.write_text("SOUL CHANGED\\n")
       checks["identity_changed"], checks["changed_files"] = mod.roll_decision(
           record, "claude-opus-4-7", "anthropic"
@@ -208,14 +228,17 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
 
     checks = JSON.parse(out)
     assert_equal "pid-abc", checks["loaded_pid"]
-    assert_equal 2, checks["schema_version"]
+    assert_equal 3, checks["schema_version"]
     assert_equal 50, checks["cumulative_input_tokens"]
     assert_equal "SOUL FIRST\n".bytesize, checks.dig("soul_fingerprint", "bytes")
     assert_match(/\A[0-9a-f]{64}\z/, checks.dig("soul_fingerprint", "sha256"))
+    assert_match(/\A[0-9a-f]{64}\z/, checks.dig("runtime_fingerprint", "sha256"))
     assert_nil checks["same_model"]
     assert_equal "model-changed", checks["other_model"]
     assert_equal "provider-changed", checks["other_provider"]
     assert_nil checks["same_content_touch"]
+    assert_nil checks["legacy_runtime_edit"]
+    assert_equal "runtime-context-changed", checks["runtime_changed"]
     assert_equal "identity-changed", checks["identity_changed"]
     assert_equal [ "soul.md" ], checks["changed_files"]
     assert_nil checks["after_retire"]
@@ -229,6 +252,7 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
         "provider": "anthropic",
         "model": "claude-opus-4-7",
         "identity_fingerprint": current_fingerprint,
+        "runtime_context_fingerprint": mod.runtime_context_fingerprint(),
       }
       future = {**version_one, "schema_version": 99}
       malformed = {**version_one, "schema_version": "future"}
@@ -249,6 +273,22 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
     assert_equal 1, result["missing_sequence"]
     assert_equal 1, result["malformed_sequence"]
     assert_equal 8, result["existing_sequence"]
+  end
+
+  test "legacy sidecars without runtime context take one fresh roll" do
+    out = run_shim_python(<<~PY)
+      record = {
+        "schema_version": 2,
+        "provider": "anthropic",
+        "model": "claude-opus-4-7",
+        "identity_fingerprint": mod.identity_fingerprint(),
+      }
+      print(json.dumps({
+        "reason": mod.roll_reason(record, "claude-opus-4-7", "anthropic"),
+      }))
+    PY
+
+    assert_equal "runtime-context-changed", JSON.parse(out)["reason"]
   end
 
   test "usage_since handles cumulative counter resets" do
@@ -524,6 +564,7 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
       env = {
         "TRIGGER_BEARER_TOKEN" => "tr_test",
         "AGENT_IDENTITY_PATH" => identity.to_s,
+        "AGENT_RUNTIME_DOCS_PATH" => Rails.root.join("agent-runtime/docs").to_s,
         "AGENT_REPO_PATH" => dir.to_s,
         "CHAOS_HOME" => chaos_home.to_s,
         "CHAOS_BIN" => chaos_bin.to_s,
