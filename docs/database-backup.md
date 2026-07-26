@@ -1,16 +1,25 @@
 # Database Backup
 
-HelixKit includes automated daily database backups to Amazon S3. Manual full
-backups also preserve every hosted Chaos agent across all accounts.
+HelixKit includes automated daily full backups to Amazon S3: every hosted Chaos
+agent's persistent volumes, followed by a dump of the PostgreSQL database.
 
 ## How It Works
 
-The `DatabaseBackupJob` runs daily at 4am and:
+The `FullBackupJob` runs daily at 4am and:
 
-1. Creates a `pg_dump` of the primary PostgreSQL database
-2. Compresses the dump with gzip (~90% size reduction)
-3. Uploads to the S3 bucket configured in `postgres_bucket` credential
-4. Cleans up temporary files
+1. Takes a Restic snapshot of each hosted agent's persistent Docker volumes
+   (identity, Chaos home, repo)
+2. Creates a `pg_dump` of the primary PostgreSQL database — which records the
+   snapshot IDs just taken
+3. Compresses the dump with gzip (~90% size reduction)
+4. Uploads to the S3 bucket configured in `postgres_bucket` credential
+5. Cleans up temporary files
+
+In the scheduled nightly run, a failed agent snapshot is recorded and logged but
+does not stop the remaining agents or the database dump — restore only ever uses
+the latest *successful* snapshot, so the backup set stays consistent. Agent
+snapshots can be disabled globally with `HELIXKIT_AGENT_BACKUPS_ENABLED=false`
+(the database dump still runs).
 
 Backup files are named with timestamps: `helix_kit_production_2025-01-08_04-00-00.sql.gz`
 
@@ -49,9 +58,10 @@ Each hosted-agent snapshot contains its three persistent Docker volumes:
 - repository/workspace.
 
 The Restic snapshot records and per-agent repository passwords are included in
-the PostgreSQL dump created immediately afterward. If any agent snapshot fails,
-the database dump is not created, avoiding a backup set that silently points at
-partially completed agent state.
+the PostgreSQL dump created immediately afterward. Unlike the nightly run, the
+manual run is fail-fast: if any agent snapshot fails, the database dump is not
+created, so a supervised backup never completes over a knowingly incomplete
+agent backup set.
 
 ## Restoring from Backup
 
@@ -121,10 +131,9 @@ Backups are retained indefinitely in S3. To manage storage costs, configure an S
 
 ## What's Backed Up
 
-The scheduled `DatabaseBackupJob` backs up only the primary database. The manual
-`db_backup:perform` full backup additionally snapshots all hosted-agent volumes.
-The following auxiliary databases are not backed up because they contain
-ephemeral data:
+Both the scheduled nightly `FullBackupJob` and the manual `db_backup:perform`
+back up all hosted-agent volumes and the primary database. The following
+auxiliary databases are not backed up because they contain ephemeral data:
 
 - `*_queue` - Solid Queue job data (recreated on restart)
 - `*_cache` - Solid Cache data (temporary by nature)

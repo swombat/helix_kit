@@ -19,8 +19,8 @@ production:
     queue: default
     schedule: every day at 3am
 
-  database_backup:
-    class: DatabaseBackupJob
+  full_backup:
+    class: FullBackupJob
     schedule: every day at 4am
 
   conversation_initiation:
