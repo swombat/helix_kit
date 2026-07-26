@@ -26,6 +26,7 @@
   import AgentSettingsTabs from '$lib/components/agents/AgentSettingsTabs.svelte';
   import AgentInteractionsPanel from '$lib/components/agents/AgentInteractionsPanel.svelte';
   import AgentCostsPanel from '$lib/components/agents/AgentCostsPanel.svelte';
+  import AgentProviderSubscriptionPanel from '$lib/components/agents/AgentProviderSubscriptionPanel.svelte';
 
   let {
     agent,
@@ -42,6 +43,8 @@
     hosting_diagnostics_url: hostingDiagnosticsUrl = null,
     runtime_observability_url: runtimeObservabilityUrl = null,
     sandbox_recreation_url: sandboxRecreationUrl = null,
+    provider_subscription: providerSubscription = null,
+    can_manage_provider_subscription: canManageProviderSubscription = false,
     interactions = [],
     interactions_pagination: interactionsPagination = {},
     cost_report: costReport = {},
@@ -635,6 +638,23 @@
                 </div>
               {/if}
             </div>
+
+            {#if providerSubscription}
+              <div class="border rounded-lg p-6 space-y-3">
+                <div class="space-y-1">
+                  <h2 class="text-xl font-semibold">Provider subscription account</h2>
+                  <p class="text-sm text-muted-foreground">
+                    Choose whether this hosted agent uses an API key or a personal provider subscription. Provider
+                    tokens stay inside the agent's private Chaos volume and are never stored by HelixKit.
+                  </p>
+                </div>
+                <AgentProviderSubscriptionPanel
+                  {account}
+                  subscriptionAgent={providerSubscription}
+                  canManage={canManageProviderSubscription}
+                  showAgentName={false} />
+              </div>
+            {/if}
 
             <div class="border rounded-lg p-6 space-y-3">
               <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

@@ -70,6 +70,8 @@ class AgentsController < ApplicationController
       hosting_diagnostics_url: account_agent_hosting_diagnostics_path(current_account, @agent),
       runtime_observability_url: Current.user&.is_site_admin? ? admin_agent_runtime_path(@agent) : nil,
       sandbox_recreation_url: account_agent_sandbox_recreation_path(current_account, @agent),
+      provider_subscription: provider_subscription,
+      can_manage_provider_subscription: current_account.ai_credentials_manageable_by?(Current.user),
       interactions: interactions.map(&:as_session_json),
       interactions_pagination: pagy_to_hash(interactions_pagy),
       cost_report: AgentInteractionCostReport.new(agent: @agent).call,
@@ -174,6 +176,26 @@ class AgentsController < ApplicationController
         age_in_days: ((Time.current - m.created_at) / 1.day).floor
       }
     end
+  end
+
+  def provider_subscription
+    return unless @agent.externally_hosted?
+
+    provider = Agents::Sandbox.chaos_provider_for(@agent)
+    return unless Agent::OAUTH_ACCOUNT_PROVIDERS.include?(provider)
+
+    {
+      id: @agent.to_param,
+      name: @agent.name,
+      provider: provider,
+      provider_name: provider == "openai" ? "ChatGPT" : "xAI",
+      runtime: @agent.runtime,
+      available: @agent.external? && @agent.health_state == "healthy",
+      auth_mode: @agent.provider_auth_mode(provider),
+      connection: @agent.provider_connection(provider)
+    }
+  rescue KeyError
+    nil
   end
 
 end

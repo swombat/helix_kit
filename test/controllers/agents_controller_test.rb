@@ -112,6 +112,38 @@ class AgentsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "edit exposes provider subscription setup for a supported hosted agent" do
+    @agent.update!(
+      model_id: "openai/gpt-5",
+      runtime: "external",
+      health_state: "healthy",
+      provider_auth_modes: { "openai" => "oauth_account" },
+      provider_connections: {
+        "openai" => {
+          "status" => "connected",
+          "email" => "subscriber@example.com"
+        }
+      }
+    )
+
+    get edit_account_agent_path(@account, @agent), params: { tab: "hosting" }
+
+    subscription = inertia_shared_props.fetch("provider_subscription")
+    assert_equal @agent.to_param, subscription.fetch("id")
+    assert_equal "openai", subscription.fetch("provider")
+    assert_equal "oauth_account", subscription.fetch("auth_mode")
+    assert_equal "subscriber@example.com", subscription.dig("connection", "email")
+    assert_equal true, inertia_shared_props.fetch("can_manage_provider_subscription")
+  end
+
+  test "edit omits provider subscription setup for deprecated inline agents" do
+    @agent.update!(model_id: "openai/gpt-5", runtime: "inline")
+
+    get edit_account_agent_path(@account, @agent), params: { tab: "hosting" }
+
+    assert_nil inertia_shared_props["provider_subscription"]
+  end
+
   test "edit includes paginated interaction costs with chat context" do
     chat = @account.chats.create!(model_id: "openrouter/auto", title: "Dad cost investigation")
     AgentRuntimeInteraction.create!(

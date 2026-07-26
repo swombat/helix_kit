@@ -39,7 +39,7 @@ module Accounts
           provider: provider,
           provider_name: provider == "openai" ? "ChatGPT" : "xAI",
           runtime: agent.runtime,
-          available: agent.externally_hosted? && agent.health_state == "healthy",
+          available: agent.external? && agent.health_state == "healthy",
           auth_mode: agent.provider_auth_mode(provider),
           connection: agent.provider_connection(provider)
         }
