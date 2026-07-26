@@ -15,7 +15,7 @@
     <span class="sr-only">Menu</span>
   </DropdownMenu.Trigger>
   <DropdownMenu.Content align="end">
-    {#each links as link}
+    {#each links as link (`${link.label}:${link.href}`)}
       {#if link.show}
         <DropdownMenu.Item onclick={() => router.visit(link.href)}>{link.label}</DropdownMenu.Item>
       {/if}

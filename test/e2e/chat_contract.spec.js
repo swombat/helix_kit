@@ -140,14 +140,18 @@ test.describe('browser contracts', () => {
     await expect(page.getByRole('menuitem', { name: 'Whiteboards' })).toBeHidden();
     await page.keyboard.press('Escape');
 
-    await page.goto(`/accounts/${setup.account_id}/chats`);
+    await accountMenu.click();
+    await page.locator('[data-dropdown-menu-sub-trigger]').filter({ hasText: 'Account' }).hover();
+    await page.getByRole('menuitem', { name: `E2E ${setup.run_id} Team`, exact: true }).click();
+    await expect(page).toHaveURL(/\/accounts\/[^/]+\/chats$/);
+    const switchedAccountId = new URL(page.url()).pathname.split('/')[2];
 
     await expect(page.locator('nav').getByRole('link', { name: 'Documentation', exact: true })).toBeHidden();
     await expect(page.locator('nav').getByRole('link', { name: 'About', exact: true })).toBeHidden();
     const agentsLink = page.locator('nav').getByRole('link', { name: 'Agents', exact: true });
-    await expect(agentsLink).toHaveAttribute('href', /\/accounts\/[^/]+\/agents$/);
+    await expect(agentsLink).toHaveAttribute('href', new RegExp(`/accounts/${switchedAccountId}/agents$`));
     await agentsLink.click();
-    await expect(page).toHaveURL(/\/accounts\/[^/]+\/agents$/);
+    await expect(page).toHaveURL(`/accounts/${switchedAccountId}/agents`);
     await expect(page.getByRole('heading', { name: 'Agents' })).toBeVisible();
 
     await accountMenu.click();
