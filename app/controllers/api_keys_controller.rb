@@ -1,26 +1,39 @@
 class ApiKeysController < ApplicationController
 
+  before_action :require_account
+
   def index
+    unless params[:account_id]
+      redirect_to account_api_keys_path(current_account)
+      return
+    end
+
     render inertia: "api_keys/index", props: {
-      api_keys: Current.user.api_keys.by_creation.map { |k| api_key_json(k) }
+      account: current_account,
+      api_keys: managed_api_keys.by_creation.map { |k| api_key_json(k) }
     }
   end
 
   def create
-    api_key = ApiKey.generate_for(Current.user, name: params[:name])
+    api_key = ApiKey.generate_for(Current.user, account: current_account, name: params[:name])
 
     render inertia: "api_keys/show", props: {
+      account: current_account,
       api_key: api_key_json(api_key),
       raw_token: api_key.raw_token
     }
   end
 
   def destroy
-    Current.user.api_keys.find(params[:id]).destroy!
-    redirect_to api_keys_path, notice: "API key revoked"
+    managed_api_keys.find(params[:id]).destroy!
+    redirect_to account_api_keys_path(current_account), notice: "External access key revoked"
   end
 
   private
+
+  def managed_api_keys
+    Current.user.api_keys.where(account: current_account)
+  end
 
   def api_key_json(key)
     {

@@ -4,26 +4,27 @@
   import ApiKeyHeader from '$lib/components/api_keys/ApiKeyHeader.svelte';
   import ApiKeyList from '$lib/components/api_keys/ApiKeyList.svelte';
   import ApiUsageCard from '$lib/components/api_keys/ApiUsageCard.svelte';
+  import { accountApiKeyPath, accountApiKeysPath } from '@/routes';
 
-  let { api_keys = [] } = $props();
+  let { account, api_keys = [] } = $props();
   let newKeyName = $state('');
   let showForm = $state(false);
 
   function createKey() {
     if (newKeyName.trim()) {
-      router.post('/api_keys', { name: newKeyName });
+      router.post(accountApiKeysPath(account.id), { name: newKeyName });
     }
   }
 
   function deleteKey(id) {
     if (confirm('Revoke this API key? Applications using it will stop working.')) {
-      router.delete(`/api_keys/${id}`);
+      router.delete(accountApiKeyPath(account.id, id));
     }
   }
 </script>
 
 <div class="container mx-auto p-8 max-w-4xl">
-  <ApiKeyHeader onCreate={() => (showForm = !showForm)} />
+  <ApiKeyHeader {account} onCreate={() => (showForm = !showForm)} />
 
   {#if showForm}
     <ApiKeyCreateForm bind:name={newKeyName} onSubmit={createKey} />

@@ -28,11 +28,7 @@ module ApiAuthentication
   end
 
   def current_api_account
-    return Current.api_agent.account if Current.api_agent
-
-    # Use the user's first account (personal or team)
-    # In future, could scope keys to specific accounts
-    current_api_user&.accounts&.first
+    @current_api_key&.account
   end
 
   def current_api_agent

@@ -4,6 +4,7 @@ class ApiKeyRequestTest < ActiveSupport::TestCase
 
   setup do
     @user = users(:confirmed_user)
+    @account = accounts(:confirmed_user_account)
   end
 
   test "creates request with pending status" do
@@ -23,16 +24,17 @@ class ApiKeyRequestTest < ActiveSupport::TestCase
 
   test "approving creates api key and stores encrypted token" do
     request = ApiKeyRequest.create_request(client_name: "Claude Code")
-    api_key = request.approve!(user: @user, key_name: "Test Key")
+    api_key = request.approve!(user: @user, account: @account, key_name: "Test Key")
 
     assert_equal "approved", request.reload.status
     assert_equal api_key, request.api_key
+    assert_equal @account, api_key.account
     assert request.approved_token_encrypted.present?
   end
 
   test "retrieve_approved_token returns token once" do
     request = ApiKeyRequest.create_request(client_name: "Claude Code")
-    request.approve!(user: @user, key_name: "Test Key")
+    request.approve!(user: @user, account: @account, key_name: "Test Key")
 
     token = request.retrieve_approved_token!
     assert token.start_with?("hx_")
@@ -43,7 +45,7 @@ class ApiKeyRequestTest < ActiveSupport::TestCase
 
   test "retrieved token authenticates correctly" do
     request = ApiKeyRequest.create_request(client_name: "Claude Code")
-    api_key = request.approve!(user: @user, key_name: "Test Key")
+    api_key = request.approve!(user: @user, account: @account, key_name: "Test Key")
 
     token = request.retrieve_approved_token!
     authenticated_key = ApiKey.authenticate(token)
@@ -78,7 +80,7 @@ class ApiKeyRequestTest < ActiveSupport::TestCase
 
   test "approved? returns true for approved requests" do
     request = ApiKeyRequest.create_request(client_name: "Claude Code")
-    request.approve!(user: @user, key_name: "Test Key")
+    request.approve!(user: @user, account: @account, key_name: "Test Key")
 
     assert request.approved?
   end

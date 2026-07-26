@@ -9,6 +9,7 @@ class ApiKeyTest < ActiveSupport::TestCase
   test "generates key with correct prefix" do
     key = ApiKey.generate_for(@user, name: "Test Key")
     assert key.raw_token.start_with?("hx_")
+    assert_equal @user.default_account, key.account
   end
 
   test "generates key with correct length" do
@@ -29,6 +30,7 @@ class ApiKeyTest < ActiveSupport::TestCase
     key = ApiKey.generate_for(@user, name: "Agent Key", agent: agent)
 
     assert_equal agent, key.agent
+    assert_equal agent.account, key.account
     assert_equal key, ApiKey.authenticate(key.raw_token)
   end
 

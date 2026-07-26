@@ -42,8 +42,9 @@ Rails.application.routes.draw do
     end
   end
 
-  # API Key Management (browser-based)
-  resources :api_keys, only: [ :index, :create, :destroy ]
+  # Legacy entry point for browser-managed external access keys.
+  # The controller redirects this to the user's default account.
+  get "api_keys", to: "api_keys#index", as: :api_keys
 
   # API Key Approvals (all actions keyed by token)
   get    "api_keys/approvals/:token", to: "api_key_approvals#show",    as: :api_key_approval
@@ -62,7 +63,9 @@ Rails.application.routes.draw do
     end
 
     resource :agent_initiation, only: :create, module: :accounts
+    resource :agent_api_keys, only: [ :show, :update ], module: :accounts
     resource :costs, only: :show, module: :accounts
+    resources :api_keys, path: "external_access", only: [ :index, :create, :destroy ]
 
     resources :chats do
       collection do

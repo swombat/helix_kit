@@ -36,8 +36,9 @@ module Api
 
       test "shows approved request with token" do
         user = users(:confirmed_user)
+        account = accounts(:confirmed_user_account)
         request_record = ApiKeyRequest.create_request(client_name: "Claude Code")
-        request_record.approve!(user: user, key_name: "Test")
+        request_record.approve!(user: user, account: account, key_name: "Test")
 
         get api_v1_key_request_url(request_record.request_token)
         assert_response :success
@@ -50,8 +51,9 @@ module Api
 
       test "returns token only once" do
         user = users(:confirmed_user)
+        account = accounts(:confirmed_user_account)
         request_record = ApiKeyRequest.create_request(client_name: "Claude Code")
-        request_record.approve!(user: user, key_name: "Test")
+        request_record.approve!(user: user, account: account, key_name: "Test")
 
         # First request gets the token
         get api_v1_key_request_url(request_record.request_token)

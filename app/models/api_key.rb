@@ -3,6 +3,7 @@ class ApiKey < ApplicationRecord
   TOKEN_PREFIX = "hx_"
 
   belongs_to :user
+  belongs_to :account
   belongs_to :agent, optional: true
 
   validates :name, presence: true, length: { maximum: 100 }
@@ -11,11 +12,12 @@ class ApiKey < ApplicationRecord
 
   scope :by_creation, -> { order(created_at: :desc) }
 
-  def self.generate_for(user, name:, agent: nil)
+  def self.generate_for(user, name:, agent: nil, account: agent&.account || user.default_account)
     raw_token = "#{TOKEN_PREFIX}#{SecureRandom.hex(24)}"
 
     key = create!(
       user: user,
+      account: account,
       agent: agent,
       name: name,
       token_digest: Digest::SHA256.hexdigest(raw_token),

@@ -20,9 +20,9 @@ class ApiKeyRequest < ApplicationRecord
     )
   end
 
-  def approve!(user:, key_name:)
+  def approve!(user:, account:, key_name:)
     transaction do
-      api_key = ApiKey.generate_for(user, name: key_name)
+      api_key = ApiKey.generate_for(user, account: account, name: key_name)
       raw_token = api_key.raw_token
 
       # Store encrypted raw token temporarily for CLI retrieval

@@ -9,7 +9,7 @@
   {#if apiKeys.length === 0}
     <div class="p-8 text-center text-muted-foreground">
       <Key size={48} class="mx-auto mb-4 opacity-50" />
-      <p>No API keys yet. Create one to use with CLI tools.</p>
+      <p>No external access keys yet. Create one for an external agent or tool.</p>
     </div>
   {:else}
     <div class="divide-y">

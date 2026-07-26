@@ -1,8 +1,9 @@
 <script>
   import { Copy, Warning } from 'phosphor-svelte';
   import { Button } from '$lib/components/shadcn/button/index.js';
+  import { accountApiKeysPath } from '@/routes';
 
-  let { api_key, raw_token } = $props();
+  let { account, api_key, raw_token } = $props();
   let copied = $state(false);
 
   async function copyToken() {
@@ -14,7 +15,7 @@
 
 <div class="container mx-auto p-8 max-w-md">
   <div class="border rounded-lg p-6">
-    <h1 class="text-xl font-bold mb-2">API Key Created</h1>
+    <h1 class="text-xl font-bold mb-2">External Access Key Created</h1>
     <p class="text-muted-foreground mb-4">{api_key.name}</p>
 
     <div
@@ -34,6 +35,6 @@
       <p class="text-sm text-green-600 mb-4 dark:text-green-400">Copied to clipboard!</p>
     {/if}
 
-    <Button href="/api_keys" variant="outline" class="w-full">Done</Button>
+    <Button href={accountApiKeysPath(account.id)} variant="outline" class="w-full">Done</Button>
   </div>
 </div>

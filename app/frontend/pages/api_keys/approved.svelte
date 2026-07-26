@@ -2,7 +2,7 @@
   import { CheckCircle } from 'phosphor-svelte';
   import { Button } from '$lib/components/shadcn/button/index.js';
 
-  let { client_name } = $props();
+  let { client_name, manage_path } = $props();
 </script>
 
 <div class="container mx-auto p-8 max-w-md">
@@ -17,6 +17,6 @@
       You can close this tab and return to your CLI.
     </p>
 
-    <Button href="/api_keys" variant="outline" class="w-full">Manage API Keys</Button>
+    <Button href={manage_path} variant="outline" class="w-full">Manage External Access</Button>
   </div>
 </div>

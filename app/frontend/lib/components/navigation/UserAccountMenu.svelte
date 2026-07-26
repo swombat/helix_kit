@@ -26,9 +26,10 @@
     editUserPath,
     editUserPasswordPath,
     accountPath,
+    accountAgentApiKeysPath,
+    accountApiKeysPath,
     accountCostsPath,
     newAccountPath,
-    apiKeysPath,
     accountWhiteboardsPath,
   } from '@/routes';
   import Avatar from '$lib/components/Avatar.svelte';
@@ -139,6 +140,14 @@
           <CurrencyDollar class="mr-2 size-4" />
           <span>Costs</span>
         </DropdownMenu.Item>
+        <DropdownMenu.Item onclick={() => router.visit(accountAgentApiKeysPath(currentAccount.id))}>
+          <Key class="mr-2 size-4" />
+          <span>Agent API Keys</span>
+        </DropdownMenu.Item>
+        <DropdownMenu.Item onclick={() => router.visit(accountApiKeysPath(currentAccount.id))}>
+          <Plugs class="mr-2 size-4" />
+          <span>External Access</span>
+        </DropdownMenu.Item>
         <DropdownMenu.Item onclick={() => router.visit(accountPath(currentAccount.id))}>
           <Gear class="mr-2 size-4" />
           <span>Account Settings</span>
@@ -147,10 +156,6 @@
       <DropdownMenu.Item onclick={() => router.visit(newAccountPath())}>
         <Plus class="mr-2 size-4" />
         <span>New Account</span>
-      </DropdownMenu.Item>
-      <DropdownMenu.Item onclick={() => router.visit(apiKeysPath())}>
-        <Key class="mr-2 size-4" />
-        <span>API Keys</span>
       </DropdownMenu.Item>
       <DropdownMenu.Item onclick={() => router.visit(editUserPasswordPath())}>
         <Password class="mr-2 size-4" />

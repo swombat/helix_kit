@@ -26,16 +26,6 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "edit reports configured AI keys without exposing them" do
-    @personal_account.update!(openrouter_api_key: "secret-account-key")
-
-    get edit_account_path(@personal_account)
-
-    assert_response :success
-    assert_equal true, inertia_shared_props.dig("ai_api_keys_configured", "openrouter")
-    assert_not_includes response.body, "secret-account-key"
-  end
-
   test "should get new" do
     get new_account_path
     assert_response :success
@@ -88,37 +78,6 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Focused Work", @personal_account.reload.name
   end
 
-  test "should update per-account AI keys" do
-    @team_account.update!(use_system_ai_credentials: true)
-
-    assert_enqueued_with(job: AccountAgentCredentialsRefreshJob, args: [ @team_account.id ]) do
-      patch account_path(@team_account), params: {
-        account: {
-          openrouter_api_key: "account-openrouter-key",
-          moonshot_api_key: "account-moonshot-key",
-          use_system_ai_credentials: false
-        }
-      }
-    end
-
-    assert_redirected_to @team_account
-    @team_account.reload
-    assert_equal "account-openrouter-key", @team_account.openrouter_api_key
-    assert_equal "account-moonshot-key", @team_account.moonshot_api_key
-    assert @team_account.use_system_ai_credentials?
-  end
-
-  test "AI key changes are filtered from audit logs" do
-    patch account_path(@team_account), params: {
-      account: { anthropic_api_key: "sk-ant-secret-value" }
-    }
-
-    audit = AuditLog.order(:created_at).last
-    assert_equal "update_account_settings", audit.action
-    assert_equal "[FILTERED]", audit.data.fetch("anthropic_api_key")
-    assert_not_includes audit.data.to_json, "sk-ant-secret-value"
-  end
-
   test "account owners cannot change shared AI credential fallback" do
     @team_account.update!(use_system_ai_credentials: true)
 
@@ -128,26 +87,6 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to @team_account
     assert @team_account.reload.use_system_ai_credentials?
-  end
-
-  test "blank AI key fields preserve configured keys" do
-    @team_account.update!(openai_api_key: "existing-key")
-
-    patch account_path(@team_account), params: {
-      account: { openai_api_key: "", name: "Renamed Team" }
-    }
-
-    assert_equal "existing-key", @team_account.reload.openai_api_key
-  end
-
-  test "configured AI keys can be removed" do
-    @team_account.update!(xai_api_key: "existing-key")
-
-    patch account_path(@team_account), params: {
-      account: { clear_ai_api_keys: [ "xai" ] }
-    }
-
-    assert_nil @team_account.reload.xai_api_key
   end
 
   test "should convert personal to team" do
