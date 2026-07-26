@@ -204,6 +204,13 @@ module Chat::ModelSelection
       provider_model_id: "claude-fable-5"
     },
     {
+      model_id: "anthropic/claude-opus-5",
+      label: "Claude Opus 5",
+      group: "Anthropic",
+      provider_model_id: "claude-opus-5",
+      thinking: { supported: true, requires_direct_api: true }
+    },
+    {
       model_id: "anthropic/claude-opus-4.8",
       label: "Claude Opus 4.8",
       group: "Anthropic",
