@@ -73,7 +73,7 @@ RUN chmod 0755 /usr/local/bin/entrypoint.sh /usr/local/bin/helixkit-post-message
     && chmod 0644 /usr/local/share/helixkit-agent/*.md /usr/local/share/helixkit-agent/stop_journal_reflex.py
 
 # Canonical mounted volumes for hosted agents.
-VOLUME ["/home/agent/identity", "/home/agent/.chaos", "/home/agent/repo"]
+VOLUME ["/home/agent/identity", "/home/agent/.chaos", "/home/agent/repo", "/home/agent/work"]
 
 WORKDIR /home/agent
 ENV SHIM_PORT=4000

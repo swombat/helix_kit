@@ -27,10 +27,22 @@ HelixKit starts one container per hosted agent. The container listens on port `4
 - `GET /health` — unauthenticated liveness check
 - `POST /trigger` — bearer-authenticated trigger endpoint
 
-HelixKit mounts two Docker volumes:
+HelixKit mounts four Docker volumes:
 
 - `/home/agent/identity` — canonical identity and memory, backed up by HelixKit/restic
-- `/home/agent/.chaos` — chaos CLI session/config state, preserved across restarts but not backed up in v1
+- `/home/agent/.chaos` — chaos CLI session/config state
+- `/home/agent/repo` — the Chaos working directory and repository
+- `/home/agent/work` — durable agent-created working files
+
+All four volumes survive runtime image replacement and are included in the
+hosted-agent restic backup set. Other container paths, including arbitrary files
+written directly under `/home/agent` or `/tmp`, are ephemeral and may disappear
+when the runtime image is refreshed.
+
+When upgrading an older hosted agent, HelixKit copies an existing
+container-layer `/home/agent/work` directory into the new work volume before it
+removes the old container. This is a one-time compatibility migration; once the
+volume exists, its contents are reused unchanged.
 
 Identity and runtime infrastructure have separate ownership:
 

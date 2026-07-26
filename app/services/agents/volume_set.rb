@@ -11,7 +11,8 @@ module Agents
       {
         identity: "hk-agent-#{agent.uuid}-identity",
         chaos: "chaos-home-#{agent.uuid}",
-        repo: "hk-agent-#{agent.uuid}-repo"
+        repo: "hk-agent-#{agent.uuid}-repo",
+        work: "hk-agent-#{agent.uuid}-work"
       }
     end
 

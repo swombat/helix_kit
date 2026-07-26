@@ -739,11 +739,20 @@
                         : 'missing'}</span>
                 </p>
                 <p>
-                  Repo/workspace volume:
+                  Repository volume:
                   <span class="font-medium"
                     >{sandboxStatus.repo_volume_exists === null
                       ? 'checking'
                       : sandboxStatus.repo_volume_exists
+                        ? 'present'
+                        : 'missing'}</span>
+                </p>
+                <p>
+                  Work volume:
+                  <span class="font-medium"
+                    >{sandboxStatus.work_volume_exists === null
+                      ? 'checking'
+                      : sandboxStatus.work_volume_exists
                         ? 'present'
                         : 'missing'}</span>
                 </p>
@@ -763,7 +772,7 @@
               {#if sandboxStatus.container_exists && sandboxStatus.container_image_current === false}
                 <div class="rounded border border-amber-300/40 bg-amber-50 p-3 text-sm text-amber-900">
                   This container was created from an older runtime image. Restarting promotion will recreate the
-                  container while preserving its identity and Chaos volumes.
+                  container while preserving its identity, session, repository, and work volumes.
                 </div>
               {/if}
               {#if sandboxStatus.container_error}

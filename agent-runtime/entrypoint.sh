@@ -10,7 +10,7 @@ AGENT_REPO_PATH="${AGENT_REPO_PATH:-$AGENT_HOME/repo}"
 
 # Docker-managed volumes are root-owned when first created. The agent user needs
 # write access to both canonical identity/memory and chaos session state.
-for path in "$AGENT_HOME/identity" "$AGENT_HOME/.chaos" "$AGENT_REPO_PATH"; do
+for path in "$AGENT_HOME/identity" "$AGENT_HOME/.chaos" "$AGENT_REPO_PATH" "$AGENT_HOME/work"; do
     if [ -d "$path" ]; then
         chown -R 1000:1000 "$path" || true
     fi
@@ -25,7 +25,8 @@ mkdir -p "$AGENT_HOME/identity/automation" \
          "$AGENT_HOME/identity/memory/daily-journals" \
          "$AGENT_HOME/identity/memory/automation/state" \
          "$AGENT_HOME/.chaos" \
-         "$AGENT_REPO_PATH/.chaos"
+         "$AGENT_REPO_PATH/.chaos" \
+         "$AGENT_HOME/work"
 
 # Chaos bundles Anthropic, OpenAI, and xAI providers. Hosted agents also need
 # the two providers RubyLLM may select that are not bundled by Chaos itself.
@@ -133,7 +134,7 @@ overwrite or truncate existing entries; with shell redirection, use >> rather
 than > for an existing journal.
 README
 fi
-chown -R 1000:1000 "$AGENT_REPO_PATH" "$AGENT_HOME/identity/automation" "$AGENT_HOME/identity/memory" "$AGENT_HOME/.chaos/helixkit-hooks.md" 2>/dev/null || true
+chown -R 1000:1000 "$AGENT_REPO_PATH" "$AGENT_HOME/work" "$AGENT_HOME/identity/automation" "$AGENT_HOME/identity/memory" "$AGENT_HOME/.chaos/helixkit-hooks.md" 2>/dev/null || true
 
 # Some chaos providers read API keys directly from the environment (Anthropic),
 # while others require a provider account entry under the agent user's ~/.chaos.

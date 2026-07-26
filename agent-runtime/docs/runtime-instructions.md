@@ -58,6 +58,16 @@ kept. Preserve existing entries and append rather than overwriting them.
 
 ## Repository stewardship
 
+Use `/home/agent/work` for durable working files such as briefs, generated
+artifacts, and task notes. `/home/agent/repo` is also persistent and is the
+working directory from which Chaos runs. Identity and memory belong under
+`/home/agent/identity`.
+
+Files elsewhere in the container, including arbitrary paths directly under
+`/home/agent` and files under `/tmp`, may disappear when HelixKit replaces the
+runtime container. Move anything worth keeping into `~/work`, `~/repo`, or
+`~/identity`.
+
 If you improve your own repository or identity files, prefer small, reviewable
 commits. Runtime documentation and helper programs belong to the hosted image;
 your identity and continuity files remain yours.
