@@ -140,6 +140,7 @@
       icon: agent.icon || null,
       thinking_enabled: agent.thinking_enabled || false,
       thinking_budget: agent.thinking_budget || 10000,
+      reasoning_effort: agent.reasoning_effort || 'default',
       telegram_bot_username: agent.telegram_bot_username || '',
       telegram_bot_token: agent.telegram_bot_token || '',
       persistent_session: agent.persistent_session || false,

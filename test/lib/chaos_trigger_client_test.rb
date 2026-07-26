@@ -3,12 +3,13 @@ require "webmock/minitest"
 
 class ChaosTriggerClientTest < ActiveSupport::TestCase
 
-  test "sends optional provider and model in trigger payload" do
+  test "sends optional provider, model, and reasoning effort in trigger payload" do
     stub = stub_request(:post, "https://agent.example.com/trigger")
       .with do |request|
         body = JSON.parse(request.body)
         body.fetch("provider") == "anthropic" &&
           body.fetch("model") == "claude-opus-4-7" &&
+          body.fetch("reasoning_effort") == "high" &&
           body.fetch("timeout_secs") == 1800
       end
       .to_return(status: 200, body: { status: "ok" }.to_json)
@@ -21,11 +22,30 @@ class ChaosTriggerClientTest < ActiveSupport::TestCase
       trigger_kind: "orientation",
       provider: "anthropic",
       model: "claude-opus-4-7",
+      reasoning_effort: "high",
       read_timeout: 1830,
       runtime_timeout_secs: 1800
     )
 
     assert_equal 200, result[:status]
+    assert_requested stub
+  end
+
+  test "omits reasoning effort when the provider default is selected" do
+    stub = stub_request(:post, "https://agent.example.com/trigger")
+      .with do |request|
+        !JSON.parse(request.body).key?("reasoning_effort")
+      end
+      .to_return(status: 200, body: { status: "ok" }.to_json)
+
+    ChaosTriggerClient.new("https://agent.example.com", "tr_valid").request_response(
+      conversation_id: "conversation-1",
+      requested_by: "person@example.com",
+      session_id: "session-1",
+      request: "Hello",
+      reasoning_effort: "default"
+    )
+
     assert_requested stub
   end
 

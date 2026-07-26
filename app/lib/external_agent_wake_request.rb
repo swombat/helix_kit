@@ -30,7 +30,8 @@ class ExternalAgentWakeRequest
         request: request,
         persistent_session: agent.persistent_wake_session?,
         provider: Agents::Sandbox.chaos_provider_for(agent),
-        model: Agents::Sandbox.chaos_model_for(agent)
+        model: Agents::Sandbox.chaos_model_for(agent),
+        reasoning_effort: agent.reasoning_effort
       )
     end
   rescue StandardError => e

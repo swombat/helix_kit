@@ -65,6 +65,26 @@ class AgentTest < ActiveSupport::TestCase
     assert_equal 2, agent.heartbeat_wakes_per_day
   end
 
+  test "defaults to medium reasoning effort" do
+    agent = @account.agents.create!(name: "Default Reasoning Agent")
+
+    assert_equal "medium", agent.reasoning_effort
+  end
+
+  test "validates reasoning effort" do
+    agent = @account.agents.build(name: "Reasoning Agent", reasoning_effort: "extreme")
+
+    assert_not agent.valid?
+    assert_includes agent.errors[:reasoning_effort], "is not included in the list"
+  end
+
+  test "accepts every Chaos reasoning effort plus provider default" do
+    Agent::REASONING_EFFORTS.each do |effort|
+      agent = @account.agents.build(name: "Reasoning #{effort}", reasoning_effort: effort)
+      assert agent.valid?, "#{effort}: #{agent.errors.full_messages.to_sentence}"
+    end
+  end
+
   test "validates heartbeat wakes per day" do
     agent = @account.agents.build(name: "Heartbeat Agent")
 
@@ -120,6 +140,14 @@ class AgentTest < ActiveSupport::TestCase
 
     assert agent.update(model_id: "openai/gpt-5.2")
     assert_equal "openai/gpt-5.2", agent.reload.model_id
+  end
+
+  test "external agents allow HelixKit-managed reasoning effort changes" do
+    agent = agents(:research_assistant)
+    agent.update!(runtime: "external", uuid: SecureRandom.uuid_v7)
+
+    assert agent.update(reasoning_effort: "high")
+    assert_equal "high", agent.reload.reasoning_effort
   end
 
   test "born-hosted agents reject soul changes while allowing display metadata changes" do

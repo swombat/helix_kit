@@ -106,7 +106,7 @@ class AgentsController < ApplicationController
       :name, :system_prompt, :reflection_prompt, :memory_reflection_prompt,
       :summary_prompt, :refinement_prompt, :refinement_threshold,
       :model_id, :active, :paused, :colour, :icon,
-      :thinking_enabled, :thinking_budget,
+      :thinking_enabled, :thinking_budget, :reasoning_effort,
       :telegram_bot_token, :telegram_bot_username,
       :voice_id, :persistent_session, :persistent_wake_session, :scheduled_wakes_enabled,
       :heartbeat_wakes_per_day,
@@ -138,10 +138,12 @@ class AgentsController < ApplicationController
   def grouped_models
     Chat::MODELS.group_by { |m| m[:group] || "Other" }.transform_values do |models|
       models.map do |m|
+        reasoning = Chat.reasoning_effort_config(m[:model_id])
         {
           model_id: m[:model_id],
           label: m[:label],
-          supports_thinking: m.dig(:thinking, :supported) == true
+          supports_thinking: m.dig(:thinking, :supported) == true,
+          reasoning:
         }
       end
     end

@@ -34,7 +34,8 @@ class ExternalAgentResponseRequest
         request_delta: delta,
         persistent_session: agent.persistent_session?,
         provider: Agents::Sandbox.chaos_provider_for(agent),
-        model: Agents::Sandbox.chaos_model_for(agent)
+        model: Agents::Sandbox.chaos_model_for(agent),
+        reasoning_effort: agent.reasoning_effort
       )
     end
   rescue StandardError => e

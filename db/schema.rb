@@ -272,6 +272,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_26_194500) do
     t.boolean "persistent_session", default: false, null: false
     t.boolean "persistent_wake_session", default: false, null: false
     t.datetime "provisioning_started_at"
+    t.string "reasoning_effort", default: "medium", null: false
     t.text "refinement_prompt"
     t.float "refinement_threshold"
     t.text "reflection_prompt"

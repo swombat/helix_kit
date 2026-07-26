@@ -32,6 +32,7 @@ class Agent < ApplicationRecord
     Flask Code Cube PuzzlePiece Cat Dog Bird Alien Ghost Detective
     Butterfly Flower Tree Leaf
   ].freeze
+  REASONING_EFFORTS = %w[default none minimal low medium high xhigh max ultra].freeze
 
   EXTERNALLY_MANAGED_ATTRIBUTES = %w[
     system_prompt reflection_prompt memory_reflection_prompt
@@ -50,8 +51,9 @@ class Agent < ApplicationRecord
   validates :colour, inclusion: { in: VALID_COLOURS }, allow_nil: true
   validates :icon, inclusion: { in: VALID_ICONS }, allow_nil: true
   validates :thinking_budget,
-            numericality: { greater_than_or_equal_to: 1000, less_than_or_equal_to: 50000 },
-            allow_nil: true
+             numericality: { greater_than_or_equal_to: 1000, less_than_or_equal_to: 50000 },
+             allow_nil: true
+  validates :reasoning_effort, inclusion: { in: REASONING_EFFORTS }
   validates :refinement_threshold,
              numericality: { greater_than: 0, less_than_or_equal_to: 1 },
              allow_nil: true
@@ -76,6 +78,7 @@ class Agent < ApplicationRecord
                   :summary_prompt, :refinement_prompt, :refinement_threshold,
                   :model_id, :model_label, :enabled_tools, :active?, :paused?, :colour, :icon,
                   :memories_count, :memory_token_summary, :thinking_enabled, :thinking_budget,
+                  :reasoning_effort,
                   :telegram_bot_username, :telegram_configured?,
                   :voiced?, :voice_id, :runtime, :endpoint_url, :last_announced_at,
                    :last_health_check_at, :health_state, :consecutive_health_failures,

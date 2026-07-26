@@ -34,6 +34,49 @@ class ChatThinkingTest < ActiveSupport::TestCase
     refute Chat.supports_thinking?(nil)
   end
 
+  test "reasoning effort config exposes every Sol level from Chaos" do
+    config = Chat.reasoning_effort_config("openai/gpt-5.6-sol")
+
+    assert_equal "low", config[:default]
+    assert_equal %w[low medium high xhigh max ultra], config[:options].pluck(:value)
+    assert_equal "Ultra", config[:options].last[:label]
+  end
+
+  test "reasoning effort config uses Anthropic effort terminology for Fable" do
+    config = Chat.reasoning_effort_config("anthropic/claude-fable-5")
+
+    assert_equal "Effort", config[:label]
+    assert_equal "high", config[:default]
+    assert_equal %w[low medium high xhigh max ultra], config[:options].pluck(:value)
+    assert_equal "Ultra", config[:options].last[:label]
+  end
+
+  test "reasoning effort config keeps other Anthropic models model-specific" do
+    config = Chat.reasoning_effort_config("anthropic/claude-opus-5")
+
+    assert_equal "Effort", config[:label]
+    assert_equal %w[low medium high xhigh max], config[:options].pluck(:value)
+  end
+
+  test "reasoning effort config uses thinking levels for Gemini" do
+    config = Chat.reasoning_effort_config("google/gemini-3.5-flash")
+
+    assert_equal "Thinking level", config[:label]
+    assert_equal %w[minimal low medium high], config[:options].pluck(:value)
+  end
+
+  test "reasoning effort config uses thinking mode for toggle providers" do
+    config = Chat.reasoning_effort_config("qwen/qwen3.7-max")
+
+    assert_equal "Thinking mode", config[:label]
+    assert_equal %w[none high], config[:options].pluck(:value)
+    assert_equal %w[Off On], config[:options].pluck(:label)
+  end
+
+  test "reasoning effort config is absent for models without a configurable setting" do
+    assert_nil Chat.reasoning_effort_config("openai/gpt-4o")
+  end
+
   test "requires_direct_api_for_thinking? returns true for Claude 4+ models" do
     assert Chat.requires_direct_api_for_thinking?("anthropic/claude-opus-4.5")
     assert Chat.requires_direct_api_for_thinking?("anthropic/claude-sonnet-4.5")

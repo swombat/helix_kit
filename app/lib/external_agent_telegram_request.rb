@@ -35,6 +35,7 @@ class ExternalAgentTelegramRequest
         persistent_session: agent.persistent_session?,
         provider: Agents::Sandbox.chaos_provider_for(agent),
         model: Agents::Sandbox.chaos_model_for(agent),
+        reasoning_effort: agent.reasoning_effort,
         trigger_payload: trigger_payload
       )
     end

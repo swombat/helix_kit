@@ -24,6 +24,7 @@ Trigger payload (HelixKit ChaosTriggerClient shape):
        "requested_by": "user@example.com",         # optional, for logs only
        "provider": "anthropic",                    # optional; falls back to AGENT_PROVIDER env
        "model": "claude-sonnet-4-5",               # optional; falls back to AGENT_DEFAULT_MODEL env
+       "reasoning_effort": "medium",                # optional; a Chaos reasoning effort
        "channel": "telegram",                      # optional channel-specific metadata
        "sender": {"name": "...", "email": "...", "telegram_username": "..."},
        "text": "incoming direct message",
@@ -109,6 +110,16 @@ SESSION_MAP_DIR = CHAOS_HOME / "helixkit-sessions"
 SHIM_TELEMETRY_SCHEMA_VERSION = 1
 SIDECAR_SCHEMA_VERSION = 3
 SUPPORTED_CHAOS_TELEMETRY_SCHEMA_VERSION = 1
+SUPPORTED_REASONING_EFFORTS = (
+    "none",
+    "minimal",
+    "low",
+    "medium",
+    "high",
+    "xhigh",
+    "max",
+    "ultra",
+)
 IDENTITY_FINGERPRINT_FILES = [
     "soul.md",
     "self-narrative.md",
@@ -168,27 +179,39 @@ def trigger():
     persistent_session = bool(payload.get("persistent_session"))
     provider = payload.get("provider", AGENT_PROVIDER)
     model = payload.get("model", AGENT_DEFAULT_MODEL)
+    reasoning_effort = payload.get("reasoning_effort")
     timeout_secs = int(payload.get("timeout_secs") or CHAOS_TIMEOUT_SECS)
     conversation_id = payload.get("conversation_id")
     requested_by = payload.get("requested_by")
 
     if not session_id or not prompt:
         return jsonify({"error": "session_id and `request` (or `prompt`) are required"}), 400
+    if reasoning_effort is not None and reasoning_effort not in SUPPORTED_REASONING_EFFORTS:
+        return jsonify({
+            "error": f"reasoning_effort must be one of {', '.join(SUPPORTED_REASONING_EFFORTS)}"
+        }), 400
 
     log.info(
         f"trigger session_id={session_id} conversation_id={conversation_id} "
-        f"requested_by={requested_by} provider={provider} model={model} timeout_secs={timeout_secs} "
+        f"requested_by={requested_by} provider={provider} model={model} "
+        f"reasoning_effort={reasoning_effort or 'model-default'} timeout_secs={timeout_secs} "
         f"prompt_len={len(prompt)} persistent={persistent_session} "
         f"delta_len={len(request_delta) if request_delta else 0}"
     )
 
     with _agent_invocation_lock:
         if persistent_session:
-            return persistent_trigger(session_id, prompt, request_delta, model, timeout_secs, provider=provider)
-        return legacy_trigger(session_id, prompt, model, timeout_secs, provider=provider)
+            return persistent_trigger(
+                session_id, prompt, request_delta, model, timeout_secs,
+                provider=provider, reasoning_effort=reasoning_effort,
+            )
+        return legacy_trigger(
+            session_id, prompt, model, timeout_secs,
+            provider=provider, reasoning_effort=reasoning_effort,
+        )
 
 
-def legacy_trigger(session_id, prompt, model, timeout_secs, provider=None):
+def legacy_trigger(session_id, prompt, model, timeout_secs, provider=None, reasoning_effort=None):
     """Run a fresh, unmapped Chaos process while still capturing JSON telemetry."""
     provider = provider or AGENT_PROVIDER
     full_prompt, prompt_components = build_prompt_with_components(prompt)
@@ -201,7 +224,10 @@ def legacy_trigger(session_id, prompt, model, timeout_secs, provider=None):
     )
 
     try:
-        result = run_chaos(model, timeout_secs, full_prompt, json_output=True, provider=provider)
+        result = run_chaos(
+            model, timeout_secs, full_prompt, json_output=True,
+            provider=provider, reasoning_effort=reasoning_effort,
+        )
     except subprocess.TimeoutExpired as error:
         log.error(f"chaos exec timed out after {timeout_secs}s")
         return timeout_response(
@@ -258,7 +284,10 @@ def legacy_trigger(session_id, prompt, model, timeout_secs, provider=None):
     )
 
 
-def persistent_trigger(session_id, prompt, request_delta, model, timeout_secs, provider=None):
+def persistent_trigger(
+    session_id, prompt, request_delta, model, timeout_secs,
+    provider=None, reasoning_effort=None,
+):
     """Resume the session mapped to session_id, or start (and record) a fresh one.
 
     A resume that fails in any detectable way is retried once as a full fresh
@@ -316,6 +345,7 @@ def persistent_trigger(session_id, prompt, request_delta, model, timeout_secs, p
                 result = run_chaos(
                     model, timeout_secs, resume_prompt,
                     json_output=True, resume_id=record["chaos_process_id"], provider=provider,
+                    reasoning_effort=reasoning_effort,
                 )
             except subprocess.TimeoutExpired as error:
                 # The subprocess is killed on timeout, so the persisted session
@@ -403,7 +433,10 @@ def persistent_trigger(session_id, prompt, request_delta, model, timeout_secs, p
             components=prompt_components,
         )
         try:
-            result = run_chaos(model, timeout_secs, full_prompt, json_output=True, provider=provider)
+            result = run_chaos(
+                model, timeout_secs, full_prompt, json_output=True,
+                provider=provider, reasoning_effort=reasoning_effort,
+            )
         except subprocess.TimeoutExpired as error:
             log.error(f"chaos exec timed out after {timeout_secs}s session_id={session_id}")
             outcome = "fresh_fallback" if roll == "resume-failed" else ("rolled" if mapping_found else "failed")
@@ -476,7 +509,10 @@ if app:
 
 
 # ----- chaos invocation -----
-def run_chaos(model, timeout_secs, prompt_text, json_output, resume_id=None, provider=None):
+def run_chaos(
+    model, timeout_secs, prompt_text, json_output,
+    resume_id=None, provider=None, reasoning_effort=None,
+):
     args = [CHAOS_BIN, "exec"]
     if json_output:
         # Machine-readable JSONL: process.started carries the process_id we
@@ -494,6 +530,8 @@ def run_chaos(model, timeout_secs, prompt_text, json_output, resume_id=None, pro
         "--headless",
         "-c", "shell_environment_policy.inherit=\"all\"",
     ]
+    if reasoning_effort:
+        args += ["-c", f'model_reasoning_effort="{reasoning_effort}"']
     if resume_id:
         # `resume` is an exec subcommand; root exec flags stay before it.
         args += ["resume", resume_id]

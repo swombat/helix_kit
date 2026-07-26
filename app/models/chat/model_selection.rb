@@ -552,6 +552,81 @@ module Chat::ModelSelection
     { model_id: "z-ai/glm-4.5", label: "GLM 4.5", group: "Z.ai", thinking: { supported: true } }
   ].freeze
 
+  REASONING_OPTIONS = {
+    none: { value: "none", label: "None", description: "Disable additional model reasoning." },
+    minimal: { value: "minimal", label: "Minimal", description: "Use the smallest available reasoning allowance." },
+    low: { value: "low", label: "Low", description: "Faster responses with lighter reasoning." },
+    medium: { value: "medium", label: "Medium", description: "Balance speed and reasoning depth." },
+    high: { value: "high", label: "High", description: "Use more reasoning for difficult or ambiguous work." },
+    xhigh: { value: "xhigh", label: "Extra high", description: "Use extra reasoning depth for complex work." },
+    max: { value: "max", label: "Max", description: "Use the model's maximum reasoning depth." },
+    ultra: { value: "ultra", label: "Ultra", description: "Use maximum reasoning with automatic task delegation." }
+  }.freeze
+
+  REASONING_PROFILES = {
+    openai_ultra: {
+      label: "Reasoning effort",
+      default: "medium",
+      options: %i[low medium high xhigh max ultra]
+    },
+    openai_max: {
+      label: "Reasoning effort",
+      default: "medium",
+      options: %i[low medium high xhigh max]
+    },
+    openai_xhigh: {
+      label: "Reasoning effort",
+      default: "medium",
+      options: %i[low medium high xhigh]
+    },
+    openai_legacy: {
+      label: "Reasoning effort",
+      default: "medium",
+      options: %i[minimal low medium high xhigh]
+    },
+    anthropic: {
+      label: "Effort",
+      default: "high",
+      options: %i[low medium high xhigh max]
+    },
+    anthropic_fable: {
+      label: "Effort",
+      default: "high",
+      options: %i[low medium high xhigh max ultra]
+    },
+    gemini_full: {
+      label: "Thinking level",
+      default: "medium",
+      options: %i[minimal low medium high]
+    },
+    gemini_pro: {
+      label: "Thinking level",
+      default: "high",
+      options: %i[low medium high]
+    },
+    grok: {
+      label: "Reasoning effort",
+      default: "high",
+      options: %i[none low medium high]
+    },
+    grok_fast: {
+      label: "Reasoning effort",
+      default: "high",
+      options: %i[low high]
+    },
+    grok_multi_agent: {
+      label: "Reasoning effort",
+      default: "high",
+      options: %i[low medium high xhigh]
+    },
+    thinking_mode: {
+      label: "Thinking mode",
+      default: "high",
+      options: %i[none high],
+      labels: { none: "Off", high: "On" }
+    }
+  }.freeze
+
   included do
     const_set(:MODELS, MODELS) unless const_defined?(:MODELS, false)
   end
@@ -563,6 +638,20 @@ module Chat::ModelSelection
 
     def supports_thinking?(model_id)
       model_config(model_id)&.dig(:thinking, :supported) == true
+    end
+
+    def reasoning_effort_config(model_id)
+      profile = reasoning_profile_for(model_id)
+      return nil unless profile
+
+      labels = profile.fetch(:labels, {})
+      {
+        label: profile.fetch(:label),
+        default: profile.fetch(:default),
+        options: profile.fetch(:options).map do |effort|
+          REASONING_OPTIONS.fetch(effort).merge(label: labels.fetch(effort, REASONING_OPTIONS.fetch(effort)[:label]))
+        end
+      }
     end
 
     def supports_audio_input?(model_id)
@@ -586,6 +675,39 @@ module Chat::ModelSelection
 
     def resolve_provider(model_id)
       ResolvesProvider.resolve_provider(model_id)
+    end
+
+    private
+
+    def reasoning_profile_for(model_id)
+      case model_id
+      when "openai/gpt-5.6-sol"
+        REASONING_PROFILES[:openai_ultra].merge(default: "low")
+      when "openai/gpt-5.6-terra"
+        REASONING_PROFILES[:openai_ultra]
+      when "openai/gpt-5.6-luna"
+        REASONING_PROFILES[:openai_max]
+      when %r{\Aopenai/gpt-(?:5\.5|5\.4)}
+        REASONING_PROFILES[:openai_xhigh]
+      when %r{\Aopenai/(?:gpt-5|o[134])}
+        REASONING_PROFILES[:openai_legacy]
+      when "anthropic/claude-fable-5"
+        REASONING_PROFILES[:anthropic_fable]
+      when %r{\Aanthropic/claude-(?:sonnet-[45]|opus-[45])}
+        REASONING_PROFILES[:anthropic]
+      when %r{\Agoogle/gemini-(?:3\.5-flash|3\.1-flash|3-flash)}
+        REASONING_PROFILES[:gemini_full]
+      when %r{\Agoogle/gemini-(?:3\.1-pro|3-pro)}
+        REASONING_PROFILES[:gemini_pro]
+      when %r{\Ax-ai/grok-.*multi-agent}
+        REASONING_PROFILES[:grok_multi_agent]
+      when %r{\Ax-ai/grok-(?:3-mini|4-1-fast-reasoning)}
+        REASONING_PROFILES[:grok_fast]
+      when %r{\Ax-ai/grok-}
+        REASONING_PROFILES[:grok]
+      when %r{\A(?:deepseek|moonshotai|minimax|qwen|z-ai)/}
+        REASONING_PROFILES[:thinking_mode] if supports_thinking?(model_id)
+      end
     end
   end
 

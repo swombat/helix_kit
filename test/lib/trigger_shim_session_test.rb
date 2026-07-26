@@ -315,7 +315,10 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
           captured["args"] = args
           return mod.subprocess.CompletedProcess(args, 0, "", "")
       mod.subprocess.run = fake_run
-      mod.run_chaos("gpt-5.2", 30, "REQUEST", True, provider="openai")
+      mod.run_chaos(
+          "gpt-5.2", 30, "REQUEST", True,
+          provider="openai", reasoning_effort="high"
+      )
       print(json.dumps(captured))
     PY
 
@@ -323,18 +326,34 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
     assert_includes args, "--headless"
     assert_equal "openai", args[args.index("--provider") + 1]
     assert_equal "gpt-5.2", args[args.index("-m") + 1]
+    assert_includes args, 'model_reasoning_effort="high"'
     assert_not_includes args, "--dangerously-bypass-approvals-and-sandbox"
+  end
+
+  test "trigger shim accepts every reasoning effort understood by Chaos" do
+    out = run_shim_python(<<~PY)
+      print(json.dumps(list(mod.SUPPORTED_REASONING_EFFORTS)))
+    PY
+
+    assert_equal(
+      %w[none minimal low medium high xhigh max ultra],
+      JSON.parse(out)
+    )
   end
 
   test "non-persistent triggers use JSON output and record a legacy fresh lifecycle" do
     out = run_shim_python(<<~PY, fake_chaos: :echo_resumed_pid)
       captured = {}
       original_run_chaos = mod.run_chaos
-      def capture_run(model, timeout_secs, prompt_text, json_output, resume_id=None, provider=None):
+      def capture_run(
+          model, timeout_secs, prompt_text, json_output,
+          resume_id=None, provider=None, reasoning_effort=None
+      ):
           captured["json_output"] = json_output
           return original_run_chaos(
               model, timeout_secs, prompt_text, json_output,
-              resume_id=resume_id, provider=provider
+              resume_id=resume_id, provider=provider,
+              reasoning_effort=reasoning_effort
           )
       mod.run_chaos = capture_run
       response, code = mod.legacy_trigger(
