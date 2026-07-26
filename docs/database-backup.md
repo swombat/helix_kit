@@ -1,6 +1,7 @@
 # Database Backup
 
-HelixKit includes automated daily database backups to Amazon S3.
+HelixKit includes automated daily database backups to Amazon S3. Manual full
+backups also preserve every hosted Chaos agent across all accounts.
 
 ## How It Works
 
@@ -25,25 +26,54 @@ aws:
   secret_access_key: YOUR_SECRET_KEY
   s3_region: eu-north-1
   postgres_bucket: your-backup-bucket-name
+  # Optional; defaults to postgres_bucket:
+  agent_backups_bucket: your-agent-backup-bucket-name
 ```
 
 ### Schedule
 
 The backup runs daily at 4am via Solid Queue's recurring tasks (configured in `config/recurring.yml`).
 
-## Manual Backup
+## Manual Full Backup
 
-To trigger a backup manually:
+To snapshot all hosted agents and then back up PostgreSQL:
 
 ```bash
-# In production
-kamal app exec -r web "bin/rails runner 'DatabaseBackupJob.perform_now'"
-
-# In development
-rails runner 'DatabaseBackupJob.perform_now'
+bin/rails db_backup:perform
 ```
 
+Each hosted-agent snapshot contains its three persistent Docker volumes:
+
+- identity (`soul.md`, self-narrative, journals, and memory);
+- Chaos home (`.chaos`, including persistent session state);
+- repository/workspace.
+
+The Restic snapshot records and per-agent repository passwords are included in
+the PostgreSQL dump created immediately afterward. If any agent snapshot fails,
+the database dump is not created, avoiding a backup set that silently points at
+partially completed agent state.
+
 ## Restoring from Backup
+
+For the ordinary local-development refresh:
+
+```bash
+bin/rails db_backup:refresh
+```
+
+The task downloads and restores the latest PostgreSQL dump, resets local user
+passwords, then offers to replace the Docker volumes for every hosted agent with
+the exact successful Restic snapshot recorded in that dump. Agents that were
+running in production are started with the local runtime image and local
+HelixKit endpoint; agents that were offline remain restored but stopped.
+
+You can rerun only the agent-volume part after a database restore:
+
+```bash
+bin/rails db_backup:restore_agents
+```
+
+Both restore steps prompt before replacing local state.
 
 ### 1. Download the backup from S3
 
@@ -91,7 +121,10 @@ Backups are retained indefinitely in S3. To manage storage costs, configure an S
 
 ## What's Backed Up
 
-Only the **primary database** is backed up. The following auxiliary databases are NOT backed up as they contain ephemeral data:
+The scheduled `DatabaseBackupJob` backs up only the primary database. The manual
+`db_backup:perform` full backup additionally snapshots all hosted-agent volumes.
+The following auxiliary databases are not backed up because they contain
+ephemeral data:
 
 - `*_queue` - Solid Queue job data (recreated on restart)
 - `*_cache` - Solid Cache data (temporary by nature)

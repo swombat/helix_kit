@@ -3,14 +3,15 @@ module Backup
 
     queue_as :default
 
-    def perform(agent_id)
-      return unless Agents::Config.backups_enabled?
+    def perform(agent_id, force: false)
+      return unless force || Agents::Config.backups_enabled?
 
       agent = Agent.find(agent_id)
-      return unless agent.external?
+      return unless agent.externally_hosted?
 
+      init_restic_repo!(agent)
       snapshot_id, size, duration_ms, ok, stderr_tail = run_restic_backup(agent)
-      AgentBackupSnapshot.create!(
+      snapshot = AgentBackupSnapshot.create!(
         agent: agent,
         restic_snapshot_id: snapshot_id.presence || "unknown",
         size_bytes: size,
@@ -20,6 +21,9 @@ module Backup
         stderr_tail: stderr_tail
       )
       prune!(agent) if ok
+      raise "restic backup failed for #{agent.name}: #{stderr_tail.presence || 'unknown error'}" if force && !ok
+
+      snapshot
     end
 
     private
@@ -34,7 +38,13 @@ module Backup
 
     def run_restic_backup(agent)
       started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-      cmd = restic_env(agent) + [ "restic/restic:latest", "backup", "/data", "--tag", "agent_id=#{agent.uuid}", "--tag", "agent_slug=#{agent.name.to_s.parameterize}", "--json" ]
+      cmd = restic_env(agent) + [
+        "restic/restic:latest", "backup", "/data",
+        "--tag", "agent_id=#{agent.uuid}",
+        "--tag", "agent_slug=#{agent.name.to_s.parameterize}",
+        "--tag", "helixkit_volume_set=v1",
+        "--json"
+      ]
       out, err, status = Open3.capture3(*docker_run_cmd(agent, *cmd))
       duration = ((Process.clock_gettime(Process::CLOCK_MONOTONIC) - started) * 1000).round
       parsed = parse_restic_backup(out)
@@ -53,22 +63,11 @@ module Backup
     end
 
     def docker_run_cmd(agent, *restic_args)
-      [ "docker", "run", "--rm", "-v", "#{Agents::Volume.new(agent).volume_name}:/data:ro", *restic_args ]
+      [ "docker", "run", "--rm", *Backup::AgentRestic.backup_mounts(agent), *restic_args ]
     end
 
     def restic_env(agent)
-      [
-        "-e", "AWS_ACCESS_KEY_ID=#{ENV['AWS_ACCESS_KEY_ID']}",
-        "-e", "AWS_SECRET_ACCESS_KEY=#{ENV['AWS_SECRET_ACCESS_KEY']}",
-        "-e", "AWS_DEFAULT_REGION=#{ENV.fetch('AWS_REGION', 'eu-west-1')}",
-        "-e", "RESTIC_PASSWORD=#{agent.restic_password}",
-        "-e", "RESTIC_REPOSITORY=#{restic_repo_url(agent)}"
-      ]
-    end
-
-    def restic_repo_url(agent)
-      bucket = ENV.fetch("RESTIC_S3_BUCKET")
-      "s3:s3.amazonaws.com/#{bucket}/agents/#{agent.uuid}"
+      Backup::AgentRestic.docker_environment(agent)
     end
 
     def parse_restic_backup(output)

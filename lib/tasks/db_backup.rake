@@ -91,6 +91,10 @@ module DbBackupHelpers
     Rails.root.join("db", "backups")
   end
 
+  def refreshing?
+    Rake.application.top_level_tasks.include?("db_backup:refresh")
+  end
+
 end
 
 namespace :db_backup do
@@ -157,6 +161,7 @@ namespace :db_backup do
 
     puts "Restoring #{latest_sql} to #{dbname}..."
     puts "WARNING: This will DROP and recreate your local development database!"
+    puts "WARNING: It will also replace restored hosted-agent containers and Docker volumes." if Rails.env.development? && DbBackupHelpers.refreshing?
     print "Continue? (y/N): "
     response = $stdin.gets.chomp
     abort "Aborted." unless response.downcase == "y"
@@ -209,13 +214,31 @@ namespace :db_backup do
   desc "Download and restore the latest backup (full refresh)"
   task refresh: [ :download, :restore ] do
     DbBackupHelpers.ensure_not_production!
+    Rake::Task["db_backup:restore_agents"].invoke if Rails.env.development?
     puts "Database refresh completed."
   end
 
-  desc "Trigger a database backup on production via Kamal"
+  desc "Trigger a database and hosted Chaos-agent backup on production via Kamal"
   task :perform do
-    puts "Triggering database backup on production..."
-    system('kamal app exec -r web "bin/rails runner \'DatabaseBackupJob.perform_now\'"')
+    puts "Triggering database and hosted Chaos-agent backup on production..."
+    success = system('kamal app exec -r web "bin/rails runner \'FullBackupJob.perform_now\'"')
+    abort "Production backup failed." unless success
+  end
+
+  desc "Restore hosted Chaos-agent volumes from the snapshots recorded in the restored database"
+  task restore_agents: :environment do
+    DbBackupHelpers.ensure_not_production!
+    abort "Agent restore is only supported in development." unless Rails.env.development?
+
+    unless DbBackupHelpers.refreshing?
+      puts "WARNING: This will replace local Docker volumes and containers for every restored hosted agent."
+      print "Continue restoring hosted agents? (y/N): "
+      response = $stdin.gets.chomp
+      abort "Aborted." unless response.downcase == "y"
+    end
+
+    Backup::AgentResticRestore.restore_all!
+    puts "Hosted Chaos agents restored."
   end
 
   desc "Create test agents in the Nexus account"
