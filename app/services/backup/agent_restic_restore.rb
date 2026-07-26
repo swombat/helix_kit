@@ -5,6 +5,7 @@ module Backup
 
     def self.restore_all!
       ensure_docker_available!
+      Backup::LocalAgentRuntimeImage.ensure_current! if Rails.env.development?
 
       Agent.externally_hosted.where.not(uuid: nil).find_each do |agent|
         new(agent).restore!
