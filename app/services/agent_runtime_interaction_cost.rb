@@ -8,6 +8,7 @@ class AgentRuntimeInteractionCost
   #
   # Keep the rules ordered from most specific to least specific.
   PRICE_RULES = [
+    [ /(?:anthropic\/)?claude-opus-5\z/, "anthropic/claude-opus-5", 5, 25 ],
     [ /(?:anthropic\/)?claude-fable-5/, "anthropic/claude-fable-5", 10, 50 ],
     [ /(?:anthropic\/)?claude-sonnet-5/, "anthropic/claude-sonnet-5", 2, 10 ],
     [ /(?:anthropic\/)?claude-opus-4[-.]8/, "anthropic/claude-opus-4.8", 5, 25 ],

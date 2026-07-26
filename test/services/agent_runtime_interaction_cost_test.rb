@@ -25,6 +25,21 @@ class AgentRuntimeInteractionCostTest < ActiveSupport::TestCase
     assert_equal "0.5", cost.dig(:components_usd, :cache_read_input)
   end
 
+  test "estimates Claude Opus 5 cost" do
+    interaction = build_interaction(
+      provider: "anthropic",
+      model: "claude-opus-5",
+      uncached_input_tokens: 1_000_000,
+      output_tokens: 1_000_000
+    )
+
+    cost = interaction.estimated_cost
+
+    assert_equal "estimated", cost[:status]
+    assert_equal "anthropic/claude-opus-5", cost[:pricing_model]
+    assert_equal "30.0", cost[:amount_usd]
+  end
+
   test "uses OpenRouter pricing source for routed models" do
     interaction = build_interaction(
       provider: "openrouter",
