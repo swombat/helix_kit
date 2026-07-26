@@ -37,7 +37,9 @@ class Account < ApplicationRecord
       credentials: %i[ai xai api_token],
       ruby_llm: :xai_api_key
     },
-    moonshot: { env: "MOONSHOT_API_KEY", credentials: %i[ai moonshot api_token] }
+    zai: { env: "ZAI_API_KEY", credentials: %i[ai zai api_token] },
+    moonshot: { env: "MOONSHOT_API_KEY", credentials: %i[ai moonshot api_token] },
+    minimax: { env: "MINIMAX_API_KEY", credentials: %i[ai minimax api_token] }
   }.freeze
   AI_CREDENTIAL_ATTRIBUTES = [
     :use_system_ai_credentials,
@@ -80,7 +82,9 @@ class Account < ApplicationRecord
   encrypts :openai_api_key
   encrypts :gemini_api_key
   encrypts :xai_api_key
+  encrypts :zai_api_key
   encrypts :moonshot_api_key
+  encrypts :minimax_api_key
 
   # Authorization scope for SyncChannel - Account is special, it IS the account
   def self.accessible_by(user)

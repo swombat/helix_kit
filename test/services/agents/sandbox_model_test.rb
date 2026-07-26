@@ -160,18 +160,22 @@ module Agents
       assert_equal [ :migrate_repo, :migrate_work, [ :remove, false ], :spawn ], calls
     end
 
-    test "provider environment uses account keys including Moonshot" do
+    test "provider environment uses account keys including subscription API keys" do
       agent = agents(:research_assistant)
       agent.account.update!(
         use_system_ai_credentials: false,
         anthropic_api_key: "account-anthropic",
-        moonshot_api_key: "account-moonshot"
+        zai_api_key: "account-zai",
+        moonshot_api_key: "account-moonshot",
+        minimax_api_key: "account-minimax"
       )
 
       args = Agents::Sandbox.new(agent).send(:provider_env_args)
 
       assert_includes args, "ANTHROPIC_API_KEY=account-anthropic"
+      assert_includes args, "ZAI_API_KEY=account-zai"
       assert_includes args, "MOONSHOT_API_KEY=account-moonshot"
+      assert_includes args, "MINIMAX_API_KEY=account-minimax"
       assert_not_includes args, "OPENAI_API_KEY"
     end
 

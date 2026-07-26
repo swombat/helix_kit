@@ -33,6 +33,8 @@ class Agent < ApplicationRecord
     Butterfly Flower Tree Leaf
   ].freeze
   REASONING_EFFORTS = %w[default none minimal low medium high xhigh max ultra].freeze
+  PROVIDER_AUTH_MODES = %w[api_key oauth_account].freeze
+  OAUTH_ACCOUNT_PROVIDERS = %w[openai xai].freeze
 
   EXTERNALLY_MANAGED_ATTRIBUTES = %w[
     system_prompt reflection_prompt memory_reflection_prompt
@@ -133,6 +135,47 @@ class Agent < ApplicationRecord
 
   def provisioning_failed?
     provisioning? && sandbox_last_error.present?
+  end
+
+  def provider_auth_mode(provider)
+    provider_auth_modes.to_h.fetch(provider.to_s, "api_key")
+  end
+
+  def use_provider_auth_mode!(provider, mode)
+    mode = mode.to_s
+    raise ArgumentError, "unsupported provider auth mode" unless PROVIDER_AUTH_MODES.include?(mode)
+
+    update!(provider_auth_modes: provider_auth_modes.to_h.merge(provider.to_s => mode))
+  end
+
+  def provider_connection(provider)
+    provider_connections.to_h.fetch(provider.to_s, {})
+  end
+
+  def record_provider_connection!(provider, attributes)
+    safe_attributes = attributes.to_h.stringify_keys.slice("email", "plan", "status", "connected_at")
+    update!(
+      provider_connections: provider_connections.to_h.merge(provider.to_s => safe_attributes),
+      provider_auth_modes: provider_auth_modes.to_h.merge(provider.to_s => "oauth_account")
+    )
+  end
+
+  def clear_provider_connection!(provider)
+    update!(
+      provider_connections: provider_connections.to_h.except(provider.to_s),
+      provider_auth_modes: provider_auth_modes.to_h.merge(provider.to_s => "api_key")
+    )
+  end
+
+  def mark_provider_connection_status!(provider, status)
+    connection = provider_connection(provider)
+    return if connection.blank?
+
+    update!(
+      provider_connections: provider_connections.to_h.merge(
+        provider.to_s => connection.merge("status" => status.to_s)
+      )
+    )
   end
 
   def soul_seed

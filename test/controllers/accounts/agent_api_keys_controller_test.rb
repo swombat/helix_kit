@@ -19,6 +19,40 @@ class Accounts::AgentApiKeysControllerTest < ActionDispatch::IntegrationTest
     assert_not_includes response.body, "secret-account-key"
   end
 
+  test "show includes subscription setup for eligible hosted agents" do
+    agent = agents(:other_account_agent)
+    agent.update!(
+      model_id: "openai/gpt-5",
+      runtime: "external",
+      health_state: "healthy",
+      provider_auth_modes: { "openai" => "oauth_account" },
+      provider_connections: {
+        "openai" => {
+          "status" => "connected",
+          "email" => "subscriber@example.com",
+          "connected_at" => Time.current.iso8601
+        }
+      }
+    )
+
+    get account_agent_api_keys_path(@account)
+
+    subscription_agent = inertia_shared_props.fetch("subscription_agents").find { |item| item.fetch("id") == agent.to_param }
+    assert_equal "openai", subscription_agent.fetch("provider")
+    assert_equal "oauth_account", subscription_agent.fetch("auth_mode")
+    assert_equal "subscriber@example.com", subscription_agent.dig("connection", "email")
+  end
+
+  test "show excludes inline agents from subscription setup" do
+    agent = agents(:other_account_agent)
+    agent.update!(model_id: "openai/gpt-5", runtime: "inline")
+
+    get account_agent_api_keys_path(@account)
+
+    subscription_agent_ids = inertia_shared_props.fetch("subscription_agents").pluck("id")
+    assert_not_includes subscription_agent_ids, agent.to_param
+  end
+
   test "updates per-account agent API keys" do
     @account.update!(use_system_ai_credentials: true)
 
@@ -27,6 +61,8 @@ class Accounts::AgentApiKeysControllerTest < ActionDispatch::IntegrationTest
         account: {
           openrouter_api_key: "account-openrouter-key",
           moonshot_api_key: "account-moonshot-key",
+          zai_api_key: "account-zai-key",
+          minimax_api_key: "account-minimax-key",
           use_system_ai_credentials: false
         }
       }
@@ -36,6 +72,8 @@ class Accounts::AgentApiKeysControllerTest < ActionDispatch::IntegrationTest
     @account.reload
     assert_equal "account-openrouter-key", @account.openrouter_api_key
     assert_equal "account-moonshot-key", @account.moonshot_api_key
+    assert_equal "account-zai-key", @account.zai_api_key
+    assert_equal "account-minimax-key", @account.minimax_api_key
     assert @account.use_system_ai_credentials?
   end
 

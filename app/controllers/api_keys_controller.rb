@@ -10,7 +10,8 @@ class ApiKeysController < ApplicationController
 
     render inertia: "api_keys/index", props: {
       account: current_account,
-      api_keys: managed_api_keys.by_creation.map { |k| api_key_json(k) }
+      external_access_keys: external_access_keys.by_creation.map { |key| api_key_json(key) },
+      chaos_agent_access_keys: chaos_agent_access_keys.by_creation.map { |key| api_key_json(key) }
     }
   end
 
@@ -25,14 +26,18 @@ class ApiKeysController < ApplicationController
   end
 
   def destroy
-    managed_api_keys.find(params[:id]).destroy!
+    external_access_keys.find(params[:id]).destroy!
     redirect_to account_api_keys_path(current_account), notice: "External access key revoked"
   end
 
   private
 
-  def managed_api_keys
-    Current.user.api_keys.where(account: current_account)
+  def external_access_keys
+    Current.user.api_keys.where(account: current_account, agent_id: nil)
+  end
+
+  def chaos_agent_access_keys
+    current_account.api_keys.where.not(agent_id: nil).includes(:agent, :user)
   end
 
   def api_key_json(key)
@@ -40,10 +45,19 @@ class ApiKeysController < ApplicationController
       id: key.id,
       name: key.name,
       prefix: key.display_prefix,
+      actor: api_key_actor_json(key),
       created_at: key.created_at.strftime("%b %d, %Y"),
       last_used_at: key.last_used_at&.strftime("%b %d, %Y at %l:%M %p"),
       last_used_ip: key.last_used_ip
     }
+  end
+
+  def api_key_actor_json(key)
+    if key.agent
+      { type: "agent", id: key.agent.to_param, name: key.agent.name }
+    else
+      { type: "user", id: key.user.to_param, name: key.user.display_name }
+    end
   end
 
 end

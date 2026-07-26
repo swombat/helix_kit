@@ -29,9 +29,10 @@ class ExternalAgentWakeRequest
         trigger_kind: "wake",
         request: request,
         persistent_session: agent.persistent_wake_session?,
-        provider: Agents::Sandbox.chaos_provider_for(agent),
+        provider: provider,
         model: Agents::Sandbox.chaos_model_for(agent),
-        reasoning_effort: agent.reasoning_effort
+        reasoning_effort: agent.reasoning_effort,
+        auth_mode: agent.provider_auth_mode(provider)
       )
     end
   rescue StandardError => e
@@ -42,6 +43,10 @@ class ExternalAgentWakeRequest
   private
 
   attr_reader :agent, :requested_by
+
+  def provider
+    @provider ||= Agents::Sandbox.chaos_provider_for(agent)
+  end
 
   def agent_unhealthy?
     agent.health_state == "unhealthy" && agent.consecutive_health_failures >= 6

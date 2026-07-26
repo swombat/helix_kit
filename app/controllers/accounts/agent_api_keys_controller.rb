@@ -7,7 +7,8 @@ module Accounts
       render inertia: "accounts/agent_api_keys", props: {
         account: current_account,
         ai_api_keys_configured: current_account.ai_api_keys_configured,
-        can_manage_ai_credentials: current_account.ai_credentials_manageable_by?(Current.user)
+        can_manage_ai_credentials: current_account.ai_credentials_manageable_by?(Current.user),
+        subscription_agents: subscription_agents
       }
     end
 
@@ -26,6 +27,26 @@ module Accounts
     end
 
     private
+
+    def subscription_agents
+      current_account.agents.externally_hosted.by_name.filter_map do |agent|
+        provider = Agents::Sandbox.chaos_provider_for(agent)
+        next unless Agent::OAUTH_ACCOUNT_PROVIDERS.include?(provider)
+
+        {
+          id: agent.to_param,
+          name: agent.name,
+          provider: provider,
+          provider_name: provider == "openai" ? "ChatGPT" : "xAI",
+          runtime: agent.runtime,
+          available: agent.externally_hosted? && agent.health_state == "healthy",
+          auth_mode: agent.provider_auth_mode(provider),
+          connection: agent.provider_connection(provider)
+        }
+      rescue KeyError
+        nil
+      end
+    end
 
     def agent_api_key_params
       permitted = params.require(:account).permit(

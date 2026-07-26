@@ -22,7 +22,22 @@ class ApiKeysControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_equal "api_keys/index", inertia_component
-    assert_equal [ included.id ], inertia_shared_props.fetch("api_keys").map { |key| key.fetch("id") }
+    assert_equal [ included.id ], inertia_shared_props.fetch("external_access_keys").map { |key| key.fetch("id") }
+  end
+
+  test "index separates Chaos agent keys and identifies the bound agent" do
+    agent = agents(:other_account_agent)
+    key = ApiKey.generate_for(@user, agent: agent, name: "Chaos Agent")
+
+    get account_api_keys_path(@account)
+
+    agent_keys = inertia_shared_props.fetch("chaos_agent_access_keys")
+    assert_equal [ key.id ], agent_keys.map { |item| item.fetch("id") }
+    assert_equal(
+      { "type" => "agent", "id" => agent.to_param, "name" => agent.name },
+      agent_keys.first.fetch("actor")
+    )
+    assert_empty inertia_shared_props.fetch("external_access_keys")
   end
 
   test "create scopes the external access key to the selected account" do
@@ -38,6 +53,16 @@ class ApiKeysControllerTest < ActionDispatch::IntegrationTest
 
   test "destroy cannot revoke a key from another account" do
     key = ApiKey.generate_for(@user, account: accounts(:personal_account), name: "Other Account")
+
+    delete account_api_key_path(@account, key)
+
+    assert_response :not_found
+    assert key.reload.persisted?
+  end
+
+  test "destroy cannot revoke a system-managed Chaos agent key" do
+    agent = agents(:other_account_agent)
+    key = ApiKey.generate_for(@user, agent: agent, name: "Chaos Agent")
 
     delete account_api_key_path(@account, key)
 

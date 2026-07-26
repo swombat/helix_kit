@@ -75,7 +75,8 @@ import re
 import subprocess
 import threading
 import logging
-from datetime import datetime, timezone
+import time
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 try:
     from flask import Flask, request, jsonify, abort
@@ -107,6 +108,17 @@ CHAOS_HOME = Path(os.environ.get("CHAOS_HOME", str(Path.home() / ".chaos")))
 CHAOS_TIMEOUT_SECS = int(os.environ.get("CHAOS_TIMEOUT_SECS", "600"))
 CHAOS_ANTHROPIC_CACHE_TTL = os.environ.get("CHAOS_ANTHROPIC_CACHE_TTL")
 SESSION_MAP_DIR = CHAOS_HOME / "helixkit-sessions"
+API_KEY_CHAOS_HOME = CHAOS_HOME / "api-key-runtime"
+OAUTH_ACCOUNT_PROVIDERS = tuple(
+    provider.strip()
+    for provider in os.environ.get("CHAOS_OAUTH_ACCOUNT_PROVIDERS", "openai").split(",")
+    if provider.strip()
+)
+PROVIDER_API_KEY_ENV = {
+    "openai": "OPENAI_API_KEY",
+    "xai": "XAI_API_KEY",
+}
+AUTH_CODE_TTL_SECS = 15 * 60
 SHIM_TELEMETRY_SCHEMA_VERSION = 1
 SIDECAR_SCHEMA_VERSION = 3
 SUPPORTED_CHAOS_TELEMETRY_SCHEMA_VERSION = 1
@@ -157,6 +169,10 @@ app = Flask(__name__) if Flask else None
 _agent_invocation_lock = threading.Lock()
 _session_locks = {}
 _session_locks_guard = threading.Lock()
+_auth_lock = threading.Lock()
+_auth_process = None
+_auth_state = {"status": "none"}
+_auth_code_ready = threading.Event()
 
 
 # ----- routes -----
@@ -180,6 +196,7 @@ def trigger():
     provider = payload.get("provider", AGENT_PROVIDER)
     model = payload.get("model", AGENT_DEFAULT_MODEL)
     reasoning_effort = payload.get("reasoning_effort")
+    auth_mode = payload.get("auth_mode", "api_key")
     timeout_secs = int(payload.get("timeout_secs") or CHAOS_TIMEOUT_SECS)
     conversation_id = payload.get("conversation_id")
     requested_by = payload.get("requested_by")
@@ -190,6 +207,8 @@ def trigger():
         return jsonify({
             "error": f"reasoning_effort must be one of {', '.join(SUPPORTED_REASONING_EFFORTS)}"
         }), 400
+    if auth_mode not in ("api_key", "oauth_account"):
+        return jsonify({"error": "auth_mode must be api_key or oauth_account"}), 400
 
     log.info(
         f"trigger session_id={session_id} conversation_id={conversation_id} "
@@ -203,15 +222,18 @@ def trigger():
         if persistent_session:
             return persistent_trigger(
                 session_id, prompt, request_delta, model, timeout_secs,
-                provider=provider, reasoning_effort=reasoning_effort,
+                provider=provider, reasoning_effort=reasoning_effort, auth_mode=auth_mode,
             )
         return legacy_trigger(
             session_id, prompt, model, timeout_secs,
-            provider=provider, reasoning_effort=reasoning_effort,
+            provider=provider, reasoning_effort=reasoning_effort, auth_mode=auth_mode,
         )
 
 
-def legacy_trigger(session_id, prompt, model, timeout_secs, provider=None, reasoning_effort=None):
+def legacy_trigger(
+    session_id, prompt, model, timeout_secs, provider=None,
+    reasoning_effort=None, auth_mode="api_key",
+):
     """Run a fresh, unmapped Chaos process while still capturing JSON telemetry."""
     provider = provider or AGENT_PROVIDER
     full_prompt, prompt_components = build_prompt_with_components(prompt)
@@ -227,6 +249,7 @@ def legacy_trigger(session_id, prompt, model, timeout_secs, provider=None, reaso
         result = run_chaos(
             model, timeout_secs, full_prompt, json_output=True,
             provider=provider, reasoning_effort=reasoning_effort,
+            **({"auth_mode": auth_mode} if auth_mode != "api_key" else {}),
         )
     except subprocess.TimeoutExpired as error:
         log.error(f"chaos exec timed out after {timeout_secs}s")
@@ -286,7 +309,7 @@ def legacy_trigger(session_id, prompt, model, timeout_secs, provider=None, reaso
 
 def persistent_trigger(
     session_id, prompt, request_delta, model, timeout_secs,
-    provider=None, reasoning_effort=None,
+    provider=None, reasoning_effort=None, auth_mode="api_key",
 ):
     """Resume the session mapped to session_id, or start (and record) a fresh one.
 
@@ -326,7 +349,10 @@ def persistent_trigger(
         record = load_session_record(session_id)
         mapping_found = record is not None
         prior_process_id = record.get("chaos_process_id") if record else None
-        roll, changed_identity_files = roll_decision(record, model, provider) if record else (None, [])
+        roll, changed_identity_files = (
+            roll_decision(record, model, provider, auth_mode=auth_mode)
+            if record else (None, [])
+        )
         if record and roll:
             log.info(f"rolling session session_id={session_id} reason={roll}")
             retire_session_record(session_id, reason=roll)
@@ -346,6 +372,7 @@ def persistent_trigger(
                     model, timeout_secs, resume_prompt,
                     json_output=True, resume_id=record["chaos_process_id"], provider=provider,
                     reasoning_effort=reasoning_effort,
+                    **({"auth_mode": auth_mode} if auth_mode != "api_key" else {}),
                 )
             except subprocess.TimeoutExpired as error:
                 # The subprocess is killed on timeout, so the persisted session
@@ -436,6 +463,7 @@ def persistent_trigger(
             result = run_chaos(
                 model, timeout_secs, full_prompt, json_output=True,
                 provider=provider, reasoning_effort=reasoning_effort,
+                **({"auth_mode": auth_mode} if auth_mode != "api_key" else {}),
             )
         except subprocess.TimeoutExpired as error:
             log.error(f"chaos exec timed out after {timeout_secs}s session_id={session_id}")
@@ -468,7 +496,9 @@ def persistent_trigger(
         events = parse_events(result.stdout)
         usage = invocation_usage(None, events)
         if result.returncode == 0 and events["process_id"]:
-            save_session_record(session_id, model, events, provider=provider)
+            save_session_record(
+                session_id, model, events, provider=provider, auth_mode=auth_mode,
+            )
         if result.returncode != 0:
             outcome = "failed"
         elif roll == "resume-failed":
@@ -506,12 +536,17 @@ def persistent_trigger(
 if app:
     app.get("/health")(health)
     app.post("/trigger")(trigger)
+    app.get("/auth/capabilities")(lambda: auth_capabilities())
+    app.post("/auth/start")(lambda: auth_start())
+    app.get("/auth/status")(lambda: auth_status())
+    app.post("/auth/cancel")(lambda: auth_cancel())
+    app.post("/auth/disconnect")(lambda: auth_disconnect())
 
 
 # ----- chaos invocation -----
 def run_chaos(
     model, timeout_secs, prompt_text, json_output,
-    resume_id=None, provider=None, reasoning_effort=None,
+    resume_id=None, provider=None, reasoning_effort=None, auth_mode="api_key",
 ):
     args = [CHAOS_BIN, "exec"]
     if json_output:
@@ -539,12 +574,21 @@ def run_chaos(
     # constrained by shell argv limits and is not exposed in ps args.
     args.append("-")
 
+    env = os.environ.copy()
+    if auth_mode == "api_key":
+        API_KEY_CHAOS_HOME.mkdir(parents=True, exist_ok=True)
+        env["CHAOS_HOME"] = str(API_KEY_CHAOS_HOME)
+    else:
+        api_key_env = PROVIDER_API_KEY_ENV.get(provider or AGENT_PROVIDER)
+        if api_key_env:
+            env.pop(api_key_env, None)
     return subprocess.run(
         args,
         input=prompt_text,
         capture_output=True,
         text=True,
         timeout=timeout_secs,
+        env=env,
     )
 
 
@@ -970,13 +1014,14 @@ def load_session_record(session_id):
     return record
 
 
-def save_session_record(session_id, model, events, provider=None):
+def save_session_record(session_id, model, events, provider=None, auth_mode="api_key"):
     now = _utcnow_iso()
     record = {
         "schema_version": SIDECAR_SCHEMA_VERSION,
         "helixkit_session_id": session_id,
         "chaos_process_id": events["process_id"],
         "provider": provider or AGENT_PROVIDER,
+        "auth_mode": auth_mode,
         "model": model,
         "created_at": now,
         "last_finished_at": now,
@@ -1020,7 +1065,7 @@ def retire_session_record(session_id, reason):
             pass
 
 
-def roll_decision(record, model, provider=None):
+def roll_decision(record, model, provider=None, auth_mode="api_key"):
     """Return (reason, changed identity files); reason None means resume."""
     schema_version = _optional_int(record.get("schema_version", 1))
     if schema_version is None or schema_version > SIDECAR_SCHEMA_VERSION:
@@ -1029,6 +1074,8 @@ def roll_decision(record, model, provider=None):
         return "provider-changed", []
     if record.get("model") != model:
         return "model-changed", []
+    if record.get("auth_mode", "api_key") != auth_mode:
+        return "auth-mode-changed", []
     changed_files = changed_identity_files(record.get("identity_fingerprint") or {})
     if changed_files:
         return "identity-changed", changed_files
@@ -1037,9 +1084,9 @@ def roll_decision(record, model, provider=None):
     return None, []
 
 
-def roll_reason(record, model, provider=None):
+def roll_reason(record, model, provider=None, auth_mode="api_key"):
     """Compatibility wrapper for callers that only need the reason."""
-    reason, _changed_files = roll_decision(record, model, provider)
+    reason, _changed_files = roll_decision(record, model, provider, auth_mode=auth_mode)
     return reason
 
 
@@ -1392,6 +1439,238 @@ def cap_text(text: str, limit: int) -> str:
     if limit <= 200:
         return text[:limit]
     return text[: limit - 80] + f"\n\n_[journal section truncated to fit {JOURNAL_TOTAL_LIMIT} chars]_"
+
+
+# ----- provider subscription authentication -----
+def _require_shim_auth(path):
+    auth = request.headers.get("Authorization", "")
+    if auth != f"Bearer {TRIGGER_BEARER_TOKEN}":
+        log.warning(f"rejected {path}: bad auth")
+        abort(401)
+
+
+def _requested_auth_provider():
+    payload = request.get_json(silent=True) or {}
+    return payload.get("provider") or request.args.get("provider") or AGENT_PROVIDER
+
+
+def auth_capabilities():
+    _require_shim_auth("/auth/capabilities")
+    return jsonify({
+        "providers": {
+            provider: {"api_key": True, "oauth_account": True}
+            for provider in OAUTH_ACCOUNT_PROVIDERS
+        },
+        "chaos_version": _chaos_version(),
+    })
+
+
+def auth_start():
+    global _auth_process, _auth_state
+
+    _require_shim_auth("/auth/start")
+    provider = _requested_auth_provider()
+    if provider not in OAUTH_ACCOUNT_PROVIDERS:
+        return jsonify({
+            "error": f"{provider} does not support subscription account connections in this runtime"
+        }), 422
+
+    with _auth_lock:
+        if _auth_process is not None and _auth_process.poll() is None:
+            return jsonify({"error": "A provider connection is already in progress"}), 409
+
+        _auth_code_ready.clear()
+        now = datetime.now(timezone.utc)
+        _auth_state = {
+            "status": "pending",
+            "provider": provider,
+            "started_at": now.isoformat(),
+            "expires_at": (now + timedelta(seconds=AUTH_CODE_TTL_SECS)).isoformat(),
+        }
+        _auth_process = subprocess.Popen(
+            [CHAOS_BIN, "--provider", provider, "accounts", "--device-auth"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.PIPE,
+            text=True,
+            env=os.environ.copy(),
+        )
+        threading.Thread(
+            target=_monitor_auth_process,
+            args=(_auth_process, provider),
+            daemon=True,
+        ).start()
+
+    _auth_code_ready.wait(timeout=10)
+    with _auth_lock:
+        if _auth_state.get("status") != "pending":
+            return jsonify(_public_auth_state()), 502
+        if not _auth_state.get("verification_url") or not _auth_state.get("user_code"):
+            return jsonify({"error": "Chaos did not provide a device code"}), 502
+        return jsonify({
+            "status": "pending",
+            "provider": provider,
+            "verification_url": _auth_state["verification_url"],
+            "user_code": _auth_state["user_code"],
+            "expires_in": AUTH_CODE_TTL_SECS,
+            "expires_at": _auth_state["expires_at"],
+        })
+
+
+def auth_status():
+    global _auth_process, _auth_state
+
+    _require_shim_auth("/auth/status")
+    provider = _requested_auth_provider()
+
+    with _auth_lock:
+        if _auth_process is not None and _auth_process.poll() is None:
+            expires_at = datetime.fromisoformat(_auth_state["expires_at"])
+            if datetime.now(timezone.utc) >= expires_at:
+                _auth_process.terminate()
+                _auth_state = {
+                    "status": "expired",
+                    "provider": provider,
+                    "message": "The device code expired. Get a new code to try again.",
+                }
+            return jsonify(_public_auth_state())
+
+    return jsonify(_provider_account_status(provider))
+
+
+def auth_cancel():
+    global _auth_process, _auth_state
+
+    _require_shim_auth("/auth/cancel")
+    provider = _requested_auth_provider()
+    with _auth_lock:
+        if _auth_process is not None and _auth_process.poll() is None:
+            _auth_process.terminate()
+        _auth_process = None
+        _auth_state = {"status": "none", "provider": provider}
+    log.info(f"provider auth cancelled provider={provider}")
+    return jsonify(_public_auth_state())
+
+
+def auth_disconnect():
+    global _auth_state
+
+    _require_shim_auth("/auth/disconnect")
+    provider = _requested_auth_provider()
+    result = subprocess.run(
+        [CHAOS_BIN, "--provider", provider, "accounts", "disconnect"],
+        capture_output=True,
+        text=True,
+        timeout=20,
+        env=os.environ.copy(),
+    )
+    if result.returncode != 0:
+        return jsonify({
+            "error": _tail(result.stderr, 1000) or "Chaos could not disconnect the provider account"
+        }), 502
+    with _auth_lock:
+        _auth_state = {"status": "none", "provider": provider}
+    log.info(f"provider auth disconnected provider={provider}")
+    return jsonify({"status": "none", "provider": provider})
+
+
+def _monitor_auth_process(process, provider):
+    global _auth_process, _auth_state
+
+    verification_url = None
+    user_code = None
+    expecting_code = False
+    try:
+        for raw_line in process.stderr:
+            line = raw_line.strip()
+            if not line:
+                continue
+            if "Open this link in your browser" in line:
+                continue
+            if "one-time code" in line:
+                expecting_code = True
+                continue
+            if verification_url is None:
+                match = re.search(r"https?://\S+", line)
+                if match:
+                    verification_url = match.group(0)
+            elif expecting_code and user_code is None:
+                user_code = line
+                expecting_code = False
+
+            if verification_url and user_code:
+                with _auth_lock:
+                    if _auth_process is process:
+                        _auth_state["verification_url"] = verification_url
+                        _auth_state["user_code"] = user_code
+                _auth_code_ready.set()
+
+        returncode = process.wait()
+        status = _provider_account_status(provider) if returncode == 0 else {
+            "status": "failed",
+            "provider": provider,
+            "message": "Provider connection was not completed.",
+        }
+        with _auth_lock:
+            if _auth_process is process:
+                _auth_state = status
+                _auth_process = None
+        log.info(f"provider auth finished provider={provider} status={status['status']}")
+    except Exception as error:
+        with _auth_lock:
+            if _auth_process is process:
+                _auth_state = {
+                    "status": "failed",
+                    "provider": provider,
+                    "message": str(error),
+                }
+                _auth_process = None
+        log.warning(f"provider auth failed provider={provider}: {error.__class__.__name__}")
+    finally:
+        _auth_code_ready.set()
+
+
+def _provider_account_status(provider):
+    result = subprocess.run(
+        [CHAOS_BIN, "--provider", provider, "accounts", "status"],
+        capture_output=True,
+        text=True,
+        timeout=10,
+        env=os.environ.copy(),
+    )
+    output = "\n".join((result.stdout or "", result.stderr or ""))
+    provider_line = next(
+        (
+            line.strip()
+            for line in output.splitlines()
+            if "ChatGPT account" in line and _line_names_provider(line, provider)
+        ),
+        None,
+    )
+    if not provider_line:
+        return {"status": "none", "provider": provider}
+
+    email_match = re.search(r"\(([^()\s]+@[^()\s]+)\)", provider_line)
+    response = {"status": "connected", "provider": provider}
+    if email_match:
+        response["email"] = email_match.group(1)
+    return response
+
+
+def _line_names_provider(line, provider):
+    names = {
+        "openai": ("openai",),
+        "xai": ("xai", "x.ai"),
+    }.get(provider, (provider,))
+    lowered = line.lower()
+    return any(name in lowered for name in names)
+
+
+def _public_auth_state():
+    return {
+        key: value
+        for key, value in _auth_state.items()
+        if key not in ("verification_url", "user_code")
+    }
 
 
 def _chaos_version() -> str:

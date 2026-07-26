@@ -33,9 +33,10 @@ class ExternalAgentTelegramRequest
         request: request,
         request_delta: request_delta_text,
         persistent_session: agent.persistent_session?,
-        provider: Agents::Sandbox.chaos_provider_for(agent),
+        provider: provider,
         model: Agents::Sandbox.chaos_model_for(agent),
         reasoning_effort: agent.reasoning_effort,
+        auth_mode: agent.provider_auth_mode(provider),
         trigger_payload: trigger_payload
       )
     end
@@ -47,6 +48,10 @@ class ExternalAgentTelegramRequest
   private
 
   attr_reader :agent, :subscription, :telegram_message
+
+  def provider
+    @provider ||= Agents::Sandbox.chaos_provider_for(agent)
+  end
 
   def trigger_payload
     {

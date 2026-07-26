@@ -15,7 +15,7 @@ class ExternalAgentResponseRequest
     request = request_text
     delta = request_delta_text
 
-    AgentRuntimeInteraction.record_trigger!(
+    result = AgentRuntimeInteraction.record_trigger!(
       agent: agent,
       chat: chat,
       trigger_kind: "conversation",
@@ -33,11 +33,14 @@ class ExternalAgentResponseRequest
         request: request,
         request_delta: delta,
         persistent_session: agent.persistent_session?,
-        provider: Agents::Sandbox.chaos_provider_for(agent),
+        provider: provider,
         model: Agents::Sandbox.chaos_model_for(agent),
-        reasoning_effort: agent.reasoning_effort
+        reasoning_effort: agent.reasoning_effort,
+        auth_mode: agent.provider_auth_mode(provider)
       )
     end
+    surface_subscription_auth_failure! if subscription_auth_failure?(result)
+    result
   rescue StandardError => e
     Rails.logger.warn "[ExternalAgentResponseRequest] #{agent.id} trigger failed: #{e.class}: #{e.message}"
     ActionCable.server.broadcast(
@@ -50,6 +53,29 @@ class ExternalAgentResponseRequest
   private
 
   attr_reader :agent, :chat, :requested_by, :initiation_reason
+
+  def provider
+    @provider ||= Agents::Sandbox.chaos_provider_for(agent)
+  end
+
+  def subscription_auth_failure?(result)
+    return false unless agent.provider_auth_mode(provider) == "oauth_account"
+    return false if result[:status].to_i < 400
+
+    body = result[:body].to_h
+    diagnostic = [ body["error"], body["stderr"], body["stdout"] ].compact.join("\n")
+    diagnostic.match?(/unauthori[sz]ed|authentication|auth(?:entication)?[^a-z]+expired|token[^a-z]+expired|\b401\b/i)
+  end
+
+  def surface_subscription_auth_failure!
+    agent.mark_provider_connection_status!(provider, "expired")
+    settings_path = Rails.application.routes.url_helpers.account_agent_api_keys_path(agent.account)
+    chat.messages.create!(
+      role: "assistant",
+      agent: agent,
+      content: "_Provider connection expired — [reconnect in Agent API Keys](#{settings_path})._"
+    )
+  end
 
   def agent_unhealthy?
     agent.health_state == "unhealthy" && agent.consecutive_health_failures >= 6

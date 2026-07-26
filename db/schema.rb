@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_26_194500) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_26_204500) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -23,6 +23,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_26_194500) do
     t.string "github_login"
     t.text "github_pat"
     t.boolean "is_site_admin", default: false, null: false
+    t.text "minimax_api_key"
     t.text "moonshot_api_key"
     t.string "name", null: false
     t.text "openai_api_key"
@@ -32,6 +33,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_26_194500) do
     t.datetime "updated_at", null: false
     t.boolean "use_system_ai_credentials", default: false, null: false
     t.text "xai_api_key"
+    t.text "zai_api_key"
     t.index ["account_type"], name: "index_accounts_on_account_type"
     t.index ["disabled_at"], name: "index_accounts_on_disabled_at"
     t.index ["slug"], name: "index_accounts_on_slug", unique: true
@@ -271,6 +273,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_26_194500) do
     t.boolean "paused", default: false, null: false
     t.boolean "persistent_session", default: false, null: false
     t.boolean "persistent_wake_session", default: false, null: false
+    t.jsonb "provider_auth_modes", default: {}, null: false
+    t.jsonb "provider_connections", default: {}, null: false
     t.datetime "provisioning_started_at"
     t.string "reasoning_effort", default: "medium", null: false
     t.text "refinement_prompt"

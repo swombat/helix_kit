@@ -6,7 +6,7 @@
   import ApiUsageCard from '$lib/components/api_keys/ApiUsageCard.svelte';
   import { accountApiKeyPath, accountApiKeysPath } from '@/routes';
 
-  let { account, api_keys = [] } = $props();
+  let { account, external_access_keys = [], chaos_agent_access_keys = [] } = $props();
   let newKeyName = $state('');
   let showForm = $state(false);
 
@@ -30,6 +30,31 @@
     <ApiKeyCreateForm bind:name={newKeyName} onSubmit={createKey} />
   {/if}
 
-  <ApiKeyList apiKeys={api_keys} onDelete={deleteKey} />
+  <div class="space-y-8">
+    <section class="space-y-3">
+      <div>
+        <h2 class="text-lg font-semibold">Your External Access Keys</h2>
+        <p class="text-sm text-muted-foreground">
+          These keys act as you. Messages posted with them appear as your user account.
+        </p>
+      </div>
+      <ApiKeyList
+        apiKeys={external_access_keys}
+        onDelete={deleteKey}
+        emptyMessage="No personal external access keys yet. Create one for an external tool." />
+    </section>
+
+    <section class="space-y-3">
+      <div>
+        <h2 class="text-lg font-semibold">Chaos Agent Access</h2>
+        <p class="text-sm text-muted-foreground">
+          Each system-managed key is bound to the named agent. Calls and messages made with it appear as that agent, not
+          as you.
+        </p>
+      </div>
+      <ApiKeyList apiKeys={chaos_agent_access_keys} emptyMessage="No Chaos agents have account access keys yet." />
+    </section>
+  </div>
+
   <ApiUsageCard />
 </div>

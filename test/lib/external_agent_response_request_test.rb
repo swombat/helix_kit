@@ -150,6 +150,46 @@ class ExternalAgentResponseRequestTest < ActiveSupport::TestCase
     refute_includes interaction.response_body.keys, "full_invocation_text"
   end
 
+  test "subscription authentication failures surface a reconnect link instead of raw provider errors" do
+    agent = agents(:research_assistant)
+    chat = agent.account.chats.create!(model_id: "openai/gpt-5", title: "Expired subscription")
+    agent.update!(
+      model_id: "openai/gpt-5",
+      runtime: "external",
+      uuid: SecureRandom.uuid_v7,
+      endpoint_url: "https://agent.example.com",
+      trigger_bearer_token: "tr_valid",
+      health_state: "healthy",
+      provider_auth_modes: { "openai" => "oauth_account" },
+      provider_connections: {
+        "openai" => {
+          "status" => "connected",
+          "email" => "subscriber@example.com"
+        }
+      }
+    )
+    stub_request(:post, "https://agent.example.com/trigger")
+      .to_return(
+        status: 500,
+        body: {
+          status: "error",
+          returncode: 1,
+          stderr: "401 Unauthorized: access token expired"
+        }.to_json
+      )
+
+    assert_difference "chat.messages.count", 1 do
+      ExternalAgentResponseRequest.new(agent: agent, chat: chat).call
+    end
+
+    message = chat.messages.order(:created_at).last
+    assert_equal agent, message.agent
+    assert_includes message.content, "Provider connection expired"
+    assert_includes message.content, Rails.application.routes.url_helpers.account_agent_api_keys_path(agent.account)
+    assert_not_includes message.content, "401 Unauthorized"
+    assert_equal "expired", agent.reload.provider_connection("openai").fetch("status")
+  end
+
   test "does not build a request_delta when persistent_session is disabled" do
     agent = agents(:research_assistant)
     chat = agent.account.chats.create!(model_id: "openrouter/auto", title: "Delta prompt")

@@ -33,9 +33,10 @@ class ExternalAgentOrientationRequest
         session_id: session_id,
         trigger_kind: "orientation",
         request: request,
-        provider: Agents::Sandbox.chaos_provider_for(agent),
+        provider: provider,
         model: Agents::Sandbox.chaos_model_for(agent),
         reasoning_effort: agent.reasoning_effort,
+        auth_mode: agent.provider_auth_mode(provider),
         read_timeout: ORIENTATION_TIMEOUT_SECS + 30,
         runtime_timeout_secs: ORIENTATION_TIMEOUT_SECS
       )
@@ -52,6 +53,10 @@ class ExternalAgentOrientationRequest
   private
 
   attr_reader :agent, :requested_by, :context
+
+  def provider
+    @provider ||= Agents::Sandbox.chaos_provider_for(agent)
+  end
 
   def agent_unhealthy?
     agent.health_state == "unhealthy" && agent.consecutive_health_failures >= 6

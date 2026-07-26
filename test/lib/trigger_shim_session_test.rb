@@ -27,6 +27,84 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
     assert_includes entrypoint, "https://openrouter.ai/api/v1"
   end
 
+  test "auth mode changes roll persistent sessions" do
+    out = run_shim_python(<<~PY)
+      record = {
+        "schema_version": mod.SIDECAR_SCHEMA_VERSION,
+        "provider": "openai",
+        "model": "gpt-5",
+        "auth_mode": "api_key",
+        "identity_fingerprint": mod.identity_fingerprint(),
+        "runtime_context_fingerprint": mod.runtime_context_fingerprint(),
+      }
+      print(json.dumps({
+        "same": mod.roll_reason(record, "gpt-5", "openai", auth_mode="api_key"),
+        "changed": mod.roll_reason(record, "gpt-5", "openai", auth_mode="oauth_account"),
+      }))
+    PY
+
+    result = JSON.parse(out)
+    assert_nil result["same"]
+    assert_equal "auth-mode-changed", result["changed"]
+  end
+
+  test "API key and subscription runs use separate Chaos homes" do
+    out = run_shim_python(<<~PY)
+      import types
+      calls = []
+      def capture_run(*args, **kwargs):
+          calls.append({
+            "home": kwargs["env"]["CHAOS_HOME"],
+            "openai_key": kwargs["env"].get("OPENAI_API_KEY"),
+          })
+          return types.SimpleNamespace(stdout="", stderr="", returncode=0)
+      mod.os.environ["OPENAI_API_KEY"] = "metered-key"
+      mod.subprocess.run = capture_run
+      mod.run_chaos("gpt-5", 5, "prompt", False, provider="openai", auth_mode="api_key")
+      mod.run_chaos("gpt-5", 5, "prompt", False, provider="openai", auth_mode="oauth_account")
+      print(json.dumps(calls))
+    PY
+
+    calls = JSON.parse(out)
+    assert calls.first.fetch("home").end_with?("/api-key-runtime")
+    assert_equal "metered-key", calls.first.fetch("openai_key")
+    assert_equal File.dirname(calls.first.fetch("home")), calls.second.fetch("home")
+    assert_nil calls.second.fetch("openai_key")
+  end
+
+  test "provider auth endpoints require the trigger bearer token" do
+    out = run_shim_python(<<~PY)
+      import types
+      mod.request = types.SimpleNamespace(headers={})
+      mod.abort = lambda status: (_ for _ in ()).throw(RuntimeError(str(status)))
+      try:
+          mod._require_shim_auth("/auth/status")
+          result = "accepted"
+      except RuntimeError as error:
+          result = str(error)
+      print(json.dumps(result))
+    PY
+
+    assert_equal "401", JSON.parse(out)
+  end
+
+  test "provider status parsing returns display metadata without token data" do
+    out = run_shim_python(<<~PY)
+      import types
+      mod.subprocess.run = lambda *args, **kwargs: types.SimpleNamespace(
+          stdout="",
+          stderr="Stored provider accounts:\\n  - OpenAI: ChatGPT account (subscriber@example.com)\\n",
+          returncode=0,
+      )
+      print(json.dumps(mod._provider_account_status("openai")))
+    PY
+
+    result = JSON.parse(out)
+    assert_equal "connected", result["status"]
+    assert_equal "subscriber@example.com", result["email"]
+    assert_equal %w[email provider status], result.keys.sort
+  end
+
   test "entrypoint does not rewrite historical runtime documentation in identity" do
     entrypoint = Rails.root.join("agent-runtime/entrypoint.sh").read
 
