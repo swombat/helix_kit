@@ -37,7 +37,7 @@ class Agents::ProviderSubscriptionsControllerTest < ActionDispatch::IntegrationT
 
     assert_response :success
     assert_equal "ABCD-EFGH", response.parsed_body.fetch("user_code")
-    assert_equal "oauth_account", @agent.reload.provider_auth_mode("openai")
+    assert_equal "api_key", @agent.reload.provider_auth_mode("openai")
     assert_not_includes @agent.provider_connections.to_json, "ABCD-EFGH"
     assert_not_includes AuditLog.where(auditable: @agent).pluck(:data).to_json, "ABCD-EFGH"
   end
@@ -60,8 +60,32 @@ class Agents::ProviderSubscriptionsControllerTest < ActionDispatch::IntegrationT
     end
 
     assert_response :success
-    assert_equal "subscriber@example.com", @agent.reload.provider_connection("openai").fetch("email")
+    assert_equal "oauth_account", @agent.reload.provider_auth_mode("openai")
+    assert_equal "subscriber@example.com", @agent.provider_connection("openai").fetch("email")
     assert_equal "Plus", @agent.provider_connection("openai").fetch("plan")
+  end
+
+  test "capabilities are read from the agent runtime" do
+    client = Object.new
+    client.define_singleton_method(:capabilities) do
+      {
+        "providers" => {
+          "openai" => { "api_key" => true, "oauth_account" => true },
+          "xai" => { "api_key" => true, "oauth_account" => true }
+        },
+        "chaos_version" => "chaos 1.2.3"
+      }
+    end
+
+    AgentProviderAuthClient.stub(:new, client) do
+      get account_agent_provider_subscription_path(@account, @agent),
+          params: { capabilities: true },
+          as: :json
+    end
+
+    assert_response :success
+    assert_equal true, response.parsed_body.dig("providers", "xai", "oauth_account")
+    assert_equal "api_key", @agent.reload.provider_auth_mode("openai")
   end
 
   test "disconnect clears connection metadata" do

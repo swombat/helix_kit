@@ -185,9 +185,31 @@ class ExternalAgentResponseRequestTest < ActiveSupport::TestCase
     message = chat.messages.order(:created_at).last
     assert_equal agent, message.agent
     assert_includes message.content, "Provider connection expired"
-    assert_includes message.content, Rails.application.routes.url_helpers.account_agent_api_keys_path(agent.account)
+    assert_includes message.content, Rails.application.routes.url_helpers.edit_account_agent_path(
+      agent.account,
+      agent,
+      tab: "hosting"
+    )
     assert_not_includes message.content, "401 Unauthorized"
     assert_equal "expired", agent.reload.provider_connection("openai").fetch("status")
+  end
+
+  test "missing subscription credentials surface the reconnect guidance" do
+    agent = agents(:research_assistant)
+    agent.update!(
+      model_id: "openai/gpt-5",
+      provider_auth_modes: { "openai" => "oauth_account" }
+    )
+    request = ExternalAgentResponseRequest.new(
+      agent: agent,
+      chat: agent.account.chats.create!(model_id: "openai/gpt-5", title: "Missing subscription")
+    )
+
+    assert request.send(
+      :subscription_auth_failure?,
+      status: 500,
+      body: { "stderr" => "missing provider credentials" }
+    )
   end
 
   test "does not build a request_delta when persistent_session is disabled" do

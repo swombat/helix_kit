@@ -22,10 +22,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         git \
     && rm -rf /var/lib/apt/lists/*
 
-# Pin the merged Gemini thought-signature fix so hosted runtime rebuilds are
+# Pin the merged xAI subscription-auth support so hosted runtime rebuilds are
 # reproducible and do not depend on Docker noticing movement of a branch ref.
+# Pin bumps must re-verify trigger_shim.py's _monitor_auth_process prompt parser.
 ARG CHAOS_REPO=https://github.com/seuros/chaos.git
-ARG CHAOS_REF=650056732f2212c65779b99e9e032389f0c12ba9
+ARG CHAOS_REF=39cacb3805290ac585ff0d1d8b32fa75840ba7c7
 
 WORKDIR /build
 RUN git clone --filter=blob:none ${CHAOS_REPO} chaos \

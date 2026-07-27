@@ -64,16 +64,22 @@ class ExternalAgentResponseRequest
 
     body = result[:body].to_h
     diagnostic = [ body["error"], body["stderr"], body["stdout"] ].compact.join("\n")
-    diagnostic.match?(/unauthori[sz]ed|authentication|auth(?:entication)?[^a-z]+expired|token[^a-z]+expired|\b401\b/i)
+    diagnostic.match?(
+      /unauthori[sz]ed|authentication|auth(?:entication)?[^a-z]+expired|token[^a-z]+expired|missing provider credentials|provider auth missing|no (?:usable )?credentials|\b401\b/i
+    )
   end
 
   def surface_subscription_auth_failure!
     agent.mark_provider_connection_status!(provider, "expired")
-    settings_path = Rails.application.routes.url_helpers.account_agent_api_keys_path(agent.account)
+    settings_path = Rails.application.routes.url_helpers.edit_account_agent_path(
+      agent.account,
+      agent,
+      tab: "hosting"
+    )
     chat.messages.create!(
       role: "assistant",
       agent: agent,
-      content: "_Provider connection expired — [reconnect in Agent API Keys](#{settings_path})._"
+      content: "_Provider connection expired — [reconnect in agent hosting settings](#{settings_path})._"
     )
   end
 

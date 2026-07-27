@@ -48,7 +48,7 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
     assert_equal "auth-mode-changed", result["changed"]
   end
 
-  test "API key and subscription runs use separate Chaos homes" do
+  test "API key runs preserve the original Chaos home and subscription runs use an isolated home" do
     out = run_shim_python(<<~PY)
       import types
       calls = []
@@ -66,10 +66,64 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
     PY
 
     calls = JSON.parse(out)
-    assert calls.first.fetch("home").end_with?("/api-key-runtime")
+    assert_equal File.dirname(calls.second.fetch("home")), calls.first.fetch("home")
     assert_equal "metered-key", calls.first.fetch("openai_key")
-    assert_equal File.dirname(calls.first.fetch("home")), calls.second.fetch("home")
+    assert calls.second.fetch("home").end_with?("/oauth-runtime")
     assert_nil calls.second.fetch("openai_key")
+  end
+
+  test "provider account commands use the isolated subscription Chaos home" do
+    out = run_shim_python(<<~PY)
+      import types
+      calls = []
+      mod.subprocess.run = lambda *args, **kwargs: (
+          calls.append(kwargs["env"]["CHAOS_HOME"]) or
+          types.SimpleNamespace(stdout="", stderr="Stored provider accounts: none", returncode=1)
+      )
+      mod._provider_account_status("openai")
+      print(json.dumps(calls))
+    PY
+
+    homes = JSON.parse(out)
+    assert_equal 1, homes.size
+    assert homes.first.end_with?("/oauth-runtime")
+  end
+
+  test "expired auth ceremony cannot be overwritten by its monitor thread" do
+    out = run_shim_python(<<~PY)
+      import types
+      class Process:
+          def poll(self): return None
+          def terminate(self): pass
+      process = Process()
+      mod._auth_process = process
+      mod._auth_state = {
+          "status": "pending",
+          "provider": "openai",
+          "expires_at": "2000-01-01T00:00:00+00:00",
+      }
+      mod.request = types.SimpleNamespace(
+          headers={"Authorization": "Bearer tr_test"},
+          get_json=lambda silent=True: {},
+          args={"provider": "openai"},
+      )
+      mod.jsonify = lambda value: value
+      result = mod.auth_status()
+      mod._monitor_auth_process(
+          types.SimpleNamespace(stderr=[], wait=lambda: 1),
+          "openai",
+      )
+      print(json.dumps({
+          "result": result,
+          "state": mod._auth_state,
+          "process_cleared": mod._auth_process is None,
+      }))
+    PY
+
+    result = JSON.parse(out)
+    assert_equal "expired", result.dig("result", "status")
+    assert_equal "expired", result.dig("state", "status")
+    assert_equal true, result["process_cleared"]
   end
 
   test "provider auth endpoints require the trigger bearer token" do
@@ -88,6 +142,14 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
     assert_equal "401", JSON.parse(out)
   end
 
+  test "subscription capabilities include xAI by default" do
+    out = run_shim_python(<<~PY)
+      print(json.dumps(list(mod.OAUTH_ACCOUNT_PROVIDERS)))
+    PY
+
+    assert_equal %w[openai xai], JSON.parse(out)
+  end
+
   test "provider status parsing returns display metadata without token data" do
     out = run_shim_python(<<~PY)
       import types
@@ -103,6 +165,23 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
     assert_equal "connected", result["status"]
     assert_equal "subscriber@example.com", result["email"]
     assert_equal %w[email provider status], result.keys.sort
+  end
+
+  test "provider status parsing recognizes xAI subscription accounts" do
+    out = run_shim_python(<<~PY)
+      import types
+      mod.subprocess.run = lambda *args, **kwargs: types.SimpleNamespace(
+          stdout="",
+          stderr="Stored provider accounts:\\n  - xAI: xAI account (subscriber@example.com)\\n",
+          returncode=0,
+      )
+      print(json.dumps(mod._provider_account_status("xai")))
+    PY
+
+    result = JSON.parse(out)
+    assert_equal "connected", result["status"]
+    assert_equal "xai", result["provider"]
+    assert_equal "subscriber@example.com", result["email"]
   end
 
   test "entrypoint does not rewrite historical runtime documentation in identity" do

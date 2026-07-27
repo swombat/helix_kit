@@ -13,6 +13,8 @@
   let startingConnection = $state(false);
   let secondsRemaining = $state(0);
   let pollTimer = null;
+  let capabilityChecked = $state(false);
+  let subscriptionSupported = $state(true);
 
   $effect(() => {
     if (!connectOpen || !ceremony?.expires_at) return;
@@ -26,6 +28,11 @@
   });
 
   $effect(() => () => stopPolling());
+
+  $effect(() => {
+    if (!agent.available) return;
+    checkCapabilities();
+  });
 
   function csrfToken() {
     return document.querySelector('meta[name="csrf-token"]')?.content || '';
@@ -62,6 +69,19 @@
       agent = { ...agent, auth_mode: authMode };
     } catch (error) {
       actionError = error.message;
+    }
+  }
+
+  async function checkCapabilities() {
+    try {
+      const capabilities = await jsonRequest(`${subscriptionPath()}?capabilities=1`);
+      subscriptionSupported = capabilities.providers?.[agent.provider]?.oauth_account === true;
+    } catch {
+      // A temporarily unreachable runtime is already represented by the
+      // hosting-health state. Keep the server-side provider fallback rather
+      // than making an existing connection disappear.
+    } finally {
+      capabilityChecked = true;
     }
   }
 
@@ -164,7 +184,10 @@
       <p class="text-sm text-muted-foreground">
         {agent.provider_name} · {agent.available ? 'Hosted runtime ready' : `Runtime ${agent.runtime}`}
       </p>
-      {#if agent.connection?.status === 'connected'}
+      {#if capabilityChecked && !subscriptionSupported}
+        <p class="text-xs text-muted-foreground">This hosted runtime does not support subscription account access.</p>
+      {/if}
+      {#if subscriptionSupported && agent.connection?.status === 'connected'}
         <p class="text-sm">
           Connected{agent.connection.email ? ` as ${agent.connection.email}` : ''}
           {agent.connection.plan ? ` · ${agent.connection.plan}` : ''}
@@ -209,7 +232,7 @@
           onclick={disconnectSubscription}>
           Disconnect
         </Button>
-      {:else}
+      {:else if subscriptionSupported}
         <Button type="button" size="sm" disabled={!canManage || !agent.available} onclick={beginConnection}>
           Connect subscription
         </Button>

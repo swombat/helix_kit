@@ -5,6 +5,11 @@ class Agents::ProviderSubscriptionsController < ApplicationController
   before_action :require_account_owner!
 
   def show
+    if ActiveModel::Type::Boolean.new.cast(params[:capabilities])
+      render json: auth_client.capabilities
+      return
+    end
+
     result = auth_client.status(provider:)
     persist_status!(result)
     render json: result
@@ -14,7 +19,6 @@ class Agents::ProviderSubscriptionsController < ApplicationController
 
   def create
     result = auth_client.start(provider:)
-    @agent.use_provider_auth_mode!(provider, "oauth_account")
     render json: result
   rescue AgentProviderAuthClient::Error => e
     render_client_error(e)

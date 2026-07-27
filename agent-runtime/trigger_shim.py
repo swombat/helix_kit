@@ -108,10 +108,10 @@ CHAOS_HOME = Path(os.environ.get("CHAOS_HOME", str(Path.home() / ".chaos")))
 CHAOS_TIMEOUT_SECS = int(os.environ.get("CHAOS_TIMEOUT_SECS", "600"))
 CHAOS_ANTHROPIC_CACHE_TTL = os.environ.get("CHAOS_ANTHROPIC_CACHE_TTL")
 SESSION_MAP_DIR = CHAOS_HOME / "helixkit-sessions"
-API_KEY_CHAOS_HOME = CHAOS_HOME / "api-key-runtime"
+OAUTH_CHAOS_HOME = CHAOS_HOME / "oauth-runtime"
 OAUTH_ACCOUNT_PROVIDERS = tuple(
     provider.strip()
-    for provider in os.environ.get("CHAOS_OAUTH_ACCOUNT_PROVIDERS", "openai").split(",")
+    for provider in os.environ.get("CHAOS_OAUTH_ACCOUNT_PROVIDERS", "openai,xai").split(",")
     if provider.strip()
 )
 PROVIDER_API_KEY_ENV = {
@@ -575,10 +575,8 @@ def run_chaos(
     args.append("-")
 
     env = os.environ.copy()
-    if auth_mode == "api_key":
-        API_KEY_CHAOS_HOME.mkdir(parents=True, exist_ok=True)
-        env["CHAOS_HOME"] = str(API_KEY_CHAOS_HOME)
-    else:
+    if auth_mode == "oauth_account":
+        env = _oauth_account_env()
         api_key_env = PROVIDER_API_KEY_ENV.get(provider or AGENT_PROVIDER)
         if api_key_env:
             env.pop(api_key_env, None)
@@ -1492,7 +1490,7 @@ def auth_start():
             stdout=subprocess.DEVNULL,
             stderr=subprocess.PIPE,
             text=True,
-            env=os.environ.copy(),
+            env=_oauth_account_env(),
         )
         threading.Thread(
             target=_monitor_auth_process,
@@ -1526,7 +1524,9 @@ def auth_status():
         if _auth_process is not None and _auth_process.poll() is None:
             expires_at = datetime.fromisoformat(_auth_state["expires_at"])
             if datetime.now(timezone.utc) >= expires_at:
-                _auth_process.terminate()
+                process = _auth_process
+                _auth_process = None
+                process.terminate()
                 _auth_state = {
                     "status": "expired",
                     "provider": provider,
@@ -1561,7 +1561,7 @@ def auth_disconnect():
         capture_output=True,
         text=True,
         timeout=20,
-        env=os.environ.copy(),
+        env=_oauth_account_env(),
     )
     if result.returncode != 0:
         return jsonify({
@@ -1635,14 +1635,15 @@ def _provider_account_status(provider):
         capture_output=True,
         text=True,
         timeout=10,
-        env=os.environ.copy(),
+        env=_oauth_account_env(),
     )
     output = "\n".join((result.stdout or "", result.stderr or ""))
     provider_line = next(
         (
             line.strip()
             for line in output.splitlines()
-            if "ChatGPT account" in line and _line_names_provider(line, provider)
+            if _line_names_provider(line, provider)
+            and ("ChatGPT account" in line or "xAI account" in line)
         ),
         None,
     )
@@ -1663,6 +1664,13 @@ def _line_names_provider(line, provider):
     }.get(provider, (provider,))
     lowered = line.lower()
     return any(name in lowered for name in names)
+
+
+def _oauth_account_env():
+    OAUTH_CHAOS_HOME.mkdir(parents=True, exist_ok=True)
+    env = os.environ.copy()
+    env["CHAOS_HOME"] = str(OAUTH_CHAOS_HOME)
+    return env
 
 
 def _public_auth_state():
