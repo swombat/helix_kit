@@ -54,6 +54,14 @@
         Estimated: {dollars(costBreakdown.estimated_cost.amount_usd)}
       </span>
     {/if}
+    {#if costBreakdown?.estimated_cost?.subscription_estimate_usd}
+      ·
+      <span
+        class="line-through"
+        title={`API-equivalent estimate for ${costBreakdown.estimated_cost.subscription_interaction_count} subscription-based interaction${costBreakdown.estimated_cost.subscription_interaction_count === 1 ? '' : 's'}; these costs do not apply.`}>
+        Subscription: {dollars(costBreakdown.estimated_cost.subscription_estimate_usd)}
+      </span>
+    {/if}
   </span>
 
   {#if tokenWarningLevel === 'amber'}

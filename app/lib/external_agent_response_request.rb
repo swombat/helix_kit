@@ -14,6 +14,7 @@ class ExternalAgentResponseRequest
     session_id = "#{agent.uuid}-#{chat.id}"
     request = request_text
     delta = request_delta_text
+    auth_mode = agent.provider_auth_mode(provider)
 
     result = AgentRuntimeInteraction.record_trigger!(
       agent: agent,
@@ -24,7 +25,8 @@ class ExternalAgentResponseRequest
       session_id: session_id,
       endpoint_url: endpoint_url,
       request_text: request,
-      last_included_message_id: computed_last_included_message_id
+      last_included_message_id: computed_last_included_message_id,
+      provider_auth_mode: auth_mode
     ) do
       ChaosTriggerClient.new(endpoint_url, agent.trigger_bearer_token).request_response(
         conversation_id: chat.to_param,
@@ -36,7 +38,7 @@ class ExternalAgentResponseRequest
         provider: provider,
         model: Agents::Sandbox.chaos_model_for(agent),
         reasoning_effort: agent.reasoning_effort,
-        auth_mode: agent.provider_auth_mode(provider)
+        auth_mode: auth_mode
       )
     end
     surface_subscription_auth_failure! if subscription_auth_failure?(result)

@@ -15,6 +15,20 @@ class InteractionCostsByMessageTest < ActiveSupport::TestCase
     costs = InteractionCostsByMessage.new(chat: @chat, messages: [ message ]).call
 
     assert_equal "0.00225", costs.dig(message.id, :amount_usd)
+    assert_equal true, costs.dig(message.id, :applies_to_billing)
+  end
+
+  test "marks a linked subscription interaction estimate as non-billable" do
+    message = create_message!(at: @started_at + 10.seconds)
+    create_interaction!(
+      finished_at: @started_at + 20.seconds,
+      provider_auth_mode: "oauth_account"
+    )
+
+    costs = InteractionCostsByMessage.new(chat: @chat, messages: [ message ]).call
+
+    assert_equal "0.00225", costs.dig(message.id, :amount_usd)
+    assert_equal false, costs.dig(message.id, :applies_to_billing)
   end
 
   test "does not link an interaction that produced several messages" do

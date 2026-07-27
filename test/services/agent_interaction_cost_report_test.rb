@@ -38,6 +38,22 @@ class AgentInteractionCostReportTest < ActiveSupport::TestCase
     assert_empty report[:days]
   end
 
+  test "keeps subscription estimates visible but excludes them from the applicable total" do
+    create_interaction!(started_at: Time.zone.local(2026, 7, 22, 9))
+    create_interaction!(
+      started_at: Time.zone.local(2026, 7, 22, 15),
+      provider_auth_mode: "oauth_account"
+    )
+
+    report = AgentInteractionCostReport.new(agent: @agent).call
+
+    assert_equal "0.00225", report[:total_amount_usd]
+    assert_equal "0.00225", report[:subscription_estimate_usd]
+    assert_equal 1, report[:interaction_count]
+    assert_equal 1, report[:subscription_interaction_count]
+    assert_equal "0.00225", report.dig(:days, 0, :subscription_estimate_usd)
+  end
+
   test "limits the displayed table to the latest thirty cost days" do
     31.times do |index|
       create_interaction!(started_at: Time.zone.local(2026, 7, 22, 12) - index.days)

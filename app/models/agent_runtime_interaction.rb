@@ -10,11 +10,12 @@ class AgentRuntimeInteraction < ApplicationRecord
 
   validates :trigger_kind, presence: true
   validates :started_at, presence: true
+  validates :provider_auth_mode, inclusion: { in: Agent::PROVIDER_AUTH_MODES }
 
   scope :recent, -> { order(created_at: :desc) }
   scope :timeline_order, -> { order(Arel.sql("COALESCE(finished_at, started_at, created_at) ASC"), :id) }
 
-  def self.record_trigger!(agent:, chat:, trigger_kind:, conversation_id:, requested_by:, session_id:, endpoint_url:, request_text:, last_included_message_id: nil)
+  def self.record_trigger!(agent:, chat:, trigger_kind:, conversation_id:, requested_by:, session_id:, endpoint_url:, request_text:, last_included_message_id: nil, provider_auth_mode: "api_key")
     interaction = create!(
       agent: agent,
       chat: chat,
@@ -25,6 +26,7 @@ class AgentRuntimeInteraction < ApplicationRecord
       endpoint_url: endpoint_url,
       request_text: request_text,
       last_included_message_id: last_included_message_id,
+      provider_auth_mode: provider_auth_mode,
       started_at: Time.current
     )
 
@@ -170,7 +172,14 @@ class AgentRuntimeInteraction < ApplicationRecord
   end
 
   def estimated_cost
-    AgentRuntimeInteractionCost.new(self).call
+    AgentRuntimeInteractionCost.new(self).call.merge(
+      provider_auth_mode: provider_auth_mode,
+      applies_to_billing: !subscription_based?
+    )
+  end
+
+  def subscription_based?
+    provider_auth_mode == "oauth_account"
   end
 
   def as_debug_json
@@ -197,6 +206,8 @@ class AgentRuntimeInteraction < ApplicationRecord
       chaos_version: chaos_version,
       provider: provider,
       model: model,
+      provider_auth_mode: provider_auth_mode,
+      subscription_based: subscription_based?,
       cache_ttl: cache_ttl,
       persistent_session_requested: persistent_session_requested,
       session_mapping_found: session_mapping_found,
@@ -265,6 +276,8 @@ class AgentRuntimeInteraction < ApplicationRecord
       requested_by: requested_by,
       provider: provider,
       model: model,
+      provider_auth_mode: provider_auth_mode,
+      subscription_based: subscription_based?,
       session_outcome: session_outcome,
       prompt_mode: prompt_mode,
       provider_request_count: local_usage? ? provider_request_count : nil,

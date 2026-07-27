@@ -122,7 +122,17 @@
               </div>
             </div>
             <div class="text-right text-xs text-muted-foreground">
-              <div class="font-medium text-foreground">{dollars(interaction.estimated_cost?.amount_usd)}</div>
+              <div
+                class:line-through={interaction.subscription_based}
+                class="font-medium text-foreground"
+                title={interaction.subscription_based
+                  ? 'This agent activation used a provider subscription, so this API-equivalent estimate does not apply.'
+                  : undefined}>
+                {dollars(interaction.estimated_cost?.amount_usd)}
+              </div>
+              {#if interaction.subscription_based}
+                <div title="Provider subscription usage is covered by the connected personal plan.">Subscription</div>
+              {/if}
               <div>
                 {interaction.provider_request_count === null || interaction.provider_request_count === undefined
                   ? 'Provider calls unavailable'

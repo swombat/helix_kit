@@ -41,6 +41,31 @@ class AgentRuntimeInteractionTest < ActiveSupport::TestCase
     assert_not_nil interaction.duration_ms
   end
 
+  test "records the auth mode used for the trigger and marks subscription estimates as non-billable" do
+    agent = agents(:research_assistant)
+    chat = agent.account.chats.create!(model_id: "openai/gpt-5", title: "Subscription cost")
+
+    AgentRuntimeInteraction.record_trigger!(
+      agent: agent,
+      chat: chat,
+      trigger_kind: "conversation",
+      conversation_id: chat.to_param,
+      requested_by: "test",
+      session_id: "subscription-session",
+      endpoint_url: "https://agent.example.com",
+      request_text: "Please respond",
+      provider_auth_mode: "oauth_account"
+    ) do
+      { status: 200, body: { "status" => "ok" } }
+    end
+
+    interaction = AgentRuntimeInteraction.last
+    assert_equal "oauth_account", interaction.provider_auth_mode
+    assert_predicate interaction, :subscription_based?
+    assert_equal false, interaction.estimated_cost[:applies_to_billing]
+    assert_equal true, interaction.as_cost_json[:subscription_based]
+  end
+
   test "cost json exposes only trigger-local detailed usage" do
     agent = agents(:research_assistant)
     chat = agent.account.chats.create!(model_id: "openrouter/auto", title: "Cost context")

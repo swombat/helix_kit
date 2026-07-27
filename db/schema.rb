@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_26_204500) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_27_103500) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -192,6 +192,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_26_204500) do
     t.jsonb "prompt_component_bytes", default: {}
     t.string "prompt_mode"
     t.string "provider"
+    t.string "provider_auth_mode", default: "api_key", null: false
     t.integer "provider_request_count"
     t.bigint "reasoning_output_tokens"
     t.text "request_text"

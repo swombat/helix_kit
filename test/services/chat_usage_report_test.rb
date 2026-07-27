@@ -152,4 +152,31 @@ class ChatUsageReportTest < ActiveSupport::TestCase
     assert_nil report[:estimated_cost]
   end
 
+  test "reports subscription estimates separately from applicable costs" do
+    AgentRuntimeInteraction.create!(
+      agent: @agent,
+      chat: @chat,
+      trigger_kind: "conversation",
+      started_at: Time.current,
+      telemetry_schema_version: 1,
+      chaos_telemetry_status: "detailed",
+      usage_scope: "invocation",
+      usage_complete: true,
+      provider: "openai",
+      model: "gpt-5",
+      provider_auth_mode: "oauth_account",
+      uncached_input_tokens: 1_000,
+      cache_creation_input_tokens: 0,
+      cache_read_input_tokens: 0,
+      output_tokens: 25
+    )
+
+    report = ChatUsageReport.new(chat: @chat).call
+
+    assert_nil report.dig(:estimated_cost, :amount_usd)
+    assert_equal "0.0015", report.dig(:estimated_cost, :subscription_estimate_usd)
+    assert_equal 0, report.dig(:estimated_cost, :interaction_count)
+    assert_equal 1, report.dig(:estimated_cost, :subscription_interaction_count)
+  end
+
 end

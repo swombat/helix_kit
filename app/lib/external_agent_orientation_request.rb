@@ -14,6 +14,7 @@ class ExternalAgentOrientationRequest
     endpoint_url = Agents::Endpoint.url_for(agent)
     session_id = "#{agent.uuid}-orientation"
     request = request_text
+    auth_mode = agent.provider_auth_mode(provider)
     journal_status = Agents::DailyJournalStatus.new(agent)
     before = journal_status.snapshot
 
@@ -25,7 +26,8 @@ class ExternalAgentOrientationRequest
       requested_by: requested_by,
       session_id: session_id,
       endpoint_url: endpoint_url,
-      request_text: request
+      request_text: request,
+      provider_auth_mode: auth_mode
     ) do
       ChaosTriggerClient.new(endpoint_url, agent.trigger_bearer_token).request_response(
         conversation_id: nil,
@@ -36,7 +38,7 @@ class ExternalAgentOrientationRequest
         provider: provider,
         model: Agents::Sandbox.chaos_model_for(agent),
         reasoning_effort: agent.reasoning_effort,
-        auth_mode: agent.provider_auth_mode(provider),
+        auth_mode: auth_mode,
         read_timeout: ORIENTATION_TIMEOUT_SECS + 30,
         runtime_timeout_secs: ORIENTATION_TIMEOUT_SECS
       )

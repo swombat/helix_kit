@@ -38,22 +38,45 @@ class AccountInteractionCostReportTest < ActiveSupport::TestCase
     assert_equal "0.06975", report[:total_amount_usd]
   end
 
+  test "separates subscription estimates from applicable account costs" do
+    create_interaction!(@first_agent, Time.zone.local(2026, 7, 22, 9))
+    create_interaction!(
+      @second_agent,
+      Time.zone.local(2026, 7, 22, 15),
+      provider_auth_mode: "oauth_account"
+    )
+
+    report = AccountInteractionCostReport.new(account: @account).call
+
+    assert_equal "0.00225", report[:total_amount_usd]
+    assert_equal "0.00225", report[:subscription_estimate_usd]
+    assert_equal "0.00225", report.dig(
+      :days,
+      0,
+      :agent_subscription_estimates,
+      @second_agent.to_param
+    )
+    assert_nil report.dig(:days, 0, :agent_costs, @second_agent.to_param)
+  end
+
   private
 
-  def create_interaction!(agent, started_at)
+  def create_interaction!(agent, started_at, **attributes)
     AgentRuntimeInteraction.create!(
-      agent: agent,
-      trigger_kind: "wake",
-      started_at: started_at,
-      telemetry_schema_version: 1,
-      usage_scope: "trigger",
-      usage_complete: true,
-      provider: "anthropic",
-      model: "claude-sonnet-5",
-      uncached_input_tokens: 1_000,
-      cache_creation_input_tokens: 0,
-      cache_read_input_tokens: 0,
-      output_tokens: 25
+      {
+        agent: agent,
+        trigger_kind: "wake",
+        started_at: started_at,
+        telemetry_schema_version: 1,
+        usage_scope: "trigger",
+        usage_complete: true,
+        provider: "anthropic",
+        model: "claude-sonnet-5",
+        uncached_input_tokens: 1_000,
+        cache_creation_input_tokens: 0,
+        cache_read_input_tokens: 0,
+        output_tokens: 25
+      }.merge(attributes)
     )
   end
 

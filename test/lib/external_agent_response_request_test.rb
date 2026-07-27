@@ -192,6 +192,7 @@ class ExternalAgentResponseRequestTest < ActiveSupport::TestCase
     )
     assert_not_includes message.content, "401 Unauthorized"
     assert_equal "expired", agent.reload.provider_connection("openai").fetch("status")
+    assert_equal "oauth_account", AgentRuntimeInteraction.order(:created_at).last.provider_auth_mode
   end
 
   test "missing subscription credentials surface the reconnect guidance" do

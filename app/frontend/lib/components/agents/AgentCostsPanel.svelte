@@ -29,14 +29,21 @@
     </p>
   </div>
 
-  {#if !report.total_amount_usd}
+  {#if !report.total_amount_usd && !report.subscription_estimate_usd}
     <div class="rounded border p-8 text-center text-sm text-muted-foreground">
       No estimated interaction costs are available yet.
     </div>
   {:else}
     <div class="rounded border bg-muted/30 p-4">
-      <div class="text-sm text-muted-foreground">Estimated total to date</div>
+      <div class="text-sm text-muted-foreground">Estimated API-key cost to date</div>
       <div class="mt-1 text-2xl font-semibold">{dollars(report.total_amount_usd)}</div>
+      {#if report.subscription_estimate_usd}
+        <div
+          class="mt-1 text-sm text-muted-foreground line-through"
+          title="These API-equivalent estimates do not apply because the interactions used a provider subscription.">
+          Subscription-based estimate: {dollars(report.subscription_estimate_usd)}
+        </div>
+      {/if}
       <div class="mt-1 text-xs text-muted-foreground">
         {report.interaction_count} priced interaction{report.interaction_count === 1 ? '' : 's'}
         {#if report.pricing_as_of}
@@ -59,7 +66,16 @@
             <tr>
               <td class="px-4 py-3">{date(day.date)}</td>
               <td class="px-4 py-3 text-right tabular-nums">{day.interaction_count}</td>
-              <td class="px-4 py-3 text-right font-medium tabular-nums">{dollars(day.amount_usd)}</td>
+              <td class="px-4 py-3 text-right font-medium tabular-nums">
+                <div>{dollars(day.amount_usd)}</div>
+                {#if day.subscription_estimate_usd}
+                  <div
+                    class="text-xs font-normal text-muted-foreground line-through"
+                    title="Subscription-based API-equivalent estimate; this cost does not apply.">
+                    {dollars(day.subscription_estimate_usd)}
+                  </div>
+                {/if}
+              </td>
             </tr>
           {/each}
         </tbody>

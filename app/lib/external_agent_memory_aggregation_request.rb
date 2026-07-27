@@ -18,6 +18,7 @@ class ExternalAgentMemoryAggregationRequest
     endpoint_url = Agents::Endpoint.url_for(agent)
     session_id = "#{agent.uuid}-memory-#{period}-#{target}"
     request = request_text
+    auth_mode = agent.provider_auth_mode(provider)
 
     AgentRuntimeInteraction.record_trigger!(
       agent: agent,
@@ -27,7 +28,8 @@ class ExternalAgentMemoryAggregationRequest
       requested_by: requested_by,
       session_id: session_id,
       endpoint_url: endpoint_url,
-      request_text: request
+      request_text: request,
+      provider_auth_mode: auth_mode
     ) do
       ChaosTriggerClient.new(endpoint_url, agent.trigger_bearer_token).request_response(
         conversation_id: nil,
@@ -38,7 +40,7 @@ class ExternalAgentMemoryAggregationRequest
         provider: provider,
         model: Agents::Sandbox.chaos_model_for(agent),
         reasoning_effort: agent.reasoning_effort,
-        auth_mode: agent.provider_auth_mode(provider),
+        auth_mode: auth_mode,
         read_timeout: AGGREGATION_TIMEOUT_SECS + 30,
         runtime_timeout_secs: AGGREGATION_TIMEOUT_SECS
       )

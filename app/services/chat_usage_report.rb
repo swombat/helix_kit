@@ -102,16 +102,25 @@ class ChatUsageReport
     interactions = chat.agent_runtime_interactions.to_a + linked_wake_interactions
     estimates = interactions.uniq(&:id).filter_map do |interaction|
       cost = interaction.estimated_cost
-      cost if cost[:amount_usd]
+      [ interaction, cost ] if cost[:amount_usd]
     end
     return if estimates.empty?
 
+    applicable, subscription = estimates.partition { |interaction, _cost| !interaction.subscription_based? }
     {
-      amount_usd: estimates.sum { |cost| BigDecimal(cost[:amount_usd]) }.to_s("F"),
+      amount_usd: sum_estimates(applicable),
+      subscription_estimate_usd: sum_estimates(subscription),
       currency: "USD",
-      pricing_as_of: estimates.filter_map { |cost| cost[:pricing_as_of] }.max,
-      interaction_count: estimates.size
+      pricing_as_of: estimates.filter_map { |_interaction, cost| cost[:pricing_as_of] }.max,
+      interaction_count: applicable.size,
+      subscription_interaction_count: subscription.size
     }
+  end
+
+  def sum_estimates(estimates)
+    return if estimates.empty?
+
+    estimates.sum { |_interaction, cost| BigDecimal(cost[:amount_usd]) }.to_s("F")
   end
 
   def linked_wake_interactions

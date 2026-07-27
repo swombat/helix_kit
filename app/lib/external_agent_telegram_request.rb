@@ -13,6 +13,7 @@ class ExternalAgentTelegramRequest
 
     endpoint_url = Agents::Endpoint.url_for(agent)
     request = request_text
+    auth_mode = agent.provider_auth_mode(provider)
 
     AgentRuntimeInteraction.record_trigger!(
       agent: agent,
@@ -23,7 +24,8 @@ class ExternalAgentTelegramRequest
       session_id: "#{agent.uuid}-telegram-#{subscription.id}",
       endpoint_url: endpoint_url,
       request_text: request,
-      last_included_message_id: telegram_message.id
+      last_included_message_id: telegram_message.id,
+      provider_auth_mode: auth_mode
     ) do
       ChaosTriggerClient.new(endpoint_url, agent.trigger_bearer_token).request_response(
         conversation_id: subscription.to_param,
@@ -36,7 +38,7 @@ class ExternalAgentTelegramRequest
         provider: provider,
         model: Agents::Sandbox.chaos_model_for(agent),
         reasoning_effort: agent.reasoning_effort,
-        auth_mode: agent.provider_auth_mode(provider),
+        auth_mode: auth_mode,
         trigger_payload: trigger_payload
       )
     end
