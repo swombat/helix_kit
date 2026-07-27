@@ -533,16 +533,6 @@ def persistent_trigger(
         lock.release()
 
 
-if app:
-    app.get("/health")(health)
-    app.post("/trigger")(trigger)
-    app.get("/auth/capabilities")(lambda: auth_capabilities())
-    app.post("/auth/start")(lambda: auth_start())
-    app.get("/auth/status")(lambda: auth_status())
-    app.post("/auth/cancel")(lambda: auth_cancel())
-    app.post("/auth/disconnect")(lambda: auth_disconnect())
-
-
 # ----- chaos invocation -----
 def run_chaos(
     model, timeout_secs, prompt_text, json_output,
@@ -1687,6 +1677,16 @@ def _chaos_version() -> str:
         return out.stdout.strip() or "unknown"
     except Exception as e:
         return f"error: {e}"
+
+
+if app:
+    app.get("/health")(health)
+    app.post("/trigger")(trigger)
+    app.get("/auth/capabilities")(auth_capabilities)
+    app.post("/auth/start")(auth_start)
+    app.get("/auth/status")(auth_status)
+    app.post("/auth/cancel")(auth_cancel)
+    app.post("/auth/disconnect")(auth_disconnect)
 
 
 if __name__ == "__main__":

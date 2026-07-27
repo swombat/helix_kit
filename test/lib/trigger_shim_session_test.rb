@@ -142,6 +142,24 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
     assert_equal "401", JSON.parse(out)
   end
 
+  test "provider auth routes register named handlers after they are defined" do
+    source = Rails.root.join("agent-runtime/trigger_shim.py").read
+
+    {
+      "/auth/capabilities" => "auth_capabilities",
+      "/auth/start" => "auth_start",
+      "/auth/status" => "auth_status",
+      "/auth/cancel" => "auth_cancel",
+      "/auth/disconnect" => "auth_disconnect"
+    }.each do |path, handler|
+      registration = "\"#{path}\")(#{handler})"
+      assert_includes source, registration
+      assert_operator source.index(registration), :>, source.index("def #{handler}")
+    end
+
+    assert_not_includes source, '"/auth/start")(lambda:'
+  end
+
   test "subscription capabilities include xAI by default" do
     out = run_shim_python(<<~PY)
       print(json.dumps(list(mod.OAUTH_ACCOUNT_PROVIDERS)))
