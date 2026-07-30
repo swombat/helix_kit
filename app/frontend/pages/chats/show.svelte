@@ -356,6 +356,9 @@
 
   // Check if any agent is currently responding (streaming)
   const agentIsResponding = $derived(allMessages?.some((m) => m.streaming) ?? false);
+  const activeRuntimeAgentIds = $derived(
+    (runtimeInteractions || []).filter((interaction) => interaction.active).map((interaction) => interaction.agent_id)
+  );
   const latestAssistantMessageId = $derived.by(() => {
     const assistantMessage = [...(allMessages || [])].reverse().find((message) => message.role === 'assistant');
     return assistantMessage?.id ?? null;
@@ -716,6 +719,7 @@
       {agents}
       accountId={account.id}
       {agentIsResponding}
+      {activeRuntimeAgentIds}
       {responseMarker}
       fileUploadConfig={file_upload_config}
       onAgentTrigger={scheduleStreamingRefresh}

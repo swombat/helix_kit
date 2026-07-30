@@ -218,7 +218,14 @@ def trigger():
         f"delta_len={len(request_delta) if request_delta else 0}"
     )
 
-    with _agent_invocation_lock:
+    if not _agent_invocation_lock.acquire(blocking=False):
+        log.warning(f"agent busy session_id={session_id}")
+        return jsonify({
+            "status": "already_running",
+            "session_id": session_id,
+        }), 409
+
+    try:
         if persistent_session:
             return persistent_trigger(
                 session_id, prompt, request_delta, model, timeout_secs,
@@ -228,6 +235,8 @@ def trigger():
             session_id, prompt, model, timeout_secs,
             provider=provider, reasoning_effort=reasoning_effort, auth_mode=auth_mode,
         )
+    finally:
+        _agent_invocation_lock.release()
 
 
 def legacy_trigger(

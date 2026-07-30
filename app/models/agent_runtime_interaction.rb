@@ -3,6 +3,7 @@ class AgentRuntimeInteraction < ApplicationRecord
   SUPPORTED_TELEMETRY_SCHEMA_VERSION = 1
   LOCAL_USAGE_SCOPES = %w[invocation trigger].freeze
   RUNTIME_OUTPUT_CAPTURE_LIMIT = 4_000
+  ACTIVE_WINDOW = 12.minutes
 
   belongs_to :agent
   belongs_to :chat, optional: true
@@ -14,6 +15,7 @@ class AgentRuntimeInteraction < ApplicationRecord
 
   scope :recent, -> { order(created_at: :desc) }
   scope :timeline_order, -> { order(Arel.sql("COALESCE(finished_at, started_at, created_at) ASC"), :id) }
+  scope :active, -> { where(finished_at: nil).where("started_at >= ?", ACTIVE_WINDOW.ago) }
 
   def self.record_trigger!(agent:, chat:, trigger_kind:, conversation_id:, requested_by:, session_id:, endpoint_url:, request_text:, last_included_message_id: nil, provider_auth_mode: "api_key")
     interaction = create!(
@@ -251,6 +253,7 @@ class AgentRuntimeInteraction < ApplicationRecord
       trigger_kind: trigger_kind,
       status: chat_activity_status,
       status_label: chat_activity_status_label,
+      active: active?,
       conversation_id: conversation_obfuscated_id,
       transport_status: transport_status,
       runtime_status: runtime_status,
@@ -332,6 +335,10 @@ class AgentRuntimeInteraction < ApplicationRecord
 
   def visible_in_chat_timeline?
     !posted_assistant_message?
+  end
+
+  def active?
+    finished_at.blank? && started_at.present? && started_at >= ACTIVE_WINDOW.ago
   end
 
   private

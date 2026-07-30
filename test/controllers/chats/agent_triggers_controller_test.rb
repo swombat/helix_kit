@@ -16,9 +16,11 @@ class Chats::AgentTriggersControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "create triggers specific agent when agent_id provided" do
-    post account_chat_agent_trigger_path(@account, @chat),
-      params: { agent_id: @agent.to_param },
-      as: :json
+    assert_enqueued_with(job: ManualAgentResponseJob, args: [ @chat, @agent ]) do
+      post account_chat_agent_trigger_path(@account, @chat),
+        params: { agent_id: @agent.to_param },
+        as: :json
+    end
 
     assert_response :success
   end
@@ -27,6 +29,54 @@ class Chats::AgentTriggersControllerTest < ActionDispatch::IntegrationTest
     post account_chat_agent_trigger_path(@account, @chat), as: :json
 
     assert_response :success
+  end
+
+  test "rejects a specific agent trigger while that agent is already responding" do
+    @chat.agent_runtime_interactions.create!(
+      agent: @agent,
+      trigger_kind: "conversation",
+      started_at: 1.minute.ago
+    )
+
+    assert_no_enqueued_jobs only: ManualAgentResponseJob do
+      post account_chat_agent_trigger_path(@account, @chat),
+        params: { agent_id: @agent.to_param },
+        as: :json
+    end
+
+    assert_response :unprocessable_entity
+    assert_equal "#{@agent.name} is already responding", response.parsed_body["error"]
+  end
+
+  test "allows a specific agent trigger when an unfinished interaction is stale" do
+    @chat.agent_runtime_interactions.create!(
+      agent: @agent,
+      trigger_kind: "conversation",
+      started_at: AgentRuntimeInteraction::ACTIVE_WINDOW.ago - 1.minute
+    )
+
+    assert_enqueued_with(job: ManualAgentResponseJob, args: [ @chat, @agent ]) do
+      post account_chat_agent_trigger_path(@account, @chat),
+        params: { agent_id: @agent.to_param },
+        as: :json
+    end
+
+    assert_response :success
+  end
+
+  test "rejects ask all while one agent is already responding" do
+    @chat.agent_runtime_interactions.create!(
+      agent: @agent,
+      trigger_kind: "conversation",
+      started_at: 1.minute.ago
+    )
+
+    assert_no_enqueued_jobs only: AllAgentsResponseJob do
+      post account_chat_agent_trigger_path(@account, @chat), as: :json
+    end
+
+    assert_response :unprocessable_entity
+    assert_equal "#{@agent.name} is already responding", response.parsed_body["error"]
   end
 
   test "requires authentication" do

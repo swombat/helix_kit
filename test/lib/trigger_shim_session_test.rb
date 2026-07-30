@@ -142,6 +142,32 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
     assert_equal "401", JSON.parse(out)
   end
 
+  test "a second trigger is rejected while the agent is already running" do
+    out = run_shim_python(<<~PY)
+      import types
+      mod.request = types.SimpleNamespace(
+          headers={"Authorization": "Bearer tr_test"},
+          get_json=lambda silent=True: {
+              "session_id": "sess-2",
+              "request": "Look at the conversation",
+              "persistent_session": True,
+          },
+      )
+      mod.jsonify = lambda value: value
+      mod._agent_invocation_lock.acquire()
+      try:
+          body, status = mod.trigger()
+      finally:
+          mod._agent_invocation_lock.release()
+      print(json.dumps({"body": body, "status": status}))
+    PY
+
+    result = JSON.parse(out)
+    assert_equal 409, result["status"]
+    assert_equal "already_running", result.dig("body", "status")
+    assert_equal "sess-2", result.dig("body", "session_id")
+  end
+
   test "provider auth routes register named handlers after they are defined" do
     source = Rails.root.join("agent-runtime/trigger_shim.py").read
 

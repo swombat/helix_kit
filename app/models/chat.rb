@@ -253,6 +253,7 @@ class Chat < ApplicationRecord
     raise ArgumentError, "Agent not in this conversation" unless agents.include?(agent)
     raise ArgumentError, "This chat does not support manual responses" unless manual_responses?
     raise ArgumentError, "This conversation is archived or deleted" unless respondable?
+    raise ArgumentError, "#{agent.name} is already responding" if agent_response_active?(agent)
 
     ManualAgentResponseJob.perform_later(self, agent)
   end
@@ -263,7 +264,11 @@ class Chat < ApplicationRecord
     raise ArgumentError, "This conversation is archived or deleted" unless respondable?
 
     # Get agent IDs in a consistent order
-    agent_ids = agents.order(:id).pluck(:id)
+    ordered_agents = agents.order(:id).to_a
+    active_agent = ordered_agents.find { |agent| agent_response_active?(agent) }
+    raise ArgumentError, "#{active_agent.name} is already responding" if active_agent
+
+    agent_ids = ordered_agents.map(&:id)
 
     # Queue the job that will process all agents in sequence
     AllAgentsResponseJob.perform_later(self, agent_ids)
@@ -274,9 +279,20 @@ class Chat < ApplicationRecord
 
     mentioned_ids = agents.select { |agent|
       content.match?(/@#{Regexp.escape(agent.name)}\b/i)
-    }.sort_by { |agent| content.index(/@#{Regexp.escape(agent.name)}\b/i) }.map(&:id)
+    }.reject { |agent|
+      agent_response_active?(agent)
+    }.sort_by { |agent|
+      content.index(/@#{Regexp.escape(agent.name)}\b/i)
+    }.map(&:id)
 
     AllAgentsResponseJob.perform_later(self, mentioned_ids) if mentioned_ids.any?
+  end
+
+  def agent_response_active?(agent)
+    agent_runtime_interactions
+      .where(agent: agent, trigger_kind: "conversation", finished_at: nil)
+      .active
+      .exists?
   end
 
   # Queue moderation for all unmoderated messages with content
