@@ -164,26 +164,29 @@ Order matters: DNS first (it propagates while we work), deploy last.
       concept cards. Verified by screenshot light+dark on dev server.
 - [ ] (optional) Upload logo to `Setting#logo` attachment in admin
 
-### Step 1.6 — Deploy cutover
-- [ ] `config/deploy.yml` proxy — switch `host:` to plural and dual-serve:
-      ```yaml
-      proxy:
-        ssl: true
-        hosts:
-          - souls.house
-          - helix-kit.granttree.co.uk   # transition; remove in Step 1.8
-        app_port: 3000
-        response_timeout: 120
-      ```
-- [ ] Confirm DNS resolves (Step 1.1) — Let's Encrypt issuance fails otherwise
-- [ ] `kamal deploy`
-- [ ] Verify: https://souls.house loads, cert valid, old domain still serves
+### Step 1.6 — Deploy cutover 🔄 2026-08-01 (deploy in flight)
+- [x] `config/deploy.yml` proxy — plural `hosts:` dual-serving souls.house
+      + helix-kit.granttree.co.uk (commit e684a9f)
+- [x] DNS confirmed publicly (1.1.1.1 resolves souls.house → 95.217.118.47)
+- [x] Homepage feature cards added pre-deploy per Daniel: subscription
+      logins (OpenAI/Grok/Moonshot), any-substrate, coming-mnemodyne;
+      memory card → narrative journal scaffold + link to
+      how-to-build-an-artificial-person post
+- [x] master fast-forwarded to cutover commit (via `git branch -f` —
+      normal checkout blocked by the Home.svelte case-ghost on macOS;
+      resolves itself on next clean checkout)
+- [x] `kamal deploy` — clean, 166s, web+jobs healthy, agents untouched
+- [x] Verified: https://souls.house 200 with Let's Encrypt cert (issued
+      2026-08-01, valid to Oct 30), title "souls.house", favicon.svg
+      serving, old domain still 200, homepage screenshot confirmed live
 
-### Step 1.7 — Production data + smoke test
-- [ ] `Setting.instance.update!(site_name: "<chosen name>")` via console
-- [ ] Trigger a password-reset email to a real mailbox; confirm delivery,
-      inbox placement (not spam), correct from-address, correct link host
-- [ ] Click through: login, registration flow, agent pages, admin
+### Step 1.7 — Production data + smoke test 🔄 2026-08-01
+- [x] Production `Setting.instance.site_name` = "souls.house" (was already
+      — row either freshly created with the new default or pre-set)
+- [ ] Trigger a password-reset email from the live site to a real mailbox;
+      confirm delivery, inbox placement, from-address, link host
+      (Brevo pipeline already verified 4/4 delivered pre-deploy)
+- [ ] Daniel: click through logged-in — chats, agent pages, admin
 
 ### Step 1.8 — Cleanup (after a comfortable transition window)
 - [ ] Remove `helix-kit.granttree.co.uk` from proxy hosts, redeploy
