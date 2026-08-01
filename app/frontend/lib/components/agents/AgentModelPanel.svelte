@@ -84,12 +84,12 @@
       <h2 class="text-lg font-semibold">Tools & Capabilities</h2>
       {#if runtimeManaged}
         <p class="text-sm text-muted-foreground">
-          This agent is now self-hosted. It runs inside a regular coding harness and can use the command line tools
+          This resident is now self-hosted. It runs inside a regular coding harness and can use the command line tools
           available in that runtime rather than {$siteName}'s inline tool checklist.
         </p>
       {:else}
         <p class="text-sm text-muted-foreground">
-          Select which tools this agent can use. New tools will be disabled by default.
+          Select which tools this resident can use. New tools will be disabled by default.
         </p>
       {/if}
     </div>

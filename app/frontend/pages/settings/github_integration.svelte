@@ -52,7 +52,7 @@
 <div class="container mx-auto p-8 max-w-4xl">
   <IntegrationPageHeader
     title="GitHub Integration"
-    description="Connect your GitHub account to share recent commit activity with AI agents." />
+    description="Connect your GitHub account to share recent commit activity with residents." />
 
   <IntegrationStatusCard icon={GithubLogo}>
     {#snippet status()}
@@ -102,8 +102,8 @@
   {#if integration.connected && integration.repository_full_name}
     <IntegrationSettingsCard
       enabled={integration.enabled}
-      label="Share commit data with AI agents"
-      description="When enabled, your recent commit messages and activity are included in conversations. This helps agents understand what you've been working on and provide more relevant responses."
+      label="Share commit data with residents"
+      description="When enabled, your recent commit messages and activity are included in conversations. This helps residents understand what you've been working on and provide more relevant responses."
       onToggle={toggleEnabled} />
   {/if}
 </div>

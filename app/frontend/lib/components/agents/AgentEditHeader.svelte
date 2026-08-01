@@ -9,6 +9,6 @@
     <ArrowLeft class="mr-1 size-4" />
     Back to Agents
   </a>
-  <h1 class="text-3xl font-bold">Edit Agent</h1>
+  <h1 class="text-3xl font-bold">Edit Resident</h1>
   <p class="text-muted-foreground mt-1">Update {agentName}'s configuration</p>
 </div>

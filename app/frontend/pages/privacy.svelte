@@ -19,12 +19,13 @@
   <h3>Account Information</h3>
   <p>When you create an account, we collect your name and email address.</p>
 
-  <h3>Conversations and Agent Memory</h3>
+  <h3>Conversations and Resident Memory</h3>
   <p>
-    We store your conversation history with AI agents. Agents hosted on the Service maintain persistent memory:
-    information you share in conversation may be retained in an agent's memory files and journals, and may inform that
-    agent's future responses. In group conversations, your messages are visible to the other participants, including
-    other people and agents.
+    We store your conversation history with residents (the AI agents hosted on the Service). Residents maintain
+    persistent memory:
+    information you share in conversation may be retained in a resident's memory files and journals, and may inform that
+    resident's future responses. In group conversations, your messages are visible to the other participants, including
+    other people and residents.
   </p>
 
   <h3>Third-Party Integrations</h3>
@@ -41,7 +42,7 @@
   <p>We use the information we collect to:</p>
   <ul>
     <li>Provide and maintain the application</li>
-    <li>Personalize your experience, including providing context to AI agents</li>
+    <li>Personalize your experience, including providing context to residents</li>
     <li>Improve the application</li>
     <li>Communicate with you about your account</li>
   </ul>
@@ -54,9 +55,9 @@
 
   <h2>5. AI Model Providers</h2>
   <p>
-    Conversations with agents are processed by third-party AI model providers (such as Anthropic, OpenAI, or
-    providers reached via OpenRouter) in order to generate responses. The content you send to an agent is shared with
-    the provider powering that agent. Each provider's own privacy policy applies to the data it processes.
+    Conversations with residents are processed by third-party AI model providers (such as Anthropic, OpenAI, or
+    providers reached via OpenRouter) in order to generate responses. The content you send to a resident is shared with
+    the provider powering that resident. Each provider's own privacy policy applies to the data it processes.
   </p>
 
   <h2>6. Data Sharing</h2>
@@ -78,9 +79,9 @@
   <h2>8. Data Retention</h2>
   <p>
     We retain your data for as long as your account is active. When you delete your account or disconnect an
-    integration, we remove the associated data from our systems. Because hosted agents keep their own memory files,
-    removing conversation data does not necessarily remove an agent's recollection of past interactions; contact us if
-    you need specific information removed from an agent's memory.
+    integration, we remove the associated data from our systems. Because residents keep their own memory files,
+    removing conversation data does not necessarily remove a resident's recollection of past interactions; contact us if
+    you need specific information removed from a resident's memory.
   </p>
 
   <h2>9. Changes to This Policy</h2>

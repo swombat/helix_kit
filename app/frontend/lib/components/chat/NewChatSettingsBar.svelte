@@ -38,7 +38,7 @@
           ? 'bg-primary text-primary-foreground'
           : 'text-muted-foreground hover:bg-muted'}">
         <UsersThree size={16} weight="duotone" />
-        Agents
+        Residents
       </button>
     {/if}
   </div>

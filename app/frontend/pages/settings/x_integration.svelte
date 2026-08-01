@@ -14,7 +14,7 @@
   }
 
   function disconnect() {
-    if (confirm('Disconnect X/Twitter? Agents will no longer be able to post tweets.')) {
+    if (confirm('Disconnect X/Twitter? Residents will no longer be able to post tweets.')) {
       router.delete('/x_integration');
     }
   }
@@ -31,7 +31,7 @@
 <div class="container mx-auto p-8 max-w-4xl">
   <IntegrationPageHeader
     title="X/Twitter Integration"
-    description="Connect your X/Twitter account to allow AI agents to post tweets." />
+    description="Connect your X/Twitter account to allow residents to post tweets." />
 
   <IntegrationStatusCard icon={XLogo}>
     {#snippet status()}
@@ -63,8 +63,8 @@
   {#if integration.connected}
     <IntegrationSettingsCard
       enabled={integration.enabled}
-      label="Allow agents to post tweets"
-      description="When enabled, agents with the Twitter tool can post tweets to your connected X account. Disable this to temporarily prevent all tweet posting without disconnecting."
+      label="Allow residents to post tweets"
+      description="When enabled, residents with the Twitter tool can post tweets to your connected X account. Disable this to temporarily prevent all tweet posting without disconnecting."
       onToggle={toggleEnabled} />
   {/if}
 </div>

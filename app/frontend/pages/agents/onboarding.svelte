@@ -30,7 +30,7 @@
   let stages = $derived([
     {
       label: 'Beginning recorded',
-      detail: 'The write-once seed and agent record are committed.',
+      detail: 'The write-once seed and resident record are committed.',
       done: Boolean(agent.birth_committed_at),
     },
     {
@@ -46,7 +46,7 @@
         : orientationFailed
           ? 'The first-wake orientation did not complete and can be offered again.'
           : orientationStarted
-            ? 'The agent may still be looking around.'
+            ? 'The resident may still be looking around.'
             : 'A gentle orientation will be queued after the runtime is healthy.',
       done: orientationStarted,
     },
@@ -87,7 +87,7 @@
         weight="duotone" />
     </div>
     <div>
-      <p class="text-sm font-medium text-primary">Agent creation</p>
+      <p class="text-sm font-medium text-primary">Resident creation</p>
       <h1 class="mt-1 text-3xl font-bold">{runtimeReady ? agent.name : `Preparing ${agent.name}`}</h1>
       <p class="mt-2 text-muted-foreground">You can close this page. Setup will continue in the background.</p>
     </div>
@@ -196,11 +196,11 @@
         <a href={editAccountAgentPath(account.id, agent.id)}>
           <Button variant="outline">
             <Gear class="mr-2 size-4" />
-            Agent settings
+            Resident settings
           </Button>
         </a>
         <a href={accountAgentsPath(account.id)}>
-          <Button variant="ghost">All agents</Button>
+          <Button variant="ghost">All residents</Button>
         </a>
       </div>
     </CardContent>

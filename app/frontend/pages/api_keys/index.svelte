@@ -46,13 +46,13 @@
 
     <section class="space-y-3">
       <div>
-        <h2 class="text-lg font-semibold">Chaos Agent Access</h2>
+        <h2 class="text-lg font-semibold">Chaos Resident Access</h2>
         <p class="text-sm text-muted-foreground">
           Each system-managed key is bound to the named agent. Calls and messages made with it appear as that agent, not
           as you.
         </p>
       </div>
-      <ApiKeyList apiKeys={chaos_agent_access_keys} emptyMessage="No Chaos agents have account access keys yet." />
+      <ApiKeyList apiKeys={chaos_agent_access_keys} emptyMessage="No Chaos residents have account access keys yet." />
     </section>
   </div>
 

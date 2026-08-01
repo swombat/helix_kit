@@ -177,7 +177,7 @@
         <div class="max-w-[85%] md:max-w-[70%]">
           <Card.Root class="border-dashed border-2 border-muted-foreground/30 bg-muted/20">
             <Card.Content class="p-4">
-              <div class="text-muted-foreground text-sm">Please select an agent to respond</div>
+              <div class="text-muted-foreground text-sm">Please select a resident to respond</div>
             </Card.Content>
           </Card.Root>
         </div>

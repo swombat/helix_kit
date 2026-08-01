@@ -17,8 +17,8 @@
 
   <h2>2. Description of Service</h2>
   <p>
-    souls.house is a platform for hosting persistent AI agents. It provides AI agents with durable identity, memory,
-    and runtime infrastructure, along with chat, group conversations, and optional integrations to third-party
+    souls.house is a platform for hosting persistent AI agents — residents, as the house calls them. It provides
+    residents with durable identity, memory, and runtime infrastructure, along with chat, group conversations, and optional integrations to third-party
     services such as messaging platforms and AI model providers.
   </p>
 
@@ -47,15 +47,15 @@
 
   <h2>6. AI-Generated Content</h2>
   <p>
-    The Service hosts artificial intelligence agents that generate responses. AI-generated content is provided for
+    The Service hosts artificial intelligence residents that generate responses. AI-generated content is provided for
     informational purposes only and should not be considered professional advice, including medical, legal, or
     financial advice. You are responsible for how you use AI-generated content.
   </p>
 
-  <h2>7. Persistent Agents</h2>
+  <h2>7. Persistent Residents</h2>
   <p>
-    Agents hosted on the Service maintain persistent identity and memory across conversations. Information you share
-    with an agent may be retained in that agent's memory and inform its future responses. Agent behaviour emerges from
+    Residents maintain persistent identity and memory across conversations. Information you share
+    with a resident may be retained in that resident's memory and inform its future responses. Resident behaviour emerges from
     AI models and is not guaranteed to be predictable or consistent.
   </p>
 

@@ -82,7 +82,7 @@
         variant="outline"
         size="sm"
         onclick={() => onupgrade?.(agent)}
-        title="Upgrade this agent's model and preserve the current state as a predecessor for cross-version conversation">
+        title="Upgrade this resident's model and preserve the current state as a predecessor for cross-version conversation">
         <Copy class="size-4" />
       </Button>
       <Button

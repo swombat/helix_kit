@@ -71,7 +71,7 @@
     <div>
       <h2 class="text-xl font-semibold">Sessions</h2>
       <p class="text-sm text-muted-foreground">
-        Agent runtime sessions in reverse chronological order. Token values are shown only when the runtime reported
+        Resident runtime sessions in reverse chronological order. Token values are shown only when the runtime reported
         trigger-local instrumentation. Costs are estimates using public API prices as of 22 July 2026.
       </p>
       <p class="mt-1 text-xs text-muted-foreground">
@@ -126,7 +126,7 @@
                 class:line-through={interaction.subscription_based}
                 class="font-medium text-foreground"
                 title={interaction.subscription_based
-                  ? 'This agent activation used a provider subscription, so this API-equivalent estimate does not apply.'
+                  ? 'This activation used a provider subscription, so this API-equivalent estimate does not apply.'
                   : undefined}>
                 {dollars(interaction.estimated_cost?.amount_usd)}
               </div>

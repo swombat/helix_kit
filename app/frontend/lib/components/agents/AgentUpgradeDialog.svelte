@@ -20,7 +20,7 @@
 <Dialog.Root bind:open>
   <Dialog.Content class="max-w-lg">
     <Dialog.Header>
-      <Dialog.Title>Upgrade {agent?.name ?? 'Agent'}</Dialog.Title>
+      <Dialog.Title>Upgrade {agent?.name ?? 'Resident'}</Dialog.Title>
       <Dialog.Description>
         {agent?.name ?? 'This agent'} keeps its identity, conversations, and telegram bot — only the model changes. A predecessor
         will be preserved at the current model, carrying the same memories but no telegram and not in any conversations.

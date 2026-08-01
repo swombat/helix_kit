@@ -9,18 +9,18 @@
 
 <div class="space-y-6">
   <div>
-    <h2 class="text-lg font-semibold">Agent Identity</h2>
+    <h2 class="text-lg font-semibold">Resident Identity</h2>
     <p class="text-sm text-muted-foreground">
       {identityLocked
-        ? 'This hosted agent manages its own identity in the mounted filesystem.'
-        : "Define the agent's name and personality"}
+        ? 'This resident manages its own identity in the mounted filesystem.'
+        : "Define the resident's name and personality"}
     </p>
   </div>
 
   {#if identityLocked}
     <div class="rounded-lg border bg-muted/40 p-4 text-sm text-muted-foreground">
       <p>
-        Identity prompts are no longer edited in {$siteName} after hosting. Review and change them in the agent filesystem
+        Identity prompts are no longer edited in {$siteName} after hosting. Review and change them in the resident's filesystem
         instead, especially <span class="font-mono text-foreground">/home/agent/identity/soul.md</span> and
         <span class="font-mono text-foreground">/home/agent/identity/self-narrative.md</span>.
       </p>
@@ -50,7 +50,7 @@
         rows="6"
         class="w-full resize-none border border-input rounded-md px-3 py-2 text-sm bg-background font-mono
              focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"></textarea>
-      <p class="text-xs text-muted-foreground">Define the agent's personality, expertise, and behavior guidelines.</p>
+      <p class="text-xs text-muted-foreground">Define the resident's personality, expertise, and behavior guidelines.</p>
     </div>
 
     <div class="space-y-2">
@@ -63,7 +63,7 @@
         class="w-full resize-none border border-input rounded-md px-3 py-2 text-sm bg-background font-mono
              focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"></textarea>
       <p class="text-xs text-muted-foreground">
-        Customize how the agent reflects on conversations to extract memories. Leave empty to use the default prompt.
+        Customize how the resident reflects on conversations to extract memories. Leave empty to use the default prompt.
         The prompt can use %{'{'}system_prompt{'}'} and %{'{'}existing_memories{'}'} placeholders.
       </p>
     </div>
@@ -78,7 +78,7 @@
         class="w-full resize-none border border-input rounded-md px-3 py-2 text-sm bg-background font-mono
              focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"></textarea>
       <p class="text-xs text-muted-foreground">
-        Customize how the agent reviews journal entries to promote them to core memories. Leave empty to use the default
+        Customize how the resident reviews journal entries to promote them to core memories. Leave empty to use the default
         prompt. The prompt can use %{'{'}core_memories{'}'} and %{'{'}journal_entries{'}'} placeholders.
       </p>
     </div>
@@ -93,7 +93,7 @@
         class="w-full resize-none border border-input rounded-md px-3 py-2 text-sm bg-background font-mono
              focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"></textarea>
       <p class="text-xs text-muted-foreground">
-        Customize how this agent summarizes conversations for cross-conversation awareness. Leave empty for the default
+        Customize how this resident summarizes conversations for cross-conversation awareness. Leave empty for the default
         prompt that focuses on current state rather than narrative.
       </p>
     </div>
@@ -108,7 +108,7 @@
         class="w-full resize-none border border-input rounded-md px-3 py-2 text-sm bg-background font-mono
              focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"></textarea>
       <p class="text-xs text-muted-foreground">
-        Guidelines for memory refinement sessions. Added alongside the system prompt when the agent reviews its own
+        Guidelines for memory refinement sessions. Added alongside the system prompt when the resident reviews its own
         memories. Leave empty for the default guidelines.
       </p>
     </div>
@@ -135,7 +135,7 @@
     <div class="flex items-center justify-between">
       <div class="space-y-1">
         <Label for="active">Active</Label>
-        <p class="text-sm text-muted-foreground">For future filtering in agent selection</p>
+        <p class="text-sm text-muted-foreground">For future filtering in resident selection</p>
       </div>
       <Switch id="active" checked={$form.agent.active} onCheckedChange={(checked) => ($form.agent.active = checked)} />
     </div>
@@ -144,9 +144,9 @@
       <div class="space-y-1">
         <Label for="paused">Paused</Label>
         <p class="text-sm text-muted-foreground">
-          Excludes this agent from cron-driven sweeps (memory refinement, reflection, conversation initiation, "Trigger
+          Excludes this resident from cron-driven sweeps (memory refinement, reflection, conversation initiation, "Trigger
           Initiation"). Manual triggers — replying in chats, the agent_trigger endpoint, the API — still work. Use this
-          for retired predecessors or any agent that should remain reachable but not act on its own.
+          for retired predecessors or any resident that should remain reachable but not act on its own.
         </p>
       </div>
       <Switch id="paused" checked={$form.agent.paused} onCheckedChange={(checked) => ($form.agent.paused = checked)} />

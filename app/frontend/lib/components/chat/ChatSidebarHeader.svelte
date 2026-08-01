@@ -49,7 +49,7 @@
             onchange={onToggleAgentOnly}
             class="w-3 h-3 rounded border-gray-300 text-primary focus:ring-primary focus:ring-offset-0 focus:ring-1 transition-colors cursor-pointer" />
           <Robot size={12} />
-          <span>Agent-Only</span>
+          <span>Resident-Only</span>
         </label>
       {/if}
     </div>

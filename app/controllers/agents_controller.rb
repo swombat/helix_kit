@@ -84,7 +84,7 @@ class AgentsController < ApplicationController
 
     if @agent.update(attrs)
       audit("update_agent", @agent, **agent_audit_data(attrs))
-      redirect_to account_agents_path(current_account), notice: "Agent updated"
+      redirect_to account_agents_path(current_account), notice: "Resident updated"
     else
       redirect_to edit_account_agent_path(current_account, @agent),
                   inertia: { errors: @agent.errors.to_hash }
@@ -94,7 +94,7 @@ class AgentsController < ApplicationController
   def destroy
     audit("destroy_agent", @agent)
     @agent.destroy!
-    redirect_to account_agents_path(current_account), notice: "Agent deleted"
+    redirect_to account_agents_path(current_account), notice: "Resident deleted"
   end
 
   private

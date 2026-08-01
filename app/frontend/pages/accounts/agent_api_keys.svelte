@@ -24,7 +24,7 @@
         {
           id: 'openrouter',
           name: 'OpenRouter API key',
-          help: 'Also available to agents for ancillary services such as image generation.',
+          help: 'Also available to residents for ancillary services such as image generation.',
         },
       ],
     },
@@ -48,17 +48,17 @@
     {
       title: 'API key or subscription',
       description:
-        'These providers can use a metered API key entered here, or an agent can be connected to a supported subscription through Chaos.',
+        'These providers can use a metered API key entered here, or a resident can be connected to a supported subscription through Chaos.',
       providers: [
         {
           id: 'openai',
           name: 'OpenAI',
-          help: 'Use an OpenAI API key here, or connect the agent to a ChatGPT subscription in Chaos.',
+          help: 'Use an OpenAI API key here, or connect the resident to a ChatGPT subscription in Chaos.',
         },
         {
           id: 'xai',
           name: 'xAI',
-          help: 'Use an xAI API key here, or connect the agent to an eligible xAI subscription in Chaos.',
+          help: 'Use an xAI API key here, or connect the resident to an eligible xAI subscription in Chaos.',
         },
       ],
     },
@@ -67,7 +67,7 @@
       description:
         'Enter the special API key issued by the provider for its coding subscription, or an ordinary metered API key.',
       details:
-        'Z.ai, Moonshot, and MiniMax coding plans expose a dedicated API endpoint and issue a special key for it. The key is passed to Chaos like any other API key, but usage draws from the subscription allowance when the agent uses the matching subscription provider configuration. An ordinary API key continues to incur metered API charges.',
+        'Z.ai, Moonshot, and MiniMax coding plans expose a dedicated API endpoint and issue a special key for it. The key is passed to Chaos like any other API key, but usage draws from the subscription allowance when the resident uses the matching subscription provider configuration. An ordinary API key continues to incur metered API charges.',
       providers: [
         {
           id: 'zai',
@@ -118,16 +118,16 @@
 </script>
 
 <Form
-  title="Agent API Keys"
-  description={`Configure the AI provider keys used by agents in ${account.name}.`}
+  title="Resident API Keys"
+  description={`Configure the AI provider keys used by residents in ${account.name}.`}
   action={accountAgentApiKeysPath(account.id)}
   method="put"
   data={getFormData}
-  submitLabel="Save Agent API Keys"
+  submitLabel="Save Resident API Keys"
   onCancel={handleCancel}>
   <div class="space-y-4">
     <p class="text-sm text-muted-foreground">
-      These encrypted credentials let {$siteName} agents call AI providers. They are separate from External Access keys,
+      These encrypted credentials let {$siteName} residents call AI providers. They are separate from External Access keys,
       which let outside agents and tools connect to {$siteName}.
     </p>
 
@@ -202,14 +202,14 @@
       <div class="space-y-1">
         <h2 class="font-medium">Provider subscription accounts</h2>
         <p class="text-sm text-muted-foreground">
-          Connect a personal provider subscription to a specific hosted agent. The sign-in happens inside that agent's
+          Connect a personal provider subscription to a specific resident. The sign-in happens inside that resident's
           Chaos container; {$siteName} never receives or stores the provider token.
         </p>
       </div>
 
       {#if subscription_agents.length === 0}
         <p class="text-sm text-muted-foreground">
-          No agents currently use a provider with supported subscription sign-in.
+          No residents currently use a provider with supported subscription sign-in.
         </p>
       {:else}
         <div class="space-y-3">
@@ -220,7 +220,7 @@
       {/if}
 
       <p class="text-xs text-muted-foreground">
-        Anthropic and Gemini consumer subscriptions cannot be connected to third-party agents. Their agents continue to
+        Anthropic and Gemini consumer subscriptions cannot be connected to third-party agents. Residents on those providers continue to
         use API keys.
       </p>
     </section>
@@ -238,7 +238,7 @@
     {/if}
 
     {#if !can_manage_ai_credentials}
-      <p class="text-sm text-muted-foreground">Only account owners and administrators can change agent API keys.</p>
+      <p class="text-sm text-muted-foreground">Only account owners and administrators can change resident API keys.</p>
     {/if}
   </div>
 </Form>

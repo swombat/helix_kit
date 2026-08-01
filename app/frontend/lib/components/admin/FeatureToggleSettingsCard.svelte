@@ -18,8 +18,8 @@
     },
     {
       id: 'allow_agents',
-      label: 'Allow Agents',
-      description: 'When disabled, agent management is hidden',
+      label: 'Allow Residents',
+      description: 'When disabled, resident management is hidden',
     },
   ];
 </script>

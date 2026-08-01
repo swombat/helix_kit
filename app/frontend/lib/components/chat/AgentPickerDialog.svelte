@@ -7,7 +7,7 @@
   let {
     open = $bindable(false),
     agents = [],
-    title = 'Select Agent',
+    title = 'Select Resident',
     description = '',
     confirmLabel = 'Confirm',
     confirmingLabel = 'Confirming...',

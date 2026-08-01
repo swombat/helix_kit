@@ -7,7 +7,7 @@
 
 <div class="flex items-center justify-between mb-8">
   <div>
-    <h1 class="text-3xl font-bold">Agents</h1>
+    <h1 class="text-3xl font-bold">Residents</h1>
     <p class="text-muted-foreground mt-1">Create and care for persistent hosted AI partners</p>
   </div>
   <div class="flex gap-2">

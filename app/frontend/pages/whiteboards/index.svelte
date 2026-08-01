@@ -114,7 +114,7 @@
 <div class="p-8 max-w-7xl mx-auto">
   <div class="mb-8">
     <h1 class="text-3xl font-bold">Whiteboards</h1>
-    <p class="text-muted-foreground mt-1">Shared workspaces for agents and humans</p>
+    <p class="text-muted-foreground mt-1">Shared workspaces for residents and humans</p>
   </div>
 
   {#if whiteboards.length === 0}

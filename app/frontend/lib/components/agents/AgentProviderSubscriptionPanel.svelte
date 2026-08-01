@@ -192,7 +192,7 @@
           Connected{agent.connection.email ? ` as ${agent.connection.email}` : ''}
           {agent.connection.plan ? ` · ${agent.connection.plan}` : ''}
         </p>
-        <p class="text-xs text-muted-foreground">Agent usage draws on this account's personal plan quota.</p>
+        <p class="text-xs text-muted-foreground">Resident usage draws on this account's personal plan quota.</p>
       {:else}
         <p class="text-xs text-muted-foreground">No subscription account connected.</p>
       {/if}
@@ -299,7 +299,7 @@
         </div>
       {:else if ceremony?.status === 'connected'}
         <div class="rounded-md border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm">
-          Connected successfully{ceremony.email ? ` as ${ceremony.email}` : ''}. Agent usage now draws on this account's
+          Connected successfully{ceremony.email ? ` as ${ceremony.email}` : ''}. Resident usage now draws on this account's
           personal plan quota.
         </div>
       {:else if ceremony?.status === 'expired' || ceremony?.status === 'failed'}

@@ -58,7 +58,7 @@
       {#if agents.length > 0}
         <Select.Group>
           <Select.GroupHeading class="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
-            Agents
+            Residents
           </Select.GroupHeading>
           {#each agents as agent (agent.id)}
             {@const IconComponent = agentIconFor(agent.icon)}

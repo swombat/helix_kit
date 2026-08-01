@@ -11,7 +11,7 @@
   </div>
   {#if logs.length === 0}
     <p class="text-xs text-orange-600/70 dark:text-orange-400/70">
-      No debug logs yet. Trigger an agent response to see logs.
+      No debug logs yet. Trigger a resident response to see logs.
     </p>
   {:else}
     <div class="space-y-1 font-mono text-xs">

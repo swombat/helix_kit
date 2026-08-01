@@ -15,7 +15,7 @@
 
 {#if agents.length > 0}
   <div class="border-b border-border px-4 md:px-6 py-3 bg-muted/5">
-    <div class="text-sm font-medium mb-2">Select agents to participate:</div>
+    <div class="text-sm font-medium mb-2">Select residents to participate:</div>
     <div class="flex flex-wrap gap-2">
       {#each agents as agent (agent.id)}
         {@const IconComponent = agentIconFor(agent.icon)}
@@ -44,7 +44,7 @@
       {/each}
     </div>
     {#if selectedAgentIds.length === 0}
-      <p class="text-xs text-amber-600 mt-2">Select at least one agent to start a group chat</p>
+      <p class="text-xs text-amber-600 mt-2">Select at least one resident to start a group chat</p>
     {/if}
   </div>
 {/if}

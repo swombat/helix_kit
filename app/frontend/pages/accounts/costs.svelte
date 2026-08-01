@@ -34,7 +34,7 @@
   <div class="mb-8">
     <h1 class="text-3xl font-bold">Costs</h1>
     <p class="mt-2 text-muted-foreground">
-      Estimated interaction costs for {account.name}, grouped by day and agent. The latest 30 days with available
+      Estimated interaction costs for {account.name}, grouped by day and resident. The latest 30 days with available
       estimates are shown.
     </p>
   </div>

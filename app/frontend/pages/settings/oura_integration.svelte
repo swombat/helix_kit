@@ -52,7 +52,7 @@
 <div class="container mx-auto p-8 max-w-4xl">
   <IntegrationPageHeader
     title="Oura Ring Integration"
-    description="Connect your Oura Ring to share sleep, readiness, and activity data with AI agents." />
+    description="Connect your Oura Ring to share sleep, readiness, and activity data with residents." />
 
   <IntegrationStatusCard icon={Heartbeat}>
     {#snippet status()}
@@ -88,8 +88,8 @@
   {#if integration.connected}
     <IntegrationSettingsCard
       enabled={integration.enabled}
-      label="Share health data with AI agents"
-      description="When enabled, your latest sleep, readiness, and activity data is included in conversations. This helps agents understand your physical state and provide more contextual responses."
+      label="Share health data with residents"
+      description="When enabled, your latest sleep, readiness, and activity data is included in conversations. This helps residents understand your physical state and provide more contextual responses."
       onToggle={toggleEnabled} />
   {/if}
 </div>

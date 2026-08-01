@@ -204,7 +204,7 @@
               {/if}
             </div>
             <p class="text-sm text-muted-foreground">
-              Chat with the agent and receive notifications through a Telegram bot.
+              Chat with the resident and receive notifications through a Telegram bot.
             </p>
           </div>
         </div>

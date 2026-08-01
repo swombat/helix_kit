@@ -35,7 +35,7 @@
 
   // Telegram agent name for the banner
   const telegramAgentName = $derived(
-    agents?.find((a) => a.telegram_configured)?.name || agents?.[0]?.name || 'this agent'
+    agents?.find((a) => a.telegram_configured)?.name || agents?.[0]?.name || 'this resident'
   );
 </script>
 

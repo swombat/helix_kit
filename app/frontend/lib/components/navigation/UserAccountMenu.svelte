@@ -11,13 +11,12 @@
     Gear,
     Check,
     Plus,
-    Heartbeat,
-    GithubLogo,
     XLogo,
     Plugs,
     Key,
     CurrencyDollar,
     Chalkboard,
+    Heartbeat,
   } from 'phosphor-svelte';
   import * as DropdownMenu from '$lib/components/shadcn/dropdown-menu/index.js';
   import { buttonVariants } from '$lib/components/shadcn/button/index.js';
@@ -119,10 +118,6 @@
             <Heartbeat class="mr-2 size-4" />
             Oura Ring
           </DropdownMenu.Item>
-          <DropdownMenu.Item onclick={() => router.visit('/github_integration')}>
-            <GithubLogo class="mr-2 size-4" />
-            GitHub
-          </DropdownMenu.Item>
           <DropdownMenu.Item onclick={() => router.visit('/x_integration')}>
             <XLogo class="mr-2 size-4" />
             X / Twitter
@@ -142,7 +137,7 @@
         </DropdownMenu.Item>
         <DropdownMenu.Item onclick={() => router.visit(accountAgentApiKeysPath(currentAccount.id))}>
           <Key class="mr-2 size-4" />
-          <span>Agent API Keys</span>
+          <span>Resident API Keys</span>
         </DropdownMenu.Item>
         <DropdownMenu.Item onclick={() => router.visit(accountApiKeysPath(currentAccount.id))}>
           <Plugs class="mr-2 size-4" />

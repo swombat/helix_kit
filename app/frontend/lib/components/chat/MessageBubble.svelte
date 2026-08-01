@@ -200,7 +200,7 @@
               <span
                 class:line-through={message.interaction_cost.applies_to_billing === false}
                 title={message.interaction_cost.applies_to_billing === false
-                  ? 'This agent activation used a provider subscription, so this API-equivalent estimate does not apply.'
+                  ? 'This activation used a provider subscription, so this API-equivalent estimate does not apply.'
                   : `Estimated interaction cost using ${message.interaction_cost.pricing_as_of} prices`}>
                 {dollars(message.interaction_cost.amount_usd)}
               </span>

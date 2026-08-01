@@ -517,8 +517,8 @@
               {#if agent.runtime === 'inline'}
                 <div class="space-y-3">
                   <p class="text-sm text-muted-foreground">
-                    Run this agent in a {$siteName}-managed Docker sandbox. {$siteName} will create the identity volume, start
-                    the runtime, and send requests to the external agent.
+                    Run this resident in a {$siteName}-managed Docker sandbox. {$siteName} will create the identity volume, start
+                    the runtime, and send requests to the resident's external runtime.
                     {#if localDevEndpointMode}
                       In local development, the shim port is published to <span class="font-mono">127.0.0.1</span>
                       automatically so this can be tested on your Mac.
@@ -536,7 +536,7 @@
               {:else if agent.runtime === 'provisioning'}
                 <div class="space-y-3">
                   <p class="text-sm text-muted-foreground">
-                    This born-hosted agent is being prepared. Their initial seed is already committed and cannot be
+                    This born-hosted resident is being prepared. Their initial seed is already committed and cannot be
                     reopened for editing.
                   </p>
                   <a href={onboardingAccountAgentPath(account.id, agent.id)}>
@@ -546,7 +546,7 @@
               {:else}
                 <div class="space-y-3">
                   <p class="text-sm text-muted-foreground">
-                    Identity fields in {$siteName} are now read-only backups. The running agent's identity lives in its
+                    Identity fields in {$siteName} are now read-only backups. The running resident's identity lives in its
                     hosted filesystem below.
                   </p>
                   <div class="rounded border bg-muted/30 p-3 text-sm">
@@ -645,8 +645,8 @@
                 <div class="space-y-1">
                   <h2 class="text-xl font-semibold">Provider subscription account</h2>
                   <p class="text-sm text-muted-foreground">
-                    Choose whether this hosted agent uses an API key or a personal provider subscription. Provider
-                    tokens stay inside the agent's private Chaos volume and are never stored by {$siteName}.
+                    Choose whether this resident uses an API key or a personal provider subscription. Provider
+                    tokens stay inside the resident's private Chaos volume and are never stored by {$siteName}.
                   </p>
                 </div>
                 <AgentProviderSubscriptionPanel
@@ -900,7 +900,7 @@
               <Button type="button" variant="outline">Cancel</Button>
             </a>
             <Button type="submit" disabled={$form.processing}>
-              {$form.processing ? 'Saving...' : 'Update Agent'}
+              {$form.processing ? 'Saving...' : 'Update Resident'}
             </Button>
           </div>
         {/if}

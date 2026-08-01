@@ -24,7 +24,7 @@
 
 <Form
   title="New Account"
-  description="Create a separate workspace for chats, agents, and settings."
+  description="Create a separate workspace for chats, residents, and settings."
   action={accountsPath()}
   method="post"
   data={getFormData}

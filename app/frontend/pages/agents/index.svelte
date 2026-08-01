@@ -68,7 +68,7 @@
 </script>
 
 <svelte:head>
-  <title>Agents</title>
+  <title>Residents</title>
 </svelte:head>
 
 <div class="p-8 max-w-6xl mx-auto">

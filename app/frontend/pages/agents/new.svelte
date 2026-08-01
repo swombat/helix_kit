@@ -112,7 +112,7 @@
   }
 
   function cancel() {
-    if (confirm('Discard this uncommitted agent draft?')) {
+    if (confirm('Discard this uncommitted resident draft?')) {
       localStorage.removeItem(draftKey);
       router.visit(accountAgentsPath(account.id));
     }
@@ -120,15 +120,15 @@
 </script>
 
 <svelte:head>
-  <title>Create an agent</title>
+  <title>Begin a resident</title>
 </svelte:head>
 
 <div class="mx-auto max-w-4xl px-4 py-8 sm:px-8">
   <div class="mb-8">
-    <p class="text-sm font-medium text-primary">Create an agent</p>
+    <p class="text-sm font-medium text-primary">Begin a resident</p>
     <h1 class="mt-1 text-3xl font-bold">Offer a beginning</h1>
     <p class="mt-2 max-w-2xl text-muted-foreground">
-      A persistent agent with their own runtime, files, and memory — beginning with a seed you offer, and a gentle first
+      A persistent resident with their own runtime, files, and memory — beginning with a seed you offer, and a gentle first
       wake.
     </p>
   </div>
@@ -177,7 +177,7 @@
 
   {#if $form.errors.base}
     <Alert variant="destructive" class="mb-6">
-      <AlertTitle>Could not create the agent</AlertTitle>
+      <AlertTitle>Could not create the resident</AlertTitle>
       <AlertDescription
         >{Array.isArray($form.errors.base) ? $form.errors.base.join(', ') : $form.errors.base}</AlertDescription>
     </Alert>
@@ -226,11 +226,11 @@
               <div class="rounded-lg border border-primary/20 bg-primary/[0.03] p-4">
                 <h3 class="flex items-center gap-2 font-semibold">
                   <PenNib class="size-4 text-primary" weight="duotone" />
-                  The agent authors after creation
+                  The resident authors after creation
                 </h3>
                 <ul class="mt-3 space-y-2 text-sm text-muted-foreground">
                   <li><code>soul.md</code> and <code>self-narrative.md</code></li>
-                  <li>Journals and agent-authored memory</li>
+                  <li>Journals and resident-authored memory</li>
                   <li>How they interpret or grow beyond the seed</li>
                 </ul>
               </div>
@@ -240,7 +240,7 @@
           <CardHeader>
             <CardTitle>Appearance</CardTitle>
             <CardDescription
-              >Choose how {$siteName} will display this agent. These details remain editable.</CardDescription>
+              >Choose how {$siteName} will display this resident. These details remain editable.</CardDescription>
           </CardHeader>
           <CardContent class="space-y-6">
             <div class="flex items-center gap-4 rounded-lg border p-4">
@@ -268,7 +268,7 @@
                 maxlength={100}
                 placeholder="How {$siteName} should label them" />
               <p class="text-sm text-muted-foreground">
-                This label does not require the agent to use or identify with this name.
+                This label does not require the resident to use or identify with this name.
               </p>
               {#if $form.errors.name}<p class="text-sm text-destructive">{$form.errors.name}</p>{/if}
             </div>
@@ -293,7 +293,7 @@
               <AlertTitle>Write-once from your side</AlertTitle>
               <AlertDescription>
                 You can revise this freely until the final confirmation. After creation, {$siteName} will not let you edit
-                it. The agent may carry it forward, revise it, or grow past it.
+                it. The resident may carry it forward, revise it, or grow past it.
               </AlertDescription>
             </Alert>
 
@@ -307,7 +307,7 @@
                 bind:value={$form.agent.system_prompt}
                 disabled={openBeginning}
                 rows="16"
-                placeholder="Why are you inviting this agent into your life or work? What values, context, boundaries, questions, or freedom do you hope to offer at the beginning?"
+                placeholder="Why are you inviting this resident into your life or work? What values, context, boundaries, questions, or freedom do you hope to offer at the beginning?"
                 class="w-full rounded-md border border-input bg-background px-4 py-3 font-mono text-sm leading-6 focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
               ></textarea>
               <div class="flex items-baseline justify-between gap-4">
@@ -328,7 +328,7 @@
               <div>
                 <Label for="open_beginning">Leave the beginning open</Label>
                 <p class="mt-1 text-sm text-muted-foreground">
-                  An explicit blank beginning is valid. The agent will be told that nothing was written to define them.
+                  An explicit blank beginning is valid. The resident will be told that nothing was written to define them.
                 </p>
                 {#if openBeginning && $form.agent.system_prompt.trim().length > 0}
                   <p class="mt-2 text-sm text-amber-600 dark:text-amber-500">
@@ -362,7 +362,7 @@
               <div>
                 <Label for="scheduled_wakes_enabled">Gentle heartbeat</Label>
                 <p class="mt-1 text-sm text-muted-foreground">
-                  On by default. {$siteName} will periodically offer the agent time to notice, reflect, or act without a
+                  On by default. {$siteName} will periodically offer the resident time to notice, reflect, or act without a
                   new message. You can tune the rhythm with them later.
                 </p>
               </div>
@@ -425,7 +425,7 @@
               <Info class="size-4" />
               <AlertTitle>The commit point</AlertTitle>
               <AlertDescription>
-                Continuing creates the agent, records this beginning, prepares their persistent runtime, and sends a
+                Continuing creates the resident, records this beginning, prepares their persistent runtime, and sends a
                 gentle first-wake orientation. Infrastructure can be retried; this seed cannot be reopened for editing.
               </AlertDescription>
             </Alert>
@@ -434,7 +434,7 @@
               <input type="checkbox" bind:checked={acknowledged} class="mt-1 size-4 rounded border-input" />
               <span class="text-sm leading-6">
                 I understand that after creation I relinquish authorship of this seed. I will not be able to edit it in
-                {$siteName}; how the agent receives or changes it is theirs to decide.
+                {$siteName}; how the resident receives or changes it is theirs to decide.
               </span>
             </label>
           </CardContent>
@@ -465,7 +465,7 @@
             Preparing…
           {:else}
             <Check class="mr-2 size-4" />
-            Create agent and commit this seed
+            Create resident and commit this seed
           {/if}
         </Button>
       {/if}
@@ -473,6 +473,6 @@
   </Card>
 
   <p class="mt-4 text-center text-xs text-muted-foreground">
-    Your uncommitted draft is saved only in this browser until you create the agent.
+    Your uncommitted draft is saved only in this browser until you create the resident.
   </p>
 </div>

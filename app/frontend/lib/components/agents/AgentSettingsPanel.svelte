@@ -11,7 +11,7 @@
 <div class="space-y-8">
   <div>
     <h2 class="text-lg font-semibold">Settings</h2>
-    <p class="text-sm text-muted-foreground">Configure how this agent runs and when it wakes.</p>
+    <p class="text-sm text-muted-foreground">Configure how this resident runs and when it wakes.</p>
   </div>
 
   <AgentModelPanel {form} {groupedModels} {availableTools} {runtimeManaged} bind:selectedModel />
@@ -26,13 +26,13 @@
   <div class="space-y-4">
     <div>
       <h2 class="text-lg font-semibold">Availability</h2>
-      <p class="text-sm text-muted-foreground">Control whether this agent participates in automated activity.</p>
+      <p class="text-sm text-muted-foreground">Control whether this resident participates in automated activity.</p>
     </div>
 
     <div class="flex items-center justify-between gap-6 rounded border bg-muted/30 p-4">
       <div class="space-y-1">
         <Label for="active">Active</Label>
-        <p class="text-sm text-muted-foreground">Keep this agent available for selection in {$siteName}.</p>
+        <p class="text-sm text-muted-foreground">Keep this resident available for selection in {$siteName}.</p>
       </div>
       <Switch id="active" checked={$form.agent.active} onCheckedChange={(checked) => ($form.agent.active = checked)} />
     </div>
@@ -41,7 +41,7 @@
       <div class="space-y-1">
         <Label for="paused">Paused</Label>
         <p class="text-sm text-muted-foreground">
-          Exclude this agent from scheduled and self-directed activity while keeping manual triggers available.
+          Exclude this resident from scheduled and self-directed activity while keeping manual triggers available.
         </p>
       </div>
       <Switch id="paused" checked={$form.agent.paused} onCheckedChange={(checked) => ($form.agent.paused = checked)} />
@@ -84,7 +84,7 @@
 
     {#if !runtimeManaged}
       <p class="text-xs text-muted-foreground">
-        Persistent sessions become available when this agent runs in a Chaos harness.
+        Persistent sessions become available when this resident runs in a Chaos harness.
       </p>
     {/if}
   </div>
@@ -92,14 +92,14 @@
   <div class="space-y-4">
     <div>
       <h2 class="text-lg font-semibold">Heartbeat schedule</h2>
-      <p class="text-sm text-muted-foreground">Control {$siteName}'s self-directed wakes for this agent.</p>
+      <p class="text-sm text-muted-foreground">Control {$siteName}'s self-directed wakes for this resident.</p>
     </div>
 
     <div class="flex items-center justify-between gap-6 rounded border bg-muted/30 p-4">
       <div class="space-y-1">
         <Label for="scheduled_wakes_enabled">Scheduled heartbeats</Label>
         <p class="text-sm text-muted-foreground">
-          Allow {$siteName} to wake this agent for self-directed heartbeat sessions.
+          Allow {$siteName} to wake this resident for self-directed heartbeat sessions.
         </p>
       </div>
       <Switch

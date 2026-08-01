@@ -126,7 +126,7 @@
               size="sm"
               onclick={startEditing}
               disabled={agentIsResponding}
-              title={agentIsResponding ? 'Agent is updating whiteboard...' : undefined}>
+              title={agentIsResponding ? 'Resident is updating whiteboard...' : undefined}>
               <PencilSimple class="mr-1 size-4" />
               Edit
             </Button>
@@ -151,7 +151,7 @@
         <div
           class="px-4 py-2 bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 text-sm flex items-center gap-2">
           <WarningCircle class="size-4" weight="fill" />
-          Agent is updating whiteboard...
+          Resident is updating whiteboard...
         </div>
       {/if}
 

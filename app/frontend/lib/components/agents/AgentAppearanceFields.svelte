@@ -8,7 +8,7 @@
     colourOptions = [],
     iconOptions = [],
     colourLabel = 'Chat Bubble Colour',
-    iconLabel = 'Agent Icon',
+    iconLabel = 'Resident Icon',
   } = $props();
 </script>
 

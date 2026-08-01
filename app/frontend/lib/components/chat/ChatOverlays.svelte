@@ -53,8 +53,8 @@
 <AgentPickerDialog
   bind:open={assignAgentOpen}
   agents={availableAgents}
-  title="Assign to Agent"
-  description="Select an agent to take over this conversation. The agent will be informed that previous messages were with a model that had no identity or memories."
+  title="Assign to Resident"
+  description="Select a resident to take over this conversation. The resident will be informed that previous messages were with a model that had no identity or memories."
   confirmLabel="Assign"
   confirmingLabel="Assigning..."
   processing={assigningAgent}
@@ -63,8 +63,8 @@
 <AgentPickerDialog
   bind:open={addAgentOpen}
   agents={addableAgents}
-  title="Add Agent to Conversation"
-  description="Select an agent to add to this group chat."
+  title="Add Resident to Conversation"
+  description="Select a resident to add to this group chat."
   confirmLabel="Add"
   confirmingLabel="Adding..."
   processing={addAgentProcessing}

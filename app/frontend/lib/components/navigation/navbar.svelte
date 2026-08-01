@@ -33,7 +33,7 @@
     },
     {
       href: currentAccount?.id ? `/accounts/${currentAccount.id}/agents` : '#',
-      label: 'Agents',
+      label: 'Residents',
       show: !!currentUser && siteSettings?.allow_agents && !!currentAccount?.id,
     },
   ]);
