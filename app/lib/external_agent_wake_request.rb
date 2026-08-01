@@ -56,7 +56,9 @@ class ExternalAgentWakeRequest
 
   def request_text
     now = Time.current
-    <<~TEXT
+    [
+      Notices::Renderer.section_for(agent),
+      <<~TEXT
       HelixKit is inviting you to wake for a scheduled self-directed session.
 
       Current time: #{now.iso8601}
@@ -86,7 +88,8 @@ class ExternalAgentWakeRequest
       - Treat identity/soul.md as protected defining identity. Do not change it without explicit Daniel review/approval; the runtime also has a Git pre-commit guard for this.
 
       If there is no useful action to take, simply finish without posting or changing files.
-    TEXT
+      TEXT
+    ].compact_blank.join("\n\n")
   end
 
 end

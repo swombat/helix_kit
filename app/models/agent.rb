@@ -64,6 +64,8 @@ class Agent < ApplicationRecord
   validates :runtime, inclusion: { in: %w[inline migrating provisioning external offline] }
   validates :health_state, inclusion: { in: %w[healthy unhealthy unknown] }
   validate :identity_fields_are_read_only_when_external
+  after_update :create_model_change_notice, if: :saved_change_to_model_id?
+  after_update_commit :enqueue_model_change_orientation, if: :saved_change_to_model_id?
   broadcasts_to :account
 
   encrypts :trigger_bearer_token
@@ -195,6 +197,31 @@ class Agent < ApplicationRecord
   end
 
   private
+
+  def create_model_change_notice
+    return unless identity_owned_by_agent?
+
+    from, to = saved_change_to_model_id
+    account.notices.create!(
+      scope: "account",
+      notice_type: "model_changed",
+      params: {
+        agent_id: to_param,
+        agent_name: name,
+        from: from,
+        to: to,
+        changed_at: Time.current.utc.iso8601
+      },
+      created_by: Current.user,
+      expires_at: 7.days.from_now
+    )
+  end
+
+  def enqueue_model_change_orientation
+    return unless identity_owned_by_agent?
+
+    ModelChangeOrientationJob.perform_later(id, model_id)
+  end
 
   def identity_fields_are_read_only_when_external
     return unless persisted? && identity_owned_by_agent?

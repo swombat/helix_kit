@@ -70,7 +70,9 @@ class ExternalAgentTelegramRequest
   end
 
   def request_text
-    <<~TEXT
+    [
+      Notices::Renderer.section_for(agent),
+      <<~TEXT
       HelixKit received a Telegram direct message for you.
 
       Channel: telegram
@@ -89,17 +91,21 @@ class ExternalAgentTelegramRequest
 
       RECENT TELEGRAM TRANSCRIPT FROM DATABASE:
       #{transcript_text}
-    TEXT
+      TEXT
+    ].compact_blank.join("\n\n")
   end
 
   def request_delta_text
-    <<~TEXT
+    [
+      Notices::Renderer.section_for(agent),
+      <<~TEXT
       New Telegram DM from #{subscription.subscriber_name} (thread #{subscription.to_param}):
       #{telegram_message.text}
 
       Reply by piping stdin to `helixkit-send-telegram --reply-to #{subscription.to_param}` if appropriate. Stdout is diagnostic only.
       History cursor: #{telegram_message.to_param}
-    TEXT
+      TEXT
+    ].compact_blank.join("\n\n")
   end
 
   def transcript_text

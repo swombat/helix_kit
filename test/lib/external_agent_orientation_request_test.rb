@@ -68,4 +68,24 @@ class ExternalAgentOrientationRequestTest < ActiveSupport::TestCase
     end
   end
 
+  test "model change orientation has its own framing and includes active notices" do
+    agent = agents(:research_assistant)
+    Notice.create!(
+      scope: "account",
+      account: agent.account,
+      notice_type: "announcement",
+      body: "Orientation notice",
+      expires_at: 1.day.from_now
+    )
+    request = ExternalAgentOrientationRequest.new(agent: agent, context: :model_change)
+    text = request.send(:request_text)
+
+    assert_includes text, "Orientation notice"
+    assert_includes text, "Your configured model has changed"
+    assert_includes text, "fresh orientation wake"
+    assert_includes text, "Nothing needs to be performed"
+    refute_includes text, "migrated from HelixKit"
+    refute_includes text, "first wake"
+  end
+
 end

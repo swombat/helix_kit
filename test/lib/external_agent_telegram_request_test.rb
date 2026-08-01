@@ -67,4 +67,22 @@ class ExternalAgentTelegramRequestTest < ActiveSupport::TestCase
     assert_equal 409, result[:status]
   end
 
+  test "Telegram full and delta requests include active house notices" do
+    Notice.create!(
+      scope: "account",
+      account: @agent.account,
+      notice_type: "announcement",
+      body: "Telegram notice",
+      expires_at: 1.day.from_now
+    )
+    request = ExternalAgentTelegramRequest.new(
+      agent: @agent,
+      subscription: @subscription,
+      telegram_message: @message
+    )
+
+    assert_includes request.send(:request_text), "Telegram notice"
+    assert_includes request.send(:request_delta_text), "Telegram notice"
+  end
+
 end

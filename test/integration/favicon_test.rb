@@ -9,7 +9,7 @@ class FaviconTest < ActionDispatch::IntegrationTest
     assert_equal "image/svg+xml", response.media_type
     assert_includes response.body, "#307c85"
     assert_includes response.body, "#f15d61"
-    assert_includes response.body, "KIT"
+    assert_includes response.body, "class=\"roof\""
   end
 
   test "falls back to the controller when requesting /favicon" do

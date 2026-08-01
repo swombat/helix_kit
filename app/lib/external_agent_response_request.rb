@@ -100,6 +100,7 @@ class ExternalAgentResponseRequest
 
   def request_text
     parts = [
+      Notices::Renderer.section_for(agent),
       trigger_intro_text,
       "Requested by: #{requested_by}.",
       confirmation_text,
@@ -112,7 +113,7 @@ class ExternalAgentResponseRequest
       conversation_context
     ]
     parts << "Initiation reason: #{initiation_reason}" if initiation_reason.present?
-    parts.join("\n\n")
+    parts.compact_blank.join("\n\n")
   end
 
   def trigger_intro_text
@@ -262,6 +263,7 @@ class ExternalAgentResponseRequest
     return nil unless agent.persistent_session? && prior_cursor_message_id
 
     parts = [
+      Notices::Renderer.section_for(agent),
       trigger_intro_text,
       "Requested by: #{requested_by}.",
       confirmation_text,
@@ -271,7 +273,7 @@ class ExternalAgentResponseRequest
       delta_transcript_context
     ]
     parts << "Initiation reason: #{initiation_reason}" if initiation_reason.present?
-    parts.join("\n\n")
+    parts.compact_blank.join("\n\n")
   end
 
   def delta_transcript_context

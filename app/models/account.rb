@@ -54,6 +54,7 @@ class Account < ApplicationRecord
   has_one :owner, through: :owner_membership, source: :user
   has_many :chats, dependent: :destroy
   has_many :agents, dependent: :destroy
+  has_many :notices, dependent: :destroy
   has_many :api_keys, dependent: :destroy
   has_many :whiteboards, dependent: :destroy
   has_one :github_integration

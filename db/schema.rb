@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_27_103500) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_01_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -524,6 +524,22 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_27_103500) do
     t.index ["user_id"], name: "index_messages_on_user_id"
   end
 
+  create_table "notices", force: :cascade do |t|
+    t.bigint "account_id"
+    t.text "body"
+    t.datetime "created_at", null: false
+    t.bigint "created_by_id"
+    t.datetime "expires_at", null: false
+    t.string "notice_type", null: false
+    t.jsonb "params", default: {}, null: false
+    t.string "scope", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_notices_on_account_id"
+    t.index ["created_by_id"], name: "index_notices_on_created_by_id"
+    t.index ["expires_at"], name: "index_notices_on_expires_at"
+    t.index ["scope", "account_id", "expires_at"], name: "index_notices_on_scope_and_account_id_and_expires_at"
+  end
+
   create_table "oura_integrations", force: :cascade do |t|
     t.text "access_token"
     t.datetime "created_at", null: false
@@ -709,6 +725,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_27_103500) do
   add_foreign_key "messages", "ai_models"
   add_foreign_key "messages", "chats"
   add_foreign_key "messages", "users"
+  add_foreign_key "notices", "accounts"
+  add_foreign_key "notices", "users", column: "created_by_id"
   add_foreign_key "oura_integrations", "users"
   add_foreign_key "profiles", "users"
   add_foreign_key "prompt_outputs", "accounts"

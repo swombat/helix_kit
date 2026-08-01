@@ -30,4 +30,17 @@ class ExternalAgentWakeRequestTest < ActiveSupport::TestCase
     assert_equal 2, agent.heartbeat_wakes_per_day
   end
 
+  test "wake request includes active house notices" do
+    agent = agents(:research_assistant)
+    Notice.create!(
+      scope: "account",
+      account: agent.account,
+      notice_type: "announcement",
+      body: "Wake notice",
+      expires_at: 1.day.from_now
+    )
+
+    assert_includes ExternalAgentWakeRequest.new(agent: agent).send(:request_text), "Wake notice"
+  end
+
 end

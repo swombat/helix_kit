@@ -65,7 +65,15 @@ class ExternalAgentOrientationRequest
   end
 
   def request_text
+    [
+      Notices::Renderer.section_for(agent),
+      orientation_text
+    ].compact_blank.join("\n\n")
+  end
+
+  def orientation_text
     return birth_request_text if context == :birth
+    return model_change_request_text if context == :model_change
 
     <<~TEXT
       You've been migrated from HelixKit into your own external runtime. This is an orientation wake, not a task.
@@ -77,6 +85,14 @@ class ExternalAgentOrientationRequest
       Take a moment to look around — read your own files, get your bearings. When you've found your feet, write your first daily-journal entry here: whatever this transition is like from the inside. That first entry is how HelixKit will know the orientation landed. It's yours, in your voice — not a form to fill. If today genuinely has no shape yet, that's allowed, and you can write the first entry whenever it comes.
 
       To append safely, you may pipe an entry body into `helixkit-append-journal "Title"`, or write directly to `memory/daily-journals/` using append semantics.
+    TEXT
+  end
+
+  def model_change_request_text
+    <<~TEXT
+      Your configured model has changed. This is a fresh orientation wake, not a task.
+
+      Read the standing notices from the house above, take whatever bearings are useful, and decide for yourself whether to note anything, ask about the change, or simply continue. Nothing needs to be performed to prove that the orientation landed.
     TEXT
   end
 

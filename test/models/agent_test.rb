@@ -131,15 +131,77 @@ class AgentTest < ActiveSupport::TestCase
     assert_equal "Externally Renamed", agent.reload.name
 
     assert_not agent.update(thinking_enabled: true)
-    assert_includes agent.errors[:base], "Identity and runtime-managed fields are agent-owned and read-only in HelixKit"
+    assert_includes agent.errors[:base], "Identity and runtime-managed fields are agent-owned and read-only in souls.house"
   end
 
   test "external agents allow HelixKit-managed model changes" do
     agent = agents(:research_assistant)
     agent.update!(runtime: "external", uuid: SecureRandom.uuid_v7)
 
-    assert agent.update(model_id: "openai/gpt-5.2")
+    assert_difference "Notice.count", 1 do
+      assert_enqueued_with(job: ModelChangeOrientationJob, args: [ agent.id, "openai/gpt-5.2" ]) do
+        assert agent.update(model_id: "openai/gpt-5.2")
+      end
+    end
     assert_equal "openai/gpt-5.2", agent.reload.model_id
+
+    notice = Notice.last
+    assert_equal agent.account, notice.account
+    assert_equal "account", notice.scope
+    assert_equal "model_changed", notice.notice_type
+    assert_equal agent.to_param, notice.params.fetch("agent_id")
+    assert_equal agent.name, notice.params.fetch("agent_name")
+    assert_equal "openrouter/auto", notice.params.fetch("from")
+    assert_equal "openai/gpt-5.2", notice.params.fetch("to")
+    assert_in_delta 7.days.from_now, notice.expires_at, 2.seconds
+    assert Time.iso8601(notice.params.fetch("changed_at"))
+  end
+
+  test "model change notice records the current user when present" do
+    agent = agents(:research_assistant)
+    agent.update_columns(runtime: "external", uuid: SecureRandom.uuid_v7)
+    Current.api_user = users(:user_1)
+
+    agent.update!(model_id: "openai/gpt-5.2")
+
+    assert_equal users(:user_1), Notice.last.created_by
+  ensure
+    Current.reset
+  end
+
+  test "inline model changes create no notice or orientation" do
+    agent = agents(:research_assistant)
+
+    assert_no_difference "Notice.count" do
+      assert_no_enqueued_jobs only: ModelChangeOrientationJob do
+        agent.update!(model_id: "openai/gpt-5.2")
+      end
+    end
+  end
+
+  test "non-model updates create no notice or orientation" do
+    agent = agents(:research_assistant)
+    agent.update_columns(runtime: "external", uuid: SecureRandom.uuid_v7)
+
+    assert_no_difference "Notice.count" do
+      assert_no_enqueued_jobs only: ModelChangeOrientationJob do
+        agent.update!(name: "Renamed Resident")
+      end
+    end
+  end
+
+  test "failed model change notice rolls back the model change" do
+    agent = agents(:research_assistant)
+    agent.update_columns(runtime: "external", uuid: SecureRandom.uuid_v7)
+    notices = agent.account.notices
+
+    notices.stub(:create!, ->(**) { raise ActiveRecord::RecordInvalid.new(agent) }) do
+      assert_raises(ActiveRecord::RecordInvalid) do
+        agent.update!(model_id: "openai/gpt-5.2")
+      end
+    end
+
+    assert_equal "openrouter/auto", agent.reload.model_id
   end
 
   test "external agents allow HelixKit-managed reasoning effort changes" do
@@ -156,7 +218,7 @@ class AgentTest < ActiveSupport::TestCase
     agent.update!(runtime: "provisioning", birth_committed_at: Time.current)
 
     assert_not agent.update(system_prompt: "Replacement beginning")
-    assert_includes agent.errors[:base], "Identity and runtime-managed fields are agent-owned and read-only in HelixKit"
+    assert_includes agent.errors[:base], "Identity and runtime-managed fields are agent-owned and read-only in souls.house"
     assert_equal "Committed beginning", agent.reload.system_prompt
 
     assert agent.update(name: "New display label", colour: "emerald")

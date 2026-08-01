@@ -382,4 +382,28 @@ class ExternalAgentResponseRequestTest < ActiveSupport::TestCase
     assert_equal 3, interaction.output_tokens
   end
 
+  test "conversation full and resumed delta requests include active house notices" do
+    agent = agents(:research_assistant)
+    agent.update!(persistent_session: true)
+    chat = agent.account.chats.create!(model_id: "openrouter/auto", title: "Notice delta")
+    first = chat.messages.create!(role: "user", content: "First")
+    AgentRuntimeInteraction.create!(
+      agent: agent, chat: chat, trigger_kind: "conversation", session_id: "s",
+      requested_by: "test", started_at: 1.minute.ago, last_included_message_id: first.id,
+      chaos_session_id: "chaos-1", transport_status: 200, runtime_status: "ok"
+    )
+    Notice.create!(
+      scope: "account",
+      account: agent.account,
+      notice_type: "announcement",
+      body: "Conversation notice",
+      expires_at: 1.day.from_now
+    )
+
+    request = ExternalAgentResponseRequest.new(agent: agent, chat: chat)
+
+    assert_includes request.send(:request_text), "Conversation notice"
+    assert_includes request.send(:request_delta_text), "Conversation notice"
+  end
+
 end

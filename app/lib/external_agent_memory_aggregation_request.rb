@@ -63,7 +63,9 @@ class ExternalAgentMemoryAggregationRequest
   end
 
   def request_text
-    <<~TEXT
+    [
+      Notices::Renderer.section_for(agent),
+      <<~TEXT
       HelixKit is inviting you to run a #{period} memory aggregation for #{target}.
 
       This is a scaffolded continuity invitation, not a Rails-authored summary task. Wake as yourself, with your own identity and judgment. Read the relevant journal and aggregation files from your hosted filesystem, then decide what, if anything, should be integrated.
@@ -92,7 +94,8 @@ class ExternalAgentMemoryAggregationRequest
       - Treat `~/identity/soul.md` as protected defining identity. Do not edit it.
 
       When finished, say briefly on stdout what you changed, including whether the aggregation file changed and whether self-narrative changed.
-    TEXT
+      TEXT
+    ].compact_blank.join("\n\n")
   end
 
   def output_path_bullet

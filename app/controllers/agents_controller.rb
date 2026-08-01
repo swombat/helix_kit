@@ -81,10 +81,11 @@ class AgentsController < ApplicationController
 
   def update
     attrs = agent_params
+    model_changed = attrs.key?(:model_id) && attrs[:model_id] != @agent.model_id
 
     if @agent.update(attrs)
       audit("update_agent", @agent, **agent_audit_data(attrs))
-      redirect_to account_agents_path(current_account), notice: "Resident updated"
+      redirect_to account_agents_path(current_account), notice: update_notice(model_changed)
     else
       redirect_to edit_account_agent_path(current_account, @agent),
                   inertia: { errors: @agent.errors.to_hash }
@@ -135,6 +136,14 @@ class AgentsController < ApplicationController
 
   def agent_audit_data(attrs)
     attrs.except(:telegram_bot_token).to_h
+  end
+
+  def update_notice(model_changed)
+    return "Resident updated" unless model_changed && @agent.identity_owned_by_agent?
+
+    expiry = 7.days.from_now.to_date.strftime("%-d %B")
+    "#{@agent.name} was updated. An account-wide notice will stand until #{expiry}, " \
+      "and souls.house has requested a fresh orientation on the new model."
   end
 
   def grouped_models

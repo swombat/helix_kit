@@ -59,4 +59,18 @@ class ExternalAgentMemoryAggregationRequestTest < ActiveSupport::TestCase
     assert_includes request.send(:request_text), "~/identity/memory/yearly-journals/2026.md"
   end
 
+  test "aggregation request includes active house notices" do
+    agent = agents(:research_assistant)
+    Notice.create!(
+      scope: "account",
+      account: agent.account,
+      notice_type: "announcement",
+      body: "Aggregation notice",
+      expires_at: 1.day.from_now
+    )
+    request = ExternalAgentMemoryAggregationRequest.new(agent: agent, period: "monthly", target: "2026-05")
+
+    assert_includes request.send(:request_text), "Aggregation notice"
+  end
+
 end
