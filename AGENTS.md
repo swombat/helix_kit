@@ -20,5 +20,8 @@ Minitest lives in `test/`; mirror Rails naming such as `accounts_controller_test
 ## Commit & Pull Request Guidelines
 Use short, imperative commit subjects (<72 chars) like `Add chats index pagination`, grouping related work. Reference issues in the body when useful. PRs need a problem summary, UI screenshots when visuals change, and explicit notes on migrations or secrets. Run `bin/rubocop`, `yarn format:check`, `bin/rails test`, and `yarn test` before requesting review.
 
+## Branch Policy
+Work directly on the mainline `master` branch by default. Do not create, switch to, publish, or use temporary feature branches or worktrees unless the user explicitly instructs you to. Before committing or pushing, verify that the current branch is `master`.
+
 ## Environment & Safety
 The shared development database is long-lived—never run `rails db:drop`, `db:reset`, or mass `destroy_all`. Leave the existing `bin/dev` process running instead of killing its PID in `tmp/pids`. Manage secrets with `config/credentials.yml.enc` and consult `docs/` before altering infrastructure or dependencies.
