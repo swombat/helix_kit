@@ -74,6 +74,52 @@ module Api
         assert_equal "Updated content", @whiteboard.content
       end
 
+      test "updates whiteboard metadata without clearing content" do
+        patch api_v1_whiteboard_url(@whiteboard),
+              params: { name: "Renamed Board", summary: "Updated summary", lock_version: 0 },
+              headers: { "Authorization" => "Bearer #{@token}" }
+        assert_response :success
+
+        @whiteboard.reload
+        assert_equal "Renamed Board", @whiteboard.name
+        assert_equal "Updated summary", @whiteboard.summary
+        assert_equal "Initial content", @whiteboard.content
+      end
+
+      test "update requires lock_version" do
+        patch api_v1_whiteboard_url(@whiteboard),
+              params: { content: "Updated content" },
+              headers: { "Authorization" => "Bearer #{@token}" }
+        assert_response :unprocessable_entity
+
+        json = JSON.parse(response.body)
+        assert_equal "lock_version must be an integer", json["error"]
+        assert_equal "Initial content", @whiteboard.reload.content
+      end
+
+      test "update rejects null lock_version" do
+        patch api_v1_whiteboard_url(@whiteboard),
+              params: { content: "Updated content", lock_version: nil },
+              headers: { "Authorization" => "Bearer #{@token}" },
+              as: :json
+        assert_response :unprocessable_entity
+
+        json = JSON.parse(response.body)
+        assert_equal "lock_version must be an integer", json["error"]
+        assert_equal "Initial content", @whiteboard.reload.content
+      end
+
+      test "update rejects unsupported payload without clearing content" do
+        patch api_v1_whiteboard_url(@whiteboard),
+              params: { whiteboard: { content: "Nested content" }, lock_version: 0 },
+              headers: { "Authorization" => "Bearer #{@token}" }
+        assert_response :unprocessable_entity
+
+        json = JSON.parse(response.body)
+        assert_equal "Provide name, summary, or content", json["error"]
+        assert_equal "Initial content", @whiteboard.reload.content
+      end
+
       test "update returns conflict on stale lock_version" do
         # Update with correct lock_version first
         patch api_v1_whiteboard_url(@whiteboard),
@@ -93,7 +139,7 @@ module Api
 
       test "update sets last_edited_by to API user" do
         patch api_v1_whiteboard_url(@whiteboard),
-              params: { content: "Updated content" },
+              params: { content: "Updated content", lock_version: 0 },
               headers: { "Authorization" => "Bearer #{@token}" }
         assert_response :success
 

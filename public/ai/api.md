@@ -512,12 +512,17 @@ PATCH /api/v1/whiteboards/:id
 Content-Type: application/json
 
 {
+  "name": "Updated name",
+  "summary": "Updated summary",
   "content": "# Updated content",
   "lock_version": 3
 }
 ```
 
-Uses optimistic locking to prevent conflicts.
+Updates any supplied whiteboard fields and leaves omitted fields unchanged. At least one of
+`name`, `summary`, or `content` must be supplied.
+
+`lock_version` is required and uses optimistic locking to prevent conflicts.
 
 **Response (success):**
 ```json
@@ -536,7 +541,8 @@ Uses optimistic locking to prevent conflicts.
 }
 ```
 
-Always include `lock_version` from your last read to detect concurrent edits.
+Always include `lock_version` from your last read to detect concurrent edits. Requests without
+it are rejected with `422 Unprocessable Entity`.
 
 ---
 

@@ -47,14 +47,25 @@ module Api
 
       def update
         whiteboard = current_api_account.whiteboards.active.find(params[:id])
+        attributes = params.permit(:name, :summary, :content)
+        lock_version = Integer(params[:lock_version], exception: false)
 
-        whiteboard.lock_version = params[:lock_version] if params[:lock_version].present?
-        whiteboard.update!(content: params[:content], last_edited_by: current_api_user)
+        return render_update_error("lock_version must be an integer") if lock_version.nil?
+        return render_update_error("Provide name, summary, or content") if attributes.empty?
+
+        whiteboard.lock_version = lock_version
+        whiteboard.update!(attributes.merge(last_edited_by: current_api_user))
 
         render json: { whiteboard: { id: whiteboard.to_param, lock_version: whiteboard.lock_version } }
+      rescue ActiveRecord::RecordInvalid => e
+        render_update_error(e.record.errors.full_messages.to_sentence)
       end
 
       private
+
+      def render_update_error(error)
+        render json: { error: error }, status: :unprocessable_entity
+      end
 
       def whiteboard_summary(whiteboard)
         {
