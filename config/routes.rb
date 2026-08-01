@@ -168,6 +168,7 @@ Rails.application.routes.draw do
       resources :telegram_conversations, only: :show
       resources :telegram_messages, only: :create
       resources :telegram_subscribers, only: :index
+      resource :attention, only: :show
       resources :whiteboards, only: [ :index, :show, :create, :update ]
     end
   end

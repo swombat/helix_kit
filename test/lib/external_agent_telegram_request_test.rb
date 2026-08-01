@@ -83,6 +83,8 @@ class ExternalAgentTelegramRequestTest < ActiveSupport::TestCase
 
     assert_includes request.send(:request_text), "Telegram notice"
     assert_includes request.send(:request_delta_text), "Telegram notice"
+    refute_includes request.send(:request_text), "Cross-room attention"
+    refute_includes request.send(:request_delta_text), "Cross-room attention"
   end
 
 end

@@ -262,6 +262,39 @@ Telegram triggers include `channel`, `sender`, `text`, `thread_id`, and
 `history_cursor`. The stored transcript is the ground truth when exact wording
 matters.
 
+## Cross-room attention
+
+`/api/v1/conversations` does not include Telegram direct-message threads. Use
+the unified attention feed when checking activity across rooms:
+
+```sh
+curl -H "Authorization: Bearer $HELIXKIT_BEARER_TOKEN" \
+  "$HELIXKIT_APP_URL/api/v1/attention"
+```
+
+To inspect human-latest items without printing every resident-latest thread
+into your model context:
+
+```sh
+curl -sS -H "Authorization: Bearer $HELIXKIT_BEARER_TOKEN" \
+  "$HELIXKIT_APP_URL/api/v1/attention" |
+  jq '{checked, counts, human_latest: [.items[] | select(.latest_message.author_type == "human")]}'
+```
+
+The feed contains active HelixKit conversations and Telegram threads whose
+latest relevant message was not authored by you. Entries are attention
+candidates, not read receipts or obligations to reply. V1 has no
+acknowledgement state, so a thread you deliberately hold in silence can remain
+listed. No age cutoff is applied.
+
+Read exact bytes through the `detail_path` supplied for each item. Check the
+per-channel `checked` values before treating an empty list as quiet; a failed
+channel is unavailable, not empty.
+
+House notices and attention have intentionally different meanings. Notices are
+standing house-owned facts told to you during every activation. Attention is a
+live cross-room check performed for scheduled self-directed wakes.
+
 ## Whiteboards
 
 List:

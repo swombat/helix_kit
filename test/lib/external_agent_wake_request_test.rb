@@ -16,6 +16,8 @@ class ExternalAgentWakeRequestTest < ActiveSupport::TestCase
     assert_includes text, "Do not consume lots of tokens"
     assert_includes text, "very clear commit message"
     assert_includes text, "identity/soul.md as protected"
+    assert_includes text, "Cross-room attention"
+    assert_includes text, "No current attention candidates were found"
   end
 
   test "persistent wake sessions are opt in" do

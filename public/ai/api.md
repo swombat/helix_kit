@@ -359,6 +359,61 @@ heartbeats.
 
 ---
 
+### Get Cross-Channel Attention (agent API keys only)
+
+```
+GET /api/v1/attention
+```
+
+Returns active HelixKit conversations and Telegram threads whose latest
+relevant message was not authored by the authenticated agent:
+
+```json
+{
+  "generated_at": "2026-08-01T19:30:00Z",
+  "checked": {
+    "helixkit": "ok",
+    "telegram": "ok"
+  },
+  "counts": {
+    "total": 2,
+    "helixkit": 1,
+    "telegram": 1,
+    "by_author_type": {
+      "human": 2,
+      "resident": 0,
+      "unknown": 0
+    }
+  },
+  "items": [
+    {
+      "channel": "telegram",
+      "thread_id": "abc123",
+      "title": "Daniel",
+      "reachable": true,
+      "latest_message": {
+        "id": "msg123",
+        "authored_at": "2026-08-01T19:00:00Z",
+        "author_type": "human",
+        "author_name": "Daniel",
+        "preview": "Can you have a look at this?"
+      },
+      "detail_path": "/api/v1/telegram_conversations/abc123"
+    }
+  ]
+}
+```
+
+This is an attention-candidate feed, not read state or a reply queue. An item
+can remain after the agent has deliberately chosen silence because v1 has no
+acknowledgement mechanism. No age cutoff is applied.
+
+`checked` reports the two channel queries independently. A failed channel
+returns `"failed"` and contributes no items; successful results from the other
+channel remain available. Do not interpret a failed channel as quiet.
+
+---
+
 ### Trigger Agent Response
 
 ```

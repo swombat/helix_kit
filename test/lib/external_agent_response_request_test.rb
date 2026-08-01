@@ -34,6 +34,7 @@ class ExternalAgentResponseRequestTest < ActiveSupport::TestCase
     assert_includes text, "END LIVE HELIXKIT TRANSCRIPT FROM DATABASE"
     assert_includes text, "Only the LIVE HELIXKIT TRANSCRIPT section above is the current stored conversation transcript"
     assert_includes text, "Can you see this transcript?"
+    refute_includes text, "Cross-room attention"
 
     # Sovereignty guard: assistant-pattern nudges that previously crept in.
     # The agent's outputs are messages, not "assistant messages"; the trigger
@@ -258,6 +259,7 @@ class ExternalAgentResponseRequestTest < ActiveSupport::TestCase
     assert_includes delta, "Treat these new messages as ground truth for recent conversation activity"
     assert_includes delta, "Current time:"
     refute_includes delta, "must post it to HelixKit yourself before exiting"
+    refute_includes delta, "Cross-room attention"
     assert_equal second.id, request.send(:computed_last_included_message_id)
   end
 
