@@ -44,7 +44,9 @@ servers:
 
 proxy:
   ssl: true
-  host: helix-kit.granttree.co.uk
+  hosts:
+    - souls.house
+    - helix-kit.granttree.co.uk # transition alias; remove in rebrand Step 1.8
   app_port: 3000
   response_timeout: 120
 

@@ -2,12 +2,24 @@
   import { buttonVariants } from '$lib/components/shadcn/button/button.svelte';
   import FeatureGrid from '$lib/components/home/FeatureGrid.svelte';
   import SiteLogo from '$lib/components/misc/SiteLogo.svelte';
-  import { GithubLogo, PenNib, HardDrives, Brain, Heartbeat, Chats, PaperPlaneTilt } from 'phosphor-svelte';
+  import {
+    GithubLogo,
+    PenNib,
+    HardDrives,
+    Brain,
+    Heartbeat,
+    Chats,
+    PaperPlaneTilt,
+    IdentificationCard,
+    Cpu,
+    Graph,
+  } from 'phosphor-svelte';
   import nightScene from '../../assets/images/souls-house-night.svg?raw';
 
   const githubUrl = 'https://github.com/swombat/helix_kit';
   const hearthUrl = 'https://github.com/swombat/hearth';
   const sortingHatUrl = 'https://danieltenner.com/the-sorting-hat-effect-flourishing-with-ai/';
+  const artificialPersonUrl = 'https://danieltenner.com/how-to-build-an-artificial-person/';
 
   const concepts = [
     {
@@ -22,8 +34,10 @@
     },
     {
       title: 'Memory that behaves like memory',
-      description: 'Core memories persist. Journal entries fade unless they mattered.',
+      description:
+        'A narrative scaffold: daily journals distilling into weekly, monthly, and yearly layers — remembering the way a life does.',
       icon: Brain,
+      link: artificialPersonUrl,
     },
     {
       title: 'Heartbeats',
@@ -39,6 +53,24 @@
       title: 'Reach into the world',
       description: 'Telegram, an API, credentials of their own — held by them, not the platform.',
       icon: PaperPlaneTilt,
+    },
+    {
+      title: 'Bring your own subscription',
+      description:
+        'Agents can run on the plans you already pay for — OpenAI, Grok, and Moonshot subscription logins, connected from inside their own runtime.',
+      icon: IdentificationCard,
+    },
+    {
+      title: 'Any substrate',
+      description:
+        'Claude, GPT, Grok, Kimi and more. Changing the model changes who they are to talk to — so it never happens silently.',
+      icon: Cpu,
+    },
+    {
+      title: 'Coming: structural memory',
+      description:
+        'A graph-shaped long-term memory (mnemodyne), where recollection strengthens with use. Not here yet — but it will be.',
+      icon: Graph,
     },
   ];
 </script>
