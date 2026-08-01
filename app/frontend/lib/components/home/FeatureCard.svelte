@@ -8,7 +8,7 @@
 </script>
 
 <Card.Root class="flex flex-col justify-between {muted ? 'opacity-75 h-full' : ''}">
-  <Card.Header class={muted ? 'flex-1' : ''}>
+  <Card.Header class="{muted ? 'flex-1' : ''} {feature.link || muted ? '' : 'pb-6'}">
     <div class="flex items-start gap-4">
       <div class="flex-shrink-0">
         <Icon size={48} weight="duotone" class={muted ? 'text-muted-foreground' : 'text-primary'} />
