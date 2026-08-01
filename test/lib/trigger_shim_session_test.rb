@@ -142,7 +142,7 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
     assert_equal "401", JSON.parse(out)
   end
 
-  test "a second trigger is rejected while the agent is already running" do
+  test "a second trigger for the same session is rejected" do
     out = run_shim_python(<<~PY)
       import types
       mod.request = types.SimpleNamespace(
@@ -154,17 +154,46 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
           },
       )
       mod.jsonify = lambda value: value
-      mod._agent_invocation_lock.acquire()
+      lock = mod._lock_for("sess-2")
+      lock.acquire()
       try:
           body, status = mod.trigger()
       finally:
-          mod._agent_invocation_lock.release()
+          lock.release()
       print(json.dumps({"body": body, "status": status}))
     PY
 
     result = JSON.parse(out)
     assert_equal 409, result["status"]
     assert_equal "already_running", result.dig("body", "status")
+    assert_equal "sess-2", result.dig("body", "session_id")
+  end
+
+  test "a trigger for another session can run concurrently" do
+    out = run_shim_python(<<~PY)
+      import types
+      mod.request = types.SimpleNamespace(
+          headers={"Authorization": "Bearer tr_test"},
+          get_json=lambda silent=True: {
+              "session_id": "sess-2",
+              "request": "Look at the other conversation",
+              "persistent_session": False,
+          },
+      )
+      mod.jsonify = lambda value: value
+      mod.legacy_trigger = lambda *args, **kwargs: ({"status": "ok", "session_id": args[0]}, 200)
+      other_session_lock = mod._lock_for("sess-1")
+      other_session_lock.acquire()
+      try:
+          body, status = mod.trigger()
+      finally:
+          other_session_lock.release()
+      print(json.dumps({"body": body, "status": status}))
+    PY
+
+    result = JSON.parse(out)
+    assert_equal 200, result["status"]
+    assert_equal "ok", result.dig("body", "status")
     assert_equal "sess-2", result.dig("body", "session_id")
   end
 

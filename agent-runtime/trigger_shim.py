@@ -163,10 +163,9 @@ if not TRIGGER_BEARER_TOKEN:
 
 app = Flask(__name__) if Flask else None
 
-# One agent-wide lock prevents independent sessions from running Chaos
-# concurrently against the same writable identity and repository volumes.
-# Per-session locks additionally protect persistent-session sidecar state.
-_agent_invocation_lock = threading.Lock()
+# Per-session locks prevent duplicate invocations from running concurrently
+# against the same logical conversation/session while allowing the resident to
+# handle independent conversations and channels at the same time.
 _session_locks = {}
 _session_locks_guard = threading.Lock()
 _auth_lock = threading.Lock()
@@ -218,8 +217,9 @@ def trigger():
         f"delta_len={len(request_delta) if request_delta else 0}"
     )
 
-    if not _agent_invocation_lock.acquire(blocking=False):
-        log.warning(f"agent busy session_id={session_id}")
+    session_lock = _lock_for(session_id)
+    if not session_lock.acquire(blocking=False):
+        log.warning(f"session busy session_id={session_id}")
         return jsonify({
             "status": "already_running",
             "session_id": session_id,
@@ -230,13 +230,14 @@ def trigger():
             return persistent_trigger(
                 session_id, prompt, request_delta, model, timeout_secs,
                 provider=provider, reasoning_effort=reasoning_effort, auth_mode=auth_mode,
+                session_lock=session_lock,
             )
         return legacy_trigger(
             session_id, prompt, model, timeout_secs,
             provider=provider, reasoning_effort=reasoning_effort, auth_mode=auth_mode,
         )
     finally:
-        _agent_invocation_lock.release()
+        session_lock.release()
 
 
 def legacy_trigger(
@@ -318,7 +319,7 @@ def legacy_trigger(
 
 def persistent_trigger(
     session_id, prompt, request_delta, model, timeout_secs,
-    provider=None, reasoning_effort=None, auth_mode="api_key",
+    provider=None, reasoning_effort=None, auth_mode="api_key", session_lock=None,
 ):
     """Resume the session mapped to session_id, or start (and record) a fresh one.
 
@@ -326,8 +327,9 @@ def persistent_trigger(
     turn. Chaos reveals a stale id only after the attempted run, so the retry
     repairs future context but cannot undo side effects from that rare attempt.
     """
-    lock = _lock_for(session_id)
-    if not lock.acquire(blocking=False):
+    lock = session_lock or _lock_for(session_id)
+    lock_acquired_here = session_lock is None
+    if lock_acquired_here and not lock.acquire(blocking=False):
         log.warning(f"session busy session_id={session_id}")
         return jsonify({
             "status": "already_running",
@@ -539,7 +541,8 @@ def persistent_trigger(
             prior_attempt=prior_attempt,
         )
     finally:
-        lock.release()
+        if lock_acquired_here:
+            lock.release()
 
 
 # ----- chaos invocation -----
