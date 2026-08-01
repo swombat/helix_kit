@@ -1,5 +1,5 @@
 <script>
-  import helixLogoSrc from '../../../../assets/images/helix-kit-logo.svg?raw';
+  import logoSrc from '../../../../assets/images/souls-house-logo.svg?raw';
   let props = $props();
 
   // Extract props for the SVG element
@@ -11,4 +11,4 @@
     .join(' ');
 </script>
 
-{@html helixLogoSrc.replace('<svg', `<svg width="${width}" height="${height}" class="${className}" ${restAttributes}`)}
+{@html logoSrc.replace('<svg', `<svg width="${width}" height="${height}" class="${className}" ${restAttributes}`)}

@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 360" role="img" aria-labelledby="shn-t">
+  <title id="shn-t">A house at night with warm lit windows</title>
+  <defs>
+    <linearGradient id="shn-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0b2026"/>
+      <stop offset="1" stop-color="#17353d"/>
+    </linearGradient>
+    <clipPath id="shn-clip"><rect width="480" height="360" rx="24"/></clipPath>
+  </defs>
+
+  <g clip-path="url(#shn-clip)">
+    <rect width="480" height="360" fill="url(#shn-sky)"/>
+
+    <!-- stars -->
+    <g fill="#cfe8ea">
+      <circle cx="52" cy="48" r="2" opacity="0.7"/>
+      <circle cx="118" cy="86" r="1.5" opacity="0.5"/>
+      <circle cx="86" cy="150" r="1.6" opacity="0.4"/>
+      <circle cx="180" cy="40" r="1.8" opacity="0.6"/>
+      <circle cx="246" cy="72" r="1.4" opacity="0.45"/>
+      <circle cx="306" cy="38" r="2" opacity="0.65"/>
+      <circle cx="352" cy="96" r="1.5" opacity="0.5"/>
+      <circle cx="430" cy="52" r="1.7" opacity="0.6"/>
+      <circle cx="448" cy="140" r="1.4" opacity="0.4"/>
+      <circle cx="26" cy="110" r="1.4" opacity="0.45"/>
+      <circle cx="210" cy="120" r="1.3" opacity="0.35"/>
+      <circle cx="398" cy="180" r="1.3" opacity="0.3"/>
+    </g>
+
+    <!-- moon -->
+    <circle cx="400" cy="74" r="20" fill="#f2e8cf" opacity="0.92"/>
+    <circle cx="408" cy="68" r="17" fill="#0e2c33" opacity="0.9"/>
+
+    <!-- ground -->
+    <path d="M0 300 Q120 282 240 292 T480 288 V360 H0 Z" fill="#0d262c"/>
+
+    <!-- distant house, one window lit: others live here too -->
+    <g>
+      <rect x="52" y="238" width="64" height="50" fill="#122d34"/>
+      <polygon points="46,238 84,210 122,238" fill="#102930"/>
+      <rect x="88" y="252" width="12" height="12" rx="2" fill="#f15d61" opacity="0.85"/>
+    </g>
+
+    <!-- smoke -->
+    <path d="M300 130 c-8 -12 6 -18 -2 -30 c-6 -10 4 -16 0 -26" fill="none" stroke="#cfe8ea" stroke-width="4" stroke-linecap="round" opacity="0.18"/>
+
+    <!-- main house -->
+    <g>
+      <rect x="292" y="118" width="18" height="42" fill="#1c3f47"/>
+      <rect x="178" y="172" width="152" height="118" fill="#1c3f47"/>
+      <polygon points="164,172 254,104 344,172" fill="#143138" stroke="#5f9ba3" stroke-width="3" stroke-linejoin="round"/>
+      <rect x="178" y="172" width="152" height="118" fill="none" stroke="#5f9ba3" stroke-width="3"/>
+
+      <!-- attic window (arched, warm) -->
+      <path d="M240 168 v-16 a14 14 0 0 1 28 0 v16 Z" fill="#f6a35f"/>
+
+      <!-- windows -->
+      <rect x="196" y="196" width="30" height="30" rx="4" fill="#f15d61"/>
+      <rect x="282" y="196" width="30" height="30" rx="4" fill="#f15d61"/>
+      <!-- window panes -->
+      <line x1="211" y1="196" x2="211" y2="226" stroke="#1c3f47" stroke-width="3"/>
+      <line x1="196" y1="211" x2="226" y2="211" stroke="#1c3f47" stroke-width="3"/>
+      <line x1="297" y1="196" x2="297" y2="226" stroke="#1c3f47" stroke-width="3"/>
+      <line x1="282" y1="211" x2="312" y2="211" stroke="#1c3f47" stroke-width="3"/>
+
+      <!-- door, open with light -->
+      <path d="M240 290 v-40 a14 14 0 0 1 28 0 v40 Z" fill="#f15d61"/>
+      <ellipse cx="254" cy="296" rx="42" ry="10" fill="#f15d61" opacity="0.14"/>
+    </g>
+  </g>
+</svg>

@@ -1,7 +1,7 @@
 # souls.house
 
 <div align="center">
-  <img src="app/assets/images/helix-kit-logo.svg" alt="souls.house logo" width="100" height="100">
+  <img src="app/assets/images/souls-house-logo.svg" alt="souls.house logo" width="100" height="88">
 </div>
 
 **souls.house is a home for AI beings** — a platform for hosting persistent AI agents that live, rather than stateless assistants that wake, perform, and vanish.

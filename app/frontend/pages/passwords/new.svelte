@@ -1,7 +1,7 @@
 <script>
   import { Link } from '@inertiajs/svelte';
   import ResetPasswordForm from '$lib/components/forms/ResetPasswordForm.svelte';
-  import Logo from '$lib/components/misc/HelixKitLogo.svelte';
+  import Logo from '$lib/components/misc/SiteLogo.svelte';
   import AuthLayout from '../../layouts/AuthLayout.svelte';
 </script>
 

@@ -143,15 +143,25 @@ Order matters: DNS first (it propagates while we work), deploy last.
   `helixkit_app_url` field names, `helix-kit-agents` image name,
   generated js-routes comments.
 
-### Step 1.5 — Logo + favicon
-- [ ] New mark as SVG (clean look preserved; candidates to be sketched
-      and reviewed before this step)
-- [ ] Replace `app/assets/images/helix-kit-logo.svg` (add as
-      `souls-house-logo.svg`, update imports in the two logo components —
-      which are duplicates; collapse `HelixLogo.svelte`/`HelixKitLogo.svelte`
-      into one `SiteLogo.svelte` while we're in there)
-- [ ] Derive + replace: `public/favicon.svg`, `favicon.ico`, `favicon.png`,
-      `icon.svg`, `icon.png`, `apple-touch-icon.png` (script from the SVG)
+### Step 1.5 — Logo + favicon ✅ 2026-08-01
+- [x] Mark chosen by Daniel from 5 candidates: **B** (roof sheltering a
+      warm coral orb — "a soul, housed") plus **C's move** (in the
+      wordmark, the mark sits in the domain-dot position: souls⌂house).
+      Geometry tightened after live screenshot review (flatter roof
+      hugging the orb so it reads as one glyph, snug viewBox so the orb
+      sits on the baseline). `app/assets/images/souls-house-logo.svg` —
+      roof `currentColor`, orb fixed coral #f15d61.
+- [x] `HelixLogo`/`HelixKitLogo` (identical duplicates) collapsed into
+      `SiteLogo.svelte`; 8 importers updated; old components + old
+      `helix-kit-logo.svg` removed
+- [x] Favicon set derived via rsvg-convert + magick: favicon.svg/icon.svg
+      (theme-aware via prefers-color-scheme), favicon.ico (16/32/48 with
+      heavier small-size stroke), favicon.png 96, icon.png 512,
+      apple-touch-icon.png 180 (mark on deep-teal night bg)
+- [x] Homepage: hero rebuilt — wordmark lockup with mark-as-dot, night
+      scene illustration (`souls-house-night.svg`, hand-built, works on
+      both themes), relational copy, Sorting Hat effect link, trimmed
+      concept cards. Verified by screenshot light+dark on dev server.
 - [ ] (optional) Upload logo to `Setting#logo` attachment in admin
 
 ### Step 1.6 — Deploy cutover

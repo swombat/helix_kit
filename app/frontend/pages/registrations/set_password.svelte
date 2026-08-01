@@ -4,7 +4,7 @@
 
   import AuthLayout from '../../layouts/AuthLayout.svelte';
 
-  import Logo from '$lib/components/misc/HelixKitLogo.svelte';
+  import Logo from '$lib/components/misc/SiteLogo.svelte';
 
   import * as Card from '$lib/components/shadcn/card/index.js';
   import Alert from '$lib/components/Alert.svelte';

@@ -1,7 +1,7 @@
 <script>
   import { Link } from '@inertiajs/svelte';
   import SignupForm from '$lib/components/forms/SignupForm.svelte';
-  import Logo from '$lib/components/misc/HelixKitLogo.svelte';
+  import Logo from '$lib/components/misc/SiteLogo.svelte';
   import AuthLayout from '../../layouts/AuthLayout.svelte';
 </script>
 
