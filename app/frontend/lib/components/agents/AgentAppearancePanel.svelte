@@ -2,6 +2,7 @@
   import { Input } from '$lib/components/shadcn/input';
   import { Label } from '$lib/components/shadcn/label';
   import AgentAppearanceFields from '$lib/components/agents/AgentAppearanceFields.svelte';
+  import { siteName } from '$lib/branding';
 
   let {
     name = $bindable(''),
@@ -16,7 +17,7 @@
 <div class="space-y-6">
   <div>
     <h2 class="text-lg font-semibold">Appearance</h2>
-    <p class="text-sm text-muted-foreground">Customise how this agent appears throughout HelixKit.</p>
+    <p class="text-sm text-muted-foreground">Customise how this agent appears throughout {$siteName}.</p>
   </div>
 
   <div class="space-y-2">
@@ -26,7 +27,7 @@
       <p class="text-sm text-destructive">{nameError}</p>
     {/if}
     <p class="text-xs text-muted-foreground">
-      This changes the name displayed in HelixKit. It may or may not change the name the agent chooses for itself in
+      This changes the name displayed in {$siteName}. It may or may not change the name the agent chooses for itself in
       <span class="font-mono">soul.md</span>.
     </p>
   </div>

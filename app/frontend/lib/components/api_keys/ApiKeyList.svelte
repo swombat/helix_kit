@@ -1,6 +1,7 @@
 <script>
   import { Button } from '$lib/components/shadcn/button/index.js';
   import { Key, Trash } from 'phosphor-svelte';
+  import { siteName } from '$lib/branding';
 
   let { apiKeys = [], onDelete = null, emptyMessage = 'No external access keys yet.' } = $props();
 </script>
@@ -40,7 +41,7 @@
               <Trash size={16} class="text-destructive" />
             </Button>
           {:else}
-            <span class="text-xs text-muted-foreground">Managed by HelixKit</span>
+            <span class="text-xs text-muted-foreground">Managed by {$siteName}</span>
           {/if}
         </div>
       {/each}

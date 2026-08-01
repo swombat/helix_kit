@@ -15,7 +15,7 @@
   <CardContent class="space-y-4">
     <div class="space-y-2">
       <Label for="site_name">Site Name</Label>
-      <Input id="site_name" type="text" bind:value={form.site_name} placeholder="HelixKit" required />
+      <Input id="site_name" type="text" bind:value={form.site_name} placeholder="souls.house" required />
     </div>
 
     <div class="space-y-2">

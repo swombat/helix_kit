@@ -12,6 +12,7 @@
   import SiteAdminMenu from '$lib/components/navigation/SiteAdminMenu.svelte';
   import UserAccountMenu from '$lib/components/navigation/UserAccountMenu.svelte';
   import * as logging from '$lib/logging';
+  import { DEFAULT_SITE_NAME } from '$lib/branding';
 
   function handleLogout(event) {
     event.preventDefault();
@@ -92,7 +93,7 @@
     <div class="flex items-center gap-4 md:gap-8">
       <Link href="/" class="flex items-center gap-2">
         <Logo class="h-8 w-8 md:h-10 md:w-10" />
-        <span class="hidden sm:inline">{siteSettings?.site_name || 'HelixKit'}</span>
+        <span class="hidden sm:inline">{siteSettings?.site_name || DEFAULT_SITE_NAME}</span>
       </Link>
       <div class="hidden md:flex items-center">
         <!-- Remount Inertia links when their account-scoped href changes so the click handler cannot retain the previous URL. -->

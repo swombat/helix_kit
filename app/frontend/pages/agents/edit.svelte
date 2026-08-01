@@ -18,6 +18,7 @@
     sendTestRequestAccountAgentPath,
   } from '@/routes';
   import { useSync } from '$lib/use-sync';
+  import { siteName } from '$lib/branding';
   import AgentAppearancePanel from '$lib/components/agents/AgentAppearancePanel.svelte';
   import AgentEditHeader from '$lib/components/agents/AgentEditHeader.svelte';
   import AgentIntegrationsPanel from '$lib/components/agents/AgentIntegrationsPanel.svelte';
@@ -516,7 +517,7 @@
               {#if agent.runtime === 'inline'}
                 <div class="space-y-3">
                   <p class="text-sm text-muted-foreground">
-                    Run this agent in a HelixKit-managed Docker sandbox. HelixKit will create the identity volume, start
+                    Run this agent in a {$siteName}-managed Docker sandbox. {$siteName} will create the identity volume, start
                     the runtime, and send requests to the external agent.
                     {#if localDevEndpointMode}
                       In local development, the shim port is published to <span class="font-mono">127.0.0.1</span>
@@ -545,7 +546,7 @@
               {:else}
                 <div class="space-y-3">
                   <p class="text-sm text-muted-foreground">
-                    Identity fields in HelixKit are now read-only backups. The running agent's identity lives in its
+                    Identity fields in {$siteName} are now read-only backups. The running agent's identity lives in its
                     hosted filesystem below.
                   </p>
                   <div class="rounded border bg-muted/30 p-3 text-sm">
@@ -645,7 +646,7 @@
                   <h2 class="text-xl font-semibold">Provider subscription account</h2>
                   <p class="text-sm text-muted-foreground">
                     Choose whether this hosted agent uses an API key or a personal provider subscription. Provider
-                    tokens stay inside the agent's private Chaos volume and are never stored by HelixKit.
+                    tokens stay inside the agent's private Chaos volume and are never stored by {$siteName}.
                   </p>
                 </div>
                 <AgentProviderSubscriptionPanel

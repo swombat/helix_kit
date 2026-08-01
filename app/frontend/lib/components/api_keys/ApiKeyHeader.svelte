@@ -1,6 +1,7 @@
 <script>
   import { Button } from '$lib/components/shadcn/button/index.js';
   import { Plus } from 'phosphor-svelte';
+  import { siteName } from '$lib/branding';
 
   let { account, onCreate } = $props();
 </script>
@@ -9,7 +10,7 @@
   <div>
     <h1 class="text-2xl font-bold">External Access</h1>
     <p class="text-muted-foreground">
-      Keys for external agents and tools to access {account.name} in HelixKit.
+      Keys for external agents and tools to access {account.name} in {$siteName}.
     </p>
   </div>
   <Button onclick={onCreate}>

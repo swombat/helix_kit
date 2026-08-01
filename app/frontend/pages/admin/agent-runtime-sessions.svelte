@@ -2,6 +2,7 @@
   import { router } from '@inertiajs/svelte';
   import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '$lib/components/shadcn/card';
   import { Button } from '$lib/components/shadcn/button';
+  import { siteName } from '$lib/branding';
 
   let { agent, report, filters, selected_session_id = null } = $props();
 
@@ -153,7 +154,7 @@
     <p class="text-sm text-muted-foreground">{agent.account_name} · {agent.runtime}</p>
     <h1 class="text-2xl font-bold">{agent.name} runtime usage</h1>
     <p class="mt-1 text-sm text-muted-foreground">
-      Invocation-local usage grouped by HelixKit logical session. The window and every timestamp below are UTC.
+      Invocation-local usage grouped by {$siteName} logical session. The window and every timestamp below are UTC.
     </p>
   </div>
 

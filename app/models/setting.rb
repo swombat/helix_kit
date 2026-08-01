@@ -12,7 +12,7 @@ class Setting < ApplicationRecord
   broadcasts_to :all
 
   def self.instance
-    first_or_create!(site_name: "HelixKit")
+    first_or_create!(site_name: "souls.house")
   end
 
 end

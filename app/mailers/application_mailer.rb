@@ -1,6 +1,6 @@
 class ApplicationMailer < ActionMailer::Base
 
-  default from: "helix-kit@granttree.co.uk"
+  default from: "souls.house <hello@souls.house>"
   layout "mailer"
 
 end

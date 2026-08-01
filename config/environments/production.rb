@@ -58,30 +58,22 @@ Rails.application.configure do
   # config.action_mailer.raise_delivery_errors = false
 
   # Set host to be used by links generated in mailer templates.
-  config.action_mailer.default_url_options = { host: "helix-kit.granttree.co.uk" }
+  config.action_mailer.default_url_options = { host: "souls.house" }
 
-  if Rails.application.credentials.dig(:mailgun).present?
+  # Outgoing mail via Brevo (SMTP credentials under credentials.smtp).
+  if Rails.application.credentials.dig(:smtp).present?
     config.action_mailer.delivery_method = :smtp
-    config.action_mailer.default_options = { from: "helix-kit@#{Rails.application.credentials.dig(:mailgun, :domain) || "<MAILGUN_DOMAIN>"}" }
+    config.action_mailer.default_options = { from: "souls.house <hello@#{Rails.application.credentials.dig(:smtp, :domain) || "souls.house"}>" }
     config.action_mailer.smtp_settings = {
-      address: Rails.application.credentials.dig(:mailgun, :smtp_server) || "<SMTP_SERVER>",
-      port: Rails.application.credentials.dig(:mailgun, :smtp_port) || "<SMTP_PORT>",
-      domain: Rails.application.credentials.dig(:mailgun, :domain) || "<MAILGUN_DOMAIN>",
-      user_name: Rails.application.credentials.dig(:mailgun, :smtp_login) || "<SMTP_LOGIN>",
-      password: Rails.application.credentials.dig(:mailgun, :smtp_password) || "<SMTP_PASSWORD>",
-      authentication: "plain",
+      address: Rails.application.credentials.dig(:smtp, :server),
+      port: Rails.application.credentials.dig(:smtp, :port) || 587,
+      domain: Rails.application.credentials.dig(:smtp, :domain),
+      user_name: Rails.application.credentials.dig(:smtp, :user_name),
+      password: Rails.application.credentials.dig(:smtp, :password),
+      authentication: "login",
       enable_starttls_auto: true
     }
   end
-
-  # Specify outgoing SMTP server. Remember to add smtp/* credentials via rails credentials:edit.
-  # config.action_mailer.smtp_settings = {
-  #   user_name: Rails.application.credentials.dig(:smtp, :user_name),
-  #   password: Rails.application.credentials.dig(:smtp, :password),
-  #   address: "smtp.example.com",
-  #   port: 587,
-  #   authentication: :plain
-  # }
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
   # the I18n.default_locale when a translation cannot be found).

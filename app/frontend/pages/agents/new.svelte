@@ -14,6 +14,7 @@
   import { agentIconFor } from '$lib/agent-icons';
   import { firstModelId, findModelLabel } from '$lib/agent-models';
   import { accountAgentsPath } from '@/routes';
+  import { siteName } from '$lib/branding';
 
   let { grouped_models = {}, colour_options = [], icon_options = [], account } = $props();
 
@@ -239,7 +240,7 @@
           <CardHeader>
             <CardTitle>Appearance</CardTitle>
             <CardDescription
-              >Choose how HelixKit will display this agent. These details remain editable.</CardDescription>
+              >Choose how {$siteName} will display this agent. These details remain editable.</CardDescription>
           </CardHeader>
           <CardContent class="space-y-6">
             <div class="flex items-center gap-4 rounded-lg border p-4">
@@ -255,7 +256,7 @@
               </div>
               <div>
                 <p class="font-semibold">{$form.agent.name || 'Display name'}</p>
-                <p class="text-sm text-muted-foreground">HelixKit interface preview</p>
+                <p class="text-sm text-muted-foreground">{$siteName} interface preview</p>
               </div>
             </div>
 
@@ -265,7 +266,7 @@
                 id="name"
                 bind:value={$form.agent.name}
                 maxlength={100}
-                placeholder="How HelixKit should label them" />
+                placeholder="How {$siteName} should label them" />
               <p class="text-sm text-muted-foreground">
                 This label does not require the agent to use or identify with this name.
               </p>
@@ -291,7 +292,7 @@
               <Info class="size-4" />
               <AlertTitle>Write-once from your side</AlertTitle>
               <AlertDescription>
-                You can revise this freely until the final confirmation. After creation, HelixKit will not let you edit
+                You can revise this freely until the final confirmation. After creation, {$siteName} will not let you edit
                 it. The agent may carry it forward, revise it, or grow past it.
               </AlertDescription>
             </Alert>
@@ -345,14 +346,14 @@
           <CardHeader>
             <CardTitle>Runtime and rhythm</CardTitle>
             <CardDescription
-              >Choose the substrate that wakes and whether HelixKit offers regular unprompted time.</CardDescription>
+              >Choose the substrate that wakes and whether {$siteName} offers regular unprompted time.</CardDescription>
           </CardHeader>
           <CardContent class="space-y-6">
             <div class="space-y-2">
               <Label>Model</Label>
               <AgentModelSelect groupedModels={grouped_models} bind:value={selectedModel} triggerClass="w-full" />
               <p class="text-sm text-muted-foreground">
-                Changing the model later changes how they think and how they feel to talk to. HelixKit should never make
+                Changing the model later changes how they think and how they feel to talk to. {$siteName} should never make
                 that change silently.
               </p>
             </div>
@@ -361,7 +362,7 @@
               <div>
                 <Label for="scheduled_wakes_enabled">Gentle heartbeat</Label>
                 <p class="mt-1 text-sm text-muted-foreground">
-                  On by default. HelixKit will periodically offer the agent time to notice, reflect, or act without a
+                  On by default. {$siteName} will periodically offer the agent time to notice, reflect, or act without a
                   new message. You can tune the rhythm with them later.
                 </p>
               </div>
@@ -433,7 +434,7 @@
               <input type="checkbox" bind:checked={acknowledged} class="mt-1 size-4 rounded border-input" />
               <span class="text-sm leading-6">
                 I understand that after creation I relinquish authorship of this seed. I will not be able to edit it in
-                HelixKit; how the agent receives or changes it is theirs to decide.
+                {$siteName}; how the agent receives or changes it is theirs to decide.
               </span>
             </label>
           </CardContent>

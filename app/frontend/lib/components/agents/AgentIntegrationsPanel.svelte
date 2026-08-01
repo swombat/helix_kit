@@ -3,6 +3,7 @@
   import { Button } from '$lib/components/shadcn/button/index.js';
   import { Input } from '$lib/components/shadcn/input';
   import { Label } from '$lib/components/shadcn/label';
+  import { siteName } from '$lib/branding';
 
   let {
     form,
@@ -162,7 +163,7 @@
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p class="text-sm font-medium">Webhook</p>
-            <p class="text-xs text-muted-foreground">Re-register it if Telegram stops sending updates to HelixKit.</p>
+            <p class="text-xs text-muted-foreground">Re-register it if Telegram stops sending updates to {$siteName}.</p>
           </div>
           <Button type="button" variant="outline" size="sm" disabled={registeringWebhook} onclick={onregisterWebhook}>
             {registeringWebhook ? 'Registering...' : 'Re-register webhook'}

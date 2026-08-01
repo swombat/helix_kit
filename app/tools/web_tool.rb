@@ -71,7 +71,7 @@ class WebTool < RubyLLM::Tool
     Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == "https",
                     open_timeout: OPEN_TIMEOUT, read_timeout: READ_TIMEOUT) do |http|
       request = Net::HTTP::Get.new(uri)
-      request["User-Agent"] = "HelixKit/1.0"
+      request["User-Agent"] = "souls.house/1.0"
       http.request(request)
     end
   end
@@ -104,7 +104,7 @@ class WebTool < RubyLLM::Tool
     response = Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == "https",
                                open_timeout: 5, read_timeout: 10) do |http|
       request = Net::HTTP::Get.new(uri)
-      request["User-Agent"] = "HelixKit/1.0"
+      request["User-Agent"] = "souls.house/1.0"
       http.request(request)
     end
 

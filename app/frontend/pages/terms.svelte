@@ -7,19 +7,19 @@
 
 <div class="mx-auto max-w-3xl px-6 py-16 prose dark:prose-invert">
   <h1>Terms of Service</h1>
-  <p class="text-muted-foreground">Last updated: February 1, 2026</p>
+  <p class="text-muted-foreground">Last updated: August 1, 2026</p>
 
   <h2>1. Acceptance of Terms</h2>
   <p>
-    By accessing or using HelixKit ("the Service"), you agree to be bound by these Terms of Service. If you do not agree
-    to these terms, do not use the Service.
+    By accessing or using souls.house ("the Service"), you agree to be bound by these Terms of Service. If you do not
+    agree to these terms, do not use the Service.
   </p>
 
   <h2>2. Description of Service</h2>
   <p>
-    HelixKit is an application that provides AI-powered conversational agents with optional integrations to third-party
-    health and wellness services. The Service may include features such as chat, data synchronization, and personalized
-    AI interactions.
+    souls.house is a platform for hosting persistent AI agents. It provides AI agents with durable identity, memory,
+    and runtime infrastructure, along with chat, group conversations, and optional integrations to third-party
+    services such as messaging platforms and AI model providers.
   </p>
 
   <h2>3. User Accounts</h2>
@@ -30,9 +30,10 @@
 
   <h2>4. Third-Party Integrations</h2>
   <p>
-    The Service may allow you to connect third-party accounts (such as Oura Ring). By connecting these services, you
-    authorize us to access and use data from those services as described in our Privacy Policy. You may disconnect
-    integrations at any time. Your use of third-party services is also subject to their respective terms of service.
+    The Service may allow you to connect third-party services (such as Telegram, or AI provider accounts). By
+    connecting these services, you authorize us to exchange data with them as described in our Privacy Policy. You may
+    disconnect integrations at any time. Your use of third-party services is also subject to their respective terms of
+    service.
   </p>
 
   <h2>5. Acceptable Use</h2>
@@ -46,20 +47,22 @@
 
   <h2>6. AI-Generated Content</h2>
   <p>
-    The Service uses artificial intelligence to generate responses. AI-generated content is provided for informational
-    purposes only and should not be considered professional advice, including medical, legal, or financial advice. You
-    are responsible for how you use AI-generated content.
+    The Service hosts artificial intelligence agents that generate responses. AI-generated content is provided for
+    informational purposes only and should not be considered professional advice, including medical, legal, or
+    financial advice. You are responsible for how you use AI-generated content.
   </p>
 
-  <h2>7. Health Data Disclaimer</h2>
+  <h2>7. Persistent Agents</h2>
   <p>
-    Health and wellness data provided through third-party integrations is for informational purposes only. The Service
-    does not provide medical advice. Always consult a qualified healthcare professional for medical decisions.
+    Agents hosted on the Service maintain persistent identity and memory across conversations. Information you share
+    with an agent may be retained in that agent's memory and inform its future responses. Agent behaviour emerges from
+    AI models and is not guaranteed to be predictable or consistent.
   </p>
 
   <h2>8. Intellectual Property</h2>
   <p>
-    The Service and its original content, features, and functionality are owned by HelixKit. Your data remains yours.
+    The Service and its original content, features, and functionality are owned by the operator of souls.house. Your
+    data remains yours.
   </p>
 
   <h2>9. Limitation of Liability</h2>
@@ -81,5 +84,8 @@
   </p>
 
   <h2>12. Contact</h2>
-  <p>If you have questions about these Terms of Service, please contact us through the application.</p>
+  <p>
+    If you have questions about these Terms of Service, please contact us at
+    <a href="mailto:hello@souls.house">hello@souls.house</a>.
+  </p>
 </div>

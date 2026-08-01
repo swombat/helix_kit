@@ -60,7 +60,7 @@ class AgentRepoCreator
   def create_deploy_key!(repo)
     private_key, public_key = generate_deploy_key
     body = {
-      title: "HelixKit #{agent.name} deploy key",
+      title: "souls.house #{agent.name} deploy key",
       key: public_key,
       read_only: false
     }
@@ -192,7 +192,7 @@ class AgentRepoCreator
     request["Accept"] = "application/vnd.github+json"
     request["Authorization"] = "Bearer #{token}"
     request["Content-Type"] = "application/json"
-    request["User-Agent"] = "HelixKit"
+    request["User-Agent"] = "souls.house"
     request["X-GitHub-Api-Version"] = "2022-11-28"
     request.body = JSON.generate(body) if body
 

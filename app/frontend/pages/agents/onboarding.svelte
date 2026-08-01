@@ -8,6 +8,7 @@
   import { agentIconFor } from '$lib/agent-icons';
   import { useSync } from '$lib/use-sync';
   import { accountAgentsPath, editAccountAgentPath, newAccountChatPath } from '@/routes';
+  import { siteName } from '$lib/branding';
 
   let {
     agent,
@@ -117,7 +118,7 @@
         {:else if setupFailed}
           Infrastructure failed after the birth commit. The soul seed remains read-only and retryable.
         {:else}
-          HelixKit is preparing a persistent home and runtime.
+          {$siteName} is preparing a persistent home and runtime.
         {/if}
       </CardDescription>
     </CardHeader>

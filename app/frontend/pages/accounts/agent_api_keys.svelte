@@ -7,6 +7,7 @@
   import { CheckCircle, XCircle } from 'phosphor-svelte';
   import { accountAgentApiKeysPath, accountPath } from '@/routes';
   import AgentProviderSubscriptionPanel from '$lib/components/agents/AgentProviderSubscriptionPanel.svelte';
+  import { siteName } from '$lib/branding';
 
   const {
     account,
@@ -126,8 +127,8 @@
   onCancel={handleCancel}>
   <div class="space-y-4">
     <p class="text-sm text-muted-foreground">
-      These encrypted credentials let HelixKit agents call AI providers. They are separate from External Access keys,
-      which let outside agents and tools connect to HelixKit.
+      These encrypted credentials let {$siteName} agents call AI providers. They are separate from External Access keys,
+      which let outside agents and tools connect to {$siteName}.
     </p>
 
     <div class="space-y-6">
@@ -202,7 +203,7 @@
         <h2 class="font-medium">Provider subscription accounts</h2>
         <p class="text-sm text-muted-foreground">
           Connect a personal provider subscription to a specific hosted agent. The sign-in happens inside that agent's
-          Chaos container; HelixKit never receives or stores the provider token.
+          Chaos container; {$siteName} never receives or stores the provider token.
         </p>
       </div>
 

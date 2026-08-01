@@ -4,6 +4,7 @@
   import { findModel } from '$lib/agent-models';
   import AgentModelSelect from '$lib/components/agents/AgentModelSelect.svelte';
   import AgentToolChecklist from '$lib/components/agents/AgentToolChecklist.svelte';
+  import { siteName } from '$lib/branding';
 
   let { form, groupedModels = {}, availableTools = [], selectedModel = $bindable(), runtimeManaged = false } = $props();
 
@@ -38,7 +39,7 @@
       <h2 class="text-lg font-semibold">AI Model</h2>
       <p class="text-sm text-muted-foreground">
         {runtimeManaged
-          ? 'Choose the model HelixKit sends to the external runtime on each trigger.'
+          ? `Choose the model ${$siteName} sends to the external runtime on each trigger.`
           : 'Choose which AI model powers this agent'}
       </p>
     </div>
@@ -84,7 +85,7 @@
       {#if runtimeManaged}
         <p class="text-sm text-muted-foreground">
           This agent is now self-hosted. It runs inside a regular coding harness and can use the command line tools
-          available in that runtime rather than HelixKit's inline tool checklist.
+          available in that runtime rather than {$siteName}'s inline tool checklist.
         </p>
       {:else}
         <p class="text-sm text-muted-foreground">

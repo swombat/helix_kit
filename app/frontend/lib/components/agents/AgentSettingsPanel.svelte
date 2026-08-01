@@ -3,6 +3,7 @@
   import { Label } from '$lib/components/shadcn/label';
   import { Switch } from '$lib/components/shadcn/switch';
   import AgentModelPanel from '$lib/components/agents/AgentModelPanel.svelte';
+  import { siteName } from '$lib/branding';
 
   let { form, groupedModels = {}, availableTools = [], selectedModel = $bindable(), runtimeManaged = false } = $props();
 </script>
@@ -31,7 +32,7 @@
     <div class="flex items-center justify-between gap-6 rounded border bg-muted/30 p-4">
       <div class="space-y-1">
         <Label for="active">Active</Label>
-        <p class="text-sm text-muted-foreground">Keep this agent available for selection in HelixKit.</p>
+        <p class="text-sm text-muted-foreground">Keep this agent available for selection in {$siteName}.</p>
       </div>
       <Switch id="active" checked={$form.agent.active} onCheckedChange={(checked) => ($form.agent.active = checked)} />
     </div>
@@ -91,14 +92,14 @@
   <div class="space-y-4">
     <div>
       <h2 class="text-lg font-semibold">Heartbeat schedule</h2>
-      <p class="text-sm text-muted-foreground">Control HelixKit's self-directed wakes for this agent.</p>
+      <p class="text-sm text-muted-foreground">Control {$siteName}'s self-directed wakes for this agent.</p>
     </div>
 
     <div class="flex items-center justify-between gap-6 rounded border bg-muted/30 p-4">
       <div class="space-y-1">
         <Label for="scheduled_wakes_enabled">Scheduled heartbeats</Label>
         <p class="text-sm text-muted-foreground">
-          Allow HelixKit to wake this agent for self-directed heartbeat sessions.
+          Allow {$siteName} to wake this agent for self-directed heartbeat sessions.
         </p>
       </div>
       <Switch

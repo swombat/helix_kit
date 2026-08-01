@@ -5,6 +5,7 @@
   import { Input } from '$lib/components/shadcn/input/index.js';
   import { Label } from '$lib/components/shadcn/label/index.js';
   import { apiKeyApprovalPath } from '@/routes';
+  import { siteName } from '$lib/branding';
 
   let { client_name, token, expires_at, accounts = [], selected_account_id = null } = $props();
   let keyName = $state(`${client_name} Key`);
@@ -40,7 +41,7 @@
     </div>
 
     <div class="mb-6">
-      <Label for="account">HelixKit Account</Label>
+      <Label for="account">{$siteName} Account</Label>
       <select
         id="account"
         bind:value={accountId}
