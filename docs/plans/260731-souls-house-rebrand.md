@@ -180,13 +180,14 @@ Order matters: DNS first (it propagates while we work), deploy last.
       2026-08-01, valid to Oct 30), title "souls.house", favicon.svg
       serving, old domain still 200, homepage screenshot confirmed live
 
-### Step 1.7 — Production data + smoke test 🔄 2026-08-01
+### Step 1.7 — Production data + smoke test ✅ 2026-08-01 (live password-reset email still worth one real send)
 - [x] Production `Setting.instance.site_name` = "souls.house" (was already
       — row either freshly created with the new default or pre-set)
 - [ ] Trigger a password-reset email from the live site to a real mailbox;
       confirm delivery, inbox placement, from-address, link host
       (Brevo pipeline already verified 4/4 delivered pre-deploy)
-- [ ] Daniel: click through logged-in — chats, agent pages, admin
+- [x] Daniel: logged in on souls.house, agents confirmed working
+      ("I have successfully logged in :-) And the agents work!")
 
 ### Step 1.8 — Cleanup (after a comfortable transition window)
 - [ ] Remove `helix-kit.granttree.co.uk` from proxy hosts, redeploy
