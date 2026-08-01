@@ -65,6 +65,7 @@ Rails.application.routes.draw do
     resource :agent_initiation, only: :create, module: :accounts
     resource :agent_api_keys, only: [ :show, :update ], module: :accounts
     resource :costs, only: :show, module: :accounts
+    resources :notices, only: [ :index, :create, :destroy ], module: :accounts
     resources :api_keys, path: "external_access", only: [ :index, :create, :destroy ]
 
     resources :chats do
@@ -146,6 +147,7 @@ Rails.application.routes.draw do
     end
     resources :audit_logs, only: [ :index ]
     resources :jobs, only: [ :index, :create ]
+    resources :notices, only: [ :index, :create, :destroy ]
     resource :settings, only: [ :show, :update ]
   end
 

@@ -3,7 +3,8 @@ class ModelChangeOrientationJob < ApplicationJob
   queue_as :default
 
   def perform(agent_id, expected_model_id)
-    agent = Agent.find(agent_id)
+    agent = Agent.find_by(id: agent_id)
+    return unless agent
     return unless agent.model_id == expected_model_id
     return unless agent.external? && agent.health_state == "healthy"
 

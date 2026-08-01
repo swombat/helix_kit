@@ -142,8 +142,12 @@ class AgentsController < ApplicationController
     return "Resident updated" unless model_changed && @agent.identity_owned_by_agent?
 
     expiry = 7.days.from_now.to_date.strftime("%-d %B")
-    "#{@agent.name} was updated. An account-wide notice will stand until #{expiry}, " \
-      "and souls.house has requested a fresh orientation on the new model."
+    message = "#{@agent.name} was updated. An account-wide notice will stand until #{expiry}."
+    if @agent.external? && @agent.health_state == "healthy"
+      "#{message} souls.house has requested a fresh orientation on the new model."
+    else
+      "#{message} The resident will see the notice on their next activation."
+    end
   end
 
   def grouped_models

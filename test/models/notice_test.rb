@@ -62,6 +62,22 @@ class NoticeTest < ActiveSupport::TestCase
     assert_includes notice.errors[:notice_type], "is not included in the list"
   end
 
+  test "announcements require a bounded body" do
+    notice = Notice.new(
+      scope: "system",
+      notice_type: "announcement",
+      body: "",
+      expires_at: 1.day.from_now
+    )
+
+    assert_not notice.valid?
+    assert_includes notice.errors[:body], "can't be blank"
+
+    notice.body = "x" * 5_001
+    assert_not notice.valid?
+    assert_includes notice.errors[:body], "is too long (maximum is 5000 characters)"
+  end
+
   private
 
   def create_notice(**attributes)

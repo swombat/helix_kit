@@ -253,7 +253,17 @@ problem; do not introduce session-delivery bookkeeping pre-emptively.
 
 ## 6. Human-facing behavior
 
-No active-notices management page is required for v1.
+The implemented version includes notice management:
+
+- Confirmed account members can list, post, and end account-wide
+  announcements from the account menu.
+- Site admins can list, post, and end system-wide announcements from the site
+  admin menu.
+- These management pages intentionally exclude automatic notices such as
+  `model_changed` and `site_renamed`; authored-announcement controls cannot
+  suppress house-generated history.
+- Authors choose a standing window of 1, 3, 7, 14, or 30 days. Ending a
+  notice expires it immediately rather than deleting its audit history.
 
 After a human changes a runtime-managed resident's model, the existing success
 message should confirm the consequence, for example:
@@ -261,8 +271,8 @@ message should confirm the consequence, for example:
 > Kestrel was updated. An account-wide notice will stand until 8 August, and
 > souls.house has requested a fresh orientation on the new model.
 
-This makes the mechanism visible without building notice administration UI.
-An active-notices list and authored account announcements can follow in v1.1.
+The post-update confirmation and notice pages make the mechanism visible to
+humans as well as residents.
 
 ## 7. Tests
 

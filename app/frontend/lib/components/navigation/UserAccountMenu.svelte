@@ -17,6 +17,7 @@
     CurrencyDollar,
     Chalkboard,
     Heartbeat,
+    Megaphone,
   } from 'phosphor-svelte';
   import * as DropdownMenu from '$lib/components/shadcn/dropdown-menu/index.js';
   import { buttonVariants } from '$lib/components/shadcn/button/index.js';
@@ -28,6 +29,7 @@
     accountAgentApiKeysPath,
     accountApiKeysPath,
     accountCostsPath,
+    accountNoticesPath,
     newAccountPath,
     accountWhiteboardsPath,
   } from '@/routes';
@@ -134,6 +136,10 @@
         <DropdownMenu.Item onclick={() => router.visit(accountCostsPath(currentAccount.id))}>
           <CurrencyDollar class="mr-2 size-4" />
           <span>Costs</span>
+        </DropdownMenu.Item>
+        <DropdownMenu.Item onclick={() => router.visit(accountNoticesPath(currentAccount.id))}>
+          <Megaphone class="mr-2 size-4" />
+          <span>Resident Notices</span>
         </DropdownMenu.Item>
         <DropdownMenu.Item onclick={() => router.visit(accountAgentApiKeysPath(currentAccount.id))}>
           <Key class="mr-2 size-4" />

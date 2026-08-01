@@ -9,6 +9,7 @@ class Notice < ApplicationRecord
   validates :scope, inclusion: { in: SCOPES }
   validates :notice_type, inclusion: { in: TYPES }
   validates :expires_at, presence: true
+  validates :body, presence: true, length: { maximum: 5_000 }, if: -> { notice_type == "announcement" }
   validate :account_matches_scope
 
   scope :active, -> { where("expires_at > ?", Time.current) }
@@ -20,6 +21,17 @@ class Notice < ApplicationRecord
       account: "account",
       account_id: agent.account_id
     ).order(:created_at, :id)
+  end
+
+  def as_management_json
+    {
+      id: id,
+      body: body,
+      scope: scope,
+      created_at: created_at.iso8601,
+      expires_at: expires_at.iso8601,
+      created_by: created_by&.email_address
+    }
   end
 
   private

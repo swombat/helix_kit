@@ -47,4 +47,13 @@ class ModelChangeOrientationJobTest < ActiveJob::TestCase
     end
   end
 
+  test "does nothing when the resident was deleted before the job ran" do
+    agent_id = @agent.id
+    @agent.destroy!
+
+    assert_nothing_raised do
+      ModelChangeOrientationJob.perform_now(agent_id, "openai/gpt-5.2")
+    end
+  end
+
 end

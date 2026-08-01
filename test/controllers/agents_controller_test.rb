@@ -354,7 +354,7 @@ class AgentsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "external model update confirms the account notice and fresh orientation" do
-    @agent.update_columns(runtime: "external", uuid: SecureRandom.uuid_v7)
+    @agent.update_columns(runtime: "external", health_state: "healthy", uuid: SecureRandom.uuid_v7)
 
     assert_difference "Notice.count", 1 do
       assert_enqueued_with(job: ModelChangeOrientationJob, args: [ @agent.id, "openai/gpt-5.2" ]) do
@@ -368,6 +368,32 @@ class AgentsControllerTest < ActionDispatch::IntegrationTest
     assert_includes flash[:notice], "account-wide notice"
     assert_includes flash[:notice], "fresh orientation"
     assert_equal @user, Notice.last.created_by
+  end
+
+  test "unavailable resident model update promises the standing notice rather than an orientation" do
+    @agent.update_columns(runtime: "offline", health_state: "healthy", uuid: SecureRandom.uuid_v7)
+
+    patch account_agent_path(@account, @agent), params: {
+      agent: { model_id: "openai/gpt-5.2" }
+    }
+
+    assert_redirected_to account_agents_path(@account)
+    assert_includes flash[:notice], "account-wide notice"
+    assert_includes flash[:notice], "next activation"
+    refute_includes flash[:notice], "requested a fresh orientation"
+  end
+
+  test "unhealthy resident model update promises the standing notice rather than an orientation" do
+    @agent.update_columns(runtime: "external", health_state: "unhealthy", uuid: SecureRandom.uuid_v7)
+
+    patch account_agent_path(@account, @agent), params: {
+      agent: { model_id: "openai/gpt-5.2" }
+    }
+
+    assert_redirected_to account_agents_path(@account)
+    assert_includes flash[:notice], "account-wide notice"
+    assert_includes flash[:notice], "next activation"
+    refute_includes flash[:notice], "requested a fresh orientation"
   end
 
   test "external agent can enable persistent sessions" do
