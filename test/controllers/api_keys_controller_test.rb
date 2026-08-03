@@ -51,6 +51,19 @@ class ApiKeysControllerTest < ActionDispatch::IntegrationTest
     assert_equal @user, key.user
   end
 
+  test "destroy revokes an approved key while preserving its request history" do
+    request = ApiKeyRequest.create_request(client_name: "Lume")
+    key = request.approve!(user: @user, account: @account, key_name: "Lume")
+
+    assert_difference "ApiKey.count", -1 do
+      delete account_api_key_path(@account, key)
+    end
+
+    assert_redirected_to account_api_keys_path(@account)
+    assert_nil request.reload.api_key
+    assert_equal "approved", request.status
+  end
+
   test "destroy cannot revoke a key from another account" do
     key = ApiKey.generate_for(@user, account: accounts(:personal_account), name: "Other Account")
 

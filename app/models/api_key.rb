@@ -5,6 +5,7 @@ class ApiKey < ApplicationRecord
   belongs_to :user
   belongs_to :account
   belongs_to :agent, optional: true
+  has_many :api_key_requests, dependent: :nullify
 
   validates :name, presence: true, length: { maximum: 100 }
   validates :token_digest, presence: true, uniqueness: true
