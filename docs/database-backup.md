@@ -8,7 +8,7 @@ agent's persistent volumes, followed by a dump of the PostgreSQL database.
 The `FullBackupJob` runs daily at 4am and:
 
 1. Takes a Restic snapshot of each hosted agent's persistent Docker volumes
-   (identity, Chaos home, repo)
+   (identity, Chaos home, repo, work, private runtime state)
 2. Creates a `pg_dump` of the primary PostgreSQL database — which records the
    snapshot IDs just taken
 3. Compresses the dump with gzip (~90% size reduction)
@@ -51,11 +51,13 @@ To snapshot all hosted agents and then back up PostgreSQL:
 bin/rails db_backup:perform
 ```
 
-Each hosted-agent snapshot contains its three persistent Docker volumes:
+Each hosted-agent snapshot contains its five persistent Docker volumes:
 
 - identity (`soul.md`, self-narrative, journals, and memory);
 - Chaos home (`.chaos`, including persistent session state);
-- repository/workspace.
+- repository/workspace;
+- durable work files; and
+- private runtime state, including provider subscription credentials.
 
 The Restic snapshot records and per-agent repository passwords are included in
 the PostgreSQL dump created immediately afterward. Unlike the nightly run, the

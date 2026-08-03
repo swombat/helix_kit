@@ -54,6 +54,7 @@ module Agents
           command = args.last
           if command.include?("find . -maxdepth 6")
             assert_includes command, "./.chaos"
+            assert_includes command, "./state"
             ok("file\t14\t./agent_write_test.txt\ndirectory\t\t./identity\n")
           else
             flunk "unexpected docker exec command: #{command}"
@@ -114,6 +115,17 @@ module Agents
       json = Agents::FilesystemDump.new(agent).file_preview_json("../soul.md")
 
       assert_equal "invalid path", json[:error]
+      assert_equal false, json[:previewable]
+    end
+
+    test "private runtime state cannot be previewed through container diagnostics" do
+      agent = agents(:research_assistant)
+      agent.update!(uuid: SecureRandom.uuid_v7, container_name: "hk-agent-test")
+
+      json = Agents::FilesystemDump.new(agent, target: :container_home)
+        .file_preview_json("state/claude/.credentials.json")
+
+      assert_equal "path is private", json[:error]
       assert_equal false, json[:previewable]
     end
 

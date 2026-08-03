@@ -34,6 +34,10 @@ class AgentProviderAuthClient
     request(:post, "/auth/cancel", provider:)
   end
 
+  def submit_code(provider:, code:)
+    request(:post, "/auth/code", provider:, code:)
+  end
+
   def disconnect(provider:)
     request(:post, "/auth/disconnect", provider:)
   end

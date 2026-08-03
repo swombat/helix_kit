@@ -12,7 +12,8 @@ module Agents
         identity: "hk-agent-#{agent.uuid}-identity",
         chaos: "chaos-home-#{agent.uuid}",
         repo: "hk-agent-#{agent.uuid}-repo",
-        work: "hk-agent-#{agent.uuid}-work"
+        work: "hk-agent-#{agent.uuid}-work",
+        state: "hk-agent-#{agent.uuid}-state"
       }
     end
 

@@ -42,6 +42,33 @@ class Agents::ProviderSubscriptionsControllerTest < ActionDispatch::IntegrationT
     assert_not_includes AuditLog.where(auditable: @agent).pluck(:data).to_json, "ABCD-EFGH"
   end
 
+  test "Anthropic browser code is relayed without persistence or audit logging" do
+    client = Object.new
+    client.define_singleton_method(:submit_code) do |provider:, code:|
+      raise "wrong provider" unless provider == "anthropic"
+      raise "wrong code" unless code == "browser-secret"
+
+      { "status" => "finalizing", "provider" => provider }
+    end
+
+    AgentProviderAuthClient.stub(:new, client) do
+      post code_account_agent_provider_subscription_path(@account, @agent),
+           params: { provider: "anthropic", code: "browser-secret" },
+           as: :json
+    end
+
+    assert_response :success
+    assert_equal "finalizing", response.parsed_body.fetch("status")
+    assert_not_includes @agent.reload.provider_connections.to_json, "browser-secret"
+    assert_not_includes AuditLog.where(auditable: @agent).pluck(:data).to_json, "browser-secret"
+    assert_equal(
+      "[FILTERED]",
+      ActiveSupport::ParameterFilter.new(Rails.application.config.filter_parameters)
+        .filter("code" => "browser-secret")
+        .fetch("code")
+    )
+  end
+
   test "status persists display metadata but no credentials" do
     client = Object.new
     client.define_singleton_method(:status) do |provider:|
@@ -71,7 +98,8 @@ class Agents::ProviderSubscriptionsControllerTest < ActionDispatch::IntegrationT
       {
         "providers" => {
           "openai" => { "api_key" => true, "oauth_account" => true },
-          "xai" => { "api_key" => true, "oauth_account" => true }
+          "xai" => { "api_key" => true, "oauth_account" => true },
+          "anthropic" => { "api_key" => true, "oauth_account" => true, "transport" => "clamp" }
         },
         "chaos_version" => "chaos 1.2.3"
       }
@@ -85,6 +113,7 @@ class Agents::ProviderSubscriptionsControllerTest < ActionDispatch::IntegrationT
 
     assert_response :success
     assert_equal true, response.parsed_body.dig("providers", "xai", "oauth_account")
+    assert_equal "clamp", response.parsed_body.dig("providers", "anthropic", "transport")
     assert_equal "api_key", @agent.reload.provider_auth_mode("openai")
   end
 

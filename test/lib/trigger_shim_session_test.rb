@@ -14,6 +14,8 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
     assert_includes dockerfile, "COPY --from=builder /usr/local/bin/chaos_journald /usr/local/bin/chaos_journald"
     assert_includes dockerfile, "COPY docs/runtime-instructions.md /usr/local/share/helixkit-agent/runtime-instructions.md"
     assert_includes dockerfile, "COPY docs/helixkit-api.md /usr/local/share/helixkit-agent/helixkit-api.md"
+    assert_includes dockerfile, "ARG CLAUDE_CODE_VERSION=2.1.220"
+    assert_includes dockerfile, "claude --version"
   end
 
   test "runtime config installs RubyLLM providers not bundled by Chaos" do
@@ -203,6 +205,7 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
     {
       "/auth/capabilities" => "auth_capabilities",
       "/auth/start" => "auth_start",
+      "/auth/code" => "auth_code",
       "/auth/status" => "auth_status",
       "/auth/cancel" => "auth_cancel",
       "/auth/disconnect" => "auth_disconnect"
@@ -215,12 +218,82 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
     assert_not_includes source, '"/auth/start")(lambda:'
   end
 
-  test "subscription capabilities include xAI by default" do
+  test "subscription capabilities include Anthropic and xAI by default" do
     out = run_shim_python(<<~PY)
       print(json.dumps(list(mod.OAUTH_ACCOUNT_PROVIDERS)))
     PY
 
-    assert_equal %w[openai xai], JSON.parse(out)
+    assert_equal %w[anthropic openai xai], JSON.parse(out)
+  end
+
+  test "Anthropic subscription runs enable clamp and remove the metered API key" do
+    out = run_shim_python(<<~PY)
+      import types
+      captured = {}
+      def capture_run(args, **kwargs):
+          captured["args"] = args
+          captured["anthropic_key"] = kwargs["env"].get("ANTHROPIC_API_KEY")
+          captured["claude_config_dir"] = kwargs["env"].get("CLAUDE_CONFIG_DIR")
+          return types.SimpleNamespace(stdout="", stderr="", returncode=0)
+      mod.os.environ["ANTHROPIC_API_KEY"] = "metered-key"
+      mod.subprocess.run = capture_run
+      mod.run_chaos(
+          "claude-opus-4-7", 30, "prompt", True,
+          provider="anthropic", auth_mode="oauth_account",
+      )
+      print(json.dumps(captured))
+    PY
+
+    result = JSON.parse(out)
+    args = result.fetch("args")
+    assert_includes args, "clamp=true"
+    assert_nil result["anthropic_key"]
+    assert result.fetch("claude_config_dir").end_with?("/state/claude")
+  end
+
+  test "Anthropic browser code is written only to the live login process" do
+    out = run_shim_python(<<~PY)
+      import io, types
+      class Process:
+          def __init__(self):
+              self.stdin = io.StringIO()
+          def poll(self): return None
+      process = Process()
+      mod._auth_process = process
+      mod._auth_state = {"status": "awaiting_code", "provider": "anthropic"}
+      mod.request = types.SimpleNamespace(
+          headers={"Authorization": "Bearer tr_test"},
+          get_json=lambda silent=True: {
+              "provider": "anthropic",
+              "code": "http://localhost:54545/callback?code=secret-once&state=browser-state",
+          },
+      )
+      mod.jsonify = lambda value: value
+      result = mod.auth_code()
+      print(json.dumps({
+          "result": result,
+          "stdin": process.stdin.getvalue(),
+          "state": mod._auth_state,
+      }))
+    PY
+
+    result = JSON.parse(out)
+    assert_equal "finalizing", result.dig("result", "status")
+    assert_equal "secret-once\n", result["stdin"]
+    assert_not_includes result.fetch("state").to_json, "secret-once"
+    assert_not_includes result["stdin"], "browser-state"
+  end
+
+  test "Anthropic login URL parsing stops at OSC-8 terminal hyperlink controls" do
+    out = run_shim_python(<<~'PY')
+      line = (
+          "Visit: \x1b]8;;https://claude.com/oauth?state=hidden\x07"
+          "https://claude.com/oauth?state=visible\x1b]8;;\x07"
+      )
+      print(json.dumps(mod._first_http_url(line)))
+    PY
+
+    assert_equal "https://claude.com/oauth?state=hidden", JSON.parse(out)
   end
 
   test "provider status parsing returns display metadata without token data" do
@@ -255,6 +328,30 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
     assert_equal "connected", result["status"]
     assert_equal "xai", result["provider"]
     assert_equal "subscriber@example.com", result["email"]
+  end
+
+  test "provider status parsing recognizes Claude subscription auth JSON" do
+    out = run_shim_python(<<~PY)
+      import types
+      mod._claude_available = lambda: True
+      mod.subprocess.run = lambda *args, **kwargs: types.SimpleNamespace(
+          stdout=json.dumps({
+              "loggedIn": True,
+              "authMethod": "claude.ai",
+              "apiProvider": "firstParty",
+              "email": "subscriber@example.com",
+          }),
+          stderr="",
+          returncode=0,
+      )
+      print(json.dumps(mod._provider_account_status("anthropic")))
+    PY
+
+    result = JSON.parse(out)
+    assert_equal "connected", result["status"]
+    assert_equal "anthropic", result["provider"]
+    assert_equal "subscriber@example.com", result["email"]
+    assert_not_includes result.to_json, "token"
   end
 
   test "entrypoint does not rewrite historical runtime documentation in identity" do
@@ -817,6 +914,7 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
         "AGENT_REPO_PATH" => dir.to_s,
         "CHAOS_HOME" => chaos_home.to_s,
         "CHAOS_BIN" => chaos_bin.to_s,
+        "CLAUDE_CONFIG_DIR" => (dir / "state" / "claude").to_s,
         "CHAOS_ANTHROPIC_CACHE_TTL" => "1h"
       }
       stdout, stderr, status = Open3.capture3(env, "python3", "-c", command)

@@ -2,6 +2,10 @@ require "test_helper"
 
 class AgentProviderAuthTest < ActiveSupport::TestCase
 
+  test "Anthropic supports subscription account auth" do
+    assert_includes Agent::OAUTH_ACCOUNT_PROVIDERS, "anthropic"
+  end
+
   test "provider auth defaults to API key and records only display metadata" do
     agent = agents(:research_assistant)
 

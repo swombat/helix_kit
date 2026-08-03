@@ -34,7 +34,7 @@ class Agent < ApplicationRecord
   ].freeze
   REASONING_EFFORTS = %w[default none minimal low medium high xhigh max ultra].freeze
   PROVIDER_AUTH_MODES = %w[api_key oauth_account].freeze
-  OAUTH_ACCOUNT_PROVIDERS = %w[openai xai].freeze
+  OAUTH_ACCOUNT_PROVIDERS = %w[anthropic openai xai].freeze
 
   EXTERNALLY_MANAGED_ATTRIBUTES = %w[
     system_prompt reflection_prompt memory_reflection_prompt

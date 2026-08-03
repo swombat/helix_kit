@@ -7,6 +7,7 @@ module Agents
 
     REPO_PATH = "/home/agent/repo"
     WORK_PATH = "/home/agent/work"
+    STATE_PATH = "/home/agent/state"
     CHAOS_BUILT_IN_PROVIDER_IDS = %w[anthropic openai xai].freeze
     CHAOS_RUNTIME_PROVIDER_IDS = %w[gemini openrouter].freeze
     SUPPORTED_CHAOS_PROVIDER_IDS = (
@@ -88,12 +89,14 @@ module Agents
         chaos_volume_name: agent.uuid.present? ? "chaos-home-#{agent.uuid}" : nil,
         repo_volume_name: agent.uuid.present? ? repo_volume_name : nil,
         work_volume_name: agent.uuid.present? ? work_volume_name : nil,
+        state_volume_name: agent.uuid.present? ? state_volume_name : nil,
         docker_available: false,
         container_exists: false,
         identity_volume_exists: false,
         chaos_volume_exists: false,
         repo_volume_exists: false,
-        work_volume_exists: false
+        work_volume_exists: false,
+        state_volume_exists: false
       }
       base[:configuration_error] = @configuration_error if @configuration_error.present?
 
@@ -110,6 +113,7 @@ module Agents
       base[:chaos_volume_exists] = volume_exists?(base[:chaos_volume_name])
       base[:repo_volume_exists] = volume_exists?(base[:repo_volume_name])
       base[:work_volume_exists] = volume_exists?(base[:work_volume_name])
+      base[:state_volume_exists] = volume_exists?(base[:state_volume_name])
       base[:image_present] = image_present?(agent.container_image)
 
       if agent.container_name.present?
@@ -161,6 +165,7 @@ module Agents
         Agents::Volume.new(agent).destroy!
         destroy_repo_volume!
         destroy_work_volume!
+        destroy_state_volume!
       end
     end
 
@@ -197,12 +202,14 @@ module Agents
         chaos_volume_name: nil,
         repo_volume_name: nil,
         work_volume_name: nil,
+        state_volume_name: nil,
         docker_available: false,
         container_exists: false,
         identity_volume_exists: false,
         chaos_volume_exists: false,
         repo_volume_exists: false,
-        work_volume_exists: false
+        work_volume_exists: false,
+        state_volume_exists: false
       }
     end
 
@@ -282,6 +289,20 @@ module Agents
       system("docker", "volume", "rm", "-f", work_volume_name, out: File::NULL, err: File::NULL) if agent.uuid.present?
     end
 
+    def state_volume_name
+      "hk-agent-#{agent.uuid}-state"
+    end
+
+    def ensure_state_volume!
+      return true if volume_exists?(state_volume_name)
+
+      system("docker", "volume", "create", state_volume_name, out: File::NULL, err: File::NULL) || raise(SandboxError, "failed to create docker volume #{state_volume_name}")
+    end
+
+    def destroy_state_volume!
+      system("docker", "volume", "rm", "-f", state_volume_name, out: File::NULL, err: File::NULL) if agent.uuid.present?
+    end
+
     def migrate_repo_volume_from_container!
       ensure_repo_volume!
       return true if repo_volume_populated?
@@ -330,6 +351,7 @@ module Agents
     def run_container!
       ensure_repo_volume!
       ensure_work_volume!
+      ensure_state_volume!
       args = [
         "docker", "run", "-d",
         "--name", agent.container_name,
@@ -341,6 +363,7 @@ module Agents
         "-v", "chaos-home-#{agent.uuid}:/home/agent/.chaos",
         "-v", "#{repo_volume_name}:#{REPO_PATH}",
         "-v", "#{work_volume_name}:#{WORK_PATH}",
+        "-v", "#{state_volume_name}:#{STATE_PATH}",
         "-e", "AGENT_ID=#{agent.uuid}",
         "-e", "AGENT_SLUG=#{agent_slug}",
         "-e", "AGENT_PROVIDER=#{agent_provider}",

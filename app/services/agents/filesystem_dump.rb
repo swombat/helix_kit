@@ -1,5 +1,6 @@
 module Agents
   class FilesystemDump
+
     require "shellwords"
 
     MAX_ENTRIES = 5_000
@@ -10,6 +11,8 @@ module Agents
     EXCLUDED_CONTAINER_PATHS = %w[
       ./.chaos
       ./.chaos/*
+      ./state
+      ./state/*
     ].freeze
     PREVIEWABLE_EXTENSIONS = %w[
       .md .txt .json .yml .yaml .toml .env .gitignore .rb .js .ts .svelte .py .sh
@@ -48,6 +51,7 @@ module Agents
 
       relative_path = normalize_relative_path(path)
       return unavailable_preview("invalid path") if relative_path.blank?
+      return unavailable_preview("path is private") if container_home? && excluded_container_path?(relative_path)
       return unavailable_preview("unsupported file type") unless previewable_path?(relative_path)
 
       return unavailable_preview("Docker daemon is not reachable") unless docker_ok?
@@ -187,7 +191,7 @@ module Agents
         agent.container_name,
         "sh",
         "-c",
-        "cd /home/agent && #{metadata_script("find . -maxdepth #{MAX_DEPTH} \\( -path './.chaos' -o -path './.chaos/*' \\) -prune -o -print")}"
+        "cd /home/agent && #{metadata_script("find . -maxdepth #{MAX_DEPTH} \\( -path './.chaos' -o -path './.chaos/*' -o -path './state' -o -path './state/*' \\) -prune -o -print")}"
       )
     end
 
@@ -198,6 +202,13 @@ module Agents
     def previewable_path?(relative_path)
       extension = File.extname(relative_path)
       PREVIEWABLE_EXTENSIONS.include?(extension) || extension.blank?
+    end
+
+    def excluded_container_path?(relative_path)
+      relative_path == "./.chaos" ||
+        relative_path.start_with?("./.chaos/") ||
+        relative_path == "./state" ||
+        relative_path.start_with?("./state/")
     end
 
     def container_home_run(*command)

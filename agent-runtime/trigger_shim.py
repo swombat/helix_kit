@@ -72,12 +72,14 @@ import hashlib
 import json
 import os
 import re
+import shutil
 import subprocess
 import threading
 import logging
 import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from urllib.parse import parse_qs, urlparse
 try:
     from flask import Flask, request, jsonify, abort
 except ModuleNotFoundError:  # Allows prompt-building tests without Flask installed.
@@ -104,17 +106,20 @@ AGENT_RUNTIME_DOCS_PATH = Path(os.environ.get(
 ))
 SHIM_PORT = int(os.environ.get("SHIM_PORT", "4000"))
 CHAOS_BIN = os.environ.get("CHAOS_BIN", "/usr/local/bin/chaos")
+CLAUDE_BIN = os.environ.get("CLAUDE_BIN", "/usr/local/bin/claude")
 CHAOS_HOME = Path(os.environ.get("CHAOS_HOME", str(Path.home() / ".chaos")))
+CLAUDE_CONFIG_DIR = Path(os.environ.get("CLAUDE_CONFIG_DIR", "/home/agent/state/claude"))
 CHAOS_TIMEOUT_SECS = int(os.environ.get("CHAOS_TIMEOUT_SECS", "600"))
 CHAOS_ANTHROPIC_CACHE_TTL = os.environ.get("CHAOS_ANTHROPIC_CACHE_TTL")
 SESSION_MAP_DIR = CHAOS_HOME / "helixkit-sessions"
 OAUTH_CHAOS_HOME = CHAOS_HOME / "oauth-runtime"
 OAUTH_ACCOUNT_PROVIDERS = tuple(
     provider.strip()
-    for provider in os.environ.get("CHAOS_OAUTH_ACCOUNT_PROVIDERS", "openai,xai").split(",")
+    for provider in os.environ.get("CHAOS_OAUTH_ACCOUNT_PROVIDERS", "anthropic,openai,xai").split(",")
     if provider.strip()
 )
 PROVIDER_API_KEY_ENV = {
+    "anthropic": "ANTHROPIC_API_KEY",
     "openai": "OPENAI_API_KEY",
     "xai": "XAI_API_KEY",
 }
@@ -567,6 +572,10 @@ def run_chaos(
         "--headless",
         "-c", "shell_environment_policy.inherit=\"all\"",
     ]
+    if auth_mode == "oauth_account" and (provider or AGENT_PROVIDER) == "anthropic":
+        # Headless clamp is startup config, so this applies equally to fresh and
+        # resumed exec sessions. Bare mode remains false for credential lookup.
+        args += ["-c", "clamp=true"]
     if reasoning_effort:
         args += ["-c", f'model_reasoning_effort="{reasoning_effort}"']
     if resume_id:
@@ -578,7 +587,11 @@ def run_chaos(
 
     env = os.environ.copy()
     if auth_mode == "oauth_account":
-        env = _oauth_account_env()
+        env = (
+            _anthropic_subscription_env()
+            if (provider or AGENT_PROVIDER) == "anthropic"
+            else _oauth_account_env()
+        )
         api_key_env = PROVIDER_API_KEY_ENV.get(provider or AGENT_PROVIDER)
         if api_key_env:
             env.pop(api_key_env, None)
@@ -1456,12 +1469,20 @@ def _requested_auth_provider():
 
 def auth_capabilities():
     _require_shim_auth("/auth/capabilities")
+    providers = {
+        provider: {"api_key": True, "oauth_account": True}
+        for provider in OAUTH_ACCOUNT_PROVIDERS
+        if provider != "anthropic"
+    }
+    providers["anthropic"] = {
+        "api_key": True,
+        "oauth_account": _claude_supports_subscription_auth(),
+        "transport": "clamp",
+    }
     return jsonify({
-        "providers": {
-            provider: {"api_key": True, "oauth_account": True}
-            for provider in OAUTH_ACCOUNT_PROVIDERS
-        },
+        "providers": providers,
         "chaos_version": _chaos_version(),
+        "claude_version": _claude_version(),
     })
 
 
@@ -1487,12 +1508,23 @@ def auth_start():
             "started_at": now.isoformat(),
             "expires_at": (now + timedelta(seconds=AUTH_CODE_TTL_SECS)).isoformat(),
         }
+        if provider == "anthropic":
+            CLAUDE_CONFIG_DIR.mkdir(parents=True, exist_ok=True)
+            CLAUDE_CONFIG_DIR.chmod(0o700)
+            command = [CLAUDE_BIN, "auth", "login", "--claudeai"]
+            auth_env = _anthropic_subscription_env()
+            _auth_state["status"] = "starting"
+        else:
+            command = [CHAOS_BIN, "--provider", provider, "accounts", "--device-auth"]
+            auth_env = _oauth_account_env()
         _auth_process = subprocess.Popen(
-            [CHAOS_BIN, "--provider", provider, "accounts", "--device-auth"],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.PIPE,
+            command,
+            stdin=subprocess.PIPE if provider == "anthropic" else subprocess.DEVNULL,
+            stdout=subprocess.PIPE if provider == "anthropic" else subprocess.DEVNULL,
+            stderr=subprocess.STDOUT if provider == "anthropic" else subprocess.PIPE,
             text=True,
-            env=_oauth_account_env(),
+            bufsize=1,
+            env=auth_env,
         )
         threading.Thread(
             target=_monitor_auth_process,
@@ -1502,18 +1534,52 @@ def auth_start():
 
     _auth_code_ready.wait(timeout=10)
     with _auth_lock:
-        if _auth_state.get("status") != "pending":
+        expected_status = "awaiting_code" if provider == "anthropic" else "pending"
+        if _auth_state.get("status") != expected_status:
             return jsonify(_public_auth_state()), 502
-        if not _auth_state.get("verification_url") or not _auth_state.get("user_code"):
+        if not _auth_state.get("verification_url"):
+            return jsonify({"error": "The provider did not provide a sign-in URL"}), 502
+        if provider != "anthropic" and not _auth_state.get("user_code"):
             return jsonify({"error": "Chaos did not provide a device code"}), 502
-        return jsonify({
-            "status": "pending",
+        response = {
+            "status": expected_status,
             "provider": provider,
             "verification_url": _auth_state["verification_url"],
-            "user_code": _auth_state["user_code"],
             "expires_in": AUTH_CODE_TTL_SECS,
             "expires_at": _auth_state["expires_at"],
-        })
+        }
+        if provider != "anthropic":
+            response["user_code"] = _auth_state["user_code"]
+        return jsonify(response)
+
+
+def auth_code():
+    global _auth_state
+
+    _require_shim_auth("/auth/code")
+    payload = request.get_json(silent=True) or {}
+    provider = payload.get("provider") or AGENT_PROVIDER
+    code = _anthropic_login_code(payload.get("code"))
+    if provider != "anthropic":
+        return jsonify({"error": "This provider does not accept a browser-returned code"}), 422
+    if code is None:
+        return jsonify({
+            "error": "Paste the failed localhost callback URL or its one-time code"
+        }), 422
+
+    with _auth_lock:
+        process = _auth_process
+        if process is None or process.poll() is not None or _auth_state.get("status") != "awaiting_code":
+            return jsonify({"error": "No Anthropic sign-in is awaiting a code"}), 409
+        try:
+            process.stdin.write(code + "\n")
+            process.stdin.flush()
+        except (BrokenPipeError, OSError):
+            return jsonify({"error": "Claude Code stopped before accepting the code"}), 502
+        _auth_state["status"] = "finalizing"
+
+    # Never log or retain the one-time code.
+    return jsonify({"status": "finalizing", "provider": provider})
 
 
 def auth_status():
@@ -1532,7 +1598,7 @@ def auth_status():
                 _auth_state = {
                     "status": "expired",
                     "provider": provider,
-                    "message": "The device code expired. Get a new code to try again.",
+                    "message": "The sign-in attempt expired. Start again to get a new link.",
                 }
             return jsonify(_public_auth_state())
 
@@ -1554,10 +1620,22 @@ def auth_cancel():
 
 
 def auth_disconnect():
-    global _auth_state
+    global _auth_process, _auth_state
 
     _require_shim_auth("/auth/disconnect")
     provider = _requested_auth_provider()
+    if provider == "anthropic":
+        with _auth_lock:
+            if _auth_process is not None and _auth_process.poll() is None:
+                _auth_process.terminate()
+            _auth_process = None
+            _auth_state = {"status": "none", "provider": provider}
+        _terminate_claude_clamp_processes()
+        _retire_provider_sessions(provider, "provider-disconnected")
+        shutil.rmtree(CLAUDE_CONFIG_DIR, ignore_errors=True)
+        log.info("provider auth disconnected provider=anthropic")
+        return jsonify({"status": "none", "provider": provider})
+
     result = subprocess.run(
         [CHAOS_BIN, "--provider", provider, "accounts", "disconnect"],
         capture_output=True,
@@ -1582,9 +1660,20 @@ def _monitor_auth_process(process, provider):
     user_code = None
     expecting_code = False
     try:
-        for raw_line in process.stderr:
+        output = process.stdout if provider == "anthropic" else process.stderr
+        for raw_line in output:
             line = raw_line.strip()
             if not line:
+                continue
+            if provider == "anthropic":
+                url = _first_http_url(line)
+                if url and verification_url is None:
+                    verification_url = url
+                    with _auth_lock:
+                        if _auth_process is process:
+                            _auth_state["status"] = "awaiting_code"
+                            _auth_state["verification_url"] = verification_url
+                    _auth_code_ready.set()
                 continue
             if "Open this link in your browser" in line:
                 continue
@@ -1632,6 +1721,9 @@ def _monitor_auth_process(process, provider):
 
 
 def _provider_account_status(provider):
+    if provider == "anthropic":
+        return _anthropic_account_status()
+
     result = subprocess.run(
         [CHAOS_BIN, "--provider", provider, "accounts", "status"],
         capture_output=True,
@@ -1675,6 +1767,125 @@ def _oauth_account_env():
     return env
 
 
+def _anthropic_subscription_env():
+    CLAUDE_CONFIG_DIR.mkdir(parents=True, exist_ok=True)
+    env = os.environ.copy()
+    env["CLAUDE_CONFIG_DIR"] = str(CLAUDE_CONFIG_DIR)
+    env.pop("ANTHROPIC_API_KEY", None)
+    return env
+
+
+def _anthropic_login_code(value):
+    raw = str(value or "").strip()
+    if not raw or len(raw) > 4096:
+        return None
+
+    if raw.startswith(("http://", "https://")):
+        parsed = urlparse(raw)
+        code = parse_qs(parsed.query).get("code", [None])[0]
+        if not code:
+            return None
+        raw = code.strip()
+
+    if not raw or len(raw) > 4096 or any(character.isspace() for character in raw):
+        return None
+    return raw
+
+
+def _first_http_url(line):
+    # Claude Code uses OSC-8 terminal hyperlinks on a TTY. Stop at all control
+    # characters so the hidden hyperlink target cannot absorb the visible URL.
+    match = re.search(r"https?://[^\s\x00-\x1f\x7f]+", line)
+    return match.group(0).rstrip(".,)") if match else None
+
+
+def _anthropic_account_status():
+    if not _claude_available():
+        return {"status": "none", "provider": "anthropic"}
+    result = subprocess.run(
+        [CLAUDE_BIN, "auth", "status", "--json"],
+        capture_output=True,
+        text=True,
+        timeout=10,
+        env=_anthropic_subscription_env(),
+    )
+    output = "\n".join((result.stdout or "", result.stderr or "")).strip()
+    metadata = {}
+    try:
+        metadata = json.loads(result.stdout or "{}")
+    except json.JSONDecodeError:
+        pass
+    connected = result.returncode == 0 and (
+        metadata.get("loggedIn") is True
+        or metadata.get("logged_in") is True
+        or bool(metadata.get("email"))
+        or "logged in" in output.lower()
+    )
+    if not connected:
+        return {"status": "none", "provider": "anthropic"}
+    response = {"status": "connected", "provider": "anthropic"}
+    email = metadata.get("email") or metadata.get("accountEmail")
+    plan = metadata.get("subscriptionType") or metadata.get("plan")
+    if email:
+        response["email"] = email
+    if plan:
+        response["plan"] = plan
+    return response
+
+
+def _retire_provider_sessions(provider, reason):
+    if not SESSION_MAP_DIR.exists():
+        return
+    for path in SESSION_MAP_DIR.glob("*.json"):
+        try:
+            record = json.loads(path.read_text())
+            if record.get("provider") != provider or record.get("auth_mode") != "oauth_account":
+                continue
+            path.rename(path.with_suffix(f".retired-{reason}.json"))
+        except Exception as error:
+            log.warning(f"could not retire provider session {path}: {error.__class__.__name__}")
+
+
+def _terminate_claude_clamp_processes():
+    # Each container belongs to one resident, so terminating its clamp workers
+    # cannot affect another resident or the host's interactive Claude process.
+    subprocess.run(
+        ["pkill", "-f", "claude --output-format stream-json"],
+        capture_output=True,
+        text=True,
+        timeout=5,
+    )
+
+
+def _claude_available():
+    return Path(CLAUDE_BIN).exists() or shutil.which(CLAUDE_BIN) is not None
+
+
+def _claude_supports_subscription_auth():
+    if not _claude_available():
+        return False
+    try:
+        result = subprocess.run(
+            [CLAUDE_BIN, "auth", "login", "--help"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+        return result.returncode == 0 and "--claudeai" in (result.stdout or result.stderr or "")
+    except Exception:
+        return False
+
+
+def _claude_version():
+    if not _claude_available():
+        return None
+    try:
+        out = subprocess.run([CLAUDE_BIN, "--version"], capture_output=True, text=True, timeout=5)
+        return out.stdout.strip() or out.stderr.strip() or "unknown"
+    except Exception:
+        return "unknown"
+
+
 def _public_auth_state():
     return {
         key: value
@@ -1696,6 +1907,7 @@ if app:
     app.post("/trigger")(trigger)
     app.get("/auth/capabilities")(auth_capabilities)
     app.post("/auth/start")(auth_start)
+    app.post("/auth/code")(auth_code)
     app.get("/auth/status")(auth_status)
     app.post("/auth/cancel")(auth_cancel)
     app.post("/auth/disconnect")(auth_disconnect)

@@ -22,11 +22,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         git \
     && rm -rf /var/lib/apt/lists/*
 
-# Pin the merged xAI subscription-auth support so hosted runtime rebuilds are
-# reproducible and do not depend on Docker noticing movement of a branch ref.
-# Pin bumps must re-verify trigger_shim.py's _monitor_auth_process prompt parser.
+# Pin merged subscription-auth, clamp telemetry, and headless clamp support so
+# hosted runtime rebuilds do not depend on movement of a branch ref.
+# Pin bumps must re-verify both provider auth ceremony parsers in trigger_shim.py.
 ARG CHAOS_REPO=https://github.com/seuros/chaos.git
-ARG CHAOS_REF=39cacb3805290ac585ff0d1d8b32fa75840ba7c7
+ARG CHAOS_REF=c33317f9c0e67b518d3024cfddf1d524e2920ef1
 
 WORKDIR /build
 RUN git clone --filter=blob:none ${CHAOS_REPO} chaos \
@@ -43,7 +43,7 @@ RUN cargo build --release --bin chaos_journald \
 # =============================================================================
 # Stage 2 — runtime
 # =============================================================================
-FROM debian:bookworm-slim AS runtime
+FROM node:22-bookworm-slim AS runtime
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -54,10 +54,21 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         curl \
         tini \
         gosu \
+        procps \
         libdbus-1-3 \
     && rm -rf /var/lib/apt/lists/*
 
-RUN useradd --create-home --shell /bin/bash --uid 1000 agent
+# The official Node image already reserves UID/GID 1000 for `node`. Hosted
+# volume ownership depends on 1000, so rename that account rather than creating
+# a second user with a different identity.
+RUN groupmod --new-name agent node \
+    && usermod --login agent --home /home/agent --move-home --shell /bin/bash node
+
+# Clamp speaks Claude Code's documented stream-json protocol. Keep this pin
+# beside CHAOS_REF: the Anthropic login ceremony parser is tested against it.
+ARG CLAUDE_CODE_VERSION=2.1.220
+RUN npm install -g "@anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}" \
+    && claude --version
 
 COPY --from=builder /usr/local/bin/chaos /usr/local/bin/chaos
 COPY --from=builder /usr/local/bin/chaos_journald /usr/local/bin/chaos_journald
@@ -73,8 +84,9 @@ COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod 0755 /usr/local/bin/entrypoint.sh /usr/local/bin/helixkit-post-message /usr/local/bin/helixkit-send-telegram /usr/local/bin/helixkit-append-journal \
     && chmod 0644 /usr/local/share/helixkit-agent/*.md /usr/local/share/helixkit-agent/stop_journal_reflex.py
 
-# Canonical mounted volumes for hosted agents.
-VOLUME ["/home/agent/identity", "/home/agent/.chaos", "/home/agent/repo", "/home/agent/work"]
+# Canonical mounted volumes for hosted agents. /home/agent/state is deliberately
+# outside every HelixKit-facing filesystem root and holds vendor credentials.
+VOLUME ["/home/agent/identity", "/home/agent/.chaos", "/home/agent/repo", "/home/agent/work", "/home/agent/state"]
 
 WORKDIR /home/agent
 ENV SHIM_PORT=4000

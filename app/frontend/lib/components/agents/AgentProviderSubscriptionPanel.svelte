@@ -15,6 +15,8 @@
   let pollTimer = null;
   let capabilityChecked = $state(false);
   let subscriptionSupported = $state(true);
+  let browserCode = $state('');
+  let submittingCode = $state(false);
 
   $effect(() => {
     if (!connectOpen || !ceremony?.expires_at) return;
@@ -87,6 +89,7 @@
 
   async function beginConnection() {
     ceremony = null;
+    browserCode = '';
     actionError = null;
     connectOpen = true;
     startingConnection = true;
@@ -142,7 +145,7 @@
 
   async function cancelConnection() {
     stopPolling();
-    if (ceremony?.status === 'pending') {
+    if (['starting', 'awaiting_code', 'pending', 'finalizing'].includes(ceremony?.status)) {
       try {
         await jsonRequest(subscriptionPath(true), {
           method: 'POST',
@@ -172,6 +175,23 @@
 
   async function copyCode() {
     if (ceremony?.user_code) await navigator.clipboard.writeText(ceremony.user_code);
+  }
+
+  async function submitBrowserCode() {
+    actionError = null;
+    submittingCode = true;
+    try {
+      ceremony = await jsonRequest(`${subscriptionPath()}/code`, {
+        method: 'POST',
+        body: JSON.stringify({ provider: agent.provider, code: browserCode }),
+      });
+      browserCode = '';
+      startPolling();
+    } catch (error) {
+      actionError = error.message;
+    } finally {
+      submittingCode = false;
+    }
   }
 </script>
 
@@ -260,7 +280,7 @@
     <Dialog.Header>
       <Dialog.Title>Connect {agent.provider_name} subscription</Dialog.Title>
       <Dialog.Description>
-        This connection belongs only to {agent.name} and is stored in its private Chaos volume.
+        This connection belongs only to {agent.name} and is stored in its private runtime state volume.
       </Dialog.Description>
     </Dialog.Header>
 
@@ -270,6 +290,34 @@
       {:else if actionError}
         <div class="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
           {actionError}
+        </div>
+      {:else if ceremony?.status === 'awaiting_code'}
+        <div class="space-y-3">
+          <a
+            class="font-medium text-primary underline underline-offset-4"
+            href={ceremony.verification_url}
+            target="_blank"
+            rel="noreferrer">
+            Open Claude sign-in
+          </a>
+          <p class="text-sm text-muted-foreground">
+            Complete sign-in in the browser. If the final localhost page does not load, copy its full URL from the
+            address bar and paste it below.
+          </p>
+          <input
+            class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            type="text"
+            autocomplete="one-time-code"
+            bind:value={browserCode}
+            placeholder="Paste the localhost callback URL or code" />
+          <Button type="button" disabled={!browserCode.trim() || submittingCode} onclick={submitBrowserCode}>
+            {submittingCode ? 'Submitting…' : 'Submit code'}
+          </Button>
+          <p class="text-sm text-muted-foreground">
+            {secondsRemaining > 0
+              ? `Sign-in expires in ${Math.floor(secondsRemaining / 60)}:${String(secondsRemaining % 60).padStart(2, '0')}.`
+              : 'Sign-in expired.'}
+          </p>
         </div>
       {:else if ceremony?.status === 'pending'}
         <div class="space-y-3">
@@ -297,10 +345,12 @@
           </div>
           <p class="text-sm text-muted-foreground">Waiting for sign-in to finish…</p>
         </div>
+      {:else if ceremony?.status === 'finalizing' || ceremony?.status === 'starting'}
+        <p class="text-sm text-muted-foreground">Finishing provider sign-in…</p>
       {:else if ceremony?.status === 'connected'}
         <div class="rounded-md border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm">
-          Connected successfully{ceremony.email ? ` as ${ceremony.email}` : ''}. Resident usage now draws on this account's
-          personal plan quota.
+          Connected successfully{ceremony.email ? ` as ${ceremony.email}` : ''}. Resident usage now draws on this
+          account's personal plan quota.
         </div>
       {:else if ceremony?.status === 'expired' || ceremony?.status === 'failed'}
         <div class="space-y-3">

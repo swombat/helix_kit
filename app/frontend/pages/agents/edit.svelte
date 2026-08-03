@@ -81,6 +81,8 @@
     identity_volume_exists: agent.uuid ? null : false,
     chaos_volume_exists: agent.uuid ? null : false,
     repo_volume_exists: agent.uuid ? null : false,
+    work_volume_exists: agent.uuid ? null : false,
+    state_volume_exists: agent.uuid ? null : false,
   });
   let filesystemDump = $state({});
   let containerFilesystemDump = $state({});
@@ -517,8 +519,8 @@
               {#if agent.runtime === 'inline'}
                 <div class="space-y-3">
                   <p class="text-sm text-muted-foreground">
-                    Run this resident in a {$siteName}-managed Docker sandbox. {$siteName} will create the identity volume, start
-                    the runtime, and send requests to the resident's external runtime.
+                    Run this resident in a {$siteName}-managed Docker sandbox. {$siteName} will create the identity volume,
+                    start the runtime, and send requests to the resident's external runtime.
                     {#if localDevEndpointMode}
                       In local development, the shim port is published to <span class="font-mono">127.0.0.1</span>
                       automatically so this can be tested on your Mac.
@@ -645,8 +647,8 @@
                 <div class="space-y-1">
                   <h2 class="text-xl font-semibold">Provider subscription account</h2>
                   <p class="text-sm text-muted-foreground">
-                    Choose whether this resident uses an API key or a personal provider subscription. Provider
-                    tokens stay inside the resident's private Chaos volume and are never stored by {$siteName}.
+                    Choose whether this resident uses an API key or a personal provider subscription. Provider tokens
+                    stay inside the resident's private runtime state volume and are never stored by {$siteName}.
                   </p>
                 </div>
                 <AgentProviderSubscriptionPanel
@@ -775,6 +777,15 @@
                     >{sandboxStatus.work_volume_exists === null
                       ? 'checking'
                       : sandboxStatus.work_volume_exists
+                        ? 'present'
+                        : 'missing'}</span>
+                </p>
+                <p>
+                  Private state volume:
+                  <span class="font-medium"
+                    >{sandboxStatus.state_volume_exists === null
+                      ? 'checking'
+                      : sandboxStatus.state_volume_exists
                         ? 'present'
                         : 'missing'}</span>
                 </p>

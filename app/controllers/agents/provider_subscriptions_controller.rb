@@ -53,6 +53,12 @@ class Agents::ProviderSubscriptionsController < ApplicationController
     render_client_error(e)
   end
 
+  def code
+    render json: auth_client.submit_code(provider:, code: params.require(:code))
+  rescue AgentProviderAuthClient::Error => e
+    render_client_error(e)
+  end
+
   private
 
   def auth_client

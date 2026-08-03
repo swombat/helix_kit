@@ -112,6 +112,7 @@ Rails.application.routes.draw do
         resource :predecessor, only: :create
         resource :provider_subscription, only: [ :show, :create, :update, :destroy ] do
           post :cancel
+          post :code
         end
         resources :memories, only: [ :create ] do
           resource :discard, only: [ :create, :destroy ], module: :memories

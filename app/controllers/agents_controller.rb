@@ -201,7 +201,7 @@ class AgentsController < ApplicationController
       id: @agent.to_param,
       name: @agent.name,
       provider: provider,
-      provider_name: provider == "openai" ? "ChatGPT" : "xAI",
+      provider_name: { "anthropic" => "Claude", "openai" => "ChatGPT", "xai" => "xAI" }.fetch(provider),
       runtime: @agent.runtime,
       available: @agent.external? && @agent.health_state == "healthy",
       auth_mode: @agent.provider_auth_mode(provider),

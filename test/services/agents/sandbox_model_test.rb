@@ -142,6 +142,8 @@ module Agents
       assert_equal true, status[:repo_volume_exists]
       assert_equal "hk-agent-#{agent.uuid}-work", status[:work_volume_name]
       assert_equal true, status[:work_volume_exists]
+      assert_equal "hk-agent-#{agent.uuid}-state", status[:state_volume_name]
+      assert_equal true, status[:state_volume_exists]
     end
 
     test "recreate migrates repo and work volumes before replacing container" do
