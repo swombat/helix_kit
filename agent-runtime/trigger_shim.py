@@ -1809,7 +1809,6 @@ def _anthropic_account_status():
         timeout=10,
         env=_anthropic_subscription_env(),
     )
-    output = "\n".join((result.stdout or "", result.stderr or "")).strip()
     metadata = {}
     try:
         metadata = json.loads(result.stdout or "{}")
@@ -1818,8 +1817,6 @@ def _anthropic_account_status():
     connected = result.returncode == 0 and (
         metadata.get("loggedIn") is True
         or metadata.get("logged_in") is True
-        or bool(metadata.get("email"))
-        or "logged in" in output.lower()
     )
     if not connected:
         return {"status": "none", "provider": "anthropic"}

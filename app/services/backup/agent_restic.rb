@@ -18,15 +18,19 @@ module Backup
     end
 
     def backup_mounts(agent)
-      Agents::VolumeSet.new(agent).names.flat_map do |name, volume|
+      backed_up_volumes(agent).flat_map do |name, volume|
         [ "-v", "#{volume}:/data/#{name}:ro" ]
       end
     end
 
     def restore_mounts(agent)
-      Agents::VolumeSet.new(agent).names.flat_map do |name, volume|
+      backed_up_volumes(agent).flat_map do |name, volume|
         [ "-v", "#{volume}:/restore/data/#{name}" ]
       end
+    end
+
+    def backed_up_volumes(agent)
+      Agents::VolumeSet.new(agent).names.except(:state)
     end
 
     def bucket

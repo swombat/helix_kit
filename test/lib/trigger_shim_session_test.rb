@@ -354,6 +354,44 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
     assert_not_includes result.to_json, "token"
   end
 
+  test "provider status parsing does not mistake Not logged in text for a connection" do
+    out = run_shim_python(<<~PY)
+      import types
+      mod._claude_available = lambda: True
+      mod.subprocess.run = lambda *args, **kwargs: types.SimpleNamespace(
+          stdout="Not logged in",
+          stderr="",
+          returncode=0,
+      )
+      print(json.dumps(mod._provider_account_status("anthropic")))
+    PY
+
+    result = JSON.parse(out)
+    assert_equal "none", result["status"]
+    assert_equal "anthropic", result["provider"]
+  end
+
+  test "provider status parsing honors an explicit logged-out JSON status" do
+    out = run_shim_python(<<~PY)
+      import types
+      mod._claude_available = lambda: True
+      mod.subprocess.run = lambda *args, **kwargs: types.SimpleNamespace(
+          stdout=json.dumps({
+              "loggedIn": False,
+              "email": "stale@example.com",
+          }),
+          stderr="",
+          returncode=0,
+      )
+      print(json.dumps(mod._provider_account_status("anthropic")))
+    PY
+
+    result = JSON.parse(out)
+    assert_equal "none", result["status"]
+    assert_equal "anthropic", result["provider"]
+    assert_not_includes result.to_json, "stale@example.com"
+  end
+
   test "entrypoint does not rewrite historical runtime documentation in identity" do
     entrypoint = Rails.root.join("agent-runtime/entrypoint.sh").read
 

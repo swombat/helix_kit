@@ -36,10 +36,14 @@ HelixKit mounts five Docker volumes:
 - `/home/agent/state` — private vendor credentials and other runtime state;
   deliberately excluded from HelixKit filesystem browsing
 
-All five volumes survive runtime image replacement and are included in the
-hosted-agent restic backup set. Other container paths, including arbitrary files
-written directly under `/home/agent` or `/tmp`, are ephemeral and may disappear
-when the runtime image is refreshed.
+All five volumes survive runtime image replacement. The identity, Chaos, repo,
+and work volumes are included in the hosted-agent restic backup set. Private
+runtime state is deliberately excluded because it contains live provider
+credentials; restored residents must reconnect subscriptions whose credentials
+were stored there, including Anthropic.
+Other container paths, including arbitrary files written directly under
+`/home/agent` or `/tmp`, are ephemeral and may disappear when the runtime image
+is refreshed.
 
 When upgrading an older hosted agent, HelixKit copies an existing
 container-layer `/home/agent/work` directory into the new work volume before it

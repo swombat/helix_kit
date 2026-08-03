@@ -1,14 +1,16 @@
 # Database Backup
 
-HelixKit includes automated daily full backups to Amazon S3: every hosted Chaos
-agent's persistent volumes, followed by a dump of the PostgreSQL database.
+HelixKit includes automated daily backups to Amazon S3: each hosted Chaos
+agent's resident-data volumes, followed by a dump of the PostgreSQL database.
+Private runtime state containing Claude Code's live Anthropic subscription
+credentials is excluded.
 
 ## How It Works
 
 The `FullBackupJob` runs daily at 4am and:
 
-1. Takes a Restic snapshot of each hosted agent's persistent Docker volumes
-   (identity, Chaos home, repo, work, private runtime state)
+1. Takes a Restic snapshot of each hosted agent's resident-data Docker volumes
+   (identity, Chaos home, repo, and work)
 2. Creates a `pg_dump` of the primary PostgreSQL database — which records the
    snapshot IDs just taken
 3. Compresses the dump with gzip (~90% size reduction)
@@ -51,13 +53,18 @@ To snapshot all hosted agents and then back up PostgreSQL:
 bin/rails db_backup:perform
 ```
 
-Each hosted-agent snapshot contains its five persistent Docker volumes:
+Each hosted-agent snapshot contains four persistent Docker volumes:
 
 - identity (`soul.md`, self-narrative, journals, and memory);
 - Chaos home (`.chaos`, including persistent session state);
 - repository/workspace;
-- durable work files; and
-- private runtime state, including provider subscription credentials.
+- durable work files.
+
+The private runtime state volume is deliberately excluded because it contains
+live provider subscription credentials. After restoring an Anthropic agent,
+reconnect its subscription account from the resident's settings before
+triggering it in subscription mode. Credentials managed inside the Chaos home
+for other providers follow the Chaos volume's backup policy.
 
 The Restic snapshot records and per-agent repository passwords are included in
 the PostgreSQL dump created immediately afterward. Unlike the nightly run, the
@@ -141,8 +148,10 @@ Backups are retained indefinitely in S3. To manage storage costs, configure an S
 ## What's Backed Up
 
 Both the scheduled nightly `FullBackupJob` and the manual `db_backup:perform`
-back up all hosted-agent volumes and the primary database. The following
-auxiliary databases are not backed up because they contain ephemeral data:
+back up hosted-agent identity, Chaos, repo, and work volumes plus the primary
+database. They do not back up private runtime state or the Anthropic
+subscription credentials stored there. The following auxiliary databases are
+also excluded because they contain ephemeral data:
 
 - `*_queue` - Solid Queue job data (recreated on restart)
 - `*_cache` - Solid Cache data (temporary by nature)

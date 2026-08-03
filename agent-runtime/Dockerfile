@@ -24,7 +24,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Pin merged subscription-auth, clamp telemetry, and headless clamp support so
 # hosted runtime rebuilds do not depend on movement of a branch ref.
-# Pin bumps must re-verify both provider auth ceremony parsers in trigger_shim.py.
+# Pin bumps must re-verify both provider auth ceremony parsers and the Claude
+# clamp-worker process pattern in trigger_shim.py.
 ARG CHAOS_REPO=https://github.com/seuros/chaos.git
 ARG CHAOS_REF=c33317f9c0e67b518d3024cfddf1d524e2920ef1
 
