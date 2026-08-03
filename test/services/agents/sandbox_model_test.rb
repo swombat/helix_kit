@@ -22,6 +22,26 @@ module Agents
       end
     end
 
+    test "offers Anthropic subscription setup without an Anthropic API key" do
+      agent = agents(:research_assistant)
+      agent.model_id = "anthropic/claude-opus-4.7"
+
+      ResolvesProvider.stub :api_key_available?, false do
+        assert_equal "anthropic", Agents::Sandbox.subscription_provider_for(agent)
+      end
+    end
+
+    test "connected Anthropic subscription forces the Claude Code clamp route" do
+      agent = agents(:research_assistant)
+      agent.model_id = "anthropic/claude-opus-4.7"
+      agent.provider_auth_modes = { "anthropic" => "oauth_account" }
+
+      ResolvesProvider.stub :api_key_available?, false do
+        assert_equal "anthropic", Agents::Sandbox.chaos_provider_for(agent)
+        assert_equal "claude-opus-4-7", Agents::Sandbox.chaos_model_for(agent)
+      end
+    end
+
     test "keeps models without a direct provider mapping on OpenRouter" do
       agent = agents(:research_assistant)
       agent.model_id = "anthropic/claude-sonnet-4-5"

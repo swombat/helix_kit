@@ -30,8 +30,8 @@ module Accounts
 
     def subscription_agents
       current_account.agents.externally_hosted.by_name.filter_map do |agent|
-        provider = Agents::Sandbox.chaos_provider_for(agent)
-        next unless Agent::OAUTH_ACCOUNT_PROVIDERS.include?(provider)
+        provider = Agents::Sandbox.subscription_provider_for(agent)
+        next unless provider
 
         {
           id: agent.to_param,

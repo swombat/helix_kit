@@ -194,8 +194,8 @@ class AgentsController < ApplicationController
   def provider_subscription
     return unless @agent.externally_hosted?
 
-    provider = Agents::Sandbox.chaos_provider_for(@agent)
-    return unless Agent::OAUTH_ACCOUNT_PROVIDERS.include?(provider)
+    provider = Agents::Sandbox.subscription_provider_for(@agent)
+    return unless provider
 
     {
       id: @agent.to_param,

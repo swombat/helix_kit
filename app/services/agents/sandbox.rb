@@ -417,11 +417,31 @@ module Agents
     end
 
     def self.chaos_selection_for(agent)
+      subscription_provider = subscription_provider_for(agent)
+      if subscription_provider && agent.provider_auth_mode(subscription_provider) == "oauth_account"
+        return {
+          provider: subscription_provider,
+          model: Chat.model_config(agent.model_id.to_s).fetch(:provider_model_id)
+        }
+      end
+
       selection = ResolvesProvider.resolve_provider(agent.model_id.to_s)
       {
         provider: CHAOS_PROVIDER_IDS.fetch(selection.fetch(:provider)),
         model: selection.fetch(:model_id)
       }
+    end
+
+    def self.subscription_provider_for(agent)
+      model_id = agent.model_id.to_s
+      return unless Chat.model_config(model_id)&.dig(:provider_model_id)
+
+      provider = case model_id
+      when /\Aanthropic\// then "anthropic"
+      when /\Aopenai\// then "openai"
+      when /\Ax-ai\// then "xai"
+      end
+      provider if Agent::OAUTH_ACCOUNT_PROVIDERS.include?(provider)
     end
 
     def agent_model

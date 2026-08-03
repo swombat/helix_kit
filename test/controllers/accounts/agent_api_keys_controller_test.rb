@@ -43,6 +43,23 @@ class Accounts::AgentApiKeysControllerTest < ActionDispatch::IntegrationTest
     assert_equal "subscriber@example.com", subscription_agent.dig("connection", "email")
   end
 
+  test "show includes Claude clamping setup for hosted Anthropic agents" do
+    agent = agents(:other_account_agent)
+    agent.update!(
+      model_id: "anthropic/claude-opus-4.7",
+      runtime: "external",
+      health_state: "healthy"
+    )
+
+    get account_agent_api_keys_path(@account)
+
+    subscription_agent = inertia_shared_props.fetch("subscription_agents").find { |item| item.fetch("id") == agent.to_param }
+    assert_equal "anthropic", subscription_agent.fetch("provider")
+    assert_equal "Claude", subscription_agent.fetch("provider_name")
+    assert_equal "api_key", subscription_agent.fetch("auth_mode")
+    assert_equal true, subscription_agent.fetch("available")
+  end
+
   test "show excludes inline agents from subscription setup" do
     agent = agents(:other_account_agent)
     agent.update!(model_id: "openai/gpt-5", runtime: "inline")

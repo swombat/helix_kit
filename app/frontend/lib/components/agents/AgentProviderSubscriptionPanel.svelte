@@ -17,6 +17,9 @@
   let subscriptionSupported = $state(true);
   let browserCode = $state('');
   let submittingCode = $state(false);
+  let isAnthropic = $derived(agent.provider === 'anthropic');
+  let subscriptionModeLabel = $derived(isAnthropic ? 'Claude Code clamp' : 'Subscription account');
+  let connectLabel = $derived(isAnthropic ? 'Connect Claude subscription' : 'Connect subscription');
 
   $effect(() => {
     if (!connectOpen || !ceremony?.expires_at) return;
@@ -205,16 +208,24 @@
         {agent.provider_name} · {agent.available ? 'Hosted runtime ready' : `Runtime ${agent.runtime}`}
       </p>
       {#if capabilityChecked && !subscriptionSupported}
-        <p class="text-xs text-muted-foreground">This hosted runtime does not support subscription account access.</p>
+        <p class="text-xs text-muted-foreground">
+          This hosted runtime does not support {isAnthropic ? 'Claude Code clamping' : 'subscription account access'}.
+        </p>
       {/if}
       {#if subscriptionSupported && agent.connection?.status === 'connected'}
         <p class="text-sm">
           Connected{agent.connection.email ? ` as ${agent.connection.email}` : ''}
           {agent.connection.plan ? ` · ${agent.connection.plan}` : ''}
         </p>
-        <p class="text-xs text-muted-foreground">Resident usage draws on this account's personal plan quota.</p>
+        <p class="text-xs text-muted-foreground">
+          {isAnthropic
+            ? 'Claude Code clamping is available; select it to draw usage from this Claude plan.'
+            : "Resident usage draws on this account's personal plan quota."}
+        </p>
       {:else}
-        <p class="text-xs text-muted-foreground">No subscription account connected.</p>
+        <p class="text-xs text-muted-foreground">
+          {isAnthropic ? 'No Claude subscription connected for clamping.' : 'No subscription account connected.'}
+        </p>
       {/if}
     </div>
 
@@ -234,7 +245,7 @@
           variant={agent.auth_mode === 'oauth_account' ? 'default' : 'outline'}
           disabled={!canManage}
           onclick={() => setAuthMode('oauth_account')}>
-          Subscription account
+          {subscriptionModeLabel}
         </Button>
         <Button
           type="button"
@@ -254,7 +265,7 @@
         </Button>
       {:else if subscriptionSupported}
         <Button type="button" size="sm" disabled={!canManage || !agent.available} onclick={beginConnection}>
-          Connect subscription
+          {connectLabel}
         </Button>
       {/if}
     </div>
@@ -278,9 +289,16 @@
       cancelConnection();
     }}>
     <Dialog.Header>
-      <Dialog.Title>Connect {agent.provider_name} subscription</Dialog.Title>
+      <Dialog.Title>
+        {isAnthropic ? 'Connect Claude Code clamping' : `Connect ${agent.provider_name} subscription`}
+      </Dialog.Title>
       <Dialog.Description>
-        This connection belongs only to {agent.name} and is stored in its private runtime state volume.
+        {#if isAnthropic}
+          Sign Claude Code into the subscription this resident should be clamped to. The connection belongs only to
+          {agent.name} and is stored in its private runtime state volume.
+        {:else}
+          This connection belongs only to {agent.name} and is stored in its private runtime state volume.
+        {/if}
       </Dialog.Description>
     </Dialog.Header>
 
@@ -349,8 +367,13 @@
         <p class="text-sm text-muted-foreground">Finishing provider sign-in…</p>
       {:else if ceremony?.status === 'connected'}
         <div class="rounded-md border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm">
-          Connected successfully{ceremony.email ? ` as ${ceremony.email}` : ''}. Resident usage now draws on this
-          account's personal plan quota.
+          {#if isAnthropic}
+            Connected successfully{ceremony.email ? ` as ${ceremony.email}` : ''}. Claude Code clamping is now selected,
+            and resident usage draws on this Claude plan.
+          {:else}
+            Connected successfully{ceremony.email ? ` as ${ceremony.email}` : ''}. Resident usage now draws on this
+            account's personal plan quota.
+          {/if}
         </div>
       {:else if ceremony?.status === 'expired' || ceremony?.status === 'failed'}
         <div class="space-y-3">

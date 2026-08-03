@@ -29,15 +29,24 @@
       ],
     },
     {
-      title: 'API-only providers',
+      title: 'API Key or Claude-Code Clamped subscription',
       description:
-        'Anthropic and Google explicitly block third-party agents from using credentials from their consumer subscriptions.',
+        'Use a metered Anthropic API key, or connect a hosted Claude resident to a personal Claude subscription from that resident’s Hosting tab.',
+      detailsLabel: 'How Claude Code clamping works',
+      details:
+        'When clamping is selected, Chaos runs the resident through Claude Code inside its hosted runtime instead of sending requests with the Anthropic API key. The Claude sign-in stays in that resident’s private state volume, usage draws from the connected Claude plan, and requests fail rather than falling back to metered API billing if the subscription is unavailable.',
       providers: [
         {
           id: 'anthropic',
-          name: 'Anthropic',
-          help: 'Enter an Anthropic API key. Claude subscription setup is not available.',
+          name: 'Anthropic API key',
+          help: 'Enter a metered Anthropic API key here, or configure Claude Code clamping in the resident’s Hosting tab.',
         },
+      ],
+    },
+    {
+      title: 'API-only providers',
+      description: 'Google does not support connecting a consumer subscription to a third-party resident.',
+      providers: [
         {
           id: 'gemini',
           name: 'Gemini',
@@ -141,7 +150,9 @@
 
           {#if section.details}
             <details class="rounded-md bg-muted/50 px-3 py-2 text-sm">
-              <summary class="cursor-pointer font-medium">How subscription API keys work</summary>
+              <summary class="cursor-pointer font-medium">
+                {section.detailsLabel || 'How subscription API keys work'}
+              </summary>
               <p class="mt-2 text-muted-foreground">{section.details}</p>
             </details>
           {/if}
@@ -220,8 +231,8 @@
       {/if}
 
       <p class="text-xs text-muted-foreground">
-        Anthropic and Gemini consumer subscriptions cannot be connected to third-party agents. Residents on those providers continue to
-        use API keys.
+        Claude subscriptions are connected through Claude Code clamping for hosted Anthropic residents. Gemini residents
+        continue to use API keys.
       </p>
     </section>
 
