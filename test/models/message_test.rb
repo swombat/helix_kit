@@ -51,6 +51,36 @@ class MessageTest < ActiveSupport::TestCase
     assert message.respond_to?(:attachments)
   end
 
+  test "accepts audio MIME types emitted by Marcel" do
+    message = @chat.messages.build(user: @user, role: "user", content: "Audio")
+    file = Struct.new(:content_type, :filename)
+
+    {
+      "audio/mpeg" => "recording.mp3",
+      "audio/vnd.wave" => "recording.wav",
+      "audio/x-flac" => "recording.flac",
+      "audio/mp4" => "recording.m4a",
+      "audio/vorbis" => "recording.ogg",
+      "audio/ogg" => "recording.oga",
+      "audio/opus" => "recording.opus",
+      "audio/webm" => "recording.webm",
+      "video/webm" => "recording.webm"
+    }.each do |content_type, filename|
+      assert message.send(:acceptable_file_type?, file.new(content_type, filename)),
+        "Expected #{filename} with #{content_type} to be accepted"
+    end
+  end
+
+  test "accepts supported audio extensions when MIME detection varies" do
+    message = @chat.messages.build(user: @user, role: "user", content: "Audio")
+    file = Struct.new(:content_type, :filename)
+
+    %w[mp3 wav flac m4a ogg oga opus webm].each do |extension|
+      assert message.send(:acceptable_file_type?, file.new("application/octet-stream", "recording.#{extension}")),
+        "Expected .#{extension} audio files to be accepted"
+    end
+  end
+
   test "validates role inclusion" do
     message = Message.new(
       chat: @chat,

@@ -14,7 +14,14 @@ module Message::Attachable
 
   ACCEPTABLE_FILE_TYPES = {
     images: %w[image/png image/jpeg image/jpg image/gif image/webp image/bmp],
-    audio: %w[audio/mpeg audio/wav audio/m4a audio/ogg audio/flac audio/webm],
+    audio: %w[
+      audio/mpeg
+      audio/wav audio/x-wav audio/vnd.wave
+      audio/flac audio/x-flac
+      audio/m4a audio/x-m4a audio/mp4
+      audio/ogg audio/vorbis audio/opus
+      audio/webm
+    ],
     video: %w[video/mp4 video/quicktime video/x-msvideo video/webm],
     documents: %w[
       application/pdf
@@ -33,6 +40,7 @@ module Message::Attachable
     .md .markdown .txt .csv .json .xml .html .htm .css .js .ts .jsx .tsx
     .py .rb .yaml .yml .toml .ini .log .rst .tex .sh .bash .zsh
     .c .h .cpp .hpp .java .go .rs .swift .kt .scala .r .sql
+    .mp3 .wav .flac .m4a .ogg .oga .opus .webm
   ].freeze
 
   MAX_FILE_SIZE = 50.megabytes
