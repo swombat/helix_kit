@@ -9,8 +9,8 @@ AGENT_HOME=/home/agent
 AGENT_REPO_PATH="${AGENT_REPO_PATH:-$AGENT_HOME/repo}"
 
 # External-service credentials are runtime-supplied hosting context. The source
-# is a root-only ephemeral bind mount; copy it into tmpfs for the resident and
-# never into identity, repository, work, state, or Chaos volumes.
+# is copied into the container before first boot; copy it into tmpfs for the
+# resident and never into identity, repository, work, state, or Chaos volumes.
 if [ -f /run/helixkit-source.yml ]; then
     mkdir -p /run/helixkit
     cp /run/helixkit-source.yml /run/helixkit/services.yml

@@ -201,5 +201,39 @@ module Agents
       assert_not_includes args, "OPENAI_API_KEY"
     end
 
+    test "creates container before copying service manifest and starting it" do
+      agent = agents(:research_assistant)
+      agent.update!(
+        uuid: SecureRandom.uuid_v7,
+        container_name: "hk-agent-test",
+        container_image: "helixkit-agent-runtime:latest",
+        trigger_bearer_token: "trigger-token",
+        outbound_api_token: "outbound-token"
+      )
+      sandbox = Agents::Sandbox.new(agent)
+      calls = []
+      success = Struct.new(:success?).new(true)
+
+      sandbox.define_singleton_method(:ensure_repo_volume!) { true }
+      sandbox.define_singleton_method(:ensure_work_volume!) { true }
+      sandbox.define_singleton_method(:ensure_state_volume!) { true }
+      sandbox.define_singleton_method(:provider_env_args) { [] }
+
+      Open3.stub(:capture3, ->(*args) {
+        calls << args
+        [ "", "", success ]
+      }) do
+        sandbox.send(:run_container!)
+      end
+
+      create_args, copy_args, start_args = calls
+      assert_equal [ "docker", "create" ], create_args.first(2)
+      assert_not create_args.any? { |arg| arg.include?("type=bind") }
+      assert_equal [ "docker", "cp" ], copy_args.first(2)
+      assert_match %r{/helixkit-services-.*\.yml}, copy_args.fetch(2)
+      assert_equal "hk-agent-test:/run/helixkit-source.yml", copy_args.fetch(3)
+      assert_equal [ "docker", "start", "hk-agent-test" ], start_args
+    end
+
   end
 end

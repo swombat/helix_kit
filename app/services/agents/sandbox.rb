@@ -354,8 +354,9 @@ module Agents
       ensure_work_volume!
       ensure_state_volume!
       service_manifest_file = build_service_manifest_file
+      container_created = false
       args = [
-        "docker", "run", "-d",
+        "docker", "create",
         "--name", agent.container_name,
         "--network", Agents::Config.network,
         "--restart", "unless-stopped",
@@ -367,7 +368,6 @@ module Agents
         "-v", "#{work_volume_name}:#{WORK_PATH}",
          "-v", "#{state_volume_name}:#{STATE_PATH}",
         "--tmpfs", "/run/helixkit:rw,noexec,nosuid,nodev,mode=0700",
-        "--mount", "type=bind,src=#{service_manifest_file.path},dst=/run/helixkit-source.yml,readonly",
         "-e", "AGENT_ID=#{agent.uuid}",
         "-e", "AGENT_SLUG=#{agent_slug}",
         "-e", "AGENT_PROVIDER=#{agent_provider}",
@@ -381,7 +381,19 @@ module Agents
       args << agent.container_image
 
       _stdout, stderr, status = Open3.capture3(*args)
-      raise SandboxError, "docker run failed: #{stderr}" unless status.success?
+      raise SandboxError, "docker create failed: #{stderr}" unless status.success?
+
+      container_created = true
+      _stdout, stderr, status = Open3.capture3(
+        "docker", "cp", service_manifest_file.path, "#{agent.container_name}:/run/helixkit-source.yml"
+      )
+      raise SandboxError, "docker cp failed: #{stderr}" unless status.success?
+
+      _stdout, stderr, status = Open3.capture3("docker", "start", agent.container_name)
+      raise SandboxError, "docker start failed: #{stderr}" unless status.success?
+    rescue StandardError
+      remove_container! if container_created
+      raise
     ensure
       service_manifest_file&.close!
     end
