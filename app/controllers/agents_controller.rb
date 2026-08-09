@@ -216,7 +216,7 @@ class AgentsController < ApplicationController
     accesses = @agent.agent_service_accesses.index_by(&:service_connection_id)
     current_account.service_connections
       .connected
-      .includes(:connected_by_user, :legacy_oura_integration)
+      .includes(:connected_by_user)
       .map do |connection|
         access = accesses[connection.id]
         connection.as_connection_json(current_user: Current.user).merge(

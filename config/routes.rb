@@ -71,7 +71,6 @@ Rails.application.routes.draw do
     resource :personal_services, only: :show, module: :accounts
     resources :service_authorizations, only: :create
     resources :service_connections, only: [ :update, :destroy ], module: :accounts
-    resource :oura_adoption, only: :create, module: :accounts
 
     resources :chats do
       collection do
@@ -184,12 +183,6 @@ Rails.application.routes.draw do
   end
 
   get "service_authorizations/callback", to: "service_authorizations#callback", as: :service_authorization_callback
-
-  # Oura Ring integration (OAuth + settings)
-  resource :oura_integration, only: %i[show create update destroy], controller: "oura_integration" do
-    get :callback
-    post :sync
-  end
 
   # GitHub integration (OAuth + repo selection + settings)
   resource :github_integration, only: %i[show create update destroy], controller: "github_integration" do

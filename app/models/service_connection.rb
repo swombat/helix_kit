@@ -17,7 +17,6 @@ class ServiceConnection < ApplicationRecord
   validates :external_subject_id, uniqueness: { scope: [ :account_id, :provider ] }, allow_nil: true
   validates :legacy_oura_integration_id, uniqueness: true, allow_nil: true
   validate :provider_contract
-  validate :legacy_oura_contract
 
   after_create_commit :apply_default_accesses
   after_update_commit :reconcile_authority_change, if: :runtime_authority_changed?
@@ -98,15 +97,26 @@ class ServiceConnection < ApplicationRecord
   end
 
   def runtime_credentials(agent:)
-    if legacy_oura_integration
+    if credential_strategy == "refresh_broker"
+      payload = credential_payload_hash
       {
-        "access_token" => legacy_oura_integration.access_token,
-        "expires_at" => legacy_oura_integration.token_expires_at&.utc&.iso8601,
-        "access_token_endpoint" => Rails.application.routes.url_helpers.api_v1_service_connection_access_token_path(public_id)
+        "access_token" => payload["access_token"],
+        "expires_at" => payload["expires_at"],
+        "access_token_endpoint" => "#{Agents::Config.internal_url}#{Rails.application.routes.url_helpers.api_v1_service_connection_access_token_path(public_id)}"
       }.compact
     else
       credential_payload_hash
     end
+  end
+
+  def replace_credential_payload_without_reconciliation!(payload)
+    self.credential_payload_hash = payload
+    update_columns(
+      credential_payload: credential_payload,
+      updated_at: Time.current
+    )
+    @credential_payload_hash = nil
+    reload
   end
 
   def public_id
@@ -140,7 +150,6 @@ class ServiceConnection < ApplicationRecord
       freely_provisionable: freely_provisionable?,
       connected_by_user_id: connected_by_user_id,
       connected_by_name: connected_by_user.display_name,
-      legacy_oura: legacy_oura_integration_id.present?,
       can_manage: manageable_by?(current_user),
       can_provision: provisionable_by?(current_user)
     }
@@ -152,14 +161,6 @@ class ServiceConnection < ApplicationRecord
     errors.add(:management_scope, "is not supported by this service") unless definition.supports_management_scope?(management_scope)
   rescue Services::Definition::UnknownProvider => e
     errors.add(:provider, e.message)
-  end
-
-  def legacy_oura_contract
-    return unless legacy_oura_integration
-    errors.add(:provider, "must be oura for a legacy Oura reference") unless provider == "oura"
-    errors.add(:connected_by_user, "must own the legacy Oura integration") unless legacy_oura_integration.user_id == connected_by_user_id
-    errors.add(:credential_kind, "must be legacy_reference") unless credential_kind == "legacy_reference"
-    errors.add(:credential_payload, "must remain empty for a legacy Oura reference") if credential_payload.present?
   end
 
   def apply_default_accesses

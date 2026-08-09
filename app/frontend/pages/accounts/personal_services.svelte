@@ -1,10 +1,10 @@
 <script>
   import { router } from '@inertiajs/svelte';
   import { Button } from '$lib/components/shadcn/button/index.js';
-  import { DropboxLogo, Heartbeat, ArrowLeft, CheckCircle } from 'phosphor-svelte';
+  import { DropboxLogo, Heartbeat, ArrowLeft } from 'phosphor-svelte';
   import { submitNativePost } from '$lib/integration-forms';
 
-  let { account, services = [], connections = [], legacy_oura = null } = $props();
+  let { account, services = [], connections = [] } = $props();
   let selectedProfiles = $state({});
 
   function profileFor(service) {
@@ -12,19 +12,11 @@
   }
 
   function connect(service) {
-    if (service.key === 'oura') {
-      router.visit('/oura_integration');
-      return;
-    }
     submitNativePost(`/accounts/${account.id}/service_authorizations`, {
       provider: service.key,
       management_scope: 'personal',
       access_profile: profileFor(service),
     });
-  }
-
-  function adoptOura() {
-    router.post(`/accounts/${account.id}/oura_adoption`);
   }
 
   function updateConnection(connection, attributes) {
@@ -34,10 +26,9 @@
   }
 
   function removeConnection(connection) {
-    const message = connection.legacy_oura
-      ? 'Remove resident access to this Oura identity? Your existing Oura credentials and health sync will be preserved.'
-      : `Disconnect ${connection.label}?`;
-    if (confirm(message)) router.delete(`/accounts/${account.id}/service_connections/${connection.id}`);
+    if (confirm(`Disconnect ${connection.label}?`)) {
+      router.delete(`/accounts/${account.id}/service_connections/${connection.id}`);
+    }
   }
 </script>
 
@@ -76,7 +67,7 @@
             </p>
           </div>
         </div>
-        {#if service.key === 'dropbox'}
+        {#if service.access_profiles.length > 1}
           <select
             class="w-full rounded-md border bg-background px-3 py-2 text-sm"
             value={profileFor(service)}
@@ -86,20 +77,8 @@
               <option value={profile.key}>{profile.name}{profile.default ? ' — safest default' : ''}</option>
             {/each}
           </select>
-          <Button type="button" onclick={() => connect(service)}>Connect Dropbox</Button>
-        {:else if legacy_oura?.connected && !legacy_oura?.adopted}
-          <div class="rounded border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm">
-            Your existing Oura connection works. Adoption only adds account-scoped resident access; it does not move or
-            rewrite its tokens.
-          </div>
-          <Button type="button" onclick={adoptOura}>Use existing Oura connection</Button>
-        {:else if legacy_oura?.adopted}
-          <div class="inline-flex items-center gap-2 text-sm text-emerald-700">
-            <CheckCircle size={16} weight="fill" />Existing Oura connection adopted safely
-          </div>
-        {:else}
-          <Button type="button" onclick={() => connect(service)}>Connect Oura Ring</Button>
         {/if}
+        <Button type="button" onclick={() => connect(service)}>Connect {service.name}</Button>
       </div>
     {/each}
   </section>
@@ -118,15 +97,8 @@
             <h3 class="font-semibold">{connection.label}</h3>
             <p class="text-sm text-muted-foreground">{connection.provider_name} · {connection.identity}</p>
             <p class="mt-2 text-xs">Granted scopes: {connection.granted_scopes.join(', ')}</p>
-            {#if connection.legacy_oura}
-              <p class="mt-2 text-xs text-emerald-700">
-                Backed by your existing Oura credential; token storage and sync are unchanged.
-              </p>
-            {/if}
           </div>
-          <Button type="button" variant="destructive" onclick={() => removeConnection(connection)}>
-            {connection.legacy_oura ? 'Remove resident access' : 'Disconnect'}
-          </Button>
+          <Button type="button" variant="destructive" onclick={() => removeConnection(connection)}>Disconnect</Button>
         </div>
         <label class="flex items-center gap-3 text-sm">
           <input

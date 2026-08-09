@@ -31,7 +31,7 @@ module Agents
     def connections
       @connections ||= agent.agent_service_accesses
         .enabled
-        .includes(service_connection: :legacy_oura_integration)
+        .includes(:service_connection)
         .map(&:service_connection)
         .select { |connection| connection.status == "connected" }
     end

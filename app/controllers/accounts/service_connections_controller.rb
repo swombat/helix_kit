@@ -26,12 +26,10 @@ class Accounts::ServiceConnectionsController < ApplicationController
       return
     end
 
-    legacy_oura = @connection.legacy_oura_integration_id.present?
-    @connection.disconnect!(revoke_provider: !legacy_oura)
-    audit(:disconnect_service, @connection, provider: @connection.provider, legacy_oura_preserved: legacy_oura)
+    @connection.disconnect!
+    audit(:disconnect_service, @connection, provider: @connection.provider)
     @connection.destroy!
-    redirect_back fallback_location: account_path(current_account),
-                  notice: legacy_oura ? "Resident access removed; existing Oura credentials were preserved" : "Service disconnected"
+    redirect_back fallback_location: account_path(current_account), notice: "Service disconnected"
   end
 
   private

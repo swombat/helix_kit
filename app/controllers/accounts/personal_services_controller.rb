@@ -8,25 +8,9 @@ class Accounts::PersonalServicesController < ApplicationController
         .map(&:as_json),
       connections: current_account.service_connections.personal
         .where(connected_by_user: Current.user)
-        .includes(:connected_by_user, :legacy_oura_integration)
+        .includes(:connected_by_user)
         .map { |connection| connection.as_connection_json(current_user: Current.user) },
-      agents: current_account.agents.by_name.map { |agent| { id: agent.to_param, name: agent.name } },
-      legacy_oura: legacy_oura_json
-    }
-  end
-
-  private
-
-  def legacy_oura_json
-    integration = Current.user.oura_integration
-    return unless integration
-
-    {
-      connected: integration.connected?,
-      enabled: integration.enabled?,
-      adopted: integration.service_connection.present?,
-      adopted_account_id: integration.service_connection&.account_id,
-      health_data_synced_at: integration.health_data_synced_at&.iso8601
+      agents: current_account.agents.by_name.map { |agent| { id: agent.to_param, name: agent.name } }
     }
   end
 

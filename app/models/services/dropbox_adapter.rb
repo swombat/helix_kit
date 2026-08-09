@@ -11,7 +11,7 @@ module Services
     IDENTITY_URL = "https://api.dropboxapi.com/2/users/get_current_account"
     REVOKE_URL = "https://api.dropboxapi.com/2/auth/token/revoke"
 
-    class Error < StandardError; end
+    class Error < Services::AdapterError; end
 
     attr_reader :definition
 

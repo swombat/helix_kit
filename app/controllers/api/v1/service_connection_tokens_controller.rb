@@ -7,18 +7,18 @@ class Api::V1::ServiceConnectionTokensController < ActionController::API
       .merge(AgentServiceAccess.enabled)
       .find_by_public_id!(params[:service_connection_id])
 
-    unless connection.legacy_oura_integration
+    unless connection.credential_strategy == "refresh_broker"
       render json: { error: "This connection does not use the refresh broker" }, status: :unprocessable_entity
       return
     end
 
-    integration = connection.legacy_oura_integration
-    integration.refresh_tokens! unless integration.token_fresh?
+    access_token = connection.definition.adapter.current_access_token(connection)
+    payload = connection.reload.credential_payload_hash
     render json: {
-      access_token: integration.access_token,
-      expires_at: integration.token_expires_at&.utc&.iso8601
+      access_token: access_token,
+      expires_at: payload["expires_at"]
     }
-  rescue OuraApi::Error => e
+  rescue Services::AdapterError => e
     render json: { error: e.message }, status: :bad_gateway
   end
 

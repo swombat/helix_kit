@@ -21,7 +21,7 @@ class ServiceAuthorizationsController < ApplicationController
       state: state,
       redirect_uri: service_authorization_callback_url
     ), allow_other_host: true
-  rescue Services::Definition::UnknownProvider, KeyError, ArgumentError, NotImplementedError => e
+  rescue Services::Definition::UnknownProvider, KeyError, ArgumentError => e
     redirect_back_or_to account_personal_services_path(current_account), alert: e.message
   end
 
@@ -51,7 +51,7 @@ class ServiceAuthorizationsController < ApplicationController
     redirect_to attempt.return_path, notice: "#{attempt.definition.name} connected"
   rescue ActiveRecord::RecordNotFound, ActionController::ParameterMissing
     redirect_to root_path, alert: "Invalid or expired authorization"
-  rescue Services::DropboxAdapter::Error => e
+  rescue Services::AdapterError => e
     redirect_to attempt&.return_path || root_path, alert: e.message
   end
 
@@ -75,16 +75,24 @@ class ServiceAuthorizationsController < ApplicationController
   end
 
   def persist_connection!(attempt, result)
-    connection = attempt.account.service_connections.find_or_initialize_by(
-      provider: attempt.provider,
-      external_subject_id: result.fetch(:external_subject_id)
-    )
+    connection = if result[:match_existing_by] == :connected_user
+      attempt.account.service_connections.find_or_initialize_by(
+        provider: attempt.provider,
+        connected_by_user: attempt.user
+      )
+    else
+      attempt.account.service_connections.find_or_initialize_by(
+        provider: attempt.provider,
+        external_subject_id: result.fetch(:external_subject_id)
+      )
+    end
 
     if connection.persisted? && connection.connected_by_user_id != attempt.user_id
-      raise Services::DropboxAdapter::Error, "That external identity is already connected by another account member"
+      raise Services::AdapterError, "That external identity is already connected by another account member"
     end
 
     connection.connected_by_user = attempt.user
+    connection.external_subject_id = result.fetch(:external_subject_id)
     connection.external_identity = result[:external_identity]
     connection.label ||= result[:external_identity]
     connection.management_scope = attempt.management_scope
