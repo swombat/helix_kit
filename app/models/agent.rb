@@ -18,6 +18,8 @@ class Agent < ApplicationRecord
   has_many :agent_backup_snapshots, dependent: :destroy
   has_many :agent_runtime_interactions, dependent: :destroy
   has_many :chats, through: :chat_agents
+  has_many :agent_service_accesses, dependent: :destroy
+  has_many :service_connections, through: :agent_service_accesses
 
   VALID_COLOURS = %w[
     slate gray zinc neutral stone
@@ -66,6 +68,7 @@ class Agent < ApplicationRecord
   validate :identity_fields_are_read_only_when_external
   after_update :create_model_change_notice, if: :saved_change_to_model_id?
   after_update_commit :enqueue_model_change_orientation, if: :saved_change_to_model_id?
+  after_create_commit :apply_default_service_accesses
   broadcasts_to :account
 
   encrypts :trigger_bearer_token
@@ -197,6 +200,16 @@ class Agent < ApplicationRecord
   end
 
   private
+
+  def apply_default_service_accesses
+    account.service_connections.where(enabled_for_new_agents: true).find_each do |connection|
+      agent_service_accesses.find_or_create_by!(service_connection: connection) do |access|
+        access.enabled = true
+        access.follows_default = true
+        access.provisioning_status = "pending"
+      end
+    end
+  end
 
   def create_model_change_notice
     return unless identity_owned_by_agent?

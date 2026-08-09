@@ -64,6 +64,9 @@ VCR.configure do |config|
   # Filter X/Twitter OAuth 2.0 credentials
   config.filter_sensitive_data("<X_CLIENT_ID>") { Rails.application.credentials.dig(:x, :client_id) }
   config.filter_sensitive_data("<X_CLIENT_SECRET>") { Rails.application.credentials.dig(:x, :client_secret) }
+  config.filter_sensitive_data("<DROPBOX_APP_KEY>") { Rails.application.credentials.dig(:dropbox, :app_key) }
+  config.filter_sensitive_data("<DROPBOX_APP_SECRET>") { Rails.application.credentials.dig(:dropbox, :app_secret) }
+  config.filter_sensitive_data("<DROPBOX_GENERATED_ACCESS_TOKEN>") { Rails.application.credentials.dig(:dropbox, :secret) }
 
   # Filter random tempfile names in OpenAI audio transcription requests
   config.before_record do |interaction|
@@ -91,6 +94,26 @@ VCR.configure do |config|
         interaction.response.body = interaction.response.body.gsub(/"chat":\{[^{}]*\}/, '"chat":{"id":12345,"first_name":"Test","last_name":"User","username":"test_user","type":"private"}')
         interaction.response.body = interaction.response.body.gsub(/"message_id":\d+/, '"message_id":1')
       end
+    end
+
+    if interaction.request.uri.include?("api.dropboxapi.com/2/users/get_current_account") &&
+       interaction.response.body.present?
+      data = JSON.parse(interaction.response.body)
+      data["account_id"] = "dbid:test-account"
+      data["email"] = "dropbox-test@example.test"
+      data["referral_link"] = "https://www.dropbox.com/referrals/test"
+      data["name"] = {
+        "given_name" => "Dropbox",
+        "surname" => "Test",
+        "familiar_name" => "Dropbox",
+        "display_name" => "Dropbox Test",
+        "abbreviated_name" => "DT"
+      }
+      if data["root_info"].is_a?(Hash)
+        data["root_info"]["root_namespace_id"] = "test-root-namespace"
+        data["root_info"]["home_namespace_id"] = "test-home-namespace"
+      end
+      interaction.response.body = JSON.generate(data)
     end
   end
 end

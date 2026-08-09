@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_01_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_08_214500) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -229,6 +229,22 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_01_120000) do
     t.index ["chat_id", "created_at"], name: "index_agent_runtime_interactions_on_chat_id_and_created_at"
     t.index ["chat_id"], name: "index_agent_runtime_interactions_on_chat_id"
     t.index ["session_id"], name: "index_agent_runtime_interactions_on_session_id"
+  end
+
+  create_table "agent_service_accesses", force: :cascade do |t|
+    t.bigint "agent_id", null: false
+    t.datetime "created_at", null: false
+    t.boolean "enabled", default: true, null: false
+    t.boolean "follows_default", default: false, null: false
+    t.datetime "provisioned_at"
+    t.integer "provisioned_revision"
+    t.string "provisioning_error_code"
+    t.string "provisioning_status"
+    t.bigint "service_connection_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["agent_id", "service_connection_id"], name: "idx_on_agent_id_service_connection_id_9030aefd71", unique: true
+    t.index ["agent_id"], name: "index_agent_service_accesses_on_agent_id"
+    t.index ["service_connection_id"], name: "index_agent_service_accesses_on_service_connection_id"
   end
 
   create_table "agents", force: :cascade do |t|
@@ -578,6 +594,50 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_01_120000) do
     t.index ["prompt_key"], name: "index_prompt_outputs_on_prompt_key"
   end
 
+  create_table "service_authorization_attempts", force: :cascade do |t|
+    t.string "access_profile", null: false
+    t.bigint "account_id", null: false
+    t.datetime "consumed_at"
+    t.datetime "created_at", null: false
+    t.datetime "expires_at", null: false
+    t.string "management_scope", null: false
+    t.text "pkce_verifier"
+    t.string "provider", null: false
+    t.jsonb "requested_scopes", default: [], null: false
+    t.string "return_path"
+    t.string "state_digest", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["account_id"], name: "index_service_authorization_attempts_on_account_id"
+    t.index ["state_digest"], name: "index_service_authorization_attempts_on_state_digest", unique: true
+    t.index ["user_id"], name: "index_service_authorization_attempts_on_user_id"
+  end
+
+  create_table "service_connections", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.bigint "connected_by_user_id", null: false
+    t.datetime "created_at", null: false
+    t.string "credential_kind", null: false
+    t.jsonb "credential_metadata", default: {}, null: false
+    t.text "credential_payload"
+    t.integer "credential_revision", default: 1, null: false
+    t.boolean "enabled_for_new_agents", default: false, null: false
+    t.string "external_identity"
+    t.string "external_subject_id"
+    t.boolean "freely_provisionable", default: false, null: false
+    t.string "label"
+    t.bigint "legacy_oura_integration_id"
+    t.string "management_scope", default: "personal", null: false
+    t.string "provider", null: false
+    t.string "status", default: "connected", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "provider", "external_subject_id"], name: "index_service_connections_on_account_provider_subject", unique: true, where: "(external_subject_id IS NOT NULL)"
+    t.index ["account_id"], name: "index_service_connections_on_account_id"
+    t.index ["connected_by_user_id"], name: "index_service_connections_on_connected_by_user_id"
+    t.index ["legacy_oura_integration_id"], name: "index_service_connections_on_legacy_oura_integration_id"
+    t.index ["legacy_oura_integration_id"], name: "index_service_connections_on_unique_legacy_oura", unique: true, where: "(legacy_oura_integration_id IS NOT NULL)"
+  end
+
   create_table "sessions", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "ip_address"
@@ -702,6 +762,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_01_120000) do
   add_foreign_key "agent_memories", "agents"
   add_foreign_key "agent_runtime_interactions", "agents"
   add_foreign_key "agent_runtime_interactions", "chats"
+  add_foreign_key "agent_service_accesses", "agents"
+  add_foreign_key "agent_service_accesses", "service_connections"
   add_foreign_key "agents", "accounts"
   add_foreign_key "agents", "api_keys", column: "outbound_api_key_id"
   add_foreign_key "api_key_requests", "api_keys"
@@ -730,6 +792,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_01_120000) do
   add_foreign_key "oura_integrations", "users"
   add_foreign_key "profiles", "users"
   add_foreign_key "prompt_outputs", "accounts"
+  add_foreign_key "service_authorization_attempts", "accounts"
+  add_foreign_key "service_authorization_attempts", "users"
+  add_foreign_key "service_connections", "accounts"
+  add_foreign_key "service_connections", "oura_integrations", column: "legacy_oura_integration_id"
+  add_foreign_key "service_connections", "users", column: "connected_by_user_id"
   add_foreign_key "sessions", "users"
   add_foreign_key "telegram_messages", "telegram_subscriptions"
   add_foreign_key "telegram_subscriptions", "agents"

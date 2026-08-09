@@ -45,6 +45,7 @@
     runtime_observability_url: runtimeObservabilityUrl = null,
     sandbox_recreation_url: sandboxRecreationUrl = null,
     provider_subscription: providerSubscription = null,
+    service_connections: serviceConnections = [],
     can_manage_provider_subscription: canManageProviderSubscription = false,
     interactions = [],
     interactions_pagination: interactionsPagination = {},
@@ -467,6 +468,7 @@
             {telegramSubscriberCount}
             {sendingTestNotification}
             {registeringWebhook}
+            {serviceConnections}
             onsendTestNotification={sendTestNotification}
             onregisterWebhook={registerWebhook} />
         {:else if activeTab === 'memory'}

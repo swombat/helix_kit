@@ -67,6 +67,11 @@ Rails.application.routes.draw do
     resource :costs, only: :show, module: :accounts
     resources :notices, only: [ :index, :create, :destroy ], module: :accounts
     resources :api_keys, path: "external_access", only: [ :index, :create, :destroy ]
+    resources :services, only: :index, module: :accounts
+    resource :personal_services, only: :show, module: :accounts
+    resources :service_authorizations, only: :create
+    resources :service_connections, only: [ :update, :destroy ], module: :accounts
+    resource :oura_adoption, only: :create, module: :accounts
 
     resources :chats do
       collection do
@@ -114,6 +119,7 @@ Rails.application.routes.draw do
           post :cancel
           post :code
         end
+        resources :service_accesses, only: :update
         resources :memories, only: [ :create ] do
           resource :discard, only: [ :create, :destroy ], module: :memories
           resource :protection, only: [ :create, :destroy ], module: :memories
@@ -170,9 +176,14 @@ Rails.application.routes.draw do
       resources :telegram_messages, only: :create
       resources :telegram_subscribers, only: :index
       resource :attention, only: :show
+      resources :service_connections, only: [] do
+        resource :access_token, only: :show, controller: "service_connection_tokens"
+      end
       resources :whiteboards, only: [ :index, :show, :create, :update ]
     end
   end
+
+  get "service_authorizations/callback", to: "service_authorizations#callback", as: :service_authorization_callback
 
   # Oura Ring integration (OAuth + settings)
   resource :oura_integration, only: %i[show create update destroy], controller: "oura_integration" do

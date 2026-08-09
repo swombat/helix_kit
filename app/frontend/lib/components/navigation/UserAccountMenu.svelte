@@ -11,12 +11,10 @@
     Gear,
     Check,
     Plus,
-    XLogo,
     Plugs,
     Key,
     CurrencyDollar,
     Chalkboard,
-    Heartbeat,
     Megaphone,
   } from 'phosphor-svelte';
   import * as DropdownMenu from '$lib/components/shadcn/dropdown-menu/index.js';
@@ -110,22 +108,12 @@
         <UserCircle class="mr-2 size-4" />
         <span>User Settings</span>
       </DropdownMenu.Item>
-      <DropdownMenu.Sub>
-        <DropdownMenu.SubTrigger>
+      {#if currentAccount?.id}
+        <DropdownMenu.Item onclick={() => router.visit(`/accounts/${currentAccount.id}/personal_services`)}>
           <Plugs class="mr-2 size-4" />
-          <span>Integrations</span>
-        </DropdownMenu.SubTrigger>
-        <DropdownMenu.SubContent>
-          <DropdownMenu.Item onclick={() => router.visit('/oura_integration')}>
-            <Heartbeat class="mr-2 size-4" />
-            Oura Ring
-          </DropdownMenu.Item>
-          <DropdownMenu.Item onclick={() => router.visit('/x_integration')}>
-            <XLogo class="mr-2 size-4" />
-            X / Twitter
-          </DropdownMenu.Item>
-        </DropdownMenu.SubContent>
-      </DropdownMenu.Sub>
+          <span>Personal Services</span>
+        </DropdownMenu.Item>
+      {/if}
       {#if currentAccount?.id}
         {#if hasWhiteboards}
           <DropdownMenu.Item onclick={() => router.visit(accountWhiteboardsPath(currentAccount.id))}>
@@ -148,6 +136,10 @@
         <DropdownMenu.Item onclick={() => router.visit(accountApiKeysPath(currentAccount.id))}>
           <Plugs class="mr-2 size-4" />
           <span>External Access</span>
+        </DropdownMenu.Item>
+        <DropdownMenu.Item onclick={() => router.visit(`/accounts/${currentAccount.id}/services`)}>
+          <Plugs class="mr-2 size-4" />
+          <span>Account Services</span>
         </DropdownMenu.Item>
         <DropdownMenu.Item onclick={() => router.visit(accountPath(currentAccount.id))}>
           <Gear class="mr-2 size-4" />

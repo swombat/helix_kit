@@ -8,6 +8,18 @@ set -e
 AGENT_HOME=/home/agent
 AGENT_REPO_PATH="${AGENT_REPO_PATH:-$AGENT_HOME/repo}"
 
+# External-service credentials are runtime-supplied hosting context. The source
+# is a root-only ephemeral bind mount; copy it into tmpfs for the resident and
+# never into identity, repository, work, state, or Chaos volumes.
+if [ -f /run/helixkit-source.yml ]; then
+    mkdir -p /run/helixkit
+    cp /run/helixkit-source.yml /run/helixkit/services.yml
+    chown 1000:1000 /run/helixkit
+    chmod 0700 /run/helixkit
+    chown 1000:1000 /run/helixkit/services.yml
+    chmod 0600 /run/helixkit/services.yml
+fi
+
 # Docker-managed volumes are root-owned when first created. The agent user needs
 # write access to both canonical identity/memory and chaos session state.
 for path in "$AGENT_HOME/identity" "$AGENT_HOME/.chaos" "$AGENT_REPO_PATH" "$AGENT_HOME/work" "$AGENT_HOME/state"; do

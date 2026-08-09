@@ -1,4 +1,5 @@
 require "shellwords"
+require "tempfile"
 
 module Agents
   class Sandbox
@@ -352,6 +353,7 @@ module Agents
       ensure_repo_volume!
       ensure_work_volume!
       ensure_state_volume!
+      service_manifest_file = build_service_manifest_file
       args = [
         "docker", "run", "-d",
         "--name", agent.container_name,
@@ -363,7 +365,9 @@ module Agents
         "-v", "chaos-home-#{agent.uuid}:/home/agent/.chaos",
         "-v", "#{repo_volume_name}:#{REPO_PATH}",
         "-v", "#{work_volume_name}:#{WORK_PATH}",
-        "-v", "#{state_volume_name}:#{STATE_PATH}",
+         "-v", "#{state_volume_name}:#{STATE_PATH}",
+        "--tmpfs", "/run/helixkit:rw,noexec,nosuid,nodev,mode=0700",
+        "--mount", "type=bind,src=#{service_manifest_file.path},dst=/run/helixkit-source.yml,readonly",
         "-e", "AGENT_ID=#{agent.uuid}",
         "-e", "AGENT_SLUG=#{agent_slug}",
         "-e", "AGENT_PROVIDER=#{agent_provider}",
@@ -378,6 +382,16 @@ module Agents
 
       _stdout, stderr, status = Open3.capture3(*args)
       raise SandboxError, "docker run failed: #{stderr}" unless status.success?
+    ensure
+      service_manifest_file&.close!
+    end
+
+    def build_service_manifest_file
+      file = Tempfile.new([ "helixkit-services-", ".yml" ])
+      file.chmod(0o600)
+      file.write(Agents::ServiceManifest.new(agent).to_yaml)
+      file.flush
+      file
     end
 
     def refresh_dev_endpoint!

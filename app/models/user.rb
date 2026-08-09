@@ -25,6 +25,11 @@ class User < ApplicationRecord
 
   # Integrations
   has_one :oura_integration, dependent: :destroy
+  has_many :connected_service_connections,
+           class_name: "ServiceConnection",
+           foreign_key: :connected_by_user_id,
+           dependent: :restrict_with_error
+  has_many :service_authorization_attempts, dependent: :destroy
 
   # Broadcasting configuration - automatically broadcasts to all associated accounts
   broadcasts_to :accounts

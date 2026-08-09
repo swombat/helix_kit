@@ -1,5 +1,6 @@
 <script>
-  import { ArrowLeft, CheckCircle, TelegramLogo } from 'phosphor-svelte';
+  import { ArrowLeft, CheckCircle, TelegramLogo, DropboxLogo, Heartbeat } from 'phosphor-svelte';
+  import { router } from '@inertiajs/svelte';
   import { Button } from '$lib/components/shadcn/button/index.js';
   import { Input } from '$lib/components/shadcn/input';
   import { Label } from '$lib/components/shadcn/label';
@@ -12,6 +13,7 @@
     telegramSubscriberCount = 0,
     sendingTestNotification = false,
     registeringWebhook = false,
+    serviceConnections = [],
     onsendTestNotification,
     onregisterWebhook,
   } = $props();
@@ -23,6 +25,10 @@
 
   function showIntegrationList() {
     selectedIntegration = null;
+  }
+
+  function toggleService(connection, enabled) {
+    router.patch(connection.access_update_url, { enabled }, { preserveScroll: true });
   }
 </script>
 
@@ -163,7 +169,9 @@
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p class="text-sm font-medium">Webhook</p>
-            <p class="text-xs text-muted-foreground">Re-register it if Telegram stops sending updates to {$siteName}.</p>
+            <p class="text-xs text-muted-foreground">
+              Re-register it if Telegram stops sending updates to {$siteName}.
+            </p>
           </div>
           <Button type="button" variant="outline" size="sm" disabled={registeringWebhook} onclick={onregisterWebhook}>
             {registeringWebhook ? 'Registering...' : 'Re-register webhook'}
@@ -187,6 +195,49 @@
     </div>
 
     <div class="divide-y rounded-lg border">
+      {#each serviceConnections as connection}
+        <div class="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+          <div class="flex items-center gap-4">
+            <div
+              class={connection.provider === 'dropbox'
+                ? 'flex size-11 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white'
+                : 'flex size-11 shrink-0 items-center justify-center rounded-xl bg-red-500 text-white'}>
+              {#if connection.provider === 'dropbox'}
+                <DropboxLogo size={24} weight="fill" />
+              {:else}
+                <Heartbeat size={24} weight="fill" />
+              {/if}
+            </div>
+            <div>
+              <div class="flex flex-wrap items-center gap-2">
+                <h3 class="font-semibold">{connection.label}</h3>
+                <span class="rounded-full bg-muted px-2 py-0.5 text-xs"
+                  >{connection.management_scope === 'personal' ? 'Personal' : 'Account'}</span>
+                {#if connection.enabled}
+                  <span
+                    class="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-700">
+                    <CheckCircle size={13} weight="fill" /> Enabled
+                  </span>
+                {/if}
+              </div>
+              <p class="text-sm text-muted-foreground">{connection.provider_name} · {connection.identity}</p>
+              <p class="mt-1 text-xs text-muted-foreground">
+                This toggle provisions the complete credential authority: {connection.granted_scopes.join(', ')}
+              </p>
+              {#if connection.provisioning_status}
+                <p class="mt-1 text-xs text-muted-foreground">Runtime: {connection.provisioning_status}</p>
+              {/if}
+            </div>
+          </div>
+          <Button
+            type="button"
+            variant={connection.enabled ? 'outline' : 'default'}
+            disabled={connection.enabled ? !connection.can_manage : !connection.can_provision}
+            onclick={() => toggleService(connection, !connection.enabled)}>
+            {connection.enabled ? 'Disable' : 'Enable'}
+          </Button>
+        </div>
+      {/each}
       <div class="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
         <div class="flex items-center gap-4">
           <div class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-sky-500 text-white">

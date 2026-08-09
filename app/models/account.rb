@@ -57,6 +57,8 @@ class Account < ApplicationRecord
   has_many :notices, dependent: :destroy
   has_many :api_keys, dependent: :destroy
   has_many :whiteboards, dependent: :destroy
+  has_many :service_connections, dependent: :destroy
+  has_many :service_authorization_attempts, dependent: :destroy
   has_one :github_integration
   has_one :x_integration
 
@@ -248,6 +250,13 @@ class Account < ApplicationRecord
   end
 
   def ai_credentials_manageable_by?(user)
+    return false unless user
+    return true if user.site_admin
+
+    memberships.confirmed.admins.exists?(user: user)
+  end
+
+  def service_credentials_manageable_by?(user)
     return false unless user
     return true if user.site_admin
 

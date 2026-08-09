@@ -1,0 +1,54 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://api.dropboxapi.com/2/users/get_current_account
+    body:
+      encoding: UTF-8
+      string: 'null'
+    headers:
+      Host:
+      - api.dropboxapi.com
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sun, 09 Aug 2026 12:35:53 GMT
+      Server:
+      - envoy
+      X-Content-Type-Options:
+      - nosniff
+      Cache-Control:
+      - no-cache
+      Pragma:
+      - no-cache
+      Content-Disposition:
+      - attachment
+      Content-Security-Policy:
+      - sandbox
+      X-Frame-Options:
+      - sameorigin
+      X-Webkit-Csp:
+      - sandbox
+      X-Content-Security-Policy:
+      - sandbox
+      Content-Type:
+      - application/json
+      Vary:
+      - Accept-Encoding
+      X-Dropbox-Response-Origin:
+      - far_remote
+      X-Dropbox-Request-Id:
+      - 71839cf351ab47e8bd8ee4106a787429
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"account_id":"dbid:test-account","account_type":{".tag":"pro"},"country":"ES","disabled":false,"email":"dropbox-test@example.test","email_verified":true,"is_paired":false,"locale":"en","name":{"given_name":"Dropbox","surname":"Test","familiar_name":"Dropbox","display_name":"Dropbox
+        Test","abbreviated_name":"DT"},"referral_link":"https://www.dropbox.com/referrals/test","root_info":{".tag":"user","home_namespace_id":"test-home-namespace","root_namespace_id":"test-root-namespace"}}'
+  recorded_at: Sun, 09 Aug 2026 12:35:54 GMT
+recorded_with: VCR 6.3.1

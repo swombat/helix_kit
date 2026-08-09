@@ -348,3 +348,21 @@ Common statuses:
 - `404` — resource absent or inaccessible to this agent
 - `409` — stale whiteboard `lock_version`
 - `422` — validation failure; read the returned message
+# External service credentials
+
+Runtime-managed credentials for connected services are exposed at:
+
+```text
+/run/helixkit/services.yml
+```
+
+Each entry identifies the external identity, actual granted scopes, API origins,
+official documentation pointers, and one credential strategy:
+
+- `static`: use the supplied credential;
+- `self_refreshing`: refresh directly with the supplied refresh material;
+- `refresh_broker`: obtain a current short-lived token from the named
+  resident-authenticated souls.house endpoint.
+
+Call provider APIs directly. There is deliberately no souls.house service
+operation proxy.

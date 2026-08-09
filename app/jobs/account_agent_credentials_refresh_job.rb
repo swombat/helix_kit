@@ -16,6 +16,24 @@ class AccountAgentCredentialsRefreshJob < ApplicationJob
         self.class.set(wait: 5.minutes).perform_later(account.id, agent.id)
       else
         sandbox.recreate!
+        mark_service_accesses_reconciled!(agent)
+      end
+    end
+  end
+
+  private
+
+  def mark_service_accesses_reconciled!(agent)
+    agent.agent_service_accesses.includes(:service_connection).find_each do |access|
+      if access.enabled?
+        access.mark_provisioned!
+      else
+        access.update!(
+          provisioned_revision: nil,
+          provisioned_at: Time.current,
+          provisioning_status: "removed",
+          provisioning_error_code: nil
+        )
       end
     end
   end

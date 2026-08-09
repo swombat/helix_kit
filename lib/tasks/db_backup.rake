@@ -1,4 +1,5 @@
 require "aws-sdk-s3"
+require "tempfile"
 
 module DbBackupHelpers
 
@@ -93,6 +94,29 @@ module DbBackupHelpers
 
   def refreshing?
     Rake.application.top_level_tasks.include?("db_backup:refresh")
+  end
+
+  def with_psql_compatible_dump(sql_path)
+    Tempfile.create([ "helix-kit-restore-", ".sql" ], download_path) do |file|
+      File.foreach(sql_path) do |line|
+        # Newer patched pg_dump clients emit these psql safety commands, but
+        # older local psql patch releases reject them. This is our own trusted
+        # backup, so removing only the guard commands preserves the SQL payload.
+        next if line.match?(/\A\\(?:un)?restrict\b/)
+
+        file.write(line)
+      end
+      file.flush
+      yield file.path
+    end
+  end
+
+  def migrate_restored_database!
+    puts "Running local migrations against the restored database..."
+    ActiveRecord::Base.connection.schema_cache.clear!
+    Rake::Task["db:migrate"].reenable
+    Rake::Task["db:migrate"].invoke
+    ActiveRecord::Base.connection.schema_cache.clear!
   end
 
 end
@@ -190,20 +214,23 @@ namespace :db_backup do
 
     # Restore from backup
     puts "Restoring from backup..."
-    restore_cmd = [ "psql", "-q" ]  # -q for quiet mode
+    restore_cmd = [ "psql", "-q", "-v", "ON_ERROR_STOP=1" ]  # -q for quiet mode
     restore_cmd.push("-h", host) if host
     restore_cmd.push("-U", username) if username
     restore_cmd.push("-d", dbname)
-    restore_cmd.push("-f", latest_sql)
 
-    puts "Running: #{restore_cmd.join(' ')}"
-    success = system(env, *restore_cmd)
+    success = DbBackupHelpers.with_psql_compatible_dump(latest_sql) do |restore_file|
+      command = restore_cmd + [ "-f", restore_file ]
+      puts "Running: #{command.join(' ')}"
+      system(env, *command)
+    end
 
     # Reconnect
     ActiveRecord::Base.establish_connection
 
     if success
       puts "Database restored successfully."
+      DbBackupHelpers.migrate_restored_database!
       DbBackupHelpers.reset_user_passwords!
       DbBackupHelpers.create_test_agents!
     else

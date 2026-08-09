@@ -3,6 +3,9 @@ class OuraIntegration < ApplicationRecord
   include OuraApi
 
   belongs_to :user
+  has_one :service_connection,
+          foreign_key: :legacy_oura_integration_id,
+          dependent: :restrict_with_error
 
   validates :user_id, uniqueness: true
 
