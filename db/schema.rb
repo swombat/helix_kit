@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_09_203000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_09_211500) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -617,6 +617,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_09_203000) do
     t.bigint "account_id", null: false
     t.bigint "connected_by_user_id", null: false
     t.datetime "created_at", null: false
+    t.string "credential_fingerprint"
     t.string "credential_kind", null: false
     t.jsonb "credential_metadata", default: {}, null: false
     t.text "credential_payload"
@@ -631,7 +632,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_09_203000) do
     t.string "provider", null: false
     t.string "status", default: "connected", null: false
     t.datetime "updated_at", null: false
-    t.index ["account_id", "provider", "external_subject_id"], name: "index_service_connections_on_account_provider_subject", unique: true, where: "(external_subject_id IS NOT NULL)"
+    t.index ["account_id", "provider", "credential_fingerprint"], name: "index_service_connections_on_account_provider_credential", unique: true, where: "(credential_fingerprint IS NOT NULL)"
+    t.index ["account_id", "provider", "external_subject_id"], name: "index_service_connections_on_account_provider_subject", unique: true, where: "((external_subject_id IS NOT NULL) AND (credential_fingerprint IS NULL))"
     t.index ["account_id"], name: "index_service_connections_on_account_id"
     t.index ["connected_by_user_id"], name: "index_service_connections_on_connected_by_user_id"
     t.index ["legacy_oura_integration_id"], name: "index_service_connections_on_legacy_oura_integration_id"

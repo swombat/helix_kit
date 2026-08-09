@@ -70,7 +70,7 @@ Rails.application.routes.draw do
     resources :services, only: :index, module: :accounts
     resource :personal_services, only: :show, module: :accounts
     resources :service_authorizations, only: :create
-    resources :service_connections, only: [ :update, :destroy ], module: :accounts
+    resources :service_connections, only: [ :create, :update, :destroy ], module: :accounts
 
     resources :chats do
       collection do

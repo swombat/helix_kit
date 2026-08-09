@@ -1,6 +1,50 @@
 class Accounts::ServiceConnectionsController < ApplicationController
 
-  before_action :set_connection
+  before_action :set_connection, only: [ :update, :destroy ]
+
+  def create
+    definition = Services::Definition.fetch(params.require(:provider))
+    raise ArgumentError, "This service uses OAuth authorization" unless definition.connection_method == "credentials"
+
+    management_scope = params.require(:management_scope)
+    authorize_management_scope!(definition, management_scope)
+    result = definition.adapter.connection_attributes(
+      credentials: credential_params.to_h,
+      user: Current.user
+    )
+    existing = current_account.service_connections.find_by(
+      provider: definition.key,
+      credential_fingerprint: result.fetch(:credential_fingerprint)
+    )
+    if existing
+      raise Services::AdapterError, "That credential is already connected as #{existing.display_label}"
+    end
+
+    connection = current_account.service_connections.new(
+      connected_by_user: Current.user,
+      provider: definition.key,
+      external_subject_id: result.fetch(:external_subject_id),
+      external_identity: result[:external_identity],
+      label: result[:label],
+      management_scope: management_scope,
+      credential_kind: result.fetch(:credential_kind),
+      credential_fingerprint: result.fetch(:credential_fingerprint),
+      credential_metadata: result.fetch(:credential_metadata),
+      status: "connected"
+    )
+    connection.credential_payload_hash = result.fetch(:credential_payload)
+    connection.save!
+
+    audit(:connect_service, connection,
+          provider: connection.provider,
+          management_scope: connection.management_scope,
+          external_identity: connection.external_identity,
+          authority_summary: connection.credential_metadata["authority_summary"])
+    redirect_back fallback_location: account_personal_services_path(current_account),
+                  notice: "#{definition.name} connected"
+  rescue Services::Definition::UnknownProvider, Services::AdapterError, KeyError, ArgumentError, ActiveRecord::RecordInvalid => e
+    redirect_back fallback_location: account_personal_services_path(current_account), alert: e.message
+  end
 
   def update
     unless @connection.manageable_by?(Current.user)
@@ -40,6 +84,21 @@ class Accounts::ServiceConnectionsController < ApplicationController
 
   def connection_params
     params.require(:service_connection).permit(:label, :enabled_for_new_agents, :freely_provisionable)
+  end
+
+  def credential_params
+    params.require(:credentials).permit(:token, :repository)
+  end
+
+  def authorize_management_scope!(definition, scope)
+    raise ArgumentError, "Unsupported connection ownership" unless definition.supports_management_scope?(scope)
+
+    case scope
+    when "personal"
+      true
+    when "account_managed"
+      raise Account::NotAuthorized unless current_account.service_credentials_manageable_by?(Current.user)
+    end
   end
 
 end

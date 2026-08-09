@@ -4,8 +4,9 @@ module Services
     class UnknownProvider < KeyError; end
 
     attr_reader :key, :name, :management_scopes, :credential_strategy,
-                :api_origins, :documentation, :access_profiles,
-                :default_access_profile, :adapter_class
+                 :api_origins, :documentation, :access_profiles,
+                 :default_access_profile, :adapter_class, :connection_method,
+                 :credential_fields, :runtime_notes
 
     def self.register(**attributes)
       definition = new(**attributes)
@@ -32,7 +33,8 @@ module Services
     end
 
     def initialize(key:, name:, management_scopes:, credential_strategy:, api_origins:,
-                   documentation:, access_profiles:, default_access_profile:, adapter_class:)
+                   documentation:, access_profiles:, default_access_profile:, adapter_class:,
+                   connection_method: "oauth2", credential_fields: [], runtime_notes: [])
       @key = key.to_s
       @name = name
       @management_scopes = management_scopes.map(&:to_s).freeze
@@ -42,6 +44,9 @@ module Services
       @access_profiles = access_profiles.to_h.transform_keys(&:to_s).transform_values { |v| Array(v).map(&:to_s).freeze }.freeze
       @default_access_profile = default_access_profile.to_s
       @adapter_class = adapter_class
+      @connection_method = connection_method.to_s
+      @credential_fields = credential_fields.map { |field| field.to_h.stringify_keys.freeze }.freeze
+      @runtime_notes = Array(runtime_notes).map(&:to_s).freeze
     end
 
     def scopes_for(profile)
@@ -61,6 +66,8 @@ module Services
         key: key,
         name: name,
         management_scopes: management_scopes,
+        connection_method: connection_method,
+        credential_fields: credential_fields,
         credential_strategy: credential_strategy,
         access_profiles: access_profiles.map do |profile, scopes|
           {

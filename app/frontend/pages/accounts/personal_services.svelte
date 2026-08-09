@@ -1,11 +1,12 @@
 <script>
   import { router } from '@inertiajs/svelte';
   import { Button } from '$lib/components/shadcn/button/index.js';
-  import { DropboxLogo, Heartbeat, ArrowLeft } from 'phosphor-svelte';
+  import { DropboxLogo, GithubLogo, Heartbeat, ArrowLeft } from 'phosphor-svelte';
   import { submitNativePost } from '$lib/integration-forms';
 
   let { account, services = [], connections = [] } = $props();
   let selectedProfiles = $state({});
+  let credentialValues = $state({});
 
   function profileFor(service) {
     return selectedProfiles[service.key] || service.access_profiles.find((profile) => profile.default)?.key;
@@ -19,6 +20,35 @@
     });
   }
 
+  function credentialsFor(service) {
+    return credentialValues[service.key] || {};
+  }
+
+  function updateCredential(service, field, value) {
+    credentialValues = {
+      ...credentialValues,
+      [service.key]: {
+        ...credentialsFor(service),
+        [field.key]: value,
+      },
+    };
+  }
+
+  function connectCredentials(service) {
+    router.post(`/accounts/${account.id}/service_connections`, {
+      provider: service.key,
+      management_scope: 'personal',
+      credentials: credentialsFor(service),
+    });
+  }
+
+  function serviceDescription(service) {
+    if (service.key === 'dropbox') return 'Files and folders, with provider-enforced scope choices.';
+    if (service.key === 'oura') return 'Sleep, readiness, activity, and direct Oura API access.';
+    if (service.key === 'github') return 'Repository-scoped access using a fine-grained personal access token.';
+    return 'Direct external-service access for selected residents.';
+  }
+
   function updateConnection(connection, attributes) {
     router.patch(`/accounts/${account.id}/service_connections/${connection.id}`, {
       service_connection: attributes,
@@ -26,7 +56,11 @@
   }
 
   function removeConnection(connection) {
-    if (confirm(`Disconnect ${connection.label}?`)) {
+    const warning =
+      connection.provider === 'github'
+        ? `Disconnect ${connection.label}? This removes the token from residents but does not revoke it on GitHub.`
+        : `Disconnect ${connection.label}?`;
+    if (confirm(warning)) {
       router.delete(`/accounts/${account.id}/service_connections/${connection.id}`);
     }
   }
@@ -53,21 +87,54 @@
           <div
             class={service.key === 'dropbox'
               ? 'flex size-11 items-center justify-center rounded-xl bg-blue-600 text-white'
-              : 'flex size-11 items-center justify-center rounded-xl bg-red-500 text-white'}>
-            {#if service.key === 'dropbox'}<DropboxLogo size={24} weight="fill" />{:else}<Heartbeat
-                size={24}
-                weight="fill" />{/if}
+              : service.key === 'github'
+                ? 'flex size-11 items-center justify-center rounded-xl bg-neutral-900 text-white'
+                : 'flex size-11 items-center justify-center rounded-xl bg-red-500 text-white'}>
+            {#if service.key === 'dropbox'}
+              <DropboxLogo size={24} weight="fill" />
+            {:else if service.key === 'github'}
+              <GithubLogo size={24} weight="fill" />
+            {:else}
+              <Heartbeat size={24} weight="fill" />
+            {/if}
           </div>
           <div>
             <h3 class="font-semibold">{service.name}</h3>
             <p class="text-sm text-muted-foreground">
-              {service.key === 'dropbox'
-                ? 'Files and folders, with provider-enforced scope choices.'
-                : 'Sleep, readiness, activity, and direct Oura API access.'}
+              {serviceDescription(service)}
             </p>
           </div>
         </div>
-        {#if service.access_profiles.length > 1}
+        {#if service.connection_method === 'credentials'}
+          <div class="space-y-3">
+            {#if service.key === 'github'}
+              <div class="rounded-md bg-muted/50 p-3 text-xs text-muted-foreground">
+                <a
+                  href="https://github.com/settings/personal-access-tokens/new"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="font-medium text-primary underline underline-offset-4">
+                  Create a fine-grained token on GitHub
+                </a>
+                with access to only one repository. Grant <strong>Contents: read and write</strong>; add pull-request or
+                workflow permissions only if the resident needs them.
+              </div>
+            {/if}
+            {#each service.credential_fields as field}
+              <label class="block space-y-1">
+                <span class="text-sm font-medium">{field.label}</span>
+                <input
+                  type={field.type || 'text'}
+                  value={credentialsFor(service)[field.key] || ''}
+                  placeholder={field.placeholder || ''}
+                  autocomplete={field.type === 'password' ? 'off' : 'on'}
+                  class="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                  oninput={(event) => updateCredential(service, field, event.currentTarget.value)} />
+                {#if field.help}<span class="block text-xs text-muted-foreground">{field.help}</span>{/if}
+              </label>
+            {/each}
+          </div>
+        {:else if service.access_profiles.length > 1}
           <select
             class="w-full rounded-md border bg-background px-3 py-2 text-sm"
             value={profileFor(service)}
@@ -78,7 +145,12 @@
             {/each}
           </select>
         {/if}
-        <Button type="button" onclick={() => connect(service)}>Connect {service.name}</Button>
+        <Button
+          type="button"
+          onclick={() =>
+            service.connection_method === 'credentials' ? connectCredentials(service) : connect(service)}>
+          Connect {service.name}
+        </Button>
       </div>
     {/each}
   </section>
@@ -96,7 +168,11 @@
           <div>
             <h3 class="font-semibold">{connection.label}</h3>
             <p class="text-sm text-muted-foreground">{connection.provider_name} · {connection.identity}</p>
-            <p class="mt-2 text-xs">Granted scopes: {connection.granted_scopes.join(', ')}</p>
+            {#if connection.authority_summary}
+              <p class="mt-2 text-xs">{connection.authority_summary}</p>
+            {:else if connection.granted_scopes.length > 0}
+              <p class="mt-2 text-xs">Granted scopes: {connection.granted_scopes.join(', ')}</p>
+            {/if}
           </div>
           <Button type="button" variant="destructive" onclick={() => removeConnection(connection)}>Disconnect</Button>
         </div>

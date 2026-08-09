@@ -1,5 +1,5 @@
 <script>
-  import { ArrowLeft, CheckCircle, TelegramLogo, DropboxLogo, Heartbeat } from 'phosphor-svelte';
+  import { ArrowLeft, CheckCircle, TelegramLogo, DropboxLogo, GithubLogo, Heartbeat } from 'phosphor-svelte';
   import { router } from '@inertiajs/svelte';
   import { Button } from '$lib/components/shadcn/button/index.js';
   import { Input } from '$lib/components/shadcn/input';
@@ -201,9 +201,13 @@
             <div
               class={connection.provider === 'dropbox'
                 ? 'flex size-11 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white'
-                : 'flex size-11 shrink-0 items-center justify-center rounded-xl bg-red-500 text-white'}>
+                : connection.provider === 'github'
+                  ? 'flex size-11 shrink-0 items-center justify-center rounded-xl bg-neutral-900 text-white'
+                  : 'flex size-11 shrink-0 items-center justify-center rounded-xl bg-red-500 text-white'}>
               {#if connection.provider === 'dropbox'}
                 <DropboxLogo size={24} weight="fill" />
+              {:else if connection.provider === 'github'}
+                <GithubLogo size={24} weight="fill" />
               {:else}
                 <Heartbeat size={24} weight="fill" />
               {/if}
