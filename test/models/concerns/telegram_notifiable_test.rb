@@ -1,5 +1,6 @@
 require "test_helper"
 require "ostruct"
+require "webmock/minitest"
 
 class TelegramNotifiableTest < ActiveSupport::TestCase
 
@@ -107,6 +108,44 @@ class TelegramNotifiableTest < ActiveSupport::TestCase
     json = agent.as_json
     assert_equal "test_bot", json["telegram_bot_username"]
     assert_equal true, json["telegram_configured"]
+  end
+
+  test "telegram_file_info treats file-too-big as a permanent size failure" do
+    agent = create_telegram_agent
+    stub_request(:post, "https://api.telegram.org/bot123:ABC/getFile")
+      .to_return(status: 200, body: {
+        ok: false,
+        error_code: 400,
+        description: "Bad Request: file is too big"
+      }.to_json)
+
+    assert_raises TelegramNotifiable::TelegramMediaTooLarge do
+      agent.telegram_file_info("large-file")
+    end
+  end
+
+  test "telegram_file_info treats invalid identifiers as permanent" do
+    agent = create_telegram_agent
+    stub_request(:post, "https://api.telegram.org/bot123:ABC/getFile")
+      .to_return(status: 200, body: {
+        ok: false,
+        error_code: 400,
+        description: "Bad Request: wrong file identifier"
+      }.to_json)
+
+    assert_raises TelegramNotifiable::TelegramMediaInvalid do
+      agent.telegram_file_info("invalid-file")
+    end
+  end
+
+  test "telegram download enforces its streaming byte cap" do
+    agent = create_telegram_agent
+    stub_request(:get, "https://api.telegram.org/file/bot123:ABC/photo/file.png")
+      .to_return(status: 200, body: "too many bytes")
+
+    assert_raises TelegramNotifiable::TelegramMediaTooLarge do
+      agent.telegram_download_file("photo/file.png", max_bytes: 3)
+    end
   end
 
   private

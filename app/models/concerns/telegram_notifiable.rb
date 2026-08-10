@@ -3,6 +3,13 @@ module TelegramNotifiable
   extend ActiveSupport::Concern
 
   class TelegramError < StandardError; end
+  class TelegramMediaError < TelegramError; end
+  class TelegramMediaTransientError < TelegramMediaError; end
+  class TelegramMediaPermanentError < TelegramMediaError; end
+  class TelegramMediaTooLarge < TelegramMediaPermanentError; end
+  class TelegramMediaInvalid < TelegramMediaPermanentError; end
+
+  DownloadedTelegramFile = Struct.new(:tempfile, :file_path, :byte_size, keyword_init: true)
 
   included do
     has_many :telegram_subscriptions, dependent: :destroy
@@ -27,6 +34,62 @@ module TelegramNotifiable
     raise TelegramError, result["description"] unless result["ok"]
 
     result
+  end
+
+  def telegram_file_info(file_id)
+    result = telegram_api_request("getFile", { file_id: file_id })
+    return result.fetch("result") if result["ok"] && result.dig("result", "file_path").present?
+
+    description = result["description"].to_s
+    if description.downcase.include?("file is too big")
+      raise TelegramMediaTooLarge, "Telegram refused an oversized file"
+    end
+
+    error_code = result["error_code"].to_i
+    if error_code.between?(400, 499) && error_code != 429
+      raise TelegramMediaInvalid, "Telegram rejected the file identifier"
+    end
+
+    raise TelegramMediaTransientError, "Telegram could not provide file information"
+  rescue TelegramMediaError
+    raise
+  rescue StandardError => e
+    raise TelegramMediaTransientError, "Telegram file information request failed: #{e.class}"
+  end
+
+  def telegram_download_file(file_path, max_bytes:)
+    tempfile = Tempfile.new([ "telegram-media-", File.extname(file_path) ], binmode: true)
+    uri = URI("https://api.telegram.org/file/bot#{telegram_bot_token}/#{file_path}")
+    byte_size = 0
+
+    Net::HTTP.start(uri.hostname, uri.port, use_ssl: true, read_timeout: 60, open_timeout: 10) do |http|
+      http.request_get(uri.request_uri) do |response|
+        unless response.is_a?(Net::HTTPSuccess)
+          raise TelegramMediaTooLarge, "Telegram media exceeded the application limit" if response.code.to_i == 413
+          if response.code.to_i.between?(400, 499) && response.code.to_i != 429
+            raise TelegramMediaInvalid, "Telegram media is no longer available"
+          end
+
+          raise TelegramMediaTransientError, "Telegram media download returned HTTP #{response.code}"
+        end
+
+        response.read_body do |chunk|
+          byte_size += chunk.bytesize
+          raise TelegramMediaTooLarge, "Telegram media exceeded the application limit" if byte_size > max_bytes
+
+          tempfile.write(chunk)
+        end
+      end
+    end
+
+    tempfile.rewind
+    DownloadedTelegramFile.new(tempfile: tempfile, file_path: file_path, byte_size: byte_size)
+  rescue TelegramMediaError
+    tempfile&.close!
+    raise
+  rescue StandardError => e
+    tempfile&.close!
+    raise TelegramMediaTransientError, "Telegram media download failed: #{e.class}"
   end
 
   def set_telegram_webhook!

@@ -659,7 +659,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_09_211500) do
   end
 
   create_table "telegram_messages", force: :cascade do |t|
+    t.text "caption"
     t.datetime "created_at", null: false
+    t.string "media_error"
+    t.string "media_kind"
+    t.jsonb "media_metadata", default: {}, null: false
+    t.string "media_status"
     t.string "role", null: false
     t.string "sender_name"
     t.string "sender_username"
@@ -667,7 +672,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_09_211500) do
     t.bigint "telegram_message_id"
     t.bigint "telegram_subscription_id", null: false
     t.text "text", null: false
+    t.text "transcription"
     t.datetime "updated_at", null: false
+    t.datetime "wake_enqueued_at"
     t.index ["telegram_subscription_id", "telegram_message_id"], name: "idx_on_telegram_subscription_id_telegram_message_id_9eb10802be", unique: true, where: "(telegram_message_id IS NOT NULL)"
     t.index ["telegram_subscription_id"], name: "index_telegram_messages_on_telegram_subscription_id"
   end

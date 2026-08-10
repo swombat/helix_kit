@@ -56,7 +56,7 @@ class ExternalAgentTelegramRequest
   end
 
   def trigger_payload
-    {
+    payload = {
       channel: "telegram",
       sender: {
         name: subscription.subscriber_name,
@@ -67,20 +67,23 @@ class ExternalAgentTelegramRequest
       thread_id: subscription.to_param,
       history_cursor: telegram_message.to_param
     }
+    payload[:media] = telegram_message.media_json if telegram_message.media?
+    payload
   end
 
   def request_text
     [
       Notices::Renderer.section_for(agent),
       <<~TEXT
-      HelixKit received a Telegram direct message for you.
+      souls.house received a Telegram direct message for you.
 
       Channel: telegram
       Thread ID: #{subscription.to_param}
       History cursor: #{telegram_message.to_param}
       Sender: #{subscription.subscriber_name} <#{subscription.user.email_address}>
       Telegram username: #{subscription.telegram_username.presence || "_unknown_"}
-      Message: #{telegram_message.text}
+      Message:
+      #{telegram_message.media_prompt}
 
       Telegram is a direct, push-to-phone channel. Decide whether and how to reply in that register.
       Your final Chaos stdout is diagnostic only. To reply, prefer piping the message through stdin:
@@ -100,7 +103,7 @@ class ExternalAgentTelegramRequest
       Notices::Renderer.section_for(agent),
       <<~TEXT
       New Telegram DM from #{subscription.subscriber_name} (thread #{subscription.to_param}):
-      #{telegram_message.text}
+      #{telegram_message.media_prompt}
 
       Reply by piping stdin to `helixkit-send-telegram --reply-to #{subscription.to_param}` if appropriate. Stdout is diagnostic only.
       History cursor: #{telegram_message.to_param}
@@ -110,7 +113,7 @@ class ExternalAgentTelegramRequest
 
   def transcript_text
     subscription.telegram_messages.chronological.last(TRANSCRIPT_WINDOW).map do |message|
-      "#{message.sent_at.iso8601} #{message.sender_name || message.role}: #{message.text}"
+      message.transcript_line
     end.join("\n")
   end
 

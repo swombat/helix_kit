@@ -1,5 +1,7 @@
 class ProcessTelegramUpdateJob < ApplicationJob
 
+  self.log_arguments = false
+
   queue_as :default
 
   def perform(agent, update)
@@ -8,12 +10,13 @@ class ProcessTelegramUpdateJob < ApplicationJob
     return if message.dig("chat", "type").present? && message.dig("chat", "type") != "private"
 
     text = message.dig("text")
-    return if text.blank?
-
     chat_id = message.dig("chat", "id")
-    return process_start(agent, message, text, chat_id) if text.start_with?("/start")
+    return process_start(agent, message, text, chat_id) if text&.start_with?("/start")
 
-    process_direct_message(agent, message, text, chat_id)
+    content = supported_content(message)
+    return unless content
+
+    process_direct_message(agent, message, content, chat_id)
   end
 
   private
@@ -37,7 +40,7 @@ class ProcessTelegramUpdateJob < ApplicationJob
     )
   end
 
-  def process_direct_message(agent, message, text, chat_id)
+  def process_direct_message(agent, message, content, chat_id)
     subscription = agent.telegram_subscriptions.find_by(telegram_chat_id: chat_id)
     return unless subscription
 
@@ -46,21 +49,32 @@ class ProcessTelegramUpdateJob < ApplicationJob
       blocked: false
     )
 
-    telegram_message = create_inbound_message(subscription, message, text)
+    telegram_message = create_inbound_message(subscription, message, content)
     return unless telegram_message
-    return unless agent.active? && !agent.paused? && agent.external? && agent.trigger_bearer_token.present?
 
-    TelegramAgentTriggerJob.perform_later(subscription, telegram_message)
+    if content[:media_kind]
+      if content[:file_size].to_i > TelegramMessage.media_limit_for(content[:media_kind])
+        fail_oversized_media(agent, subscription, telegram_message)
+      else
+        PrepareTelegramMediaJob.perform_later(telegram_message, content[:file_id], content[:telegram_metadata])
+      end
+    elsif agent.active? && !agent.paused? && agent.external? && agent.trigger_bearer_token.present?
+      TelegramAgentTriggerJob.perform_later(subscription, telegram_message)
+    end
   end
 
-  def create_inbound_message(subscription, message, text)
+  def create_inbound_message(subscription, message, content)
     telegram_message_id = message["message_id"]
     existing = subscription.telegram_messages.find_by(telegram_message_id: telegram_message_id) if telegram_message_id
     return if existing
 
     subscription.telegram_messages.create!(
       role: "user",
-      text: text,
+      text: content[:text],
+      caption: content[:caption],
+      media_kind: content[:media_kind],
+      media_status: content[:media_kind] ? "pending" : nil,
+      media_metadata: content[:telegram_metadata] || {},
       sender_name: subscription.subscriber_name,
       sender_username: message.dig("from", "username"),
       telegram_message_id: telegram_message_id,
@@ -68,6 +82,57 @@ class ProcessTelegramUpdateJob < ApplicationJob
     )
   rescue ActiveRecord::RecordNotUnique
     nil
+  end
+
+  def supported_content(message)
+    return { text: message["text"] } if message["text"].present?
+
+    if message["photo"].present?
+      photo = message["photo"].max_by { |entry| entry["width"].to_i * entry["height"].to_i }
+      return media_content("photo", message, photo, width: photo["width"], height: photo["height"])
+    end
+
+    return media_content("voice", message, message["voice"], duration: message.dig("voice", "duration")) if message["voice"].present?
+    media_content(
+      "video",
+      message,
+      message["video"],
+      duration: message.dig("video", "duration"),
+      width: message.dig("video", "width"),
+      height: message.dig("video", "height")
+    ) if message["video"].present?
+  end
+
+  def media_content(kind, message, media, metadata = {})
+    caption = message["caption"].presence
+    label = { "photo" => "Photo", "voice" => "Voice message", "video" => "Video" }.fetch(kind)
+    text = [ caption, "[#{label} — processing]" ].compact.join("\n\n")
+
+    {
+      text: text,
+      caption: caption,
+      media_kind: kind,
+      file_id: media["file_id"],
+      file_size: media["file_size"],
+      telegram_metadata: metadata.compact
+    }
+  end
+
+  def fail_oversized_media(agent, subscription, telegram_message)
+    telegram_message.update!(
+      media_status: "failed",
+      media_error: "too_large"
+    )
+    telegram_message.rebuild_text!
+    agent.telegram_send_message(subscription.telegram_chat_id, oversized_message(telegram_message.media_kind))
+  end
+
+  def oversized_message(kind)
+    if kind == "video"
+      "That video is over souls.house's 20 MB Telegram limit. Please trim or compress it and send it again."
+    else
+      "That #{kind} is over souls.house's 20 MB Telegram limit. Please send a smaller file."
+    end
   end
 
   def verify_deep_link(agent, param)

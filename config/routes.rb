@@ -172,6 +172,12 @@ Rails.application.routes.draw do
       end
       resources :agents, only: [ :index, :show ]
       resources :telegram_conversations, only: :show
+      get "telegram_conversations/:conversation_id/messages/:message_id/media",
+        to: "telegram_media#show",
+        as: :telegram_conversation_message_media
+      get "telegram_conversations/:conversation_id/messages/:message_id/preview_frames/:id",
+        to: "telegram_media#preview_frame",
+        as: :telegram_conversation_message_preview_frame
       resources :telegram_messages, only: :create
       resources :telegram_subscribers, only: :index
       resource :attention, only: :show

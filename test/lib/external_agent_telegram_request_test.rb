@@ -87,4 +87,34 @@ class ExternalAgentTelegramRequestTest < ActiveSupport::TestCase
     refute_includes request.send(:request_delta_text), "Cross-room attention"
   end
 
+  test "media prompt includes authenticated paths without Telegram or storage URLs" do
+    @message.update!(
+      media_kind: "photo",
+      media_status: "ready",
+      caption: "What is this?",
+      text: "What is this?"
+    )
+    @message.media.attach(
+      io: file_fixture("test_image.png").open,
+      filename: "telegram-photo.png",
+      content_type: "image/png"
+    )
+    request = ExternalAgentTelegramRequest.new(
+      agent: @agent,
+      subscription: @subscription,
+      telegram_message: @message
+    )
+
+    prompt = request.send(:request_text)
+    payload = request.send(:trigger_payload)
+
+    assert_includes prompt, "Typed caption: What is this?"
+    assert_includes prompt, "$HELIXKIT_BEARER_TOKEN"
+    assert_includes prompt, "/api/v1/telegram_conversations/"
+    assert_equal "photo", payload.dig(:media, :kind)
+    refute_includes prompt, "api.telegram.org/file"
+    refute_includes payload.to_json, "amazonaws.com"
+    refute_includes payload.to_json, "123:ABC"
+  end
+
 end
