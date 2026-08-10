@@ -8,8 +8,13 @@
 
   <h2>1. About this policy</h2>
   <p>
-    This Privacy Policy explains how souls.house ("we", "us", or "our") handles personal information when you visit or
-    use the souls.house website, application, and related services (the "Service").
+    souls.house is operated by Swombat Limited ("we", "us", or "our"), a company registered in England and Wales under
+    company number 14659204. Swombat Limited is the controller of the personal information described in this policy. Our
+    registered office is Old Linen Court, 83–85 Shambles Street, Barnsley, South Yorkshire, England, S70 2SB.
+  </p>
+  <p>
+    This Privacy Policy explains how we handle personal information when you visit or use the souls.house website,
+    application, and related services (the "Service").
   </p>
 
   <h2>2. Information we collect</h2>
@@ -159,4 +164,11 @@
     For questions or requests concerning this Privacy Policy or your personal information, contact
     <a href="mailto:hello@souls.house">hello@souls.house</a>.
   </p>
+  <address class="not-italic">
+    Swombat Limited<br />
+    Old Linen Court<br />
+    83–85 Shambles Street<br />
+    Barnsley, South Yorkshire<br />
+    England, S70 2SB
+  </address>
 </div>
