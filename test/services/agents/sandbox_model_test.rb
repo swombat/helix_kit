@@ -135,6 +135,7 @@ module Agents
         "Image" => "sha256:old",
         "State" => { "Status" => "running", "Running" => true, "ExitCode" => 0 },
         "NetworkSettings" => { "Ports" => {} },
+        "Mounts" => [],
         "Config" => { "Env" => [ "HELIXKIT_APP_URL=http://helix-kit-web:3000" ] }
       }
       sandbox.define_singleton_method(:docker_capture) do |*args|
@@ -157,7 +158,9 @@ module Agents
       status = sandbox.status
 
       assert_equal false, status[:container_image_current]
+      assert_equal true, status[:container_configuration_current]
       assert_equal true, status[:image_stale]
+      assert_equal true, status[:container_stale]
       assert_equal "hk-agent-#{agent.uuid}-repo", status[:repo_volume_name]
       assert_equal true, status[:repo_volume_exists]
       assert_equal "hk-agent-#{agent.uuid}-work", status[:work_volume_name]
@@ -180,6 +183,39 @@ module Agents
       sandbox.recreate!
 
       assert_equal [ :migrate_repo, :migrate_work, [ :remove, false ], :spawn ], calls
+    end
+
+    test "legacy service manifest bind makes container stale" do
+      agent = agents(:research_assistant)
+      agent.update!(
+        uuid: SecureRandom.uuid_v7,
+        container_name: "hk-agent-test",
+        container_image: "helixkit-agent-runtime:latest"
+      )
+      sandbox = Agents::Sandbox.new(agent)
+      container = {
+        "Image" => "sha256:current",
+        "Mounts" => [
+          {
+            "Type" => "bind",
+            "Source" => "/tmp/helixkit-services-old.yml",
+            "Destination" => "/run/helixkit-source.yml"
+          }
+        ]
+      }
+      sandbox.define_singleton_method(:docker_capture) do |*args|
+        case args
+        in [ "container", "inspect", "hk-agent-test" ]
+          { ok: true, stdout: [ container ].to_json, stderr: "" }
+        in [ "image", "inspect", "--format", "{{.Id}}", "helixkit-agent-runtime:latest" ]
+          { ok: true, stdout: "sha256:current\n", stderr: "" }
+        else
+          raise "unexpected docker args: #{args.inspect}"
+        end
+      end
+      sandbox.define_singleton_method(:container_exists?) { true }
+
+      assert sandbox.stale_container?
     end
 
     test "provider environment uses account keys including subscription API keys" do
@@ -219,20 +255,67 @@ module Agents
       sandbox.define_singleton_method(:ensure_state_volume!) { true }
       sandbox.define_singleton_method(:provider_env_args) { [] }
 
-      Open3.stub(:capture3, ->(*args) {
-        calls << args
-        [ "", "", success ]
-      }) do
-        sandbox.send(:run_container!)
+      Agents::Config.stub(:cold_start?, true) do
+        Open3.stub(:capture3, ->(*args) {
+          calls << args
+          [ "", "", success ]
+        }) do
+          sandbox.send(:run_container!)
+        end
       end
 
       create_args, copy_args, start_args = calls
       assert_equal [ "docker", "create" ], create_args.first(2)
+      assert_equal "no", create_args.fetch(create_args.index("--restart") + 1)
       assert_not create_args.any? { |arg| arg.include?("type=bind") }
       assert_equal [ "docker", "cp" ], copy_args.first(2)
       assert_match %r{/helixkit-services-.*\.yml}, copy_args.fetch(2)
       assert_equal "hk-agent-test:/run/helixkit-source.yml", copy_args.fetch(3)
       assert_equal [ "docker", "start", "hk-agent-test" ], start_args
+    end
+
+    test "cold runtime starts before yielding and stops afterward" do
+      sandbox = Agents::Sandbox.new(agents(:research_assistant))
+      calls = []
+      sandbox.define_singleton_method(:spawn!) { calls << :spawn }
+      sandbox.define_singleton_method(:stop_if_idle!) { calls << :stop_if_idle }
+
+      result = Agents::Config.stub(:cold_start?, true) do
+        sandbox.with_runtime do
+          calls << :yield
+          :result
+        end
+      end
+
+      assert_equal :result, result
+      assert_equal [ :spawn, :yield, :stop_if_idle ], calls
+    end
+
+    test "cold runtime still stops after a failed trigger" do
+      sandbox = Agents::Sandbox.new(agents(:research_assistant))
+      calls = []
+      sandbox.define_singleton_method(:spawn!) { calls << :spawn }
+      sandbox.define_singleton_method(:stop_if_idle!) { calls << :stop_if_idle }
+
+      assert_raises RuntimeError do
+        Agents::Config.stub(:cold_start?, true) do
+          sandbox.with_runtime { raise "trigger failed" }
+        end
+      end
+
+      assert_equal [ :spawn, :stop_if_idle ], calls
+    end
+
+    test "warm runtime yields without touching Docker lifecycle" do
+      sandbox = Agents::Sandbox.new(agents(:research_assistant))
+      sandbox.define_singleton_method(:spawn!) { flunk "should not start warm runtime" }
+      sandbox.define_singleton_method(:stop_if_idle!) { flunk "should not stop warm runtime" }
+
+      result = Agents::Config.stub(:cold_start?, false) do
+        sandbox.with_runtime { :result }
+      end
+
+      assert_equal :result, result
     end
 
   end

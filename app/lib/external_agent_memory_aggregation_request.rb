@@ -11,6 +11,17 @@ class ExternalAgentMemoryAggregationRequest
   end
 
   def call
+    Agents::Sandbox.new(agent).with_runtime { perform }
+  rescue StandardError => e
+    Rails.logger.warn "[ExternalAgentMemoryAggregationRequest] #{agent.id} #{period}/#{target} failed: #{e.class}: #{e.message}"
+    { status: 0, error: e.message }
+  end
+
+  private
+
+  attr_reader :agent, :period, :target, :requested_by
+
+  def perform
     return { status: 503, error: "external runtime unreachable" } if agent.offline? || agent_unhealthy?
     raise ArgumentError, "period must be one of #{PERIODS.to_sentence}" unless PERIODS.include?(period)
     raise ArgumentError, "target is required" if target.blank?
@@ -45,14 +56,7 @@ class ExternalAgentMemoryAggregationRequest
         runtime_timeout_secs: AGGREGATION_TIMEOUT_SECS
       )
     end
-  rescue StandardError => e
-    Rails.logger.warn "[ExternalAgentMemoryAggregationRequest] #{agent.id} #{period}/#{target} failed: #{e.class}: #{e.message}"
-    { status: 0, error: e.message }
   end
-
-  private
-
-  attr_reader :agent, :period, :target, :requested_by
 
   def provider
     @provider ||= Agents::Sandbox.chaos_provider_for(agent)

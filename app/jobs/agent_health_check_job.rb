@@ -6,11 +6,17 @@ class AgentHealthCheckJob < ApplicationJob
 
   def perform
     Agent.externally_hosted.find_each do |agent|
+      next if intentionally_cold?(agent)
+
       apply_result(agent, healthy?(agent))
     end
   end
 
   private
+
+  def intentionally_cold?(agent)
+    Agents::Config.cold_start? && Agents::Sandbox.new(agent).stopped?
+  end
 
   def healthy?(agent)
     uri = URI("#{Agents::Endpoint.url_for(agent).to_s.delete_suffix('/')}/health")

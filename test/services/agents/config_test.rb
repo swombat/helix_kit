@@ -33,5 +33,20 @@ module Agents
       ENV["PORT"] = old_port
     end
 
+    test "cold starts can be configured per development instance" do
+      old_value = ENV["HELIXKIT_AGENT_COLD_START"]
+      ENV["HELIXKIT_AGENT_COLD_START"] = "true"
+
+      assert Agents::Config.cold_start?
+      assert_equal "no", Agents::Config.restart_policy
+
+      ENV["HELIXKIT_AGENT_COLD_START"] = "false"
+
+      assert_not Agents::Config.cold_start?
+      assert_equal "unless-stopped", Agents::Config.restart_policy
+    ensure
+      ENV["HELIXKIT_AGENT_COLD_START"] = old_value
+    end
+
   end
 end

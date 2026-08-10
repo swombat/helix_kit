@@ -15,7 +15,7 @@ class HostedAgentRuntimeReconcileJobTest < ActiveJob::TestCase
 
   test "recreates stale hosted sandbox while preserving volumes" do
     sandbox = Minitest::Mock.new
-    sandbox.expect(:stale_image?, true)
+    sandbox.expect(:stale_container?, true)
     sandbox.expect(:active_turn?, false)
     sandbox.expect(:recreate!, true)
 
@@ -31,7 +31,7 @@ class HostedAgentRuntimeReconcileJobTest < ActiveJob::TestCase
 
   test "skips current sandbox" do
     sandbox = Minitest::Mock.new
-    sandbox.expect(:stale_image?, false)
+    sandbox.expect(:stale_container?, false)
 
     Agents::Sandbox.stub(:new, ->(_agent) { sandbox }) do
       HostedAgentRuntimeReconcileJob.perform_now(@agent.id)
@@ -43,7 +43,7 @@ class HostedAgentRuntimeReconcileJobTest < ActiveJob::TestCase
 
   test "retries active stale sandbox later" do
     sandbox = Minitest::Mock.new
-    sandbox.expect(:stale_image?, true)
+    sandbox.expect(:stale_container?, true)
     sandbox.expect(:active_turn?, true)
 
     assert_enqueued_with(job: HostedAgentRuntimeReconcileJob, args: [ @agent.id ]) do

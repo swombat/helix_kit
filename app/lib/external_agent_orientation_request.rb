@@ -9,6 +9,17 @@ class ExternalAgentOrientationRequest
   end
 
   def call
+    Agents::Sandbox.new(agent).with_runtime { perform }
+  rescue StandardError => e
+    Rails.logger.warn "[ExternalAgentOrientationRequest] #{agent.id} orientation failed: #{e.class}: #{e.message}"
+    { status: 0, error: e.message, oriented: false }
+  end
+
+  private
+
+  attr_reader :agent, :requested_by, :context
+
+  def perform
     return { status: 503, error: "external runtime unreachable" } if agent.offline? || agent_unhealthy?
 
     endpoint_url = Agents::Endpoint.url_for(agent)
@@ -47,14 +58,7 @@ class ExternalAgentOrientationRequest
     oriented = journal_status.grown_since?(before)
     agent.update!(oriented_at: Time.current) if oriented && agent.oriented_at.blank?
     result.merge(oriented: oriented, oriented_at: agent.reload.oriented_at&.iso8601)
-  rescue StandardError => e
-    Rails.logger.warn "[ExternalAgentOrientationRequest] #{agent.id} orientation failed: #{e.class}: #{e.message}"
-    { status: 0, error: e.message, oriented: false }
   end
-
-  private
-
-  attr_reader :agent, :requested_by, :context
 
   def provider
     @provider ||= Agents::Sandbox.chaos_provider_for(agent)

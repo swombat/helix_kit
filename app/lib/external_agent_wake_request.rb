@@ -6,6 +6,17 @@ class ExternalAgentWakeRequest
   end
 
   def call
+    Agents::Sandbox.new(agent).with_runtime { perform }
+  rescue StandardError => e
+    Rails.logger.warn "[ExternalAgentWakeRequest] #{agent.id} wake failed: #{e.class}: #{e.message}"
+    { status: 0, error: e.message }
+  end
+
+  private
+
+  attr_reader :agent, :requested_by
+
+  def perform
     return { status: 503, error: "external runtime unreachable" } if agent.offline? || agent_unhealthy?
 
     endpoint_url = Agents::Endpoint.url_for(agent)
@@ -37,14 +48,7 @@ class ExternalAgentWakeRequest
         auth_mode: auth_mode
       )
     end
-  rescue StandardError => e
-    Rails.logger.warn "[ExternalAgentWakeRequest] #{agent.id} wake failed: #{e.class}: #{e.message}"
-    { status: 0, error: e.message }
   end
-
-  private
-
-  attr_reader :agent, :requested_by
 
   def provider
     @provider ||= Agents::Sandbox.chaos_provider_for(agent)

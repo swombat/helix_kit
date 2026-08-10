@@ -39,4 +39,21 @@ class AgentHealthCheckJobTest < ActiveJob::TestCase
     assert_equal 0, @agent.consecutive_health_failures
   end
 
+  test "does not mark an intentionally cold development container unhealthy" do
+    sandbox = Object.new
+    sandbox.define_singleton_method(:stopped?) { true }
+
+    Agents::Config.stub(:cold_start?, true) do
+      Agents::Sandbox.stub(:new, sandbox) do
+        AgentHealthCheckJob.perform_now
+      end
+    end
+
+    @agent.reload
+    assert_equal "external", @agent.runtime
+    assert_equal "healthy", @agent.health_state
+    assert_equal 0, @agent.consecutive_health_failures
+    assert_nil @agent.last_health_check_at
+  end
+
 end

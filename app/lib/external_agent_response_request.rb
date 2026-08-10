@@ -8,6 +8,21 @@ class ExternalAgentResponseRequest
   end
 
   def call
+    Agents::Sandbox.new(agent).with_runtime { perform }
+  rescue StandardError => e
+    Rails.logger.warn "[ExternalAgentResponseRequest] #{agent.id} trigger failed: #{e.class}: #{e.message}"
+    ActionCable.server.broadcast(
+      "Chat:#{chat.to_param}",
+      { action: "error", message: "#{agent.name}'s external runtime could not be reached" }
+    )
+    { status: 0, error: e.message }
+  end
+
+  private
+
+  attr_reader :agent, :chat, :requested_by, :initiation_reason
+
+  def perform
     return notify_unreachable if agent.offline? || agent_unhealthy?
 
     endpoint_url = Agents::Endpoint.url_for(agent)
@@ -43,18 +58,7 @@ class ExternalAgentResponseRequest
     end
     surface_subscription_auth_failure! if subscription_auth_failure?(result)
     result
-  rescue StandardError => e
-    Rails.logger.warn "[ExternalAgentResponseRequest] #{agent.id} trigger failed: #{e.class}: #{e.message}"
-    ActionCable.server.broadcast(
-      "Chat:#{chat.to_param}",
-      { action: "error", message: "#{agent.name}'s external runtime could not be reached" }
-    )
-    { status: 0, error: e.message }
   end
-
-  private
-
-  attr_reader :agent, :chat, :requested_by, :initiation_reason
 
   def provider
     @provider ||= Agents::Sandbox.chaos_provider_for(agent)

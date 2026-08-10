@@ -39,6 +39,14 @@ module Agents
       ActiveModel::Type::Boolean.new.cast(ENV.fetch("HELIXKIT_AGENT_BACKUPS_ENABLED", !local_development?))
     end
 
+    def cold_start?
+      ActiveModel::Type::Boolean.new.cast(ENV.fetch("HELIXKIT_AGENT_COLD_START") { Rails.env.development? })
+    end
+
+    def restart_policy
+      cold_start? ? "no" : "unless-stopped"
+    end
+
     def local_development?
       Rails.env.development? || Rails.env.test?
     end

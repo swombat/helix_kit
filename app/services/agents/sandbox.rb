@@ -39,7 +39,7 @@ module Agents
       Agents::Volume.new(agent).ensure!
 
       if container_exists?
-        if container_image_current?
+        if container_current?
           start!
         else
           migrate_repo_volume_from_container!
@@ -56,8 +56,8 @@ module Agents
       agent.update!(runtime: "external", health_state: "healthy", consecutive_health_failures: 0)
     end
 
-    def stale_image?
-      container_exists? && !container_image_current?
+    def stale_container?
+      container_exists? && !container_current?
     end
 
     def active_turn?
@@ -67,6 +67,15 @@ module Agents
       result[:ok]
     rescue StandardError
       false
+    end
+
+    def with_runtime
+      return yield unless Agents::Config.cold_start?
+
+      spawn!
+      yield
+    ensure
+      stop_if_idle! if Agents::Config.cold_start?
     end
 
     def recreate!
@@ -125,13 +134,16 @@ module Agents
           network = container.fetch("NetworkSettings", {})
           configured_image_id = image_id(agent.container_image)
           container_image_current = configured_image_id.present? && container["Image"] == configured_image_id
+          container_configuration_current = container_configuration_current?(container)
           base.merge!(
             container_exists: true,
             container_id: container["Id"].to_s.first(12),
             container_image_id: container["Image"],
             configured_image_id: configured_image_id,
             container_image_current: container_image_current,
+            container_configuration_current: container_configuration_current,
             image_stale: !container_image_current,
+            container_stale: !container_image_current || !container_configuration_current,
             container_helixkit_app_url: container_env_value(container, "HELIXKIT_APP_URL"),
             container_state: state["Status"],
             container_running: state["Running"],
@@ -157,7 +169,25 @@ module Agents
     end
 
     def start!
+      update_restart_policy!
       system("docker", "start", agent.container_name, out: File::NULL, err: File::NULL) || raise(SandboxError, "failed to start #{agent.container_name}")
+    end
+
+    def running?
+      result = docker_capture("container", "inspect", "--format", "{{.State.Running}}", agent.container_name)
+      result[:ok] && result[:stdout].strip == "true"
+    end
+
+    def stopped?
+      container_exists? && !running?
+    end
+
+    def stop_if_idle!
+      return unless running?
+      return if active_turn?
+      return if AgentRuntimeInteraction.where(agent: agent).active.exists?
+
+      stop!
     end
 
     def remove!(delete_volume: false)
@@ -248,14 +278,20 @@ module Agents
       system("docker", "container", "inspect", agent.container_name, out: File::NULL, err: File::NULL)
     end
 
-    def container_image_current?
+    def container_current?
       inspect = docker_capture("container", "inspect", agent.container_name)
       return false unless inspect[:ok]
 
       container = JSON.parse(inspect[:stdout]).first
-      image_current?(container["Image"], agent.container_image)
+      image_current?(container["Image"], agent.container_image) && container_configuration_current?(container)
     rescue StandardError
       false
+    end
+
+    def container_configuration_current?(container)
+      Array(container["Mounts"]).none? do |mount|
+        mount["Type"] == "bind" && mount["Destination"] == "/run/helixkit-source.yml"
+      end
     end
 
     def remove_container!
@@ -359,7 +395,7 @@ module Agents
         "docker", "create",
         "--name", agent.container_name,
         "--network", Agents::Config.network,
-        "--restart", "unless-stopped",
+        "--restart", Agents::Config.restart_policy,
         "--memory", "#{agent.container_memory_mb}m",
         "--cpu-shares", agent.container_cpu_shares.to_s,
         "-v", "#{Agents::Volume.new(agent).volume_name}:/home/agent/identity",
@@ -396,6 +432,13 @@ module Agents
       raise
     ensure
       service_manifest_file&.close!
+    end
+
+    def update_restart_policy!
+      system(
+        "docker", "update", "--restart", Agents::Config.restart_policy, agent.container_name,
+        out: File::NULL, err: File::NULL
+      ) || raise(SandboxError, "failed to update restart policy for #{agent.container_name}")
     end
 
     def build_service_manifest_file

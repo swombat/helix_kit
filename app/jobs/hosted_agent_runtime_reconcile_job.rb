@@ -18,7 +18,7 @@ class HostedAgentRuntimeReconcileJob < ApplicationJob
     return unless agent.externally_hosted?
 
     sandbox = Agents::Sandbox.new(agent)
-    return unless sandbox.stale_image?
+    return unless sandbox.stale_container?
 
     if sandbox.active_turn?
       self.class.set(wait: 5.minutes).perform_later(agent.id)
