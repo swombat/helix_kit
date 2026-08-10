@@ -3,6 +3,7 @@
   import { Toaster } from '$lib/components/shadcn/sonner/index.js';
   import { toast } from 'svelte-sonner';
   import Navbar from '$lib/components/navigation/navbar.svelte'; // Adjust the path as necessary
+  import Footer from '$lib/components/navigation/Footer.svelte';
   import { ModeWatcher, setMode, resetMode, mode } from 'mode-watcher';
 
   let { children } = $props();
@@ -30,8 +31,9 @@
 </script>
 
 <ModeWatcher />
-<div class="bg-bg">
+<div class="flex min-h-screen flex-col bg-bg">
   <Navbar />
-  <main>{@render children?.()}</main>
+  <main class="flex-1">{@render children?.()}</main>
+  <Footer />
   <Toaster />
 </div>

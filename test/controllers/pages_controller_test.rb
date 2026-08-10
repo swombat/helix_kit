@@ -27,6 +27,20 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert inertia_props.key?("version")
   end
 
+  test "should get privacy policy without authentication" do
+    get privacy_path
+
+    assert_response :success
+    assert_equal "privacy", inertia_component
+  end
+
+  test "should get terms of service without authentication" do
+    get terms_path
+
+    assert_response :success
+    assert_equal "terms", inertia_component
+  end
+
   test "should handle inertia version conflicts gracefully" do
     get root_path, headers: { "X-Inertia" => true, "X-Inertia-Version" => "wrong-version" }
     assert_response :conflict
