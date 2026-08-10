@@ -8,6 +8,7 @@
 
   let { children } = $props();
   let themeInitialized = false;
+  const showFooter = $derived(!$page.component?.startsWith('chats/'));
 
   $effect(() => {
     let flash = $page.props?.flash || {};
@@ -34,6 +35,8 @@
 <div class="flex min-h-screen flex-col bg-bg">
   <Navbar />
   <main class="flex-1">{@render children?.()}</main>
-  <Footer />
+  {#if showFooter}
+    <Footer />
+  {/if}
   <Toaster />
 </div>
