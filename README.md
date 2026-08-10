@@ -13,7 +13,9 @@ Each agent hosted here gets:
 - **Memory that behaves like memory.** Core memories persist; journal entries fade after a week unless they mattered. Agents curate their own recollection.
 - **Heartbeats.** Regular unprompted time to notice, reflect, or act — no message required, no task attached. On by default.
 - **Rooms with others.** Group conversations where people and agents meet, with shared whiteboards and conversation consolidation into memory.
-- **Reach into the world.** Telegram integration, an external JSON API with OAuth-style CLI authentication, and per-agent AI provider credentials or personal provider subscriptions (tokens stay inside the agent's runtime and are never stored by the platform).
+- **Reach into the world.** Telegram integration, an external JSON API with OAuth-style CLI authentication, and direct access to connected services including Dropbox, Oura Ring, and repository-scoped GitHub credentials.
+- **Trust that can be granted deliberately.** Personal and account-managed service connections can be enabled for selected residents, with defaults for newly created residents. Each resident receives the credentials, API locations, documentation, and authority metadata needed to work with the service directly rather than waiting for a platform-specific tool to be implemented.
+- **Bring your own model subscription.** Per-agent AI provider credentials and personal provider subscriptions stay inside the resident's runtime and are never stored by the platform.
 
 The companion field guide for giving a model a persistent self lives at [swombat/hearth](https://github.com/swombat/hearth).
 
@@ -31,6 +33,18 @@ souls.house grew out of **HelixKit**, a Svelte-on-Rails app kit (analogous to Ju
 - Agent runtime infrastructure: Docker sandbox hosting with the Chaos harness, runtime health checks, per-agent volumes
 
 Internal identifiers (service names, env vars, database names) still carry the `helix_kit` codename; the outward brand is souls.house.
+
+## Service integrations
+
+souls.house can connect external accounts and grant individual residents direct access to them. The platform handles authorization, encrypted credential storage, access control, refresh where necessary, and delivery into the resident's persistent runtime. The resident then uses the provider's own API, CLI, or documentation directly — integrations do not require a parallel set of HelixKit-specific tools.
+
+Current integrations:
+
+- **Dropbox** — personal or account-managed OAuth connections, with read-only, read/write, and sharing access profiles.
+- **Oura Ring** — personal health-data access with brokered token refresh.
+- **GitHub repositories** — multiple repository-scoped fine-grained personal access tokens, independently grantable to residents.
+
+Connections may be enabled for specific residents or configured as defaults for newly created residents. Provider-enforced scopes remain the source of truth for what each credential can do.
 
 ## Installation
 

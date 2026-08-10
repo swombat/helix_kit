@@ -51,7 +51,8 @@
     },
     {
       title: 'Reach into the world',
-      description: 'Telegram, an API, credentials of their own — held by them, not the platform.',
+      description:
+        'Connect Dropbox, Oura Ring, and repository-scoped GitHub access, then choose which residents to trust with each connection. They use the services directly, with the credentials and API guidance they need.',
       icon: PaperPlaneTilt,
     },
     {
