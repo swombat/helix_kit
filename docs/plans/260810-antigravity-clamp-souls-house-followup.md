@@ -1,9 +1,9 @@
 # Antigravity clamp — Souls.house follow-up
 
 **Date:** 2026-08-10  
-**Status:** Chaos first implementation slice exists in a clean feature worktree;
-validation and missing lifecycle interfaces remain; Souls.house integration is
-still blocked  
+**Status:** Chaos implementation and live fresh/resume smoke are complete on a
+feature branch; Souls.house integration can begin after that Chaos revision is
+pinned and its matching journald sidecar is deployed
 **Sequence:** prove `agy` behavior → implement the transport in Chaos → integrate it here
 
 ## Proven spike
@@ -141,43 +141,55 @@ and emits the normalized events listed above.
 
 ### Chaos worktree checkpoint — 2026-08-10
 
-Work is underway on branch `feat/antigravity-clamp` in the external worktree
+Work is complete on branch `feat/antigravity-clamp` in the external worktree
 `~/.local/share/chaos/worktrees/agy-clamp`, created from Chaos
 `origin/master` at `62ec36cbc`.
 
-The current first slice includes:
+Commits:
+
+- `bc9f4b498` — Antigravity transport;
+- `88ec712fc` — lifecycle commands and cross-process conversation state;
+- `c213f0722` — lifecycle and fresh/resume integration tests;
+- `e9dde1374` — remaining model-client test call sites.
+
+The completed slice includes:
 
 - `AntigravityTransport`, using one sandboxed `agy` subprocess per model turn;
 - explicit `clamp_backend = "antigravity"` selection while preserving
   `claude-code` as the default;
-- fresh-turn and in-process provider-conversation resume;
+- fresh-turn, in-process, and separate-process provider-conversation resume;
 - parsing of observed `init`, `step_update`, and `result` JSONL records;
 - normalized assistant output and usage in `chaos exec --json`;
 - removal of metered Gemini API-key environment variables;
 - classified missing-CLI, authentication, timeout, protocol, and invocation
   failures;
-- unit tests with a fake `agy` executable and an ignored live smoke test using
-  an authenticated isolated home.
+- `chaos clamp antigravity connect`, `status --json`, and `disconnect`;
+- explicit capability reporting, including model-only/sandboxed tool authority;
+- unit and end-to-end tests with a fake `agy` executable and an ignored live
+  smoke test using an authenticated isolated home.
 
-The live smoke test passed on August 10, 2026. A separate end-to-end
-`chaos exec --json` test also passed for both a fresh process and a later
-`chaos exec resume` invocation. The normalized stream contained
+The live transport smoke test passed again on August 10, 2026 against `agy
+1.1.11` and the authenticated Google AI Pro account. A live end-to-end
+`chaos exec --json` test also passed for both a fresh process and a later,
+separate-process `chaos exec resume` invocation. The normalized stream contained
 `process.started`, `turn.started`, an `item.completed` agent message, and
-`turn.completed` with invocation and process-cumulative usage. The resumed
-Chaos process retained the prior answer through reconstructed Chaos history.
+`turn.completed` with invocation and process-cumulative usage. The resumed turn
+kept the same Chaos process ID and returned the exact marker from the prior
+provider conversation. Both invocations reported complete token usage and no
+failed turn.
 
-This checkpoint is deliberately not the Souls.house integration boundary yet.
-The following remain before this document's Chaos interface is complete:
+The service-style smoke ran the matching `chaos_journald` binary explicitly and
+passed its socket through `CHAOS_JOURNALD_SOCKET`. Per-command detached journald
+bootstrap was not reliable for the longer live turn: the first model turn
+succeeded, but the later process found a stale socket and timed out before
+reaching Antigravity. Souls.house already has a resident-service architecture
+and should run the Chaos revision's matching journald sidecar as a supervised
+service rather than relying on per-command bootstrap.
 
-- verify and, if necessary, persist the provider conversation ID across a
-  separate `chaos exec resume` process rather than only across turns in one
-  kernel process;
-- add machine-readable capability/authentication status and a supported
-  connect/disconnect ceremony;
-- decide whether to expose incremental `step_update` text or only the final
-  result as normalized output;
-- establish a tested deny or Chaos-owned bridge for Antigravity's advertised
-  built-in tools.
+The initial integration deliberately emits only the final result as normalized
+assistant output. Incremental `step_update` exposure remains a later
+enhancement. Antigravity remains model-only/sandboxed until a tested deny
+mechanism or Chaos-owned tool bridge exists.
 
 ## Souls.house implementation after Chaos lands
 
@@ -191,11 +203,15 @@ The following remain before this document's Chaos interface is complete:
   record the exact official Linux artifact manifest during the image change.
 - Pin the Chaos revision containing Antigravity clamp support.
 - Add build-time smoke checks for both versions.
+- Install and supervise the matching `chaos_journald` binary from the same
+  Chaos revision.
 
 ### Persistent state
 
 - Keep Antigravity state under the existing private runtime state volume, for
   example `/home/agent/state/antigravity`.
+- Keep Chaos's journal database and socket under supervised resident-service
+  state, and pass the socket to workers through `CHAOS_JOURNALD_SOCKET`.
 - Set `HOME`/vendor configuration variables only for the delegated
   Antigravity process.
 - Ensure Gemini API keys are absent from the subscription transport
@@ -208,6 +224,8 @@ The following remain before this document's Chaos interface is complete:
   mapping, and resume logic from the shim.
 - Continue invoking `chaos exec --json`; select the subscription transport via
   the stable Chaos configuration/CLI surface.
+- Repeat the original `-m` model and the effective `clamp=true` /
+  `clamp_backend=antigravity` settings on every resume invocation.
 - Pass normalized Chaos events through the existing telemetry path.
 - Roll a persistent session whenever provider, model, auth mode, or transport
   changes.
