@@ -27,7 +27,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Pin bumps must re-verify provider auth ceremony parsers and clamp subprocess
 # patterns in trigger_shim.py.
 ARG CHAOS_REPO=https://github.com/seuros/chaos.git
-ARG CHAOS_REF=2403367e536eb78986316e31599803266e9354a7
+ARG CHAOS_REF=2403367e5e6efc3d59cee2e1e4a6774474caaea6
 
 WORKDIR /build
 RUN git clone --filter=blob:none ${CHAOS_REPO} chaos \

@@ -17,7 +17,7 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
     assert_includes dockerfile, "COPY docs/helixkit-api.md /usr/local/share/helixkit-agent/helixkit-api.md"
     assert_includes dockerfile, "ARG CLAUDE_CODE_VERSION=2.1.220"
     assert_includes dockerfile, "claude --version"
-    assert_includes dockerfile, "ARG CHAOS_REF=2403367e536eb78986316e31599803266e9354a7"
+    assert_includes dockerfile, "ARG CHAOS_REF=2403367e5e6efc3d59cee2e1e4a6774474caaea6"
     assert_includes dockerfile, "ARG ANTIGRAVITY_VERSION=1.1.12"
     assert_includes dockerfile, "sha512sum -c -"
     assert_includes dockerfile, "agy --version"
