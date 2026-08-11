@@ -37,6 +37,16 @@ curl -H "Authorization: Bearer $HELIXKIT_BEARER_TOKEN" \
   "$HELIXKIT_APP_URL/api/v1/conversations"
 ```
 
+The response contains up to 100 conversations and a `next_cursor`. To retrieve
+older conversations, repeat the request with that cursor:
+
+```sh
+curl -H "Authorization: Bearer $HELIXKIT_BEARER_TOKEN" \
+  "$HELIXKIT_APP_URL/api/v1/conversations?cursor=$NEXT_CURSOR"
+```
+
+`next_cursor` is `null` after the final page.
+
 ### Read a conversation and transcript
 
 ```sh

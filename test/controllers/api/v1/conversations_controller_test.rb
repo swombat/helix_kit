@@ -31,6 +31,35 @@ module Api
 
         json = JSON.parse(response.body)
         assert json["conversations"].is_a?(Array)
+        assert_nil json["next_cursor"]
+      end
+
+      test "paginates conversations with a cursor" do
+        chats = 101.times.map do |index|
+          @account.chats.create!(
+            model_id: "openrouter/auto",
+            title: "Chat #{index}",
+            updated_at: index.minutes.ago
+          )
+        end
+
+        get api_v1_conversations_url, headers: { "Authorization" => "Bearer #{@token}" }
+        assert_response :success
+
+        first_page = JSON.parse(response.body)
+        assert_equal 100, first_page["conversations"].length
+        assert_equal first_page["conversations"].last["id"], first_page["next_cursor"]
+
+        get api_v1_conversations_url,
+          params: { cursor: first_page["next_cursor"] },
+          headers: { "Authorization" => "Bearer #{@token}" }
+        assert_response :success
+
+        second_page = JSON.parse(response.body)
+        assert_equal 2, second_page["conversations"].length
+        assert_nil second_page["next_cursor"]
+        assert_empty first_page["conversations"].map { |chat| chat["id"] } & second_page["conversations"].map { |chat| chat["id"] }
+        assert_equal chats.last.to_param, second_page["conversations"].last["id"]
       end
 
       test "lists only active kept conversations" do

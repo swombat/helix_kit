@@ -96,7 +96,8 @@ Returns a single agent by ID.
 GET /api/v1/conversations
 ```
 
-Returns up to 100 most recent conversations.
+Returns up to 100 most recent conversations. When `next_cursor` is present,
+pass it as `?cursor=...` to retrieve the next page of older conversations.
 
 **Response:**
 ```json
@@ -112,9 +113,12 @@ Returns up to 100 most recent conversations.
       "message_count": 24,
       "updated_at": "2026-01-15T10:30:00Z"
     }
-  ]
+  ],
+  "next_cursor": "def456"
 }
 ```
+
+`next_cursor` is `null` when there are no more conversations.
 
 | Field | Description |
 |-------|-------------|
