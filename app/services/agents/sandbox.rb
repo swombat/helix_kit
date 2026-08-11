@@ -507,6 +507,7 @@ module Agents
 
       provider = case model_id
       when /\Aanthropic\// then "anthropic"
+      when /\Agoogle\// then "gemini"
       when /\Aopenai\// then "openai"
       when /\Ax-ai\// then "xai"
       end

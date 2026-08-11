@@ -22,12 +22,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         git \
     && rm -rf /var/lib/apt/lists/*
 
-# Pin merged subscription-auth, clamp telemetry, and headless clamp support so
-# hosted runtime rebuilds do not depend on movement of a branch ref.
-# Pin bumps must re-verify both provider auth ceremony parsers and the Claude
-# clamp-worker process pattern in trigger_shim.py.
+# Pin merged subscription-auth, clamp telemetry, headless clamp, and Antigravity
+# support so hosted runtime rebuilds do not depend on movement of a branch ref.
+# Pin bumps must re-verify provider auth ceremony parsers and clamp subprocess
+# patterns in trigger_shim.py.
 ARG CHAOS_REPO=https://github.com/seuros/chaos.git
-ARG CHAOS_REF=c33317f9c0e67b518d3024cfddf1d524e2920ef1
+ARG CHAOS_REF=2403367e536eb78986316e31599803266e9354a7
 
 WORKDIR /build
 RUN git clone --filter=blob:none ${CHAOS_REPO} chaos \
@@ -70,6 +70,28 @@ RUN groupmod --new-name agent node \
 ARG CLAUDE_CODE_VERSION=2.1.220
 RUN npm install -g "@anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}" \
     && claude --version
+
+# Chaos drives Google's official Antigravity CLI for Gemini subscription turns.
+# Download the exact official Linux artifact and verify its published checksum;
+# the unprivileged agent user cannot replace the root-owned binary at runtime.
+ARG TARGETARCH
+ARG ANTIGRAVITY_VERSION=1.1.12
+ARG ANTIGRAVITY_BUILD=5877618327814144
+ARG ANTIGRAVITY_AMD64_SHA512=c1ee7b8a02a85144142fdb942923b638c47674ecb4969c0d80f82317846c4c4c6976a430186622d6fbf5f33a827ab9c5a64950d15ff830b5cc3ce48c84ff4501
+ARG ANTIGRAVITY_ARM64_SHA512=fd33d449ddfc7917ab4f38968cda8356d3bca9f0b12eec9665e565af4ca44010cfb4b7a76de4e06adbef670b4863b30d75814e17dee855efcce651da22eecd95
+RUN case "${TARGETARCH}" in \
+      amd64) artifact=cli_linux_x64.tar.gz; platform=linux-x64; checksum="${ANTIGRAVITY_AMD64_SHA512}" ;; \
+      arm64) artifact=cli_linux_arm64.tar.gz; platform=linux-arm; checksum="${ANTIGRAVITY_ARM64_SHA512}" ;; \
+      *) echo "Unsupported Antigravity architecture: ${TARGETARCH}" >&2; exit 1 ;; \
+    esac \
+    && url="https://storage.googleapis.com/antigravity-public/antigravity-cli/${ANTIGRAVITY_VERSION}-${ANTIGRAVITY_BUILD}/${platform}/${artifact}" \
+    && curl -fsSL "${url}" -o /tmp/antigravity.tar.gz \
+    && echo "${checksum}  /tmp/antigravity.tar.gz" | sha512sum -c - \
+    && tar -xzf /tmp/antigravity.tar.gz -C /usr/local/bin antigravity \
+    && mv /usr/local/bin/antigravity /usr/local/bin/agy \
+    && chmod 0755 /usr/local/bin/agy \
+    && rm -f /tmp/antigravity.tar.gz \
+    && agy --version | grep -F "${ANTIGRAVITY_VERSION}"
 
 COPY --from=builder /usr/local/bin/chaos /usr/local/bin/chaos
 COPY --from=builder /usr/local/bin/chaos_journald /usr/local/bin/chaos_journald

@@ -44,13 +44,17 @@
       ],
     },
     {
-      title: 'API-only providers',
-      description: 'Google does not support connecting a consumer subscription to a third-party resident.',
+      title: 'API key or experimental Antigravity clamp',
+      description:
+        'Use a metered Gemini API key, or explicitly opt a hosted Gemini resident into the official Antigravity CLI transport.',
+      detailsLabel: 'Google policy and account risk',
+      details:
+        'Google’s current Antigravity terms prohibit third-party access patterns and Google has enforced against accounts using third-party tools or proxies. Running the official Antigravity CLI as a Chaos subprocess keeps OAuth credentials out of souls.house, but does not make this workflow supported or terms-compliant. Use an account you can risk losing access to related Gemini developer services.',
       providers: [
         {
           id: 'gemini',
           name: 'Gemini',
-          help: 'Enter a Google Gemini API key. Gemini subscription setup is not available.',
+          help: 'Enter a metered Gemini API key here, or configure experimental Antigravity clamping in the resident’s Hosting tab.',
         },
       ],
     },
@@ -231,8 +235,8 @@
       {/if}
 
       <p class="text-xs text-muted-foreground">
-        Claude subscriptions are connected through Claude Code clamping for hosted Anthropic residents. Gemini residents
-        continue to use API keys.
+        Claude subscriptions use Claude Code clamping. Experimental Gemini subscription access uses Google’s official
+        Antigravity CLI while Chaos retains tool and permission control.
       </p>
     </section>
 

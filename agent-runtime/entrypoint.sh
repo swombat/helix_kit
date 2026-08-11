@@ -39,8 +39,9 @@ mkdir -p "$AGENT_HOME/identity/automation" \
          "$AGENT_HOME/.chaos" \
          "$AGENT_REPO_PATH/.chaos" \
          "$AGENT_HOME/work" \
-         "$AGENT_HOME/state/claude"
-chmod 0700 "$AGENT_HOME/state" "$AGENT_HOME/state/claude"
+         "$AGENT_HOME/state/claude" \
+         "$AGENT_HOME/state/antigravity"
+chmod 0700 "$AGENT_HOME/state" "$AGENT_HOME/state/claude" "$AGENT_HOME/state/antigravity"
 
 # Chaos bundles Anthropic, OpenAI, and xAI providers. Hosted agents also need
 # the two providers RubyLLM may select that are not bundled by Chaos itself.
@@ -165,6 +166,32 @@ register_provider_key() {
 
 register_provider_key anthropic "$ANTHROPIC_API_KEY"
 register_provider_key openai "$OPENAI_API_KEY"
+
+# Keep one matching Chaos journal daemon alive for the lifetime of the hosted
+# runtime. Long-running provider turns and later resume processes must share the
+# same socket instead of relying on per-command detached bootstrap.
+export CHAOS_HOME="${CHAOS_HOME:-$AGENT_HOME/.chaos}"
+export CHAOS_JOURNALD_SOCKET="${CHAOS_JOURNALD_SOCKET:-$CHAOS_HOME/run/journald.sock}"
+mkdir -p "$(dirname "$CHAOS_JOURNALD_SOCKET")"
+chown -R 1000:1000 "$CHAOS_HOME"
+gosu agent chaos_journald \
+    --socket "$CHAOS_JOURNALD_SOCKET" \
+    --db "$CHAOS_HOME/chaos.sqlite" &
+CHAOS_JOURNALD_PID=$!
+
+attempt=0
+while [ ! -S "$CHAOS_JOURNALD_SOCKET" ]; do
+    if ! kill -0 "$CHAOS_JOURNALD_PID" 2>/dev/null; then
+        echo "chaos_journald stopped before creating its socket" >&2
+        exit 1
+    fi
+    attempt=$((attempt + 1))
+    if [ "$attempt" -ge 100 ]; then
+        echo "timed out waiting for chaos_journald socket" >&2
+        exit 1
+    fi
+    sleep 0.05
+done
 
 # Optional local guardrail if the identity volume is itself a git working tree.
 # The hosted path does not require git, but agents may initialize it for local

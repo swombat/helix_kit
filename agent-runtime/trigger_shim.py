@@ -63,8 +63,10 @@ Env vars (read at startup):
                               (default /usr/local/share/helixkit-agent)
     SHIM_PORT                 port to listen on (default 4000)
     CHAOS_BIN                 path to chaos binary (default /usr/local/bin/chaos)
+    AGY_BIN                   path to Antigravity binary (default /usr/local/bin/agy)
     CHAOS_HOME                chaos state dir (default ~/.chaos); sidecar session
-                              map lives under $CHAOS_HOME/helixkit-sessions/
+                               map lives under $CHAOS_HOME/helixkit-sessions/
+    CHAOS_AGY_HOME            private Antigravity state (default /home/agent/state/antigravity)
     CHAOS_TIMEOUT_SECS        max seconds for a single chaos exec call (default 600)
 """
 
@@ -107,19 +109,25 @@ AGENT_RUNTIME_DOCS_PATH = Path(os.environ.get(
 SHIM_PORT = int(os.environ.get("SHIM_PORT", "4000"))
 CHAOS_BIN = os.environ.get("CHAOS_BIN", "/usr/local/bin/chaos")
 CLAUDE_BIN = os.environ.get("CLAUDE_BIN", "/usr/local/bin/claude")
+AGY_BIN = os.environ.get("AGY_BIN", "/usr/local/bin/agy")
 CHAOS_HOME = Path(os.environ.get("CHAOS_HOME", str(Path.home() / ".chaos")))
 CLAUDE_CONFIG_DIR = Path(os.environ.get("CLAUDE_CONFIG_DIR", "/home/agent/state/claude"))
+CHAOS_AGY_HOME = Path(os.environ.get("CHAOS_AGY_HOME", "/home/agent/state/antigravity"))
 CHAOS_TIMEOUT_SECS = int(os.environ.get("CHAOS_TIMEOUT_SECS", "600"))
 CHAOS_ANTHROPIC_CACHE_TTL = os.environ.get("CHAOS_ANTHROPIC_CACHE_TTL")
 SESSION_MAP_DIR = CHAOS_HOME / "helixkit-sessions"
 OAUTH_CHAOS_HOME = CHAOS_HOME / "oauth-runtime"
 OAUTH_ACCOUNT_PROVIDERS = tuple(
     provider.strip()
-    for provider in os.environ.get("CHAOS_OAUTH_ACCOUNT_PROVIDERS", "anthropic,openai,xai").split(",")
+    for provider in os.environ.get(
+        "CHAOS_OAUTH_ACCOUNT_PROVIDERS",
+        "anthropic,gemini,openai,xai",
+    ).split(",")
     if provider.strip()
 )
 PROVIDER_API_KEY_ENV = {
     "anthropic": "ANTHROPIC_API_KEY",
+    "gemini": "GEMINI_API_KEY",
     "openai": "OPENAI_API_KEY",
     "xai": "XAI_API_KEY",
 }
@@ -572,10 +580,15 @@ def run_chaos(
         "--headless",
         "-c", "shell_environment_policy.inherit=\"all\"",
     ]
-    if auth_mode == "oauth_account" and (provider or AGENT_PROVIDER) == "anthropic":
+    selected_provider = provider or AGENT_PROVIDER
+    if auth_mode == "oauth_account" and selected_provider == "anthropic":
         # Headless clamp is startup config, so this applies equally to fresh and
         # resumed exec sessions. Bare mode remains false for credential lookup.
         args += ["-c", "clamp=true"]
+    elif auth_mode == "oauth_account" and selected_provider == "gemini":
+        # Antigravity uses the same Chaos-owned MCP bridge as Claude Code, but
+        # selects Google's official agy subprocess as the clamp transport.
+        args += ["-c", "clamp=true", "-c", "clamp_backend=antigravity"]
     if reasoning_effort:
         args += ["-c", f'model_reasoning_effort="{reasoning_effort}"']
     if resume_id:
@@ -587,12 +600,13 @@ def run_chaos(
 
     env = os.environ.copy()
     if auth_mode == "oauth_account":
-        env = (
-            _anthropic_subscription_env()
-            if (provider or AGENT_PROVIDER) == "anthropic"
-            else _oauth_account_env()
-        )
-        api_key_env = PROVIDER_API_KEY_ENV.get(provider or AGENT_PROVIDER)
+        if selected_provider == "anthropic":
+            env = _anthropic_subscription_env()
+        elif selected_provider == "gemini":
+            env = _antigravity_subscription_env()
+        else:
+            env = _oauth_account_env()
+        api_key_env = PROVIDER_API_KEY_ENV.get(selected_provider)
         if api_key_env:
             env.pop(api_key_env, None)
     return subprocess.run(
@@ -1472,17 +1486,25 @@ def auth_capabilities():
     providers = {
         provider: {"api_key": True, "oauth_account": True}
         for provider in OAUTH_ACCOUNT_PROVIDERS
-        if provider != "anthropic"
+        if provider not in ("anthropic", "gemini")
     }
     providers["anthropic"] = {
         "api_key": True,
         "oauth_account": _claude_supports_subscription_auth(),
         "transport": "clamp",
     }
+    providers["gemini"] = {
+        "api_key": True,
+        "oauth_account": _agy_available(),
+        "transport": "antigravity",
+        "experimental": True,
+        "provider_policy_risk": True,
+    }
     return jsonify({
         "providers": providers,
         "chaos_version": _chaos_version(),
         "claude_version": _claude_version(),
+        "antigravity_version": _agy_version(),
     })
 
 
@@ -1514,14 +1536,20 @@ def auth_start():
             command = [CLAUDE_BIN, "auth", "login", "--claudeai"]
             auth_env = _anthropic_subscription_env()
             _auth_state["status"] = "starting"
+        elif provider == "gemini":
+            CHAOS_AGY_HOME.mkdir(parents=True, exist_ok=True)
+            CHAOS_AGY_HOME.chmod(0o700)
+            command = [AGY_BIN, "models"]
+            auth_env = _antigravity_cli_env()
+            _auth_state["status"] = "starting"
         else:
             command = [CHAOS_BIN, "--provider", provider, "accounts", "--device-auth"]
             auth_env = _oauth_account_env()
         _auth_process = subprocess.Popen(
             command,
-            stdin=subprocess.PIPE if provider == "anthropic" else subprocess.DEVNULL,
-            stdout=subprocess.PIPE if provider == "anthropic" else subprocess.DEVNULL,
-            stderr=subprocess.STDOUT if provider == "anthropic" else subprocess.PIPE,
+            stdin=subprocess.PIPE if _browser_code_provider(provider) else subprocess.DEVNULL,
+            stdout=subprocess.PIPE if _browser_code_provider(provider) else subprocess.DEVNULL,
+            stderr=subprocess.STDOUT if _browser_code_provider(provider) else subprocess.PIPE,
             text=True,
             bufsize=1,
             env=auth_env,
@@ -1534,12 +1562,12 @@ def auth_start():
 
     _auth_code_ready.wait(timeout=10)
     with _auth_lock:
-        expected_status = "awaiting_code" if provider == "anthropic" else "pending"
+        expected_status = "awaiting_code" if _browser_code_provider(provider) else "pending"
         if _auth_state.get("status") != expected_status:
             return jsonify(_public_auth_state()), 502
         if not _auth_state.get("verification_url"):
             return jsonify({"error": "The provider did not provide a sign-in URL"}), 502
-        if provider != "anthropic" and not _auth_state.get("user_code"):
+        if not _browser_code_provider(provider) and not _auth_state.get("user_code"):
             return jsonify({"error": "Chaos did not provide a device code"}), 502
         response = {
             "status": expected_status,
@@ -1548,7 +1576,7 @@ def auth_start():
             "expires_in": AUTH_CODE_TTL_SECS,
             "expires_at": _auth_state["expires_at"],
         }
-        if provider != "anthropic":
+        if not _browser_code_provider(provider):
             response["user_code"] = _auth_state["user_code"]
         return jsonify(response)
 
@@ -1559,23 +1587,23 @@ def auth_code():
     _require_shim_auth("/auth/code")
     payload = request.get_json(silent=True) or {}
     provider = payload.get("provider") or AGENT_PROVIDER
-    code = _anthropic_login_code(payload.get("code"))
-    if provider != "anthropic":
+    code = _browser_login_code(payload.get("code"))
+    if not _browser_code_provider(provider):
         return jsonify({"error": "This provider does not accept a browser-returned code"}), 422
     if code is None:
         return jsonify({
-            "error": "Paste the failed localhost callback URL or its one-time code"
+            "error": "Paste the browser-returned authorization code or callback URL"
         }), 422
 
     with _auth_lock:
         process = _auth_process
         if process is None or process.poll() is not None or _auth_state.get("status") != "awaiting_code":
-            return jsonify({"error": "No Anthropic sign-in is awaiting a code"}), 409
+            return jsonify({"error": f"No {provider} sign-in is awaiting a code"}), 409
         try:
             process.stdin.write(code + "\n")
             process.stdin.flush()
         except (BrokenPipeError, OSError):
-            return jsonify({"error": "Claude Code stopped before accepting the code"}), 502
+            return jsonify({"error": f"{provider} sign-in stopped before accepting the code"}), 502
         _auth_state["status"] = "finalizing"
 
     # Never log or retain the one-time code.
@@ -1635,6 +1663,17 @@ def auth_disconnect():
         shutil.rmtree(CLAUDE_CONFIG_DIR, ignore_errors=True)
         log.info("provider auth disconnected provider=anthropic")
         return jsonify({"status": "none", "provider": provider})
+    if provider == "gemini":
+        with _auth_lock:
+            if _auth_process is not None and _auth_process.poll() is None:
+                _auth_process.terminate()
+            _auth_process = None
+            _auth_state = {"status": "none", "provider": provider}
+        _terminate_antigravity_processes()
+        _retire_provider_sessions(provider, "provider-disconnected")
+        shutil.rmtree(CHAOS_AGY_HOME, ignore_errors=True)
+        log.info("provider auth disconnected provider=gemini")
+        return jsonify({"status": "none", "provider": provider})
 
     result = subprocess.run(
         [CHAOS_BIN, "--provider", provider, "accounts", "disconnect"],
@@ -1660,12 +1699,12 @@ def _monitor_auth_process(process, provider):
     user_code = None
     expecting_code = False
     try:
-        output = process.stdout if provider == "anthropic" else process.stderr
+        output = process.stdout if _browser_code_provider(provider) else process.stderr
         for raw_line in output:
             line = raw_line.strip()
             if not line:
                 continue
-            if provider == "anthropic":
+            if _browser_code_provider(provider):
                 url = _first_http_url(line)
                 if url and verification_url is None:
                     verification_url = url
@@ -1723,6 +1762,8 @@ def _monitor_auth_process(process, provider):
 def _provider_account_status(provider):
     if provider == "anthropic":
         return _anthropic_account_status()
+    if provider == "gemini":
+        return _antigravity_account_status()
 
     result = subprocess.run(
         [CHAOS_BIN, "--provider", provider, "accounts", "status"],
@@ -1775,7 +1816,28 @@ def _anthropic_subscription_env():
     return env
 
 
-def _anthropic_login_code(value):
+def _antigravity_subscription_env():
+    CHAOS_AGY_HOME.mkdir(parents=True, exist_ok=True)
+    env = os.environ.copy()
+    env["CHAOS_AGY_HOME"] = str(CHAOS_AGY_HOME)
+    env["CHAOS_AGY_PATH"] = AGY_BIN
+    env.pop("GEMINI_API_KEY", None)
+    env.pop("GOOGLE_API_KEY", None)
+    return env
+
+
+def _antigravity_cli_env():
+    env = _antigravity_subscription_env()
+    env["HOME"] = str(CHAOS_AGY_HOME)
+    env["XDG_CONFIG_HOME"] = str(CHAOS_AGY_HOME / ".config")
+    return env
+
+
+def _browser_code_provider(provider):
+    return provider in ("anthropic", "gemini")
+
+
+def _browser_login_code(value):
     raw = str(value or "").strip()
     if not raw or len(raw) > 4096:
         return None
@@ -1830,6 +1892,26 @@ def _anthropic_account_status():
     return response
 
 
+def _antigravity_account_status():
+    if not _agy_available():
+        return {"status": "none", "provider": "gemini"}
+    try:
+        result = subprocess.run(
+            [AGY_BIN, "models"],
+            stdin=subprocess.DEVNULL,
+            capture_output=True,
+            text=True,
+            timeout=15,
+            env=_antigravity_cli_env(),
+        )
+    except (subprocess.TimeoutExpired, OSError):
+        return {"status": "none", "provider": "gemini"}
+    output = "\n".join((result.stdout or "", result.stderr or "")).lower()
+    if result.returncode != 0 or "authentication required" in output:
+        return {"status": "none", "provider": "gemini"}
+    return {"status": "connected", "provider": "gemini", "plan": "Google AI"}
+
+
 def _retire_provider_sessions(provider, reason):
     if not SESSION_MAP_DIR.exists():
         return
@@ -1848,6 +1930,15 @@ def _terminate_claude_clamp_processes():
     # cannot affect another resident or the host's interactive Claude process.
     subprocess.run(
         ["pkill", "-f", "claude --output-format stream-json"],
+        capture_output=True,
+        text=True,
+        timeout=5,
+    )
+
+
+def _terminate_antigravity_processes():
+    subprocess.run(
+        ["pkill", "-f", AGY_BIN],
         capture_output=True,
         text=True,
         timeout=5,
@@ -1878,6 +1969,20 @@ def _claude_version():
         return None
     try:
         out = subprocess.run([CLAUDE_BIN, "--version"], capture_output=True, text=True, timeout=5)
+        return out.stdout.strip() or out.stderr.strip() or "unknown"
+    except Exception:
+        return "unknown"
+
+
+def _agy_available():
+    return Path(AGY_BIN).exists() or shutil.which(AGY_BIN) is not None
+
+
+def _agy_version():
+    if not _agy_available():
+        return None
+    try:
+        out = subprocess.run([AGY_BIN, "--version"], capture_output=True, text=True, timeout=5)
         return out.stdout.strip() or out.stderr.strip() or "unknown"
     except Exception:
         return "unknown"

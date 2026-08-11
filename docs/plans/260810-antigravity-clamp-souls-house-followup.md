@@ -1,9 +1,9 @@
 # Antigravity clamp — Souls.house follow-up
 
 **Date:** 2026-08-10  
-**Status:** Chaos implementation and live fresh/resume smoke are complete on a
-feature branch; Souls.house integration can begin after that Chaos revision is
-pinned and its matching journald sidecar is deployed
+**Status:** Chaos PR #28 is merged at `2403367e5`; Souls.house integration is
+underway with that revision pinned, the matching journald sidecar supervised,
+and Gemini subscription turns routed through the shared Chaos MCP clamp bridge
 **Sequence:** prove `agy` behavior → implement the transport in Chaos → integrate it here
 
 ## Proven spike
@@ -130,52 +130,45 @@ Souls.house should wait for a released/pinned Chaos revision that provides:
    audit logs, or application logs.
 6. Disconnect behavior that removes only Antigravity's private credential state
    and rolls affected persistent sessions.
-7. Explicit capability reporting for the transport's tool-authority level:
-   model-only/sandboxed must remain distinct from a fully Chaos-bridged tool
-   transport.
+7. Explicit capability reporting for the transport's tool-authority level.
 
-The initial Chaos slice may land in stages. The minimum useful first stage is a
-tested `agy` transport primitive plus explicit backend selection; Souls.house
-must remain blocked until `chaos exec --json` actually routes turns through it
-and emits the normalized events listed above.
+Chaos now satisfies this integration boundary: `chaos exec --json` routes
+Antigravity turns through the shared Chaos MCP bridge and emits the normalized
+events listed above.
 
-### Chaos worktree checkpoint — 2026-08-10
+### Merged Chaos checkpoint — 2026-08-11
 
-Work is complete on branch `feat/antigravity-clamp` in the external worktree
-`~/.local/share/chaos/worktrees/agy-clamp`, created from Chaos
-`origin/master` at `62ec36cbc`.
+Chaos PR #28 merged into `master` at `2403367e5`.
 
-Commits:
-
-- `bc9f4b498` — Antigravity transport;
-- `88ec712fc` — lifecycle commands and cross-process conversation state;
-- `c213f0722` — lifecycle and fresh/resume integration tests;
-- `e9dde1374` — remaining model-client test call sites.
-
-The completed slice includes:
+The merged implementation includes:
 
 - `AntigravityTransport`, using one sandboxed `agy` subprocess per model turn;
 - explicit `clamp_backend = "antigravity"` selection while preserving
   `claude-code` as the default;
+- reuse of the existing provider-owned Chaos MCP clamp lifecycle rather than a
+  separate Antigravity command namespace;
+- managed Antigravity MCP and permission configuration that denies native
+  command, filesystem, and URL tools while exposing the real Chaos session
+  tools;
 - fresh-turn, in-process, and separate-process provider-conversation resume;
 - parsing of observed `init`, `step_update`, and `result` JSONL records;
 - normalized assistant output and usage in `chaos exec --json`;
 - removal of metered Gemini API-key environment variables;
 - classified missing-CLI, authentication, timeout, protocol, and invocation
   failures;
-- `chaos clamp antigravity connect`, `status --json`, and `disconnect`;
-- explicit capability reporting, including model-only/sandboxed tool authority;
 - unit and end-to-end tests with a fake `agy` executable and an ignored live
   smoke test using an authenticated isolated home.
 
-The live transport smoke test passed again on August 10, 2026 against `agy
-1.1.11` and the authenticated Google AI Pro account. A live end-to-end
+The live transport smoke test passed on August 11, 2026 against `agy 1.1.12`
+and the authenticated Google AI Pro account. A live end-to-end
 `chaos exec --json` test also passed for both a fresh process and a later,
 separate-process `chaos exec resume` invocation. The normalized stream contained
 `process.started`, `turn.started`, an `item.completed` agent message, and
 `turn.completed` with invocation and process-cumulative usage. The resumed turn
 kept the same Chaos process ID and returned the exact marker from the prior
-provider conversation. Both invocations reported complete token usage and no
+provider conversation. Fresh and resumed turns called real Chaos `read_file`
+and `exec_command` tools through the shared MCP bridge, with canonical Chaos
+tool lifecycle events. Both invocations reported complete token usage and no
 failed turn.
 
 The service-style smoke ran the matching `chaos_journald` binary explicitly and
@@ -186,10 +179,10 @@ reaching Antigravity. Souls.house already has a resident-service architecture
 and should run the Chaos revision's matching journald sidecar as a supervised
 service rather than relying on per-command bootstrap.
 
-The initial integration deliberately emits only the final result as normalized
+The integration deliberately emits only the final result as normalized
 assistant output. Incremental `step_update` exposure remains a later
-enhancement. Antigravity remains model-only/sandboxed until a tested deny
-mechanism or Chaos-owned tool bridge exists.
+enhancement; tool calls already appear through the canonical shared Chaos MCP
+bridge events.
 
 ## Souls.house implementation after Chaos lands
 
@@ -249,8 +242,8 @@ mechanism or Chaos-owned tool bridge exists.
 - Fresh and resumed turns preserve conversation identity through normalized
   Chaos events.
 - The process is launched without `--dangerously-skip-permissions`.
-- Souls.house refuses to advertise full Chaos tool authority while the Chaos
-  capability probe reports model-only Antigravity support.
+- Antigravity native command, filesystem, and URL operations remain denied
+  while Chaos tools work through the shared MCP bridge.
 - Auth-required errors map to reconnect UX.
 - Tokens and browser codes are absent from database rows, audit payloads,
   Rails logs, shim logs, and filesystem surfaces exposed by Souls.house.

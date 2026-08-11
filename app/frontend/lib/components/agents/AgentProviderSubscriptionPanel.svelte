@@ -18,8 +18,13 @@
   let browserCode = $state('');
   let submittingCode = $state(false);
   let isAnthropic = $derived(agent.provider === 'anthropic');
-  let subscriptionModeLabel = $derived(isAnthropic ? 'Claude Code clamp' : 'Subscription account');
-  let connectLabel = $derived(isAnthropic ? 'Connect Claude subscription' : 'Connect subscription');
+  let isGemini = $derived(agent.provider === 'gemini');
+  let subscriptionModeLabel = $derived(
+    isAnthropic ? 'Claude Code clamp' : isGemini ? 'Antigravity clamp' : 'Subscription account'
+  );
+  let connectLabel = $derived(
+    isAnthropic ? 'Connect Claude subscription' : isGemini ? 'Connect Google AI subscription' : 'Connect subscription'
+  );
 
   $effect(() => {
     if (!connectOpen || !ceremony?.expires_at) return;
@@ -209,7 +214,8 @@
       </p>
       {#if capabilityChecked && !subscriptionSupported}
         <p class="text-xs text-muted-foreground">
-          This hosted runtime does not support {isAnthropic ? 'Claude Code clamping' : 'subscription account access'}.
+          This hosted runtime does not support
+          {isAnthropic ? 'Claude Code clamping' : isGemini ? 'Antigravity clamping' : 'subscription account access'}.
         </p>
       {/if}
       {#if subscriptionSupported && agent.connection?.status === 'connected'}
@@ -220,11 +226,17 @@
         <p class="text-xs text-muted-foreground">
           {isAnthropic
             ? 'Claude Code clamping is available; select it to draw usage from this Claude plan.'
-            : "Resident usage draws on this account's personal plan quota."}
+            : isGemini
+              ? 'Experimental Antigravity clamping is available; select it to draw usage from this Google AI plan.'
+              : "Resident usage draws on this account's personal plan quota."}
         </p>
       {:else}
         <p class="text-xs text-muted-foreground">
-          {isAnthropic ? 'No Claude subscription connected for clamping.' : 'No subscription account connected.'}
+          {isAnthropic
+            ? 'No Claude subscription connected for clamping.'
+            : isGemini
+              ? 'No Google AI subscription connected through Antigravity.'
+              : 'No subscription account connected.'}
         </p>
       {/if}
     </div>
@@ -290,12 +302,20 @@
     }}>
     <Dialog.Header>
       <Dialog.Title>
-        {isAnthropic ? 'Connect Claude Code clamping' : `Connect ${agent.provider_name} subscription`}
+        {isAnthropic
+          ? 'Connect Claude Code clamping'
+          : isGemini
+            ? 'Connect Google Antigravity clamping'
+            : `Connect ${agent.provider_name} subscription`}
       </Dialog.Title>
       <Dialog.Description>
         {#if isAnthropic}
           Sign Claude Code into the subscription this resident should be clamped to. The connection belongs only to
           {agent.name} and is stored in its private runtime state volume.
+        {:else if isGemini}
+          Sign the official Antigravity CLI into the Google AI subscription this resident should use. This experimental
+          integration is not supported by Google and may put related Gemini developer services at risk. The connection
+          belongs only to {agent.name} and is stored in its private runtime state volume.
         {:else}
           This connection belongs only to {agent.name} and is stored in its private runtime state volume.
         {/if}
@@ -304,7 +324,7 @@
 
     <div class="space-y-4 py-2">
       {#if startingConnection}
-        <p class="text-sm text-muted-foreground">Getting a one-time device code…</p>
+        <p class="text-sm text-muted-foreground">Starting provider sign-in…</p>
       {:else if actionError}
         <div class="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
           {actionError}
@@ -316,18 +336,21 @@
             href={ceremony.verification_url}
             target="_blank"
             rel="noreferrer">
-            Open Claude sign-in
+            {isGemini ? 'Open Google sign-in' : 'Open Claude sign-in'}
           </a>
           <p class="text-sm text-muted-foreground">
-            Complete sign-in in the browser. If the final localhost page does not load, copy its full URL from the
-            address bar and paste it below.
+            {isGemini
+              ? 'Complete sign-in in the browser, then paste the authorization code shown by Antigravity below.'
+              : 'Complete sign-in in the browser. If the final localhost page does not load, copy its full URL from the address bar and paste it below.'}
           </p>
           <input
             class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
             type="text"
             autocomplete="one-time-code"
             bind:value={browserCode}
-            placeholder="Paste the localhost callback URL or code" />
+            placeholder={isGemini
+              ? 'Paste the Antigravity authorization code'
+              : 'Paste the localhost callback URL or code'} />
           <Button type="button" disabled={!browserCode.trim() || submittingCode} onclick={submitBrowserCode}>
             {submittingCode ? 'Submitting…' : 'Submit code'}
           </Button>
@@ -370,6 +393,9 @@
           {#if isAnthropic}
             Connected successfully{ceremony.email ? ` as ${ceremony.email}` : ''}. Claude Code clamping is now selected,
             and resident usage draws on this Claude plan.
+          {:else if isGemini}
+            Connected successfully. Antigravity clamping is now selected, and resident usage draws on this Google AI
+            plan.
           {:else}
             Connected successfully{ceremony.email ? ` as ${ceremony.email}` : ''}. Resident usage now draws on this
             account's personal plan quota.

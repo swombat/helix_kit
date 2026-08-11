@@ -99,7 +99,13 @@ class Agents::ProviderSubscriptionsControllerTest < ActionDispatch::IntegrationT
         "providers" => {
           "openai" => { "api_key" => true, "oauth_account" => true },
           "xai" => { "api_key" => true, "oauth_account" => true },
-          "anthropic" => { "api_key" => true, "oauth_account" => true, "transport" => "clamp" }
+          "anthropic" => { "api_key" => true, "oauth_account" => true, "transport" => "clamp" },
+          "gemini" => {
+            "api_key" => true,
+            "oauth_account" => true,
+            "transport" => "antigravity",
+            "experimental" => true
+          }
         },
         "chaos_version" => "chaos 1.2.3"
       }
@@ -114,6 +120,7 @@ class Agents::ProviderSubscriptionsControllerTest < ActionDispatch::IntegrationT
     assert_response :success
     assert_equal true, response.parsed_body.dig("providers", "xai", "oauth_account")
     assert_equal "clamp", response.parsed_body.dig("providers", "anthropic", "transport")
+    assert_equal "antigravity", response.parsed_body.dig("providers", "gemini", "transport")
     assert_equal "api_key", @agent.reload.provider_auth_mode("openai")
   end
 

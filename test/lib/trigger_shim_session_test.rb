@@ -9,6 +9,7 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
 
   test "runtime image includes the journald companion required for resume" do
     dockerfile = Rails.root.join("agent-runtime/Dockerfile").read
+    entrypoint = Rails.root.join("agent-runtime/entrypoint.sh").read
 
     assert_includes dockerfile, "cargo build --release --bin chaos_journald"
     assert_includes dockerfile, "COPY --from=builder /usr/local/bin/chaos_journald /usr/local/bin/chaos_journald"
@@ -16,6 +17,12 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
     assert_includes dockerfile, "COPY docs/helixkit-api.md /usr/local/share/helixkit-agent/helixkit-api.md"
     assert_includes dockerfile, "ARG CLAUDE_CODE_VERSION=2.1.220"
     assert_includes dockerfile, "claude --version"
+    assert_includes dockerfile, "ARG CHAOS_REF=2403367e536eb78986316e31599803266e9354a7"
+    assert_includes dockerfile, "ARG ANTIGRAVITY_VERSION=1.1.12"
+    assert_includes dockerfile, "sha512sum -c -"
+    assert_includes dockerfile, "agy --version"
+    assert_includes entrypoint, "gosu agent chaos_journald"
+    assert_includes entrypoint, 'export CHAOS_JOURNALD_SOCKET="${CHAOS_JOURNALD_SOCKET:-$CHAOS_HOME/run/journald.sock}"'
   end
 
   test "runtime config installs RubyLLM providers not bundled by Chaos" do
@@ -218,12 +225,12 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
     assert_not_includes source, '"/auth/start")(lambda:'
   end
 
-  test "subscription capabilities include Anthropic and xAI by default" do
+  test "subscription capabilities include Anthropic Gemini and xAI by default" do
     out = run_shim_python(<<~PY)
       print(json.dumps(list(mod.OAUTH_ACCOUNT_PROVIDERS)))
     PY
 
-    assert_equal %w[anthropic openai xai], JSON.parse(out)
+    assert_equal %w[anthropic gemini openai xai], JSON.parse(out)
   end
 
   test "Anthropic subscription runs enable clamp and remove the metered API key" do
@@ -249,6 +256,39 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
     assert_includes args, "clamp=true"
     assert_nil result["anthropic_key"]
     assert result.fetch("claude_config_dir").end_with?("/state/claude")
+  end
+
+  test "Gemini subscription runs select Antigravity and remove metered API keys" do
+    out = run_shim_python(<<~PY)
+      import types
+      captured = {}
+      def capture_run(args, **kwargs):
+          captured["args"] = args
+          captured["gemini_key"] = kwargs["env"].get("GEMINI_API_KEY")
+          captured["google_key"] = kwargs["env"].get("GOOGLE_API_KEY")
+          captured["agy_home"] = kwargs["env"].get("CHAOS_AGY_HOME")
+          captured["agy_path"] = kwargs["env"].get("CHAOS_AGY_PATH")
+          captured["home"] = kwargs["env"].get("HOME")
+          return types.SimpleNamespace(stdout="", stderr="", returncode=0)
+      mod.os.environ["GEMINI_API_KEY"] = "metered-gemini"
+      mod.os.environ["GOOGLE_API_KEY"] = "metered-google"
+      mod.subprocess.run = capture_run
+      mod.run_chaos(
+          "gemini-3.1-pro-low", 30, "prompt", True,
+          provider="gemini", auth_mode="oauth_account",
+      )
+      print(json.dumps(captured))
+    PY
+
+    result = JSON.parse(out)
+    args = result.fetch("args")
+    assert_includes args, "clamp=true"
+    assert_includes args, "clamp_backend=antigravity"
+    assert_nil result["gemini_key"]
+    assert_nil result["google_key"]
+    assert result.fetch("agy_home").end_with?("/state/antigravity")
+    assert result.fetch("agy_path").end_with?("/fake-agy")
+    assert_not_equal result.fetch("agy_home"), result.fetch("home")
   end
 
   test "Anthropic browser code is written only to the live login process" do
@@ -282,6 +322,38 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
     assert_equal "secret-once\n", result["stdin"]
     assert_not_includes result.fetch("state").to_json, "secret-once"
     assert_not_includes result["stdin"], "browser-state"
+  end
+
+  test "Gemini browser code is written only to the live Antigravity process" do
+    out = run_shim_python(<<~PY)
+      import io, types
+      class Process:
+          def __init__(self):
+              self.stdin = io.StringIO()
+          def poll(self): return None
+      process = Process()
+      mod._auth_process = process
+      mod._auth_state = {"status": "awaiting_code", "provider": "gemini"}
+      mod.request = types.SimpleNamespace(
+          headers={"Authorization": "Bearer tr_test"},
+          get_json=lambda silent=True: {
+              "provider": "gemini",
+              "code": "one-time-antigravity-code",
+          },
+      )
+      mod.jsonify = lambda value: value
+      result = mod.auth_code()
+      print(json.dumps({
+          "result": result,
+          "stdin": process.stdin.getvalue(),
+          "state": mod._auth_state,
+      }))
+    PY
+
+    result = JSON.parse(out)
+    assert_equal "finalizing", result.dig("result", "status")
+    assert_equal "one-time-antigravity-code\n", result["stdin"]
+    assert_not_includes result.fetch("state").to_json, "one-time-antigravity-code"
   end
 
   test "Anthropic login URL parsing stops at OSC-8 terminal hyperlink controls" do
@@ -352,6 +424,25 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
     assert_equal "anthropic", result["provider"]
     assert_equal "subscriber@example.com", result["email"]
     assert_not_includes result.to_json, "token"
+  end
+
+  test "provider status recognizes an authenticated Antigravity CLI without exposing credentials" do
+    out = run_shim_python(<<~PY)
+      import types
+      mod._agy_available = lambda: True
+      mod.subprocess.run = lambda *args, **kwargs: types.SimpleNamespace(
+          stdout="gemini-3.1-pro-low\\ngemini-3-flash\\n",
+          stderr="",
+          returncode=0,
+      )
+      print(json.dumps(mod._provider_account_status("gemini")))
+    PY
+
+    result = JSON.parse(out)
+    assert_equal "connected", result["status"]
+    assert_equal "gemini", result["provider"]
+    assert_equal "Google AI", result["plan"]
+    assert_not_includes result.to_json.downcase, "token"
   end
 
   test "provider status parsing does not mistake Not logged in text for a connection" do
@@ -953,6 +1044,8 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
         "CHAOS_HOME" => chaos_home.to_s,
         "CHAOS_BIN" => chaos_bin.to_s,
         "CLAUDE_CONFIG_DIR" => (dir / "state" / "claude").to_s,
+        "CHAOS_AGY_HOME" => (dir / "state" / "antigravity").to_s,
+        "AGY_BIN" => (dir / "fake-agy").to_s,
         "CHAOS_ANTHROPIC_CACHE_TTL" => "1h"
       }
       stdout, stderr, status = Open3.capture3(env, "python3", "-c", command)

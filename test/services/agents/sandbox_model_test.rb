@@ -42,6 +42,26 @@ module Agents
       end
     end
 
+    test "offers Gemini Antigravity subscription setup without a Gemini API key" do
+      agent = agents(:research_assistant)
+      agent.model_id = "google/gemini-3.1-pro-preview"
+
+      ResolvesProvider.stub :api_key_available?, false do
+        assert_equal "gemini", Agents::Sandbox.subscription_provider_for(agent)
+      end
+    end
+
+    test "connected Gemini subscription forces the direct Gemini provider route" do
+      agent = agents(:research_assistant)
+      agent.model_id = "google/gemini-3.1-pro-preview"
+      agent.provider_auth_modes = { "gemini" => "oauth_account" }
+
+      ResolvesProvider.stub :api_key_available?, false do
+        assert_equal "gemini", Agents::Sandbox.chaos_provider_for(agent)
+        assert_equal "gemini-3.1-pro-preview", Agents::Sandbox.chaos_model_for(agent)
+      end
+    end
+
     test "keeps models without a direct provider mapping on OpenRouter" do
       agent = agents(:research_assistant)
       agent.model_id = "anthropic/claude-sonnet-4-5"
