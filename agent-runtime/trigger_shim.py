@@ -74,6 +74,7 @@ import hashlib
 import json
 import os
 import re
+import shlex
 import shutil
 import subprocess
 import threading
@@ -110,6 +111,7 @@ SHIM_PORT = int(os.environ.get("SHIM_PORT", "4000"))
 CHAOS_BIN = os.environ.get("CHAOS_BIN", "/usr/local/bin/chaos")
 CLAUDE_BIN = os.environ.get("CLAUDE_BIN", "/usr/local/bin/claude")
 AGY_BIN = os.environ.get("AGY_BIN", "/usr/local/bin/agy")
+SCRIPT_BIN = os.environ.get("SCRIPT_BIN", "/usr/bin/script")
 CHAOS_HOME = Path(os.environ.get("CHAOS_HOME", str(Path.home() / ".chaos")))
 CLAUDE_CONFIG_DIR = Path(os.environ.get("CLAUDE_CONFIG_DIR", "/home/agent/state/claude"))
 CHAOS_AGY_HOME = Path(os.environ.get("CHAOS_AGY_HOME", "/home/agent/state/antigravity"))
@@ -1495,7 +1497,7 @@ def auth_capabilities():
     }
     providers["gemini"] = {
         "api_key": True,
-        "oauth_account": _agy_available(),
+        "oauth_account": _antigravity_login_available(),
         "transport": "antigravity",
         "experimental": True,
         "provider_policy_risk": True,
@@ -1539,7 +1541,7 @@ def auth_start():
         elif provider == "gemini":
             CHAOS_AGY_HOME.mkdir(parents=True, exist_ok=True)
             CHAOS_AGY_HOME.chmod(0o700)
-            command = [AGY_BIN, "models"]
+            command = _antigravity_login_command()
             auth_env = _antigravity_cli_env()
             _auth_state["status"] = "starting"
         else:
@@ -1833,6 +1835,15 @@ def _antigravity_cli_env():
     return env
 
 
+def _antigravity_login_command():
+    # agy's browser login UI is terminal-gated. util-linux script supplies the
+    # PTY while preserving pipe-based stdin/stdout for the HTTP ceremony. Turn
+    # off terminal echo so the browser-returned authorization code is not copied
+    # back into the monitor stream.
+    command = f"stty -echo; exec {shlex.quote(AGY_BIN)} models"
+    return [SCRIPT_BIN, "-qefc", command, "/dev/null"]
+
+
 def _browser_code_provider(provider):
     return provider in ("anthropic", "gemini")
 
@@ -1976,6 +1987,11 @@ def _claude_version():
 
 def _agy_available():
     return Path(AGY_BIN).exists() or shutil.which(AGY_BIN) is not None
+
+
+def _antigravity_login_available():
+    script_available = Path(SCRIPT_BIN).exists() or shutil.which(SCRIPT_BIN) is not None
+    return _agy_available() and script_available
 
 
 def _agy_version():

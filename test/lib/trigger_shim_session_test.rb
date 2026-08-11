@@ -358,6 +358,18 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
     assert_not_includes result.fetch("state").to_json, "one-time-antigravity-code"
   end
 
+  test "Gemini login uses a PTY without echoing the browser code" do
+    out = run_shim_python(<<~PY)
+      print(json.dumps(mod._antigravity_login_command()))
+    PY
+
+    command = JSON.parse(out)
+    assert command.first.end_with?("/script")
+    assert_equal "-qefc", command[1]
+    assert_match %r{\Astty -echo; exec .*/fake-agy models\z}, command[2]
+    assert_equal "/dev/null", command[3]
+  end
+
   test "Anthropic login URL parsing stops at OSC-8 terminal hyperlink controls" do
     out = run_shim_python(<<~'PY')
       line = (
@@ -1048,6 +1060,7 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
         "CLAUDE_CONFIG_DIR" => (dir / "state" / "claude").to_s,
         "CHAOS_AGY_HOME" => (dir / "state" / "antigravity").to_s,
         "AGY_BIN" => (dir / "fake-agy").to_s,
+        "SCRIPT_BIN" => "/usr/bin/script",
         "CHAOS_ANTHROPIC_CACHE_TTL" => "1h"
       }
       stdout, stderr, status = Open3.capture3(env, "python3", "-c", command)
