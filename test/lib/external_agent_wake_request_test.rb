@@ -10,7 +10,7 @@ class ExternalAgentWakeRequestTest < ActiveSupport::TestCase
     assert_includes text, "scheduled self-directed session"
     assert_includes text, "Current time:"
     assert_includes text, "choose to do nothing"
-    assert_includes text, "helixkit-api.md"
+    assert_includes text, "/usr/local/share/helixkit-agent/helixkit-api.md"
     assert_includes text, "Do something else you freely choose"
     assert_includes text, "Keep it reasonable"
     assert_includes text, "Do not consume lots of tokens"

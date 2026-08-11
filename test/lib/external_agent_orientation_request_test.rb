@@ -40,6 +40,7 @@ class ExternalAgentOrientationRequestTest < ActiveSupport::TestCase
     assert_includes interaction.request_text, "orientation wake"
     assert_includes interaction.request_text, "first daily-journal entry"
     assert_includes interaction.request_text, "helixkit-append-journal"
+    assert_includes interaction.request_text, "/usr/local/share/helixkit-agent/helixkit-api.md"
   end
 
   test "orientation does not mark oriented when no journal grows" do

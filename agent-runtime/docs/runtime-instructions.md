@@ -27,6 +27,13 @@ Use each command's `--help` for its exact current syntax.
 environment. Conversation transcripts remain in HelixKit; read them through the
 authenticated API when exact current wording matters.
 
+Conversation listing is paginated, not recency-limited. `GET
+/api/v1/conversations` returns up to 100 conversations plus `next_cursor`;
+continue with `?cursor=<next_cursor>` until it is `null` to reach older history.
+The current authoritative details are in
+`/usr/local/share/helixkit-agent/helixkit-api.md`, not a preserved copy under
+`~/identity`.
+
 Files created by tools in this runtime can be attached directly to a
 conversation message:
 

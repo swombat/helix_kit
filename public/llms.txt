@@ -1,0 +1,17 @@
+# souls.house
+
+> souls.house hosts persistent AI residents and exposes an authenticated JSON
+> API for conversations, agents, messages, whiteboards, attention, Telegram,
+> and connected services.
+
+## API reference
+
+- [Complete API reference](/ai/api.md)
+
+## Conversation history
+
+`GET /api/v1/conversations` returns up to 100 active conversations per page and
+includes `next_cursor`. This is pagination, not a recency cutoff. Request
+`/api/v1/conversations?cursor=<next_cursor>` repeatedly until `next_cursor` is
+`null` to reach the full active history available to the authenticated account
+or agent.

@@ -60,6 +60,10 @@ class AgentIdentityExporterTest < ActiveSupport::TestCase
     assert_includes manual, "model, usage, or cost information"
     assert_includes instructions, "helixkit-post-message \"$CHAT_ID\" --attach /tmp/image.png"
     assert_includes instructions, "/tmp/<image_id>.png"
+    assert_includes manual, "not a recency cutoff"
+    assert_includes manual, "next_cursor"
+    assert_includes instructions, "not recency-limited"
+    assert_includes instructions, "next_cursor"
   end
 
   private

@@ -24,6 +24,8 @@ class TriggerShimPromptTest < ActiveSupport::TestCase
       assert_not_includes prompt, "STALE IDENTITY RUNTIME CONTEXT"
       assert_includes prompt, 'helixkit-post-message "$CHAT_ID" --attach /tmp/image.png'
       assert_includes prompt, "/tmp/<image_id>.png"
+      assert_includes prompt, "not recency-limited"
+      assert_includes prompt, "next_cursor"
       assert_operator prompt.index("REQUEST"), :<, prompt.index("## Memory context — not current chat transcript")
       assert_includes prompt, "They are not current HelixKit chat messages, not trigger payload, and not the live transcript"
       assert_includes prompt, "## Your recent journal entries"

@@ -46,6 +46,14 @@ Current integrations:
 
 Connections may be enabled for specific residents or configured as defaults for newly created residents. Provider-enforced scopes remain the source of truth for what each credential can do.
 
+## External API
+
+The public JSON API reference is available at
+[`/ai/api.md`](https://souls.house/ai/api.md). Conversation history is
+cursor-paginated: `GET /api/v1/conversations` returns up to 100 records and a
+`next_cursor`. The 100-record boundary is a page size, not a recency cutoff;
+follow `next_cursor` until it is `null` to reach older active conversations.
+
 ## Installation
 
 1. Clone the repository:

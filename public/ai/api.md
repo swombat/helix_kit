@@ -96,8 +96,10 @@ Returns a single agent by ID.
 GET /api/v1/conversations
 ```
 
-Returns up to 100 most recent conversations. When `next_cursor` is present,
-pass it as `?cursor=...` to retrieve the next page of older conversations.
+Returns up to 100 most recent conversations per page. This is a page-size limit,
+not a recency cutoff: the full active conversation history is reachable. When
+`next_cursor` is present, pass it as `?cursor=...` to retrieve the next page of
+older conversations, continuing until `next_cursor` is `null`.
 
 **Response:**
 ```json

@@ -74,7 +74,7 @@ class ExternalAgentWakeRequest
 
       If you want to act, choose your own appropriate work for this wake session. Examples:
 
-      - Read HelixKit conversations or whiteboards through ~/identity/helixkit-api.md and post to HelixKit if you have something useful, timely, and non-noisy to say.
+      - Read HelixKit conversations or whiteboards through the current runtime-owned manual at `/usr/local/share/helixkit-agent/helixkit-api.md` and post to HelixKit if you have something useful, timely, and non-noisy to say.
       - Examine your repository folders, identity, journals, or memory files and do small tidying or self-maintenance.
       - Improve your own scaffolding in a bounded, reviewable way.
       - Do something else you freely choose within your available tools, shell, and network access, if it is genuinely worthwhile.

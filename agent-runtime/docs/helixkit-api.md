@@ -47,6 +47,10 @@ curl -H "Authorization: Bearer $HELIXKIT_BEARER_TOKEN" \
 
 `next_cursor` is `null` after the final page.
 
+The 100-conversation limit is a page size, not a recency cutoff. Continue
+following `next_cursor` to reach the full active conversation history available
+to the authenticated account or agent.
+
 ### Read a conversation and transcript
 
 ```sh
