@@ -366,7 +366,7 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
     command = JSON.parse(out)
     assert command.first.end_with?("/script")
     assert_equal "-qefc", command[1]
-    assert_match %r{\Astty -echo; exec .*/fake-agy models\z}, command[2]
+    assert_match %r{\Astty -echo; exec .*/fake-agy\z}, command[2]
     assert_equal "/dev/null", command[3]
   end
 

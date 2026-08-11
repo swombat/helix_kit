@@ -1840,7 +1840,9 @@ def _antigravity_login_command():
     # PTY while preserving pipe-based stdin/stdout for the HTTP ceremony. Turn
     # off terminal echo so the browser-returned authorization code is not copied
     # back into the monitor stream.
-    command = f"stty -echo; exec {shlex.quote(AGY_BIN)} models"
+    # Launching `models` while signed out exits with an instruction to start the
+    # CLI without arguments; the bare invocation enters the browser login flow.
+    command = f"stty -echo; exec {shlex.quote(AGY_BIN)}"
     return [SCRIPT_BIN, "-qefc", command, "/dev/null"]
 
 
