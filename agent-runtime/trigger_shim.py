@@ -1881,7 +1881,7 @@ def _advance_antigravity_login(process):
     if process.poll() is not None:
         return
     try:
-        process.stdin.write("\n")
+        process.stdin.write("\r")
         process.stdin.flush()
     except (BrokenPipeError, OSError):
         pass

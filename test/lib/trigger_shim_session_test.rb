@@ -413,7 +413,7 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
       print(json.dumps(process.stdin.getvalue()))
     PY
 
-    assert_equal "\n", JSON.parse(out)
+    assert_equal "\r", JSON.parse(out)
   end
 
   test "Anthropic login URL parsing stops at OSC-8 terminal hyperlink controls" do
