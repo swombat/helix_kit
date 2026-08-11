@@ -1,0 +1,17 @@
+#!/bin/sh
+set -eu
+
+url="${1:-}"
+path="${CHAOS_AGY_LOGIN_URL_PATH:-}"
+
+case "$url" in
+  http://*|https://*) ;;
+  *) exit 1 ;;
+esac
+
+[ -n "$path" ] || exit 1
+
+umask 077
+temporary_path="${path}.$$"
+printf '%s\n' "$url" > "$temporary_path"
+mv "$temporary_path" "$path"

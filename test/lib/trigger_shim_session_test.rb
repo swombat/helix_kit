@@ -360,14 +360,60 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
 
   test "Gemini login uses a PTY without echoing the browser code" do
     out = run_shim_python(<<~PY)
-      print(json.dumps(mod._antigravity_login_command()))
+      print(json.dumps({
+          "command": mod._antigravity_login_command(),
+          "path": mod._antigravity_cli_env()["PATH"],
+          "url_path": mod._antigravity_cli_env()["CHAOS_AGY_LOGIN_URL_PATH"],
+      }))
     PY
 
-    command = JSON.parse(out)
+    result = JSON.parse(out)
+    command = result.fetch("command")
     assert command.first.end_with?("/script")
     assert_equal "-qefc", command[1]
     assert_match %r{\Astty -echo; exec .*/fake-agy\z}, command[2]
     assert_equal "/dev/null", command[3]
+    assert result.fetch("path").start_with?("/usr/local/libexec/helixkit-antigravity-login:")
+    assert result.fetch("url_path").end_with?("/state/antigravity/.login-url")
+  end
+
+  test "Gemini login captures and removes the browser helper URL" do
+    out = run_shim_python(<<~PY)
+      import types
+      process = types.SimpleNamespace(poll=lambda: None)
+      mod._auth_process = process
+      mod._auth_state = {"status": "starting", "provider": "gemini"}
+      path = mod._antigravity_login_url_path()
+      path.parent.mkdir(parents=True, exist_ok=True)
+      path.write_text("https://accounts.google.com/o/oauth2/auth?state=private\\n")
+      mod._monitor_antigravity_login_url(process)
+      print(json.dumps({
+          "state": mod._auth_state,
+          "path_exists": path.exists(),
+      }))
+    PY
+
+    result = JSON.parse(out)
+    assert_equal "awaiting_code", result.dig("state", "status")
+    assert_equal "https://accounts.google.com/o/oauth2/auth?state=private",
+                 result.dig("state", "verification_url")
+    assert_equal false, result.fetch("path_exists")
+  end
+
+  test "Gemini login advances only the non-secret onboarding selector" do
+    out = run_shim_python(<<~PY)
+      import io
+      class Process:
+          def __init__(self):
+              self.stdin = io.StringIO()
+          def poll(self): return None
+      process = Process()
+      mod.time.sleep = lambda _seconds: None
+      mod._advance_antigravity_login(process)
+      print(json.dumps(process.stdin.getvalue()))
+    PY
+
+    assert_equal "\n", JSON.parse(out)
   end
 
   test "Anthropic login URL parsing stops at OSC-8 terminal hyperlink controls" do

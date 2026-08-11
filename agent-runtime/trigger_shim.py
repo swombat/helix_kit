@@ -78,6 +78,7 @@ import shlex
 import shutil
 import subprocess
 import threading
+import time
 import logging
 import time
 from datetime import datetime, timedelta, timezone
@@ -112,6 +113,10 @@ CHAOS_BIN = os.environ.get("CHAOS_BIN", "/usr/local/bin/chaos")
 CLAUDE_BIN = os.environ.get("CLAUDE_BIN", "/usr/local/bin/claude")
 AGY_BIN = os.environ.get("AGY_BIN", "/usr/local/bin/agy")
 SCRIPT_BIN = os.environ.get("SCRIPT_BIN", "/usr/bin/script")
+ANTIGRAVITY_BROWSER_HELPER_DIR = Path(os.environ.get(
+    "ANTIGRAVITY_BROWSER_HELPER_DIR",
+    "/usr/local/libexec/helixkit-antigravity-login",
+))
 CHAOS_HOME = Path(os.environ.get("CHAOS_HOME", str(Path.home() / ".chaos")))
 CLAUDE_CONFIG_DIR = Path(os.environ.get("CLAUDE_CONFIG_DIR", "/home/agent/state/claude"))
 CHAOS_AGY_HOME = Path(os.environ.get("CHAOS_AGY_HOME", "/home/agent/state/antigravity"))
@@ -1541,6 +1546,7 @@ def auth_start():
         elif provider == "gemini":
             CHAOS_AGY_HOME.mkdir(parents=True, exist_ok=True)
             CHAOS_AGY_HOME.chmod(0o700)
+            _antigravity_login_url_path().unlink(missing_ok=True)
             command = _antigravity_login_command()
             auth_env = _antigravity_cli_env()
             _auth_state["status"] = "starting"
@@ -1556,6 +1562,17 @@ def auth_start():
             bufsize=1,
             env=auth_env,
         )
+        if provider == "gemini":
+            threading.Thread(
+                target=_advance_antigravity_login,
+                args=(_auth_process,),
+                daemon=True,
+            ).start()
+            threading.Thread(
+                target=_monitor_antigravity_login_url,
+                args=(_auth_process,),
+                daemon=True,
+            ).start()
         threading.Thread(
             target=_monitor_auth_process,
             args=(_auth_process, provider),
@@ -1832,7 +1849,16 @@ def _antigravity_cli_env():
     env = _antigravity_subscription_env()
     env["HOME"] = str(CHAOS_AGY_HOME)
     env["XDG_CONFIG_HOME"] = str(CHAOS_AGY_HOME / ".config")
+    env["CHAOS_AGY_LOGIN_URL_PATH"] = str(_antigravity_login_url_path())
+    env["PATH"] = os.pathsep.join((
+        str(ANTIGRAVITY_BROWSER_HELPER_DIR),
+        env.get("PATH", ""),
+    ))
     return env
+
+
+def _antigravity_login_url_path():
+    return CHAOS_AGY_HOME / ".login-url"
 
 
 def _antigravity_login_command():
@@ -1844,6 +1870,47 @@ def _antigravity_login_command():
     # CLI without arguments; the bare invocation enters the browser login flow.
     command = f"stty -echo; exec {shlex.quote(AGY_BIN)}"
     return [SCRIPT_BIN, "-qefc", command, "/dev/null"]
+
+
+def _advance_antigravity_login(process):
+    # The bare CLI opens an onboarding selector before it starts consumer OAuth.
+    # The default selection is Google sign-in, so advance that one non-secret UI
+    # step after the PTY is ready. Browser consent and the returned code remain
+    # user-controlled.
+    time.sleep(1)
+    if process.poll() is not None:
+        return
+    try:
+        process.stdin.write("\n")
+        process.stdin.flush()
+    except (BrokenPipeError, OSError):
+        pass
+
+
+def _monitor_antigravity_login_url(process):
+    global _auth_state
+
+    path = _antigravity_login_url_path()
+    while process.poll() is None:
+        try:
+            raw_url = path.read_text().strip()
+        except FileNotFoundError:
+            time.sleep(0.05)
+            continue
+        finally:
+            if path.exists():
+                path.unlink(missing_ok=True)
+
+        url = _first_http_url(raw_url)
+        if url:
+            with _auth_lock:
+                if _auth_process is process:
+                    _auth_state["status"] = "awaiting_code"
+                    _auth_state["verification_url"] = url
+            _auth_code_ready.set()
+            return
+
+        time.sleep(0.05)
 
 
 def _browser_code_provider(provider):
