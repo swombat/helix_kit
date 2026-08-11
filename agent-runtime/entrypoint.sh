@@ -169,14 +169,17 @@ register_provider_key openai "$OPENAI_API_KEY"
 
 # Keep one matching Chaos journal daemon alive for the lifetime of the hosted
 # runtime. Long-running provider turns and later resume processes must share the
-# same socket instead of relying on per-command detached bootstrap.
+# same socket instead of relying on per-command detached bootstrap. Keep the
+# post-storage-refactor journal separate from legacy chaos.sqlite databases:
+# SQLx correctly refuses to reuse a database whose original migration changed.
 export CHAOS_HOME="${CHAOS_HOME:-$AGENT_HOME/.chaos}"
 export CHAOS_JOURNALD_SOCKET="${CHAOS_JOURNALD_SOCKET:-$CHAOS_HOME/run/journald.sock}"
+CHAOS_JOURNALD_DB="${CHAOS_JOURNALD_DB:-$CHAOS_HOME/journal.sqlite}"
 mkdir -p "$(dirname "$CHAOS_JOURNALD_SOCKET")"
 chown -R 1000:1000 "$CHAOS_HOME"
 gosu agent chaos_journald \
     --socket "$CHAOS_JOURNALD_SOCKET" \
-    --db "$CHAOS_HOME/chaos.sqlite" &
+    --db "$CHAOS_JOURNALD_DB" &
 CHAOS_JOURNALD_PID=$!
 
 attempt=0

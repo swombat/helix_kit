@@ -23,6 +23,8 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
     assert_includes dockerfile, "agy --version"
     assert_includes entrypoint, "gosu agent chaos_journald"
     assert_includes entrypoint, 'export CHAOS_JOURNALD_SOCKET="${CHAOS_JOURNALD_SOCKET:-$CHAOS_HOME/run/journald.sock}"'
+    assert_includes entrypoint, 'CHAOS_JOURNALD_DB="${CHAOS_JOURNALD_DB:-$CHAOS_HOME/journal.sqlite}"'
+    assert_includes entrypoint, '--db "$CHAOS_JOURNALD_DB"'
   end
 
   test "runtime config installs RubyLLM providers not bundled by Chaos" do
