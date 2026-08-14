@@ -21,31 +21,31 @@ module Chat::ModelSelection
       provider_model_id: "claude-fable-5"
     },
     {
-      model_id: "deepseek/deepseek-v4-pro",
-      label: "DeepSeek V4 Pro",
+      model_id: "deepseek/deepseek-v4-pro-0813",
+      label: "DeepSeek V4 Pro 0813",
       group: "Top Models",
-      provider_model_id: "deepseek-v4-pro",
-      thinking: { supported: true, requires_direct_api: true }
+      thinking: { supported: true }
     },
     {
-      model_id: "google/gemini-3.1-pro-preview",
-      label: "Gemini 3.1 Pro",
+      model_id: "google/gemini-3.7-flash",
+      label: "Gemini 3.7 Flash",
       group: "Top Models",
-      provider_model_id: "gemini-3.1-pro-preview",
+      provider_model_id: "gemini-3.7-flash",
       thinking: { supported: true },
       audio_input: true
     },
     {
-      model_id: "x-ai/grok-4.5",
-      label: "Grok 4.5",
+      model_id: "x-ai/grok-4.6",
+      label: "Grok 4.6",
       group: "Top Models",
-      provider_model_id: "grok-4.5"
+      provider_model_id: "grok-4.6",
+      thinking: { supported: true }
     },
     { model_id: "mistralai/mistral-large-2512", label: "Mistral Large 2512", group: "Top Models" },
     { model_id: "meta-llama/llama-4-maverick", label: "Llama 4 Maverick", group: "Top Models" },
     { model_id: "minimax/minimax-m3", label: "MiniMax M3", group: "Top Models", thinking: { supported: true } },
-    { model_id: "moonshotai/kimi-k2.7-code", label: "Kimi K2.7 Code", group: "Top Models" },
-    { model_id: "qwen/qwen3.7-max", label: "Qwen3.7 Max", group: "Top Models", thinking: { supported: true } },
+    { model_id: "moonshotai/kimi-k3", label: "Kimi K3", group: "Top Models", thinking: { supported: true } },
+    { model_id: "qwen/qwen3.8-max", label: "Qwen3.8 Max", group: "Top Models", thinking: { supported: true } },
     { model_id: "z-ai/glm-5.2", label: "GLM 5.2", group: "Top Models", thinking: { supported: true } },
 
     # OpenAI
@@ -191,6 +191,12 @@ module Chat::ModelSelection
 
     # Anthropic
     {
+      model_id: "anthropic/claude-opus-5-fast",
+      label: "Claude Opus 5 (Fast)",
+      group: "Anthropic",
+      thinking: { supported: true }
+    },
+    {
       model_id: "anthropic/claude-sonnet-5",
       label: "Claude Sonnet 5",
       group: "Anthropic",
@@ -299,6 +305,22 @@ module Chat::ModelSelection
 
     # Google
     {
+      model_id: "google/gemini-3.7-flash",
+      label: "Gemini 3.7 Flash",
+      group: "Google",
+      provider_model_id: "gemini-3.7-flash",
+      thinking: { supported: true },
+      audio_input: true
+    },
+    {
+      model_id: "google/gemini-3.6-flash",
+      label: "Gemini 3.6 Flash",
+      group: "Google",
+      provider_model_id: "gemini-3.6-flash",
+      thinking: { supported: true },
+      audio_input: true
+    },
+    {
       model_id: "google/gemini-3.1-pro-preview",
       label: "Gemini 3.1 Pro",
       group: "Google",
@@ -311,6 +333,14 @@ module Chat::ModelSelection
       label: "Gemini 3.5 Flash",
       group: "Google",
       provider_model_id: "gemini-3.5-flash",
+      thinking: { supported: true },
+      audio_input: true
+    },
+    {
+      model_id: "google/gemini-3.5-flash-lite",
+      label: "Gemini 3.5 Flash Lite",
+      group: "Google",
+      provider_model_id: "gemini-3.5-flash-lite",
       thinking: { supported: true },
       audio_input: true
     },
@@ -389,8 +419,15 @@ module Chat::ModelSelection
     },
 
     # xAI - Grok models
-    # grok-4.3/4.20: Support configurable reasoning on the direct xAI API
+    # grok-4.6/4.3/4.20: Support configurable reasoning on the direct xAI API
     # grok-4/grok-3: Built-in reasoning but not exposed/configurable
+    {
+      model_id: "x-ai/grok-4.6",
+      label: "Grok 4.6",
+      group: "xAI",
+      provider_model_id: "grok-4.6",
+      thinking: { supported: true }
+    },
     {
       model_id: "x-ai/grok-4.5",
       label: "Grok 4.5",
@@ -480,6 +517,9 @@ module Chat::ModelSelection
     # DeepSeek
     { model_id: "deepseek/deepseek-chat", label: "DeepSeek Chat", group: "DeepSeek" },
     { model_id: "deepseek/deepseek-v3.2", label: "DeepSeek V3.2", group: "DeepSeek" },
+    { model_id: "deepseek/deepseek-v4-pro-0813", label: "DeepSeek V4 Pro 0813", group: "DeepSeek", thinking: { supported: true } },
+    { model_id: "deepseek/deepseek-v4-pro", label: "DeepSeek V4 Pro", group: "DeepSeek", provider_model_id: "deepseek-v4-pro", thinking: { supported: true, requires_direct_api: true } },
+    { model_id: "deepseek/deepseek-v4-flash-0731", label: "DeepSeek V4 Flash 0731", group: "DeepSeek", thinking: { supported: true } },
     {
       model_id: "deepseek/deepseek-v4-flash",
       label: "DeepSeek V4 Flash",
@@ -490,6 +530,7 @@ module Chat::ModelSelection
     { model_id: "deepseek/deepseek-v3", label: "DeepSeek V3", group: "DeepSeek" },
 
     # Moonshot / Kimi
+    { model_id: "moonshotai/kimi-k3", label: "Kimi K3", group: "Moonshot / Kimi", thinking: { supported: true } },
     { model_id: "moonshotai/kimi-k2.7-code", label: "Kimi K2.7 Code", group: "Moonshot / Kimi" },
     { model_id: "moonshotai/kimi-coding", label: "Kimi Coding", group: "Moonshot / Kimi" },
     { model_id: "moonshotai/kimi-k2.6", label: "Kimi K2.6", group: "Moonshot / Kimi", thinking: { supported: true } },
@@ -531,6 +572,9 @@ module Chat::ModelSelection
     { model_id: "meta-llama/llama-3.2-11b-vision-instruct", label: "Llama 3.2 11B Vision Instruct", group: "Meta Llama" },
 
     # Qwen
+    { model_id: "qwen/qwen3.8-2.4t-a95b", label: "Qwen3.8 2.4T A95B", group: "Qwen", thinking: { supported: true } },
+    { model_id: "qwen/qwen3.8-max", label: "Qwen3.8 Max", group: "Qwen", thinking: { supported: true } },
+    { model_id: "qwen/qwen3.7-flash", label: "Qwen3.7 Flash", group: "Qwen", thinking: { supported: true } },
     { model_id: "qwen/qwen3.7-max", label: "Qwen3.7 Max", group: "Qwen", thinking: { supported: true } },
     { model_id: "qwen/qwen3.6-plus", label: "Qwen3.6 Plus", group: "Qwen", thinking: { supported: true } },
     { model_id: "qwen/qwen3.6-max-preview", label: "Qwen3.6 Max Preview", group: "Qwen", thinking: { supported: true } },
@@ -695,7 +739,7 @@ module Chat::ModelSelection
         REASONING_PROFILES[:anthropic_fable]
       when %r{\Aanthropic/claude-(?:sonnet-[45]|opus-[45])}
         REASONING_PROFILES[:anthropic]
-      when %r{\Agoogle/gemini-(?:3\.5-flash|3\.1-flash|3-flash)}
+      when %r{\Agoogle/gemini-(?:3\.[5-7]-flash|3\.1-flash|3-flash)}
         REASONING_PROFILES[:gemini_full]
       when %r{\Agoogle/gemini-(?:3\.1-pro|3-pro)}
         REASONING_PROFILES[:gemini_pro]
