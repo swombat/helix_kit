@@ -7,10 +7,22 @@
 # Local build:
 #   docker build -t helixkit-agent-runtime:local agent-runtime
 
+# Pin merged subscription-auth, clamp telemetry, headless clamp, and Antigravity
+# support so hosted runtime rebuilds do not depend on movement of a branch ref.
+# Pin bumps must re-verify provider auth ceremony parsers and clamp subprocess
+# patterns in trigger_shim.py. This ref also preserves the original SQLx
+# migration checksum used by persisted Chaos journals; do not move to a ref
+# which rewrites var/proc/db/migrate/sqlite/0001_bigbang.sql.
+ARG CHAOS_REPO=https://github.com/seuros/chaos.git
+ARG CHAOS_REF=b9b28befbe64c375d6eb64cbfe397e50ce5e1f96
+
 # =============================================================================
 # Stage 1 — pull and build chaos. Source tree is discarded after the binary copies.
 # =============================================================================
 FROM rust:1.97-bookworm AS builder
+
+ARG CHAOS_REPO
+ARG CHAOS_REF
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -21,13 +33,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         ca-certificates \
         git \
     && rm -rf /var/lib/apt/lists/*
-
-# Pin merged subscription-auth, clamp telemetry, headless clamp, and Antigravity
-# support so hosted runtime rebuilds do not depend on movement of a branch ref.
-# Pin bumps must re-verify provider auth ceremony parsers and clamp subprocess
-# patterns in trigger_shim.py.
-ARG CHAOS_REPO=https://github.com/seuros/chaos.git
-ARG CHAOS_REF=bf58af45f8477ca03471aceb54ced3ce8c927459
 
 WORKDIR /build
 RUN git clone --filter=blob:none ${CHAOS_REPO} chaos \
@@ -45,6 +50,9 @@ RUN cargo build --release --bin chaos_journald \
 # Stage 2 — runtime
 # =============================================================================
 FROM node:22-bookworm-slim AS runtime
+
+ARG CHAOS_REF
+LABEL house.souls.chaos-ref="${CHAOS_REF}"
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \

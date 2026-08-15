@@ -7,6 +7,7 @@ class Backup::LocalAgentRuntimeImageTest < ActiveSupport::TestCase
     service = build_service(
       production_version: "chaos-cli 47.0.0.200",
       local_versions: [ "chaos-cli 47.0.0.200" ],
+      local_refs: [ desired_ref ],
       builds: builds
     )
 
@@ -19,6 +20,7 @@ class Backup::LocalAgentRuntimeImageTest < ActiveSupport::TestCase
     service = build_service(
       production_version: "chaos-cli 47.0.0.200",
       local_versions: [ "chaos-cli 47.0.0.201" ],
+      local_refs: [ desired_ref ],
       builds: builds
     )
 
@@ -31,6 +33,7 @@ class Backup::LocalAgentRuntimeImageTest < ActiveSupport::TestCase
     service = build_service(
       production_version: "chaos-cli 47.0.0.200",
       local_versions: [ "chaos-cli 47.0.0.100", "chaos-cli 47.0.0.200" ],
+      local_refs: [ desired_ref, desired_ref ],
       builds: builds
     )
 
@@ -43,6 +46,7 @@ class Backup::LocalAgentRuntimeImageTest < ActiveSupport::TestCase
     service = build_service(
       production_version: "chaos-cli 47.0.0.200",
       local_versions: [ nil, "chaos-cli 47.0.0.200" ],
+      local_refs: [ nil, desired_ref ],
       builds: builds
     )
 
@@ -54,6 +58,7 @@ class Backup::LocalAgentRuntimeImageTest < ActiveSupport::TestCase
     service = build_service(
       production_version: "chaos-cli 47.0.0.200",
       local_versions: [ "chaos-cli 47.0.0.100", "chaos-cli 47.0.0.150" ],
+      local_refs: [ desired_ref, desired_ref ],
       builds: []
     )
 
@@ -63,22 +68,49 @@ class Backup::LocalAgentRuntimeImageTest < ActiveSupport::TestCase
     assert_match(/older than production/, error.message)
   end
 
+  test "rebuilds a numerically newer image when its Chaos ref is incompatible" do
+    builds = []
+    service = build_service(
+      production_version: "chaos-cli 47.0.0.200",
+      local_versions: [ "chaos-cli 47.0.0.300", "chaos-cli 47.0.0.400" ],
+      local_refs: [ "b" * 40, desired_ref ],
+      builds: builds
+    )
+
+    assert_equal true, service.ensure_current!
+    assert_equal 1, builds.length
+  end
+
   private
 
-  def build_service(production_version:, local_versions:, builds:)
+  def desired_ref
+    "a" * 40
+  end
+
+  def build_service(production_version:, local_versions:, local_refs:, builds:)
     versions = local_versions.dup
+    refs = local_refs.dup
     successful_status = Object.new
     successful_status.define_singleton_method(:success?) { true }
     missing_status = Object.new
     missing_status.define_singleton_method(:success?) { false }
 
     capture3 = lambda do |*command|
-      assert_equal(
-        [ "docker", "run", "--rm", "--entrypoint", "chaos", "helixkit-agent-runtime:local", "--version" ],
-        command
-      )
-      version = versions.shift
-      [ version.to_s, "", version ? successful_status : missing_status ]
+      if command.include?("--entrypoint")
+        version = versions.shift
+        [ version.to_s, "", version ? successful_status : missing_status ]
+      else
+        assert_equal(
+          [
+            "docker", "image", "inspect",
+            "--format", '{{ index .Config.Labels "house.souls.chaos-ref" }}',
+            "helixkit-agent-runtime:local"
+          ],
+          command
+        )
+        ref = refs.shift
+        [ ref.to_s, "", ref ? successful_status : missing_status ]
+      end
     end
     system = lambda do |*command|
       builds << command
@@ -89,6 +121,7 @@ class Backup::LocalAgentRuntimeImageTest < ActiveSupport::TestCase
       image: "helixkit-agent-runtime:local",
       runtime_dir: Pathname("/tmp/agent-runtime"),
       production_version: -> { production_version },
+      desired_chaos_ref: -> { desired_ref },
       capture3: capture3,
       system: system
     )

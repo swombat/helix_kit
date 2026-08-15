@@ -40,7 +40,10 @@ class MigrateOuraCredentialsToServiceConnections < ActiveRecord::Migration[8.1]
         freely_provisionable: nexus_account?(account)
       )
       connection.credential_payload_hash = payload
-      connection.save!
+      # This migration runs before credential_fingerprint is added. Skip the
+      # current model's validations so restoring an older database does not
+      # invoke validations for columns that do not exist at this schema version.
+      connection.save!(validate: false)
 
       unless connection.reload.credential_payload_hash.slice("access_token", "refresh_token") ==
              payload.slice("access_token", "refresh_token")
