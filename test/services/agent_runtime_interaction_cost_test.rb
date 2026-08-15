@@ -19,7 +19,7 @@ class AgentRuntimeInteractionCostTest < ActiveSupport::TestCase
     assert_equal "estimated", cost[:status]
     assert_equal "direct_api", cost[:pricing_source]
     assert_equal "anthropic/claude-fable-5", cost[:pricing_model]
-    assert_equal "2026-07-22", cost[:pricing_as_of]
+    assert_equal "2026-08-15", cost[:pricing_as_of]
     assert_equal "2.4", cost[:amount_usd]
     assert_equal "0.4", cost.dig(:components_usd, :cache_creation_input)
     assert_equal "0.5", cost.dig(:components_usd, :cache_read_input)
@@ -81,6 +81,42 @@ class AgentRuntimeInteractionCostTest < ActiveSupport::TestCase
     )
 
     assert_equal "1.25", interaction.estimated_cost[:amount_usd]
+  end
+
+  test "estimates Gemini 3.7 Flash cost with direct cache pricing" do
+    interaction = build_interaction(
+      provider: "gemini",
+      model: "gemini-3.7-flash",
+      uncached_input_tokens: 1_000_000,
+      cache_creation_input_tokens: 1_000_000,
+      cache_read_input_tokens: 1_000_000,
+      output_tokens: 1_000_000
+    )
+
+    cost = interaction.estimated_cost
+
+    assert_equal "estimated", cost[:status]
+    assert_equal "google/gemini-3.7-flash", cost[:pricing_model]
+    assert_equal "4.74166667", cost[:amount_usd]
+    assert_equal "0.075", cost.dig(:components_usd, :cache_read_input)
+  end
+
+  test "estimates Grok 4.6 cost with cached input pricing" do
+    interaction = build_interaction(
+      provider: "xai",
+      model: "grok-4.6",
+      uncached_input_tokens: 1_000_000,
+      cache_creation_input_tokens: 0,
+      cache_read_input_tokens: 1_000_000,
+      output_tokens: 1_000_000
+    )
+
+    cost = interaction.estimated_cost
+
+    assert_equal "estimated", cost[:status]
+    assert_equal "x-ai/grok-4.6", cost[:pricing_model]
+    assert_equal "8.5", cost[:amount_usd]
+    assert_equal "0.5", cost.dig(:components_usd, :cache_read_input)
   end
 
   test "leaves cost unavailable for untrusted usage or unknown models" do

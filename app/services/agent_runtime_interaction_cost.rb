@@ -1,6 +1,6 @@
 class AgentRuntimeInteractionCost
 
-  PRICING_AS_OF = Date.new(2026, 7, 22)
+  PRICING_AS_OF = Date.new(2026, 8, 15)
   TOKENS_PER_MILLION = BigDecimal("1000000")
 
   # Public list prices in USD per million tokens, taken from the route's
@@ -43,6 +43,7 @@ class AgentRuntimeInteractionCost
     [ /(?:openai\/)?gpt-4o-mini(?:-\d{4}-\d{2}-\d{2})?\z/, "openai/gpt-4o-mini", 0.15, 0.6 ],
     [ /(?:openai\/)?gpt-4o(?:-\d{4}-\d{2}-\d{2})?\z/, "openai/gpt-4o", 2.5, 10 ],
 
+    [ /(?:google\/)?gemini-3\.7-flash\z/, "google/gemini-3.7-flash", 0.75, 3.75 ],
     [ /(?:google\/)?gemini-3\.5-flash\z/, "google/gemini-3.5-flash", 1.5, 9 ],
     [ /(?:google\/)?gemini-3\.1-pro-preview\z/, "google/gemini-3.1-pro-preview", 2, 12 ],
     [ /(?:google\/)?gemini-3\.1-flash-lite\z/, "google/gemini-3.1-flash-lite", 0.25, 1.5 ],
@@ -51,6 +52,7 @@ class AgentRuntimeInteractionCost
     [ /(?:google\/)?gemini-2\.5-flash-lite\z/, "google/gemini-2.5-flash-lite", 0.1, 0.4 ],
     [ /(?:google\/)?gemini-2\.5-flash\z/, "google/gemini-2.5-flash", 0.3, 2.5 ],
 
+    [ /(?:x-ai\/)?grok-4\.6\z/, "x-ai/grok-4.6", 2, 6 ],
     [ /(?:x-ai\/)?grok-4\.5\z/, "x-ai/grok-4.5", 2, 6 ],
     [ /(?:x-ai\/)?grok-4\.20(?:-multi-agent)?\z/, "x-ai/grok-4.20", 1.25, 2.5 ],
     [ /(?:x-ai\/)?grok-4\.3\z/, "x-ai/grok-4.3", 1.25, 2.5 ],
@@ -77,6 +79,7 @@ class AgentRuntimeInteractionCost
     "openai/gpt-4.1-nano" => 0.025,
     "openai/gpt-4o" => 1.25,
     "openai/gpt-4o-mini" => 0.075,
+    "google/gemini-3.7-flash" => 0.075,
     "google/gemini-3.5-flash" => 0.15,
     "google/gemini-3.1-pro-preview" => 0.2,
     "google/gemini-3.1-flash-lite" => 0.025,
@@ -89,10 +92,12 @@ class AgentRuntimeInteractionCost
     "minimax/minimax-m3" => 0.06,
     "moonshotai/kimi-k2.7-code" => 0.16,
     "qwen/qwen3.7-max" => 0.295,
-    "z-ai/glm-5.2" => 0.15262
+    "z-ai/glm-5.2" => 0.15262,
+    "x-ai/grok-4.6" => 0.5
   }.transform_values { |rate| BigDecimal(rate.to_s) }.freeze
 
   CACHE_WRITE_RATES = {
+    "google/gemini-3.7-flash" => 0.16666666666666667,
     "google/gemini-3.5-flash" => 0.08333333333333334,
     "google/gemini-3.1-pro-preview" => 0.375,
     "google/gemini-3.1-flash-lite" => 0.08333333333333334,
