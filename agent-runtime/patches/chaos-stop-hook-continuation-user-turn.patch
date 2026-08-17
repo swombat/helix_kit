@@ -1,0 +1,78 @@
+diff --git a/sys/kern/kern/src/chaos/turn.rs b/sys/kern/kern/src/chaos/turn.rs
+index 03ef8ae9f..6ddaa4d1c 100644
+--- a/sys/kern/kern/src/chaos/turn.rs
++++ b/sys/kern/kern/src/chaos/turn.rs
+@@ -8,6 +8,7 @@ use chaos_dtrace::HookResult;
+ use chaos_epoll::OrCancelExt;
+ use chaos_ipc::config_types::ModeKind;
+ use chaos_ipc::items::TurnItem;
++use chaos_ipc::models::ContentItem;
+ use chaos_ipc::models::DeveloperInstructions;
+ use chaos_ipc::models::ResponseInputItem;
+ use chaos_ipc::models::ResponseItem;
+@@ -149,6 +150,19 @@ pub(crate) fn get_last_assistant_message_from_turn(responses: &[ResponseItem]) -
+     None
+ }
+ 
++pub(crate) fn stop_hook_continuation_message(prompt: String) -> ResponseItem {
++    // A blocking Stop hook requests another conversational turn. Record its
++    // continuation as user input so providers do not receive a request ending
++    // with the assistant message that caused the hook to run.
++    ResponseItem::Message {
++        id: None,
++        role: "user".to_string(),
++        content: vec![ContentItem::InputText { text: prompt }],
++        end_turn: None,
++        phase: None,
++    }
++}
++
+ /// Takes a user message as input and runs a loop where, at each sampling
+ /// request, the model replies with either:
+ ///
+@@ -433,11 +447,11 @@ pub(crate) async fn run_turn(
+                     if stop_outcome.should_block {
+                         if let Some(continuation_prompt) = stop_outcome.continuation_prompt.clone()
+                         {
+-                            let developer_message: ResponseItem =
+-                                DeveloperInstructions::new(continuation_prompt).into();
++                            let continuation_message =
++                                stop_hook_continuation_message(continuation_prompt);
+                             sess.record_conversation_items(
+                                 &turn_context,
+-                                std::slice::from_ref(&developer_message),
++                                std::slice::from_ref(&continuation_message),
+                             )
+                             .await;
+                             stop_hook_active = true;
+diff --git a/sys/kern/kern/src/chaos_tests.rs b/sys/kern/kern/src/chaos_tests.rs
+index 47fd22385..4b0244ed6 100644
+--- a/sys/kern/kern/src/chaos_tests.rs
++++ b/sys/kern/kern/src/chaos_tests.rs
+@@ -107,6 +107,26 @@ fn user_message(text: &str) -> ResponseItem {
+     }
+ }
+ 
++#[test]
++fn stop_hook_continuation_is_a_user_turn() {
++    let item = crate::chaos::turn::stop_hook_continuation_message(
++        "decide whether this turn has journal shape".to_string(),
++    );
++
++    assert_eq!(
++        item,
++        ResponseItem::Message {
++            id: None,
++            role: "user".to_string(),
++            content: vec![ContentItem::InputText {
++                text: "decide whether this turn has journal shape".to_string(),
++            }],
++            end_turn: None,
++            phase: None,
++        }
++    );
++}
++
+ fn assistant_message(text: &str) -> ResponseItem {
+     ResponseItem::Message {
+         id: None,

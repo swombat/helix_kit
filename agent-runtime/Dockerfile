@@ -7,14 +7,17 @@
 # Local build:
 #   docker build -t helixkit-agent-runtime:local agent-runtime
 
-# Pin merged subscription-auth, clamp telemetry, headless clamp, and Antigravity
-# support so hosted runtime rebuilds do not depend on movement of a branch ref.
+# Pin the current merged Chaos 47.1.0 runtime, including subscription auth,
+# clamp telemetry, model-visible compaction reflexes, and persistent MCP
+# approvals, so hosted runtime rebuilds do not depend on movement of a branch ref.
 # Pin bumps must re-verify provider auth ceremony parsers and clamp subprocess
 # patterns in trigger_shim.py. This ref also preserves the original SQLx
 # migration checksum used by persisted Chaos journals; do not move to a ref
 # which rewrites var/proc/db/migrate/sqlite/0001_bigbang.sql.
+# The Stop-hook continuation patch restores a fix lost during Chaos's turn-loop
+# refactor; remove it once the equivalent upstream fix is included in CHAOS_REF.
 ARG CHAOS_REPO=https://github.com/seuros/chaos.git
-ARG CHAOS_REF=b9b28befbe64c375d6eb64cbfe397e50ce5e1f96
+ARG CHAOS_REF=b9248d25ea0a00995dbdcce77829f73caf613823
 
 # =============================================================================
 # Stage 1 — pull and build chaos. Source tree is discarded after the binary copies.
@@ -35,9 +38,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /build
+COPY patches/chaos-stop-hook-continuation-user-turn.patch /tmp/chaos-stop-hook-continuation-user-turn.patch
 RUN git clone --filter=blob:none ${CHAOS_REPO} chaos \
     && cd chaos \
-    && git checkout ${CHAOS_REF}
+    && git checkout ${CHAOS_REF} \
+    && git apply --check /tmp/chaos-stop-hook-continuation-user-turn.patch \
+    && git apply /tmp/chaos-stop-hook-continuation-user-turn.patch
 
 WORKDIR /build/chaos
 RUN cargo build --release --bin chaos \
@@ -53,6 +59,7 @@ FROM node:22-bookworm-slim AS runtime
 
 ARG CHAOS_REF
 LABEL house.souls.chaos-ref="${CHAOS_REF}"
+LABEL house.souls.chaos-patches="stop-hook-continuation-user-turn"
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
