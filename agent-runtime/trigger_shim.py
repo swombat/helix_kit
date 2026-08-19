@@ -1619,7 +1619,10 @@ def auth_code():
         if process is None or process.poll() is not None or _auth_state.get("status") != "awaiting_code":
             return jsonify({"error": f"No {provider} sign-in is awaiting a code"}), 409
         try:
-            process.stdin.write(code + "\n")
+            # Antigravity runs in a raw PTY and treats Enter as carriage return;
+            # a line feed inserts the code without submitting its terminal form.
+            terminator = "\r" if provider == "gemini" else "\n"
+            process.stdin.write(code + terminator)
             process.stdin.flush()
         except (BrokenPipeError, OSError):
             return jsonify({"error": f"{provider} sign-in stopped before accepting the code"}), 502

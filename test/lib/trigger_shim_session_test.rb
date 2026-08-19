@@ -355,7 +355,7 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
 
     result = JSON.parse(out)
     assert_equal "finalizing", result.dig("result", "status")
-    assert_equal "one-time-antigravity-code\n", result["stdin"]
+    assert_equal "one-time-antigravity-code\r", result["stdin"]
     assert_not_includes result.fetch("state").to_json, "one-time-antigravity-code"
   end
 
