@@ -152,6 +152,22 @@ class AgentsControllerTest < ActionDispatch::IntegrationTest
     assert_equal true, subscription.fetch("available")
   end
 
+  test "edit exposes Antigravity clamping setup for a hosted Gemini agent" do
+    @agent.update!(
+      model_id: "google/gemini-3.7-flash",
+      runtime: "external",
+      health_state: "healthy"
+    )
+
+    get edit_account_agent_path(@account, @agent), params: { tab: "hosting" }
+
+    subscription = inertia_shared_props.fetch("provider_subscription")
+    assert_equal "gemini", subscription.fetch("provider")
+    assert_equal "Google AI", subscription.fetch("provider_name")
+    assert_equal "api_key", subscription.fetch("auth_mode")
+    assert_equal true, subscription.fetch("available")
+  end
+
   test "edit omits provider subscription setup for deprecated inline agents" do
     @agent.update!(model_id: "openai/gpt-5", runtime: "inline")
 

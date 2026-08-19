@@ -60,6 +60,23 @@ class Accounts::AgentApiKeysControllerTest < ActionDispatch::IntegrationTest
     assert_equal true, subscription_agent.fetch("available")
   end
 
+  test "show includes Antigravity clamping setup for hosted Gemini agents" do
+    agent = agents(:other_account_agent)
+    agent.update!(
+      model_id: "google/gemini-3.7-flash",
+      runtime: "external",
+      health_state: "healthy"
+    )
+
+    get account_agent_api_keys_path(@account)
+
+    subscription_agent = inertia_shared_props.fetch("subscription_agents").find { |item| item.fetch("id") == agent.to_param }
+    assert_equal "gemini", subscription_agent.fetch("provider")
+    assert_equal "Google AI", subscription_agent.fetch("provider_name")
+    assert_equal "api_key", subscription_agent.fetch("auth_mode")
+    assert_equal true, subscription_agent.fetch("available")
+  end
+
   test "show excludes inline agents from subscription setup" do
     agent = agents(:other_account_agent)
     agent.update!(model_id: "openai/gpt-5", runtime: "inline")
