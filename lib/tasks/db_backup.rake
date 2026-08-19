@@ -76,17 +76,22 @@ module DbBackupHelpers
     puts "Creating Chaos-backed test agents in #{nexus_account.name} account..."
 
     test_agents = [
-      { name: "Claude Test Agent", model_id: "anthropic/claude-sonnet-4.5", colour: "violet", icon: "Sun" },
-      { name: "GPT Test Agent", model_id: "openai/gpt-5-mini", colour: "sky", icon: "Lightning" },
-      { name: "Grok Test Agent", model_id: "x-ai/grok-3-mini", colour: "pink", icon: "Sparkle" },
-      { name: "Gemini Test Agent", model_id: "google/gemini-2.5-flash", colour: "gray", icon: "PuzzlePiece" }
+      { name: "Claude Test Agent", model_id: "anthropic/claude-haiku-4.5", colour: "violet", icon: "Sun" },
+      { name: "GPT Test Agent", model_id: "openai/gpt-5.6-luna", colour: "sky", icon: "Lightning" },
+      { name: "Grok Test Agent", model_id: "x-ai/grok-build-0.1", colour: "pink", icon: "Sparkle" },
+      { name: "Gemini Test Agent", model_id: "google/gemini-3.7-flash", colour: "gray", icon: "PuzzlePiece" }
     ]
 
     test_agents.each do |config|
       existing_agent = nexus_account.agents.find_by(name: config[:name])
       if existing_agent && !existing_agent.inline?
+        if existing_agent.model_id != config[:model_id]
+          previous_model = existing_agent.model_id
+          existing_agent.update!(model_id: config[:model_id])
+          puts "  Updated #{config[:name]} from #{previous_model} to #{config[:model_id]}"
+        end
         PromoteAgentJob.perform_later(existing_agent.id) if existing_agent.migrating? || existing_agent.provisioning?
-        puts "  Kept #{config[:name]} on its existing Chaos runtime"
+        puts "  Kept #{config[:name]} on its existing Chaos runtime (#{existing_agent.model_id})"
         next
       end
 

@@ -79,6 +79,15 @@ class DbBackupTest < ActiveJob::TestCase
     assert agents.all? { |agent| agent.enabled_tools.empty? }
     assert agents.all? { |agent| agent.outbound_api_key.present? }
     assert agents.all? { |agent| agent.trigger_bearer_token.present? }
+    assert_equal(
+      {
+        "Claude Test Agent" => "anthropic/claude-haiku-4.5",
+        "GPT Test Agent" => "openai/gpt-5.6-luna",
+        "Grok Test Agent" => "x-ai/grok-build-0.1",
+        "Gemini Test Agent" => "google/gemini-3.7-flash"
+      },
+      agents.pluck(:name, :model_id).to_h
+    )
   end
 
   BackupObject = Struct.new(:key)
