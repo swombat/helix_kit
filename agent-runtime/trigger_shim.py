@@ -1530,6 +1530,25 @@ def auth_start():
         if _auth_process is not None and _auth_process.poll() is None:
             return jsonify({"error": "A provider connection is already in progress"}), 409
 
+    # Antigravity opens its normal interactive UI when it is already signed in,
+    # rather than emitting another OAuth URL. Confirm the stored credential is
+    # actually usable and report it directly instead of starting a stray TUI.
+    if provider == "gemini" and _antigravity_oauth_token_fingerprint() is not None:
+        existing_status = _antigravity_account_status()
+        if existing_status.get("status") == "connected":
+            with _auth_lock:
+                if _auth_process is not None and _auth_process.poll() is None:
+                    return jsonify({
+                        "error": "A provider connection is already in progress"
+                    }), 409
+                _auth_process = None
+                _auth_state = existing_status
+            return jsonify(existing_status)
+
+    with _auth_lock:
+        if _auth_process is not None and _auth_process.poll() is None:
+            return jsonify({"error": "A provider connection is already in progress"}), 409
+
         _auth_code_ready.clear()
         now = datetime.now(timezone.utc)
         _auth_state = {

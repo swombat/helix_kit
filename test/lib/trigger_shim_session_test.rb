@@ -154,6 +154,40 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
     assert_equal "401", JSON.parse(out)
   end
 
+  test "starting Gemini auth returns an existing usable connection without launching Antigravity" do
+    out = run_shim_python(<<~PY)
+      import types
+      launched = []
+      mod.request = types.SimpleNamespace(
+          headers={"Authorization": "Bearer tr_test"},
+          get_json=lambda silent=True: {"provider": "gemini"},
+      )
+      mod.jsonify = lambda value: value
+      mod._antigravity_oauth_token_fingerprint = lambda: "existing-token"
+      mod._antigravity_account_status = lambda: {
+          "status": "connected",
+          "provider": "gemini",
+          "plan": "Google AI",
+      }
+      mod.subprocess.Popen = lambda *args, **kwargs: launched.append(args) or None
+
+      result = mod.auth_start()
+      print(json.dumps({
+          "result": result,
+          "state": mod._auth_state,
+          "process_cleared": mod._auth_process is None,
+          "launch_count": len(launched),
+      }))
+    PY
+
+    result = JSON.parse(out)
+    assert_equal "connected", result.dig("result", "status")
+    assert_equal "gemini", result.dig("result", "provider")
+    assert_equal "Google AI", result.dig("state", "plan")
+    assert_equal true, result["process_cleared"]
+    assert_equal 0, result["launch_count"]
+  end
+
   test "a second trigger for the same session is rejected" do
     out = run_shim_python(<<~PY)
       import types
