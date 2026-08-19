@@ -1897,9 +1897,7 @@ def _monitor_antigravity_login_url(process):
         except FileNotFoundError:
             time.sleep(0.05)
             continue
-        finally:
-            if path.exists():
-                path.unlink(missing_ok=True)
+        path.unlink(missing_ok=True)
 
         url = _first_http_url(raw_url)
         if url:

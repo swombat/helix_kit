@@ -401,6 +401,53 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
     assert_equal false, result.fetch("path_exists")
   end
 
+  test "Gemini login does not delete a URL created after a missed read" do
+    out = run_shim_python(<<~PY)
+      class Process:
+          def __init__(self):
+              self.polls = 0
+          def poll(self):
+              self.polls += 1
+              return None if self.polls < 4 else 0
+
+      process = Process()
+      mod._auth_process = process
+      mod._auth_state = {"status": "starting", "provider": "gemini"}
+      mod.time.sleep = lambda _seconds: None
+      path = mod._antigravity_login_url_path()
+      path.parent.mkdir(parents=True, exist_ok=True)
+      path.unlink(missing_ok=True)
+      path_type = type(path)
+      original_read_text = path_type.read_text
+      first_read = True
+
+      def racing_read_text(self, *args, **kwargs):
+          global first_read
+          if first_read and self == path:
+              first_read = False
+              self.write_text("https://accounts.google.com/o/oauth2/auth?state=raced\\n")
+              raise FileNotFoundError(self)
+          return original_read_text(self, *args, **kwargs)
+
+      path_type.read_text = racing_read_text
+      try:
+          mod._monitor_antigravity_login_url(process)
+      finally:
+          path_type.read_text = original_read_text
+
+      print(json.dumps({
+          "state": mod._auth_state,
+          "path_exists": path.exists(),
+      }))
+    PY
+
+    result = JSON.parse(out)
+    assert_equal "awaiting_code", result.dig("state", "status")
+    assert_equal "https://accounts.google.com/o/oauth2/auth?state=raced",
+                 result.dig("state", "verification_url")
+    assert_equal false, result.fetch("path_exists")
+  end
+
   test "Gemini login advances only the non-secret onboarding selector" do
     out = run_shim_python(<<~PY)
       import io
