@@ -90,10 +90,10 @@ RUN npm install -g "@anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}" \
 # Download the exact official Linux artifact and verify its published checksum;
 # the unprivileged agent user cannot replace the root-owned binary at runtime.
 ARG TARGETARCH
-ARG ANTIGRAVITY_VERSION=1.1.12
-ARG ANTIGRAVITY_BUILD=5877618327814144
-ARG ANTIGRAVITY_AMD64_SHA512=c1ee7b8a02a85144142fdb942923b638c47674ecb4969c0d80f82317846c4c4c6976a430186622d6fbf5f33a827ab9c5a64950d15ff830b5cc3ce48c84ff4501
-ARG ANTIGRAVITY_ARM64_SHA512=fd33d449ddfc7917ab4f38968cda8356d3bca9f0b12eec9665e565af4ca44010cfb4b7a76de4e06adbef670b4863b30d75814e17dee855efcce651da22eecd95
+ARG ANTIGRAVITY_VERSION=1.1.15
+ARG ANTIGRAVITY_BUILD=5350383476932608
+ARG ANTIGRAVITY_AMD64_SHA512=7d6020caff2e06a5ddf2553f2d9d5b428e3becc69727d11032f10e40609b938db428578ccd5c72694bab5e4da483de9ad3121578cc172adf174aa5263ce51dcc
+ARG ANTIGRAVITY_ARM64_SHA512=2571031ded807a624fad5166bfb7ee2eb0c97862480fc423da673fde2025b71a35240d213ece6a42ad44d215959fa050a71750c76f358befdd245f5933c4a104
 RUN case "${TARGETARCH}" in \
       amd64) artifact=cli_linux_x64.tar.gz; platform=linux-x64; checksum="${ANTIGRAVITY_AMD64_SHA512}" ;; \
       arm64) artifact=cli_linux_arm64.tar.gz; platform=linux-arm; checksum="${ANTIGRAVITY_ARM64_SHA512}" ;; \

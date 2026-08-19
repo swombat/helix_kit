@@ -1520,6 +1520,7 @@ def auth_start():
 
     _require_shim_auth("/auth/start")
     provider = _requested_auth_provider()
+    credential_before = None
     if provider not in OAUTH_ACCOUNT_PROVIDERS:
         return jsonify({
             "error": f"{provider} does not support subscription account connections in this runtime"
@@ -1547,6 +1548,7 @@ def auth_start():
             CHAOS_AGY_HOME.mkdir(parents=True, exist_ok=True)
             CHAOS_AGY_HOME.chmod(0o700)
             _antigravity_login_url_path().unlink(missing_ok=True)
+            credential_before = _antigravity_oauth_token_fingerprint()
             command = _antigravity_login_command()
             auth_env = _antigravity_cli_env()
             _auth_state["status"] = "starting"
@@ -1573,9 +1575,14 @@ def auth_start():
                 args=(_auth_process,),
                 daemon=True,
             ).start()
+            threading.Thread(
+                target=_monitor_antigravity_credentials,
+                args=(_auth_process, credential_before),
+                daemon=True,
+            ).start()
         threading.Thread(
             target=_monitor_auth_process,
-            args=(_auth_process, provider),
+            args=(_auth_process, provider, credential_before),
             daemon=True,
         ).start()
 
@@ -1714,7 +1721,7 @@ def auth_disconnect():
     return jsonify({"status": "none", "provider": provider})
 
 
-def _monitor_auth_process(process, provider):
+def _monitor_auth_process(process, provider, credential_before=None):
     global _auth_process, _auth_state
 
     verification_url = None
@@ -1757,7 +1764,11 @@ def _monitor_auth_process(process, provider):
                 _auth_code_ready.set()
 
         returncode = process.wait()
-        status = _provider_account_status(provider) if returncode == 0 else {
+        gemini_connected = (
+            provider == "gemini"
+            and _antigravity_oauth_token_fingerprint() not in (None, credential_before)
+        )
+        status = _provider_account_status(provider) if returncode == 0 or gemini_connected else {
             "status": "failed",
             "provider": provider,
             "message": "Provider connection was not completed.",
@@ -1864,6 +1875,18 @@ def _antigravity_login_url_path():
     return CHAOS_AGY_HOME / ".login-url"
 
 
+def _antigravity_oauth_token_path():
+    return CHAOS_AGY_HOME / ".gemini" / "antigravity-cli" / "antigravity-oauth-token"
+
+
+def _antigravity_oauth_token_fingerprint():
+    try:
+        stat = _antigravity_oauth_token_path().stat()
+        return (stat.st_mtime_ns, stat.st_size)
+    except FileNotFoundError:
+        return None
+
+
 def _antigravity_login_command():
     # agy's browser login UI is terminal-gated. util-linux script supplies the
     # PTY while preserving pipe-based stdin/stdout for the HTTP ceremony. Turn
@@ -1911,6 +1934,32 @@ def _monitor_antigravity_login_url(process):
             _auth_code_ready.set()
             return
 
+        time.sleep(0.05)
+
+
+def _monitor_antigravity_credentials(process, credential_before):
+    # Successful browser sign-in moves Antigravity into its normal interactive
+    # TUI instead of exiting. Wait for its token file to finish changing, then
+    # stop that TUI so the process monitor can verify and publish the account.
+    candidate = None
+    stable_since = None
+    while process.poll() is None:
+        with _auth_lock:
+            if _auth_process is not process:
+                return
+            finalizing = _auth_state.get("status") == "finalizing"
+
+        fingerprint = _antigravity_oauth_token_fingerprint()
+        if finalizing and fingerprint not in (None, credential_before):
+            if fingerprint != candidate:
+                candidate = fingerprint
+                stable_since = time.monotonic()
+            elif time.monotonic() - stable_since >= 0.2:
+                process.terminate()
+                return
+        else:
+            candidate = None
+            stable_since = None
         time.sleep(0.05)
 
 

@@ -18,7 +18,7 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
     assert_includes dockerfile, "ARG CLAUDE_CODE_VERSION=2.1.220"
     assert_includes dockerfile, "claude --version"
     assert_includes dockerfile, "ARG CHAOS_REF=b9b28befbe64c375d6eb64cbfe397e50ce5e1f96"
-    assert_includes dockerfile, "ARG ANTIGRAVITY_VERSION=1.1.12"
+    assert_includes dockerfile, "ARG ANTIGRAVITY_VERSION=1.1.15"
     assert_includes dockerfile, "sha512sum -c -"
     assert_includes dockerfile, "agy --version"
     assert_includes dockerfile, 'LABEL house.souls.chaos-ref="${CHAOS_REF}"'
@@ -446,6 +446,75 @@ class TriggerShimSessionTest < ActiveSupport::TestCase
     assert_equal "https://accounts.google.com/o/oauth2/auth?state=raced",
                  result.dig("state", "verification_url")
     assert_equal false, result.fetch("path_exists")
+  end
+
+  test "Gemini login stops its interactive TUI after credentials are written" do
+    out = run_shim_python(<<~PY)
+      class Process:
+          def __init__(self):
+              self.terminated = False
+          def poll(self):
+              return 0 if self.terminated else None
+          def terminate(self):
+              self.terminated = True
+
+      process = Process()
+      mod._auth_process = process
+      mod._auth_state = {"status": "finalizing", "provider": "gemini"}
+      token_path = mod._antigravity_oauth_token_path()
+      token_path.parent.mkdir(parents=True, exist_ok=True)
+      token_path.unlink(missing_ok=True)
+      sleeps = 0
+
+      def sleep(_seconds):
+          global sleeps
+          sleeps += 1
+          if sleeps == 1:
+              token_path.write_text("oauth-token")
+
+      times = iter((1.0, 1.3))
+      mod.time.sleep = sleep
+      mod.time.monotonic = lambda: next(times)
+      mod._monitor_antigravity_credentials(process, None)
+      print(json.dumps({
+          "terminated": process.terminated,
+          "token_fingerprint": mod._antigravity_oauth_token_fingerprint(),
+      }))
+    PY
+
+    result = JSON.parse(out)
+    assert_equal true, result.fetch("terminated")
+    assert result.fetch("token_fingerprint").present?
+  end
+
+  test "Gemini login reports connected when the credential watcher stops its TUI" do
+    out = run_shim_python(<<~PY)
+      class Process:
+          stdout = ()
+          def wait(self): return -15
+
+      process = Process()
+      mod._auth_process = process
+      mod._auth_state = {"status": "finalizing", "provider": "gemini"}
+      token_path = mod._antigravity_oauth_token_path()
+      token_path.parent.mkdir(parents=True, exist_ok=True)
+      token_path.write_text("oauth-token")
+      mod._provider_account_status = lambda provider: {
+          "status": "connected",
+          "provider": provider,
+          "plan": "Google AI",
+      }
+      mod._monitor_auth_process(process, "gemini", None)
+      print(json.dumps({
+          "state": mod._auth_state,
+          "process_cleared": mod._auth_process is None,
+      }))
+    PY
+
+    result = JSON.parse(out)
+    assert_equal "connected", result.dig("state", "status")
+    assert_equal "Google AI", result.dig("state", "plan")
+    assert_equal true, result.fetch("process_cleared")
   end
 
   test "Gemini login advances only the non-secret onboarding selector" do
